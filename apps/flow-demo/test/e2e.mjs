@@ -1,6 +1,6 @@
 /**
  * 端到端测试（ROADMAP 14.9）：对构建产物跑一遍审批——申请人发起 5 天的请假，经理同意，人事备案，结束；
- * 再发起一张 1 天的，经理退回、申请人重新提交后直接回到经理。按页面的模式跑一遍，整站浏览器渲染（RENDER_MODE=csr）再跑一遍。
+ * 再发起一张 1 天的，经理退回、申请人重新提交后直接回到经理；管理员在设计器里用模板、试运行、发布，申请人马上能发起。按页面的模式跑一遍，整站浏览器渲染（RENDER_MODE=csr）再跑一遍。
  *
  *   pnpm build && node test/e2e.mjs
  */
@@ -38,8 +38,8 @@ async function run(mode) {
   const page = await context.newPage();
   const problems = [];
   page.on('console', (message) => {
-    // 退回不写意见是故意的，接口回 400，浏览器会记一条加载失败
-    if (/status of 400/.test(message.text())) return;
+    // 故意的：退回不写意见（接口回 400）、申请人打开设计页（403），浏览器会记一条加载失败
+    if (/status of (400|403)/.test(message.text())) return;
     if (message.type() === 'error' || /hydrat/i.test(message.text())) problems.push(message.text());
   });
   page.on('pageerror', (error) => problems.push(error.message));
@@ -88,6 +88,19 @@ async function run(mode) {
     await signIn('alice', `/instances/${second}`);
     await page.getByRole('button', { name: '重新提交' }).click();
     await state().getByText('进行中：经理审批').waitFor();
+
+    // 管理员在设计器里用报销模板，试运行看停在财务，发布后申请人在发起页看得到
+    await signIn('admin', '/design');
+    await page.getByRole('button', { name: '用这个模板' }).nth(2).click();
+    await page.getByRole('button', { name: '试运行' }).click();
+    await page.getByLabel('试运行').getByText('发起后停在：财务复核').waitFor();
+    await page.getByRole('button', { name: '发布', exact: true }).click();
+    await page.getByTestId('design-message').getByText('已发布 expense 第 1 版').waitFor();
+    await signIn('alice', '/start');
+    await page.getByRole('button', { name: '发起报销' }).waitFor();
+    // 设计页要求管理员：申请人打开是“没有权限”
+    await signIn('alice', '/design');
+    await page.getByText('没有权限打开这一页').waitFor();
 
     // 我发起的：两张，一张完成
     await signIn('alice', '/');

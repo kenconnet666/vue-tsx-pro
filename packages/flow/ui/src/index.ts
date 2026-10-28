@@ -4,3 +4,8 @@ export {
   processDiagramStyles,
   type ProcessDiagramProps,
 } from './ProcessDiagram.tsx';
+export {
+  ProcessDesigner,
+  processDesignerStyles,
+  type ProcessDesignerProps,
+} from './ProcessDesigner.tsx';

@@ -3,7 +3,6 @@
  */
 import type { VariableDeclaration } from '@zerodep-dev/flow-ts-model';
 import { defineLoaders } from '@zerodep-dev/vue-tsx-pro-kit';
-import { processes } from './processes.ts';
 import { currentActor } from './server/context.ts';
 import { engine } from './server/flow.ts';
 
@@ -30,8 +29,9 @@ export const loaders = defineLoaders({
       })),
     };
   },
-  '/start': () =>
-    processes.map((p) => ({
+  // 发布过的流程（含设计器里刚发布的）：每个流程最新的启用版本
+  '/start': async () =>
+    (await engine.query.processes()).map((p) => ({
       key: p.key as string,
       name: p.name as string,
       variables: (p.variables as readonly VariableDeclaration[]).map((v) => ({

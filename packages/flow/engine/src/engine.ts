@@ -141,6 +141,8 @@ export interface FlowEngine {
     cc(actor: Actor): Promise<CcItem[]>;
     /** 失败的作业（异常）；给实例时只看这个实例的 */
     incidents(instance?: number): Promise<Incident[]>;
+    /** 能发起的流程：每个流程最新的启用版本 */
+    processes(): Promise<ProcessDefinition[]>;
   };
   /** 重试失败的作业 */
   retryJob(job: number, actor: Actor): Promise<boolean>;
@@ -907,6 +909,17 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
 
   const query: FlowEngine['query'] = {
     incidents: (instance) => incidents(instance),
+    processes: async () => {
+      const rows = await db
+        .queryable(FlowDefinition)
+        .where((d) => d.enabled.eq(true))
+        .orderBy((d) => [d.processKey, d.version.desc()])
+        .toList();
+      const latest = new Map<string, ProcessDefinition>();
+      for (const row of rows)
+        if (!latest.has(row.processKey)) latest.set(row.processKey, row.model);
+      return [...latest.values()];
+    },
     workItem: async (id, actor) => {
       const workItem = await db.queryable(FlowWorkItem).find(id);
       if (!workItem) throw new FlowError('not-found', `没有待办 ${id}`);

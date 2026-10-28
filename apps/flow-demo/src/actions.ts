@@ -2,6 +2,8 @@
  * action（只在服务端导入）：引擎的命令经它们调用，当前用户是做事的人；入参按 zod 校验，要求登录（flow.use）
  */
 import { FlowError } from '@zerodep-dev/flow-ts-engine';
+import { simulate } from '@zerodep-dev/flow-ts-engine/testing';
+import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import { z } from 'zod';
 import { ActionError, defineAction, defineActions } from '@zerodep-dev/vue-tsx-pro-kit';
 import { currentActor } from './server/context.ts';
@@ -18,7 +20,35 @@ async function run<T>(work: () => Promise<T>): Promise<T> {
   }
 }
 
+/** 定义从设计器来：结构由发布时的校验把关，这里只要求是个对象 */
+const definitionInput = z.custom<ProcessDefinition>(
+  (value) => typeof value === 'object' && value !== null && 'key' in value && 'nodes' in value,
+  '要是流程定义',
+);
+
 export const actions = defineActions({
+  simulate: defineAction(
+    { input: z.object({ definition: definitionInput }), permission: 'flow.admin' },
+    async ({ definition }) => {
+      const run = await simulate(definition, {
+        options: { org: { members: () => [] } },
+      });
+      return {
+        status: run.status,
+        result: run.result,
+        open: run.open.map((o) => ({
+          nodeName: o.nodeName,
+          assignee: o.assignee,
+          candidates: [...o.candidates],
+        })),
+        ...(run.error ? { error: run.error } : {}),
+      };
+    },
+  ),
+  publish: defineAction(
+    { input: z.object({ definition: definitionInput }), permission: 'flow.admin' },
+    ({ definition }) => run(() => engine.publish(definition, currentActor())),
+  ),
   start: defineAction(
     {
       input: z.object({ process: z.string(), variables: z.record(z.string(), z.unknown()) }),
