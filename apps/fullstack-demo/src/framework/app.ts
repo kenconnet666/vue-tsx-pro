@@ -8,9 +8,10 @@
  *   startClient(app);
  */
 import type { UiPlugin } from '@zerodep-dev/vue-tsx-pro-ui';
-import { createApp, createSSRApp, type Component } from 'vue';
+import { createApp, createSSRApp, shallowRef, type Component } from 'vue';
 import { createWebHistory, type Router, type RouterHistory } from 'vue-router';
-import { installClientPageData } from './data.ts';
+import { installClientPageData, readBootData } from './data.ts';
+import { createSession, provideSession, SESSION_PATH, type SessionData } from './session.ts';
 import { pageTitle } from './page.ts';
 
 /** 应用的定义 */
@@ -38,10 +39,19 @@ export function startClient(definition: AppDefinition): void {
   const app = (root.hasChildNodes() ? createSSRApp : createApp)(definition.App)
     .use(router)
     .use(definition.createUi(router));
-  installClientPageData(app, router);
+  const boot = readBootData();
+  installClientPageData(app, router, boot);
+  // 预渲染的页面按没登录水合，挂载后换成真正的会话
+  const session = shallowRef(createSession(boot.session ?? { user: null, permissions: [] }));
+  provideSession(app, session);
   router.afterEach((to) => {
     document.title = pageTitle(to.meta.title, definition.siteName);
   });
   // 水合要等路由解析完、页面的组件到位
-  void router.isReady().then(() => app.mount(root));
+  void router.isReady().then(async () => {
+    app.mount(root);
+    if (boot.session) return;
+    const response = await fetch(SESSION_PATH);
+    if (response.ok) session.value = createSession((await response.json()) as SessionData);
+  });
 }

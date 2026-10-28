@@ -1,8 +1,9 @@
 /**
  * 页面的 loader（只在服务端导入：服务端入口直接调用；浏览器经 /_data 接口调用）。
- * 页面里用 src/data.ts 的 usePageData 取结果，类型从这里推导
+ * 页面里用 src/client.ts 的 usePageData 取结果，类型从这里推导
  */
 import { defineLoaders } from './framework/data.ts';
+import { db, Todo } from './server/db.ts';
 
 export const loaders = defineLoaders({
   '/': () => ({
@@ -15,4 +16,11 @@ export const loaders = defineLoaders({
       '站内换页经 /_data 取数据',
     ],
   }),
+  // 只有当前租户的：tenant 拦截器自动加条件
+  '/todos': () =>
+    db
+      .queryable(Todo)
+      .orderBy((t) => t.id)
+      .select((t) => ({ id: t.id, title: t.title, done: t.done }))
+      .toList(),
 });

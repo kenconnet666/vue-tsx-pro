@@ -1,7 +1,7 @@
 /** 首页（mode: 'ssr'）：每次请求在服务端渲染，数据来自 loader，浏览器水合后按钮可点 */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Button, Flex, FlexList, H1, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
-import { usePageData } from '../data.ts';
+import { usePageData } from '../client.ts';
 
 export default _component(() => {
   const data = usePageData('/');

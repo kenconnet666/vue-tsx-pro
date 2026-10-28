@@ -25,6 +25,8 @@ export interface PageDef {
   mode: RenderMode;
   /** 标签页标题 */
   title: string;
+  /** 要求的权限：没有时服务端回 403、不取数据，浏览器画“没有权限”，菜单里不出现 */
+  permission?: string;
   component: () => Promise<{ default: Component }>;
 }
 
@@ -32,6 +34,7 @@ declare module 'vue-router' {
   interface RouteMeta {
     mode?: RenderMode;
     title?: string;
+    permission?: string;
   }
 }
 
@@ -40,7 +43,11 @@ export const definePages = <const T extends readonly PageDef[]>(pages: T): T => 
 
 /** 页面换成 vue-router 的路由：模式与标题放进 meta */
 export const pageRoutes = (pages: readonly PageDef[]): RouteRecordRaw[] =>
-  pages.map(({ path, mode, title, component }) => ({ path, component, meta: { mode, title } }));
+  pages.map(({ path, mode, title, permission, component }) => ({
+    path,
+    component,
+    meta: { mode, title, permission },
+  }));
 
 /** 标签页标题：“页面标题 · 网站名”，没有页面标题时只有网站名 */
 export const pageTitle = (title: string | undefined, siteName: string): string =>

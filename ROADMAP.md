@@ -368,11 +368,15 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 13.3 路由级渲染模式 `mode: 'ssr' | 'csr' | 'static'`；SSR 出错时退回 CSR 发空壳（另有总开关 `RENDER_MODE=csr` 整站改成浏览器渲染）
 - [x] 13.4 路由级 `load`：SSR 时在服务端直接调用、CSR 时经接口调用，页面不知道自己是哪种模式；数据经 json-wire 进页面，水合时不重复请求
       （loader 写在只在服务端的 `src/loaders.ts`，按地址模式登记；页面 `usePageData('/orders/:id')`，类型从 loader 推导；浏览器经 `GET /_data?path=`）
-- [ ] 13.5 `defineAction(schema, handler)`：zod 校验入参，客户端拿到带类型的调用函数
-- [ ] 13.6 请求上下文：当前用户、租户、按租户过滤的 easy-query `db`，`load` 与 action 共用
-- [ ] 13.7 权限：路由与 action 声明 `permission`，服务端拦、客户端藏按钮；菜单从路由生成
-- [ ] 13.8 端到端测试（Playwright）在 SSR、CSR 两种模式各跑一遍，进 CI；顺带实测阶段 10 P3 的线程池问题
-      （已有：`apps/fullstack-demo/test/e2e.mjs`，CI 的 fullstack 任务；action、权限做完后补上它们的用例）
+- [x] 13.5 `defineAction(schema, handler)`：zod 校验入参，客户端拿到带类型的调用函数
+      （`defineAction({ input, permission }, handler)`，按 Standard Schema 校验；浏览器 `actions.addTodo({ title })` 经 `POST /_action/<名字>`，失败抛 `ActionError`（status、issues））
+- [x] 13.6 请求上下文：当前用户、租户、按租户过滤的 easy-query `db`，`load` 与 action 共用
+      （`createContext(request)` 的结果放进 AsyncLocalStorage，`useContext()` 处处可取；一个 `db`，`tenant` 拦截器与列的 `$default` 读当前租户）
+- [x] 13.7 权限：路由与 action 声明 `permission`，服务端拦、客户端藏按钮；菜单从路由生成
+      （会话写进页面，`useSession().can(…)`；页面没权限时服务端 403、不取数据，`PageView` 画提示；预渲染页挂载后经 `/_session` 换成真正的会话）
+- [x] 13.8 端到端测试（Playwright）在 SSR、CSR 两种模式各跑一遍，进 CI；顺带实测阶段 10 P3 的线程池问题
+      （`apps/fullstack-demo/test/e2e.mjs`，CI 的 fullstack 任务：三种页面、站内换页、loader、action、校验、权限、按租户隔离、渲染出错退回；
+      开发服务器与构建都经过编译线程池，没再出现阶段 10 P3 的问题）
 - [ ] 13.9 服务端包里带着 Vue 的模板编译器与 @babel/parser（约 0.8 MB）：服务端解析成运行时版本的 Vue，只留渲染需要的
 
 ## 阶段 14：纯 TS 流程引擎

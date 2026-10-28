@@ -45,6 +45,54 @@ async function open(browser, path) {
   return { page, problems };
 }
 
+/** 会话、权限、按租户隔离、action（每种模式下各跑一遍，服务器重启后内存库是新的） */
+async function checkPermissions(browser) {
+  // 没登录：菜单里没有“待办”，直接打开是 403 与“没有权限”，接口也拦
+  assert.equal((await fetch(`${base}/todos`)).status, 403);
+  const action = (body, cookie = '') =>
+    fetch(`${base}/_action/addTodo`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie },
+      body: JSON.stringify(body),
+    });
+  assert.equal((await action({ title: 'x' })).status, 403);
+  assert.equal((await action({ title: 'x' }, 'demo_user=bob')).status, 403, 'bob 只能看');
+  const invalid = await action({ title: '' }, 'demo_user=alice');
+  assert.equal(invalid.status, 400);
+  assert.equal((await invalid.json()).issues[0].message, '写点什么');
+
+  const anonymous = await open(browser, '/todos');
+  await anonymous.page.getByText('没有权限打开这一页').waitFor();
+  assert.equal(await anonymous.page.getByRole('link', { name: '待办' }).count(), 0);
+
+  // alice：看到 acme 的两条，新建一条、勾上
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.goto(`${base}/api/sign-in?user=alice&back=/todos`, { waitUntil: 'networkidle' });
+  const list = page.getByRole('list', { name: '待办列表' });
+  await list.getByText('整理采购台账').waitFor();
+  assert.equal(await list.getByRole('listitem').count(), 2);
+  assert.equal(await list.getByText('准备季度汇报').count(), 0, '看不到别的租户的');
+  await page.getByRole('textbox', { name: '新的待办' }).fill('联系供应商');
+  await page.getByRole('button', { name: '添加' }).click();
+  await list.getByText('联系供应商').waitFor();
+  await page.getByRole('button', { name: '添加' }).click();
+  await page.getByText('写点什么').waitFor();
+  await list.getByRole('checkbox', { name: '联系供应商' }).check();
+  await page.reload({ waitUntil: 'networkidle' });
+  assert.equal(await list.getByRole('checkbox', { name: '联系供应商' }).isChecked(), true);
+
+  // 预渲染页按没登录水合，挂载后换成真正的会话
+  await page.goto(`${base}/about`, { waitUntil: 'networkidle' });
+  await page.getByTestId('user').getByText('当前：alice').waitFor();
+
+  // carol：另一个租户，只看到自己的
+  await page.goto(`${base}/api/sign-in?user=carol&back=/todos`, { waitUntil: 'networkidle' });
+  await list.getByText('准备季度汇报').waitFor();
+  assert.equal(await list.getByRole('listitem').count(), 1);
+  await context.close();
+}
+
 async function run(mode) {
   const server = await startServer(mode === 'csr' ? { RENDER_MODE: 'csr' } : {});
   const browser = await chromium.launch();
@@ -89,6 +137,7 @@ async function run(mode) {
     const fallback = await open(browser, '/fallback');
     await fallback.page.getByRole('heading', { name: '出错退回' }).waitFor();
     assert.deepEqual(fallback.problems, []);
+    await checkPermissions(browser);
     console.log(`${mode}：通过`);
   } finally {
     await browser.close();

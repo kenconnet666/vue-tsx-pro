@@ -500,6 +500,12 @@ importers:
       '@lucide/icons':
         specifier: 'catalog:'
         version: 1.59.0
+      '@zerodep-dev/easy-query-ts':
+        specifier: workspace:^
+        version: link:../../packages/easy-query/core
+      '@zerodep-dev/easy-query-ts-sqlite':
+        specifier: workspace:^
+        version: link:../../packages/easy-query/sqlite
       '@zerodep-dev/vue-tsx-pro-tsx':
         specifier: workspace:^
         version: link:../../packages/tsx

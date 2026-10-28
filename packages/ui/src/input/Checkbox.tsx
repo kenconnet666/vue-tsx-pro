@@ -2,7 +2,7 @@
  * 复选框（原生 input type="checkbox"）与复选组。结构与样式见 choice-styles.ts。
  *
  *   <Checkbox _checked={agreed}>我已阅读并同意</Checkbox>
- *   <Checkbox checked={allChecked} indeterminate={someChecked} onChange={toggleAll}>全选</Checkbox>
+ *   <Checkbox _checked={allChecked} indeterminate={someChecked} onChange={toggleAll}>全选</Checkbox>
  *   <Field label="通知方式">
  *     <CheckboxGroup _value={channels} name="channels">
  *       <Checkbox value="email">邮件</Checkbox>
