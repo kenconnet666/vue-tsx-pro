@@ -322,7 +322,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 - [x] 11b.1 对照表 [packages/easy-query/docs/parity.md](packages/easy-query/docs/parity.md)：Java 版的方法清单（EntityQueryable、ClientQueryable）逐项对 TS 版。
       结论：DTO 导航（selectAutoInclude）、VO 映射、对象树、对象树的 VO 在 TS 里都已有，写法是 `defineView` 与嵌套的 `toList`（不用 DTO 类与注解）；缺的是下面几项
-- [ ] 11b.2 按主键查与查不到就抛错：`find(id)`（含复合主键）、`firstOrThrow(message)` / `singleOrThrow`
+- [x] 11b.2 按主键查与查不到就抛错：`find(id)`（含复合主键）、`firstOrThrow(message)` / `singleOrThrow`
 - [ ] 11b.3 列表页的动态筛选与排序（对应 `whereObject` / `orderByObject`）：对接组件库 `useTableQuery` 的筛选与 `-amount,name` 排序参数，只放行声明过的列
 - [ ] 11b.4 自关联的树：`toTreeList`（按父子列把行拼成树，节点是视图的形状）、从某个节点取全部下级 / 全部上级（递归 CTE 的便捷写法）
 - [ ] 11b.5 导航上的固定条件（对应 `extraFilter`）：定义关系时声明，查询处不用再写
