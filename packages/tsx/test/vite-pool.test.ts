@@ -48,3 +48,13 @@ it('写错时的报错带着位置与代码帧', async () => {
   expect(error.message).toContain('|'); // 代码帧
   expect(error.loc).toMatchObject({ start: { line: 1 } });
 });
+
+it('关闭时正在编译的请求照样拿到结果（多环境构建里一个环境先结束）；之后的请求起新线程', async () => {
+  const local = new CompilePool(setup, 2);
+  const code = `export const A = () => <i>{1}</i>;`;
+  const pending = local.run(request(code));
+  local.close();
+  expect((await pending)!.code).toContain('_createVNode');
+  expect((await local.run(request(code)))!.code).toContain('_createVNode');
+  local.close();
+});

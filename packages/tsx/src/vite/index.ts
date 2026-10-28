@@ -132,7 +132,7 @@ function compiler(options: VueTsxProOptions): Plugin & VitestHooks {
     configureServer() {
       pool?.warm(2);
     },
-    // 构建结束、服务器关闭时停掉编译线程
+    // 构建结束、服务器关闭时停掉编译线程；多环境构建每个环境都会走到这里，正在编译的线程做完手上的再停（见 pool.ts）
     closeBundle() {
       pool?.close();
     },
@@ -143,14 +143,17 @@ function compiler(options: VueTsxProOptions): Plugin & VitestHooks {
       async handler(code, id, transformOptions) {
         if (id.startsWith('\0')) return;
         const [file = id, query = ''] = id.split('?');
-        // ?raw、?url 的模块是文件内容或地址，不是要编译的代码
-        if (/(?:^|&)(?:raw|url)(?:&|$)/.test(query)) return;
+        // ?raw、?url 的模块是文件内容或地址，?assets（Nitro 的资源清单）是生成的模块，都不是要编译的代码
+        if (/(?:^|&)(?:raw|url|assets)(?:[=&]|$)/.test(query)) return;
         // 预构建的依赖在 cacheDir 里：cacheDir 不在 node_modules 下（自定义了位置）时也不是项目自己的代码
         const own =
           SCRIPT_FILE.test(file) && !file.includes('/node_modules/') && !file.startsWith(cacheDir);
         const lang = languageOf(id);
         if (!lang) return;
-        const ssr = transformOptions?.ssr === true;
+        // 多环境（Vite 6 起）按模块所在的环境判断；旧的 ssr 参数留作没有环境时的退路
+        const ssr = this.environment
+          ? this.environment.config.consumer === 'server'
+          : transformOptions?.ssr === true;
         const key = cache?.key(ssr ? `${id}\0ssr` : id, code);
         const cached = key ? cache!.read(ssr ? `${id}\0ssr` : id, key) : undefined;
         if (cached) {

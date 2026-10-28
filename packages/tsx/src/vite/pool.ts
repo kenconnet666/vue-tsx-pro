@@ -48,12 +48,21 @@ export class CompilePool {
     while (this.workers.length < Math.min(count, this.size)) this.idle.push(this.spawn());
   }
 
-  /** 停掉全部线程（构建结束、服务器关闭） */
+  /**
+   * 停掉线程（构建结束、服务器关闭）：空闲的马上停，正在编译的做完手上这个再停。
+   * 多环境构建（客户端、服务端）每个环境结束都会调用；直接停掉正在编译的线程，它手上的请求永远等不到结果。
+   * 之后再有请求时照常起新线程
+   */
   close() {
-    for (const worker of this.workers) void worker.terminate();
-    this.workers = [];
+    for (const worker of this.idle) void worker.terminate();
+    const busy = new Set([...this.running.values()].map((job) => job.worker));
+    for (const worker of busy) this.retiring.add(worker);
+    this.workers = this.workers.filter((worker) => busy.has(worker));
     this.idle = [];
   }
+
+  /** 关闭时还在编译、做完就停的线程 */
+  private retiring = new Set<Worker>();
 
   private dispatch() {
     while (this.queue.length) {
@@ -76,7 +85,10 @@ export class CompilePool {
       ({ id, result, error }: { id: number; result?: ModuleResult | null; error?: Error }) => {
         const job = this.running.get(id)!;
         this.running.delete(id);
-        this.idle.push(worker);
+        if (this.retiring.delete(worker)) {
+          this.workers = this.workers.filter((item) => item !== worker);
+          void worker.terminate();
+        } else this.idle.push(worker);
         if (error) job.reject(Object.assign(new Error(error.message), error));
         else job.resolve(result ?? null);
         this.dispatch();
