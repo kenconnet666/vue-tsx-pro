@@ -19,3 +19,5 @@ vue-tsx-pro.iml
 
 # 本机的数据库密码与连接（infra/dev/db.sh 生成）
 /.local/
+# easy-query 的 SQLite 测试库文件
+packages/easy-query/**/*.db
