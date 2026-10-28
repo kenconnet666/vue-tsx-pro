@@ -310,7 +310,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 11.4 风格对齐：prettier 整体格式化单独一个提交；oxlint、`docs:check`、`text:check` 打开并修完
 - [x] 11.5 CI 加 db 任务：MySQL 8.0.18、PG 17 的服务容器跑实库套件（照搬 `easy-query` 的 ts 任务）；HANA 仍在本机
 - [x] 11.6 分层检查扩到包这一级：easy-query 不导入 vue 与组件库，组件库不导入 easy-query；规则写进 `layers:check`
-- [ ] 11.7 发布产物核对：各包 `pnpm pack` 的文件清单与已发布的 0.1.0 一致（元数据除外）；`repository`、`homepage` 改指本仓库
+- [x] 11.7 发布产物核对：各包 `pnpm pack` 的文件清单与已发布的 0.1.0 一致（元数据除外）；`repository`、`homepage` 改指本仓库
 - [ ] 11.8 文档：`docs/fork/decisions/0002-ts-design.md` 搬到 `packages/easy-query/docs/decisions/`；文档站加 ORM 分区，27 页特性文档改写进去
 - [ ] 11.9 `easy-query` 仓库收尾（开分支、PR、CI 绿后合并）：删掉 `ts/` 与 CI 的 ts 任务；CLAUDE.md、STATUS、ROADMAP 写明 TS 版已迁到本仓库
 
