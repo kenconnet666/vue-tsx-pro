@@ -2,7 +2,8 @@
 import { describe, expect, it } from 'vitest';
 import { compileInThread, evaluateModule, importedModules } from '../src/browser-compile/index.ts';
 
-describe('compileModule', () => {
+// 第一个用例要先载入 Babel 与各插件，全量并行跑时机器忙会超过默认的 5 秒
+describe('compileModule', { timeout: 30_000 }, () => {
   it('import 改成从模块表取，具名导出、默认导出都写进导出对象', async () => {
     const code = await compileInThread(`import { double } from 'math';
 import * as all from 'math';

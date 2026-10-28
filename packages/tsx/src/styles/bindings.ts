@@ -44,11 +44,13 @@ const boundElements = new WeakMap<Element, BoundElement>();
 /**
  * 变了的绑定攒到一起批量更新（同一轮里改几次参数只改一次 DOM），排进 Vue 的 post 队列的最前面：
  * 组件更新完之后、post 回调（`_effect`、`watch(…, { flush: 'post' })`）之前，副作用里读到的总是换好的类与变量。
- * id 为 -1 是 Vue 给元素 ref 赋值的任务用的同一个约定（排序时最先，post 队列执行中排进来时紧跟当前任务）。
+ * post 队列按 id 排序，组件的回调 id 是组件编号（≥ 0），这里取最小的整数排在它们前面。
+ * 不用 -1：Vue 对 id 为 -1 的任务（给元素 ref 赋值）有特殊处理，post 队列执行中排进来时紧跟当前任务，
+ * 会赶在这期间排上的组件更新之前执行——渲染里的条件已经不成立（`natural && styles.image(natural.width)`），绑定却按旧的读取函数求值。
  * 原先排在自己的微任务里，与 Vue 的队列谁先谁后看触发顺序，post 回调常读到旧类
  */
 const dirty = new Set<BoundElement>();
-const flushJob = Object.assign(flush, { id: -1 });
+const flushJob = Object.assign(flush, { id: Number.MIN_SAFE_INTEGER });
 function schedule(bound: BoundElement) {
   dirty.add(bound);
   queuePostFlushCb(flushJob);
