@@ -68,9 +68,11 @@ it('换投影之后地图仍占满绘图区', async () => {
   await until(() => featuresOf(root).length > 30);
   for (const name of ['墨卡托', '地球仪', '等积圆锥']) {
     const button = [...root.querySelectorAll('button')].find((item) => item.textContent === name)!;
+    const before = featuresOf(root)[0];
     button.click();
-    // 换投影会换一个新的地图，等新的画好
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    // 换投影会换一个新的地图：等新地图的区域出现、画好（固定等一段时间在负载高的 CI 上不够）
+    await until(() => featuresOf(root)[0] !== before && featuresOf(root).length > 30);
+    await until(() => fillRatio(root) > 0.9).catch(() => undefined);
     expect(fillRatio(root), name).toBeGreaterThan(0.9);
   }
 });
