@@ -18,7 +18,7 @@ import { CompileCache } from './cache.ts';
 import { compilerCacheKey } from './cache-key.ts';
 import type { CompilerSetup, ModuleRequest } from './module.ts';
 import { CompilePool } from './pool.ts';
-import { SSR_REGISTER_CODE, SSR_REGISTER_ID } from './ssr-register.ts';
+import { SSR_REGISTER_CODE, SSR_REGISTER_ID, SSR_REGISTER_RESOLVED } from './ssr-register.ts';
 
 export { browserCompile } from './browser-compile.ts';
 export { workspaceSource } from './workspace.ts';
@@ -136,8 +136,8 @@ function compiler(options: VueTsxProOptions): Plugin & VitestHooks {
     closeBundle() {
       pool?.close();
     },
-    resolveId: (id) => (id === SSR_REGISTER_ID ? id : undefined),
-    load: (id) => (id === SSR_REGISTER_ID ? SSR_REGISTER_CODE : undefined),
+    resolveId: (id) => (id === SSR_REGISTER_ID ? SSR_REGISTER_RESOLVED : undefined),
+    load: (id) => (id === SSR_REGISTER_RESOLVED ? SSR_REGISTER_CODE : undefined),
     transform: {
       filter: { id: SCRIPT },
       async handler(code, id, transformOptions) {

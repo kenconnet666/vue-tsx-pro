@@ -278,7 +278,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 为 TS 全栈做准备时的审查与探测。基线：类型检查通过，单测 240 个文件、2230 个用例通过。下面每条都写了怎么验证的；按优先级做，每条带回归测试。
 完成标准：八条都打钩，CI 绿。
 
-- [ ] **P0 SSR 登记的虚拟模块在 Windows 上加载失败**：预设的 `/__vue-jsx-ssr-register-helper` 在 Vite 的模块运行器（Vitest 的 node 环境、Vite 的服务端开发）里变成
+- [x] **P0 SSR 登记的虚拟模块在 Windows 上加载失败**：预设的 `/__vue-jsx-ssr-register-helper` 在 Vite 的模块运行器（Vitest 的 node 环境、Vite 的服务端开发）里变成
       `file:///__vue-jsx-ssr-register-helper`，Windows 上不是合法的绝对路径，`createRequire` 抛错，服务端加载任何 TSX 组件都失败（文档站 449 个示例全挂）。
       改成 `\0` 开头的虚拟 id 后实测 437 个示例服务端渲染无警告（其余见 P2）
 - [ ] **P1 展开 attrs 与手写 ref 互相覆盖**：JSX 编译成 Vue 的 `mergeProps`，`ref` 后者盖前者——ref 写在后面，样式绑定失效（状态变了类不变，组件也不重渲染）；
