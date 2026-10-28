@@ -253,6 +253,82 @@ describe('engine: call', () => {
   });
 });
 
+describe('engine: 流程自带的 TS', () => {
+  const definition: ProcessDefinition = {
+    key: 'coded',
+    name: '带代码的流程',
+    code: {
+      source: `
+        type Ctx = { read(field: string): unknown; variables: Record<string, unknown> };
+        export const reviewer = (): string[] => ['1004'];
+        export const budget = (ctx: Ctx): true | string =>
+          Number(ctx.read('amount')) > 1000 ? '超出预算' : true;
+        export const big = (ctx: Ctx): boolean => Number(ctx.variables.amount) > 500;
+        export const stamp = () => ({ variables: { stamped: true } });
+      `,
+    },
+    nodes: [
+      { id: 'start', type: 'start', name: '提交' },
+      { id: 'mark', type: 'service', name: '盖章', action: 'code.stamp', mode: 'sync' },
+      {
+        id: 'review',
+        type: 'task',
+        name: '审批',
+        assignees: [{ resolver: 'code.reviewer' }],
+        outcomes: [{ key: 'ok', label: '同意', guards: ['code.budget'] }],
+      },
+      { id: 'route', type: 'exclusive', name: '大额？' },
+      { id: 'large', type: 'end', name: '大额', result: 'large' },
+      { id: 'small', type: 'end', name: '小额', result: 'small' },
+    ],
+    edges: [
+      { id: 'e1', from: 'start', to: 'mark' },
+      { id: 'e2', from: 'mark', to: 'review' },
+      { id: 'e3', from: 'review', to: 'route', outcome: 'ok' },
+      {
+        id: 'e4',
+        from: 'route',
+        to: 'large',
+        when: { field: 'fn.code.big', op: 'eq', value: true },
+      },
+      { id: 'e5', from: 'route', to: 'small', default: true },
+    ],
+  };
+
+  it('发布时去掉类型存进版本；处理人、守卫、条件、动作引用 code.名字', async () => {
+    const { engine } = await createTestEngine();
+    await engine.publish(definition);
+    const started = await engine.run(
+      { type: 'start', process: 'coded', variables: { amount: 800 } },
+      alice,
+    );
+    assert.equal(started.workItems[0]?.assignee, '1004');
+    assert.equal(started.instance.variables['stamped'], true);
+    const done = await engine.run(
+      { type: 'complete', workItem: started.workItems[0]!.id, outcome: 'ok' },
+      boss,
+    );
+    assert.equal(done.instance.result, 'large');
+
+    const second = await engine.run(
+      { type: 'start', process: 'coded', variables: { amount: 5000 } },
+      alice,
+    );
+    await rejectsWith(
+      engine.run({ type: 'complete', workItem: second.workItems[0]!.id, outcome: 'ok' }, boss),
+      'guard-rejected',
+    );
+  });
+
+  it('代码写得不对：发布时报 invalid-definition', async () => {
+    const { engine } = await createTestEngine();
+    await rejectsWith(
+      engine.publish({ ...definition, code: { source: 'export const = ;' } }),
+      'invalid-definition',
+    );
+  });
+});
+
 /** 以待办的处理人（或候选里的第一个）处理，结果取节点上第一个通过的 */
 async function completeAs(
   engine: Awaited<ReturnType<typeof createTestEngine>>['engine'],

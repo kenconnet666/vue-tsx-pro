@@ -4,7 +4,7 @@
  */
 import { isRef, type AssigneeSource } from '@zerodep-dev/flow-ts-model';
 import { FlowError } from './errors.ts';
-import type { ExtensionContext, FlowEngineOptions } from './types.ts';
+import type { ExtensionContext, FlowEngineOptions, Resolver } from './types.ts';
 
 /** 一个候选 */
 export interface Candidate {
@@ -17,6 +17,8 @@ export interface ResolveScope {
   readonly context: ExtensionContext;
   readonly handledBy: Readonly<Record<string, string>>;
   readonly options: FlowEngineOptions;
+  /** 按名字找处理人解析器（引擎选项里注册的，或流程自带的 `code.名字`） */
+  readonly resolver: (name: string) => Resolver | undefined;
 }
 
 /** 值或引用 → 文字编号；引用的值是数组时展开 */
@@ -46,7 +48,7 @@ export async function resolveCandidates(
       const user = scope.handledBy[source.sameAs];
       if (user) add('user', [user]);
     } else if ('resolver' in source) {
-      const resolver = scope.options.extensions?.resolvers?.[source.resolver];
+      const resolver = scope.resolver(source.resolver);
       if (!resolver) {
         throw new FlowError('invalid-definition', `没有注册处理人解析器 ${source.resolver}`);
       }

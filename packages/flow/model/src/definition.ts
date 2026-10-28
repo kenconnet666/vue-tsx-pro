@@ -403,6 +403,11 @@ export interface ProcessDefinition {
   readonly nodes: readonly ProcessNode[];
   readonly edges: readonly ProcessEdge[];
   readonly layout?: ProcessLayout;
+  /**
+   * 流程自带的 TS 模块（只给受信任的管理员写）：导出的函数在定义里写 `code.名字` 引用；
+   * compiled 由引擎发布时生成（去掉类型的 JS），之后跟着这个版本不变
+   */
+  readonly code?: { readonly source: string; readonly compiled?: string };
 }
 
 /** 按结果分出边的内置节点：人工、自动、调用流程、等待外部事件 */

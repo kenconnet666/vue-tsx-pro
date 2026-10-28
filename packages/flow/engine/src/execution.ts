@@ -26,6 +26,7 @@ import {
   FlowCandidate,
   type FlowDb,
 } from './entities.ts';
+import { loadCode } from './code.ts';
 import { FlowError } from './errors.ts';
 import type { RunState } from './state.ts';
 import type {
@@ -78,6 +79,8 @@ export class Execution {
   private steps = 0;
   /** 刚处理完上一步的人（自动跳过的“与上一步相同”） */
   lastHandler: string | null = null;
+  /** 流程自带的 TS 模块的导出（prepare 时加载） */
+  private code: Readonly<Record<string, unknown>> | undefined;
   /** 调用流程：引擎在同一个事务里发起子实例（engine.ts 设置） */
   startChild: ((exec: Execution, node: CallNode) => Promise<void>) | undefined;
 
@@ -111,6 +114,27 @@ export class Execution {
     this.endedAt = instance.endedAt;
   }
 
+  /** 推进前的准备：加载流程自带的 TS 模块（条件求值是同步的，要先加载好） */
+  async prepare(): Promise<this> {
+    const compiled = this.definition.code?.compiled;
+    if (compiled) this.code = await loadCode(compiled);
+    return this;
+  }
+
+  /**
+   * 按名字找扩展：`code.名字` 是流程自带的 TS 模块的导出，其余是引擎选项里注册的
+   */
+  extension<K extends keyof NonNullable<FlowEngineOptions['extensions']>>(
+    kind: K,
+    name: string,
+  ): NonNullable<NonNullable<FlowEngineOptions['extensions']>[K]>[string] | undefined {
+    if (name.startsWith('code.')) {
+      const value = this.code?.[name.slice(5)];
+      return typeof value === 'function' ? (value as never) : undefined;
+    }
+    return this.options.extensions?.[kind]?.[name] as never;
+  }
+
   get finished(): boolean {
     return this.status !== 'active' && this.status !== 'suspended';
   }
@@ -141,7 +165,7 @@ export class Execution {
       return undefined;
     }
     if (field.startsWith('fn.')) {
-      const fn = this.options.extensions?.functions?.[field.slice(3)];
+      const fn = this.extension('functions', field.slice(3));
       if (!fn) throw new FlowError('invalid-definition', `没有注册计算值 ${field}`);
       const { args: _, ...context } = this.context();
       return fn(context);
@@ -295,6 +319,7 @@ export class Execution {
       context: this.context(),
       handledBy: this.state.handledBy,
       options: this.options,
+      resolver: (name: string) => this.extension('resolvers', name),
     };
     const settings = this.definition.settings ?? {};
 
@@ -519,7 +544,7 @@ export class Execution {
   async callAction(nodeId: string): Promise<{ outcome?: string } | undefined> {
     const node = this.node(nodeId);
     if (node.type !== 'service') return undefined;
-    const action = this.options.extensions?.actions?.[node.action];
+    const action = this.extension('actions', node.action);
     if (!action)
       throw new FlowError('invalid-definition', `没有注册动作 ${node.action}`, { node: nodeId });
     let result: Awaited<ReturnType<typeof action>>;
@@ -567,6 +592,7 @@ export class Execution {
       context: this.context(),
       handledBy: this.state.handledBy,
       options: this.options,
+      resolver: (name: string) => this.extension('resolvers', name),
     };
     const users = await expandToUsers(await resolveCandidates(sources, scope), this.options);
     if (users.length === 0) return;

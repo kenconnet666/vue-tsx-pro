@@ -20,6 +20,7 @@ import {
   type ProcessDefinition,
   type TaskNode,
 } from '@zerodep-dev/flow-ts-model';
+import { compileCode } from './code.ts';
 import { decideCountersign } from './countersign.ts';
 import {
   FlowCandidate,
@@ -180,7 +181,12 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     return db.transaction(async (tx) => {
       if (!(await tx.lock(FlowInstance, id))) throw new FlowError('not-found', `没有实例 ${id}`);
       const instance = await tx.queryable(FlowInstance).findOrThrow(id);
-      const exec = execution(tx, await definitionOf(tx, instance.definitionId), instance, actor);
+      const exec = await execution(
+        tx,
+        await definitionOf(tx, instance.definitionId),
+        instance,
+        actor,
+      );
       await work(exec, tx);
       const { instance: summary, events } = await exec.flush();
       await afterFlush(tx, exec);
@@ -219,15 +225,15 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   }
 
   /** 建推进现场：调用流程时由引擎发起子实例 */
-  function execution(
+  async function execution(
     tx: FlowDb,
     definition: ProcessDefinition,
     instance: InstanceRow,
     actor: Actor | null,
-  ) {
+  ): Promise<Execution> {
     const exec = new Execution(tx, options, definition, instance, actor, now());
     exec.startChild = startChild;
-    return exec;
+    return exec.prepare();
   }
 
   /** 流程的最新启用版本 */
@@ -267,7 +273,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       ...extra,
     };
     const id = Number(await tx.insert(FlowInstance).values(values).returnId());
-    const exec = execution(tx, model, { id, ...values }, actor);
+    const exec = await execution(tx, model, { id, ...values }, actor);
     exec.addEvent(
       'instance.started',
       extra.parentId === null ? {} : { data: { parentId: extra.parentId } },
@@ -363,7 +369,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       const parentId = exec.instance.parentId;
       if (await tx.lock(FlowInstance, parentId)) {
         const row = await tx.queryable(FlowInstance).findOrThrow(parentId);
-        const parent = execution(tx, await definitionOf(tx, row.definitionId), row, null);
+        const parent = await execution(tx, await definitionOf(tx, row.definitionId), row, null);
         const node = parent.graph.node(exec.instance.parentNode);
         if (parent.status === 'active' && node?.type === 'call' && parent.current.has(node.id)) {
           await returnToParent(parent, node, exec);
@@ -379,7 +385,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         .toList();
       for (const row of children) {
         await tx.lock(FlowInstance, row.id);
-        const child = execution(tx, await definitionOf(tx, row.definitionId), row, null);
+        const child = await execution(tx, await definitionOf(tx, row.definitionId), row, null);
         await child.finish('terminated', 'parent-terminated');
         await child.flush();
         await afterFlush(tx, child);
@@ -424,7 +430,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       }
       if (command.variables) exec.setVariables(command.variables);
       for (const name of outcome.guards ?? []) {
-        const guard = options.extensions?.guards?.[name];
+        const guard = exec.extension('guards', name);
         if (!guard) throw new FlowError('invalid-definition', `没有注册守卫 ${name}`);
         const verdict = await guard({
           ...exec.context(),
@@ -876,7 +882,19 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         .orderBy((d) => d.version.desc())
         .first();
       const version = (latest?.version ?? 0) + 1;
-      const model = { ...definition, version };
+      // 流程自带的 TS：去掉类型存进这个版本，之后不变
+      const model = {
+        ...definition,
+        version,
+        ...(definition.code
+          ? {
+              code: {
+                source: definition.code.source,
+                compiled: compileCode(definition.code.source),
+              },
+            }
+          : {}),
+      };
       await tx
         .insert(FlowDefinition)
         .values({
@@ -1157,7 +1175,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       if (!gaveUp || !instance || !definition) return;
       await tx.lock(FlowInstance, instance.id);
       const row = await tx.queryable(FlowInstance).findOrThrow(instance.id);
-      const exec = execution(tx, definition, row, null);
+      const exec = await execution(tx, definition, row, null);
       exec.addEvent('job.failed', {
         node: job.node,
         actor: null,
