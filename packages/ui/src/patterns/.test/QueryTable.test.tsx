@@ -6,7 +6,7 @@ import { Field } from '../../form/Field';
 import { TextField } from '../../input/TextField';
 import type { DataTableColumn } from '../../table/columns';
 import type { TablePage, TableQueryState } from '../../table/use-table-query';
-import { mount } from '../../utils/.test/mount';
+import { mount, styleTextOf } from '../../utils/.test/mount';
 import { QueryTable } from '../QueryTable';
 
 const clientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')!;
@@ -133,5 +133,98 @@ describe('QueryTable', () => {
     await flush();
     expect(root.textContent).toContain('已选 1 项');
     expect(root.textContent).toContain('批量作废 o2');
+  });
+
+  it('有查询栏时标题、自己的按钮、刷新并进查询栏那一行（压成一行），表格上方没有单独的工具栏', async () => {
+    const query = fakeQuery();
+    const root = mount(() => (
+      <QueryTable
+        query={query}
+        columns={columns}
+        getKey={(order) => order.id}
+        title="采购单"
+        filters={(draft) => (
+          <Field label="关键字">
+            <TextField _value={draft.keyword} />
+          </Field>
+        )}
+        toolbar={<button>新建</button>}
+      />
+    ));
+    await flush();
+    const form = root.querySelector('form')!;
+    expect(form.textContent).toContain('采购单');
+    expect([...form.querySelectorAll('button')].map((button) => button.textContent)).toContain(
+      '新建',
+    );
+    expect(form.querySelector('button[aria-label="刷新"]')).not.toBeNull();
+    // 标题只出现一次：表格上方没有再画一行工具栏
+    expect(root.querySelectorAll('button[aria-label="刷新"]')).toHaveLength(1);
+  });
+
+  it('没有查询栏时，工具栏是表格上方单独的一行', async () => {
+    const query = fakeQuery();
+    const root = mount(() => (
+      <QueryTable
+        query={query}
+        columns={columns}
+        getKey={(order) => order.id}
+        title="采购单"
+        toolbar={<button>新建</button>}
+      />
+    ));
+    await flush();
+    expect(root.querySelector('form')).toBeNull();
+    expect(root.textContent).toContain('采购单');
+    expect([...root.querySelectorAll('button')].map((button) => button.textContent)).toContain(
+      '新建',
+    );
+  });
+
+  it('条件多时 moreFilters 收起，点“展开”后更多条件排在下面', async () => {
+    const query = fakeQuery();
+    const root = mount(() => (
+      <QueryTable
+        query={query}
+        columns={columns}
+        getKey={(order) => order.id}
+        title="采购单"
+        filters={(draft) => (
+          <Field label="关键字">
+            <TextField _value={draft.keyword} />
+          </Field>
+        )}
+        moreFilters={() => (
+          <Field label="供应商">
+            <TextField />
+          </Field>
+        )}
+      />
+    ));
+    await flush();
+    expect(root.querySelector('form')!.textContent).not.toContain('供应商');
+    [...root.querySelectorAll<HTMLButtonElement>('form button')]
+      .find((button) => button.textContent === '展开')!
+      .click();
+    await flush();
+    expect(root.querySelector('form')!.textContent).toContain('供应商');
+  });
+
+  it('fill：整块占满到窗口底边，表格不再限高', async () => {
+    const query = fakeQuery();
+    const root = mount(() => (
+      <QueryTable
+        query={query}
+        columns={columns}
+        getKey={(order) => order.id}
+        title="采购单"
+        fill
+      />
+    ));
+    await flush();
+    expect(styleTextOf(root.firstElementChild as HTMLElement)).toContain('100dvh');
+    expect(styleTextOf(root.querySelector<HTMLElement>('[aria-label="采购单"]')!)).not.toContain(
+      '32em',
+    );
   });
 });

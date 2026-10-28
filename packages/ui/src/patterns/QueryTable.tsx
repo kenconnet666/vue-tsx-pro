@@ -1,5 +1,8 @@
 /**
- * 查询表格（列表页的整块）：查询栏（FilterBar）+ 工具栏（标题、自己的按钮、刷新、行高、列设置、全屏）+ 批量操作栏 + 数据表格 + 分页栏，
+ * 查询表格（列表页的整块）：查询栏（FilterBar）+ 工具栏（标题、自己的按钮、刷新、行高、列设置、全屏）+ 批量操作栏 + 数据表格 + 分页栏。
+ * 有查询栏时工具栏并进查询栏那一行，压成一行：标题 条件 查询 重置 展开 … 自己的按钮 刷新 行高 列设置 全屏；
+ * 条件多时把不常用的放进 moreFilters，点“展开”后更多条件排在这一行下面。没有查询栏、或全屏（全屏的只有表格那一块）时，
+ * 工具栏是表格上方单独的一行。fill 时整块占满到窗口底边（ViewportFill），行多了在表格里滚动，分页留在一屏里。
  * 状态都在 useTableQuery 里（服务端分页、排序、条件）。同 Ant Design ProComponents 的 ProTable。
  *
  *   const tasks = useTableQuery(fetchTasks, { filters: { keyword: '', status: '' }, pageSize: 20 });
@@ -32,6 +35,7 @@ import { PaginationBar, type PaginationBarProps } from '../navigation/Pagination
 import { Menu, MenuRadioGroup, MenuRadioItem } from '../overlay/Menu';
 import { ColumnSettings } from '../table/ColumnSettings';
 import type { ColumnStickies, DataTableColumn } from '../table/columns';
+import { ViewportFill } from '../layout/ViewportFill';
 import { DataTable, type DataTableProps } from '../table/DataTable';
 import { SelectionBar, type SelectionBarProps } from '../table/SelectionBar';
 import type { DataTableDensities } from '../table/table-styles';
@@ -60,6 +64,8 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
   moreFilters?: (draft: Filters) => VNodeChild;
   /** “重置”回到的条件；不写时是 query 一开始的条件 */
   blankFilters?: Filters;
+  /** 占满到窗口底边（列表页的整页）：行多了在表格里滚动，分页一直在一屏里 */
+  fill?: boolean;
   /** 工具栏上自己的按钮（新建、导出），在标题之后、内置按钮之前 */
   toolbar?: VNodeChild;
   /** 列设置与行高记在浏览器里的键（localStorage，自动加前缀）；不写时只在这次打开里有效 */
@@ -90,7 +96,7 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
   propsToolbarButton?: Partial<IconButtonProps>;
 }
 
-/** QueryTable 的样式：root、panel、panelFullscreen、toolbar、title、tools */
+/** QueryTable 的样式：root、rootFill、panel、panelFullscreen、panelFill、toolbar、title、tools、titleInline、toolbarInline */
 export const queryTableStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
   panel: {
@@ -102,9 +108,15 @@ export const queryTableStyles = css.create({
   },
   // 全屏时铺满屏幕、四周留白，表格占满剩下的高度
   panelFullscreen: { padding: '_lg', overflow: 'auto' },
+  // fill 时外面的高度定了，整块与区域可以压矮，压不下的在表格里滚动
+  rootFill: { flexGrow: 1, minHeight: 0 },
+  panelFill: { minHeight: 0 },
   toolbar: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_sm' },
   title: { flexGrow: 1, minWidth: 0, fontWeight: '_semibold', fontSize: '_lg' },
   tools: { display: 'flex', alignItems: 'center', gap: '_xs' },
+  // 并进查询栏那一行时：标题不撑开，按钮靠在一起
+  titleInline: { flexShrink: 0, fontWeight: '_semibold', fontSize: '_lg' },
+  toolbarInline: { display: 'flex', alignItems: 'center', gap: '_sm' },
 });
 
 /** 存在浏览器里（给了 persistKey）或只在这次打开里有效的状态 */
@@ -122,6 +134,7 @@ export const QueryTable = _component(
     filters,
     moreFilters,
     blankFilters,
+    fill = false,
     toolbar,
     persistKey,
     multiSort = false,
@@ -226,109 +239,143 @@ export const QueryTable = _component(
       );
     }
 
-    return () => (
-      <div {...mergeAttrs<'div'>({ sx: queryTableStyles.root }, rest)}>
-        {filters && (
-          <FilterBar
-            {...mergePartProps<Partial<FilterBarProps>>(
-              // 一页上可能有几个查询栏：各有名称，search 地标才分得清
-              { 'aria-label': messages.queryTableSearch(title) },
-              propsFilterBar,
-              {
-                onSearch: search,
-                onReset: reset,
-                loading: query.loading,
-                more: moreFilters?.(draft),
-              },
-            )}
-          >
-            {filters(draft)}
-          </FilterBar>
-        )}
+    return () => {
+      const root = renderRoot();
+      return fill ? <ViewportFill>{root}</ViewportFill> : root;
+    };
+
+    function renderRoot() {
+      return (
         <div
           {...mergeAttrs<'div'>(
-            {
-              sx: [queryTableStyles.panel, fullscreen.active && queryTableStyles.panelFullscreen],
-            },
-            propsPanel,
-            { ref: _toRef(panel) },
+            { sx: [queryTableStyles.root, fill && queryTableStyles.rootFill] },
+            rest,
           )}
         >
-          <div {...mergeAttrs<'div'>({ sx: queryTableStyles.toolbar }, propsToolbar)}>
-            <div {...css.attrs(queryTableStyles.title)}>{title}</div>
-            {toolbar}
-            {renderTools()}
-          </div>
-          {selectionMode === 'multiple' && (
-            <SelectionBar
-              {...mergePartProps<SelectionBarProps>({ count: selected.length }, propsSelectionBar, {
-                count: selected.length,
-                onClear: () => (selected = []),
-              })}
-            >
-              {batchActions?.(selected)}
-            </SelectionBar>
-          )}
-          {/* 加载失败：按错误码说明原因（网络、权限、条件写错），保留上一次的行，给一个重试 */}
-          {query.error !== undefined && (
-            <Alert
-              {...mergePartProps<Partial<AlertProps>>(
+          {filters && (
+            <FilterBar
+              {...mergePartProps<Partial<FilterBarProps>>(
+                // 一页上可能有几个查询栏：各有名称，search 地标才分得清
+                { 'aria-label': messages.queryTableSearch(title) },
+                propsFilterBar,
                 {
-                  tone: 'danger',
-                  live: 'assertive',
-                  action: (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      tone="danger"
-                      onClick={() => void query.refresh()}
+                  onSearch: search,
+                  onReset: reset,
+                  loading: query.loading,
+                  more: moreFilters?.(draft),
+                  // 全屏时只有表格那一块（查询栏不在里面），工具栏要留在表格上方，所以不并进来
+                  start: fullscreen.active ? undefined : (
+                    <div {...css.attrs(queryTableStyles.titleInline)}>{title}</div>
+                  ),
+                  end: fullscreen.active ? undefined : (
+                    <div
+                      {...mergeAttrs<'div'>({ sx: queryTableStyles.toolbarInline }, propsToolbar)}
                     >
-                      {messages.queryTableRetry}
-                    </Button>
+                      {toolbar}
+                      {renderTools()}
+                    </div>
                   ),
                 },
-                propsError,
               )}
             >
-              {errorMessage(query.error, lang)}
-            </Alert>
+              {filters(draft)}
+            </FilterBar>
           )}
-          <DataTable
-            {...mergePartProps<Partial<DataTableProps<T>>>(
-              { 'aria-label': title, flexible: fullscreen.active },
-              propsTable,
+          <div
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  queryTableStyles.panel,
+                  fill && queryTableStyles.panelFill,
+                  fullscreen.active && queryTableStyles.panelFullscreen,
+                ],
+              },
+              propsPanel,
+              { ref: _toRef(panel) },
             )}
-            rows={query.rows as T[]}
-            columns={columns}
-            getKey={getKey}
-            manualSort
-            multiSort={multiSort}
-            _sort={query.sort}
-            _sorts={query.sorts}
-            manualFilter
-            _filters={query.columnFilters}
-            loading={query.loading}
-            density={density}
-            selectionMode={selectionMode}
-            _selected={selected}
-            _hiddenColumns={hidden}
-            _columnOrder={order}
-            _columnPins={pins}
-            _columnWidths={widths}
-            resizable
-            columnMenu
-          />
-          <PaginationBar
-            {...mergePartProps<Partial<PaginationBarProps>>(
-              { propsPagination: { 'aria-label': messages.queryTablePagination(title) } },
-              propsPagination,
+          >
+            {(!filters || fullscreen.active) && (
+              <div {...mergeAttrs<'div'>({ sx: queryTableStyles.toolbar }, propsToolbar)}>
+                <div {...css.attrs(queryTableStyles.title)}>{title}</div>
+                {toolbar}
+                {renderTools()}
+              </div>
             )}
-            _page={query.page}
-            _pageSize={query.pageSize}
-            total={query.total}
-          />
+            {selectionMode === 'multiple' && (
+              <SelectionBar
+                {...mergePartProps<SelectionBarProps>(
+                  { count: selected.length },
+                  propsSelectionBar,
+                  {
+                    count: selected.length,
+                    onClear: () => (selected = []),
+                  },
+                )}
+              >
+                {batchActions?.(selected)}
+              </SelectionBar>
+            )}
+            {/* 加载失败：按错误码说明原因（网络、权限、条件写错），保留上一次的行，给一个重试 */}
+            {query.error !== undefined && (
+              <Alert
+                {...mergePartProps<Partial<AlertProps>>(
+                  {
+                    tone: 'danger',
+                    live: 'assertive',
+                    action: (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        tone="danger"
+                        onClick={() => void query.refresh()}
+                      >
+                        {messages.queryTableRetry}
+                      </Button>
+                    ),
+                  },
+                  propsError,
+                )}
+              >
+                {errorMessage(query.error, lang)}
+              </Alert>
+            )}
+            <DataTable
+              {...mergePartProps<Partial<DataTableProps<T>>>(
+                { 'aria-label': title, flexible: fill || fullscreen.active },
+                propsTable,
+              )}
+              rows={query.rows as T[]}
+              columns={columns}
+              getKey={getKey}
+              manualSort
+              multiSort={multiSort}
+              _sort={query.sort}
+              _sorts={query.sorts}
+              manualFilter
+              _filters={query.columnFilters}
+              loading={query.loading}
+              density={density}
+              selectionMode={selectionMode}
+              _selected={selected}
+              _hiddenColumns={hidden}
+              _columnOrder={order}
+              _columnPins={pins}
+              _columnWidths={widths}
+              resizable
+              columnMenu
+            />
+            <PaginationBar
+              {...mergePartProps<Partial<PaginationBarProps>>(
+                { propsPagination: { 'aria-label': messages.queryTablePagination(title) } },
+                propsPagination,
+              )}
+              _page={query.page}
+              _pageSize={query.pageSize}
+              total={query.total}
+            />
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
   },
 );

@@ -24,8 +24,8 @@ import type { Space } from '../utils/style/styles';
 /** 未声明的属性落到 Flex（div）上 */
 export interface ViewportFillProps extends Omit<FlexProps, 'direction'> {
   /**
-   * 离视口底边留多少（与外壳正文的内边距一致，分页不贴死在窗口边上）
-   * @default 'md'
+   * 离视口底边留多少（与外壳正文 AppShell main 的内边距一致：留得比它少，整页会多出一截滚动）
+   * @default 'xl'
    */
   bottom?: Space;
   /**
@@ -50,7 +50,7 @@ export const viewportFillDynamicStyles = css.create({
 
 /** 占满到窗口底边 */
 export const ViewportFill = _component(
-  ({ bottom = 'md', minHeight = '24rem', sx, ...rest }: ViewportFillProps) => {
+  ({ bottom = 'xl', minHeight = '24rem', sx, ...rest }: ViewportFillProps) => {
     let element = _state.raw<HTMLElement | null>(null);
     // 顶边在文档里的位置（不随滚动变）
     let top = _state(0);
