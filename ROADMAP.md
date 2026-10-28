@@ -377,7 +377,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 13.8 端到端测试（Playwright）在 SSR、CSR 两种模式各跑一遍，进 CI；顺带实测阶段 10 P3 的线程池问题
       （`apps/fullstack-demo/test/e2e.mjs`，CI 的 fullstack 任务：三种页面、站内换页、loader、action、校验、权限、按租户隔离、渲染出错退回；
       开发服务器与构建都经过编译线程池，没再出现阶段 10 P3 的问题）
-- [ ] 13.9 服务端包里带着 Vue 的模板编译器与 @babel/parser（约 0.8 MB）：服务端解析成运行时版本的 Vue，只留渲染需要的
+- [x] 13.9 服务端包里带着 Vue 的模板编译器与 @babel/parser（约 0.8 MB）：服务端解析成运行时版本的 Vue，只留渲染需要的
+      （`vue`、`@vue/server-renderer` 指到 ESM 的运行时版本：服务端包 2.1 MB → 1.6 MB；抽 kit 时放进它的 Vite 插件）
 
 ## 阶段 14：纯 TS 流程引擎
 
