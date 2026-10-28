@@ -312,7 +312,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 11.6 分层检查扩到包这一级：easy-query 不导入 vue 与组件库，组件库不导入 easy-query；规则写进 `layers:check`
 - [x] 11.7 发布产物核对：各包 `pnpm pack` 的文件清单与已发布的 0.1.0 一致（元数据除外）；`repository`、`homepage` 改指本仓库
 - [x] 11.8 文档：`0002-ts-design.md` 搬到 `packages/easy-query/docs/decisions/`；14 页 TS 特性说明暂存在 `packages/easy-query/docs/features/`，文档站 ORM 分区并进 11b.6 一起写（按能力一页、写清与 Java 版的对应）
-- [ ] 11.9 `easy-query` 仓库收尾（开分支、PR、CI 绿后合并）：删掉 `ts/` 与 CI 的 ts 任务；CLAUDE.md、STATUS、ROADMAP 写明 TS 版已迁到本仓库（PR kenconnet666/easy-query#33，CI 绿后合并）
+- [x] 11.9 `easy-query` 仓库收尾（开分支、PR、CI 绿后合并）：删掉 `ts/` 与 CI 的 ts 任务；CLAUDE.md、STATUS、ROADMAP 写明 TS 版已迁到本仓库（kenconnet666/easy-query#33，已合并）
 
 ## 阶段 11b：easy-query TS 对照 Java 版完善
 
