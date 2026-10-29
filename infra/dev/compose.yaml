@@ -110,7 +110,7 @@ services:
   # Oracle Database 23ai Free（gvenzl 维护的精简镜像）；方言按 version 选项渲染 12c 之前的写法
   oracle:
     profiles: [oracle]
-    image: gvenzl/oracle-free:23-slim
+    image: gvenzl/oracle-free:23-slim@sha256:6d61d267a3b978c24c5ac1790e62e927416a0aec446bd86e4b3a1527562757bd
     restart: unless-stopped
     mem_limit: 2g
     environment:

@@ -8,6 +8,10 @@ packages:
   - packages/flow/*
   - apps/*
 
+# 依赖的安装脚本：oracledb 的 install 只检查 Thick 模式的原生模块，easy-query-ts-oracle 用 Thin 模式（纯 JS），不运行
+allowBuilds:
+  oracledb: false
+
 # 共享依赖的精确版本；各包用 "catalog:" 引用，升级只改这里
 catalog:
   # 框架与编译
@@ -72,6 +76,8 @@ catalog:
   hdb: 2.30.1
   mssql: 12.7.8
   '@types/mssql': 12.3.0
+  oracledb: 7.0.1
+  '@types/oracledb': 7.0.3
   # typed JSON 的线上格式（独立仓库 json-wire）：流程引擎的模型包按它比较与还原值
   '@zerodep-dev/json-wire': 0.1.0
   # 全栈的服务端底座（apps/fullstack-demo，之后的框架 kit）：Nitro 3 还在 beta，固定精确版本，升级时一起跑两种模式的端到端测试

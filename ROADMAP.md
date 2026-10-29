@@ -517,7 +517,7 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 已有 SQLite、MySQL（8.0.18、8.4）、PostgreSQL 17、HANA。按用户量与驱动成熟度排：
 
 - [x] 16.7.1 SQL Server（`mcr.microsoft.com/mssql/server`，驱动 `mssql`/tedious）：TOP / OFFSET FETCH、`[]` 引号、OUTPUT 代替 RETURNING、MERGE upsert；含 2012 以前的 ROW_NUMBER 分页
-- [ ] 16.7.2 Oracle（`gvenzl/oracle-free`，驱动 `oracledb` 薄模式不用客户端）：FETCH FIRST、序列、IN 列表 1000 上限（`maxInClauseSize`）、MERGE
+- [x] 16.7.2 Oracle（`gvenzl/oracle-free`，驱动 `oracledb` 薄模式不用客户端）：FETCH FIRST、序列、IN 列表 1000 上限（`maxInClauseSize`）、MERGE
 - [ ] 16.7.3 DuckDB（嵌入式，驱动 `@duckdb/node-api`，不用容器）
 - [ ] 16.7.4 达梦 DM8（容器镜像、驱动 `dmdb`）
 - [ ] 16.7.5 人大金仓 KingbaseES、openGauss / GaussDB（PG 协议，复用 pg 驱动，方言继承 PG 后覆盖差异）
