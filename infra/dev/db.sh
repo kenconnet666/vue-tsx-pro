@@ -54,9 +54,11 @@ fi
 add_db() {
   grep -q "^$1=" "$env_file" && return
   local password
-  password="Vtp$(od -An -N9 -tx1 /dev/urandom | tr -d ' \n')9"
+  password="Vtp$(od -An -N9 -tx1 /dev/urandom | tr -d ' \n')9-"
   printf '%s=%s\n%s\n' "$1" "$password" "${2//\{p\}/$password}" >>"$env_file"
 }
 add_db VTP_DAMENG_PASSWORD 'EQTS_DAMENG_URL=dm://SYSDBA:{p}@127.0.0.1:25236'
+# 密码含大小写、数字与符号（openGauss 只认 #?!@$%^&*- 这几个符号；- 在连接串里不用转义）
+add_db VTP_OPENGAUSS_PASSWORD 'EQTS_OPENGAUSS_URL=postgres://gaussdb:{p}@127.0.0.1:25433/eqts'
 
 exec docker compose -f "$here/compose.yaml" --env-file "$env_file" "$@"

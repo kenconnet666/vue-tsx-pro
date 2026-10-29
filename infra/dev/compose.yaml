@@ -185,6 +185,21 @@ services:
     volumes:
       - dameng-data:/opt/dmdbms/data
 
+  # openGauss（官方镜像，PG 协议；GaussDB 的开源版）
+  opengauss:
+    profiles: [opengauss]
+    image: opengauss/opengauss-server:latest@sha256:d554be1b8b08165a8b19348f0ca236b5d61a4832ffadac0340ded973c34f38e4
+    restart: unless-stopped
+    privileged: true
+    mem_limit: 2g
+    environment:
+      GS_PASSWORD: ${VTP_OPENGAUSS_PASSWORD:?run infra/dev/db.sh to add VTP_OPENGAUSS_PASSWORD}
+      TZ: Asia/Shanghai
+    ports:
+      - '25433:5432'
+    volumes:
+      - opengauss-data:/var/lib/opengauss
+
 volumes:
   mysql8018-data:
   mysql84-data:
@@ -193,3 +208,4 @@ volumes:
   mssql-data:
   oracle-data:
   dameng-data:
+  opengauss-data:

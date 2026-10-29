@@ -115,6 +115,14 @@ jobs:
         ports: ['5236:5236']
         options: >-
           --health-cmd="bash -c 'echo > /dev/tcp/127.0.0.1/5236'" --health-interval=10s --health-timeout=5s --health-retries=60 --health-start-period=30s
+      # openGauss（PG 协议）：测试按 PG 兼容建 eqts 库
+      opengauss:
+        image: opengauss/opengauss-server:latest@sha256:d554be1b8b08165a8b19348f0ca236b5d61a4832ffadac0340ded973c34f38e4
+        env:
+          GS_PASSWORD: Ci-Gauss123
+        ports: ['5433:5432']
+        options: >-
+          --privileged --health-cmd="bash -c 'echo > /dev/tcp/127.0.0.1/5432'" --health-interval=10s --health-timeout=5s --health-retries=60 --health-start-period=30s
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
@@ -125,6 +133,7 @@ jobs:
           EQTS_MSSQL_URL: mssql://sa:Ci_Passw0rd!@127.0.0.1:1433
           EQTS_ORACLE_URL: oracle://eqts:ci_oracle@127.0.0.1:1521/FREEPDB1
           EQTS_DAMENG_URL: dm://SYSDBA:Ci_Dameng001@127.0.0.1:5236
+          EQTS_OPENGAUSS_URL: postgres://gaussdb:Ci-Gauss123@127.0.0.1:5433/eqts
 
   build:
     strategy:
