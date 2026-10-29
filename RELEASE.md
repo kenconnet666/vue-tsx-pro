@@ -14,6 +14,9 @@
 
 发布时把这一节搬进 GitHub Release 的说明，再清空。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
+- 新组件：滑块验证 `SlideCaptcha`、认证页版式 `AuthLayout`、数据驱动菜单 `NavMenu`、按权限显示的 `Can` / `useCan`（`createUi` 的 `permissions` 接入）、
+  表单对话框 `FormDialog` / `useFormDialog`、布局偏好 `createLayoutPreference` / `LayoutSwitcher`；AppShell 抽屉可以从四边滑出，PageTabs 支持 `tabs` 整体状态。
+- `QueryTable` 查询区压成一行（更多条件收进“展开”），`fill` 让它占满到窗口底边；`ViewportFill` 的 `bottom` 默认改为 `xl`，和外壳的留白一致。
 - 组件库支持服务端渲染（ROADMAP 阶段 12）：样式 `renderStyleTag`、首屏主题 `createUi(...).documentAttrs()`、只在浏览器里画的 `ClientOnly` / `useMounted`。
 - Popover、HoverCard、Tooltip 的面板挂载后的下一次渲染才出现（关着时本来看不见）：测试里挂载完立刻找面板的，先 `await nextTick()`。
 - `useFullscreen().supported` 挂载前总是 `false`，挂载后才按浏览器判断（全屏按钮挂载后才出现）。
