@@ -484,7 +484,7 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 16.4.1 聚合保存（savable/*）：多对多中间表按现状比较增删、多对一 / 一对一、多层、脱钩方式（删除 / 设 null / 不动）、只保存哪些路径；
       cascade 路径做成类型（`['posts', 'posts.comments', 'roles']` 由关系推出）
 - [x] 16.4.2 插入 / 更新策略（只写非 null 列等）对照，`batch`（驱动层的批量执行，MySQL / PG 一次往返多条）
-- [ ] 16.4.3 `afterWrite` 可选带"改之前的值"（拦截器声明 `before: true` 时核心先按同样条件查一次）
+- [x] 16.4.3 `afterWrite` 可选带"改之前的值"（拦截器声明 `before: true` 时核心先按同样条件查一次）
 - [ ] 16.4.4 更新 / 删除带 join（官方 UpdateDeleteJoinTest、各方言 UpdateJoinTest）：`update(X).join(…)`，按方言渲染（MySQL UPDATE … JOIN、PG UPDATE … FROM、MSSQL UPDATE … FROM）
 - [ ] 16.4.5 对照 VersionTest、LogicDeleteTest、EncryptionTest、Sm4EncryptionTest、InterceptorTest、TrackTest 逐条补测试
 
