@@ -508,7 +508,7 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 
 已有 SQLite、MySQL（8.0.18、8.4）、PostgreSQL 17、HANA。按用户量与驱动成熟度排：
 
-- [ ] 16.7.1 SQL Server（`mcr.microsoft.com/mssql/server`，驱动 `mssql`/tedious）：TOP / OFFSET FETCH、`[]` 引号、OUTPUT 代替 RETURNING、MERGE upsert；含 2012 以前的 ROW_NUMBER 分页
+- [x] 16.7.1 SQL Server（`mcr.microsoft.com/mssql/server`，驱动 `mssql`/tedious）：TOP / OFFSET FETCH、`[]` 引号、OUTPUT 代替 RETURNING、MERGE upsert；含 2012 以前的 ROW_NUMBER 分页
 - [ ] 16.7.2 Oracle（`gvenzl/oracle-free`，驱动 `oracledb` 薄模式不用客户端）：FETCH FIRST、序列、IN 列表 1000 上限（`maxInClauseSize`）、MERGE
 - [ ] 16.7.3 DuckDB（嵌入式，驱动 `@duckdb/node-api`，不用容器）
 - [ ] 16.7.4 达梦 DM8（容器镜像、驱动 `dmdb`）
@@ -518,6 +518,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [ ] 16.7.8 TDengine 等时序库（官方 sql-tsdb）：先看官方支持到什么程度再定
 - [ ] 16.7.9 H2：JVM 内的库，Node 没有驱动——不适用，写进清单
 - [ ] 16.7.10 每种方言：共用实库套件全绿、方言专属函数入口（同 `MySQL.` / `Pg.` / `Hana.`）、建表类型映射、CI（大的放 nightly）
+- [ ] 16.7.11 按版本渲染推广到各方言（核心 `DialectOptions.version`，SQL Server 已做）：新版本用更好的写法，旧版本退回旧写法，做不到的渲染时报出最低版本；
+      MySQL 5.7 / 8.0.x（窗口、CTE、JSON_OVERLAPS 8.0.17、VALUES ROW 8.0.19）、PG、Oracle 12c 前后的分页等；版本取值在类型上限定
 
 ### 16.8 文档站与收尾
 
