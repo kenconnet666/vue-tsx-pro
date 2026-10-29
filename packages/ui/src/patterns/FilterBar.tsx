@@ -17,7 +17,10 @@
  *
  *   <FilterBar onSearch={search} onReset={reset} conditionFields={fields} _condition={condition}>…</FilterBar>
  *
- * 部件：Root（form）、Fields（条件的栅格）、Field 们、More（收起的条件，display: contents）、Actions（div）、
+ * start、end 是整行两头的内容（标题在条件前面，工具栏的按钮在查询、重置后面）：QueryTable 用它们把标题与工具栏并进查询栏这一行，
+ * 压成一行；点“展开”后更多的条件排在这一行下面，start、end 仍在第一行。
+ *
+ * 部件：Root（form）、Start、Fields（条件的栅格）、Field 们、More（收起的条件，display: contents）、Actions（div）、End、
  * Search、Reset（Button）、Toggle（展开收起的 Button）、AdvancedToggle（高级筛选的 Button）、Advanced（条件构造器那一行）。
  */
 import { ChevronDown, ListFilter } from '@lucide/icons';
@@ -39,6 +42,7 @@ import { patternsMessages } from './messages';
 import { Button, type ButtonProps } from '../base/Button';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
+import { t } from '../config/theme/tokens';
 import { provideFieldLayout, type FieldLayout } from '../form/field-layout';
 
 /** 角色与提交由组件管理 */
@@ -61,8 +65,16 @@ export interface FilterBarProps
   moreActive?: number;
   /** 每个条件的最小宽度（CSS 长度），默认 `'16em'` */
   minFieldWidth?: string;
+  /** 整行起始边的内容：在条件前面（QueryTable 的标题）；对齐第一行 */
+  start?: VNodeChild;
+  /** 整行结束边的内容：在查询、重置后面（QueryTable 的工具栏按钮）；对齐第一行，展开更多条件时也不往下掉 */
+  end?: VNodeChild;
   /** 结束边额外的按钮：放在“重置”前面（如“导出筛选结果”） */
   actions?: VNodeChild;
+  /** start 外层的部件属性 */
+  propsStart?: PartProps<'div'>;
+  /** end 外层的部件属性 */
+  propsEnd?: PartProps<'div'>;
   /** 条件栅格的部件属性 */
   propsFields?: PartProps<'div'>;
   /** 按钮区的部件属性 */
@@ -87,7 +99,7 @@ export interface FilterBarProps
   children?: VNodeChild;
 }
 
-/** FilterBar 的样式：root、fields、more、actions、toggleIconOpen */
+/** FilterBar 的样式：root、start、end、fields、more、actions、toggleIconOpen */
 export const filterBarStyles = css.create({
   // 条件栅格与按钮区并排；放不下时按钮区换行
   root: {
@@ -96,6 +108,22 @@ export const filterBarStyles = css.create({
     alignItems: 'flex-end',
     columnGap: '_xl',
     rowGap: '_md',
+  },
+  // 两头的内容和第一行的控件一样高、对齐第一行：展开更多条件时（按钮区落到最后一行）它们仍在第一行
+  start: {
+    display: 'flex',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    minHeight: t.sizes.control,
+    flexShrink: 0,
+  },
+  end: {
+    display: 'flex',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    minHeight: t.sizes.control,
+    flexShrink: 0,
+    gap: '_sm',
   },
   fields: {
     display: 'grid',
@@ -148,9 +176,13 @@ export const FilterBar = _component(
     _expanded: expanded = _bindable(false),
     moreActive = 0,
     minFieldWidth = '16em',
+    start,
+    end,
     actions,
     labelPlacement = 'start',
     labelWidth = 'auto',
+    propsStart,
+    propsEnd,
     propsFields,
     propsActions,
     propsSearch,
@@ -192,6 +224,9 @@ export const FilterBar = _component(
         {...mergeAttrs<'form'>({ sx: filterBarStyles.root }, rest, { role: 'search', onSubmit })}
         data-expanded={more != null ? expanded : undefined}
       >
+        {start != null && (
+          <div {...mergeAttrs<'div'>({ sx: filterBarStyles.start }, propsStart)}>{start}</div>
+        )}
         <div
           {...mergeAttrs<'div'>(
             { sx: [filterBarStyles.fields, filterBarColumnStyles.columns(minFieldWidth)] },
@@ -271,6 +306,9 @@ export const FilterBar = _component(
             {messages.filterSearch}
           </Button>
         </div>
+        {end != null && (
+          <div {...mergeAttrs<'div'>({ sx: filterBarStyles.end }, propsEnd)}>{end}</div>
+        )}
         {conditionFields && advancedOpen && (
           <ConditionBuilder
             {...mergePartProps<ConditionBuilderProps>(

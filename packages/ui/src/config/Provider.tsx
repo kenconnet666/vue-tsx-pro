@@ -6,6 +6,7 @@ import {
   useConfig,
   type Highlighter,
   type TextMatcher,
+  type UiPermissions,
   type UiRouter,
 } from './context';
 import { mergeDefaults, type ComponentDefaults } from './defaults';
@@ -32,6 +33,8 @@ export interface ProviderProps {
   styles?: ComponentStyles;
   /** 路由适配；不写时沿用上层配置 */
   router?: UiRouter;
+  /** 权限判断；不写时沿用上层配置 */
+  permissions?: UiPermissions;
   /** 请求客户端；不写时沿用上层配置 */
   http?: HttpClient;
   /** 工作日历；不写时沿用上层配置 */
@@ -66,6 +69,7 @@ export const Provider = _component(
     defaults,
     styles,
     router,
+    permissions,
     http,
     workCalendar,
     ripple,
@@ -98,6 +102,9 @@ export const Provider = _component(
       },
       get router() {
         return router ?? parent.router;
+      },
+      get permissions() {
+        return permissions ?? parent.permissions;
       },
       get http() {
         return http ?? parent.http;

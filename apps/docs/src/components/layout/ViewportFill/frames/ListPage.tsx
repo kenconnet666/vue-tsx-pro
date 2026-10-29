@@ -47,7 +47,7 @@ export default _component(() => {
       }
       propsMain={{ sx: styles.main }}
     >
-      <ViewportFill gap="md">
+      <ViewportFill gap="md" bottom="md">
         <Flex align="center" gap="sm">
           <TextField icon={Search} placeholder="编码 / 名称" aria-label="关键字" />
           <Small tone="muted">表格按行数自己的高度，最多占到窗口底边，再多在表格里滚动</Small>

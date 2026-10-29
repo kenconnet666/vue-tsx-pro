@@ -57,6 +57,15 @@ export interface UiRouter {
   replaceQuery?: (patch: QueryPatch) => void;
 }
 
+/**
+ * 权限判断：用户有没有这个权限点。组件库不知道权限从哪来（后端返回的权限点、角色…），由应用接入：
+ *
+ *   createUi({ permissions: (permission) => access.can(permission) })
+ *
+ * 在渲染时调用，读响应式状态就能跟随变化（登录、退出、换角色后界面随之更新）。用 Can、useCan 控制界面。
+ */
+export type UiPermissions = (permission: string) => boolean;
+
 /** 地址里的查询参数：同名多个时是数组；只写了键（?flag）时是空字符串 */
 export type QueryValues = Readonly<Record<string, string | readonly string[]>>;
 
@@ -79,6 +88,8 @@ export interface UiConfig {
   readonly styles: StyleLayers;
   /** 路由适配；没有时链接就是普通的页面跳转 */
   readonly router?: UiRouter;
+  /** 权限判断；没有时 useCan、Can 一律放行 */
+  readonly permissions?: UiPermissions;
   /** 请求客户端（远程选项、上传、列表查询用）；没有时 useHttp 给一个默认的 createHttpClient() */
   readonly http?: HttpClient;
   /** 工作日历（时限、剩余工作日用）；没有时只按周末算 */
@@ -132,5 +143,21 @@ export function useTextMatcher(): () => TextMatcher {
     const builtin = createMatcher(config.lang.code);
     const extra = config.textMatcher;
     return extra ? (text, query) => builtin(text, query) || extra(text, query) : builtin;
+  };
+}
+
+/**
+ * 当前配置下的权限判断（在 setup 里调用）：返回 can(权限点)，给数组时有其中任意一个就算有。
+ * createUi / Provider 没给 permissions 时一律放行（没有权限体系的应用不受影响）。返回的函数在渲染、计算里调用才跟随变化。
+ *
+ *   const can = useCan();
+ *   <Button disabled={!can('cost:project:add')}>新建</Button>
+ */
+export function useCan(): (permission: string | readonly string[]) => boolean {
+  const config = useConfig();
+  return (permission) => {
+    const has = config.permissions;
+    if (!has) return true;
+    return typeof permission === 'string' ? has(permission) : permission.some((item) => has(item));
   };
 }

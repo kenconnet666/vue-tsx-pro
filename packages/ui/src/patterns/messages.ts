@@ -1,5 +1,5 @@
 /**
- * 页面组合（AppShell、FilterBar、NotificationCenter、KanbanBoard、DeadlineBadge、ThemeSwitcher）自带的文案：
+ * 页面组合（AppShell、FilterBar、NotificationCenter、KanbanBoard、DeadlineBadge、ThemeSwitcher、SlideCaptcha）自带的文案：
  * 中文与英文各一份，可以在 createUi 的 lang.messages.patterns 里按字段改写（见 config/lang/messages.ts）
  */
 import type { MessageTable } from '../config/lang/messages';
@@ -56,6 +56,8 @@ export interface PatternsMessages {
   readonly navigationMenu: string;
   /** 抽屉式侧边导航的宽度调整手柄，默认“调整导航宽度” */
   readonly navigationResize: string;
+  /** 上下抽屉的高度手柄的名称，默认“调整导航高度” */
+  readonly navigationResizeHeight: string;
   /** AppShell 侧栏底部收起成图标栏的按钮，默认“收起侧栏” */
   readonly sidebarCollapse: string;
   /** AppShell 侧栏收起后展开的按钮，默认“展开侧栏” */
@@ -144,6 +146,24 @@ export interface PatternsMessages {
   readonly dataImportPreview: string;
   /** 主题切换的名称，默认“主题” */
   readonly themeLabel: string;
+  /** 布局切换的名称，默认“布局” */
+  readonly layoutLabel: string;
+  /** 布局切换：侧栏形式一组的标题，默认“侧栏形式” */
+  readonly layoutMode: string;
+  /** 布局切换：固定侧栏，默认“固定” */
+  readonly layoutModeDocked: string;
+  /** 布局切换：抽屉式侧栏，默认“抽屉” */
+  readonly layoutModeOverlay: string;
+  /** 布局切换：抽屉位置一组的标题，默认“抽屉位置” */
+  readonly layoutSide: string;
+  /** 布局切换：抽屉在起始边，默认“左侧” */
+  readonly layoutSideStart: string;
+  /** 布局切换：抽屉在结束边，默认“右侧” */
+  readonly layoutSideEnd: string;
+  /** 布局切换：抽屉在顶部，默认“顶部” */
+  readonly layoutSideTop: string;
+  /** 布局切换：抽屉在底部，默认“底部” */
+  readonly layoutSideBottom: string;
   /** 留言：留言列表的名称，默认“留言” */
   readonly comments: string;
   /** 留言：没有留言时，默认“还没有留言” */
@@ -170,6 +190,22 @@ export interface PatternsMessages {
   readonly commentReplies: (count: number) => string;
   /** 留言：附件列表的名称，默认“附件” */
   readonly commentAttachments: string;
+  /** 滑块验证码：滑块条上的提示，默认“向右拖动滑块，让拼图对准缺口” */
+  readonly slideHint: string;
+  /** 滑块验证码：服务端判定中，默认“验证中…” */
+  readonly slideVerifying: string;
+  /** 滑块验证码：通过，默认“验证通过” */
+  readonly slideSuccess: string;
+  /** 滑块验证码：没对准，默认“没对准，请再试一次” */
+  readonly slideError: string;
+  /** 滑块验证码：换一张的按钮，默认“换一张” */
+  readonly slideRefresh: string;
+  /** 滑块验证码：图片还没拿到，默认“加载中…” */
+  readonly slideLoading: string;
+  /** 滑块验证码：滑块的名称，默认“滑动验证” */
+  readonly slideLabel: string;
+  /** 滑块验证码：滑块当前位置的读法：`(120)` → “120 像素” */
+  readonly slidePosition: (pixels: number) => string;
 }
 
 /** 页面组合的文案表：中文与英文，别的语言先找同语种、再用英文 */
@@ -200,6 +236,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     navigationOpen: '打开导航',
     navigationMenu: '菜单',
     navigationResize: '调整导航宽度',
+    navigationResizeHeight: '调整导航高度',
     sidebarCollapse: '收起侧栏',
     sidebarExpand: '展开侧栏',
     pageTabsLabel: '打开的页面',
@@ -245,6 +282,15 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     dataImportNotNumber: '不是数字',
     dataImportPreview: '导入预览',
     themeLabel: '主题',
+    layoutLabel: '布局',
+    layoutMode: '侧栏形式',
+    layoutModeDocked: '固定',
+    layoutModeOverlay: '抽屉',
+    layoutSide: '抽屉位置',
+    layoutSideStart: '左侧',
+    layoutSideEnd: '右侧',
+    layoutSideTop: '顶部',
+    layoutSideBottom: '底部',
     comments: '留言',
     commentsEmpty: '还没有留言',
     commentPlaceholder: '写下留言，输入 @ 提及相关的人',
@@ -258,6 +304,14 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     commentEdited: '已编辑',
     commentReplies: (count) => `${count} 条回复`,
     commentAttachments: '附件',
+    slideHint: '向右拖动滑块，让拼图对准缺口',
+    slideVerifying: '验证中…',
+    slideSuccess: '验证通过',
+    slideError: '没对准，请再试一次',
+    slideRefresh: '换一张',
+    slideLoading: '加载中…',
+    slideLabel: '滑动验证',
+    slidePosition: (pixels) => `${pixels} 像素`,
   },
   'en-US': {
     filterSearch: 'Search',
@@ -289,6 +343,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     navigationOpen: 'Open navigation',
     navigationMenu: 'Menu',
     navigationResize: 'Resize navigation',
+    navigationResizeHeight: 'Resize navigation height',
     sidebarCollapse: 'Collapse sidebar',
     sidebarExpand: 'Expand sidebar',
     pageTabsLabel: 'Open pages',
@@ -334,6 +389,15 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     dataImportNotNumber: 'Not a number',
     dataImportPreview: 'Import preview',
     themeLabel: 'Theme',
+    layoutLabel: 'Layout',
+    layoutMode: 'Sidebar',
+    layoutModeDocked: 'Docked',
+    layoutModeOverlay: 'Drawer',
+    layoutSide: 'Drawer position',
+    layoutSideStart: 'Left',
+    layoutSideEnd: 'Right',
+    layoutSideTop: 'Top',
+    layoutSideBottom: 'Bottom',
     comments: 'Comments',
     commentsEmpty: 'No comments yet',
     commentPlaceholder: 'Write a comment, type @ to mention someone',
@@ -347,5 +411,13 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     commentEdited: 'Edited',
     commentReplies: (count) => (count === 1 ? '1 reply' : `${count} replies`),
     commentAttachments: 'Attachments',
+    slideHint: 'Drag the slider to fit the puzzle piece into the gap',
+    slideVerifying: 'Verifying…',
+    slideSuccess: 'Verified',
+    slideError: 'Not aligned, please try again',
+    slideRefresh: 'Try another',
+    slideLoading: 'Loading…',
+    slideLabel: 'Slide to verify',
+    slidePosition: (pixels) => `${pixels} pixels`,
   },
 };

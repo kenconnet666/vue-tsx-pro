@@ -11,6 +11,7 @@ export {
   type ButtonGroupManaged,
   type ButtonGroupProps,
 } from './base/ButtonGroup';
+export { Can, type CanProps } from './base/Can';
 export { ClientOnly, type ClientOnlyProps } from './base/ClientOnly';
 export {
   ClearButton,
@@ -640,6 +641,12 @@ export {
   type NavListProps,
   type NavSectionProps,
 } from './navigation/NavList';
+export {
+  NavMenu,
+  type NavMenuItem,
+  type NavMenuProps,
+  type NavMenuTopLevels,
+} from './navigation/NavMenu';
 export { PageJump, pageJumpStyles, type PageJumpProps } from './navigation/PageJump';
 export {
   PageSizeSelect,
@@ -1337,6 +1344,7 @@ export {
 export {
   ConfigContext,
   defaultConfig,
+  useCan,
   useConfig,
   useLang,
   useTextMatcher,
@@ -1345,6 +1353,7 @@ export {
   type QueryValues,
   type TextMatcher,
   type UiConfig,
+  type UiPermissions,
   type UiRouter,
 } from './config/context';
 export {
@@ -1435,6 +1444,21 @@ export {
 } from './config/theme/theme';
 import './config/theme/token-names';
 export { t } from './config/theme/tokens';
+
+// 布局偏好：侧栏的形式、抽屉的方向与尺寸（createLayoutPreference）
+export {
+  createLayoutPreference,
+  DEFAULT_LAYOUT_HEIGHT,
+  DEFAULT_LAYOUT_STORAGE_KEY,
+  DEFAULT_LAYOUT_WIDTH,
+  LAYOUT_MODES,
+  LAYOUT_SIDES,
+  type LayoutMode,
+  type LayoutPreference,
+  type LayoutPreferenceOptions,
+  type LayoutSide,
+  type LayoutState,
+} from './config/layout/preference';
 
 // 语言与格式化
 export { enUS } from './config/lang/en-US';

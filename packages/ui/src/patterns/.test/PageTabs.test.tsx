@@ -1,7 +1,7 @@
 // PageTabs：点页签跳过去（Enter 才切换），关闭按钮报告要关的地址，固定的页不能关；右键“关闭其他”“关闭右侧”。
 // useRouteTabs：进过的路由各一个页签（同一路径一个），切回去回到上次的完整地址，关掉当前页跳到旁边的，max
 import { beforeAll, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { nextTick, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { useRouteTabs } from '../../config/vue-router';
 import { mount } from '../../utils/.test/mount';
@@ -21,6 +21,32 @@ const pages = [
 ];
 
 describe('PageTabs', () => {
+  it('tabs 写整个状态：状态变了页签区跟着更新（展开 {...tabs} 做不到）', async () => {
+    const opened = ref(['/', '/po']);
+    const current = ref('/po');
+    const source = {
+      get pages() {
+        return opened.value.map((path) => ({
+          path,
+          title: path === '/' ? '工作台' : path,
+          pinned: path === '/',
+        }));
+      },
+      get current() {
+        return current.value;
+      },
+      onNavigate: vi.fn(),
+    };
+    const root = mount(() => <PageTabs tabs={source} />);
+    const titles = () => [...root.querySelectorAll('[role="tab"]')].map((tab) => tab.textContent);
+    expect(titles()).toEqual(['工作台', '/po']);
+    opened.value = [...opened.value, '/reports'];
+    current.value = '/reports';
+    await nextTick();
+    expect(titles()).toEqual(['工作台', '/po', '/reports']);
+    expect(root.querySelector('[role="tab"][aria-selected="true"]')!.textContent).toBe('/reports');
+  });
+
   it('点页签跳过去；关闭按钮报告要关的地址，固定的页没有关闭按钮', async () => {
     const onNavigate = vi.fn();
     const onClose = vi.fn();

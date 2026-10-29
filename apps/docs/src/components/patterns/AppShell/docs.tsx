@@ -6,6 +6,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import Admin from './frames/Admin.tsx?demo';
+import Layout from './frames/Layout.tsx?demo';
 import Mixed from './frames/Mixed.tsx?demo';
 import Overlay from './frames/Overlay.tsx?demo';
 
@@ -42,6 +43,15 @@ export default _component(() => () => (
       都能双向绑定，存起来就能记住各人的设置（本站记在 localStorage）。焦点在抽屉里时按 Esc
       收起、焦点回到“菜单”；窄屏时点了链接也收起。
     </Example>
+    <Example id="layout" title="用户自选布局" demo={Layout} frame="40rem">
+      抽屉可以从左、右、上、下四边滑出：<Code>sidebarSide</Code>（<Code>start</Code> /{' '}
+      <Code>end</Code> / <Code>top</Code> / <Code>bottom</Code>
+      ，随排版方向）。上下抽屉盖满宽度，导航的小节排成多列，拖动贴着正文的那条边调高度（
+      <Code>_sidebarHeight</Code>）。想让用户自己选，用 <Code>createLayoutPreference</Code>
+      记住形式、方向、开关与尺寸（localStorage），交给 <Code>layout</Code>，配合顶栏里的{' '}
+      <Code>LayoutSwitcher</Code>；写了 <Code>layout</Code> 后 <Code>sidebarMode</Code>、
+      <Code>sidebarSide</Code> 与各个 <Code>_sidebar…</Code> 绑定不再起作用。
+    </Example>
     <Example id="mixed" title="混合布局与页签" demo={Mixed} frame="40rem">
       顶栏放一级导航（<Code>nav</Code>，常用 <Code>NavBar</Code>
       ，放不下的收进“更多”），侧栏放当前模块的二级导航，正文上面是打开过的页面（
@@ -51,8 +61,8 @@ export default _component(() => () => (
       自动换成紧凑样式，分组悬停弹出子项），品牌格只剩标志；<Code>sidebarCollapsed</Code>{' '}
       可以双向绑定，存起来记住各人的设置。页签可以关闭（关闭按钮、Delete、中键）、拖动排序，右键有“关闭其他”“关闭右侧”；接路由时用{' '}
       <Code>useRouteTabs(router, &#123; home: '/' &#125;)</Code>（
-      <Code>@zerodep-dev/vue-tsx-pro-ui/vue-router</Code>）维护打开的页面，整个展开给{' '}
-      <Code>&lt;PageTabs &#123;...tabs&#125; /&gt;</Code>
+      <Code>@zerodep-dev/vue-tsx-pro-ui/vue-router</Code>）维护打开的页面，整个交给{' '}
+      <Code>&lt;PageTabs tabs=&#123;tabs&#125; /&gt;</Code>
       ：换页自动加页签，切回来回到上次的完整地址，关掉当前页时跳到相邻的页。
     </Example>
     <ApiReference api={[api, brandApi]} />

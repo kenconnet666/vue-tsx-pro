@@ -2,6 +2,8 @@
  * 宽度调整手柄：所在元素结束边（edge="start" 时是起始边，如从右侧滑入的抽屉）的一条细线（role="separator"），悬停、聚焦时显示。
  * 拖动（startMove）或聚焦后用 ← / →（WCAG 2.5.7 拖动的替代操作）调整，从右到左排版下方向自动镜像；
  * 双击回到 defaultWidth。宽度从父元素量起，所以要放在要调整的那个元素里（它需要 position: relative 或 fixed）。
+ * orientation="horizontal" 时是一条横线，贴着父元素的下边（edge="start" 时是上边，如从底部升起的抽屉），
+ * 拖动或用 ↑ / ↓ 调整的是**高度**：width、minWidth、maxWidth、defaultWidth、onWidthChange 这时都指高度。
  * AppShell 的抽屉式侧栏、DataTable 的列宽（ColumnResizer）都用它。
  *
  *   <aside style="position: relative; width: …">…<ResizeHandle aria-label="调整侧栏宽度" width={width} onWidthChange={(px) => (width = px)} /></aside>
@@ -30,8 +32,10 @@ export interface ResizeHandleProps extends PartProps<'span', ResizeHandleManaged
   defaultWidth?: number;
   /** 键盘每按一次调整多少（px），默认 16 */
   step?: number;
-  /** 手柄在父元素的哪一边，默认 end；start 时往起始方向拖是变宽（从结束边滑入的抽屉） */
+  /** 手柄在父元素的哪一边，默认 end；start 时往起始方向拖是变宽（从结束边滑入的抽屉）；horizontal 时 start 是上边、end 是下边 */
   edge?: 'start' | 'end';
+  /** vertical（默认）：竖线，调整宽度；horizontal：横线，调整高度（见文件开头） */
+  orientation?: 'vertical' | 'horizontal';
   /** 拖动或用键盘调整了宽度（已经夹在最小、最大宽度之间） */
   onWidthChange: (width: number) => void;
 }
@@ -54,9 +58,20 @@ export const resizeHandleStyles = css.create({
     outlineStyle: 'none',
   },
   start: { insetInlineEnd: 'auto', insetInlineStart: 0 },
+  // 横线：贴着父元素的下边（start 时是上边），调整高度
+  horizontal: {
+    top: 'auto',
+    bottom: 0,
+    insetInlineStart: 0,
+    insetInlineEnd: 0,
+    width: 'auto',
+    height: '_space.sm',
+    cursor: 'row-resize',
+  },
+  horizontalStart: { top: 0, bottom: 'auto' },
 });
 
-/** 宽度调整手柄：拖动或用 ← / → 调整父元素的宽度 */
+/** 宽度调整手柄：拖动或用 ← / → 调整父元素的宽度；orientation="horizontal" 时调整高度（↑ / ↓） */
 export const ResizeHandle = _component(
   ({
     width,
@@ -65,10 +80,16 @@ export const ResizeHandle = _component(
     defaultWidth,
     step = 16,
     edge = 'end',
+    orientation = 'vertical',
     onWidthChange,
     ...rest
   }: ResizeHandleProps) => {
+    const horizontal = () => orientation === 'horizontal';
     const parentOf = (event: Event) => (event.currentTarget as HTMLElement).parentElement!;
+    const sizeOf = (element: Element) => {
+      const rect = element.getBoundingClientRect();
+      return horizontal() ? rect.height : rect.width;
+    };
     const fit = (px: number) => Math.round(clamp(px, minWidth, maxWidth));
     // 没给 width 时量父元素的实际宽度：可聚焦的分隔条必须有当前值（aria-valuenow）
     let handle = _state.raw<HTMLElement | null>(null);
@@ -77,42 +98,55 @@ export const ResizeHandle = _component(
       () => (width == null ? handle?.parentElement : null),
       () => {
         const parent = handle?.parentElement;
-        if (parent) measured = Math.round(parent.getBoundingClientRect().width);
+        if (parent) measured = Math.round(sizeOf(parent));
       },
     );
 
     function onPointerdown(event: PointerEvent) {
       const parent = parentOf(event);
-      const from = parent.getBoundingClientRect().width;
-      // 起始边的手柄往起始方向拖是变宽：方向与结束边相反
-      const sign = (isRtl(parent) ? -1 : 1) * (edge === 'start' ? -1 : 1);
+      const from = sizeOf(parent);
+      // 起始边的手柄往起始方向拖是变宽：方向与结束边相反；横线不受从右到左排版的影响
+      const sign = (horizontal() ? 1 : isRtl(parent) ? -1 : 1) * (edge === 'start' ? -1 : 1);
       event.preventDefault();
       startMove(event, {
-        onMove: ({ deltaX }) => onWidthChange(fit(from + sign * deltaX)),
+        onMove: ({ deltaX, deltaY }) =>
+          onWidthChange(fit(from + sign * (horizontal() ? deltaY : deltaX))),
       });
     }
 
     function onKeydown(event: KeyboardEvent) {
       const parent = parentOf(event);
-      const { forward, backward } = inlineArrows(isRtl(parent));
+      const { forward, backward } = horizontal()
+        ? { forward: 'ArrowDown', backward: 'ArrowUp' }
+        : inlineArrows(isRtl(parent));
       const delta =
         (event.key === forward ? step : event.key === backward ? -step : 0) *
         (edge === 'start' ? -1 : 1);
       if (!delta) return;
       event.preventDefault();
-      onWidthChange(fit((width ?? parent.getBoundingClientRect().width) + delta));
+      onWidthChange(fit((width ?? sizeOf(parent)) + delta));
     }
 
     return () => (
       <span
         {...mergeAttrs<'span'>(
-          { sx: [resizeHandleStyles.handle, edge === 'start' && resizeHandleStyles.start] },
+          {
+            sx: [
+              resizeHandleStyles.handle,
+              horizontal()
+                ? [
+                    resizeHandleStyles.horizontal,
+                    edge === 'start' && resizeHandleStyles.horizontalStart,
+                  ]
+                : edge === 'start' && resizeHandleStyles.start,
+            ],
+          },
           rest,
           {
             ref: (element: unknown) => (handle = element instanceof HTMLElement ? element : null),
             role: 'separator',
             tabindex: 0,
-            'aria-orientation': 'vertical',
+            'aria-orientation': orientation,
             'aria-valuenow': width ?? measured ?? minWidth,
             'aria-valuemin': minWidth,
             'aria-valuemax': Number.isFinite(maxWidth) ? maxWidth : undefined,
