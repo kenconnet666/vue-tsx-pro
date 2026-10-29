@@ -612,7 +612,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [x] 17.2.3 事件补全：touchmove、longpress、scroll、input / change；事件对象的 touches、目标节点等 DOM 形状（touchmove 只在 data-touch-move / data-scroll-lock 的节点上，横滑期间换 catch；事件对象带 touches；页面滚动接进宿主；input 的 event.target.value；键盘确认键转成 keydown Enter）
 - [x] 17.2.4 宿主约定的小程序实现：SelectorQuery 测量、pageScrollTo、系统信息与安全区、页面滚动锁、震动、剪贴板、chooseMedia
 - [x] 17.2.5 浮层：页面级浮层根接住 Teleport；`position: fixed` 与层级在两端一致；宿主的 `nextFrame` 等 setData 生效后再播进场动画
-- [ ] 17.2.6 `data-*`、`id` 透传到模板；role、aria-label 映射到小程序的无障碍属性（id 已做，测量时按需挂上）
+- [x] 17.2.6 `data-*`、`id` 透传到模板；role、aria-label 映射到小程序的无障碍属性（id 测量时按需挂上；data-* 只参与样式条件与运行时的事件，不必发到模板；role 与 aria-label / hidden / checked / disabled / selected / expanded 发到微信的 aria-*，支付宝没有对应属性不发）
 - [ ] 17.2.7 性能基准：1000 行列表首屏与更新的 setData 体积、频率；样式展开按"类名 + 状态"缓存；按住时只发样式真的变了的节点
 - [ ] 17.2.8 页面生命周期（onShow、onHide、下拉刷新、触底、分享）接进组合式 API；路由跳转包一层，页面参数作为 props
 - [ ] 17.2.9 开发模式：`buildMini` 的监听重建只重打应用代码，依赖走缓存；目标是改一个页面 1 s 内出新包；源码映射

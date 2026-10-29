@@ -82,6 +82,20 @@ describe('事件', () => {
     expect(clicks).toEqual(['button', 'div']);
   });
 
+  it('读屏属性：role 与常用的 aria-* 发到节点数据（模板上是微信的 aria-role、aria-label…）', async () => {
+    const Demo = defineComponent(
+      () => () =>
+        h('button', { role: 'switch', 'aria-checked': 'true', 'aria-label': '消息通知' }, [
+          h('span', { 'aria-hidden': 'true' }, '开'),
+        ]),
+    );
+    const page = mountPage(Demo);
+    await page.settle();
+    const button = page.data.root.cn[0]!;
+    expect(button).toMatchObject({ ar: 'switch', ack: 'true', al: '消息通知' });
+    expect(button.cn![0]).toMatchObject({ ahi: 'true' });
+  });
+
   it('输入框：输入的值写回节点（event.target.value），确认键是 keydown Enter；类型与禁用映射到模板', async () => {
     const text = ref('');
     const keys: string[] = [];

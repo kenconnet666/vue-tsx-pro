@@ -15,6 +15,11 @@ export interface Platform {
    * 微信的事件名可以是表达式；支付宝不行，只 bind
    */
   touchMove: string;
+  /**
+   * 无障碍属性：节点数据里的读屏字段（page.ts 的 A11Y_ATTRS）写到模板上。微信的组件认 aria-role、aria-label 等；
+   * 支付宝没有对应的属性，空着
+   */
+  a11y: string;
 }
 
 /** 模板上绑的原生事件 */
@@ -56,6 +61,7 @@ export const PLATFORMS: Readonly<Record<Platform['name'], Platform>> = {
     directive: 'wx',
     event: (name) => `catch${name}`,
     touchMove: `bindtouchmove="{{i.cm ? '' : 'eh'}}" catchtouchmove="{{i.cm ? 'eh' : ''}}"`,
+    a11y: 'aria-role="{{i.ar}}" aria-label="{{i.al}}" aria-hidden="{{i.ahi}}" aria-checked="{{i.ack}}" aria-disabled="{{i.adi}}" aria-selected="{{i.ase}}" aria-expanded="{{i.aex}}"',
   },
   my: {
     name: 'my',
@@ -64,5 +70,6 @@ export const PLATFORMS: Readonly<Record<Platform['name'], Platform>> = {
     directive: 'a',
     event: (name) => `catch${camel[name]}`,
     touchMove: 'onTouchMove="eh"',
+    a11y: '',
   },
 };

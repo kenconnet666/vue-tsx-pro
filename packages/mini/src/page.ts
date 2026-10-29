@@ -89,6 +89,27 @@ const TEMPLATE_ATTRS = {
   autofocus: 'af',
 } as const;
 
+/**
+ * 读屏的属性：元素属性名 → 节点数据里的字段（模板上的 aria-* 见 build/platforms.ts 的 a11y）。
+ * 只发微信认的几个；role 在微信里叫 aria-role
+ */
+const A11Y_ATTRS = {
+  role: 'ar',
+  'aria-label': 'al',
+  'aria-hidden': 'ahi',
+  'aria-checked': 'ack',
+  'aria-disabled': 'adi',
+  'aria-selected': 'ase',
+  'aria-expanded': 'aex',
+} as const;
+
+/** 透传到模板的属性：支付宝的模板上没有读屏属性，不发 */
+let passed: [string, string][] | undefined;
+const passedAttrs = () =>
+  (passed ??= Object.entries(
+    platform()?.name === 'my' ? TEMPLATE_ATTRS : { ...TEMPLATE_ATTRS, ...A11Y_ATTRS },
+  ));
+
 /** 输入框的 type（加上 inputmode）→ 小程序 input 的 type 与是否密码 */
 function inputType(node: MiniNode): { type: string; pw?: 1 } {
   const type = node.attribute('type');
@@ -233,7 +254,7 @@ class PageHost implements NodeHost {
     };
     // 手势节点在横滑的过程中写 data-touch-move="catch"：模板换成 catch，页面不跟着滚
     if (type === 'touch' && node.attribute('data-touch-move') === 'catch') data.cm = 1;
-    for (const [name, field] of Object.entries(TEMPLATE_ATTRS)) {
+    for (const [name, field] of passedAttrs()) {
       const value = node.attribute(name);
       if (value !== undefined) data[field] = value;
     }
