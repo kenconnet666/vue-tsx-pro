@@ -272,6 +272,9 @@ catalogs:
     decimal.js:
       specifier: 10.6.0
       version: 10.6.0
+    dmdb:
+      specifier: 1.0.52452
+      version: 1.0.52452
     exceljs:
       specifier: 4.4.0
       version: 4.4.0
@@ -364,6 +367,7 @@ catalogs:
       version: 4.6.7
 
 importers:
+
   .:
     devDependencies:
       '@modelcontextprotocol/sdk':
@@ -754,6 +758,22 @@ importers:
       '@zerodep-dev/easy-query-ts':
         specifier: workspace:*
         version: link:../core
+
+  packages/easy-query/dameng:
+    dependencies:
+      '@zerodep-dev/easy-query-ts-oracle':
+        specifier: workspace:^
+        version: link:../oracle
+    devDependencies:
+      '@zerodep-dev/easy-query-ts':
+        specifier: workspace:*
+        version: link:../core
+      '@zerodep-dev/easy-query-ts-test':
+        specifier: workspace:*
+        version: link:../test
+      dmdb:
+        specifier: 'catalog:'
+        version: 1.0.52452
 
   packages/easy-query/date:
     devDependencies:
@@ -3240,6 +3260,18 @@ packages:
   devlop@1.1.0:
     resolution: {integrity: sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA==}
 
+  dmdb@1.0.52452:
+    resolution: {integrity: sha512-X1NHOxcTEZs2JdkmiK+MWHNlrUf8Q4BWM/yHXEIUKX1tzoVVeDRavCb7oKymrWkHGk9VXUGNg52yKJzTQXvNlA==}
+    engines: {node: '>= 12'}
+    peerDependencies:
+      snappy: ^7.2.0
+      snappyjs: ^0.7.0
+    peerDependenciesMeta:
+      snappy:
+        optional: true
+      snappyjs:
+        optional: true
+
   dts-resolver@3.0.0:
     resolution: {integrity: sha512-1T1f+z+4tl9XD+m+0HBgWoL/nm0bOIffyWaUuUSBlFg/86IWvfx+wjNaO/ybU0AJzG9/Mi5hBUgGV6zCmWEN7Q==}
     engines: {node: ^22.18.0 || >=24.0.0}
@@ -3605,6 +3637,10 @@ packages:
 
   httpxy@0.5.6:
     resolution: {integrity: sha512-iqc3nOxvNb5FxbhJozt8wNmHgjlmk4zzba512jMEXVwHCEBCbGAj49eGfy5PI8ts3/LFSFq8siiSNqwfY1AlfQ==}
+
+  iconv-lite@0.5.2:
+    resolution: {integrity: sha512-kERHXvpSaB4aU3eANwidg79K8FlrN77m8G9V+0vOR3HYaRifrlwMEpT7ZBJqLSEIHnEgJTHcWK82wwLwwKwtag==}
+    engines: {node: '>=0.10.0'}
 
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
@@ -7451,6 +7487,10 @@ snapshots:
     dependencies:
       dequal: 2.0.3
 
+  dmdb@1.0.52452:
+    dependencies:
+      iconv-lite: 0.5.2
+
   dts-resolver@3.0.0: {}
 
   dunder-proto@1.0.1:
@@ -7919,6 +7959,10 @@ snapshots:
       - supports-color
 
   httpxy@0.5.6: {}
+
+  iconv-lite@0.5.2:
+    dependencies:
+      safer-buffer: 2.1.2
 
   iconv-lite@0.6.3:
     dependencies:

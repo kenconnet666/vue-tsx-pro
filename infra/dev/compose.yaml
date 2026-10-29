@@ -168,6 +168,23 @@ services:
       retries: 180
       start_period: 2m
 
+  # 达梦 DM8（社区镜像，官方只提供下载的 tar）：UTF-8、长度按字符、大小写敏感（与官方默认一致）
+  dameng:
+    profiles: [dameng]
+    image: xuxuclassmate/dameng:latest@sha256:c4088323442747a45d58bd33ef59e657c9b85f9e7dd956ba60b36d04a35b141d
+    restart: unless-stopped
+    mem_limit: 2g
+    environment:
+      SYSDBA_PWD: ${VTP_DAMENG_PASSWORD:?run infra/dev/db.sh to add VTP_DAMENG_PASSWORD}
+      UNICODE_FLAG: 1
+      LENGTH_IN_CHAR: 1
+      CASE_SENSITIVE: 1
+      TZ: Asia/Shanghai
+    ports:
+      - '25236:5236'
+    volumes:
+      - dameng-data:/opt/dmdbms/data
+
 volumes:
   mysql8018-data:
   mysql84-data:
@@ -175,3 +192,4 @@ volumes:
   hana-data:
   mssql-data:
   oracle-data:
+  dameng-data:

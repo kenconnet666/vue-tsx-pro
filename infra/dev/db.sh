@@ -49,4 +49,14 @@ EOF
   echo "created $env_file and $local_dir/connections.md"
 fi
 
+# 后来加的库：已有的 db.env 里缺这个库的变量时补上（不动已有的密码）
+# 用法：add_db 密码变量 '测试连接串，{p} 处换成密码'
+add_db() {
+  grep -q "^$1=" "$env_file" && return
+  local password
+  password="Vtp$(od -An -N9 -tx1 /dev/urandom | tr -d ' \n')9"
+  printf '%s=%s\n%s\n' "$1" "$password" "${2//\{p\}/$password}" >>"$env_file"
+}
+add_db VTP_DAMENG_PASSWORD 'EQTS_DAMENG_URL=dm://SYSDBA:{p}@127.0.0.1:25236'
+
 exec docker compose -f "$here/compose.yaml" --env-file "$env_file" "$@"

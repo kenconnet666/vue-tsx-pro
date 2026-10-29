@@ -80,6 +80,7 @@ catalog:
   oracledb: 7.0.1
   '@types/oracledb': 7.0.3
   '@duckdb/node-api': 1.5.6-r.1
+  dmdb: 1.0.52452
   # typed JSON 的线上格式（独立仓库 json-wire）：流程引擎的模型包按它比较与还原值
   '@zerodep-dev/json-wire': 0.1.0
   # 全栈的服务端底座（apps/fullstack-demo，之后的框架 kit）：Nitro 3 还在 beta，固定精确版本，升级时一起跑两种模式的端到端测试
