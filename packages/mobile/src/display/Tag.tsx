@@ -10,7 +10,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
-import { useConfig } from '../config/ConfigProvider';
+import { useConfig } from '../config/context';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { MobileTone } from '../utils/scales';
 

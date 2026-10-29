@@ -10,6 +10,11 @@ export interface Platform {
    * 两端冒泡时 target 的含义不同（支付宝每一层的 target 都是当前节点），不能靠它去重
    */
   event(name: NativeEventName): string;
+  /**
+   * 手势节点（模板 touch）的 touchmove：平时 bind（页面照常滚动），节点要 catch 时（横向滑动的过程中）换成 catch。
+   * 微信的事件名可以是表达式；支付宝不行，只 bind
+   */
+  touchMove: string;
 }
 
 /** 模板上绑的原生事件 */
@@ -50,6 +55,7 @@ export const PLATFORMS: Readonly<Record<Platform['name'], Platform>> = {
     style: 'wxss',
     directive: 'wx',
     event: (name) => `catch${name}`,
+    touchMove: `bindtouchmove="{{i.cm ? '' : 'eh'}}" catchtouchmove="{{i.cm ? 'eh' : ''}}"`,
   },
   my: {
     name: 'my',
@@ -57,5 +63,6 @@ export const PLATFORMS: Readonly<Record<Platform['name'], Platform>> = {
     style: 'acss',
     directive: 'a',
     event: (name) => `catch${camel[name]}`,
+    touchMove: 'onTouchMove="eh"',
   },
 };

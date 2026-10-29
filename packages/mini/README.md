@@ -38,4 +38,5 @@ await buildMini({ root: import.meta.dirname, platform: 'wx', plugins: vueTsxPro(
 - 支付宝的逻辑层跑在 Worker 里，旧环境没有 `globalThis`；编译器要看产物根目录的 `.browserslistrc` 才按新语法解析；
   Vue 选项式 API 里 `computed` 那段（`set:e=>i.value=e`）它解析不了，构建时关掉选项式 API。
 - 依赖（animejs）在模块顶层取 `setImmediate` / `requestAnimationFrame`，逻辑层没有：`./globals` 补上，排在打包入口最前面。
+  补上了微信里裸写的 `requestAnimationFrame` 仍然取不到（报 not a function）：组件里要等视图层画完用宿主的 `nextFrame`（等 setData 生效）。
 - Taro 按使用方源码扫描裁剪模板，预编译库里动态创建的元素没有模板；这里的模板按元素全量生成，不扫描源码。

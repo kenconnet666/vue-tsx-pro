@@ -9,7 +9,6 @@
 import { ImageOff } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { watch } from 'vue';
 import { Icon, type IconProps } from '../base/Icon';
 import { Loading, type LoadingProps } from '../feedback/Loading';
 import { dataAttrs, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -142,11 +141,8 @@ export const Image = _component(
     propsError,
     ...rest
   }: ImageProps) => {
-    let status = _state<ImageStatus>(src ? 'loading' : 'error');
-    watch(
-      () => src,
-      (next) => (status = next ? 'loading' : 'error'),
-    );
+    // 加载完、失败时覆盖；换了 src 重新回到加载中
+    let status = _derived<ImageStatus>(src ? 'loading' : 'error');
     return () => (
       <div
         {...mergeAttrs<'div'>(

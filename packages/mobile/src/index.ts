@@ -8,6 +8,7 @@ export * from './theme/tokens';
 export * from './theme/dark';
 import './theme/token-names';
 export * from './config/lang';
+export * from './config/context';
 export * from './config/ConfigProvider';
 
 // 工具：部件属性的合并、宿主约定、档位
@@ -28,6 +29,17 @@ export * from './display/Cell';
 export * from './display/Tag';
 export * from './display/Badge';
 export * from './display/Image';
+export * from './display/SwipeCell';
+
+// 浮层
+export * from './overlay/Overlay';
+export * from './overlay/Popup';
+export * from './overlay/ActionSheet';
 
 // 反馈
 export * from './feedback/Loading';
+export * from './feedback/Toast';
+export * from './feedback/Dialog';
+export * from './feedback/Notify';
+export * from './feedback/Skeleton';
+export * from './feedback/PullRefresh';

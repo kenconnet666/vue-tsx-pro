@@ -5,6 +5,15 @@
  */
 import { BOOLEAN_ATTRS } from './elements.ts';
 
+/** 一个触点：视口坐标与页面坐标 */
+export interface MiniTouch {
+  readonly identifier: number;
+  readonly clientX: number;
+  readonly clientY: number;
+  readonly pageX: number;
+  readonly pageY: number;
+}
+
 /** 小程序事件转成的 DOM 风格事件：组件的 onClick、onTouchstart 收到它 */
 export interface MiniEvent {
   readonly type: string;
@@ -13,6 +22,10 @@ export interface MiniEvent {
   defaultPrevented: boolean;
   /** 小程序原始事件的 detail（input 的 value 等） */
   readonly detail: unknown;
+  /** 触摸事件：屏幕上的触点（同 TouchEvent.touches 的形状，只有坐标） */
+  readonly touches: readonly MiniTouch[];
+  /** 触摸事件：这次变化的触点（touchend 时 touches 已经空了，坐标在这里） */
+  readonly changedTouches: readonly MiniTouch[];
   preventDefault(): void;
   stopPropagation(): void;
 }

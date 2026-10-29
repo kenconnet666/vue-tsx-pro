@@ -11,7 +11,8 @@ export const DEPTH = 24;
 export function baseTemplate(platform: Platform): string {
   const on = (names: readonly NativeEventName[]) =>
     names.map((name) => `${platform.event(name)}="eh"`).join(' ');
-  // 所有节点都收点击与按压（:active）；touchmove 只有 lock、touch 两种收，普通节点滚动时不往逻辑层发事件
+  // 所有节点都收点击与按压（:active）；touchmove 只有 lock（catch，挡住滚动）、touch（bind，手势；横滑时换成 catch）两种收，
+  // 普通节点滚动时不往逻辑层发事件
   const tapEvents = on(['tap', 'longpress', 'touchstart', 'touchend', 'touchcancel']);
   const common = `id="{{i.id}}" class="{{i.c}}" style="{{i.st}}" data-s="{{i.s}}"`;
   const templates: string[] = [];
@@ -25,7 +26,7 @@ export function baseTemplate(platform: Platform): string {
     templates.push(
       view('v', tapEvents),
       view('lock', `${tapEvents} ${on(['touchmove'])}`),
-      view('touch', `${tapEvents} ${on(['touchmove'])}`),
+      view('touch', `${tapEvents} ${platform.touchMove}`),
       `<template name="vtp_x_${level}">{{i.v}}</template>`,
       `<template name="vtp_n_${level}"><block></block></template>`,
       `<template name="vtp_svg_${level}"><view ${common} ${tapEvents}/></template>`,

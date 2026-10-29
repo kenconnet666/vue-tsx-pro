@@ -1,5 +1,5 @@
 /**
- * 移动端主题 tokens：组件里的颜色、字体、间距、圆角、阴影、动效、层级都只从这里取，不写裸值。
+ * 移动端主题 tokens：组件里的颜色、字体、间距、圆角、阴影、动效都只从这里取，不写裸值。
  * 每组一个 defineVars，变量名是 `--vtm-组名-token`；这里的取值即亮色主题，暗色主题见 dark.ts。
  *
  * 用法同桌面组件库：值整个就是一个 token 时写字符串 '_md'、'_space.md'，文件末尾的 defineTokens 登记各组；
@@ -321,18 +321,6 @@ export const strokeWidths = css.defineVars('vtm-stroke-widths', {
   lg: '2.5',
 });
 
-/** 层级：浮在页面上的东西从低到高（没有短写，写 `zIndex: t.zIndices.popup`） */
-export const zIndices = css.defineVars('vtm-z-indices', {
-  /** 吸顶、吸底的栏 `100` */
-  sticky: '100',
-  /** 导航栏、标签栏 `500` */
-  bar: '500',
-  /** 弹出层与它的遮罩 `2000` */
-  popup: '2000',
-  /** 轻提示、通知 `3000` */
-  toast: '3000',
-});
-
 /** 各组 token 的变量引用，用在模板字符串里：`` `max(${t.sizes.control}, ${t.sizes.touchTarget})` `` */
 export const t = css.defineTokens({
   colors,
@@ -350,5 +338,4 @@ export const t = css.defineTokens({
   easings,
   opacities,
   strokeWidths,
-  zIndices,
 });

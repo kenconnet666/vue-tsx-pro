@@ -15,6 +15,7 @@ import {
   Space,
   Tag,
 } from '@zerodep-dev/vue-tsx-pro-mobile';
+import { go } from '../nav.ts';
 
 const styles = css.create({
   page: { minHeight: '100vh', paddingBlockEnd: '_xxl', backgroundColor: '_background' },
@@ -33,6 +34,14 @@ export const BasicsPage = _component(() => {
 
   return () => (
     <ConfigProvider {...css.attrs(styles.page)}>
+      <CellGroup title="更多演示">
+        <Cell
+          title="浮层与反馈"
+          description="弹出层、对话框、轻提示、滑动单元格、下拉刷新"
+          arrow
+          onClick={() => go('feedback')}
+        />
+      </CellGroup>
       <CellGroup title="按钮">
         <div {...css.attrs(styles.section)}>
           <Space>

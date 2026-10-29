@@ -58,6 +58,8 @@ export interface MountedPage {
   tap(node: PageNode): Promise<void>;
   /** 派发一个原生事件（input、scroll…），detail 是小程序事件的 detail */
   dispatch(node: PageNode, type: string, detail?: unknown): Promise<void>;
+  /** 派发一次触摸（touchstart / touchmove / touchend），触点在 (x, y) */
+  touch(node: PageNode, type: string, x: number, y: number): Promise<void>;
   /** 卸载 */
   unmount(): void;
 }
@@ -82,10 +84,18 @@ export function mountPage(component: Component, query: Record<string, string> = 
   };
   const all = (nodes: PageNode[] = page.data.root.cn): PageNode[] =>
     nodes.flatMap((node) => [node, ...all(node.cn ?? [])]);
-  const dispatch = async (node: PageNode, type: string, detail?: unknown) => {
-    options.eh.call(page, { type, detail, currentTarget: { dataset: { s: node.s } } });
+  // 事件时间：touchmove 按它去掉冒泡带来的重复，每次派发都要不同
+  let timeStamp = 0;
+  type Fired = Omit<Parameters<typeof options.eh>[0], 'timeStamp' | 'currentTarget'>;
+  const fire = async (node: PageNode, event: Fired) => {
+    options.eh.call(page, {
+      ...event,
+      timeStamp: ++timeStamp,
+      currentTarget: { dataset: { s: node.s } },
+    });
     await settle();
   };
+  const dispatch = (node: PageNode, type: string, detail?: unknown) => fire(node, { type, detail });
   return {
     data: page.data,
     settle,
@@ -100,6 +110,14 @@ export function mountPage(component: Component, query: Record<string, string> = 
       await dispatch(node, 'tap');
     },
     dispatch,
+    touch(node, type, x, y) {
+      const point = { identifier: 0, clientX: x, clientY: y, pageX: x, pageY: y };
+      return fire(node, {
+        type,
+        touches: type === 'touchend' ? [] : [point],
+        changedTouches: [point],
+      });
+    },
     unmount: () => options.onUnload.call(page),
   };
 }

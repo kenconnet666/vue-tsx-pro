@@ -62,6 +62,10 @@ export function windowSize(api: MiniApi) {
 export interface PageBridge {
   overlay: MiniNode;
   flushed(): Promise<void>;
+  /** 页面滚动位置（页面的 onPageScroll 记下） */
+  readonly scrollTop: number;
+  /** 页面滚动的监听 */
+  readonly scrollListeners: Set<(top: number) => void>;
 }
 
 /** 一个页面的平台能力 */
@@ -94,6 +98,19 @@ export function createMiniHost(page: PageBridge) {
     window: () => (current ? windowSize(current.api) : { width: 375, height: 667 }),
     scrollTo(top: number, options?: { smooth?: boolean }) {
       api().pageScrollTo({ scrollTop: top, duration: options?.smooth ? 300 : 0 });
+    },
+    scrollTop: () => page.scrollTop,
+    onScroll(listener: (top: number) => void) {
+      page.scrollListeners.add(listener);
+      return () => page.scrollListeners.delete(listener);
+    },
+    nextFrame(callback: () => void) {
+      let cancelled = false;
+      // setData 的回调在视图层更新之后；再隔一帧，让视图层把关闭的样子画出来
+      void page.flushed().then(() => setTimeout(() => !cancelled && callback(), 16));
+      return () => {
+        cancelled = true;
+      };
     },
     // 小程序里锁滚动靠遮罩节点 catch 掉 touchmove（模板 vtp_lock，见 build/templates.ts），这里不需要做什么
     lockScroll: () => () => {},

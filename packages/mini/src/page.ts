@@ -6,7 +6,7 @@
  */
 import type { App, Component } from 'vue';
 import { FORM_CONTROLS, templateOf, type TemplateType } from './elements.ts';
-import { MiniNode, type MiniEvent, type NodeHost } from './node.ts';
+import { MiniNode, type MiniEvent, type MiniTouch, type NodeHost } from './node.ts';
 import { createMiniApp } from './renderer.ts';
 import { createMiniHost, HOST_KEY, platform, windowSize } from './host.ts';
 import { resolveStyle, setWindowWidth } from './style.ts';
@@ -20,9 +20,30 @@ interface PageInstance {
 /** 小程序事件里要用到的部分；支付宝的事件名是驼峰（touchStart），统一转小写 */
 interface NativeEvent {
   type: string;
+  /** 事件发生的时间：bind 的 touchmove 会沿祖先冒泡，同一次移动按它只处理一次 */
+  timeStamp?: number;
   detail?: unknown;
   currentTarget?: { dataset?: Record<string, string> };
+  touches?: readonly NativeTouch[];
+  changedTouches?: readonly NativeTouch[];
 }
+
+/** 小程序事件里的触点：微信给 clientX / pageX，支付宝有的版本只给 pageX（页面坐标），缺的用另一个补 */
+interface NativeTouch {
+  identifier?: number;
+  clientX?: number;
+  clientY?: number;
+  pageX?: number;
+  pageY?: number;
+}
+
+const toTouch = (touch: NativeTouch, index: number): MiniTouch => ({
+  identifier: touch.identifier ?? index,
+  clientX: touch.clientX ?? touch.pageX ?? 0,
+  clientY: touch.clientY ?? touch.pageY ?? 0,
+  pageX: touch.pageX ?? touch.clientX ?? 0,
+  pageY: touch.pageY ?? touch.clientY ?? 0,
+});
 
 /** 节点数据的字段 */
 type NodeData = Record<string, unknown>;
@@ -76,6 +97,11 @@ class PageHost implements NodeHost {
   readonly root: MiniNode;
   /** 浮层根：挂在根节点的最后，弹出层、轻提示 Teleport 到这里 */
   readonly overlay = new MiniNode('div');
+  /** 页面滚动位置（onPageScroll 记下），与滚动的监听 */
+  scrollTop = 0;
+  /** 上一次处理的 touchmove 的时间（去掉冒泡带来的重复） */
+  private lastMove = -1;
+  readonly scrollListeners = new Set<(top: number) => void>();
 
   constructor(page: PageInstance, root: MiniNode) {
     this.page = page;
@@ -183,6 +209,8 @@ class PageHost implements NodeHost {
       c: className,
       st: type === 'svg' ? `${svgMaskStyle(node)};${style}` : style,
     };
+    // 手势节点在横滑的过程中写 data-touch-move="catch"：模板换成 catch，页面不跟着滚
+    if (type === 'touch' && node.attribute('data-touch-move') === 'catch') data.cm = 1;
     for (const [name, field] of Object.entries(TEMPLATE_ATTRS)) {
       const value = node.attribute(name);
       if (value !== undefined) data[field] = value;
@@ -196,6 +224,11 @@ class PageHost implements NodeHost {
     if (!sid) return;
     const target = this.nodes.get(sid);
     const nativeType = native.type.toLowerCase();
+    // 手势节点的 touchmove 是 bind（为了不挡页面滚动），会冒泡到外层的手势节点：同一次移动只处理一次
+    if (nativeType === 'touchmove' && native.timeStamp !== undefined) {
+      if (native.timeStamp === this.lastMove) return;
+      this.lastMove = native.timeStamp;
+    }
     const type = EVENT_TYPES[nativeType];
     if (!target || !type) return;
     if (nativeType === 'touchstart' || nativeType === 'touchend' || nativeType === 'touchcancel')
@@ -208,6 +241,8 @@ class PageHost implements NodeHost {
       currentTarget: target,
       defaultPrevented: false,
       detail: native.detail,
+      touches: (native.touches ?? []).map(toTouch),
+      changedTouches: (native.changedTouches ?? []).map(toTouch),
       preventDefault() {
         event.defaultPrevented = true;
       },
@@ -275,6 +310,13 @@ export function pageOptions(component: Component, setup?: (app: App<MiniNode>) =
     /** 模板上所有事件的入口（build/templates.ts） */
     eh(this: PageInstance, event: NativeEvent) {
       mounted.get(this)?.host.dispatch(event);
+    },
+    /** 页面滚动：记下位置，通知组件（吸顶、回到顶部、下拉刷新） */
+    onPageScroll(this: PageInstance, { scrollTop }: { scrollTop: number }) {
+      const host = mounted.get(this)?.host;
+      if (!host) return;
+      host.scrollTop = scrollTop;
+      for (const listener of host.scrollListeners) listener(scrollTop);
     },
   };
 }

@@ -1,35 +1,24 @@
 /**
- * 全局配置：主题（亮色、暗色、跟随系统）与语言。包在应用（或某一块）外面，里面的组件读它：
+ * 全局配置：主题（亮色、暗色、跟随系统）与语言。包在每个页面（或应用）外面，里面的组件读它：
  *
  *   <ConfigProvider theme="system" lang={enUS}>
- *     <App />
+ *     <Page />
  *   </ConfigProvider>
  *
  * 主题是根元素上只改变量的类，换主题不重新渲染组件；根元素也给出页面的字体、字号、文字颜色。
+ * 命令式的反馈（showToast、showDialog、showNotify）渲染在最外层的 ConfigProvider 里：用它们的页面要包一层。
  * 不包时组件用简体中文、亮色主题。
  */
-import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
+import { FeedbackOutlet } from '../feedback/FeedbackOutlet';
 import { darkTheme, systemTheme } from '../theme/dark';
 import { dataAttrs, mergeAttrs, type PartProps } from '../utils/props';
+import { ConfigContext } from './context';
 import { zhCN, type MobileLang } from './lang';
 
-/** 组件读到的配置 */
-export interface MobileConfig {
-  /** 语言包 */
-  readonly lang: MobileLang;
-}
-
-/** 配置的上下文：组件里 `useConfig()` 读 */
-export const ConfigContext = createContext<MobileConfig>('ConfigProvider');
-
-const defaultConfig: MobileConfig = { lang: zhCN };
-
-/** 当前的配置；不在 ConfigProvider 里时是默认配置 */
-export const useConfig = (): MobileConfig => ConfigContext.inject(defaultConfig);
-
-/** 主题：light 亮色，dark 暗色，system 跟随系统 */
+/** 主题 */
 export interface MobileThemes {
   /** 亮色 */
   light: unknown;
@@ -67,30 +56,32 @@ export const configProviderStyles = css.create({
   },
 });
 
-/** 全局配置：主题与语言；根元素是一个 div */
+const THEMES = { light: null, dark: darkTheme, system: systemTheme } as const;
+
+/** 全局配置：主题与语言；根元素是一个 div，后面是命令式反馈的出口 */
 export const ConfigProvider = _component(
   ({ theme = 'light', lang = zhCN, children, ...rest }: ConfigProviderProps) => {
+    // 嵌套时只有最外层渲染出口，否则同一条提示会出现两次
+    const outermost = ConfigContext.inject(null) === null;
     ConfigContext.provide({
       get lang() {
         return lang;
       },
+      get rootSx() {
+        return [configProviderStyles.root, THEMES[theme]];
+      },
     });
-    return () => (
+    return () => [
       <div
         {...mergeAttrs<'div'>(
-          {
-            sx: [
-              configProviderStyles.root,
-              theme === 'dark' && darkTheme,
-              theme === 'system' && systemTheme,
-            ],
-          },
+          { sx: [configProviderStyles.root, THEMES[theme]] },
           rest,
           dataAttrs({ 'data-theme': theme }),
         )}
       >
         {children}
-      </div>
-    );
+      </div>,
+      outermost && <FeedbackOutlet />,
+    ];
   },
 );

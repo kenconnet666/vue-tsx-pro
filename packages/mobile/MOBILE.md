@@ -57,12 +57,13 @@
 
 ## 5. 平台能力：宿主约定
 
-组件不直接碰 DOM 与 `window`，平台能力都经 `useHost()`（`utils/host.ts`）：测量（异步）、窗口大小、页面滚动、锁滚动、浮层根、
+组件不直接碰 DOM 与 `window`，平台能力都经 `useHost()`（`utils/host.ts`）：测量（异步）、窗口大小、页面滚动、等下一帧画完、锁滚动、浮层根、
 震动、剪贴板、选图。H5 用这里的 Web 实现；小程序由渲染运行时在每个页面的应用上 provide 自己的实现，两边约定同一个
 `Symbol.for('vue-tsx-pro.host')`，互不导入。
 
 - 测量在小程序里只能异步：需要尺寸的组件（浮层定位、滑块、吸顶）按 `await host.measure(元素)` 写。
 - 安全区用 CSS 的 `env(safe-area-inset-bottom)`，两端都支持，不经宿主。
+- 不直接用 `requestAnimationFrame`：微信的逻辑层里它不可用，而且逻辑层的一帧不代表视图层画好了。进场动画经 `host.nextFrame`（`utils/presence.ts`）。
 
 ## 6. 元素与浮层
 
@@ -70,7 +71,7 @@
   `button` 的默认显示方式是行内块，`span` 等是行内（运行时补上浏览器的默认值）。
 - **滚动锁**：遮罩节点写 `data-scroll-lock`，小程序里换成 catch 掉 touchmove 的模板；H5 由 `host.lockScroll()` 锁 body。
 - **手势**：要收 touchmove 的节点写 `data-touch-move`（普通节点不绑 touchmove，滚动时不往逻辑层发事件）。
-- **浮层**：Teleport 到 `host.overlayRoot()`（H5 是 body，小程序是页面根节点下的浮层节点），层级用 `zIndices` token；
+- **浮层**：Teleport 到 `host.overlayRoot()`（H5 是 body，小程序是页面根节点下的浮层节点），层级写字面量：弹出层 2000、轻提示与通知 3000（zIndex 的类型不收 var()，也没有主题化的需要）；
   不用原生 popover / dialog（小程序没有顶层）。
 
 ## 7. 事件

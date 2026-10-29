@@ -45,6 +45,15 @@ export interface Host {
   window(): HostWindow;
   /** 页面滚动到某个位置 */
   scrollTo(top: number, options?: { smooth?: boolean }): void;
+  /** 页面当前的滚动位置（px） */
+  scrollTop(): number;
+  /** 监听页面滚动，返回取消函数 */
+  onScroll(listener: (top: number) => void): () => void;
+  /**
+   * 等这一轮的改动画到屏幕上再回调，返回取消函数。进场动画要先画出关闭的样子，再换成打开的样子，过渡才会播。
+   * H5 是两次 requestAnimationFrame；小程序是这一轮 setData 生效之后（逻辑层没有屏幕刷新的回调）
+   */
+  nextFrame(callback: () => void): () => void;
   /** 锁住页面滚动（弹出层打开时），返回解锁函数；可叠加，最后一个解锁时恢复 */
   lockScroll(): () => void;
   /** 浮层根：弹出层、轻提示 Teleport 到这里 */
@@ -74,6 +83,21 @@ export const webHost: Host = {
   window: () => ({ width: window.innerWidth, height: window.innerHeight }),
   scrollTo(top, options) {
     window.scrollTo({ top, behavior: options?.smooth ? 'smooth' : 'auto' });
+  },
+  scrollTop: () => window.scrollY,
+  onScroll(listener) {
+    const handle = () => listener(window.scrollY);
+    window.addEventListener('scroll', handle, { passive: true });
+    return () => window.removeEventListener('scroll', handle);
+  },
+  nextFrame(callback) {
+    // 第一次在绘制前，第二次时上一帧已经画好
+    let inner = 0;
+    const outer = requestAnimationFrame(() => (inner = requestAnimationFrame(callback)));
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+    };
   },
   lockScroll() {
     if (locks++ === 0) {
