@@ -8,11 +8,13 @@
  * 哪些文件做哪一步：
  *   - 符文、样式绑定与热更新：项目自己的脚本文件（不含 node_modules、虚拟模块与 Vue 单文件组件）
  *   - JSX 与去掉类型：.jsx、.tsx，以及单文件组件里 lang="jsx" / "tsx" 的脚本；.ts 的类型由 Vite 自带的 oxc 去掉
- * 发布的组件库是编译好的 JS，整个预构建，不经过这里。
+ * 发布的组件库是编译好的 JS：开发时整个预构建，构建时依赖里的 .js 直接跳过（工作区里按 dist 引用的包也算，见 isPublishedOutput）。
  */
 import type { VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
 import { normalizePath, type Plugin } from 'vite';
+import { existsSync, readFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
+import { join } from 'node:path';
 import { languageOf } from '../compiler/detect.ts';
 import { CompileCache } from './cache.ts';
 import { compilerCacheKey } from './cache-key.ts';
@@ -147,9 +149,14 @@ function compiler(options: VueTsxProOptions): Plugin & VitestHooks {
         if (/(?:^|&)(?:raw|url|assets)(?:[=&]|$)/.test(query)) return;
         // 预构建的依赖在 cacheDir 里：cacheDir 不在 node_modules 下（自定义了位置）时也不是项目自己的代码
         const own =
-          SCRIPT_FILE.test(file) && !file.includes('/node_modules/') && !file.startsWith(cacheDir);
+          SCRIPT_FILE.test(file) &&
+          !file.includes('/node_modules/') &&
+          !file.startsWith(cacheDir) &&
+          !isPublishedOutput(file);
         const lang = languageOf(id);
         if (!lang) return;
+        // 依赖里的普通 JS 是编译好的产物：没有 JSX、符文要处理，构建时不再过一遍 Babel
+        if (!own && lang === 'js') return;
         // 多环境（Vite 6 起）按模块所在的环境判断；旧的 ssr 参数留作没有环境时的退路
         const ssr = this.environment
           ? this.environment.config.consumer === 'server'
@@ -169,6 +176,27 @@ function compiler(options: VueTsxProOptions): Plugin & VitestHooks {
       },
     },
   };
+}
+
+/** 目录 → 它是不是"同时发布源码与 dist 的包"的根目录（见 isPublishedOutput） */
+const publishedRoots = new Map<string, boolean>();
+
+/**
+ * 组件库等包的发布产物：所属的包在 exports 里写了 @vue-tsx-pro/source 条件（源码与 dist 并存），文件在它的 dist 下。
+ * pnpm 工作区里按 dist 引用这些包时，解析出的真实路径不在 node_modules 下，要靠这里认出来，免得把编译好的产物再编译一遍
+ */
+function isPublishedOutput(file: string): boolean {
+  const index = file.lastIndexOf('/dist/');
+  if (index < 0) return false;
+  const root = file.slice(0, index);
+  let published = publishedRoots.get(root);
+  if (published === undefined) {
+    const manifest = join(root, 'package.json');
+    published =
+      existsSync(manifest) && readFileSync(manifest, 'utf8').includes('"@vue-tsx-pro/source"');
+    publishedRoots.set(root, published);
+  }
+  return published;
 }
 
 /** 设置能不能复制到编译线程（含函数的选项不能） */
