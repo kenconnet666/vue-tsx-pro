@@ -457,27 +457,27 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 
 ### 16.2 查询与表达式（ability/select、func、sub-query）
 
-- [ ] 16.2.1 函数库补齐（func/*）：日期格式化 `format`、`plusYears/Hours/Minutes/Seconds`、`hour/minute/second`、`dayOfYear/dayOfWeek`、
+- [x] 16.2.1 函数库补齐（func/*）：日期格式化 `format`、`plusYears/Hours/Minutes/Seconds`、`hour/minute/second`、`dayOfYear/dayOfWeek`、
       时间间隔 `duration`（按单位取天、时、分、秒）、`now/utcNow`；`maxColumns/minColumns`（GREATEST / LEAST）；
       字符串 `ltrim/rtrim`、`leftPad/rightPad`、`stringFormat`（模板拼接，参数可复用）、`nullEmpty`、`compareTo`、`notStartsWith/notEndsWith`；
       聚合 `joining`（GROUP_CONCAT / STRING_AGG，带分隔符与排序）、`sumOrDefault` 这类写法用 `orElse`；
-      窗口 `firstValue/lastValue/nthValue`；数学 `power/sqrt/exp/log/sign/…`（对 func/math 全表）
-- [ ] 16.2.2 JSON 函数（func/json）：取值、对象 / 数组构造，按方言渲染（MySQL `->>`、PG `->>`、SQLite `json_extract`、HANA `JSON_VALUE`）
-- [ ] 16.2.3 子查询（sub-query/*）：join 一条子查询（`innerJoin(query.asTable(), …)`，现在派生表不能 join）、select 里的相关子查询手动模式、from 子查询的自定义视图
-- [ ] 16.2.4 一对多导航上的 `flatElement` / `elements`：`u.roles.flat((r) => r.name)` 在 select 里得到数组、在 where 里是"任一"；`joining` 拼成一串
-- [ ] 16.2.5 动态表名、`whereColumns`、`selectColumn`、`toMap`、`cloneQueryable` 等对照 ability/* 逐条确认（多数是写法不同，补测试）
-- [ ] 16.2.6 深分页反向排序（performance/deep-page：offset 超过一半时倒序取再翻回来）、派生表条件穿透（adv/smart-predicate）
+      窗口 `firstValue/lastValue/nthValue`；数学 `power/sqrt/exp/log/sign/…`（对 func/math 全表）（全部补齐；函数参数改为延后绑定，修掉换序、重复参数时位置占位符错位的问题）
+- [x] 16.2.2 JSON 函数（func/json）：取值、对象 / 数组构造，按方言渲染（MySQL `->>`、PG `->>`、SQLite `json_extract`、HANA `JSON_VALUE`）（json / jsonText / jsonNumber / jsonBoolean / jsonHas / jsonLength，路径按列的 TS 类型补全检查）
+- [x] 16.2.3 子查询（sub-query/*）：join 一条子查询（`innerJoin(query.asTable(), …)`，现在派生表不能 join）、select 里的相关子查询手动模式、from 子查询的自定义视图（join 接受一条查询，表引用按子查询的 select 带类型）
+- [x] 16.2.4 一对多导航上的 `flatElement` / `elements`：`u.roles.flat((r) => r.name)` 在 select 里得到数组、在 where 里是"任一"；`joining` 拼成一串（flatElement 对应 any / toList / r.path；补 all、at(i)、countDistinct；导航上 limit 用在聚合时报错）
+- [x] 16.2.5 动态表名、`whereColumns`、`selectColumn`、`toMap`、`cloneQueryable` 等对照 ability/* 逐条确认（多数是写法不同，补测试）（不在 schema 里的实体直接查写；tableHint；withTableLink；无实体的 Map 结果用 db.sql）
+- [x] 16.2.6 深分页反向排序（performance/deep-page：offset 超过一半时倒序取再翻回来）、派生表条件穿透（adv/smart-predicate）（reversePageAfter；派生表条件穿透，有窗口、分组等时不推）
 
 ### 16.3 导航、DTO、计算属性（navigate、include、dto-query、prop）
 
-- [ ] 16.3.1 自定义关联条件：多对多无中间表、逗号分隔列（navigate/dotcolumn，FIND_IN_SET 一类）、路径左匹配（navigate/pathcolumn）——
-      `r.many('Book', { on: (u, b) => … })` 任意条件的关系，隐式子查询与 toList 都支持
-- [ ] 16.3.2 多对一导航上的拦截器开关（关系定义处给默认开关）、include 的 extra filter 与 include filter 对照（include/*）
-- [ ] 16.3.3 计算属性（prop/*）：实体上声明数据库计算的属性（`computed: (u) => u.first.concat(u.last)`、跨表、状态 CASE），select / where / orderBy / table() 都能用；
-      内存计算属性用视图
-- [ ] 16.3.4 DTO 筛选与排序（dto-query/filter、sort）：`filterBy(input, { name: 'like', age: 'range', … })`，规则的键与值类型由实体推出；
-      `table()` 加 `filterable` / `sortable` 白名单
-- [ ] 16.3.5 `selectAutoInclude` 的对照：视图 + 导航自动带出（现有）补测试；`NavigateFlat` 的各种平铺对照
+- [x] 16.3.1 自定义关联条件：多对多无中间表、逗号分隔列（navigate/dotcolumn，FIND_IN_SET 一类）、路径左匹配（navigate/pathcolumn）——
+      `r.many('Book', { on: (u, b) => … })` 任意条件的关系，隐式子查询与 toList 都支持（r.manyOn / oneOn，inCsv、like 接受列；无中间表即按共同列的 r.many）
+- [x] 16.3.2 多对一导航上的拦截器开关（关系定义处给默认开关）、include 的 extra filter 与 include filter 对照（include/*）（required、关系上的 interceptors；include 的两种 filter 即导航上的 where 与关系的 where；空串键不查子项）
+- [x] 16.3.3 计算属性（prop/*）：实体上声明数据库计算的属性（`computed: (u) => u.first.concat(u.last)`、跨表、状态 CASE），select / where / orderBy / table() 都能用；
+      内存计算属性用视图（defineComputed，跨表、CASE、组合；内存计算属性用视图）
+- [x] 16.3.4 DTO 筛选与排序（dto-query/filter、sort）：`filterBy(input, { name: 'like', age: 'range', … })`，规则的键与值类型由实体推出；
+      `table()` 加 `filterable` / `sortable` 白名单（filterBy、sortBy、table 的 filterable / sortable）
+- [x] 16.3.5 `selectAutoInclude` 的对照：视图 + 导航自动带出（现有）补测试；`NavigateFlat` 的各种平铺对照（视图 + 导航自动带出、形状里平铺导航列，suite.ts views 已覆盖）
 
 ### 16.4 写入与保存（ability/insert、update、delete、batch、savable、adv）
 
