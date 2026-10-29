@@ -3,7 +3,7 @@
  *
  * 表里的属性可以写短写 `fontSize: '_xs'`（= fontSizes.xs）；其他属性、或要跨组取值时写带组名的 `'_space.md'`。
  * 组名沿用 Stitches / styled-system 的约定，主题库按这些名字导出 defineVars。
- * 用到它的地方：编译器（compiler/tokens.ts）改写字符串，scripts/css-docs 给这些属性生成短写的取值类型。
+ * 用到它的地方：运行时展开声明时把短写换成 token 变量（tokens.ts），scripts/css-docs 给这些属性生成短写的取值类型。
  */
 
 const sides = (prefix: string, suffix = '') =>

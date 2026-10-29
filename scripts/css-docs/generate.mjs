@@ -10,7 +10,7 @@
  *   - 数字值的单位规则：packages/tsx/src/styles/units.ts（样式引擎补单位用的同一张表）
  *   - 主题 tokens 的短写：packages/tsx/src/styles/token-map.ts 的对照表
  *
- * 同时生成 ui 的主题 tokens 字符串写法的类型（见 tokens.mjs）。
+ * 同时生成各组件库（ui、mobile）的主题 tokens 字符串写法的类型（见 tokens.mjs 的 TOKEN_PACKAGES）。
  *
  * 用法：node scripts/css-docs/generate.mjs [--check]
  *   --check 只比较不写入，生成结果与仓库里的文件不一致时以非零退出（CI 用）
@@ -43,7 +43,7 @@ import {
   qualifiedTokenInterfaceName,
   tokenCatalogOutput,
   tokenInterfaceName,
-  tokenNamesOutput,
+  TOKEN_PACKAGES,
 } from './tokens.mjs';
 import { root } from '../lib/repo.mjs';
 
@@ -436,10 +436,15 @@ async function format(code, file) {
   return prettier.format(code, { ...config, filepath: file });
 }
 
-const tokenNames = tokenNamesOutput(root);
+const tokenNames = await Promise.all(
+  TOKEN_PACKAGES.map(async ({ tokens, output: target }) => {
+    const file = join(root, target);
+    return [file, await format(generateTokenNames(root, tokens), file)];
+  }),
+);
 const outputs = [
   [output, await generate()],
-  [tokenNames, await format(generateTokenNames(root), tokenNames)],
+  ...tokenNames,
   [tokenCatalogOutput(root), await format(generateTokenCatalog(root), tokenCatalogOutput(root))],
 ];
 const check = process.argv.includes('--check');

@@ -1,5 +1,5 @@
 /**
- * 生成 packages/ui/src/config/theme/token-names.ts：主题 tokens 短写（`fontSize: '_xs'`）的类型。
+ * 生成主题 tokens 短写（`fontSize: '_xs'`）的类型：每个主题库一份 token-names.ts（见 TOKEN_PACKAGES）。
  *
  * 读 tokens.ts 里每个 `export const 组 = css.defineVars({ … })` 的键与注释，
  * 用 declare module 填入 @zerodep-dev/vue-tsx-pro-tsx/styles 里对照表各组的接口（FontSizesTokens 等）；
@@ -28,12 +28,24 @@ export const tokenInterfaceName = (group) => `${group[0].toUpperCase()}${group.s
 /** 带组名的写法（`'_space.md'`）的接口：space → QualifiedSpaceTokens */
 export const qualifiedTokenInterfaceName = (group) => `Qualified${tokenInterfaceName(group)}`;
 
-export function tokenNamesOutput(root) {
-  return join(root, 'packages/ui/src/config/theme/token-names.ts');
-}
+/**
+ * 有主题 tokens 的组件库：tokens.ts 的位置 → 生成的 token-names.ts 的位置。
+ * 两套的组名相同（短写写法一致），类型增补按 token 名合并
+ */
+export const TOKEN_PACKAGES = [
+  {
+    tokens: 'packages/ui/src/config/theme/tokens.ts',
+    output: 'packages/ui/src/config/theme/token-names.ts',
+  },
+  {
+    tokens: 'packages/mobile/src/theme/tokens.ts',
+    output: 'packages/mobile/src/theme/token-names.ts',
+  },
+];
 
-export function generateTokenNames(root) {
-  const groups = readTokenGroups(join(root, 'packages/ui/src/config/theme/tokens.ts'));
+/** 由某个组件库的 tokens.ts 生成它的 token-names.ts 的内容 */
+export function generateTokenNames(root, tokensFile) {
+  const groups = readTokenGroups(join(root, tokensFile));
   const mapped = new Set(TOKEN_GROUP_OF.values());
   const missing = [...mapped].filter((group) => !groups.some((item) => item.name === group));
   if (missing.length)
