@@ -89,6 +89,27 @@ describe('typed JSON 的响应', () => {
     const plain = createHttpClient({ baseURL: 'https://example.test', fetch, wire: false });
     expect(await plain.get('/orders/1')).toEqual(body);
   });
+
+  it('单个请求的 wire 盖过客户端：请求体、响应分开定', async () => {
+    const body = { id: '9007199254740993', $types: { id: 'bigint' } };
+    const { fetch, requests } = fakeFetch(() => json(body));
+    const http = createHttpClient({ baseURL: 'https://example.test', fetch });
+    // 外部系统只认普通 JSON：请求体不写 $types，响应照常还原
+    const revived = await http.post('/a', { name: 'x', n: 1 }, { wire: { request: false } });
+    expect(await requests[0]!.json()).toEqual({ name: 'x', n: 1 });
+    expect(revived).toEqual({ id: 9007199254740993n });
+    // 响应不还原，请求体照常写成 typed JSON
+    expect(await http.post('/b', { id: 5n }, { wire: { response: false } })).toEqual(body);
+    expect(await requests[1]!.json()).toEqual({ id: '5', $types: { id: 'bigint' } });
+    // 客户端整体关掉时，单个请求也能打开
+    const plain = createHttpClient({ baseURL: 'https://example.test', fetch, wire: false });
+    expect(await plain.post('/c', { id: 7n }, { wire: { request: true, response: true } })).toEqual(
+      {
+        id: 9007199254740993n,
+      },
+    );
+    expect(await requests[2]!.json()).toEqual({ id: '7', $types: { id: 'bigint' } });
+  });
 });
 
 describe('响应', () => {

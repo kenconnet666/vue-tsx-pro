@@ -1892,6 +1892,7 @@ export {
   type HttpErrorContext,
   type HttpMethod,
   type HttpRequest,
+  type HttpWire,
   type QueryValue,
 } from './utils/request/http';
 export {

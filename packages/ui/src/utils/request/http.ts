@@ -7,6 +7,7 @@
  *
  * 值按线上的 typed JSON 传（见 wire.ts）：请求体里的 bigint、Decimal、CalendarDate 写成文字并附上 `$types`，
  * 地址栏参数写成同样的文字，带 `$types` 的响应先还原再交给 onResponse；`wire: false` 时按普通 JSON。
+ * 单个接口不一样时（对接只认普通 JSON 的外部系统）在这次请求上给 `wire: { request: false }`、`{ response: false }`，两头分开定。
  *
  * 响应体按业务错误码的约定拆开（flow 仓库 docs/decisions/0008，query、flow 的后端都这样回）：HTTP 一律 200，
  * `{ code: 'ok', data }` 交出 data，`{ code: 'flow.work-item-not-open', message, params, errors }` 抛带这个码的 HttpError；
@@ -53,6 +54,19 @@ export interface HttpRequest {
   timeout?: number;
   /** 怎样读响应体，默认按 content-type：JSON 解析，text/* 读成文字，其余读成 Blob */
   responseType?: 'json' | 'text' | 'blob';
+  /**
+   * 这一次的请求体、响应按不按线上的 typed JSON，盖过客户端的 wire：false 时请求体按普通 JSON 发（里面不能有 bigint）、
+   * 响应不还原；true 时按 typed JSON（客户端 wire: false 时还原选项是默认的 `{}`）。没给的一头跟着客户端
+   */
+  wire?: HttpWire;
+}
+
+/** 一次请求的请求体（request）、响应（response）各自按不按 typed JSON */
+export interface HttpWire {
+  /** 请求体写成 typed JSON */
+  request?: boolean;
+  /** 响应按 `$types` 还原 */
+  response?: boolean;
 }
 
 /** 组件依赖的请求接口：发出请求，返回解析（拆包）后的数据；失败时拒绝 */
@@ -228,10 +242,13 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
     wire = {},
     envelope: unwrap = true,
   } = options;
-  const revive = (value: unknown) => (wire === false ? value : fromWire(value, wire));
+  const reviveOptions = wire === false ? {} : wire;
 
   async function request<T>(spec: HttpRequest): Promise<T> {
     const { method = 'GET', body, signal, timeout = defaultTimeout } = spec;
+    const sendWire = spec.wire?.request ?? wire !== false;
+    const readWire = spec.wire?.response ?? wire !== false;
+    const revive = (value: unknown) => (readWire ? fromWire(value, reviveOptions) : value);
     const headers = new Headers({ ...options.headers, ...spec.headers });
     const json = isJsonBody(body);
     if (json && !headers.has('content-type')) headers.set('content-type', 'application/json');
@@ -241,9 +258,7 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
     let prepared = new Request(buildUrl(baseURL, spec.url, spec.query), {
       method,
       headers,
-      body: json
-        ? JSON.stringify(wire === false ? body : toWire(body))
-        : (body as BodyInit | undefined),
+      body: json ? JSON.stringify(sendWire ? toWire(body) : body) : (body as BodyInit | undefined),
       signal: signals.length > 1 ? AbortSignal.any(signals) : signals[0],
     });
     prepared = (await onRequest?.(prepared)) ?? prepared;
