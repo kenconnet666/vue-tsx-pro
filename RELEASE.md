@@ -20,6 +20,8 @@
 - `useRequest` 一开始就请求时（默认），`loading` 从 `true` 开始，不再先是 `false`。
 - LoadingBar 挂载前按空闲画；Gauge、RadarChart、Progress 的 SVG 坐标保留三位小数；日期分段里本地化格式带的窄空格、不换行空格统一成普通空格。
 - JSX 展开属性与 `ref` 一起写时两个 ref 都生效（`mergeJsxProps`），之前展开里的 ref 会被覆盖。
+- easy-query TS：实体多了 `fields`（声明的形状，值对象 `embed` 是嵌套的），`Row` / `Insert` / `Update` / 表引用改由它推导；`columns` 仍是展开后的列。
+  不经 `entity()`、自己拼实体对象的要补上 `fields`。新增 `rightJoin` / `crossJoin`、`db.inSchema`、`sqlConvert`、`fillMany` / `fillOne`、`r.path` / `r.pathOne`、`groupJoin()`、`embed`。
 
 ## 一次性准备
 

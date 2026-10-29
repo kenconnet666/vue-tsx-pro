@@ -332,7 +332,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 11b.5 导航上的固定条件（对应 `extraFilter`）：定义关系时声明，查询处不用再写
 - [x] 11b.6 文档站 ORM 分区：每个能力一页，写清与 Java 版的对应（DTO 导航、VO、对象树、对象树的 VO 各有一页示例）；`packages/easy-query/docs/features/` 的暂存页改写进来后删掉
       （文档站的“全栈”分区：ORM easy-query TS；DTO 导航、树等细节仍在 packages/easy-query/docs/features）
-- [ ] 11b.7 按需再补（真实页面用到时）：`subQueryToGroupJoin`、`fillOne` / `fillMany`、`rightJoin` / `crossJoin`、`asSchema`；事务提交后的回调与 14.3 合并做
+- [x] 11b.7 补齐对照表里剩下的缺口：`groupJoin()`（subQueryToGroupJoin）、`fillOne` / `fillMany`、`rightJoin` / `crossJoin`、`inSchema`（asSchema），另补值对象 `embed()`（@ValueObject）、直达关系 `r.path` / `r.pathOne`（directMapping）、`sqlConvert`（ColumnValueSQLConverter）；事务提交后的回调已与 14.3 一起做。对照表里已没有 ✗
 
 ## 阶段 12：组件库支持服务端渲染
 
