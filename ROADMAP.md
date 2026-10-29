@@ -497,7 +497,7 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 ### 16.6 二级缓存与分库分表（cache、super）
 
 - [x] 16.6.1 缓存（cache/*）：kv 模式按主键缓存、all 模式加索引；写入后在事务提交后失效，表达式更新先查出受影响的键；存储可换（进程内、Redis）；做成 `@zerodep-dev/easy-query-ts-cache`
-- [ ] 16.6.2 分表（super/sharding-table、sharding-time、sharding-mod）：按取模、按时间路由，写入按分片键算表名，查询从条件裁剪出要查的表，
+- [x] 16.6.2 分表（super/sharding-table、sharding-time、sharding-mod）：按取模、按时间路由，写入按分片键算表名，查询从条件裁剪出要查的表，
       多张表 `UNION ALL` 后在库里排序、分页、聚合；按时间自动建表
 - [ ] 16.6.3 分库（super/sharding-datasource、sharding-all）：多个 Db 按键路由，跨库查询在内存里归并排序、分页、聚合（流式 k 路归并），并发上限；
       跨库写入不做分布式事务（写明）
