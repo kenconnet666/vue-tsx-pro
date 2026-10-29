@@ -1,5 +1,7 @@
-// 拼图滑块验证：这里在浏览器里自己出题、自己判对错，只为演示；真实应用的图和答案都在服务端
+// 拼图滑块验证：这里在浏览器里自己出题、自己判对错，只为演示；真实应用的图和答案都在服务端。
+// 题目在挂载后才出（同真实应用挂载后去取），服务端渲染的是还没拿到题目的样子，随机的图不会和水合对不上
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { onMounted } from 'vue';
 import { Button, Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 import {
   SlideCaptcha,
@@ -51,8 +53,8 @@ function makeChallenge(): { challenge: SlideChallenge; answer: number } {
 }
 
 export default _component(() => {
-  let current = makeChallenge();
-  let challenge = _state<SlideChallenge | null>(current.challenge);
+  let current: ReturnType<typeof makeChallenge> | undefined;
+  let challenge = _state<SlideChallenge | null>(null);
   let status = _state<SlideStatus>('idle');
   let message = _state('');
 
@@ -67,12 +69,15 @@ export default _component(() => {
   const verify = (result: SlideResult) => {
     status = 'verifying';
     setTimeout(() => {
-      const ok = Math.abs(result.x - current.answer) <= TOLERANCE && result.duration >= 280;
+      const answer = current!.answer;
+      const ok = Math.abs(result.x - answer) <= TOLERANCE && result.duration >= 280;
       status = ok ? 'success' : 'error';
-      message = `位置 ${result.x}px（答案 ${current.answer}px），用时 ${result.duration}ms，轨迹 ${result.track.length} 点`;
+      message = `位置 ${result.x}px（答案 ${answer}px），用时 ${result.duration}ms，轨迹 ${result.track.length} 点`;
       if (!ok) setTimeout(next, 900);
     }, 400);
   };
+
+  onMounted(next);
 
   return () => (
     <Flex direction="column" gap="md" align="start">

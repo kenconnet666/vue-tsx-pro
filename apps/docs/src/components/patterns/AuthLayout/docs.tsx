@@ -5,7 +5,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
-import Login from './demo/Login.tsx?demo';
+import Login from './frames/Login.tsx?demo';
 
 export const meta = {
   title: 'AuthLayout 认证页版式',
@@ -22,7 +22,7 @@ export default _component(() => () => (
   >
     <Examples>
       <ExampleColumn>
-        <Example id="login" title="登录页" demo={Login}>
+        <Example id="login" title="登录页" demo={Login} frame="40rem">
           <Code>hero</Code> 是品牌区（标志、口号、背景动画），铺满它那一半；<Code>tools</Code>{' '}
           放在表单区的结束边上角（主题切换、语言切换）。分栏的断点与 AppShell{' '}
           一致（sizes.lg，64rem）；不写 <Code>hero</Code>{' '}
