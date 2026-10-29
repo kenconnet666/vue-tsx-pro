@@ -695,6 +695,12 @@ importers:
 
   packages/easy-query/core: {}
 
+  packages/easy-query/crypto:
+    devDependencies:
+      '@zerodep-dev/easy-query-ts':
+        specifier: workspace:*
+        version: link:../core
+
   packages/easy-query/date:
     devDependencies:
       '@internationalized/date':
@@ -763,6 +769,9 @@ importers:
       '@zerodep-dev/easy-query-ts':
         specifier: workspace:*
         version: link:../core
+      '@zerodep-dev/easy-query-ts-crypto':
+        specifier: workspace:*
+        version: link:../crypto
       '@zerodep-dev/easy-query-ts-date':
         specifier: workspace:*
         version: link:../date
