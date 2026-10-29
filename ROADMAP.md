@@ -517,6 +517,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 16.7.5 人大金仓 KingbaseES、openGauss / GaussDB（PG 协议，复用 pg 驱动，方言继承 PG 后覆盖差异）：openGauss 共用套件全绿进 CI；
       金仓社区镜像的试用许可证都已过期，只有 SQL 文本测试，有实例时设 EQTS_KINGBASE_URL 跑共用套件
 - [x] 16.7.6 ClickHouse（`clickhouse/clickhouse-server` 25.8，驱动 `@clickhouse/client`）：只读分析为主，写入、事务按它的能力裁剪；带类型的 `{p1:Int64}` 参数（核心的 placeholder 收到绑定的值）
+- [x] 16.7.6b Apache Doris（官方没有，额外支持；MySQL 协议，`doris(pool)` 在 MySQL 包里）：主键模型建表、整行覆盖的 upsert、倒排索引；
+      与 ClickHouse 共用主键由应用给值的分析型套件（`test/src/analytic.ts`），CI 单独一个 runner
 - [ ] 16.7.7 DB2（`icr.io/db2_community/db2`，驱动 `ibm_db`）
 - [ ] 16.7.8 TDengine 等时序库（官方 sql-tsdb）：先看官方支持到什么程度再定
 - [ ] 16.7.9 H2：JVM 内的库，Node 没有驱动——不适用，写进清单

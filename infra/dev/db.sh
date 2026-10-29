@@ -61,5 +61,6 @@ add_db VTP_DAMENG_PASSWORD 'EQTS_DAMENG_URL=dm://SYSDBA:{p}@127.0.0.1:25236'
 # 密码含大小写、数字与符号（openGauss 只认 #?!@$%^&*- 这几个符号；- 在连接串里不用转义）
 add_db VTP_OPENGAUSS_PASSWORD 'EQTS_OPENGAUSS_URL=postgres://gaussdb:{p}@127.0.0.1:25433/eqts'
 add_db VTP_CLICKHOUSE_PASSWORD 'EQTS_CLICKHOUSE_URL=http://eqts:{p}@127.0.0.1:28123/eqts'
+grep -q '^EQTS_DORIS_URL=' "$env_file" || echo 'EQTS_DORIS_URL=mysql://root@127.0.0.1:29030/eqts' >>"$env_file"
 
 exec docker compose -f "$here/compose.yaml" --env-file "$env_file" "$@"
