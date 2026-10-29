@@ -7,14 +7,12 @@
  *
  * 默认组件自己是滚动容器，高度由使用方给（sx、class 或 style）；scroll="window" 时随页面滚动。
  * 读屏：role="list"，每项带 aria-setsize / aria-posinset，未渲染的项也算在总数里；没有数据时是 role="group"（空状态、骨架不是列表项）。
- * loading：没有数据时显示骨架行（按 estimateSize 的高度），已有数据（刷新、加载更多）时顶部显示进度条；带 aria-busy。
+ * loading：只用骨架行（按 estimateSize 的高度）：没有数据时铺满，已有数据（加载更多）时接在列表末尾，不另加进度条；带 aria-busy。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
-import { useLang } from '../config/context';
-import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import {
@@ -66,7 +64,7 @@ export interface VirtualListProps<T> extends PartProps<'div', VirtualListManaged
   horizontal?: boolean;
   /** 没有数据时显示的内容 */
   empty?: VNodeChild;
-  /** 加载中：没有数据时显示骨架行，已有数据时顶部显示进度条 */
+  /** 加载中：没有数据时铺几行骨架，已有数据（加载更多）时骨架接在末尾 */
   loading?: boolean;
   /** 加载中占位行的部件属性 */
   propsSkeleton?: SkeletonShapeProps;
@@ -86,8 +84,9 @@ export interface VirtualListProps<T> extends PartProps<'div', VirtualListManaged
 /** 项外层可以定制的属性 */
 type ItemProps = PartProps<'div', 'role' | 'aria-setsize' | 'aria-posinset'>;
 
-/** 加载中显示几行骨架 */
+/** 加载中显示几行骨架：没有数据时铺几行，加载更多时接在末尾几行 */
 const SKELETON_ROWS = 5;
+const MORE_SKELETON_ROWS = 2;
 
 /** VirtualList 的样式：root、container、list、item、itemVertical、itemHorizontal 等 */
 export const virtualListStyles = css.create({
@@ -99,8 +98,6 @@ export const virtualListStyles = css.create({
   item: { position: 'absolute', top: 0, left: 0, overflowAnchor: 'none' },
   itemVertical: { width: '_full' },
   itemHorizontal: { height: '_full' },
-  // 刷新中的进度条贴在可见区域顶部
-  progress: { position: 'sticky', top: 0, zIndex: 1, height: 0 },
   skeletonRow: { paddingBlock: '_xs' },
   skeleton: { display: 'block', width: '_full' },
 });
@@ -135,11 +132,33 @@ export const VirtualList = _component(
     propsItem,
     ...rest
   }: VirtualListProps<T>) => {
-    const lang = useLang();
-    // 骨架、进度条防闪烁；aria-busy 按真实的 loading
+    // 骨架防闪烁；aria-busy 按真实的 loading
     const indicator = useDelayedLoading(() => loading);
     let root = _state.raw<HTMLElement | null>(null);
     let list = _state.raw<HTMLElement | null>(null);
+    const skeletonRows = (count: number) =>
+      Array.from({ length: count }, (_, index) => (
+        <div
+          key={`skeleton-${index}`}
+          aria-hidden="true"
+          {...css.attrs(virtualListStyles.skeletonRow)}
+        >
+          <Skeleton
+            {...mergePartProps<SkeletonProps>(
+              {
+                sx: [
+                  virtualListStyles.skeleton,
+                  virtualListSizeStyles.skeleton(
+                    typeof estimateSize === 'number' ? estimateSize : 40,
+                  ),
+                ],
+                delay: index * SHIMMER_STAGGER,
+              },
+              propsSkeleton,
+            )}
+          />
+        </div>
+      ));
     const virtual = useVirtualizer(() => {
       const data = items;
       const estimate = estimateSize;
@@ -193,11 +212,6 @@ export const VirtualList = _component(
       );
       const content = (
         <>
-          {indicator.value && hasItems && (
-            <div aria-hidden="true" {...css.attrs(virtualListStyles.progress)}>
-              <Progress size="xs" aria-label={lang.loading} />
-            </div>
-          )}
           {hasItems ? (
             <div
               {...mergeAttrs<'div'>({ sx: virtualListStyles.list }, propsList, {
@@ -243,28 +257,12 @@ export const VirtualList = _component(
               })}
             </div>
           ) : loading ? (
-            indicator.value &&
-            Array.from({ length: SKELETON_ROWS }, (_, index) => (
-              <div key={index} aria-hidden="true" {...css.attrs(virtualListStyles.skeletonRow)}>
-                <Skeleton
-                  {...mergePartProps<SkeletonProps>(
-                    {
-                      sx: [
-                        virtualListStyles.skeleton,
-                        virtualListSizeStyles.skeleton(
-                          typeof estimateSize === 'number' ? estimateSize : 40,
-                        ),
-                      ],
-                      delay: index * SHIMMER_STAGGER,
-                    },
-                    propsSkeleton,
-                  )}
-                />
-              </div>
-            ))
+            indicator.value && skeletonRows(SKELETON_ROWS)
           ) : (
             empty
           )}
+          {/* 加载更多：骨架接在已有的项后面（列表元素的高度就是全部项的总高度） */}
+          {hasItems && indicator.value && skeletonRows(MORE_SKELETON_ROWS)}
         </>
       );
       // 容器模式：列表元素就是 ScrollArea 的视口，滚动条是浮层的；跟着页面滚动时就是普通的 div

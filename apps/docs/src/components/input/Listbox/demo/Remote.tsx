@@ -1,4 +1,4 @@
-// 远程搜索：loading 时没有选项显示骨架行、有选项时顶部显示进度条；没有结果时显示 empty；
+// 远程搜索：loading 时选项换成骨架行（不另加进度条）；没有结果时显示 empty；
 // onPick 在每次点选时调用（再点已选的那项也算），适合“选中即执行”
 import { Search } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';

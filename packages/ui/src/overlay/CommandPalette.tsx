@@ -67,7 +67,7 @@ export interface CommandPaletteBaseProps<T> extends Omit<
   _inputValue?: string;
   /** 过滤：默认按选项文字与说明匹配（忽略大小写与重音）；函数自定义；false 不过滤（远程搜索，items 就是结果） */
   filter?: false | ((item: T, query: string) => boolean);
-  /** 正在取结果（远程搜索）：没有结果时列表里是骨架行，已有结果时顶部显示进度条 */
+  /** 正在取结果（远程搜索）：列表里换成骨架行 */
   loading?: boolean;
   /** 打开面板的快捷键，默认 'Mod+K'；false 不注册 */
   hotkey?: string | false;

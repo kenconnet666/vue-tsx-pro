@@ -143,7 +143,7 @@
   - 扫光：光带从起始边扫到结束边，RTL 反向，减少动态效果时停（`animation-name: none`，静止的占位已经说明在加载）。多块骨架用 `delay`（`SHIMMER_STAGGER` 的整数倍）依次错开，像一道波从上往下推；表格、列表的骨架行按行号错开。
   - 颜色：底色与光带都是半透明的正文色（`color-mix(… ${t.colors.text} 9%, transparent)`），叠在任何表面上都比表面深一档（暗色主题里浅一档），各主题不必单独调。
   - 骨架换成内容（或反过来）时用 `shimmerStyles.reveal` 淡入，不硬切；只在切换的那一刻加样式，一开始就有内容时不播。
-- 读屏：骨架一律 `aria-hidden`（受管，不进部件属性的类型）；整块区域加载时 `aria-busy` 由组件管理。视觉上的骨架、进度条用 `useDelayedLoading` 防闪烁，`aria-busy` 与点击拦截按真实的 `loading` 立即生效。
+- 读屏：骨架一律 `aria-hidden`（受管，不进部件属性的类型）；整块区域加载时 `aria-busy` 由组件管理。视觉上的骨架用 `useDelayedLoading` 防闪烁，`aria-busy` 与点击拦截按真实的 `loading` 立即生效。
 
 ## 5. 无障碍与交互
 

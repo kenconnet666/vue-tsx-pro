@@ -189,7 +189,6 @@ export const QueryTable = _component(
             {...toolButton({
               icon: RefreshCw,
               'aria-label': messages.queryTableRefresh,
-              loading: query.loading,
               onClick: () => void query.refresh(),
             })}
           />
@@ -261,7 +260,6 @@ export const QueryTable = _component(
                 {
                   onSearch: search,
                   onReset: reset,
-                  loading: query.loading,
                   more: moreFilters?.(draft),
                   // 全屏时只有表格那一块（查询栏不在里面），工具栏要留在表格上方，所以不并进来
                   start: fullscreen.active ? undefined : (
@@ -353,6 +351,7 @@ export const QueryTable = _component(
               _sorts={query.sorts}
               manualFilter
               _filters={query.columnFilters}
+              // 加载提示只有表格的骨架一处：刷新、查询按钮不再各自转圈
               loading={query.loading}
               density={density}
               selectionMode={selectionMode}

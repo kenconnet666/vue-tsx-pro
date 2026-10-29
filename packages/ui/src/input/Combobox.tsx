@@ -92,7 +92,7 @@ export interface ComboboxBaseProps<T>
   showToggle?: boolean;
   /** 没有可选的项时不弹出列表（不显示“没有匹配的选项”）：只当带建议的输入框用时（Autocomplete） */
   hideEmpty?: boolean;
-  /** 正在取选项（异步搜索）：没有选项时列表里是骨架行，已有选项时顶部显示进度条 */
+  /** 正在取选项（异步搜索）：列表里换成骨架行 */
   loading?: boolean;
   /** 弹出位置，默认 bottom-start */
   placement?: FloatingPlacement;

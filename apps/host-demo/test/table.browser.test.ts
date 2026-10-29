@@ -123,12 +123,15 @@ describe('DataTable', () => {
       .toBe(Math.round(before + 24));
   });
 
-  it('刷新时表头下方出现进度条，表格 aria-busy', async () => {
+  it('刷新时表体换成骨架行、没有进度条，表格 aria-busy；刷新完数据行回来', async () => {
     await userEvent.click($('.table-refresh'));
     await expect.poll(() => table().getAttribute('aria-busy')).toBe('true');
-    // 进度条防闪烁：过一会儿才出现（useDelayedLoading）
-    await expect.poll(() => table().querySelector('thead [role="progressbar"]')).not.toBeNull();
+    // 骨架防闪烁：过一会儿才出现（useDelayedLoading）
+    await expect.poll(() => bodyRows().length).toBe(0);
+    expect(table().querySelector('tbody tr[aria-hidden="true"]')).not.toBeNull();
+    expect(table().querySelector('[role="progressbar"]')).toBeNull();
     await expect.poll(() => table().getAttribute('aria-busy'), { timeout: 3000 }).toBeNull();
+    await expect.poll(() => bodyRows().length).toBeGreaterThan(0);
   });
 
   it('无障碍：表格与树形表格 axe-core 没有违规', async () => {

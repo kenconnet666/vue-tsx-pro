@@ -293,7 +293,50 @@ describe('DataTable', () => {
     expect(blank!.textContent).toContain('暂无数据');
   });
 
-  it('部件属性：表头、排序文字、勾选列、leading 与内容、进度条、空状态单元格', async () => {
+  it('刷新（已有数据时 loading）：表体换成骨架行，不再另加进度条；加载完数据行回来', async () => {
+    let loading = _state(true);
+    const root = mount(() => (
+      <DataTable
+        rows={people}
+        columns={columns}
+        getKey={(p) => p.id}
+        loading={loading}
+        aria-label="人员"
+      />
+    ));
+    await flush();
+    const table = root.querySelector('table')!;
+    expect(table.getAttribute('aria-busy')).toBe('true');
+    expect(table.querySelector('[role="progressbar"]')).toBeNull();
+    expect(table.querySelectorAll('tbody tr[aria-rowindex]')).toHaveLength(0);
+    expect(table.querySelectorAll('tbody tr[aria-hidden="true"]').length).toBeGreaterThan(0);
+    loading = false;
+    // 骨架出现后至少保持 500ms（防闪烁，见 useDelayedLoading）
+    await new Promise((resolve) => setTimeout(resolve, 550));
+    await flush();
+    expect(table.querySelectorAll('tbody tr[aria-rowindex]')).toHaveLength(people.length);
+    expect(table.getAttribute('aria-busy')).toBeNull();
+  });
+
+  it('滚动加载（有 onRangeChange）：已有数据时骨架接在末尾，已有的行留着', async () => {
+    const root = mount(() => (
+      <DataTable
+        rows={people}
+        columns={columns}
+        getKey={(p) => p.id}
+        loading
+        onRangeChange={() => {}}
+        aria-label="滚动加载"
+      />
+    ));
+    await flush();
+    const body = root.querySelector('tbody')!;
+    expect(body.querySelectorAll('tr[aria-rowindex]')).toHaveLength(people.length);
+    expect(body.lastElementChild!.getAttribute('aria-hidden')).toBe('true');
+    expect(root.querySelector('[role="progressbar"]')).toBeNull();
+  });
+
+  it('部件属性：表头、排序文字、勾选列、leading 与内容、空状态单元格', async () => {
     const root = mount(() => (
       <>
         <DataTable
@@ -301,7 +344,6 @@ describe('DataTable', () => {
           columns={columns}
           getKey={(p) => p.id}
           selectionMode="multiple"
-          loading
           leading={() => <i>›</i>}
           propsHead={{ class: 'head' }}
           propsSortLabel={{ class: 'sort-label' }}
@@ -309,7 +351,6 @@ describe('DataTable', () => {
           propsSelectCell={{ class: 'select-td' }}
           propsLeading={{ class: 'leading' }}
           propsContent={{ class: 'content' }}
-          propsProgress={{ class: 'progress' }}
           aria-label="人员"
         />
         <DataTable
@@ -329,7 +370,6 @@ describe('DataTable', () => {
     expect(table!.querySelectorAll('tbody td.select-td')).toHaveLength(3);
     const leading = table!.querySelector('tbody .leading')!;
     expect(leading.querySelector('.content')!.textContent).toBe('张三');
-    expect(table!.querySelector('thead .progress[role="progressbar"]')).not.toBeNull();
     const empty = blank!.querySelector('td.empty')!;
     expect([empty.getAttribute('colspan'), empty.textContent]).toEqual(['2', '暂无数据']);
   });

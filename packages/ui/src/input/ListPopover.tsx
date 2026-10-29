@@ -34,7 +34,7 @@ export interface ListPopoverProps<T> {
   labelledBy?: string;
   /** 列表的名称：没有外部标签时用这段文字（aria-label） */
   label?: string;
-  /** 加载中：列表显示骨架或顶部进度条 */
+  /** 加载中：列表换成骨架行 */
   loading?: boolean;
   /** 点选了一项 */
   onPick?: (value: string) => void;

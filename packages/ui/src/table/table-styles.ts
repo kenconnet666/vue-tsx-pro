@@ -59,8 +59,6 @@ export const dataTableRecipe = css.recipe({
     'sortIcon',
     'sortPriority',
     'selectAll',
-    'progressCell',
-    'progress',
     'body',
     'row',
     'cell',
@@ -137,8 +135,6 @@ export const dataTableRecipe = css.recipe({
     // 单元格里 24px 的控件（勾选框、单选框、展开按钮）：上下的负外边距抵掉比一行文字高出的部分，
     // 有控件的行与纯文字的行一样高，点击区域仍是 24px。操作列放文字按钮时用 variant="link"
     selectAll: { marginBlock: '-0.1875rem' },
-    progressCell: { position: 'relative', height: 0, padding: 0, borderWidth: 0 },
-    progress: { position: 'absolute', top: 0, insetInline: 0 },
     // 数字等宽：金额、数量、日期上下对齐（文字不受影响）
     cell: {
       boxSizing: 'border-box',

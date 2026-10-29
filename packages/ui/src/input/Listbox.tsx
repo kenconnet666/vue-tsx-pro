@@ -13,7 +13,7 @@
  * 虚拟滚动（useVirtualizer）：高亮项总在渲染范围里（aria-activedescendant 才指得到），键盘移动时滚进可见范围；
  * 选项带 aria-setsize / aria-posinset，读屏知道总数与位置。分组标题只是视觉上的一行（各行独立定位，没法用
  * role="group" 包住组里的选项），组名经 aria-describedby 交给组里的每个选项。
- * loading：没有选项时显示骨架行；已有选项（刷新中）时顶部显示一条进度条；列表带 aria-busy。
+ * loading：选项换成骨架行（首次加载与刷新一样，不再另加进度条）；列表带 aria-busy。
  *
  * 部件：Root（div，role="listbox"）、GroupLabel、Option（div，role="option"）、Check（已选标记）、Skeleton（加载中的占位行）。
  */
@@ -26,7 +26,6 @@ import { Text, type TextProps } from '../base/Text';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { Empty, type EmptyProps } from '../feedback/Empty';
-import { Progress } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { itemStyles } from '../utils/style/item-styles';
@@ -77,7 +76,7 @@ export interface ListboxViewProps<T> extends PartProps<'div', 'role'> {
   multiple?: boolean;
   /** 滚动容器：Select、Combobox 的弹出层；不给时列表自己滚动（ScrollArea 的浮层滚动条，最高 20em，用 sx 改） */
   scroller?: HTMLElement | null;
-  /** 加载中：没有选项时显示骨架行，有选项时顶部显示进度条 */
+  /** 加载中：选项换成骨架行 */
   loading?: boolean;
   /** 选项的估计高度（px），默认 36；渲染后以实际高度为准 */
   estimateSize?: number;
@@ -131,8 +130,6 @@ export const listboxStyles = css.create({
   description: { color: '_textMuted' },
   check: { flexShrink: 0 },
   hidden: { visibility: 'hidden' },
-  // 刷新中的进度条贴在列表顶部，不占位
-  progress: { position: 'absolute', top: 0, insetInline: 0, zIndex: 1 },
   skeleton: { display: 'block', height: '1em', marginBlock: '0.625em', marginInline: '_sm' },
 });
 
@@ -164,7 +161,7 @@ export const ListboxView = _component(
     ...rest
   }: ListboxViewProps<T>) => {
     const lang = useLang();
-    // 骨架、进度条防闪烁；aria-busy 按真实的 loading
+    // 骨架防闪烁；aria-busy 按真实的 loading
     const indicator = useDelayedLoading(() => loading);
     let root = _state.raw<HTMLElement | null>(null);
     let sizer = _state.raw<HTMLElement | null>(null);
@@ -339,22 +336,23 @@ export const ListboxView = _component(
     }
 
     function renderBody() {
+      if (indicator.value) {
+        return Array.from({ length: SKELETON_ROWS }, (_, index) => (
+          <Skeleton
+            key={index}
+            {...mergePartProps<SkeletonProps>(
+              {
+                sx: [listboxStyles.skeleton, listboxPositionStyles.width(`${85 - index * 15}%`)],
+                delay: index * SHIMMER_STAGGER,
+              },
+              propsSkeleton,
+            )}
+          />
+        ));
+      }
       if (rows.length === 0) {
-        if (loading) {
-          if (!indicator.value) return null;
-          return Array.from({ length: SKELETON_ROWS }, (_, index) => (
-            <Skeleton
-              key={index}
-              {...mergePartProps<SkeletonProps>(
-                {
-                  sx: [listboxStyles.skeleton, listboxPositionStyles.width(`${85 - index * 15}%`)],
-                  delay: index * SHIMMER_STAGGER,
-                },
-                propsSkeleton,
-              )}
-            />
-          ));
-        }
+        // 加载刚开始、骨架还没到显示的时候（防闪烁）：先空着
+        if (loading) return null;
         return (
           empty ?? (
             <Empty
@@ -417,14 +415,7 @@ export const ListboxView = _component(
           'aria-busy': loading || undefined,
         },
       );
-      const body = [
-        indicator.value && rows.length > 0 && (
-          <div aria-hidden="true" {...css.attrs(listboxStyles.progress)}>
-            <Progress size="xs" aria-label={lang.loading} />
-          </div>
-        ),
-        renderBody(),
-      ];
+      const body = renderBody();
       // 别处滚动（Select、Combobox 的弹出层）：只渲染列表本身
       if (!own) return <div {...elementProps(props)}>{body}</div>;
       // 自己滚动：列表元素就是 ScrollArea 的视口，焦点与 aria-activedescendant 仍在它上面，滚动条换成浮层的

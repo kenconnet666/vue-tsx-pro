@@ -1,4 +1,4 @@
-// 滚动加载：onRangeChange 报告可见行的范围，离末尾不到 10 行时取下一页；取的时候 loading，表头下方一条进度条。
+// 滚动加载：onRangeChange 报告可见行的范围，离末尾不到 10 行时取下一页；取的时候 loading，骨架接在末尾。
 // estimateRowHeight 是行高的估计（这里内容会换行，估高一些滚动条更准）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';

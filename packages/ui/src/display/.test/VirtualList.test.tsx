@@ -125,13 +125,13 @@ describe('VirtualList 的部件属性', () => {
 });
 
 describe('VirtualList：加载中', () => {
-  it('没有数据时显示骨架行并 aria-busy；已有数据时顶部显示进度条', async () => {
+  it('只用骨架：没有数据时铺几行并 aria-busy；已有数据（加载更多）时骨架接在末尾，没有进度条', async () => {
     const root = mount(() => (
       <>
         <VirtualList items={[]} loading aria-label="空">
           {(row: { id: string }) => <span>{row.id}</span>}
         </VirtualList>
-        <VirtualList items={rows} loading getKey={(row) => row.id} aria-label="刷新中">
+        <VirtualList items={rows} loading getKey={(row) => row.id} aria-label="加载更多">
           {(row) => <span>{row.label}</span>}
         </VirtualList>
       </>
@@ -139,10 +139,12 @@ describe('VirtualList：加载中', () => {
     await nextTick();
     // 容器模式下列表元素是 ScrollArea 的视口，外面还有一层
     const blank = root.querySelector<HTMLElement>('[aria-label="空"]');
-    const refreshing = root.querySelector<HTMLElement>('[aria-label="刷新中"]');
+    const more = root.querySelector<HTMLElement>('[aria-label="加载更多"]');
     expect(blank!.getAttribute('aria-busy')).toBe('true');
     expect(blank!.querySelectorAll('[aria-hidden="true"]').length).toBeGreaterThan(0);
-    expect(refreshing!.querySelector('[role="progressbar"]')).not.toBeNull();
-    expect(refreshing!.querySelectorAll('[role="listitem"]').length).toBeGreaterThan(0);
+    expect(more!.querySelector('[role="progressbar"]')).toBeNull();
+    expect(more!.querySelectorAll('[role="listitem"]').length).toBeGreaterThan(0);
+    const last = [...more!.querySelectorAll('[role="listitem"], [aria-hidden="true"]')].at(-1)!;
+    expect(last.getAttribute('role')).not.toBe('listitem');
   });
 });

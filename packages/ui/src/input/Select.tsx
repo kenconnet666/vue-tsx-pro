@@ -134,7 +134,7 @@ export interface SelectBaseProps<T>
   children?: (item: T, state: OptionRenderState) => VNodeChild;
   /** 自定义触发框里显示的内容（已选的选项）；默认单选显示文字、多选显示标签 */
   renderValue?: (selected: readonly T[]) => VNodeChild;
-  /** 正在取选项（异步加载）：没有选项时列表里是骨架行，已有选项时顶部显示进度条 */
+  /** 正在取选项（异步加载）：列表里换成骨架行 */
   loading?: boolean;
   /** 没有选项时列表里显示的内容 */
   empty?: VNodeChild;

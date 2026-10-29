@@ -26,7 +26,7 @@
  * - 选择：selectionMode 为 single / multiple 时多一列勾选框，selected 是已选行的 key。
  * - 列宽：resizable 时可以拖动或用键盘调整，columnWidths 记录调整后的宽度（可以双向绑定，保存到本地设置里）。
  * - 定位：handle 拿到 scrollToRow(key)，滚到那一行（停在吸顶表头之下）。
- * - 加载：loading 时没有数据显示骨架行，已有数据显示进度条；接近末尾加载更多用 onRangeChange。
+ * - 加载：只用骨架行：loading 时表体换成骨架；滚动加载（onRangeChange）已有数据时骨架接在末尾。
  * - 详情行：renderDetail 给出一行的详情，多一列展开按钮；expandedRows 是展开了的行（可以双向绑定），hasDetail 决定哪些行有。
  * - 分组表头：columnGroups 写组标题与组里各列的 key，相邻的列上方共用一个标题。
  * - 合计：列写 summary（'sum' 精确相加，或函数）时底部多一行吸底的合计；空值显示列的 empty（默认 —）。

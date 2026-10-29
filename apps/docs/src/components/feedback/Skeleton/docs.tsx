@@ -43,7 +43,7 @@ export default _component(() => () => (
         </Example>
         <Example id="table" title="表格" demo={Table}>
           DataTable
-          没有数据又在加载时显示骨架行，每列长短不一，光带一行接一行往下推；已有数据时刷新只在表头下方显示进度条。
+          加载时（首次加载与刷新一样）表体换成骨架行，每列长短不一，光带一行接一行往下推；不另加进度条。
         </Example>
       </ExampleColumn>
     </Examples>

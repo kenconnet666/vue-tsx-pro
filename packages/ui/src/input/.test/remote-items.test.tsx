@@ -35,6 +35,12 @@ const settle = async () => {
   for (let index = 0; index < 4; index++) await Promise.resolve();
   await nextTick();
 };
+/** 加载完：骨架出现过就至少留 500ms（防闪烁，见 useDelayedLoading），之后才换成选项 */
+const loaded = async () => {
+  await settle();
+  vi.advanceTimersByTime(500);
+  await settle();
+};
 const optionTexts = (root: Element) =>
   [...root.querySelectorAll('[role="option"]')].map((option) => option.textContent);
 
@@ -89,7 +95,7 @@ describe('Select 的 load', () => {
     search = '周一';
     await nextTick();
     vi.advanceTimersByTime(300);
-    await settle();
+    await loaded();
     expect(api.calls.map((call) => call.query)).toEqual(['', '周一']);
     expect(optionTexts(root)).toEqual(['周一航']);
     expect(root.querySelector('button[role="combobox"]')!.textContent).toBe('林小满');
@@ -101,7 +107,7 @@ describe('Select 的 load', () => {
     const root = mount(() => (
       <Select load={api.load} toOption={toOption} _open aria-label="负责人" />
     ));
-    await settle();
+    await loaded();
     expect(root.querySelector('[popover]')!.textContent).toContain('加载失败，请重试');
   });
 });
@@ -126,7 +132,7 @@ describe('Combobox 的 load', () => {
     text = '许';
     await nextTick();
     vi.advanceTimersByTime(300);
-    await settle();
+    await loaded();
     expect(api.calls.map((call) => call.query)).toEqual(['', '许']);
     expect(optionTexts(root)).toEqual(['许知远']);
   });

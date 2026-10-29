@@ -17,7 +17,8 @@
  * - 详情行（renderDetail）：多一列展开按钮（aria-expanded、aria-controls），展开的行下面多一行跨全部列的详情，
  *   内容让过勾选列与展开列、和第一个数据列对齐；
  *   详情在虚拟滚动里也算一行（测量真实高度），内容贴着视口的起始边，横向滚动时不跟着滚走。
- * - 加载：没有数据时显示骨架行；已有数据（刷新中）时表头下方显示一条进度条；表格带 aria-busy。没有数据时显示 Empty。
+ * - 加载：只用骨架行，不另加进度条：首次加载、刷新时表体换成骨架；滚动加载（onRangeChange）已有数据时骨架接在末尾。
+ *   表格带 aria-busy。没有数据时显示 Empty。
  */
 import { ArrowDown, ArrowUp, ArrowUpDown, ChevronRight } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -32,7 +33,6 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { useRecipe } from '../config/styles';
 import { Empty, type EmptyProps } from '../feedback/Empty';
-import { Progress, type ProgressProps } from '../feedback/Progress';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { Checkbox, type CheckboxProps } from '../input/Checkbox';
@@ -220,8 +220,6 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsLeading?: PartProps<'div'>;
   /** 第一个数据列里内容的包装（有 leading 时才有）的部件属性 */
   propsContent?: PartProps<'div'>;
-  /** 刷新中表头下方的进度条的部件属性 */
-  propsProgress?: Partial<ProgressProps>;
   /** 空状态所在的单元格（td，跨全部列）的部件属性 */
   propsEmptyCell?: PartProps<'td', 'colspan'>;
   /** 详情列的列标题（th，文字只给读屏）的部件属性 */
@@ -271,6 +269,8 @@ const DETAIL_WIDTH = 40;
 const DETAIL_HEIGHT = 160;
 /** 加载中至少、至多显示几行骨架：在这之间按表体到窗口底边的高度铺满 */
 const SKELETON_ROWS = { min: 6, max: 50 };
+/** 滚动加载时接在末尾的骨架行数 */
+const MORE_SKELETON_ROWS = 3;
 /** 各密度下行高的估计（px） */
 const ROW_HEIGHT: Record<keyof DataTableDensities, number> = {
   compact: 36,
@@ -823,7 +823,6 @@ export const DataTableView = _component(
     propsSelectRadio,
     propsLeading,
     propsContent,
-    propsProgress,
     propsEmptyCell,
     propsFoot,
     propsSummaryCell,
@@ -839,7 +838,7 @@ export const DataTableView = _component(
     const recipe = useRecipe(dataTableRecipe);
     // 表头、表尾、骨架、空状态的部件层：只随密度、样式与主题定制变（行各自按奇偶取，见 DataTableRow）
     const s = _derived(recipe({ density, variant }));
-    // 骨架、进度条防闪烁；aria-busy 与空状态按真实的 loading
+    // 骨架防闪烁；aria-busy 与空状态按真实的 loading
     const indicator = useDelayedLoading(() => loading);
     const selectedSet = _derived.by(() => new Set(selectedKeys));
     const partialSet = _derived.by(() => new Set(partialKeys));
@@ -886,12 +885,45 @@ export const DataTableView = _component(
     // 行高量已经画出来的第一行骨架，估计值与实际差几 px，几十行下来就差出一截
     let skeletonRows = _state(SKELETON_ROWS.min);
     _effect(() => {
-      if (!indicator.value || !body || rows.length > 0) return;
+      if (!indicator.value || !body) return;
       const drawn = (body.firstElementChild as HTMLElement | null)?.offsetHeight;
       const rowHeight = drawn || (estimateRowHeight ?? ROW_HEIGHT[density]);
       const space = window.innerHeight - body.getBoundingClientRect().top;
       skeletonRows = clamp(Math.ceil(space / rowHeight), SKELETON_ROWS.min, SKELETON_ROWS.max);
     });
+
+    /**
+     * 骨架换掉表体（首次加载、刷新、翻页），还是接在末尾（滚动加载：有 onRangeChange 且已有数据，
+     * 换掉会丢了滚动位置）
+     */
+    const replacing = () => indicator.value && !(onRangeChange != null && rows.length > 0);
+    const appending = () => indicator.value && onRangeChange != null && rows.length > 0;
+
+    /** 一行骨架：同一行的单元格一起扫，行与行依次错开（一道波从上往下推过表格） */
+    const skeletonRow = (index: number) => (
+      <tr key={`skeleton-${index}`} aria-hidden="true" {...mergeAttrs<'tr'>(s.row)}>
+        {selectionMode && <td {...mergeAttrs<'td'>(s.cell)} />}
+        {renderDetail && <td {...mergeAttrs<'td'>(s.cell)} />}
+        {shown.map((column, position) => (
+          <td key={column.key} {...mergeAttrs<'td'>(s.cell)}>
+            <Skeleton
+              {...mergePartProps<SkeletonProps>(
+                {
+                  ...s.skeleton,
+                  sx: [
+                    s.skeleton.sx,
+                    dataTableDynamicStyles.percent(`${90 - ((index + position) % 4) * 15}%`),
+                  ],
+                  // 同一行的单元格一起扫，行与行依次错开：一道波从上往下推过表格
+                  delay: index * SHIMMER_STAGGER,
+                },
+                propsSkeleton,
+              )}
+            />
+          </td>
+        ))}
+      </tr>
+    );
 
     const detailIdPrefix = useId();
     const detailId = (index: number) => `${detailIdPrefix}-detail-${index}`;
@@ -1333,50 +1365,10 @@ export const DataTableView = _component(
                   </th>
                 ),
               )}
-              {indicator.value && rows.length > 0 && (
-                <tr aria-hidden="true">
-                  <td colspan={span} {...mergeAttrs<'td'>(s.progressCell)}>
-                    <div {...mergeAttrs<'div'>(s.progress)}>
-                      <Progress
-                        {...mergePartProps<ProgressProps>(
-                          { size: 'xs', 'aria-label': lang.loading },
-                          propsProgress,
-                        )}
-                      />
-                    </div>
-                  </td>
-                </tr>
-              )}
             </thead>
             <tbody {...mergeAttrs<'tbody'>(s.body)} ref={_toRef(body)}>
-              {rows.length === 0 &&
-                indicator.value &&
-                Array.from({ length: skeletonRows }, (_, index) => (
-                  <tr key={`skeleton-${index}`} aria-hidden="true" {...mergeAttrs<'tr'>(s.row)}>
-                    {selectionMode && <td {...mergeAttrs<'td'>(s.cell)} />}
-                    {renderDetail && <td {...mergeAttrs<'td'>(s.cell)} />}
-                    {shown.map((column, position) => (
-                      <td key={column.key} {...mergeAttrs<'td'>(s.cell)}>
-                        <Skeleton
-                          {...mergePartProps<SkeletonProps>(
-                            {
-                              ...s.skeleton,
-                              sx: [
-                                s.skeleton.sx,
-                                dataTableDynamicStyles.percent(
-                                  `${90 - ((index + position) % 4) * 15}%`,
-                                ),
-                              ],
-                              // 同一行的单元格一起扫，行与行依次错开：一道波从上往下推过表格
-                              delay: index * SHIMMER_STAGGER,
-                            },
-                            propsSkeleton,
-                          )}
-                        />
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+              {replacing() &&
+                Array.from({ length: skeletonRows }, (_, index) => skeletonRow(index))}
               {rows.length === 0 && !loading && (
                 <tr>
                   <td
@@ -1397,7 +1389,7 @@ export const DataTableView = _component(
                   </td>
                 </tr>
               )}
-              {top > 0 && (
+              {!replacing() && top > 0 && (
                 <tr aria-hidden="true">
                   <td
                     colspan={span}
@@ -1408,7 +1400,7 @@ export const DataTableView = _component(
                   />
                 </tr>
               )}
-              {items.map((item) => {
+              {(replacing() ? [] : items).map((item) => {
                 const { row, index, detail } = entryAt(item.index);
                 if (detail && renderDetail)
                   return (
@@ -1471,7 +1463,7 @@ export const DataTableView = _component(
                   />
                 );
               })}
-              {bottom > 0 && (
+              {!replacing() && bottom > 0 && (
                 <tr aria-hidden="true">
                   <td
                     colspan={span}
@@ -1482,8 +1474,10 @@ export const DataTableView = _component(
                   />
                 </tr>
               )}
+              {appending() &&
+                Array.from({ length: MORE_SKELETON_ROWS }, (_, index) => skeletonRow(index))}
             </tbody>
-            {hasSummary && rows.length > 0 && (
+            {hasSummary && rows.length > 0 && !replacing() && (
               <tfoot {...mergeAttrs<'tfoot'>(s.foot, propsFoot, { ref: _toRef(foot) })}>
                 <tr aria-rowindex={bodyRowCount() + headerRows + 1}>
                   {selectionMode && (

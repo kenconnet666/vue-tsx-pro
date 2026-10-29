@@ -131,7 +131,7 @@ export default _component(() => () => (
       </ExampleColumn>
       <ExampleColumn>
         <Example id="states" title="加载、空状态与外观" demo={States}>
-          <Code>loading</Code> 且没有数据时显示骨架行，已有数据（刷新）时表头下方一条进度条，表格带
+          <Code>loading</Code> 时表体换成骨架行（首次加载与刷新一样，不另加进度条），表格带
           aria-busy；没有数据显示 <Code>empty</Code>。<Code>density</Code>、<Code>variant</Code>、
           <Code>striped</Code> 与静态表格相同。
         </Example>

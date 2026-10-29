@@ -29,7 +29,7 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="feed" title="滚动加载" demo={Feed}>
           <Code>onRangeChange</Code> 报告可见范围，接近末尾时取下一页。<Code>loading</Code>{' '}
-          时没有数据显示骨架行，已有数据则在顶部显示进度条。
+          时只用骨架：没有数据时铺几行，已有数据（取下一页）时接在末尾。
         </Example>
         <Example id="horizontal" title="横向与跳到指定项" demo={Horizontal}>
           <Code>horizontal</Code> 横向排列与滚动（给宽度），<Code>estimateSize</Code> 是估计的宽度；

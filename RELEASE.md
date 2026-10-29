@@ -14,6 +14,7 @@
 
 发布时把这一节搬进 GitHub Release 的说明，再清空。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
+- 加载提示只留骨架：DataTable（含 TreeDataTable）、Listbox（以及 Select、Combobox、CommandPalette 的列表）在已有数据时 loading 不再在顶部另加一条进度条，而是换成骨架行（首次加载与刷新一样）；DataTable 的滚动加载（有 `onRangeChange`）与 VirtualList 已有数据时，骨架接在末尾，已有的行留着。QueryTable 加载时只有表格的骨架，刷新图标和“查询”按钮不再转圈。DataTable 的 `propsProgress` 与配方部件 `progress`、`progressCell` 随之去掉。
 - 修复：`useConfirm`、`useFormDialog`、`useDialog`、`useDrawer` 等命令式浮层里 `useId()` 生成的 id 会和页面上已有的重复（脱离组件树渲染的根从头计数），表单对话框的标签可能关联到页面里另一个控件。现在每个这样的根有自己的命名段，id 形如 `v-d3-0`。
 
 ## 一次性准备
