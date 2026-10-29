@@ -36,6 +36,17 @@ describe('条件判定', () => {
     expect(matchCondition(node, ':focus-visible')).toBe(false);
   });
 
+  it('结构伪类只数元素兄弟，不算文本与注释（Vue 的片段锚点）', () => {
+    const parent = new MiniNode('div');
+    const anchor = MiniNode.text('');
+    const [first, last] = [new MiniNode('div'), new MiniNode('div')];
+    parent.setChildren([anchor, first, last, new MiniNode('#comment')]);
+    expect(matchCondition(first, ':first-child')).toBe(true);
+    expect(matchCondition(first, ':last-child')).toBe(false);
+    expect(matchCondition(last, ':last-child')).toBe(true);
+    expect(matchCondition(last, ':only-child')).toBe(false);
+  });
+
   it('@media 只认宽度；减少动效等能力不成立', () => {
     setWindowWidth(375);
     expect(matchCondition(nodeWith(), '@media (min-width: 320px)')).toBe(true);

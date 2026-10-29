@@ -6,6 +6,7 @@
  *   - 流程引擎的模型包两端通用，不导入 vue、组件库与 easy-query；引擎在服务端，不导入 vue 与组件库
  *   - 组件库不导入框架（kit），框架不导入 easy-query 与流程引擎
  *   - 小程序运行时（mini）不导入组件库、框架与服务端的包
+ *   - 移动端组件库（mobile）只依赖 vue 与 tsx：不导入桌面组件库、小程序运行时、框架与服务端的包
  *
  * 用法：node scripts/structure/package-deps.mjs（pnpm layers:check 里一起跑）
  */
@@ -24,6 +25,17 @@ const RULES = [
     dirs: ['packages/mini'],
     forbidden: [
       '@zerodep-dev/vue-tsx-pro-ui',
+      '@zerodep-dev/vue-tsx-pro-kit',
+      '@zerodep-dev/easy-query-ts',
+      '@zerodep-dev/flow-ts-',
+    ],
+  },
+  // 移动端组件库只依赖 vue 与 tsx：不依附桌面组件库，也不导入小程序运行时（两边经宿主约定对接）
+  {
+    dirs: ['packages/mobile'],
+    forbidden: [
+      '@zerodep-dev/vue-tsx-pro-ui',
+      '@zerodep-dev/vue-tsx-pro-mini',
       '@zerodep-dev/vue-tsx-pro-kit',
       '@zerodep-dev/easy-query-ts',
       '@zerodep-dev/flow-ts-',

@@ -1,5 +1,5 @@
 {
-  "name": "@vue-tsx-pro/mini-demo",
+  "name": "@vue-tsx-pro/mobile-demo",
   "private": true,
   "type": "module",
   "scripts": {
@@ -11,8 +11,8 @@
     "@lucide/icons": "catalog:",
     "vue": "catalog:",
     "@zerodep-dev/vue-tsx-pro-mini": "workspace:^",
-    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
-    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^"
+    "@zerodep-dev/vue-tsx-pro-mobile": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^"
   },
   "devDependencies": {
     "@types/node": "catalog:",

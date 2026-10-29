@@ -9,15 +9,38 @@ export interface Platform {
    * 事件属性：catchtap / catchTap。用 catch 让原生冒泡停在最内层的节点，冒泡由运行时按节点树做（page.ts）；
    * 两端冒泡时 target 的含义不同（支付宝每一层的 target 都是当前节点），不能靠它去重
    */
-  event(name: 'tap' | 'touchstart' | 'touchend' | 'touchcancel' | 'input'): string;
+  event(name: NativeEventName): string;
 }
 
-const camel: Record<string, string> = {
+/** 模板上绑的原生事件 */
+export type NativeEventName =
+  | 'tap'
+  | 'longpress'
+  | 'touchstart'
+  | 'touchmove'
+  | 'touchend'
+  | 'touchcancel'
+  | 'input'
+  | 'confirm'
+  | 'focus'
+  | 'blur'
+  | 'load'
+  | 'error';
+
+/** 支付宝的事件名是驼峰：onTouchStart、catchLongTap */
+const camel: Record<NativeEventName, string> = {
   tap: 'Tap',
+  longpress: 'LongTap',
   touchstart: 'TouchStart',
+  touchmove: 'TouchMove',
   touchend: 'TouchEnd',
   touchcancel: 'TouchCancel',
   input: 'Input',
+  confirm: 'Confirm',
+  focus: 'Focus',
+  blur: 'Blur',
+  load: 'Load',
+  error: 'Error',
 };
 
 export const PLATFORMS: Readonly<Record<Platform['name'], Platform>> = {

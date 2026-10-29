@@ -5,15 +5,16 @@
  * 数据的形状：{ root: { cn: [节点…] } }，节点是 { s: 编号, t: 模板类型, c: 类名, st: 样式, v: 文字, cn: 子节点 }
  */
 import type { App, Component } from 'vue';
-import { FORM_CONTROLS, templateOf } from './elements.ts';
+import { FORM_CONTROLS, templateOf, type TemplateType } from './elements.ts';
 import { MiniNode, type MiniEvent, type NodeHost } from './node.ts';
 import { createMiniApp } from './renderer.ts';
+import { createMiniHost, HOST_KEY, platform, windowSize } from './host.ts';
 import { resolveStyle, setWindowWidth } from './style.ts';
 import { svgMaskStyle } from './svg.ts';
 
 /** 页面实例上要用到的部分（微信、支付宝相同） */
 interface PageInstance {
-  setData(data: Record<string, unknown>): void;
+  setData(data: Record<string, unknown>, callback?: () => void): void;
 }
 
 /** 小程序事件里要用到的部分；支付宝的事件名是驼峰（touchStart），统一转小写 */
@@ -26,20 +27,42 @@ interface NativeEvent {
 /** 节点数据的字段 */
 type NodeData = Record<string, unknown>;
 
+/** 有子节点的模板类型 */
+const CONTAINERS = new Set<TemplateType>(['v', 'lock', 'touch']);
+
 /** 小程序事件 → 组件收到的事件名 */
 const EVENT_TYPES: Readonly<Record<string, string>> = {
   tap: 'click',
   touchstart: 'touchstart',
   touchend: 'touchend',
   touchcancel: 'touchcancel',
+  touchmove: 'touchmove',
+  longpress: 'longpress',
+  // 支付宝的长按叫 longTap
+  longtap: 'longpress',
   input: 'input',
   confirm: 'change',
   blur: 'blur',
   focus: 'focus',
+  load: 'load',
+  error: 'error',
+  scroll: 'scroll',
 };
 
-/** 透传到模板上的元素属性（input 的 value、placeholder 等）；其余属性只参与样式条件 */
-const TEMPLATE_ATTRS = ['src', 'value', 'placeholder', 'type', 'maxlength'] as const;
+/**
+ * 透传到模板上的元素属性：元素属性名 → 节点数据里的字段（模板里写 {{i.字段}}，见 build/templates.ts）；
+ * 其余属性只参与样式条件
+ */
+const TEMPLATE_ATTRS = {
+  id: 'id',
+  src: 'src',
+  mode: 'mode',
+  'lazy-load': 'lz',
+  value: 'value',
+  placeholder: 'placeholder',
+  type: 'type',
+  maxlength: 'maxlength',
+} as const;
 
 class PageHost implements NodeHost {
   private readonly nodes = new Map<string, MiniNode>();
@@ -47,13 +70,25 @@ class PageHost implements NodeHost {
   private readonly touched = new Set<MiniNode>();
   private readonly restructured = new Set<MiniNode>();
   private scheduled = false;
+  /** 等这一轮 setData 生效的回调（量尺寸要等节点上了模板） */
+  private waiting: (() => void)[] = [];
   private readonly page: PageInstance;
   readonly root: MiniNode;
+  /** 浮层根：挂在根节点的最后，弹出层、轻提示 Teleport 到这里 */
+  readonly overlay = new MiniNode('div');
 
   constructor(page: PageInstance, root: MiniNode) {
     this.page = page;
     this.root = root;
     root.host = this;
+  }
+
+  /** 等这一轮的变化发出去并生效；没有待发的变化时下一个微任务就好 */
+  flushed(): Promise<void> {
+    return new Promise((resolve) => {
+      this.waiting.push(resolve);
+      this.schedule();
+    });
   }
 
   touch(node: MiniNode) {
@@ -98,7 +133,11 @@ class PageHost implements NodeHost {
     }
     this.restructured.clear();
     this.touched.clear();
-    if (Object.keys(payload).length) this.page.setData(payload);
+    const waiting = this.waiting;
+    this.waiting = [];
+    const done = () => waiting.forEach((resolve) => resolve());
+    if (Object.keys(payload).length) this.page.setData(payload, done);
+    else done();
   }
 
   /** 祖先（不含自己）这一轮整段重发了 */
@@ -124,14 +163,17 @@ class PageHost implements NodeHost {
     const fields = this.fieldsOf(node);
     // 记下的只有自己的字段：子节点不参与字段比对，否则下次比对会把 cn 当成"去掉了"
     this.sent.set(node, fields);
-    if (fields.t !== 'v') return fields;
+    if (!CONTAINERS.has(fields.t as TemplateType)) return fields;
     return { ...fields, cn: node.children.map((child) => this.serialize(child)) };
   }
 
   /** 节点自己的字段（不含子节点） */
   private fieldsOf(node: MiniNode): NodeData {
     this.nodes.set(node.sid, node);
-    const type = templateOf(node.tag);
+    let type = templateOf(node.tag);
+    // 遮罩这类节点 catch 掉 touchmove，挡住下面页面的滚动（小程序没有别的办法锁滚动）；手势节点才收 touchmove
+    if (type === 'v' && node.attribute('data-scroll-lock') !== undefined) type = 'lock';
+    else if (type === 'v' && node.attribute('data-touch-move') !== undefined) type = 'touch';
     if (type === 'x') return { s: node.sid, t: type, v: node.text };
     if (type === 'n') return { s: node.sid, t: type };
     const { className, style } = resolveStyle(node);
@@ -141,9 +183,9 @@ class PageHost implements NodeHost {
       c: className,
       st: type === 'svg' ? `${svgMaskStyle(node)};${style}` : style,
     };
-    for (const name of TEMPLATE_ATTRS) {
+    for (const [name, field] of Object.entries(TEMPLATE_ATTRS)) {
       const value = node.attribute(name);
-      if (value !== undefined) data[name] = value;
+      if (value !== undefined) data[field] = value;
     }
     return data;
   }
@@ -207,18 +249,6 @@ function insideDisabledControl(node: MiniNode): boolean {
   return false;
 }
 
-/** 微信（wx）与支付宝（my）的全局 API 里用到的部分；getWindowInfo 是微信新版的，旧的 getSystemInfoSync 已废弃 */
-interface MiniApi {
-  getWindowInfo?(): { windowWidth: number };
-  getSystemInfoSync(): { windowWidth: number };
-}
-declare const wx: MiniApi | undefined;
-declare const my: MiniApi | undefined;
-
-/** 当前平台的全局 API；不在小程序里（测试）时 undefined */
-const platformApi = (): MiniApi | undefined =>
-  typeof wx !== 'undefined' ? wx : typeof my !== 'undefined' ? my : undefined;
-
 /** 页面实例 → 它的 Vue 应用与宿主；同一个页面可能在页面栈里开多次，不能放在闭包里 */
 const mounted = new WeakMap<object, { app: App<MiniNode>; host: PageHost }>();
 
@@ -227,12 +257,15 @@ export function pageOptions(component: Component, setup?: (app: App<MiniNode>) =
   return {
     data: { root: { cn: [] } },
     onLoad(this: PageInstance, query: Record<string, string>) {
-      const api = platformApi();
-      if (api) setWindowWidth((api.getWindowInfo?.() ?? api.getSystemInfoSync()).windowWidth);
+      const current = platform();
+      if (current) setWindowWidth(windowSize(current.api).width);
       const host = new PageHost(this, new MiniNode('#root'));
       const app = createMiniApp(component, { query });
+      app.provide(HOST_KEY, createMiniHost(host));
       setup?.(app);
       app.mount(host.root);
+      // 浮层根排在应用的节点后面：后渲染的盖在上面
+      host.root.insertBefore(host.overlay, null);
       mounted.set(this, { app, host });
     },
     onUnload(this: PageInstance) {

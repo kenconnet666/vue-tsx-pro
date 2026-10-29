@@ -26,7 +26,7 @@ import { vueTsxPro } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
 await buildMini({ root: import.meta.dirname, platform: 'wx', plugins: vueTsxPro(), appId: 'wx…' });
 ```
 
-完整的例子是 `apps/mini-demo`（`node build.ts` 两端都构建，`pnpm dev` 看 H5）。
+完整的例子是 `apps/mobile-demo`（`node build.ts` 两端都构建，`pnpm dev` 看 H5）。
 
 ## 验证与踩过的坑
 

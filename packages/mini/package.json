@@ -17,6 +17,10 @@
       "@vue-tsx-pro/source": "./src/globals.ts",
       "default": "./src/globals.ts"
     },
+    "./testing": {
+      "@vue-tsx-pro/source": "./src/testing.ts",
+      "default": "./src/testing.ts"
+    },
     "./build": {
       "@vue-tsx-pro/source": "./src/build/index.ts",
       "default": "./src/build/index.ts"
@@ -34,8 +38,6 @@
   "devDependencies": {
     "@types/node": "catalog:",
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
-    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
-    "happy-dom": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",

@@ -1,0 +1,15 @@
+{
+  // 只生成类型声明；JS 由 vite build 产出
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "types": ["@zerodep-dev/vue-tsx-pro-tsx/runes"]
+  },
+  "include": ["src"],
+  // 测试集中在各分类的 .test 目录
+  "exclude": ["src/**/.test"]
+}

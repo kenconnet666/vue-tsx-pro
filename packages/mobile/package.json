@@ -1,0 +1,58 @@
+{
+  "name": "@zerodep-dev/vue-tsx-pro-mobile",
+  "version": "0.1.0-dev",
+  "private": true,
+  "description": "vue-tsx-pro 移动端组件库：H5 为主，同一套组件经 @zerodep-dev/vue-tsx-pro-mini 跑在微信、支付宝小程序",
+  "license": "MIT",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kenconnet666/vue-tsx-pro.git",
+    "directory": "packages/mobile"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "mobile",
+    "components",
+    "miniprogram",
+    "tsx"
+  ],
+  "sideEffects": [
+    "./src/theme/tokens.ts",
+    "./dist/theme/tokens.js"
+  ],
+  "exports": {
+    ".": {
+      "@vue-tsx-pro/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "vite build --configLoader native && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
+    "test": "vitest run --configLoader native"
+  },
+  "dependencies": {
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^"
+  },
+  "peerDependencies": {
+    "@lucide/icons": "^1.59.0",
+    "vue": "^3.5.0"
+  },
+  "devDependencies": {
+    "@lucide/icons": "catalog:",
+    "@types/node": "catalog:",
+    "@zerodep-dev/vue-tsx-pro-mini": "workspace:^",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:"
+  }
+}

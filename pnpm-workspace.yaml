@@ -4,6 +4,7 @@ packages:
   - packages/ui
   - packages/kit
   - packages/mini
+  - packages/mobile
   - packages/easy-query/*
   - packages/flow/*
   - apps/*

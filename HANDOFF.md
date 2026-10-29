@@ -14,7 +14,7 @@
   - 没做的：11b.7（按需）、14.9 里会签、超时、子流程的页面；"待决"里一条（打成包的流程模块）。
 
 - **移动端**（ROADMAP 阶段 17，2026-10-29 起）：概念验证做完——`packages/mini`（小程序渲染运行时与 `./build`）让 `-ui` 发布的 Button
-  原样跑在微信、支付宝里，`apps/mini-demo` 同一页面三端验证。用户定了：移动组件新建 `packages/mobile`，只依赖 vue 与 `-tsx`，
+  原样跑在微信、支付宝里，`apps/mobile-demo`（原 mini-demo）同一页面三端验证。用户定了：移动组件新建 `packages/mobile`，只依赖 vue 与 `-tsx`，
   不依赖 `-ui`、也不从 `-ui` 抽公共部分。下一步是里程碑 M1（17.1 移动端底座、17.2 运行时补全、17.4.1 基础组件）。
   开发者工具怎么驱动（微信的技能 CLI、支付宝靠 `minidev` 与电脑控制）、踩过的坑见 `packages/mini/README.md`。
 

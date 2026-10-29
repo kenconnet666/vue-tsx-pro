@@ -585,31 +585,31 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [x] 17.0.3 `packages/mini`：节点、渲染器、setData 合并、事件、`:active`、条件判定（条件别名、`:is` / `:not`、`@media` 宽度）、SVG 遮罩、全局补全
       （逻辑层缺的 `setImmediate`、`requestAnimationFrame`；支付宝旧环境没有 `globalThis`）
 - [x] 17.0.4 `buildMini`：包、页面文件、通用模板、app 样式表、项目配置；支付宝端写 `.browserslistrc`、关掉 Vue 的选项式 API（支付宝编译器解析不了其中一段）
-- [x] 17.0.5 `apps/mini-demo`：同一个页面在 H5、微信、支付宝三端验证；增量 setData 与整树一致的回归测试（`mini/test/page.test.ts`）
+- [x] 17.0.5 `apps/mini-demo`（现在的 `apps/mobile-demo`）：同一个页面在 H5、微信、支付宝三端验证；增量 setData 与整树一致的回归测试（`mini/test/page.test.ts`）
 
 ### 17.1 移动端底座（packages/mobile 起步）
 
 - [ ] 17.1.1 建包：目录、构建（Vite 库模式 + tsc 出声明，同 `-ui` 的做法）、exports、包依赖检查（mobile 不导入 ui、mini、kit 与服务端的包）；
-      发布产物验证：打包装进临时项目，H5 与小程序两种使用方都跑通（同 `pnpm test:consumer`）
-- [ ] 17.1.2 主题：token 自己定义（变量前缀 `--vtm-`；色值取同一套 Radix 色板；字号 12–18、间距 4 的倍数、触控目标 44 px、圆角、阴影、动效、层级），
-      亮暗两套；主题覆盖与切换（ThemeProvider）
+      发布产物验证：打包装进临时项目，H5 与小程序两种使用方都跑通（同 `pnpm test:consumer`）（建包、构建、包依赖检查已做，演示按 dist 引用；差临时项目验证）
+- [x] 17.1.2 主题：token 自己定义（变量前缀 `--vtm-`；色值取同一套 Radix 色板；字号 12–18、间距 4 的倍数、触控目标 44 px、圆角、阴影、动效、层级），
+      亮暗两套；主题覆盖与切换（ThemeProvider）（`theme/tokens.ts`、`theme/dark.ts`；切换是 ConfigProvider 的 `theme`：light / dark / system）
 - [ ] 17.1.3 组件写法的底子：部件属性 `propsXxx` 与 `sx` 的合并（mobile 自己的实现）、受控与非受控（`_bindable`）、
-      全局默认值与语言（ConfigProvider，zh-CN / en-US）
-- [ ] 17.1.4 宿主约定 `useHost()`：异步测量（rect）、滚动到位置、聚焦、系统信息（窗口、状态栏、安全区）、页面滚动锁、浮层根、震动、剪贴板、选图；
+      全局默认值与语言（ConfigProvider，zh-CN / en-US）（合并、语言、主题已做；组件默认值的配置按需加）
+- [x] 17.1.4 宿主约定 `useHost()`：异步测量（rect）、滚动到位置、聚焦、系统信息（窗口、状态栏、安全区）、页面滚动锁、浮层根、震动、剪贴板、选图；
       Web 版在 mobile 里，小程序版在 mini 里（17.2.4），经 `Symbol.for('vue-tsx-pro.host')` provide 对接，互不导入
-- [ ] 17.1.5 mobile 包的组件规范文档（对标 COMPONENTS.md）：上面的写法约束、命名与 API 约定、完成标准；
-      `pnpm mobile:check` 检查元素与样式条件的白名单，进 `pnpm check`
+- [x] 17.1.5 mobile 包的组件规范文档（对标 COMPONENTS.md）：上面的写法约束、命名与 API 约定、完成标准；
+      检查元素与样式条件的白名单（`packages/mobile/MOBILE.md`；`scripts/structure/mobile-rules.mjs` 进 `pnpm layers:check`）
 - [ ] 17.1.6 测试底座：单测（happy-dom）；小程序渲染测试（mini 导出页面测试工具：挂组件、按路径应用 setData、断言数据树与行内样式）；
-      H5 浏览器测试（Vitest 浏览器模式，手机视口、触摸事件）；三端截图脚本（H5 用 Playwright，微信用开发者工具的截图，支付宝用 minidev 加截图）
+      H5 浏览器测试（Vitest 浏览器模式，手机视口、触摸事件）；三端截图脚本（H5 用 Playwright，微信用开发者工具的截图，支付宝用 minidev 加截图）（单测与小程序渲染测试已做：`@zerodep-dev/vue-tsx-pro-mini/testing`）
 
 ### 17.2 小程序运行时补全（packages/mini）
 
 - [ ] 17.2.1 模板层数用完后接一个递归的自定义组件（同 Taro 的 comp）；长列表的每一项用自定义组件隔开，setData 只到那一项
-- [ ] 17.2.2 原生组件：image、input、textarea、scroll-view、swiper（按约定属性映射）的属性与事件（input 的值双向、聚焦、键盘高度）
-- [ ] 17.2.3 事件补全：touchmove、longpress、scroll、input / change；事件对象的 touches、目标节点等 DOM 形状
-- [ ] 17.2.4 宿主约定的小程序实现：SelectorQuery 测量、pageScrollTo、系统信息与安全区、页面滚动锁、震动、剪贴板、chooseMedia
+- [ ] 17.2.2 原生组件：image、input、textarea、scroll-view、swiper（按约定属性映射）的属性与事件（input 的值双向、聚焦、键盘高度）（image 的 mode、lazy-load、load / error 已做）
+- [ ] 17.2.3 事件补全：touchmove、longpress、scroll、input / change；事件对象的 touches、目标节点等 DOM 形状（模板绑定已做：touchmove 只在 data-touch-move / data-scroll-lock 的节点上；差事件对象的 touches）
+- [x] 17.2.4 宿主约定的小程序实现：SelectorQuery 测量、pageScrollTo、系统信息与安全区、页面滚动锁、震动、剪贴板、chooseMedia
 - [ ] 17.2.5 浮层：页面级浮层根接住 Teleport；`position: fixed` 与层级在两端一致
-- [ ] 17.2.6 `data-*`、`id` 透传到模板；role、aria-label 映射到小程序的无障碍属性
+- [ ] 17.2.6 `data-*`、`id` 透传到模板；role、aria-label 映射到小程序的无障碍属性（id 已做，测量时按需挂上）
 - [ ] 17.2.7 性能基准：1000 行列表首屏与更新的 setData 体积、频率；样式展开按"类名 + 状态"缓存；按住时只发样式真的变了的节点
 - [ ] 17.2.8 页面生命周期（onShow、onHide、下拉刷新、触底、分享）接进组合式 API；路由跳转包一层，页面参数作为 props
 - [ ] 17.2.9 开发模式：`buildMini` 的监听重建只重打应用代码，依赖走缓存；目标是改一个页面 1 s 内出新包；源码映射
@@ -625,8 +625,8 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 参考 Vant 4、NutUI、TDesign Mobile、Ant Design Mobile 的范围与 API，取舍写进组件规范。按依赖排序：浮层在选择类之前，Picker 在日期之前。
 每个组件的完成标准：三端截图一致；单测、小程序渲染测试、H5 浏览器测试；亮暗两套；文档页示例饱满。
 
-- [ ] 17.4.1 基础：Icon（`@lucide/icons` 的数据渲染成 svg）、Button（类型、尺寸、块级、圆角、图标、加载、禁用、按压反馈）、Cell / CellGroup、
-      Tag、Badge、Divider、Space、Image（懒加载、失败占位）、Loading；做完 Button 后 `apps/mini-demo` 与 mini 的测试改用它，去掉对 `-ui` 的依赖
+- [x] 17.4.1 基础：Icon（`@lucide/icons` 的数据渲染成 svg）、Button（类型、尺寸、块级、圆角、图标、加载、禁用、按压反馈）、Cell / CellGroup、
+      Tag、Badge、Divider、Space、Image（懒加载、失败占位）、Loading；演示与 mini 的测试不再依赖 `-ui`（三端截图与交互核对过）
 - [ ] 17.4.2 浮层与反馈：Overlay、Popup（上下左右中、圆角、安全区、关闭方式）、Toast（命令式）、Dialog（组件与命令式）、ActionSheet、Notify、
       SwipeCell、PullRefresh、Skeleton
 - [ ] 17.4.3 表单：Field（输入框、多行、清除、字数）、Switch、Checkbox / CheckboxGroup、Radio / RadioGroup、Stepper、Rate、Slider、Search、
@@ -639,7 +639,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 ### 17.5 文档站与演示
 
 - [ ] 17.5.1 文档站加"移动端"分区：每个组件一页，H5 示例在手机外框里运行，旁边放微信、支付宝的截图（截图脚本生成）
-- [ ] 17.5.2 `apps/mini-demo` 改名 `apps/mobile-demo`：按组件分页面，加一个真实场景（列表 → 详情 → 表单提交），三端共用
+- [ ] 17.5.2 `apps/mini-demo` 改名 `apps/mobile-demo`：按组件分页面，加一个真实场景（列表 → 详情 → 表单提交），三端共用（改名已做）
 
 ### 17.6 工程与发布
 

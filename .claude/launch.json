@@ -38,11 +38,11 @@
       "port": 4174
     },
     {
-      "name": "mini-demo-h5",
+      "name": "mobile-demo-h5",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": [
         "--filter",
-        "@vue-tsx-pro/mini-demo",
+        "@vue-tsx-pro/mobile-demo",
         "dev",
         "--port",
         "4321",

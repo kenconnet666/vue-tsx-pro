@@ -31,7 +31,7 @@
     "docs:coverage": "node scripts/docs/coverage.mjs",
     "exports": "node scripts/exports/generate.mjs",
     "exports:check": "node scripts/exports/generate.mjs --check",
-    "layers:check": "node scripts/structure/layers.mjs && node scripts/structure/package-deps.mjs",
+    "layers:check": "node scripts/structure/layers.mjs && node scripts/structure/package-deps.mjs && node scripts/structure/mobile-rules.mjs",
     "refs:check": "node scripts/structure/doc-refs.mjs",
     "themes:check": "node scripts/themes/check.mjs",
     "text:check": "node scripts/text/check.mjs",

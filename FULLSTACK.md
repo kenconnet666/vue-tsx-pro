@@ -64,7 +64,7 @@ apps/
   host-demo/               现有：验证"装进已有的 Vue 项目"这条路，保留
   fullstack-demo/          新：框架的最小应用，以后变成新项目模板
   flow-demo/               新：真实的审批应用，驱动框架与引擎
-  mini-demo/               新：同一套页面跑在 H5、微信、支付宝三端，验证移动端路线（阶段 17）
+  mobile-demo/             新：移动端组件的演示，同一套页面跑在 H5、微信、支付宝三端（阶段 17）
 ```
 
 `pnpm-workspace.yaml` 逐个写出包族（`packages/tsx`、`packages/ui`、`packages/easy-query/*`、`packages/kit`、`packages/mini`、`packages/flow/*`、`apps/*`），

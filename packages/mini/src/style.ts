@@ -3,7 +3,8 @@
  * 其余类名原样保留给使用方自己的样式表。
  *
  * 条件只认组件库实际写得出来的几种（见 tsx 的 declarations.ts 的条件别名）：
- *   - 伪类：:active 看节点是否按着；:disabled、:checked 看布尔属性；:hover、:focus 系列在触屏上不成立
+ *   - 伪类：:active 看节点是否按着；:disabled、:checked 看布尔属性；:first-child、:last-child、:only-child 看元素兄弟；
+ *     :hover、:focus 系列在触屏上不成立
  *   - 属性选择器 [name]、[name="value"]，以及 :is / :where / :not 包着的组合
  *   - @media：宽度按窗口算；减少动效、强制颜色、悬停能力一律不成立
  */
@@ -89,6 +90,12 @@ function matchPseudo(node: MiniNode, name: string, argument: string): boolean {
       return !splitList(argument).some((part) => matchCompound(node, part));
     case 'active':
       return node.pressed;
+    case 'first-child':
+      return elementSiblings(node)[0] === node;
+    case 'last-child':
+      return elementSiblings(node).at(-1) === node;
+    case 'only-child':
+      return elementSiblings(node).length === 1;
     case 'disabled':
     case 'checked':
     case 'indeterminate':
@@ -98,6 +105,10 @@ function matchPseudo(node: MiniNode, name: string, argument: string): boolean {
       return false;
   }
 }
+
+/** 元素兄弟（含自己）：结构伪类同 CSS，不算文本与注释节点（Vue 的片段锚点） */
+const elementSiblings = (node: MiniNode): MiniNode[] =>
+  node.parent ? node.parent.children.filter((sibling) => !sibling.tag.startsWith('#')) : [node];
 
 /** `name`、`name="value"`、`name=value` */
 function matchAttribute(node: MiniNode, body: string): boolean {

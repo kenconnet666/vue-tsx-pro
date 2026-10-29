@@ -1,0 +1,8 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "@zerodep-dev/vue-tsx-pro-tsx/runes"]
+  },
+  // 以点开头的目录（各分类的 .test）不会被 src 匹配，要单独列出
+  "include": ["src", "src/**/.test/**/*", "*.config.ts"]
+}
