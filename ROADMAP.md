@@ -432,6 +432,96 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 15.4 `fullstack-demo` 整理成新项目模板；文档站加框架分区
       （文档站的“全栈”分区：Framework 全栈框架；新项目模板先用 apps/fullstack-demo）
 
+## 阶段 16：easy-query TS 全面对齐官方 easy-query
+
+目标（2026-10-29 定）：官方 easy-query 有的我们都要有——效果一致，写法更符合 TS、更方便；TS 能做得更灵活的地方可以多做。
+对照的是官方 `dromara/easy-query`（单元测试 `sql-test`：143 个文件、2344 个用例）与官方文档站 `xuejmnet/easy-query-doc`（22 个章节），
+本地克隆在 `IdeaProjects/orm-references/`。官方支持的数据库我们也都支持，实库测试用 WSL 里的容器。
+
+做法：
+
+- **逐个对照**：脚本把官方每个测试文件里的用例列成清单（文件、方法名、断言的 SQL），放进 `packages/easy-query/docs/parity-tests.md`；
+  每个用例标"已对应（TS 测试的位置）/ 写法不同 / 新做 / 不适用（理由）"，做完一项改一项。文档站同样按章节列一张表。
+- **测试分两层**：生成的 SQL 在 SQLite 上断言（快、不要库）；语义在 `test/src/suite.ts` 的共用实库套件里跑，每种方言都跑一遍。
+- **方言**：每加一种库，先在 `infra/dev/compose.yaml` 加容器、`db.sh` 生成连接，再写方言包，最后让共用套件全绿；
+  驱动只用纯 JS 或官方维护的 Node 包。H2 是 JVM 里的库，Node 里没有驱动，标"不适用"。
+- **小步提交**：每个子项一个提交，本地跑相关测试，全量与实库交给 CI；新方言进 CI 的 db 任务（容器太大的放 nightly）。
+
+### 16.1 对照清单（先做，后面每项都对着它）
+
+- [ ] 16.1.1 脚本抽出官方 2344 个用例的清单（按文件、API 归类），生成 `docs/parity-tests.md`
+- [ ] 16.1.2 文档站 22 个章节逐页对照，补进 `docs/parity.md`（按章节分组，取代现在按 API 分组的表）
+- [ ] 16.1.3 已有的 TS 测试回填到清单里，算出"已对应"的比例，列出缺口
+
+### 16.2 查询与表达式（ability/select、func、sub-query）
+
+- [ ] 16.2.1 函数库补齐（func/*）：日期格式化 `format`、`plusYears/Hours/Minutes/Seconds`、`hour/minute/second`、`dayOfYear/dayOfWeek`、
+      时间间隔 `duration`（按单位取天、时、分、秒）、`now/utcNow`；`maxColumns/minColumns`（GREATEST / LEAST）；
+      字符串 `ltrim/rtrim`、`leftPad/rightPad`、`stringFormat`（模板拼接，参数可复用）、`nullEmpty`、`compareTo`、`notStartsWith/notEndsWith`；
+      聚合 `joining`（GROUP_CONCAT / STRING_AGG，带分隔符与排序）、`sumOrDefault` 这类写法用 `orElse`；
+      窗口 `firstValue/lastValue/nthValue`；数学 `power/sqrt/exp/log/sign/…`（对 func/math 全表）
+- [ ] 16.2.2 JSON 函数（func/json）：取值、对象 / 数组构造，按方言渲染（MySQL `->>`、PG `->>`、SQLite `json_extract`、HANA `JSON_VALUE`）
+- [ ] 16.2.3 子查询（sub-query/*）：join 一条子查询（`innerJoin(query.asTable(), …)`，现在派生表不能 join）、select 里的相关子查询手动模式、from 子查询的自定义视图
+- [ ] 16.2.4 一对多导航上的 `flatElement` / `elements`：`u.roles.flat((r) => r.name)` 在 select 里得到数组、在 where 里是"任一"；`joining` 拼成一串
+- [ ] 16.2.5 动态表名、`whereColumns`、`selectColumn`、`toMap`、`cloneQueryable` 等对照 ability/* 逐条确认（多数是写法不同，补测试）
+- [ ] 16.2.6 深分页反向排序（performance/deep-page：offset 超过一半时倒序取再翻回来）、派生表条件穿透（adv/smart-predicate）
+
+### 16.3 导航、DTO、计算属性（navigate、include、dto-query、prop）
+
+- [ ] 16.3.1 自定义关联条件：多对多无中间表、逗号分隔列（navigate/dotcolumn，FIND_IN_SET 一类）、路径左匹配（navigate/pathcolumn）——
+      `r.many('Book', { on: (u, b) => … })` 任意条件的关系，隐式子查询与 toList 都支持
+- [ ] 16.3.2 多对一导航上的拦截器开关（关系定义处给默认开关）、include 的 extra filter 与 include filter 对照（include/*）
+- [ ] 16.3.3 计算属性（prop/*）：实体上声明数据库计算的属性（`computed: (u) => u.first.concat(u.last)`、跨表、状态 CASE），select / where / orderBy / table() 都能用；
+      内存计算属性用视图
+- [ ] 16.3.4 DTO 筛选与排序（dto-query/filter、sort）：`filterBy(input, { name: 'like', age: 'range', … })`，规则的键与值类型由实体推出；
+      `table()` 加 `filterable` / `sortable` 白名单
+- [ ] 16.3.5 `selectAutoInclude` 的对照：视图 + 导航自动带出（现有）补测试；`NavigateFlat` 的各种平铺对照
+
+### 16.4 写入与保存（ability/insert、update、delete、batch、savable、adv）
+
+- [ ] 16.4.1 聚合保存（savable/*）：多对多中间表按现状比较增删、多对一 / 一对一、多层、脱钩方式（删除 / 设 null / 不动）、只保存哪些路径；
+      cascade 路径做成类型（`['posts', 'posts.comments', 'roles']` 由关系推出）
+- [ ] 16.4.2 插入 / 更新策略（只写非 null 列等）对照，`batch`（驱动层的批量执行，MySQL / PG 一次往返多条）
+- [ ] 16.4.3 `afterWrite` 可选带"改之前的值"（拦截器声明 `before: true` 时核心先按同样条件查一次）
+- [ ] 16.4.4 更新 / 删除带 join（官方 UpdateDeleteJoinTest、各方言 UpdateJoinTest）：`update(X).join(…)`，按方言渲染（MySQL UPDATE … JOIN、PG UPDATE … FROM、MSSQL UPDATE … FROM）
+- [ ] 16.4.5 对照 VersionTest、LogicDeleteTest、EncryptionTest、Sm4EncryptionTest、InterceptorTest、TrackTest 逐条补测试
+
+### 16.5 建表与迁移（code-first）
+
+- [ ] 16.5.1 `db.syncTables()`：对比库里的结构，建缺的表、加缺的列，列出不一致（类型、可空、默认值）而不自动改；生成迁移 SQL 供审阅
+- [ ] 16.5.2 列与表的注释、索引声明（`index: [['tenantId', 'createdAt']]`）、外键（可选）
+- [ ] 16.5.3 由表生成实体的命令行（plugin/table2entity 的 TS 版）：读 information_schema（各方言的系统表），输出 `entity()` 与 `defineSchema`
+
+### 16.6 二级缓存与分库分表（cache、super）
+
+- [ ] 16.6.1 缓存（cache/*）：kv 模式按主键缓存、all 模式加索引；写入后在事务提交后失效，表达式更新先查出受影响的键；存储可换（进程内、Redis）；做成 `@zerodep-dev/easy-query-ts-cache`
+- [ ] 16.6.2 分表（super/sharding-table、sharding-time、sharding-mod）：按取模、按时间路由，写入按分片键算表名，查询从条件裁剪出要查的表，
+      多张表 `UNION ALL` 后在库里排序、分页、聚合；按时间自动建表
+- [ ] 16.6.3 分库（super/sharding-datasource、sharding-all）：多个 Db 按键路由，跨库查询在内存里归并排序、分页、聚合（流式 k 路归并），并发上限；
+      跨库写入不做分布式事务（写明）
+- [ ] 16.6.4 读写分离（官方超级功能之一）：`createDb({ replicas })`，事务里一律走主库
+- [ ] 16.6.5 search 扩展（官方 sql-search，EasySearch* 测试）与我们的 `table()` / 条件树对照，缺的补上
+
+### 16.7 方言：官方支持的都支持（容器进 `infra/dev/compose.yaml`）
+
+已有 SQLite、MySQL（8.0.18、8.4）、PostgreSQL 17、HANA。按用户量与驱动成熟度排：
+
+- [ ] 16.7.1 SQL Server（`mcr.microsoft.com/mssql/server`，驱动 `mssql`/tedious）：TOP / OFFSET FETCH、`[]` 引号、OUTPUT 代替 RETURNING、MERGE upsert；含 2012 以前的 ROW_NUMBER 分页
+- [ ] 16.7.2 Oracle（`gvenzl/oracle-free`，驱动 `oracledb` 薄模式不用客户端）：FETCH FIRST、序列、IN 列表 1000 上限（`maxInClauseSize`）、MERGE
+- [ ] 16.7.3 DuckDB（嵌入式，驱动 `@duckdb/node-api`，不用容器）
+- [ ] 16.7.4 达梦 DM8（容器镜像、驱动 `dmdb`）
+- [ ] 16.7.5 人大金仓 KingbaseES、openGauss / GaussDB（PG 协议，复用 pg 驱动，方言继承 PG 后覆盖差异）
+- [ ] 16.7.6 ClickHouse（`clickhouse/clickhouse-server`，驱动 `@clickhouse/client`）：只读分析为主，写入、事务按它的能力裁剪
+- [ ] 16.7.7 DB2（`icr.io/db2_community/db2`，驱动 `ibm_db`）
+- [ ] 16.7.8 TDengine 等时序库（官方 sql-tsdb）：先看官方支持到什么程度再定
+- [ ] 16.7.9 H2：JVM 内的库，Node 没有驱动——不适用，写进清单
+- [ ] 16.7.10 每种方言：共用实库套件全绿、方言专属函数入口（同 `MySQL.` / `Pg.` / `Hana.`）、建表类型映射、CI（大的放 nightly）
+
+### 16.8 文档站与收尾
+
+- [ ] 16.8.1 文档站 ORM 分区按官方章节组织（快速开始、查询、导航、DTO、写入、保存、函数、计算属性、建表、缓存、分库分表、方言），每页写清与官方的对应
+- [ ] 16.8.2 `parity-tests.md` 里"已对应"到 100%（"不适用"都有理由），对照表没有 ✗
+
 ## 已知局限（有意的取舍，写在文档里）
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）
