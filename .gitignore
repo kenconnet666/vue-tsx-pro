@@ -22,3 +22,4 @@ vue-tsx-pro.iml
 /.local/
 # easy-query 的 SQLite 测试库文件
 packages/easy-query/**/*.db
+packages/easy-query/test/.generated/
