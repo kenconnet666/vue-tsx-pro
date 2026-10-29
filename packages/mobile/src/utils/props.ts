@@ -23,9 +23,18 @@ export type PartProps<
   Managed extends string = never,
 > = Omit<IntrinsicProps<Tag>, Managed | 'children'> & { sx?: SxStyles };
 
-/** data-* 写进对象字面量（部件属性、合并的各层）时包一层：元素的属性类型不收 data-* 键 */
-export const dataAttrs = (attrs: Record<`data-${string}`, string | number | boolean | undefined>) =>
-  attrs;
+/**
+ * data-* 写进对象字面量（部件属性、合并的各层）时包一层：元素的属性类型不收 data-* 键。
+ * 值为 false 的去掉：Vue 会把它写成 data-x="false"，样式里的 [data-x] 照样成立
+ */
+export function dataAttrs(
+  attrs: Record<`data-${string}`, string | number | boolean | undefined>,
+): Record<`data-${string}`, string | number | true> {
+  const result: Record<`data-${string}`, string | number | true> = {};
+  for (const [name, value] of Object.entries(attrs) as [`data-${string}`, unknown][])
+    if (value !== false && value !== undefined) result[name] = value as string | number | true;
+  return result;
+}
 
 type Props = Record<string, unknown>;
 type Handler = (...args: unknown[]) => unknown;
