@@ -37,7 +37,9 @@ describe('Popover', () => {
   it('贴着触发器下方显示，写出最终方向；打开时 axe-core 没有违规', async () => {
     const trigger = $('.popover-open');
     const panel = $('.popover-demo');
-    // 点击只在需要时滚动，触发器可能停在视口底边、下方放不下而翻到上方：先让它居中
+    // 点击只在需要时滚动，触发器可能停在视口底边、下方放不下而翻到上方。
+    // 触发器靠近页尾时滚不到中间：先在页尾垫一屏高度，再让它居中
+    root.style.paddingBottom = '100vh';
     trigger.scrollIntoView({ block: 'center' });
     await userEvent.click(trigger);
     await expect.poll(() => isOpen(panel)).toBe(true);
