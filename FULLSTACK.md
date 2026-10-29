@@ -58,6 +58,7 @@ packages/
     spec/                  语言无关的共用用例（JSON），不是包
   mini/                    新：小程序渲染运行时 @zerodep-dev/vue-tsx-pro-mini（Vue 渲染器 + setData + 通用模板，
                            样式按节点展开成行内样式）+ 子路径 ./build（打包成微信 / 支付宝工程）；见 ROADMAP 阶段 17
+  mobile/                  计划：移动端组件 @zerodep-dev/vue-tsx-pro-mobile，只依赖 vue 与 tsx，不依赖 ui；H5 与小程序共用
 apps/
   docs/                    唯一的文档站：组件库、ORM、框架、流程引擎各一个分区；也是 SSR / 预渲染的第一个使用方
   host-demo/               现有：验证"装进已有的 Vue 项目"这条路，保留

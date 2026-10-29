@@ -54,12 +54,6 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - （2026-10-29）打成包、拿来就用的流程模块（命令与查询的 action、loader）：kit 的 action 与 loader 的辅助函数经主入口导入 vue，
   引擎这一层不能导入 vue。要么把 kit 的 `defineAction`、`defineLoaders` 拆到不带 vue 的子路径，要么模块放在应用里（现在的做法）。
 
-- （2026-10-29，17.3）移动端组件放哪、怎么复用 `-ui` 的基础设施（主题 token、`utils/props` 的 mergeProps / mergeAttrs、按钮家族这类内核）：
-  A. 新包 `packages/mobile` 直接依赖 `-ui`（最简单；H5 使用方会连带装上桌面组件的依赖，靠摇树去掉）；
-  B. 先把基础设施拆成 `-core`，`-ui` 与 `-mobile` 都依赖它（结构干净，但要改 `-ui` 的公共结构与发布）；
-  C. 移动端组件直接放进 `-ui` 的一个子路径 `/mobile`（不加包，但 `-ui` 的分层要多一层"平台"）。
-  倾向 A 起步、组件稳定后再按需做 B。
-
 （执行中遇到的停顿点记在这里：日期、项号、卡在哪、需要用户决定什么。）
 
 ## 工作方式
@@ -536,31 +530,53 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 
 ## 阶段 17：移动端组件库（H5 为主，微信 / 支付宝小程序）
 
-目标（2026-10-29 定）：一套组件以移动 Web 为主，同时跑在微信、支付宝小程序里，风格与 `-ui` 大体一致（token、档位、色调同一套）。
-沿用本仓库的路线：TSX 由 tsx 的 Babel 编译器编译，样式用运行时引擎（`css.create`），部件属性 `propsXxx` 经 mergeProps 透传；
+目标（2026-10-29 定）：一套移动端组件以移动 Web 为主，同时跑在微信、支付宝小程序里；外观与 `-ui` 同一个设计语言（配色取自同一套 Radix 色板），
+token 与实现自己定义。沿用本仓库的路线：TSX 由 tsx 的 Babel 编译器编译，样式用运行时引擎（`css.create`），部件属性 `propsXxx` 合并透传；
 组件库以编译好的产物发布，使用方不重新编译（开发时预构建，构建时依赖里的 `.js` 直接跳过）。Taro、uni-app 只用来参考和踩坑，不依赖。
+
+已定的决定（用户 2026-10-29）：
+
+| #   | 事项               | 决定                                                                                                                                                       |
+| --- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | 移动组件放哪       | 新包 `packages/mobile`（`@zerodep-dev/vue-tsx-pro-mobile`），只依赖 vue 与 `-tsx`；不依赖 `-ui`，也不从 `-ui` 抽公共部分，需要的基础设施在 mobile 里自己写 |
+| 2   | tsx 共用到什么程度 | 与平台无关、不碰 DOM、不绑定具体组件的能力可以放进 tsx（编译器、符文、运行时、样式引擎，如已加的 `inlineStyle`），`-ui`、`-mobile`、`-mini` 都用           |
+| 3   | 小程序运行时       | `packages/mini` 是通用的渲染运行时与构建，不依赖 mobile、ui；mobile 也不导入 mini，两边经"宿主约定"（17.1.4）对接                                          |
 
 试验的结论（2026-10-29，试验工程在仓库外的 `MiniProjects/spikes`）：
 
 - uni-app：小程序运行时没有 VNode 接口，TSX / render 函数编不过；组件库以源码交给使用方编译，不符合上面的约束。
 - Taro Vue3：证明"Vue 渲染器 + setData + 通用模板"可行（运行时 172 KB）；踩到的坑：模板按使用方源码扫描裁剪，预编译库里的元素没有模板；
   没有 CSSOM，样式引擎一加载就报错；4.3.1 用 Vite 编支付宝端有两处 bug，换 webpack5 依赖难配。
-- 自研的 `packages/mini`：`-ui` 发布的 Button 原样在 H5、微信、支付宝三端运行，外观、条件样式、sx、部件属性透传、图标、
+- 自研的 `packages/mini`：一个预编译的 Button（借 `-ui` 的验证）原样在 H5、微信、支付宝三端运行，外观、条件样式、sx、部件属性透传、图标、
   加载动画、禁用、点击与状态切换三端一致（开发者工具截图与自动化验证）；包 167 KB（含 Vue），两端各构建 3–4 s。
 
 结构：
 
 ```
+packages/tsx      编译器、符文、运行时、样式引擎（含 inlineStyle）           ← ui、mobile、mini 共用
+packages/mobile   移动组件：只依赖 vue + tsx；元素与样式条件限定在三端都能渲染的子集；平台能力经宿主约定取
+packages/mini     小程序渲染运行时 + 构建：只依赖 vue + tsx；实现宿主约定的小程序版
+apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
+
 应用（TSX 页面，同一份源码）
- ├─ H5：Vite + vueTsxPro，直接渲染 DOM，运行时样式插进 CSSOM（与 -ui 现状一样）
+ ├─ H5：Vite + vueTsxPro，直接渲染 DOM，运行时样式插进 CSSOM
  └─ 小程序：buildMini（Vite 打成一个 CommonJS 包）+ packages/mini 运行时
       Vue 自定义渲染器 → MiniNode 树 → 微任务里合成一次 setData（结构变了整段发，字段变了按路径只发变的）
       → 通用模板（每种元素一套，按层展开）→ 小程序渲染
-      样式：组合类按节点状态展开成行内样式（tsx 的 inlineStyle，条件由运行时按属性、按压、窗口宽度判定）；
+      样式：组合类按节点状态展开成行内样式（inlineStyle，条件由运行时按属性、按压、窗口宽度判定）；
             主题变量与关键帧构建时从包里收集成 app 样式表（:root → page）
       事件：模板一律 catch 绑定，冒泡由运行时按节点树做；禁用的表单控件不派发 click（同浏览器）
       SVG：子树序列化成遮罩（mask-image + currentColor），图标颜色跟着文字走
 ```
+
+移动组件的写法约束（17.1.5 写成 mobile 包里的组件规范，脚本检查）：
+
+- **元素**：只用 div、span、button、img、input、textarea、svg；滚动容器、轮播这类必须用原生组件的，用 div 加约定的属性，小程序端映射到 scroll-view、swiper。
+- **样式条件**：只用 `_active`、`_disabled`、`_selected`、`_checked` 这类状态别名、属性选择器、`@media` 宽度；不用 `:hover`、伪元素、结构伪类；单位 px，设计宽度 375。
+- **平台能力**：不直接碰 DOM 与 `window`；测量、滚动、聚焦、系统信息、安全区、震动、剪贴板、选图经 `useHost()`。
+- **浮层**：Teleport 到宿主给的页面级浮层根，层级用 token；不用原生 popover / dialog（小程序没有顶层）。
+- **事件**：click 与 touch 系列；不用 pointer 事件；手势（滑动、拖动、下拉）基于 touch 自己实现。
+- **可访问性**：H5 按 WAI-ARIA；小程序端由运行时把 role、aria-label 映射到无障碍属性（aria-role、aria-label）。
 
 ### 17.0 概念验证
 
@@ -571,46 +587,75 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 17.0.4 `buildMini`：包、页面文件、通用模板、app 样式表、项目配置；支付宝端写 `.browserslistrc`、关掉 Vue 的选项式 API（支付宝编译器解析不了其中一段）
 - [x] 17.0.5 `apps/mini-demo`：同一个页面在 H5、微信、支付宝三端验证；增量 setData 与整树一致的回归测试（`mini/test/page.test.ts`）
 
-### 17.1 运行时补到能承载整套移动组件
+### 17.1 移动端底座（packages/mobile 起步）
 
-- [ ] 17.1.1 模板层数用完后接一个递归的自定义组件（同 Taro 的 comp）；长列表的每一项用自定义组件隔开，setData 只到那一项
-- [ ] 17.1.2 元素全集：image、input、textarea、scroll-view、swiper 等原生组件的属性与事件（input 的值双向、聚焦、键盘高度）
-- [ ] 17.1.3 事件补全：touchmove、longpress、scroll、input / change；事件对象的 touches、目标节点等 DOM 形状
-- [ ] 17.1.4 测量：`getBoundingClientRect` 改成异步查询（SelectorQuery），浮层定位、虚拟列表等用到测量的组件按异步写；做不到的标"小程序不支持"
-- [ ] 17.1.5 `data-*`、`id` 透传到模板；模板 ref 拿到节点
-- [ ] 17.1.6 性能基准：1000 行列表首屏与更新的 setData 体积、频率；样式展开按"类名 + 状态"缓存；按住时只发样式真的变了的节点
-- [ ] 17.1.7 页面生命周期（onShow、onHide、下拉刷新、触底、分享）接进组合式 API；路由跳转包一层，页面参数作为 props
-- [ ] 17.1.8 开发模式：`buildMini` 的监听重建只重打应用代码，组件库产物走缓存；目标是改一个页面 1 s 内出新包；源码映射
+- [ ] 17.1.1 建包：目录、构建（Vite 库模式 + tsc 出声明，同 `-ui` 的做法）、exports、包依赖检查（mobile 不导入 ui、mini、kit 与服务端的包）；
+      发布产物验证：打包装进临时项目，H5 与小程序两种使用方都跑通（同 `pnpm test:consumer`）
+- [ ] 17.1.2 主题：token 自己定义（变量前缀 `--vtm-`；色值取同一套 Radix 色板；字号 12–18、间距 4 的倍数、触控目标 44 px、圆角、阴影、动效、层级），
+      亮暗两套；主题覆盖与切换（ThemeProvider）
+- [ ] 17.1.3 组件写法的底子：部件属性 `propsXxx` 与 `sx` 的合并（mobile 自己的实现）、受控与非受控（`_bindable`）、
+      全局默认值与语言（ConfigProvider，zh-CN / en-US）
+- [ ] 17.1.4 宿主约定 `useHost()`：异步测量（rect）、滚动到位置、聚焦、系统信息（窗口、状态栏、安全区）、页面滚动锁、浮层根、震动、剪贴板、选图；
+      Web 版在 mobile 里，小程序版在 mini 里（17.2.4），经 `Symbol.for('vue-tsx-pro.host')` provide 对接，互不导入
+- [ ] 17.1.5 mobile 包的组件规范文档（对标 COMPONENTS.md）：上面的写法约束、命名与 API 约定、完成标准；
+      `pnpm mobile:check` 检查元素与样式条件的白名单，进 `pnpm check`
+- [ ] 17.1.6 测试底座：单测（happy-dom）；小程序渲染测试（mini 导出页面测试工具：挂组件、按路径应用 setData、断言数据树与行内样式）；
+      H5 浏览器测试（Vitest 浏览器模式，手机视口、触摸事件）；三端截图脚本（H5 用 Playwright，微信用开发者工具的截图，支付宝用 minidev 加截图）
 
-### 17.2 样式引擎的小程序后端补全
+### 17.2 小程序运行时补全（packages/mini）
 
-- [ ] 17.2.1 主题：`createTheme` 的类在小程序里换成根节点上的行内变量，换主题只改这一处
-- [ ] 17.2.2 暗色：跟系统主题（`getSystemInfo().theme`、`onThemeChange`）
-- [ ] 17.2.3 伪元素（`::before`、`::after`）进不了行内样式：移动组件不用它（加 lint），或构建时把组件库自己的伪元素规则收集成静态样式
-- [ ] 17.2.4 开发期检查 WXSS 不认的写法（`:root` 与 page 同一选择器列表、`:not` 里的选择器列表）；单位统一用 px
-- [ ] 17.2.5 `:hover` 在触屏上不成立：按压反馈统一用 `_active`，组件里检查一遍
+- [ ] 17.2.1 模板层数用完后接一个递归的自定义组件（同 Taro 的 comp）；长列表的每一项用自定义组件隔开，setData 只到那一项
+- [ ] 17.2.2 原生组件：image、input、textarea、scroll-view、swiper（按约定属性映射）的属性与事件（input 的值双向、聚焦、键盘高度）
+- [ ] 17.2.3 事件补全：touchmove、longpress、scroll、input / change；事件对象的 touches、目标节点等 DOM 形状
+- [ ] 17.2.4 宿主约定的小程序实现：SelectorQuery 测量、pageScrollTo、系统信息与安全区、页面滚动锁、震动、剪贴板、chooseMedia
+- [ ] 17.2.5 浮层：页面级浮层根接住 Teleport；`position: fixed` 与层级在两端一致
+- [ ] 17.2.6 `data-*`、`id` 透传到模板；role、aria-label 映射到小程序的无障碍属性
+- [ ] 17.2.7 性能基准：1000 行列表首屏与更新的 setData 体积、频率；样式展开按"类名 + 状态"缓存；按住时只发样式真的变了的节点
+- [ ] 17.2.8 页面生命周期（onShow、onHide、下拉刷新、触底、分享）接进组合式 API；路由跳转包一层，页面参数作为 props
+- [ ] 17.2.9 开发模式：`buildMini` 的监听重建只重打应用代码，依赖走缓存；目标是改一个页面 1 s 内出新包；源码映射
 
-### 17.3 移动端组件（放哪见"待决"）
+### 17.3 样式引擎的小程序后端补全
 
-参考 Vant 4、NutUI、TDesign Mobile、Ant Design Mobile 的范围与 API；外观对齐 `-ui` 的 token、档位与色调。每个组件三端截图一致、
-有交互测试（H5 浏览器测试、微信用开发者工具的自动化）和文档页。
+- [ ] 17.3.1 主题：`createTheme` 的类在小程序里换成根节点上的行内变量，换主题只改这一处
+- [ ] 17.3.2 暗色：跟系统主题（`getSystemInfo().theme`、`onThemeChange`）
+- [ ] 17.3.3 开发期检查 WXSS 不认的写法（`:root` 与 page 同一选择器列表、`:not` 里的选择器列表）与行内样式展开不了的条件（伪元素），开发模式下警告
 
-- [ ] 17.3.1 基础：Button（复用按钮家族的内核）、Icon、Cell / CellGroup、Tag、Badge、Divider、Space、Image
-- [ ] 17.3.2 表单：Field（输入框、多行）、Switch、Checkbox、Radio、Stepper、Rate、Slider、Form（复用 FormValue、useForm）
-- [ ] 17.3.3 反馈：Toast、Dialog、ActionSheet、Popup、Loading、Skeleton、SwipeCell、PullRefresh
-- [ ] 17.3.4 展示与导航：List（加载更多、虚拟）、Tabs、NavBar、TabBar、Grid、Collapse、Empty、Steps、NoticeBar、Swiper
-- [ ] 17.3.5 选择：Picker、DatePicker、Cascader、Calendar、Search、DropdownMenu
+### 17.4 移动端组件
 
-### 17.4 文档站与演示
+参考 Vant 4、NutUI、TDesign Mobile、Ant Design Mobile 的范围与 API，取舍写进组件规范。按依赖排序：浮层在选择类之前，Picker 在日期之前。
+每个组件的完成标准：三端截图一致；单测、小程序渲染测试、H5 浏览器测试；亮暗两套；文档页示例饱满。
 
-- [ ] 17.4.1 文档站加"移动端"分区：H5 示例放在手机外框里，旁边给小程序的截图
-- [ ] 17.4.2 `apps/mini-demo` 改成按组件分页面的移动端演示，三端共用
+- [ ] 17.4.1 基础：Icon（`@lucide/icons` 的数据渲染成 svg）、Button（类型、尺寸、块级、圆角、图标、加载、禁用、按压反馈）、Cell / CellGroup、
+      Tag、Badge、Divider、Space、Image（懒加载、失败占位）、Loading；做完 Button 后 `apps/mini-demo` 与 mini 的测试改用它，去掉对 `-ui` 的依赖
+- [ ] 17.4.2 浮层与反馈：Overlay、Popup（上下左右中、圆角、安全区、关闭方式）、Toast（命令式）、Dialog（组件与命令式）、ActionSheet、Notify、
+      SwipeCell、PullRefresh、Skeleton
+- [ ] 17.4.3 表单：Field（输入框、多行、清除、字数）、Switch、Checkbox / CheckboxGroup、Radio / RadioGroup、Stepper、Rate、Slider、Search、
+      Form（校验规则自己写，可接 zod）、Uploader（选择、预览、进度；小程序端经宿主约定）
+- [ ] 17.4.4 展示与导航：List（触底加载、错误重试）、Tabs（滑动切换、吸顶）、NavBar、TabBar、Grid、Collapse、Empty、Steps、NoticeBar、
+      Swiper、Sticky、IndexBar、BackTop
+- [ ] 17.4.5 选择：Picker（滚轮、多列、联动）、DatePicker / TimePicker、Cascader、Calendar（单选、区间、多选）、DropdownMenu、
+      Area（省市区数据单独一个子路径）
 
-### 17.5 工程与发布
+### 17.5 文档站与演示
 
-- [ ] 17.5.1 CI：mini 的测试、两端构建、`minidev build` 编译支付宝产物、`wcsc` 检查 WXSS（CI 里没有开发者工具，模拟器验证在本地做）
-- [ ] 17.5.2 使用方的命令：dev / build / 打开开发者工具，新项目模板
-- [ ] 17.5.3 发布：mini 与移动组件包随 0.x 发布（RELEASE.md 加上这两个包）
+- [ ] 17.5.1 文档站加"移动端"分区：每个组件一页，H5 示例在手机外框里运行，旁边放微信、支付宝的截图（截图脚本生成）
+- [ ] 17.5.2 `apps/mini-demo` 改名 `apps/mobile-demo`：按组件分页面，加一个真实场景（列表 → 详情 → 表单提交），三端共用
+
+### 17.6 工程与发布
+
+- [ ] 17.6.1 CI：mobile、mini 的测试与浏览器测试，两端构建，`minidev build` 编译支付宝产物，`wcsc` 检查 WXSS（CI 里没有开发者工具，模拟器验证在本地做）
+- [ ] 17.6.2 使用方的命令：dev / build / 打开开发者工具，新项目模板
+- [ ] 17.6.3 发布：mobile 与 mini 随 0.x 发布（RELEASE.md 加上这两个包）
+
+里程碑（每个做完都能停：三端可用、CI 绿、这里已勾）：
+
+1. **M1 基础可用**：17.1、17.2.1–17.2.5、17.4.1——基础组件三端一致，演示不再依赖 `-ui`
+2. **M2 能写表单页**：17.2.6–17.2.8、17.3、17.4.2、17.4.3
+3. **M3 真实场景**：17.4.4、17.5.2——列表、导航、详情、提交三端跑通，性能基准达标
+4. **M4 发布 0.x**：17.2.9、17.4.5、17.5.1、17.6
+
+已知的风险：微信新的 Skyline 渲染器先不支持（只做 WebView 渲染）；行内样式让 setData 变大，17.2.7 的基准不达标时退回"组件库自己的组合类构建时收集成静态样式"；
+原生输入框的层级与键盘顶起两端行为不同；微信模拟器收不到真实鼠标点击，交互验证用开发者工具的自动化。
 
 ## 已知局限（有意的取舍，写在文档里）
 
