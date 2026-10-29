@@ -5,14 +5,14 @@
  *     <Card>…登录表单…</Card>
  *   </AuthLayout>
  *
- * hero 是品牌区的内容（标志、口号、背景动画），铺满它那一半；不写 hero 时表单居中，不分栏。tools 放在表单这一半的结束边上角
- * （主题切换、语言切换）。表单区把 children 垂直居中（宽屏）或贴近顶部（窄屏，登录卡片不被品牌区挤到第二屏）。
+ * hero 是品牌区的内容（标志、口号、背景动画），铺满它那一半；不写 hero 时表单居中，不分栏。tools 放在整页的结束边上角
+ * （主题切换、语言切换）：宽屏时就是表单这一半的上角，窄屏时落在顶部品牌区那一条上，不压住表单。表单区把 children 垂直居中（宽屏）或贴近顶部（窄屏，登录卡片不被品牌区挤到第二屏）。
  * 分栏的断点是 sizes.lg（64rem），与 AppShell 一致。
  *
  * 部件：Root（div）、Hero（div）、Main（main）、Tools（div）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { breakpoints } from '../config/theme/tokens';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
@@ -21,7 +21,7 @@ import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 export interface AuthLayoutProps extends PartProps<'div'> {
   /** 品牌区：宽屏在左半边，窄屏在顶部；不写时不分栏 */
   hero?: VNodeChild;
-  /** 表单这一半结束边上角的工具（主题切换、语言切换） */
+  /** 整页结束边上角的工具（主题切换、语言切换）：宽屏在表单区上角，窄屏在顶部品牌区上 */
   tools?: VNodeChild;
   /** 品牌区（div）的部件属性 */
   propsHero?: PartProps<'div'>;
@@ -35,7 +35,9 @@ export interface AuthLayoutProps extends PartProps<'div'> {
 
 /** AuthLayout 的样式：root、split、hero、main、tools */
 export const authLayoutStyles = css.create({
+  // 工具区按整页定位：宽屏时整页的上角就是表单区的上角，窄屏时在品牌区那一条上
   root: {
+    position: 'relative',
     display: 'grid',
     gridTemplateColumns: 'minmax(0, 1fr)',
     gridTemplateRows: 'minmax(0, 1fr)',
@@ -53,7 +55,6 @@ export const authLayoutStyles = css.create({
   },
   hero: { minHeight: { default: 'auto', [breakpoints.lg]: '100dvh' } },
   main: {
-    position: 'relative',
     display: 'flex',
     alignItems: { default: 'flex-start', [breakpoints.lg]: 'center' },
     justifyContent: 'center',
