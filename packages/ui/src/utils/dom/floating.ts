@@ -24,7 +24,7 @@ import {
   type Placement,
   type VirtualElement,
 } from '@floating-ui/dom';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onScopeDispose, watchPostEffect } from 'vue';
 import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { transitions } from '../style/transitions';

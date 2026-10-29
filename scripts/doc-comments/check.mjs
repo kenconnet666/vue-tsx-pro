@@ -7,7 +7,20 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
-import * as ts from 'typescript/ast';
+import {
+  SyntaxKind,
+  getJSDocCommentsAndTags,
+  isClassDeclaration,
+  isConstructorDeclaration,
+  isFunctionDeclaration,
+  isInterfaceDeclaration,
+  isModuleBlock,
+  isModuleDeclaration,
+  isStringLiteral,
+  isTypeAliasDeclaration,
+  isTypeLiteralNode,
+  isVariableStatement,
+} from 'typescript/ast';
 import { parseSource, root } from '../lib/repo.mjs';
 
 /** 检查范围：已发布的两个包 */
@@ -25,12 +38,12 @@ const files = execFileSync('git', ['ls-files', ...INCLUDE], { cwd: root, encodin
   .filter((file) => file && !EXCLUDE.some((pattern) => pattern.test(file)));
 
 const isExported = (node) =>
-  node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword) ?? false;
+  node.modifiers?.some((modifier) => modifier.kind === SyntaxKind.ExportKeyword) ?? false;
 const isPrivate = (node) =>
-  node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.PrivateKeyword) ?? false;
-const hasDoc = (node) => ts.getJSDocCommentsAndTags(node).length > 0;
+  node.modifiers?.some((modifier) => modifier.kind === SyntaxKind.PrivateKeyword) ?? false;
+const hasDoc = (node) => getJSDocCommentsAndTags(node).length > 0;
 const isAugmentation = (node) =>
-  ts.isModuleBlock(node.parent) && ts.isStringLiteral(node.parent.parent.name);
+  isModuleBlock(node.parent) && isStringLiteral(node.parent.parent.name);
 
 const problems = [];
 for (const file of files) {
@@ -41,40 +54,40 @@ for (const file of files) {
   };
   const checkMembers = (owner, members) => {
     for (const member of members) {
-      if (!member.name || ts.isConstructorDeclaration(member) || isPrivate(member)) continue;
-      if (member.name.kind === ts.SyntaxKind.PrivateIdentifier) continue;
+      if (!member.name || isConstructorDeclaration(member) || isPrivate(member)) continue;
+      if (member.name.kind === SyntaxKind.PrivateIdentifier) continue;
       const name = member.name.getText(source);
       if (name !== 'children' && !hasDoc(member)) report(member, `${owner}.${name}`);
     }
   };
   const visit = (node) => {
-    if (ts.isModuleDeclaration(node) || ts.isModuleBlock(node)) {
+    if (isModuleDeclaration(node) || isModuleBlock(node)) {
       node.forEachChild(visit);
       return;
     }
-    const exported = isExported(node) || ts.isModuleBlock(node.parent);
+    const exported = isExported(node) || isModuleBlock(node.parent);
     if (!exported) return;
-    if (ts.isInterfaceDeclaration(node)) {
+    if (isInterfaceDeclaration(node)) {
       // declare module 'vue' 里的接口是给已有接口补成员，接口本身的注释在原处
       if (!hasDoc(node) && !isAugmentation(node)) report(node, `interface ${node.name.text}`);
       checkMembers(node.name.text, node.members);
-    } else if (ts.isTypeAliasDeclaration(node)) {
+    } else if (isTypeAliasDeclaration(node)) {
       if (!hasDoc(node)) report(node, `type ${node.name.text}`);
-      if (ts.isTypeLiteralNode(node.type)) checkMembers(node.name.text, node.type.members);
-    } else if (ts.isClassDeclaration(node) && node.name) {
+      if (isTypeLiteralNode(node.type)) checkMembers(node.name.text, node.type.members);
+    } else if (isClassDeclaration(node) && node.name) {
       if (!hasDoc(node)) report(node, `class ${node.name.text}`);
       checkMembers(node.name.text, node.members);
-    } else if (ts.isFunctionDeclaration(node) && node.name && node.body == null) {
+    } else if (isFunctionDeclaration(node) && node.name && node.body == null) {
       // 重载签名（含 declare 的函数）各自要有注释：悬停显示的是匹配到的那个签名
       if (!hasDoc(node)) report(node, `function ${node.name.text}（重载）`);
-    } else if (ts.isFunctionDeclaration(node) && node.name) {
+    } else if (isFunctionDeclaration(node) && node.name) {
       // 有重载时实现签名不显示在悬停里，不要求注释
       const overloaded = node.parent.statements?.some(
         (other) =>
-          other !== node && ts.isFunctionDeclaration(other) && other.name?.text === node.name.text,
+          other !== node && isFunctionDeclaration(other) && other.name?.text === node.name.text,
       );
       if (!overloaded && !hasDoc(node)) report(node, `function ${node.name.text}`);
-    } else if (ts.isVariableStatement(node) && !hasDoc(node)) {
+    } else if (isVariableStatement(node) && !hasDoc(node)) {
       for (const declaration of node.declarationList.declarations) {
         report(declaration, `const ${declaration.name.getText(source)}`);
       }

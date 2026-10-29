@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { defineComponent, h, nextTick } from 'vue';
-import * as z from 'zod';
+import { z } from 'zod';
 import { Switch } from '../../input/Switch';
 import { TextField } from '../../input/TextField';
 import { mount } from '../../utils/.test/mount';

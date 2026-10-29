@@ -12,7 +12,7 @@
  * 部件：Root（div）、Icon、Content（div：标题与正文）、Title（strong）、Action、Close。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';

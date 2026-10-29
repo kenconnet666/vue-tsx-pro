@@ -12,7 +12,7 @@ import {
   useForm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { StepsForm } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
-import * as z from 'zod';
+import { z } from 'zod';
 
 const categories = ['机械件', '塑料件', '钣金件', '标准件', '线缆'];
 

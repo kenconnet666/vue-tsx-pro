@@ -3,7 +3,7 @@
  * 以及 DataTable、TreeDataTable 的配方（静态表格的配方在 Table.tsx）。
  * 单独一个模块：只用静态表格时不连带打包 DataTable 的视图（虚拟滚动、勾选、排序……）。
  */
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from '../config/theme/tokens';
 
 /** 表格的密度（行高与字号） */

@@ -11,7 +11,7 @@
  * 占位对读屏隐藏；整块区域在加载时在外层加 aria-busy。减少动态效果时不扫光。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';

@@ -3,7 +3,7 @@
  * 右栏是一个小型应用页面的预览；调整立即作用在整个站点上
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { Code, H2, ScrollArea } from '@zerodep-dev/vue-tsx-pro-ui';
 import { ThemeCustomizer } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';

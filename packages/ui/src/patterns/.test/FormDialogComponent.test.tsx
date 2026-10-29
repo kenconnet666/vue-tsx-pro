@@ -2,7 +2,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick, ref } from 'vue';
-import * as z from 'zod';
+import { z } from 'zod';
 import { useForm } from '../../form/useForm';
 import { TextField } from '../../input/TextField';
 import { HttpError } from '../../utils/request/http';

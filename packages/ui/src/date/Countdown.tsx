@@ -10,7 +10,7 @@
  * role="timer" 默认不播报（aria-live 为 off），读屏用户需要时自己读；到点的提示放在 onEnd 里（Toast 等）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';

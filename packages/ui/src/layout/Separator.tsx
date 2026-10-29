@@ -12,7 +12,7 @@
  * 部件：Root（div）；带文字时还有 Label（span）与 Line（两段线，span）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 

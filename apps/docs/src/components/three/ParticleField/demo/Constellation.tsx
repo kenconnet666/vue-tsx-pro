@@ -1,6 +1,6 @@
 import { Rocket, Sparkles, Zap } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Card, Flex, Grid, H3, Icon, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
 import { ParticleField } from '@zerodep-dev/vue-tsx-pro-ui/three';
 

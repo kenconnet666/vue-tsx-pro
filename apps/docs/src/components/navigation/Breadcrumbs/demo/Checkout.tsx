@@ -1,6 +1,6 @@
 import { CreditCard, MapPin, PackageCheck, ShoppingCart } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, Card, Flex, Paragraph, Steps, type StepItem } from '@zerodep-dev/vue-tsx-pro-ui';
 
 // satisfies 而不是标注类型：title 保持字符串，下面拼进句子里

@@ -9,7 +9,7 @@
  *   <Text numeric tone="danger">超时 3 天</Text>       金额、计数：等宽数字，上下对齐
  */
 import { _component, type TsxComponent } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {

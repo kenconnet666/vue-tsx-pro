@@ -12,7 +12,7 @@
  * 未声明的属性落在这一层上。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { useRecipe, type PartLayer } from '../config/styles';

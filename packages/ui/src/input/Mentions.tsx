@@ -15,7 +15,7 @@
  * 外壳与自动增高同 Textarea。部件：Root（外壳）、Textarea、Popover、Listbox。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId, watch, type VNodeChild } from 'vue';
 import { useLang, useTextMatcher } from '../config/context';
 import { caretAnchor } from '../utils/dom/caret';

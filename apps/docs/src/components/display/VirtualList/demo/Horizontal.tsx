@@ -1,6 +1,6 @@
 // 横向的虚拟列表（一千张照片也只渲染看得见的几张）；handle 拿到滚动方法，跳到指定的一张
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Flex,

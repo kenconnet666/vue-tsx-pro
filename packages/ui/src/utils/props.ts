@@ -9,7 +9,7 @@
  *   - ref：各方都拿到元素
  *   - 其他属性：受管 > 使用方 > 默认
  */
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { IntrinsicProps, JSX } from '@zerodep-dev/vue-tsx-pro-tsx/jsx-runtime';
 // 登记主题 tokens（样式里的 '_md' 靠它）：每个组件都经过这里合并属性，渲染之前一定登记过
 import '../config/theme/tokens';

@@ -11,7 +11,7 @@
  * 部件：Root（div）、Total（span）、Controls（div）、Pagination、SizeSelect（PageSizeSelect）、Jump（PageJump）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { clamp } from '../utils/data/number';

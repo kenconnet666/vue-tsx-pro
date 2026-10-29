@@ -1,6 +1,6 @@
 // 画质、渲染分辨率（MeshGradient 默认 0.5：平滑的渐变降一半看不出差别）、跟随指针与暂停；off 时显示 fallback
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Field,
   Flex,

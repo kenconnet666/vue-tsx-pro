@@ -1,6 +1,6 @@
 import { afterEach, describe, it, expect } from 'vitest';
 import { createApp, nextTick, ref, type VNodeChild } from 'vue';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { _component } from '../src';
 import { Toggle } from './fixtures/Toggle';
 import { Card, cardSetupCount } from './fixtures/Card';

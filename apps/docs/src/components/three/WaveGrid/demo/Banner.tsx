@@ -1,5 +1,5 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Badge, Flex, H2, Paragraph, t } from '@zerodep-dev/vue-tsx-pro-ui';
 import { WaveGrid } from '@zerodep-dev/vue-tsx-pro-ui/three';
 

@@ -1,7 +1,7 @@
 // StepsForm：“下一步”只校验这一步的字段、通过才走，换步后焦点到内容上；上一步；提交没通过时跳到第一个有错的步骤并标成出错
 import { describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, nextTick } from 'vue';
-import * as z from 'zod';
+import { z } from 'zod';
 import { TextField } from '../../input/TextField';
 import { useForm, type FormController } from '../../form/useForm';
 import { mount } from '../../utils/.test/mount';

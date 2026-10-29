@@ -10,7 +10,7 @@
  * 弹层渲染在顶层、不是输入框外壳的后代，不继承外壳的字号：按同一个 size 设置。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { Ref, VNodeChild } from 'vue';
 import { ScrollArea } from '../layout/ScrollArea';
 import { anchoredPanelSx, floatingStyles } from '../utils/dom/floating';

@@ -11,7 +11,7 @@
  *   {picker.panel(sx, propsPopover, open && <Calendar … />)}
  */
 import { useId, type VNodeChild } from 'vue';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button } from '../base/Button';
 import type { IconData } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';

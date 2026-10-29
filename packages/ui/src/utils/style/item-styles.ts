@@ -4,7 +4,7 @@
  *
  *   sx: [itemStyles.row, itemStyles.hoverable, active && itemStyles.highlighted, disabled && itemStyles.disabled]
  */
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from '../../config/theme/tokens';
 
 /** 列表行的布局与各状态的颜色 */

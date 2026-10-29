@@ -1,6 +1,6 @@
 import { CloudUpload, Download, Lock, Trash2 } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { ButtonBase, Card, Icon, Small, Spinner, type IconData } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({

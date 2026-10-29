@@ -10,7 +10,13 @@
  */
 import { globSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import * as ts from 'typescript/ast';
+import {
+  isNumericLiteral,
+  isObjectLiteralExpression,
+  isPropertyAssignment,
+  isStringLiteralLikeNode,
+  isVariableStatement,
+} from 'typescript/ast';
 import { API } from 'typescript/sync';
 import type { Plugin, ViteDevServer } from 'vite';
 
@@ -35,18 +41,17 @@ function parse(file: string) {
 function readMeta(file: string): Record<string, string | number> {
   const source = parse(file);
   for (const statement of source.statements) {
-    if (!ts.isVariableStatement(statement)) continue;
+    if (!isVariableStatement(statement)) continue;
     for (const declaration of statement.declarationList.declarations) {
       if (declaration.name.getText(source) !== 'meta') continue;
       const object = declaration.initializer;
-      if (!object || !ts.isObjectLiteralExpression(object)) break;
+      if (!object || !isObjectLiteralExpression(object)) break;
       const meta: Record<string, string | number> = {};
       for (const property of object.properties) {
-        if (!ts.isPropertyAssignment(property)) continue;
+        if (!isPropertyAssignment(property)) continue;
         const value = property.initializer;
-        if (ts.isStringLiteralLikeNode(value)) meta[property.name.getText(source)] = value.text;
-        else if (ts.isNumericLiteral(value))
-          meta[property.name.getText(source)] = Number(value.text);
+        if (isStringLiteralLikeNode(value)) meta[property.name.getText(source)] = value.text;
+        else if (isNumericLiteral(value)) meta[property.name.getText(source)] = Number(value.text);
       }
       if (typeof meta.title !== 'string' || typeof meta.description !== 'string')
         throw new Error(`${file}：meta 要有字符串字面量的 title 与 description`);

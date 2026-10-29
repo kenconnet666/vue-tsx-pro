@@ -11,7 +11,7 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { now } from '@internationalized/date';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { useLang } from '../config/context';

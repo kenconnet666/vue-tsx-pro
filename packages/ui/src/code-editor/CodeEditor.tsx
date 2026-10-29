@@ -8,7 +8,7 @@
  * 高度由使用方给（sx），默认 20rem；未声明的属性落到外壳上。颜色、字体取主题 token，跟着主题变。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { Extension } from '@codemirror/state';
 import { useConfig } from '../config/context';
 import { inputRecipe } from '../input/control';

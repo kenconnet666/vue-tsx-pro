@@ -1,6 +1,6 @@
 // 多角度展示：orbit 定起始角度，controls 关掉拖动与方向键；缩略图用低画质、降分辨率，paused 停住自转
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Card, Flex, Grid, Small, Switch } from '@zerodep-dev/vue-tsx-pro-ui';
 import { ModelViewer } from '@zerodep-dev/vue-tsx-pro-ui/three';
 

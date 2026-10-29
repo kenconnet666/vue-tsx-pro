@@ -16,7 +16,7 @@
  * 表格比容器宽时在外层横向滚动（ScrollArea：浮层滚动条，不占高度），不撑宽页面。
  */
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { useRecipe } from '../config/styles';

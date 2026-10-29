@@ -2,7 +2,7 @@
 // 重新请求时上一页的结果留着、变淡；出错时按错误码显示原因（useErrorMessage）与重试。http 由外层的 Provider 给出（应用里写在 createUi 里）
 import { Search, TriangleAlert } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Alert,
   Button,

@@ -2,7 +2,7 @@
 // 顶栏里品牌格之后是“打开”，抽屉顶上一格是“收起”；拖动抽屉的结束边调整宽度，双击回到初始宽度。数据是虚构的
 import { Boxes, Gauge, Server, Settings, Siren, Wrench } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Avatar,
   createStatusMap,

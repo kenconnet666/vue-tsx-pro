@@ -1,6 +1,6 @@
 // 主题缩略图：用主题自己的底色、表面、主色画一张小卡片，做“选主题”的网格（设置页、引导流程）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   builtinThemeLabel,
   builtinThemes,

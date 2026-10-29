@@ -1,6 +1,6 @@
 // 内置值类型的 schema：Decimal 与 bigint 的校验，以及从 schema 推出的字段约束
 import Decimal from 'decimal.js';
-import * as z from 'zod';
+import { z } from 'zod';
 import { describe, expect, it } from 'vitest';
 import { createConstraints } from '../form-constraints';
 import { bigintSchema, decimalSchema } from '../schemas';

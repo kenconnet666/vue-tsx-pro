@@ -15,7 +15,7 @@ import {
   useForm,
   useLeaveConfirmation,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import * as z from 'zod';
+import { z } from 'zod';
 import { toaster } from '../toaster';
 
 /** 后端返回的城市：字段名不是 value / label，交给 Select 时用 toOption 转换 */

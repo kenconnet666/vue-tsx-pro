@@ -14,7 +14,7 @@
  * 部件：Root（div）、Track（div，做动画的那一层）、Group（div，一份内容）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useReducedMotion } from '../utils/dom/media-query';
 import { useResizeObserver } from '../utils/dom/resize';

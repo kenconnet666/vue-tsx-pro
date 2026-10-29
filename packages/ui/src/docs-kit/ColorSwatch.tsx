@@ -7,7 +7,7 @@
  * 半透明的颜色（如 surfaceTranslucent）下面垫棋盘格，看得出透明度。色块是装饰，名称与取值是文字，读屏都能读到。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, watch, type VNodeChild } from 'vue';
 import { useConfig } from '../config/context';
 import { readToken } from '../config/theme/theme';

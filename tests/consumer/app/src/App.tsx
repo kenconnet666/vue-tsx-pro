@@ -1,7 +1,7 @@
 // 只用发布包能做的事：符文、组件、运行时样式 + 主题 tokens、Provider 暗色主题、Shiki 高亮与主题定制（子路径）
 import { Check } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { CodeBlock, darkTheme, Icon, lightTheme, Provider } from '@zerodep-dev/vue-tsx-pro-ui';
 import { customizeTheme } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
 

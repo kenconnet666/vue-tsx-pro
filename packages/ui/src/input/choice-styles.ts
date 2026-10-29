@@ -9,7 +9,7 @@
  * 组件只画外观。勾选状态的样式由组件按自己的状态加（样式里不写兄弟选择器）。尺寸用 em。
  * 部件与样式见 choiceRecipe（createUi / Provider 的 styles.Choice 按它定制）。
  */
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick } from 'vue';
 import { useDefaults } from '../config/defaults';

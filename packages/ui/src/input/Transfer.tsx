@@ -17,7 +17,7 @@
  */
 import { ChevronLeft, ChevronRight, Search } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { UpdateHandlers } from '@zerodep-dev/vue-tsx-pro-tsx/jsx-runtime';
 import { useId, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';

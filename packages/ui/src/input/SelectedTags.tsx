@@ -9,7 +9,7 @@
  * 未声明的属性落到这一排的 span 上。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Tag, type TagProps } from '../base/Tag';
 import { useLang } from '../config/context';
 import { useOverflowItems } from '../utils/dom/overflow';

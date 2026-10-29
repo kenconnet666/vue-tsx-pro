@@ -1,5 +1,5 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, Flex, Slider, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 import { nextTick, onMounted } from 'vue';
 

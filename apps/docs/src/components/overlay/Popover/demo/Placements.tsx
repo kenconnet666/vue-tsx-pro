@@ -1,5 +1,5 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, Tooltip, type FloatingPlacement } from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 三行三列围着中间：每条边三个对齐方式

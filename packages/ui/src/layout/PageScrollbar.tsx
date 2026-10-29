@@ -8,7 +8,7 @@
  * 模态框打开时页面滚动被锁住（overflow: hidden），滚动条随之隐藏。从右到左排版时在左侧（插入边的逻辑属性）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onBeforeUnmount, onMounted } from 'vue';
 import type { PartProps } from '../utils/props';
 import { OverlayScrollbar, type ScrollbarTypes } from './ScrollArea';

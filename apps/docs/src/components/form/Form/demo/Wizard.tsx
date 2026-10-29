@@ -11,7 +11,7 @@ import {
   TextField,
   useForm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import * as z from 'zod';
+import { z } from 'zod';
 
 // 开户申请分两步：第一步的字段校验通过才能进第二步，最后整份提交
 const schema = z

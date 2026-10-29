@@ -1,7 +1,7 @@
 // 列表页：外壳的品牌（AppShellBrand）、占满到窗口底边（ViewportFill）、表格在里面滚动（DataTable flexible），分页贴着窗口底边
 import { Plane, Search } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   DataTable,
   Flex,

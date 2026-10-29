@@ -2,7 +2,7 @@
 // 停在吸顶表头之下；找不到时 scrollToRow 返回 false
 import { LocateFixed } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   createStatusMap,

@@ -13,7 +13,7 @@ import {
   TextField,
   useForm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import * as z from 'zod';
+import { z } from 'zod';
 
 const schema = z.object({
   phone: phoneSchema({ message: '请填写 11 位手机号' }),

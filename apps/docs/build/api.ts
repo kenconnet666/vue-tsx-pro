@@ -18,7 +18,37 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Worker } from 'node:worker_threads';
 import { version as typescriptVersion } from 'typescript';
-import * as ts from 'typescript/ast';
+import {
+  type Declaration,
+  type Expression,
+  type Node,
+  type NodeArray,
+  SyntaxKind,
+  type TypeElement,
+  type TypeNode,
+  getNameOfDeclaration,
+  isArrowFunction,
+  isAsExpression,
+  isCallExpression,
+  isFunctionExpression,
+  isIdentifier,
+  isInterfaceDeclaration,
+  isIntersectionTypeNode,
+  isLiteralTypeNode,
+  isObjectBindingPattern,
+  isParenthesizedTypeNode,
+  isPropertyDeclaration,
+  isPropertySignatureDeclaration,
+  isSatisfiesExpression,
+  isStringLiteral,
+  isTypeAliasDeclaration,
+  isTypeAssertion,
+  isTypeLiteralNode,
+  isTypeOperatorNode,
+  isTypeReferenceNode,
+  isUnionTypeNode,
+  isVariableDeclaration,
+} from 'typescript/ast';
 import { API, SymbolFlags, type Checker, type Program, type Symbol } from 'typescript/sync';
 import type { Plugin } from 'vite';
 import type {
@@ -118,9 +148,9 @@ const docsOf = (symbols: readonly Symbol[], checker: Checker) =>
     .map((doc) => doc.trim());
 
 /** 符号的声明里第一个满足条件的语法树节点（声明是句柄，按需从程序取回） */
-function declarationOf<T extends ts.Node>(
+function declarationOf<T extends Node>(
   symbol: Symbol,
-  is: (node: ts.Node) => node is T,
+  is: (node: Node) => node is T,
 ): T | undefined {
   for (const handle of symbol.declarations) {
     const node = handle.resolve();
@@ -129,7 +159,7 @@ function declarationOf<T extends ts.Node>(
   return undefined;
 }
 
-const fileOf = (node: ts.Node) => node.getSourceFile().fileName.split('\\').join('/');
+const fileOf = (node: Node) => node.getSourceFile().fileName.split('\\').join('/');
 
 const resolveAlias = (symbol: Symbol | undefined, checker: Checker) =>
   symbol && symbol.flags & SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol;
@@ -142,36 +172,33 @@ const resolveAlias = (symbol: Symbol | undefined, checker: Checker) =>
 function memberOrder(symbol: Symbol, checker: Checker, seen = new Set<number>()): string[] {
   if (seen.has(symbol.id)) return [];
   seen.add(symbol.id);
-  const ofType = (node: ts.TypeNode): string[] => {
-    if (ts.isTypeLiteralNode(node)) return memberNames(node.members);
-    if (ts.isIntersectionTypeNode(node) || ts.isUnionTypeNode(node))
-      return node.types.flatMap(ofType);
-    if (ts.isParenthesizedTypeNode(node)) return ofType(node.type);
-    if (ts.isTypeReferenceNode(node)) return ofReference(node.typeName, node.typeArguments);
+  const ofType = (node: TypeNode): string[] => {
+    if (isTypeLiteralNode(node)) return memberNames(node.members);
+    if (isIntersectionTypeNode(node) || isUnionTypeNode(node)) return node.types.flatMap(ofType);
+    if (isParenthesizedTypeNode(node)) return ofType(node.type);
+    if (isTypeReferenceNode(node)) return ofReference(node.typeName, node.typeArguments);
     return [];
   };
-  const ofReference = (name: ts.Node, typeArguments?: ts.NodeArray<ts.TypeNode>) => {
+  const ofReference = (name: Node, typeArguments?: NodeArray<TypeNode>) => {
     const target = resolveAlias(checker.getSymbolAtLocation(name), checker);
     const first = typeArguments?.[0];
     return [...(target ? memberOrder(target, checker, seen) : []), ...(first ? ofType(first) : [])];
   };
   return symbol.declarations.flatMap((handle) => {
     const node = handle.resolve();
-    if (node && ts.isTypeAliasDeclaration(node)) return ofType(node.type);
-    if (!node || !ts.isInterfaceDeclaration(node)) return [];
+    if (node && isTypeAliasDeclaration(node)) return ofType(node.type);
+    if (!node || !isInterfaceDeclaration(node)) return [];
     const bases = (node.heritageClauses ?? []).flatMap((clause) =>
       clause.types.flatMap((type) =>
-        ts.isTypeReferenceNode(type)
-          ? ofType(type)
-          : ofReference(type.expression, type.typeArguments),
+        isTypeReferenceNode(type) ? ofType(type) : ofReference(type.expression, type.typeArguments),
       ),
     );
     return [...memberNames(node.members), ...bases];
   });
 }
 
-const memberNames = (members: ts.NodeArray<ts.TypeElement>) =>
-  members.flatMap((member) => ts.getNameOfDeclaration(member)?.getText() ?? []);
+const memberNames = (members: NodeArray<TypeElement>) =>
+  members.flatMap((member) => getNameOfDeclaration(member)?.getText() ?? []);
 
 /** 按 memberOrder 排序；顺序里找不到的排在最后，保持原来的相对顺序 */
 function sortByOrder<T>(items: T[], order: string[], nameOf: (item: T) => string): T[] {
@@ -194,13 +221,9 @@ function exportedSymbol(name: string): Symbol {
 }
 
 /** 档位类型展开成可选值：`keyof X` 取 X 的键与注释；类型别名顺着找；字面量联合直接列出 */
-function valuesOf(
-  node: ts.TypeNode | undefined,
-  checker: Checker,
-  depth = 0,
-): ApiValue[] | undefined {
+function valuesOf(node: TypeNode | undefined, checker: Checker, depth = 0): ApiValue[] | undefined {
   if (!node || depth > 3) return undefined;
-  if (ts.isTypeOperatorNode(node) && node.operator === ts.SyntaxKind.KeyOfKeyword) {
+  if (isTypeOperatorNode(node) && node.operator === SyntaxKind.KeyOfKeyword) {
     const properties = checker.getPropertiesOfType(checker.getTypeFromTypeNode(node.type));
     const descriptions = docsOf(properties, checker);
     const values = properties.map((property, index) => ({
@@ -208,20 +231,20 @@ function valuesOf(
       description: descriptions[index]!,
     }));
     const target =
-      ts.isTypeReferenceNode(node.type) &&
+      isTypeReferenceNode(node.type) &&
       resolveAlias(checker.getSymbolAtLocation(node.type.typeName), checker);
     return target
       ? sortByOrder(values, memberOrder(target, checker), (item) => item.value)
       : values;
   }
-  if (ts.isTypeReferenceNode(node)) {
+  if (isTypeReferenceNode(node)) {
     const resolved = resolveAlias(checker.getSymbolAtLocation(node.typeName), checker);
-    const alias = resolved && declarationOf(resolved, ts.isTypeAliasDeclaration);
+    const alias = resolved && declarationOf(resolved, isTypeAliasDeclaration);
     return alias ? valuesOf(alias.type, checker, depth + 1) : undefined;
   }
-  if (ts.isUnionTypeNode(node)) {
+  if (isUnionTypeNode(node)) {
     const literals = node.types.flatMap((type) =>
-      ts.isLiteralTypeNode(type) && ts.isStringLiteral(type.literal) ? [type.literal.text] : [],
+      isLiteralTypeNode(type) && isStringLiteral(type.literal) ? [type.literal.text] : [],
     );
     // 联合里混着别的类型（如 TextSize | number）时只展开其中的档位
     const nested = node.types.flatMap((type) => valuesOf(type, checker, depth + 1) ?? []);
@@ -235,19 +258,19 @@ function valuesOf(
 function implementationDefaults(componentName: string) {
   const defaults = new Map<string, { value?: string; bindable: boolean }>();
   const symbol = componentSymbol(componentName);
-  const call = symbol && declarationOf(symbol, ts.isVariableDeclaration)?.initializer;
-  if (!call || !ts.isCallExpression(call)) return defaults;
+  const call = symbol && declarationOf(symbol, isVariableDeclaration)?.initializer;
+  if (!call || !isCallExpression(call)) return defaults;
   const setup = call.arguments[0];
-  if (!setup || !(ts.isArrowFunction(setup) || ts.isFunctionExpression(setup))) return defaults;
+  if (!setup || !(isArrowFunction(setup) || isFunctionExpression(setup))) return defaults;
   const pattern = setup.parameters[0]?.name;
-  if (!pattern || !ts.isObjectBindingPattern(pattern)) return defaults;
+  if (!pattern || !isObjectBindingPattern(pattern)) return defaults;
   for (const element of pattern.elements) {
     const key = element.propertyName ?? element.name;
-    const name = key && (ts.isIdentifier(key) || ts.isStringLiteral(key)) ? key.text : undefined;
+    const name = key && (isIdentifier(key) || isStringLiteral(key)) ? key.text : undefined;
     if (!name || !element.initializer) continue;
     const initializer = element.initializer;
     const isBindable =
-      ts.isCallExpression(initializer) && initializer.expression.getText() === '_bindable';
+      isCallExpression(initializer) && initializer.expression.getText() === '_bindable';
     const expression = isBindable ? initializer.arguments[0] : initializer;
     defaults.set(name, {
       value: expression && withoutAssertions(expression).getText(),
@@ -258,8 +281,8 @@ function implementationDefaults(componentName: string) {
 }
 
 /** 默认值里的类型断言只是给类型检查看的（_bindable(0 as V)）：表格里显示表达式本身 */
-function withoutAssertions(node: ts.Expression): ts.Expression {
-  while (ts.isAsExpression(node) || ts.isSatisfiesExpression(node) || ts.isTypeAssertion(node)) {
+function withoutAssertions(node: Expression): Expression {
+  while (isAsExpression(node) || isSatisfiesExpression(node) || isTypeAssertion(node)) {
     node = node.expression;
   }
   return node;
@@ -281,20 +304,20 @@ function componentOf(interfaceName: string): string {
   return componentSymbol(component) ? component : component.replace(/Base$/, '');
 }
 
-const isPropertyLike = (node: ts.Node) =>
-  ts.isPropertySignatureDeclaration(node) || ts.isPropertyDeclaration(node);
+const isPropertyLike = (node: Node) =>
+  isPropertySignatureDeclaration(node) || isPropertyDeclaration(node);
 
 /** 属性的声明按源码位置排：联合类型的同名 prop（单选、多选两种写法）以先写的那种为准 */
-function sourceOrder(property: Symbol): ts.Node[] {
+function sourceOrder(property: Symbol): Node[] {
   return property.declarations
     .flatMap((handle) => handle.resolve() ?? [])
     .sort((a, b) => fileOf(a).localeCompare(fileOf(b)) || a.pos - b.pos);
 }
 
 /** 联合类型的同名 prop：各个声明的注释按源码顺序拼起来，相同的只留一份 */
-function unionDoc(declarations: ts.Node[], checker: Checker): string {
+function unionDoc(declarations: Node[], checker: Checker): string {
   const docs = docsOf(
-    declarations.map((node) => api!.getSymbol(node as ts.Declaration)),
+    declarations.map((node) => api!.getSymbol(node as Declaration)),
     checker,
   );
   return [...new Set(docs.filter(Boolean))].join('\n');

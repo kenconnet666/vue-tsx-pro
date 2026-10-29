@@ -13,7 +13,7 @@
  * 校验用 zod 的标准错误码（too_small、too_big、not_multiple_of），提示跟着使用方配置的 zod 语言走。
  */
 import type Decimal from 'decimal.js';
-import * as z from 'zod';
+import { z } from 'zod';
 import { isDecimal, toNumber, type NumericValue } from '../utils/data/numeric';
 
 /** decimalSchema 的选项；边界与步长可以是数字、bigint、Decimal 或十进制文本（'0.01'） */

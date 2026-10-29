@@ -1,5 +1,5 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Card, Flex, Listbox, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 一千个可选的列：Listbox 始终虚拟滚动

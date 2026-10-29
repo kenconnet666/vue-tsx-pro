@@ -15,7 +15,7 @@ import {
   TextField,
   useForm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import * as z from 'zod';
+import { z } from 'zod';
 
 const categories = ['机械件', '塑料件', '钣金件', '标准件', '线缆'];
 

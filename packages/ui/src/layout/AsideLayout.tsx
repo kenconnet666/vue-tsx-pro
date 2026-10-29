@@ -10,7 +10,7 @@
  * 按容器宽度而不是窗口宽度决定叠不叠：放在抽屉、分栏里也对。两栏里的块按 gap 竖排。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { gapStyles, type Space } from '../utils/style/styles';

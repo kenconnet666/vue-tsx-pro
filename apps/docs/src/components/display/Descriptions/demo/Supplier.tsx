@@ -1,7 +1,7 @@
 // 供应商档案：同一份详情（columns="auto"）放在窄的卡片与宽的区域里，各自按宽度排成一栏、两栏或三栏；
 // 拖动右边的手柄看栏数随宽度变化。信用代码、银行账号、地址可以一键复制（copyable），地址复制的是完整写法（copyText）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Card,

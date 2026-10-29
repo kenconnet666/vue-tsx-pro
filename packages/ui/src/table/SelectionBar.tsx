@@ -10,7 +10,7 @@
  * 部件：Root（div）、Count（span）、Clear（Button）、Actions（div）。数目变化经共用的播报区（announce）念出。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';

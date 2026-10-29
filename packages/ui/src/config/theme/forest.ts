@@ -1,4 +1,4 @@
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { defaultFonts, defaultRadii } from './light';
 import type { Theme } from './theme';
 import { colors, shadows } from './tokens';

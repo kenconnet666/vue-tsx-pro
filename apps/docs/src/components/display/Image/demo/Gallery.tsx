@@ -1,7 +1,7 @@
 // 图纸相册：ImageGroup 里的图共用一个预览，点哪张从哪张开始；大图里缩放（滚轮、+ −、双击）、拖动、旋转（R）、
 // ← → 切换、下载；缩略图统一 4:3、圆角，名称在下面
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Flex, Image, ImageGroup, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 import { drawings } from './drawings';
 

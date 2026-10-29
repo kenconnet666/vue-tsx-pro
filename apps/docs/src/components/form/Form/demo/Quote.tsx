@@ -1,6 +1,6 @@
 import { Plus, Trash2 } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,
@@ -15,7 +15,7 @@ import {
   useForm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import Decimal from 'decimal.js';
-import * as z from 'zod';
+import { z } from 'zod';
 
 // 金额用 Decimal：0.1 + 0.2 也精确；decimalSchema 的范围、小数位数同时交给 NumberField（min、step）
 const schema = z.object({

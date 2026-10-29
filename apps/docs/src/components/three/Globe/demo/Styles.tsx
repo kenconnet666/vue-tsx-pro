@@ -1,6 +1,6 @@
 // 外观：点的疏密、颜色、光晕与自转速度；不拖动、不自转时就是一张静止的地球
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Card, Flex, Grid, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 import { colors } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { Globe } from '@zerodep-dev/vue-tsx-pro-ui/three';

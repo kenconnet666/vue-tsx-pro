@@ -18,7 +18,7 @@
  */
 import { Paperclip } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, type VNodeChild } from 'vue';
 import { Button } from '../base/Button';
 import { Icon } from '../base/Icon';

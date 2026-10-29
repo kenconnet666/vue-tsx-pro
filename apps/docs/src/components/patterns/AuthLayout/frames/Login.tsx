@@ -1,7 +1,7 @@
 // 认证页版式：左边品牌区、右边表单，工具在表单区的上角；窄屏时品牌区收成顶部一块
 import { TrendingDown } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,

@@ -11,7 +11,7 @@ import {
   useForm,
   useLeaveConfirmation,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import * as z from 'zod';
+import { z } from 'zod';
 
 // 假的“用户名已占用”接口：400ms 后返回；新的输入到来时经 signal 中止
 const taken = new Set(['admin', 'root', 'xiaoman']);

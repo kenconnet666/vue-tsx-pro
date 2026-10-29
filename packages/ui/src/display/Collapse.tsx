@@ -9,7 +9,7 @@
  *   - 不支持的（Safari）加 inert：收起的内容不能被 Tab 聚焦，读屏也读不到
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLazyContent } from '../utils/motion/presence';
 import { useMounted } from '../utils/dom/mounted';

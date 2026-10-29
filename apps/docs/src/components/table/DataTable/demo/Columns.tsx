@@ -2,7 +2,7 @@
 // 列设置（顺序、固定、隐藏、宽度）记在浏览器里，下次打开还是这样；上方一行说明当前的筛选与排序，可以一键还原
 import { RotateCcw } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   createStatusMap,

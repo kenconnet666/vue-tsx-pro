@@ -2,7 +2,7 @@
 // renderItem 在名字后面加人数
 import { Building2, Users } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Badge, Card, Flex, Small, Tree } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Department {

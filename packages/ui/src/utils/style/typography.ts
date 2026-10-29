@@ -2,7 +2,7 @@
  * 文字相关的共用样式表：Text、Heading、Icon、Button 等按同一套档位取字号、字重、色调。
  * 档位与主题 tokens 同名（COMPONENTS.md §6.2）。
  */
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 // 取值类型写成带注释接口的 keyof：补全与悬停能看到每个取值的效果（见 styles.ts）
 
 /** 界面文字的字号档位，对应主题的 fontSizes；组件的 size 档位也用它，括号里是默认主题的值 */

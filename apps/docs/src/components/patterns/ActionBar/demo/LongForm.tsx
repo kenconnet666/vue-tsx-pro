@@ -1,6 +1,6 @@
 // 长表单：操作栏贴在滚动区域的底边，起始边写着改了几处；盖着下面的字段时带阴影，滚到底与内容平齐
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,
@@ -15,7 +15,7 @@ import {
   useForm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { ActionBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
-import * as z from 'zod';
+import { z } from 'zod';
 
 const styles = css.create({
   scroll: { height: '24rem' },

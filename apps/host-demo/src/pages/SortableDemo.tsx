@@ -1,6 +1,6 @@
 // /base 页上的拖动排序演示：竖排的待办（可以拖到滚动区域外，自动滚动）与横排的标签
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Flex, ScrollArea, Sortable, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Task {

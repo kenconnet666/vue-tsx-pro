@@ -5,7 +5,7 @@
  *   <ApiReference api={api} />
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Flex, H2, H3, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
 import {
   PropsTable,

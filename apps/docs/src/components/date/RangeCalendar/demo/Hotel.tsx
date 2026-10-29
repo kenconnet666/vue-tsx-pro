@@ -1,7 +1,7 @@
 // 订酒店：并排两个月选入住与离店，订满的晚上不能被夹在中间；右侧算出几晚、总价
 import { BedDouble } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,

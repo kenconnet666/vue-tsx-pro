@@ -1,6 +1,6 @@
 // 排班：多选这个月要值班的日子，右侧按日期列出，可以单独移除；并排两个月、显示周数
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Calendar,

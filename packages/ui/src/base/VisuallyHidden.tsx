@@ -3,7 +3,7 @@
  * 用于图标按钮的名称、“在新窗口打开”这类补充说明。渲染为 span（行内文字，与 Radix 一致）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 

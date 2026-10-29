@@ -1,6 +1,6 @@
 // 画质（网格的细分随它变）、渲染分辨率、跟随指针与暂停；off 时显示 fallback
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Field,
   Flex,

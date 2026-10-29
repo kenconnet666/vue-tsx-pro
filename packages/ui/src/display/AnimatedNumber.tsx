@@ -9,7 +9,7 @@
  * 值可以是 number、bigint 或 Decimal：过渡的中间帧按浮点数算，停下时与读屏的终值按原值格式化，不丢精度。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { VisuallyHidden, type VisuallyHiddenProps } from '../base/VisuallyHidden';
 import { useFormat, type NumericFormat } from '../config/lang/format';

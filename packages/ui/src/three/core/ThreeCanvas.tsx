@@ -18,7 +18,7 @@
  * 部件：Root（div）、Canvas（canvas，重建时换新的一块）、Fallback（div，降级内容）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../../utils/props';
 import type { ThreeQuality } from './quality';

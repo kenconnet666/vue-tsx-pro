@@ -10,7 +10,7 @@
  * 部件：Root（div role="group"，主元素）、Segment（每段）、Literal（分隔符）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId } from 'vue';
 import { isRtl } from '../utils/dom/direction';
 import { defaultLabelledBy, mergeAttrs, type PartProps } from '../utils/props';

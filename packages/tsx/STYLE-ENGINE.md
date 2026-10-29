@@ -76,7 +76,7 @@
 ### 4.1 API：保持现在的写法，只放宽限制
 
 ```ts
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 
 const styles = css.create({
   root: { padding: '_md', color: { default: '_text', ':hover': '_accent' } },
@@ -345,14 +345,14 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`，编译器改写成 `css.
 
 不再依赖 StyleX 之后，名字也不再沿用它：
 
-| 原来                                                             | 现在                                                     |
-| ---------------------------------------------------------------- | -------------------------------------------------------- |
-| 入口 `@zerodep-dev/vue-tsx-pro-tsx/stylex`，`import * as stylex` | `@zerodep-dev/vue-tsx-pro-tsx/styles`，`import * as css` |
-| `StyleXStyles`、`StyleXAttrs`                                    | `SxStyles`、`StyleAttrs`                                 |
-| `packages/tsx/src/stylex/`，生成的 `styles.ts`                   | `packages/tsx/src/styles/`，`documented.ts`              |
-| `@zerodep-dev/vue-tsx-pro-ui/tokens.stylex`、`vars.stylex`       | `@zerodep-dev/vue-tsx-pro-ui/tokens`、`vars`             |
-| `tokens.stylex.ts`（各组）+ `tokens.ts`（`t`）                   | 合成 `tokens.ts`；主入口仍只导出 `t`                     |
-| `tone.stylex.ts`、`vars.stylex.ts`、`markers.stylex.ts`          | 色调变量已删除（见 §4.6）；`vars.ts`、`markers.ts`       |
+| 原来                                                             | 现在                                                    |
+| ---------------------------------------------------------------- | ------------------------------------------------------- |
+| 入口 `@zerodep-dev/vue-tsx-pro-tsx/stylex`，`import * as stylex` | `@zerodep-dev/vue-tsx-pro-tsx/styles`，`import { css }` |
+| `StyleXStyles`、`StyleXAttrs`                                    | `SxStyles`、`StyleAttrs`                                |
+| `packages/tsx/src/stylex/`，生成的 `styles.ts`                   | `packages/tsx/src/styles/`，`documented.ts`             |
+| `@zerodep-dev/vue-tsx-pro-ui/tokens.stylex`、`vars.stylex`       | `@zerodep-dev/vue-tsx-pro-ui/tokens`、`vars`            |
+| `tokens.stylex.ts`（各组）+ `tokens.ts`（`t`）                   | 合成 `tokens.ts`；主入口仍只导出 `t`                    |
+| `tone.stylex.ts`、`vars.stylex.ts`、`markers.stylex.ts`          | 色调变量已删除（见 §4.6）；`vars.ts`、`markers.ts`      |
 
 ### 9.7 有限状态绕过组件渲染（2026-10-24）
 

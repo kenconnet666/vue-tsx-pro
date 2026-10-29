@@ -5,7 +5,7 @@
  *   <ProcessDiagram definition={purchase} current={['review']} done={['start']} onSelect={(id) => (selected = id)} />
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 // 样式用的主题 token 在这个模块里登记（组件库的 tokens 是有副作用的模块）
 import '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { useId } from 'vue';

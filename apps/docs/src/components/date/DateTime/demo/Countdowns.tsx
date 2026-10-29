@@ -1,7 +1,7 @@
 // 限时抢购：自定义成一格一格的数字；待支付的订单：默认的“时:分:秒”；优惠券：precision="minute" 精确到分、每分钟更新；
 // 验证码：60 秒后才能重发，到点时 onEnd 恢复按钮。截止时刻相对页面打开的时刻，倒计时只在浏览器里画（ClientOnly）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,

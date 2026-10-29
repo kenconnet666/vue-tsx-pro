@@ -11,7 +11,14 @@
  */
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
-import * as ts from 'typescript/ast';
+import {
+  SyntaxKind,
+  isCallExpression,
+  isExportDeclaration,
+  isImportDeclaration,
+  isNamedImports,
+  isStringLiteral,
+} from 'typescript/ast';
 import { parseSource, root, uiEntries } from '../lib/repo.mjs';
 
 const src = join(root, 'packages/ui/src');
@@ -61,27 +68,27 @@ function runtimeImports(file) {
   const source = parseSource(file);
   const specifiers = [];
   const visit = (node) => {
-    if (ts.isImportDeclaration(node)) {
+    if (isImportDeclaration(node)) {
       const clause = node.importClause;
       const typeOnly =
-        clause?.phaseModifier === ts.SyntaxKind.TypeKeyword ||
+        clause?.phaseModifier === SyntaxKind.TypeKeyword ||
         (clause &&
           !clause.name &&
           clause.namedBindings &&
-          ts.isNamedImports(clause.namedBindings) &&
+          isNamedImports(clause.namedBindings) &&
           clause.namedBindings.elements.length > 0 &&
           clause.namedBindings.elements.every((element) => element.isTypeOnly));
       if (!typeOnly) specifiers.push(node.moduleSpecifier.text);
       return;
     }
-    if (ts.isExportDeclaration(node) && node.moduleSpecifier && !node.isTypeOnly) {
+    if (isExportDeclaration(node) && node.moduleSpecifier && !node.isTypeOnly) {
       specifiers.push(node.moduleSpecifier.text);
       return;
     }
     if (
-      ts.isCallExpression(node) &&
-      node.expression.kind === ts.SyntaxKind.ImportKeyword &&
-      ts.isStringLiteral(node.arguments[0])
+      isCallExpression(node) &&
+      node.expression.kind === SyntaxKind.ImportKeyword &&
+      isStringLiteral(node.arguments[0])
     ) {
       specifiers.push(node.arguments[0].text);
     }

@@ -1,7 +1,7 @@
 // 从 zod schema 推出字段约束：必填的判断、长度、范围、格式、枚举、嵌套与数组、nullable / optional
 import { describe, expect, it } from 'vitest';
-import * as z from 'zod';
-import * as zm from 'zod/mini';
+import { z } from 'zod';
+import { z as zm } from 'zod/mini';
 import { createConstraints } from '../form-constraints';
 
 const schema = z.object({

@@ -1,7 +1,7 @@
 /** Icon 文档页的“图标库”：搜索、点选图标，看大图；复制导入代码、复制或下载 SVG */
 import { Check, Copy, Download, FileCode } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import {
   Button,

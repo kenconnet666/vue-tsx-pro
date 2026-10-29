@@ -1,6 +1,6 @@
 // 主从视图：点一行在旁边看详情（activeKey 高亮正在看的那一行，带 aria-current）；编号是按钮，键盘也能打开
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   DataTable,

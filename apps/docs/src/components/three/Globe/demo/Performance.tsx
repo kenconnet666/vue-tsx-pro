@@ -1,7 +1,7 @@
 // 画质（陆地点数随它缩放）与暂停；off 时显示 fallback；子元素叠在地球上（这里是底部的说明）
 import { Globe as GlobeIcon } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Field,

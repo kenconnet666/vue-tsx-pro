@@ -2,7 +2,7 @@
 // format 是详略：long “3 分钟前”、short、narrow（窄栏、移动端）。
 // 演示数据相对页面打开的时刻，服务端渲染与浏览器的“现在”不同：列表包在 ClientOnly 里，只在浏览器里画
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Avatar,
   Card,

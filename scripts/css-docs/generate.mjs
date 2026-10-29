@@ -19,7 +19,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import prettier from 'prettier';
-import * as ts from 'typescript/ast';
+import {
+  isPropertySignatureDeclaration,
+  isStringLiteral,
+  isTypeAliasDeclaration,
+} from 'typescript/ast';
 import { API, TypeFlags } from 'typescript/sync';
 import { features } from 'web-features';
 import { TOKEN_GROUP_OF } from '../../packages/tsx/src/styles/token-map.ts';
@@ -56,7 +60,7 @@ function readCssTypes() {
   const findAlias = (name) =>
     program
       .getSourceFile(cssTypesFile)
-      .statements.find((node) => ts.isTypeAliasDeclaration(node) && node.name.text === name);
+      .statements.find((node) => isTypeAliasDeclaration(node) && node.name.text === name);
 
   const cssType = checker.getTypeAtLocation(findAlias('CSSProperties').name);
   const symbols = checker.getPropertiesOfType(cssType);
@@ -79,8 +83,8 @@ function readCssTypes() {
   const pseudoElements = [];
   const visit = (node) => {
     if (
-      ts.isPropertySignatureDeclaration(node) &&
-      ts.isStringLiteral(node.name) &&
+      isPropertySignatureDeclaration(node) &&
+      isStringLiteral(node.name) &&
       node.name.text.startsWith('::')
     ) {
       pseudoElements.push(node.name.text);

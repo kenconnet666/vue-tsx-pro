@@ -1,6 +1,6 @@
 /** 根组件：顶栏（按权限生成的菜单、切换示例用户）+ 当前页面 */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Alert, Container, createFlex, Link, Small, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
 import { useRoute } from 'vue-router';
 import { type PageDef, PageView, useSession } from '@zerodep-dev/vue-tsx-pro-kit';

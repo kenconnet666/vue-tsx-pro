@@ -12,7 +12,7 @@
  * 只是排一排、不相连的按钮用 Flex。选中其中一项（单选、多选）用 ToggleGroup。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { AttachedContext, type AttachedOrientations } from '../utils/style/attached';

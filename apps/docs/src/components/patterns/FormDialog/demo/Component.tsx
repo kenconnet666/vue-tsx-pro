@@ -11,7 +11,7 @@ import {
   useForm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { FormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
-import * as z from 'zod';
+import { z } from 'zod';
 
 const TAKEN = ['采购部', '财务部'];
 

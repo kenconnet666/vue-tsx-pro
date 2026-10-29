@@ -1,6 +1,6 @@
 /** 代码演练场的起始示例：符文、样式与主题 token、组件、图标各用到一点 */
 export const STARTER = `import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, Flex, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 import { Heart } from '@lucide/icons';
 

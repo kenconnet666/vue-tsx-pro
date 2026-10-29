@@ -1,6 +1,6 @@
 import { Sparkles, Zap, ShieldCheck } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Badge, Button, Icon, t, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const plans = [

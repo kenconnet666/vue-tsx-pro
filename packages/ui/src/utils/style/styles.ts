@@ -3,7 +3,7 @@
  * 组件的 size、gap 等 prop 直接用这些类型，取值一一对应到 token。
  * 样式表只放被多个组件复用的；只有一个组件用的写在组件里。
  */
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from '../../config/theme/tokens';
 

@@ -10,7 +10,7 @@
  * 选中哪一个可以双向绑定（_value={manager}），几组代码绑同一个变量就一起切换。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
 import { Tab, TabList, TabPanel, Tabs, type TabListProps } from '../navigation/Tabs';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';

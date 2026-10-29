@@ -9,7 +9,7 @@
  * 部件：Root（div）、Icon、Code（状态码，status 时）、Title（Text）、Description（Paragraph）、Action（div）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { FileQuestionMark, ServerCrash, ShieldX } from '@lucide/icons';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';

@@ -18,7 +18,7 @@
  * 两列各自往下排，不按行对齐：展开代码、示例自己变高，只把同一列下面的示例往下推。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { ExampleColumnContext } from './Example';
 

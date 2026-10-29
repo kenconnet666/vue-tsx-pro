@@ -11,7 +11,7 @@
  * 部件：Root（Table）、HeaderCell（th）、Row（tr）、Cell（td）、SummaryCell（表尾的 td）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { mergeProps, type PartProps } from '../utils/props';

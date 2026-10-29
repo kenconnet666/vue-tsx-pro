@@ -2,7 +2,7 @@
 // LayoutSwitcher 在顶栏里选；换了方向，“菜单”的位置、手柄的边和拖动的尺寸（宽 / 高）跟着变。刷新页面后沿用上次的选择。数据是虚构的
 import { Boxes, Gauge, Server, Settings, Siren, Wrench } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Avatar,
   createStatusMap,

@@ -7,7 +7,15 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import * as ts from 'typescript/ast';
+import {
+  SyntaxKind,
+  getLeadingCommentRanges,
+  isCallExpression,
+  isObjectLiteralExpression,
+  isPropertyAssignment,
+  isStringLiteralLikeNode,
+  isVariableStatement,
+} from 'typescript/ast';
 import { TOKEN_GROUP_OF } from '../../packages/tsx/src/styles/token-map.ts';
 import { parseSource } from '../lib/repo.mjs';
 
@@ -68,15 +76,15 @@ export function readTokenGroups(file) {
   const source = parseSource(file, text);
   const groups = [];
   for (const statement of source.statements) {
-    if (!ts.isVariableStatement(statement)) continue;
-    if (!statement.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword))
+    if (!isVariableStatement(statement)) continue;
+    if (!statement.modifiers?.some((modifier) => modifier.kind === SyntaxKind.ExportKeyword))
       continue;
     for (const declaration of statement.declarationList.declarations) {
       const call = declaration.initializer;
-      if (!call || !ts.isCallExpression(call) || !call.expression.getText().endsWith('defineVars'))
+      if (!call || !isCallExpression(call) || !call.expression.getText().endsWith('defineVars'))
         continue;
       const object = call.arguments[1];
-      if (!object || !ts.isObjectLiteralExpression(object)) continue;
+      if (!object || !isObjectLiteralExpression(object)) continue;
       groups.push({
         name: declaration.name.getText(),
         doc: leadingDoc(text, statement),
@@ -84,7 +92,7 @@ export function readTokenGroups(file) {
           name: property.name.getText(),
           doc: leadingDoc(text, property),
           // 默认值（亮色主题）：字符串字面量，或带条件的取值（如“减少动态效果”时为 0）里的 default
-          value: ts.isPropertyAssignment(property) ? defaultValue(property.initializer) : undefined,
+          value: isPropertyAssignment(property) ? defaultValue(property.initializer) : undefined,
         })),
       });
     }
@@ -94,17 +102,17 @@ export function readTokenGroups(file) {
 
 /** 取值表达式的默认值：`'14px'` → 14px；`{ default: '120ms', [reduce]: '0ms' }` → 120ms */
 function defaultValue(node) {
-  if (ts.isStringLiteralLikeNode(node)) return node.text;
-  if (!ts.isObjectLiteralExpression(node)) return undefined;
+  if (isStringLiteralLikeNode(node)) return node.text;
+  if (!isObjectLiteralExpression(node)) return undefined;
   const fallback = node.properties.find(
-    (property) => ts.isPropertyAssignment(property) && property.name.getText() === 'default',
+    (property) => isPropertyAssignment(property) && property.name.getText() === 'default',
   );
   return fallback ? defaultValue(fallback.initializer) : undefined;
 }
 
 /** 节点前最后一段 `/** … *\/` 注释 */
 function leadingDoc(text, node) {
-  const ranges = ts.getLeadingCommentRanges(text, node.pos) ?? [];
+  const ranges = getLeadingCommentRanges(text, node.pos) ?? [];
   const range = ranges.findLast(({ pos }) => text.startsWith('/**', pos));
   return range ? text.slice(range.pos, range.end) : undefined;
 }

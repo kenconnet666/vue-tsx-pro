@@ -13,7 +13,14 @@ import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import prettier from 'prettier';
-import * as ts from 'typescript/ast';
+import {
+  SyntaxKind,
+  isExportDeclaration,
+  isImportDeclaration,
+  isNamedExports,
+  isNamedImports,
+  isVariableStatement,
+} from 'typescript/ast';
 import { parseSource, root, uiEntries } from '../lib/repo.mjs';
 
 const src = join(root, 'packages/ui/src');
@@ -23,10 +30,10 @@ function exportedNames(file) {
   const source = parseSource(file);
   const names = new Set();
   for (const node of source.statements) {
-    if (ts.isExportDeclaration(node) && node.exportClause && ts.isNamedExports(node.exportClause)) {
+    if (isExportDeclaration(node) && node.exportClause && isNamedExports(node.exportClause)) {
       for (const element of node.exportClause.elements) names.add(element.name.text);
-    } else if (node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)) {
-      if (ts.isVariableStatement(node)) {
+    } else if (node.modifiers?.some((m) => m.kind === SyntaxKind.ExportKeyword)) {
+      if (isVariableStatement(node)) {
         for (const d of node.declarationList.declarations) names.add(d.name.getText(source));
       } else if (node.name) names.add(node.name.text);
     }
@@ -60,10 +67,10 @@ export async function fixEntryImports() {
     const source = parseSource(file, text);
     const declarations = source.statements.flatMap((node) => {
       const bindings = node.importClause?.namedBindings;
-      if (!ts.isImportDeclaration(node) || !bindings || !ts.isNamedImports(bindings)) return [];
+      if (!isImportDeclaration(node) || !bindings || !isNamedImports(bindings)) return [];
       const entry = node.moduleSpecifier.text;
       if (!exportsByEntry.has(entry)) return [];
-      const typeOnly = node.importClause.phaseModifier === ts.SyntaxKind.TypeKeyword;
+      const typeOnly = node.importClause.phaseModifier === SyntaxKind.TypeKeyword;
       const names = bindings.elements.map((element) => ({
         imported: (element.propertyName ?? element.name).text,
         text: element.getText(source),

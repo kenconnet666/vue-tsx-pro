@@ -7,7 +7,13 @@
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import * as ts from 'typescript/ast';
+import {
+  isCallExpression,
+  isObjectLiteralExpression,
+  isPropertyAssignment,
+  isStringLiteral,
+  isVariableDeclaration,
+} from 'typescript/ast';
 import { registerHooks } from 'node:module';
 import { parseSource, root } from '../lib/repo.mjs';
 
@@ -34,24 +40,24 @@ function readColors(file, group = 'colors') {
   const source = parseSource(file, text);
   let object;
   const visit = (node) => {
-    if (object || !ts.isCallExpression(node)) return node.forEachChild(visit);
+    if (object || !isCallExpression(node)) return node.forEachChild(visit);
     const callee = node.expression.getText(source);
     const [first, second] = node.arguments;
     if (callee.endsWith('createTheme') && first?.getText(source) === group) object = second;
     else if (
       callee.endsWith('defineVars') &&
-      ts.isVariableDeclaration(node.parent) &&
+      isVariableDeclaration(node.parent) &&
       node.parent.name.getText(source) === group
     ) {
       object = second;
     } else node.forEachChild(visit);
   };
   visit(source);
-  if (!object || !ts.isObjectLiteralExpression(object))
+  if (!object || !isObjectLiteralExpression(object))
     throw new Error(`${file} 里找不到 ${group} 的定义`);
   const values = {};
   for (const property of object.properties) {
-    if (ts.isPropertyAssignment(property) && ts.isStringLiteral(property.initializer)) {
+    if (isPropertyAssignment(property) && isStringLiteral(property.initializer)) {
       values[property.name.getText(source)] = property.initializer.text;
     }
   }

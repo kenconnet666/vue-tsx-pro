@@ -1,6 +1,6 @@
 // 色板（下一次放时生效）与收尾：onDone 在这几批都落完后调用；“关闭特效”时 quality="off"，不放、直接 onDone
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,

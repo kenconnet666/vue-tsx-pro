@@ -1,6 +1,6 @@
 // 程序生成的对象：直接交给 object；金属度、粗糙度不同的材质在同一间摄影棚里；地址错了时显示提示
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Card, Flex, Grid, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 import { ModelViewer } from '@zerodep-dev/vue-tsx-pro-ui/three';
 import { IcosahedronGeometry, Mesh, MeshPhysicalMaterial, TorusKnotGeometry } from 'three';

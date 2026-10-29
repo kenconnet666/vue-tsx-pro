@@ -10,7 +10,7 @@
  * 部件：Root（div：格子的容器）、Input（主元素）、Slot（div，每格一个）、Separator（groups 之间）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { mergeAttrs, type PartProps } from '../utils/props';

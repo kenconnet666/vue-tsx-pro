@@ -32,7 +32,7 @@ import {
 } from '@unovis/ts';
 import { Maximize, Minus, Plus } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { presimplify, simplify } from 'topojson-simplify';
 import type { VNodeChild } from 'vue';
 import { IconButton } from '../base/IconButton';

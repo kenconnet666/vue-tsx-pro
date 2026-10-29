@@ -27,7 +27,7 @@
  */
 import { utils } from 'animejs';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   nextTick,
   onBeforeUnmount,

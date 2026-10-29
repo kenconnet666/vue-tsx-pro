@@ -4,7 +4,7 @@ import { ChinaTopoJSON } from '@unovis/ts/maps';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 import { MapChart, resolveColor, type MapArea } from '@zerodep-dev/vue-tsx-pro-ui/charts';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { provinces } from './china';
 
 const regions = ['华北', '东北', '华东', '华中', '华南', '西南', '西北'];

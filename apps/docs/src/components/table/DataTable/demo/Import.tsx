@@ -2,7 +2,7 @@
 // 校验结果放在前面：最要紧的一列不用横向滚动才看到
 import { CircleAlert, CircleCheck, TriangleAlert } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Button,

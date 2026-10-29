@@ -27,7 +27,7 @@
  * Marquee（框选框）、Guide（对齐线）。
  */
 import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useMessages } from '../config/lang/messages';
 import { t } from '../config/theme/tokens';

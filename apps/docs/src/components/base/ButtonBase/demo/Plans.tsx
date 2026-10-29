@@ -1,6 +1,6 @@
 import { Check } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { ButtonBase, Icon, Small, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const plans = [

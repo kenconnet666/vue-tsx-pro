@@ -1,7 +1,7 @@
 // Button 的示例：文档里展示的用法本身就是被测对象
 import { afterEach, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button } from '@zerodep-dev/vue-tsx-pro-ui';
 import { mount } from '../../../../test/mount';
 import Disabled from '../demo/Disabled';

@@ -8,7 +8,7 @@
  * 尺寸用 em，随字号缩放。部件：Root（span）、Card（卡片）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { swatchStyles } from '../utils/style/swatch-styles';
 import { themeAttrs, type Theme } from '../config/theme/theme';

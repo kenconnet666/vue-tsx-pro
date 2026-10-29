@@ -2,7 +2,7 @@
  * 主题：一组 token 的取值。内置主题是 createTheme 生成的只改变量的类（第一次用到时插入规则，换主题只换这个类）；
  * defineTheme 的局部修改在运行时写成 CSS 变量，作用在 Provider 的容器上。
  */
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { CssVar, Theme as GroupThemeOf } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from './tokens';
 

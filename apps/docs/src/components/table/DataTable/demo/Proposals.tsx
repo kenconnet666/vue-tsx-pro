@@ -2,7 +2,7 @@
 // 详情是表格里跨全部列的一行，横向滚动时贴着可见区域的起始边；expandedRows 可以双向绑定
 import { Paperclip } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   createStatusMap,
   DataTable,

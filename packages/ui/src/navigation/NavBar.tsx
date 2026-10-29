@@ -19,7 +19,7 @@
  */
 import { ChevronDown, Ellipsis } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Badge } from '../base/Badge';
 import { ButtonBase } from '../base/ButtonBase';
 import { Icon, type IconData } from '../base/Icon';

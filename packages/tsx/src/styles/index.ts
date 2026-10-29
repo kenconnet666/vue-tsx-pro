@@ -7,7 +7,18 @@
  * create 的参数只让样式组名参与推导，组内属性的上下文类型固定为带注释的 DocumentedStyles，
  * 悬停、补全、跳转都能看到说明（整个参数做泛型推导时，TypeScript 悬停只显示推导出的字面量）。
  */
-import * as runtime from './runtime';
+import {
+  attrs as runtimeAttrs,
+  bind as runtimeBind,
+  create as runtimeCreate,
+  createTheme as runtimeCreateTheme,
+  defineMarker as runtimeDefineMarker,
+  defineTokens as runtimeDefineTokens,
+  defineVars as runtimeDefineVars,
+  keyframes as runtimeKeyframes,
+  select as runtimeSelect,
+  when as runtimeWhen,
+} from './runtime';
 import type { DocumentedStyles } from './documented';
 import type { StyleValue } from './value';
 import type { VAR_GROUP } from './vars';
@@ -193,14 +204,14 @@ export interface Create {
 }
 
 /** 定义样式（见 {@link Create}）：产出片段，attrs 合成一个类时才插入规则（runtime.ts） */
-export const create: Create = runtime.create as never;
+export const create: Create = runtimeCreate as never;
 
 /**
  * 把多个样式合并成元素属性 `{ class, style }`，后面的覆盖前面的；
  * 假值（false、null、undefined）会被忽略，便于按条件组合。Vue 的 JSX 用它：
  * `<div {...css.attrs(styles.base, active && styles.active, sx)} />`
  */
-export const attrs: (...styles: readonly SxStyles[]) => StyleAttrs = runtime.attrs as never;
+export const attrs: (...styles: readonly SxStyles[]) => StyleAttrs = runtimeAttrs as never;
 
 /** attrs 的结果：交给元素的 class 与行内样式（动态样式的变量与值） */
 export interface StyleAttrs {
@@ -220,7 +231,7 @@ export interface StyleAttrs {
 export const defineVars: <const T extends Readonly<Record<string, VarValue>>>(
   name: string,
   tokens: T,
-) => VarGroup<T> = runtime.defineVars as never;
+) => VarGroup<T> = runtimeDefineVars as never;
 
 /**
  * 登记主题 tokens，样式里才能写短写 `'_md'` 与 `'_space.md'`：组名 → defineVars 的结果，返回原对象。
@@ -228,20 +239,20 @@ export const defineVars: <const T extends Readonly<Record<string, VarValue>>>(
  */
 export const defineTokens: <const Groups extends Readonly<Record<string, VarGroup>>>(
   groups: Groups,
-) => Groups = runtime.defineTokens as never;
+) => Groups = runtimeDefineTokens as never;
 
 /** 基于 defineVars 定义的变量创建一套主题，作为样式应用在容器上即可覆盖内部的变量值。 */
 export const createTheme: <Group extends VarGroup>(
   group: Group,
   overrides: { readonly [K in Exclude<keyof Group, typeof VAR_GROUP>]?: VarValue },
-) => Theme<Group> = runtime.createTheme as never;
+) => Theme<Group> = runtimeCreateTheme as never;
 
 /** 定义标记：`defineMarker('vtp-heading')`，挂到元素上（放进 attrs），子元素用 when.* 按它的状态取样式 */
-export const defineMarker: (name: string) => Marker = runtime.defineMarker as never;
+export const defineMarker: (name: string) => Marker = runtimeDefineMarker as never;
 
 /** 定义关键帧动画，返回动画名，作为 animationName 的值使用。 */
 export const keyframes: (frames: Readonly<Record<string, DocumentedStyles>>) => string =
-  runtime.keyframes as never;
+  runtimeKeyframes as never;
 
 /** 关系条件：被观察元素（标记）处于某伪类时，如 `':hover'`、`':focus-visible'` */
 type When = (pseudo: `:${string}`, marker: Marker) => `:where(${string})`;
@@ -258,7 +269,7 @@ export const when: {
   readonly siblingAfter: When;
   /** 任一兄弟处于某状态时 */
   readonly anySibling: When;
-} = runtime.when as never;
+} = runtimeWhen as never;
 
 /**
  * 动态样式的响应式绑定：参数变化时只改元素上的变量，不重新渲染组件。
@@ -270,7 +281,7 @@ export const bind: <Args extends unknown[]>(
   args: () => NoInfer<Args>,
   /** 读取函数只读渲染函数外面的来源（编译器判断后填 true）：重新渲染时不必重新收集依赖 */
   stable?: boolean,
-) => Readonly<[CompiledStyles, InlineStyles]> = runtime.bind as never;
+) => Readonly<[CompiledStyles, InlineStyles]> = runtimeBind as never;
 
 /**
  * 按状态选样式的响应式绑定：状态变化时由元素上的 effect 就地换类，不重新渲染组件。
@@ -281,7 +292,7 @@ export const select: (
   read: () => CompiledStyles | null | undefined | false | '' | 0,
   /** 读取函数只读渲染函数外面的来源（编译器判断后填 true）：重新渲染时不必重新收集依赖 */
   stable?: boolean,
-) => CompiledStyles = runtime.select as never;
+) => CompiledStyles = runtimeSelect as never;
 
 /**
  * 整个入口作为具名导出：`import { css }` 与 `import * as css` 拿到的是同一个模块对象，编译器两种写法都认。

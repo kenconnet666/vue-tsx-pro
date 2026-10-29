@@ -10,7 +10,7 @@
  *   handle.update({ title: '订单详情（已发货）' }); handle.close(); await handle.closed;
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { ContainerSizes } from '../layout/Container';
 import {
   useDetachedOverlay,

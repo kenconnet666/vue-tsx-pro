@@ -1,5 +1,5 @@
 // 主题定制：设置换算成 token 覆盖、套在主题上、生成可以粘贴的代码
-import * as radix from '@radix-ui/colors';
+import { crimson, crimsonDark, mauve, teal } from '@radix-ui/colors';
 import { describe, expect, it } from 'vitest';
 import { customizeTheme, themeSettingsCode, themeSettingsOverrides } from '../customize';
 import { lemonTheme } from '../../config/theme/lemon';
@@ -13,10 +13,10 @@ describe('themeSettingsOverrides', () => {
 
   it('品牌色、中性色按 Radix 色阶整组替换；暗色取暗色色阶', () => {
     const light = themeSettingsOverrides({ accent: 'crimson', neutral: 'mauve' }, 'light');
-    expect(light.colors?.accent).toBe(radix.crimson.crimson9);
-    expect(light.colors?.background).toBe(radix.mauve.mauve1);
+    expect(light.colors?.accent).toBe(crimson.crimson9);
+    expect(light.colors?.background).toBe(mauve.mauve1);
     const dark = themeSettingsOverrides({ accent: 'crimson' }, 'dark');
-    expect(dark.colors?.accentText).toBe(radix.crimsonDark.crimson11);
+    expect(dark.colors?.accentText).toBe(crimsonDark.crimson11);
   });
 
   it('圆角、字号按默认值等比缩放（圆角的 none、full 不动）；默认档位不覆盖', () => {
@@ -46,7 +46,7 @@ describe('themeSettingsOverrides', () => {
   it('套在主题上：名字加 -custom，覆盖写进 overrides', () => {
     const theme = customizeTheme(lightTheme, { accent: 'teal' });
     expect(theme.name).toBe('light-custom');
-    expect(theme.overrides.colors?.accent).toBe(radix.teal.teal9);
+    expect(theme.overrides.colors?.accent).toBe(teal.teal9);
   });
 });
 
@@ -54,6 +54,6 @@ it('生成代码：defineTheme(基础主题, 覆盖)，字体名里的双引号�
   const code = themeSettingsCode('lightTheme', { accent: 'teal', font: 'serifHeadings' }, 'light');
   expect(code).toContain("import { defineTheme, lightTheme } from '@zerodep-dev/vue-tsx-pro-ui';");
   expect(code).toContain('export const myTheme = defineTheme(lightTheme, {');
-  expect(code).toContain(`accent: '${radix.teal.teal9}',`);
+  expect(code).toContain(`accent: '${teal.teal9}',`);
   expect(code).toMatch(/heading: '"Noto Serif SC", [^']+',/);
 });

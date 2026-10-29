@@ -1,6 +1,6 @@
 /** 指南：写样式。css.create / attrs / sx、主题 token、状态与条件、随状态变的样式，以及定制组件 */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Alert, Code, CodeBlock, Flex, H2, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
 import ComponentStyles from '../demo/ComponentStyles.tsx?demo';
 import StyleBasics from '../demo/StyleBasics.tsx?demo';
@@ -15,7 +15,7 @@ const meta = {
     '写法像 StyleX 的运行时样式：css.create、attrs 与 sx，主题 token 的字符串写法，状态跟着 DOM 走的条件别名，状态变化不重新渲染组件的动态样式，以及用 createUi / Provider 的 styles 定制组件。',
 };
 
-const basics = `import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+const basics = `import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 
 const styles = css.create({
   card: {

@@ -1,6 +1,6 @@
 /** 主题定制页：先选一套内置主题作为起点（就是站点的主题偏好），编辑器的设置叠在它上面 */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   builtinThemeLabel,
   builtinThemes,

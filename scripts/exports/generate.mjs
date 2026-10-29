@@ -15,7 +15,15 @@
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import prettier from 'prettier';
-import * as ts from 'typescript/ast';
+import {
+  SyntaxKind,
+  isExportAssignment,
+  isExportDeclaration,
+  isInterfaceDeclaration,
+  isModuleDeclaration,
+  isTypeAliasDeclaration,
+  isVariableStatement,
+} from 'typescript/ast';
 import { parseSource, root, uiEntries } from '../lib/repo.mjs';
 
 const src = join(root, 'packages/ui/src');
@@ -81,7 +89,7 @@ function modules(dir, skip = new Set()) {
   });
 }
 
-const isExported = (node) => node.modifiers?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword);
+const isExported = (node) => node.modifiers?.some((m) => m.kind === SyntaxKind.ExportKeyword);
 
 /** 一个模块导出的名字：values 与 types 分开（类型写成 `type X`） */
 function exportsOf(file) {
@@ -91,20 +99,19 @@ function exportsOf(file) {
   const types = [];
   let declaresModule = false;
   for (const node of source.statements) {
-    if (ts.isModuleDeclaration(node)) declaresModule = true;
-    if (ts.isExportAssignment(node))
-      throw new Error(`${file}：不要用 export default，入口按名字导出`);
+    if (isModuleDeclaration(node)) declaresModule = true;
+    if (isExportAssignment(node)) throw new Error(`${file}：不要用 export default，入口按名字导出`);
     // `export {}` 只是把文件标成模块
     const empty =
-      ts.isExportDeclaration(node) &&
+      isExportDeclaration(node) &&
       !node.moduleSpecifier &&
       node.exportClause?.elements.length === 0;
-    if (ts.isExportDeclaration(node) && !empty)
+    if (isExportDeclaration(node) && !empty)
       throw new Error(`${file}：模块里不要再转出别处的导出，入口直接从原模块导出`);
     if (!isExported(node)) continue;
-    if (ts.isVariableStatement(node)) {
+    if (isVariableStatement(node)) {
       values.push(...node.declarationList.declarations.map((d) => d.name.getText(source)));
-    } else if (ts.isInterfaceDeclaration(node) || ts.isTypeAliasDeclaration(node)) {
+    } else if (isInterfaceDeclaration(node) || isTypeAliasDeclaration(node)) {
       types.push(node.name.text);
     } else if (node.name) {
       values.push(node.name.text);

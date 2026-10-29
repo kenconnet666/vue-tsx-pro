@@ -1,7 +1,7 @@
 // 批量操作：列表下面一行（sticky={false}，不随滚动贴底），起始边是已选几项，选了才能操作
 import { CheckCheck, Undo2 } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, Card, Checkbox, CheckboxGroup, Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 import { ActionBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 

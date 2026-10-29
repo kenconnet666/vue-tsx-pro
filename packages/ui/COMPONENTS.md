@@ -111,7 +111,7 @@
 
 ## 4. 样式
 
-- 样式由运行时引擎生成（`packages/tsx/src/styles/`，设计与实测见 STYLE-ENGINE.md）：写法像 StyleX，从 `@zerodep-dev/vue-tsx-pro-tsx/styles` 导入（`import * as css`），一个元素一次 `css.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。变量组（`css.defineVars('vtp-名字', 取值)`）、主题（`createTheme`）、标记（`defineMarker(名字)`）也在运行时生成，不依赖 StyleX。
+- 样式由运行时引擎生成（`packages/tsx/src/styles/`，设计与实测见 STYLE-ENGINE.md）：写法像 StyleX，从 `@zerodep-dev/vue-tsx-pro-tsx/styles` 导入（`import { css }`，不写 `import * as css`：命名空间导入的名字编辑器推不出来，不能自动导入），一个元素一次 `css.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。变量组（`css.defineVars('vtp-名字', 取值)`）、主题（`createTheme`）、标记（`defineMarker(名字)`）也在运行时生成，不依赖 StyleX。
 - 有部件或外观档位的组件写一个命名配方 `css.recipe({ name, parts, base, variants, compound })`（`name` 用组件名，同 `useDefaults` 的名字）：setup 里 `const recipe = useRecipe(xxxRecipe)`，渲染时 `const s = recipe(档位)` 得到每个部件的默认层（样式 + `data-scope` / `data-part`），直接交给部件的合并 `mergeAttrs<'div'>(s.title, propsTitle)`；这样组件能被 `createUi` / `Provider` 的 `styles` 定制（`config/styles.ts` 的 `ComponentStyles` 里登记 `Xxx?: RecipeExtension<XxxPart>`）。只有一两个元素、没有档位的组件照旧一个 `css.create`。按色调变化的样式在组合档位里逐项写主题 token（`{ when: { variant: 'soft', tone: 'danger' }, root: { color: '_dangerText', … } }`），或用共用的 `statusToneSx`（排在 `s.root.sx` 之前，让定制能盖过它）。
 - 样式值以字面量为主，直接写主题 token（`'_accentText'`、`'_full'`）：不加“色调变量”这类中间变量层，也不在样式里引用 JS 变量，读样式时就看得到用的是哪个 token，悬停能看到取值。只有值里夹着 token（`calc`、`color-mix`、多值）才用模板字符串里的 `t.组.名`。
 - 配方导出 `<组件>Recipe`（`alertRecipe`）与部件类型 `<组件>Part`；样式表导出，名字全局唯一：`<组件>Styles`，按部件或档位拆开的叫 `<组件><部件>Styles`（`tabListStyles`）；`css.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。

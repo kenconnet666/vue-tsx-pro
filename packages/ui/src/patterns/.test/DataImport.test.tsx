@@ -1,7 +1,7 @@
 // DataImport：CSV 上传 → 按名称与别名自动对应列 → 逐行校验（错误标在格子上、只看有错的行）→ 就地改正后重新校验 → 导入通过的行
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
-import * as z from 'zod';
+import { z } from 'zod';
 import { mount } from '../../utils/.test/mount';
 import { DataImport } from '../DataImport';
 

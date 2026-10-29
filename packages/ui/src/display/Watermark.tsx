@@ -11,7 +11,7 @@
  * 部件：Root（div：包着内容，position: relative）、Layer（div：水印那一层）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, watch, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 

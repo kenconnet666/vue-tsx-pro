@@ -1,5 +1,5 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, Container, Field, Flex, H3, Small, TextField } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({

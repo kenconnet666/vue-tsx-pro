@@ -2,7 +2,7 @@
 // 已关闭的任务不能勾选；勾选后上方出现批量操作栏；“列”菜单切换哪些列显示
 import { Columns3, Download, Ellipsis, FileText, Send } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   createStatusMap,

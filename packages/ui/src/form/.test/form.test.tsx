@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { nextTick } from 'vue';
-import * as z from 'zod';
+import { z } from 'zod';
 import { Provider } from '../../config/Provider';
 import { enUS } from '../../config/lang/en-US';
 import { Checkbox } from '../../input/Checkbox';

@@ -7,7 +7,7 @@
  * 部件：Root（span）、Value（看得见的字数，对读屏隐藏）、Label（给读屏的句子）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { VisuallyHidden, type VisuallyHiddenProps } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';

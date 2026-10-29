@@ -10,7 +10,7 @@
  * 部件：Root（div）、More（+N）、MoreText（More 里的“+N”文字）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useRecipe } from '../config/styles';

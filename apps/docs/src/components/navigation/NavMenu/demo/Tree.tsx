@@ -1,7 +1,7 @@
 // 数据驱动的侧栏菜单：一棵树交给 NavMenu；示例里不真的换页，用一个状态当“当前路由”
 import { Boxes, ClipboardList, House, Settings } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Card,
   Flex,

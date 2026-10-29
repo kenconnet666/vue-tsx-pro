@@ -20,7 +20,7 @@
  */
 import { CircleAlert, CircleCheck, Download } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { shallowRef, type VNodeChild } from 'vue';
 import type { $ZodType } from 'zod/v4/core';
 import { safeParse } from 'zod/v4/core';

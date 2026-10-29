@@ -1,6 +1,6 @@
 // 画质档位（off 不创建 WebGL，显示 fallback）、渲染分辨率与暂停；onStatusChange 报告渲染状态
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Card,

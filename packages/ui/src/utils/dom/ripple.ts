@@ -7,7 +7,7 @@
  *   const ripple = useRipple(() => props.ripple)
  *   mergeAttrs<'button'>(默认, rest, { ...ripple })
  */
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useConfig } from '../../config/context';
 import { applyStyleAttrs } from '../props';
 import { afterTransitions } from '../style/transitions';

@@ -19,7 +19,7 @@ import {
   type HeadingEntry,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { AppShell, ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router';
 import { GithubIcon, REPOSITORY } from './site/github';
 import { loadingBar } from './site/loading-bar';

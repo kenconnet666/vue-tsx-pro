@@ -11,7 +11,7 @@ import {
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { DataImport } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { exportXlsx, readXlsx } from '@zerodep-dev/vue-tsx-pro-ui/xlsx';
-import * as z from 'zod';
+import { z } from 'zod';
 
 interface Part {
   part: string;

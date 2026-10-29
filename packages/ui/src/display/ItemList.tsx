@@ -11,7 +11,7 @@
  * 卡片正文里时与容器的内边距对齐）。标题与说明默认单行省略不了时换行；align="start" 让起始边、结束边贴着第一行。
  */
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import { paddingInlineStyles, type Space } from '../utils/style/styles';

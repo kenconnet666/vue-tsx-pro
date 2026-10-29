@@ -1,6 +1,6 @@
 // 全球节点：各地的机房标注成光圈，上海到各地的专线画成弧线，旁边列出节点与延迟
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Badge, Card, Flex, Grid, H3, Small, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 import { Globe, type GlobeArc, type GlobeMarker } from '@zerodep-dev/vue-tsx-pro-ui/three';
 

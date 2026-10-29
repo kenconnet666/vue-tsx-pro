@@ -9,7 +9,7 @@
  * - 接入 Field（标签、说明、错误、必填、不可用），外观同 TextField（control.tsx）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch } from 'vue';
 import { useLang } from '../config/context';
 import { useFieldControl } from '../form/Field';

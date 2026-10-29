@@ -11,7 +11,7 @@
  * （按 valueFormat 与当前语言格式化），label 写在前面。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { toNumber, type NumericValue } from '../utils/data/numeric';

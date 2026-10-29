@@ -18,7 +18,7 @@
  */
 import { Check, ChevronsRight, RefreshCw, X } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch } from 'vue';
 import { Icon } from '../base/Icon';
 import { IconButton } from '../base/IconButton';

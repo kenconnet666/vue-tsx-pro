@@ -10,7 +10,7 @@
  * expandable 时展开后显示全部，再点“收起”。部件：Root（span）、Text（span，截断的那段）、Toggle（展开按钮）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, onUpdated, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { Tooltip } from '../overlay/Tooltip';

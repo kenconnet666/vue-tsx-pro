@@ -1,6 +1,6 @@
 // 商品详情：模型可以拖动环绕、滚轮缩放，旁边是商品信息；加载完成前中间转圈
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Button,
