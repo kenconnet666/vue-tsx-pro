@@ -19,8 +19,8 @@ if [[ ! -f $env_file ]]; then
 VTP_MYSQL_PASSWORD=$mysql_password
 VTP_PG_PASSWORD=$pg_password
 VTP_HANA_PASSWORD=$hana_password
-# 实库测试读这几个变量（easy-query 的共用套件）：MySQL 8.0.18 与 8.4 各一个，逗号分隔
-EQTS_MYSQL_URLS=mysql://root:$mysql_password@127.0.0.1:23318/eqts,mysql://root:$mysql_password@127.0.0.1:23306/eqts
+# 实库测试读这几个变量（easy-query 的共用套件）：本地只跑 MySQL 8.4；要加 8.0.18（polardb profile）时逗号分隔追加 23318
+EQTS_MYSQL_URLS=mysql://root:$mysql_password@127.0.0.1:23306/eqts
 EQTS_PG_URLS=postgres://postgres:$pg_password@127.0.0.1:25432/eqts
 EQTS_HANA_URL=hana://SYSTEM:$hana_password@127.0.0.1:29041
 EOF
@@ -29,7 +29,7 @@ EOF
 
 | 库 | 地址 | 库名 | 用户 | 密码 |
 |---|---|---|---|---|
-| MySQL 8.0.18（PolarDB 基线） | 127.0.0.1:23318 | eqts | root | $mysql_password |
+| MySQL 8.0.18（PolarDB 基线，polardb profile） | 127.0.0.1:23318 | eqts | root | $mysql_password |
 | MySQL 8.4 | 127.0.0.1:23306 | eqts | root | $mysql_password |
 | PostgreSQL 17 | 127.0.0.1:25432 | eqts | postgres | $pg_password |
 | HANA 2.00.088 租户 HXE（hana profile） | 127.0.0.1:29041 | - | SYSTEM | $hana_password |

@@ -80,7 +80,7 @@ pnpm dev:docs        # 文档站开发服务器，端口 5174（.claude/launch.j
 实库测试用本仓库自己的数据库（WSL Debian 的 Docker，compose 项目 `vue-tsx-pro-dev`，端口与 easy-query 仓库的错开）：
 
 ```bash
-wsl -d Debian -- bash -lc 'cd /mnt/c/Users/lionheart/IdeaProjects/vue-tsx-pro && bash infra/dev/db.sh up -d --wait'   # MySQL 8.0.18（23318）、8.4（23306）、PG 17（25432）
+wsl -d Debian -- bash -lc 'cd /mnt/c/Users/lionheart/IdeaProjects/vue-tsx-pro && bash infra/dev/db.sh up -d --wait'   # MySQL 8.4（23306）、PG 17（25432）；8.0.18 基线加 --profile polardb（23318），平时由 CI 跑
 wsl -d Debian -- bash -lc 'cd /mnt/c/Users/lionheart/IdeaProjects/vue-tsx-pro && bash infra/dev/db.sh --profile hana up -d'   # 按需加 HANA（29041，要 12 GB 内存）
 ```
 
