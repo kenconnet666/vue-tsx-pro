@@ -123,6 +123,15 @@ jobs:
         ports: ['5433:5432']
         options: >-
           --privileged --health-cmd="bash -c 'echo > /dev/tcp/127.0.0.1/5432'" --health-interval=10s --health-timeout=5s --health-retries=60 --health-start-period=30s
+      clickhouse:
+        image: clickhouse/clickhouse-server:25.8@sha256:0152dd511befe6a2c2ef53e930726179669b08116da78500b37c51c96ff5ee77
+        env:
+          CLICKHOUSE_USER: eqts
+          CLICKHOUSE_PASSWORD: ci_clickhouse
+          CLICKHOUSE_DB: eqts
+        ports: ['8123:8123']
+        options: >-
+          --ulimit nofile=262144:262144 --health-cmd="wget -qO- http://127.0.0.1:8123/ping" --health-interval=5s --health-timeout=5s --health-retries=60
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
@@ -134,6 +143,7 @@ jobs:
           EQTS_ORACLE_URL: oracle://eqts:ci_oracle@127.0.0.1:1521/FREEPDB1
           EQTS_DAMENG_URL: dm://SYSDBA:Ci_Dameng001@127.0.0.1:5236
           EQTS_OPENGAUSS_URL: postgres://gaussdb:Ci-Gauss123@127.0.0.1:5433/eqts
+          EQTS_CLICKHOUSE_URL: http://eqts:ci_clickhouse@127.0.0.1:8123/eqts
 
   build:
     strategy:

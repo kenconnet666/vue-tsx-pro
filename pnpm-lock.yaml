@@ -170,6 +170,9 @@ catalogs:
     '@babel/plugin-transform-typescript':
       specifier: 8.0.6
       version: 8.0.6
+    '@clickhouse/client':
+      specifier: 1.24.1
+      version: 1.24.1
     '@codemirror/autocomplete':
       specifier: 6.20.3
       version: 6.20.3
@@ -750,6 +753,18 @@ importers:
       '@zerodep-dev/easy-query-ts':
         specifier: workspace:*
         version: link:../core
+
+  packages/easy-query/clickhouse:
+    devDependencies:
+      '@clickhouse/client':
+        specifier: 'catalog:'
+        version: 1.24.1
+      '@zerodep-dev/easy-query-ts':
+        specifier: workspace:*
+        version: link:../core
+      '@zerodep-dev/easy-query-ts-test':
+        specifier: workspace:*
+        version: link:../test
 
   packages/easy-query/core: {}
 
@@ -1445,6 +1460,10 @@ packages:
 
   '@blazediff/core@1.10.0':
     resolution: {integrity: sha512-AOQff0zgR7cGsZL+4E7hVkmujoPUpm0J9xzWGWZj5wCjd3gmxESXAPfKyuzs93VdpQNFhHlBhfOjrcZ+XTERtQ==}
+
+  '@clickhouse/client@1.24.1':
+    resolution: {integrity: sha512-1kjKJ4uuD4J9JlRU4CpwEGfecstvtoGreBorhh7CxgB7r7PL54DCLD6gajKZhLCri84XlyD3CUxEm6rYkKC+dA==}
+    engines: {node: '>=20'}
 
   '@codemirror/autocomplete@6.20.3':
     resolution: {integrity: sha512-tlosUqb+3BbxCxZdu4tKeRghPFC+QM7q4X5YhKV2eCmPG+1r2F3f4AaSz5sCrFqUtX4Jh20VFTKecl16MgiV9g==}
@@ -5633,6 +5652,8 @@ snapshots:
       '@babel/helper-validator-identifier': 8.0.6
 
   '@blazediff/core@1.10.0': {}
+
+  '@clickhouse/client@1.24.1': {}
 
   '@codemirror/autocomplete@6.20.3':
     dependencies:

@@ -200,6 +200,26 @@ services:
     volumes:
       - opengauss-data:/var/lib/opengauss
 
+  # ClickHouse 25.8 LTS（HTTP 接口，驱动 @clickhouse/client）
+  clickhouse:
+    profiles: [clickhouse]
+    image: clickhouse/clickhouse-server:25.8@sha256:0152dd511befe6a2c2ef53e930726179669b08116da78500b37c51c96ff5ee77
+    restart: unless-stopped
+    mem_limit: 2g
+    environment:
+      CLICKHOUSE_USER: eqts
+      CLICKHOUSE_PASSWORD: ${VTP_CLICKHOUSE_PASSWORD:?run infra/dev/db.sh to add VTP_CLICKHOUSE_PASSWORD}
+      CLICKHOUSE_DB: eqts
+      TZ: Asia/Shanghai
+    ports:
+      - '28123:8123'
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+
 volumes:
   mysql8018-data:
   mysql84-data:
@@ -209,3 +229,4 @@ volumes:
   oracle-data:
   dameng-data:
   opengauss-data:
+  clickhouse-data:
