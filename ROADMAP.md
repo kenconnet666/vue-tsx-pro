@@ -490,8 +490,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 
 ### 16.5 建表与迁移（code-first）
 
-- [ ] 16.5.1 `db.syncTables()`：对比库里的结构，建缺的表、加缺的列，列出不一致（类型、可空、默认值）而不自动改；生成迁移 SQL 供审阅
-- [ ] 16.5.2 列与表的注释、索引声明（`index: [['tenantId', 'createdAt']]`）、外键（可选）
+- [x] 16.5.1 `db.syncTables()`：对比库里的结构，建缺的表、加缺的列，列出不一致（类型、可空、默认值）而不自动改；生成迁移 SQL 供审阅
+- [x] 16.5.2 列与表的注释、索引声明（`index: [['tenantId', 'createdAt']]`）、外键（可选）
 - [ ] 16.5.3 由表生成实体的命令行（plugin/table2entity 的 TS 版）：读 information_schema（各方言的系统表），输出 `entity()` 与 `defineSchema`
 
 ### 16.6 二级缓存与分库分表（cache、super）
