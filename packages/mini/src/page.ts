@@ -11,6 +11,7 @@ import { createMiniApp } from './renderer.ts';
 import { createMiniHost, HOST_KEY, platform, windowSize, type MiniApi } from './host.ts';
 import { resolveStyle, setColorScheme, setWindowWidth } from './style.ts';
 import { svgMaskStyle } from './svg.ts';
+import { createPageHooks, emitPageEvent, PAGE_HOOKS_KEY, type PageHooks } from './lifecycle.ts';
 
 /** 页面实例上要用到的部分（微信、支付宝相同） */
 interface PageInstance {
@@ -357,7 +358,20 @@ function followColorScheme(api: MiniApi) {
   });
 }
 
-const mounted = new WeakMap<object, { app: App<MiniNode>; host: PageHost }>();
+const mounted = new WeakMap<object, { app: App<MiniNode>; host: PageHost; hooks: PageHooks }>();
+
+/** 页面参数：跳转时编码过（lifecycle.ts 的 pageUrl），这里解开；解不开的原样给 */
+function decodeQuery(query: Record<string, string> = {}): Record<string, string> {
+  const result: Record<string, string> = {};
+  for (const [key, value] of Object.entries(query)) {
+    try {
+      result[key] = decodeURIComponent(value);
+    } catch {
+      result[key] = value;
+    }
+  }
+  return result;
+}
 
 /** 页面的选项：交给小程序的 Page() */
 export function pageOptions(component: Component, setup?: (app: App<MiniNode>) => void) {
@@ -370,13 +384,15 @@ export function pageOptions(component: Component, setup?: (app: App<MiniNode>) =
         followColorScheme(current.api);
       }
       const host = new PageHost(this, new MiniNode('#root'));
-      const app = createMiniApp(component, { query });
+      const app = createMiniApp(component, { query: decodeQuery(query) });
+      const hooks = createPageHooks();
       app.provide(HOST_KEY, createMiniHost(host));
+      app.provide(PAGE_HOOKS_KEY, hooks);
       setup?.(app);
       app.mount(host.root);
       // 浮层根排在应用的节点后面：后渲染的盖在上面
       host.root.insertBefore(host.overlay, null);
-      mounted.set(this, { app, host });
+      mounted.set(this, { app, host, hooks });
       live.add(host);
     },
     onUnload(this: PageInstance) {
@@ -384,6 +400,18 @@ export function pageOptions(component: Component, setup?: (app: App<MiniNode>) =
       if (page) live.delete(page.host);
       page?.app.unmount();
       mounted.delete(this);
+    },
+    onShow(this: PageInstance) {
+      const page = mounted.get(this);
+      if (page) emitPageEvent(page.hooks, 'show');
+    },
+    onHide(this: PageInstance) {
+      const page = mounted.get(this);
+      if (page) emitPageEvent(page.hooks, 'hide');
+    },
+    onReachBottom(this: PageInstance) {
+      const page = mounted.get(this);
+      if (page) emitPageEvent(page.hooks, 'reachBottom');
     },
     /** 模板上所有事件的入口（build/templates.ts） */
     eh(this: PageInstance, event: NativeEvent) {

@@ -60,6 +60,8 @@ export interface MountedPage {
   dispatch(node: PageNode, type: string, detail?: unknown): Promise<void>;
   /** 派发一次触摸（touchstart / touchmove / touchend），触点在 (x, y) */
   touch(node: PageNode, type: string, x: number, y: number): Promise<void>;
+  /** 页面的生命周期：显示、隐藏、滚到底 */
+  lifecycle(event: 'show' | 'hide' | 'reachBottom'): Promise<void>;
   /** 卸载 */
   unmount(): void;
 }
@@ -117,6 +119,15 @@ export function mountPage(component: Component, query: Record<string, string> = 
         touches: type === 'touchend' ? [] : [point],
         changedTouches: [point],
       });
+    },
+    async lifecycle(event) {
+      const handler = {
+        show: options.onShow,
+        hide: options.onHide,
+        reachBottom: options.onReachBottom,
+      }[event];
+      handler.call(page);
+      await settle();
     },
     unmount: () => options.onUnload.call(page),
   };

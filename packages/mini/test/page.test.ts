@@ -1,6 +1,7 @@
 // 页面的增量 setData：按小程序的路径规则应用到数据上，结果要和整树重新序列化一致
 import { describe, expect, it } from 'vitest';
 import { defineComponent, h, ref, type Ref } from 'vue';
+import { onPageShow, onReachBottom, pageUrl } from '../src/lifecycle.ts';
 import { mountPage, type PageNode } from '../src/testing.ts';
 
 /** 数据里每个节点都必须有模板类型 */
@@ -126,5 +127,27 @@ describe('事件', () => {
     expect(page.data.root.cn[0]!.cn![0]!.value).toBe('abc');
     await page.dispatch(password!, 'confirm', { value: 'abc' });
     expect(keys).toEqual(['Enter']);
+  });
+});
+
+describe('页面', () => {
+  it('生命周期的回调；页面参数解码后作为 query 属性；跳转的路径', async () => {
+    const calls: string[] = [];
+    const Demo = defineComponent(
+      (props: { query: Record<string, string> }) => {
+        onPageShow(() => calls.push('show'));
+        onReachBottom(() => calls.push('bottom'));
+        return () => h('div', props.query.name);
+      },
+      { props: ['query'] },
+    );
+    const page = mountPage(Demo, { name: encodeURIComponent('莱恩 & 朋友') });
+    await page.settle();
+    expect(page.text()).toBe('莱恩 & 朋友');
+    await page.lifecycle('show');
+    await page.lifecycle('reachBottom');
+    expect(calls).toEqual(['show', 'bottom']);
+    page.unmount();
+    expect(pageUrl('detail', { id: 42, q: 'a b' })).toBe('/pages/detail/index?id=42&q=a%20b');
   });
 });

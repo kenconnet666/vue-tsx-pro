@@ -26,6 +26,9 @@ import { vueTsxPro } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
 await buildMini({ root: import.meta.dirname, platform: 'wx', plugins: vueTsxPro(), appId: 'wx…' });
 ```
 
+页面组件收到 `query` 属性（跳转时带的参数，已解码）。页面级的回调与跳转：`onPageShow`、`onPageHide`、`onReachBottom`（在 H5 里调用什么也不做），
+`navigateTo('detail', { id: 42 })`、`redirectTo`、`reLaunch`、`navigateBack`（按 definePages 的页面名）。
+
 完整的例子是 `apps/mobile-demo`（`node build.ts` 两端都构建，`pnpm dev` 看 H5）。
 
 ## 验证与踩过的坑

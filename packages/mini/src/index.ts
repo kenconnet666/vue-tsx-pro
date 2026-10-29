@@ -12,6 +12,17 @@ import { pageOptions } from './page.ts';
 export { MiniNode, type MiniEvent } from './node.ts';
 export { createMiniApp } from './renderer.ts';
 export { pageOptions } from './page.ts';
+export {
+  navigateBack,
+  navigateTo,
+  onPageHide,
+  onPageShow,
+  onReachBottom,
+  pageUrl,
+  redirectTo,
+  reLaunch,
+  type PageQuery,
+} from './lifecycle.ts';
 
 /** 应用里的页面：页面名（pages/<名字>/index）→ 页面组件 */
 export type PageMap = Readonly<Record<string, Component>>;
