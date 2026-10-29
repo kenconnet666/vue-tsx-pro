@@ -14,18 +14,7 @@
 
 发布时把这一节搬进 GitHub Release 的说明，再清空。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- 新组件：滑块验证 `SlideCaptcha`、认证页版式 `AuthLayout`、数据驱动菜单 `NavMenu`、按权限显示的 `Can` / `useCan`（`createUi` 的 `permissions` 接入）、
-  表单对话框 `FormDialog` / `useFormDialog`、布局偏好 `createLayoutPreference` / `LayoutSwitcher`；AppShell 抽屉可以从四边滑出，PageTabs 支持 `tabs` 整体状态。
-- 请求层：单个请求可以给 `wire: { request?, response? }`，请求体、响应分别决定按不按 typed JSON（对接只认普通 JSON 的接口），盖过客户端的 `wire`。
-- `QueryTable` 查询区压成一行（更多条件收进“展开”），`fill` 让它占满到窗口底边；`ViewportFill` 的 `bottom` 默认改为 `xl`，和外壳的留白一致。
-- 组件库支持服务端渲染（ROADMAP 阶段 12）：样式 `renderStyleTag`、首屏主题 `createUi(...).documentAttrs()`、只在浏览器里画的 `ClientOnly` / `useMounted`。
-- Popover、HoverCard、Tooltip 的面板挂载后的下一次渲染才出现（关着时本来看不见）：测试里挂载完立刻找面板的，先 `await nextTick()`。
-- `useFullscreen().supported` 挂载前总是 `false`，挂载后才按浏览器判断（全屏按钮挂载后才出现）。
-- `useRequest` 一开始就请求时（默认），`loading` 从 `true` 开始，不再先是 `false`。
-- LoadingBar 挂载前按空闲画；Gauge、RadarChart、Progress 的 SVG 坐标保留三位小数；日期分段里本地化格式带的窄空格、不换行空格统一成普通空格。
-- JSX 展开属性与 `ref` 一起写时两个 ref 都生效（`mergeJsxProps`），之前展开里的 ref 会被覆盖。
-- easy-query TS：实体多了 `fields`（声明的形状，值对象 `embed` 是嵌套的），`Row` / `Insert` / `Update` / 表引用改由它推导；`columns` 仍是展开后的列。
-  不经 `entity()`、自己拼实体对象的要补上 `fields`。新增 `rightJoin` / `crossJoin`、`db.inSchema`、`sqlConvert`、`fillMany` / `fillOne`、`r.path` / `r.pathOne`、`groupJoin()`、`embed`。
+（0.3.0 之后还没有。）
 
 ## 一次性准备
 
