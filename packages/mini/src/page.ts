@@ -62,7 +62,8 @@ const EVENT_TYPES: Readonly<Record<string, string>> = {
   // 支付宝的长按叫 longTap
   longtap: 'longpress',
   input: 'input',
-  confirm: 'change',
+  // 键盘的确认键：转成按下 Enter，组件照 DOM 的写法判断 event.key
+  confirm: 'keydown',
   blur: 'blur',
   focus: 'focus',
   load: 'load',
@@ -83,7 +84,23 @@ const TEMPLATE_ATTRS = {
   placeholder: 'placeholder',
   type: 'type',
   maxlength: 'maxlength',
+  enterkeyhint: 'ct',
+  'data-autosize': 'ah',
+  autofocus: 'af',
 } as const;
+
+/** 输入框的 type（加上 inputmode）→ 小程序 input 的 type 与是否密码 */
+function inputType(node: MiniNode): { type: string; pw?: 1 } {
+  const type = node.attribute('type');
+  const mode = node.attribute('inputmode');
+  if (type === 'password') return { type: 'text', pw: 1 };
+  if (type === 'number' || mode === 'decimal') return { type: 'digit' };
+  if (type === 'tel' || mode === 'numeric' || mode === 'tel') return { type: 'number' };
+  return { type: 'text' };
+}
+
+/** 输入框、多行输入的事件：用户输入的值写回节点（不触发 setData，组件把同一个值写回时才发） */
+const VALUE_EVENTS = new Set(['input', 'focus', 'blur', 'confirm']);
 
 class PageHost implements NodeHost {
   private readonly nodes = new Map<string, MiniNode>();
@@ -215,6 +232,12 @@ class PageHost implements NodeHost {
       const value = node.attribute(name);
       if (value !== undefined) data[field] = value;
     }
+    if (type === 'input' || type === 'textarea') {
+      if (type === 'input') Object.assign(data, inputType(node));
+      // 小程序没有只读：只读也按禁用画（不弹键盘）
+      if (node.attribute('disabled') !== undefined || node.attribute('readonly') !== undefined)
+        data.dis = 1;
+    }
     return data;
   }
 
@@ -234,6 +257,13 @@ class PageHost implements NodeHost {
     if (nativeType === 'touchstart' || nativeType === 'touchend' || nativeType === 'touchcancel')
       this.press(target, nativeType === 'touchstart');
     if (type === 'click' && insideDisabledControl(target)) return;
+    if (VALUE_EVENTS.has(nativeType)) {
+      const value = (native.detail as { value?: unknown } | undefined)?.value;
+      if (typeof value === 'string') target.attrs.set('value', value);
+      // 失焦后去掉 focus 属性，下次 focus() 才会再生效
+      if (nativeType === 'blur' && target.attrs.has('autofocus'))
+        target.removeAttribute('autofocus');
+    }
     let stopped = false;
     const event: MiniEvent = {
       type,
@@ -243,6 +273,7 @@ class PageHost implements NodeHost {
       detail: native.detail,
       touches: (native.touches ?? []).map(toTouch),
       changedTouches: (native.changedTouches ?? []).map(toTouch),
+      key: nativeType === 'confirm' ? 'Enter' : undefined,
       preventDefault() {
         event.defaultPrevented = true;
       },

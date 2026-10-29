@@ -26,6 +26,8 @@ export interface MiniEvent {
   readonly touches: readonly MiniTouch[];
   /** 触摸事件：这次变化的触点（touchend 时 touches 已经空了，坐标在这里） */
   readonly changedTouches: readonly MiniTouch[];
+  /** 键盘事件的键：输入框里按了键盘的确认键时是 Enter（小程序的 confirm 转成 keydown） */
+  readonly key?: string;
   preventDefault(): void;
   stopPropagation(): void;
 }
@@ -131,6 +133,21 @@ export class MiniNode {
     this.changed();
   }
 
+  /** 输入框的值：用户输入时运行时随事件写回（page.ts），组件照 DOM 的写法读 `event.target.value` */
+  get value(): string {
+    return this.attribute('value') ?? '';
+  }
+
+  /** 让输入框获得焦点：模板的 focus 属性；失焦时运行时去掉 */
+  focus() {
+    this.setAttribute('autofocus', true);
+  }
+
+  /** 让输入框失去焦点 */
+  blur() {
+    this.removeAttribute('autofocus');
+  }
+
   getAttribute(name: string): string | null {
     return this.attribute(name) ?? null;
   }
@@ -207,6 +224,4 @@ export class MiniNode {
   getBoundingClientRect() {
     return { x: 0, y: 0, top: 0, left: 0, right: 0, bottom: 0, width: 0, height: 0 };
   }
-  focus() {}
-  blur() {}
 }

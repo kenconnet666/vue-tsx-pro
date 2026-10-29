@@ -15,6 +15,9 @@ export function baseTemplate(platform: Platform): string {
   // 普通节点滚动时不往逻辑层发事件
   const tapEvents = on(['tap', 'longpress', 'touchstart', 'touchend', 'touchcancel']);
   const common = `id="{{i.id}}" class="{{i.c}}" style="{{i.st}}" data-s="{{i.s}}"`;
+  // 输入框与多行输入共有的：长度上限、禁用（含只读）、聚焦、键盘确认键的文字；输入、确认、聚焦、失焦
+  const field = `maxlength="{{i.maxlength || -1}}" disabled="{{i.dis}}" focus="{{i.af}}" confirm-type="{{i.ct || 'done'}}"`;
+  const inputEvents = on(['input', 'confirm', 'focus', 'blur']);
   const templates: string[] = [];
   for (let level = 0; level < DEPTH; level++) {
     const children =
@@ -31,7 +34,8 @@ export function baseTemplate(platform: Platform): string {
       `<template name="vtp_n_${level}"><block></block></template>`,
       `<template name="vtp_svg_${level}"><view ${common} ${tapEvents}/></template>`,
       `<template name="vtp_image_${level}"><image src="{{i.src}}" mode="{{i.mode || 'scaleToFill'}}" lazy-load="{{i.lz}}" ${common} ${tapEvents} ${on(['load', 'error'])}/></template>`,
-      `<template name="vtp_input_${level}"><input value="{{i.value}}" placeholder="{{i.placeholder}}" type="{{i.type || 'text'}}" maxlength="{{i.maxlength || -1}}" ${common} ${tapEvents} ${on(['input', 'confirm', 'focus', 'blur'])}/></template>`,
+      `<template name="vtp_input_${level}"><input value="{{i.value}}" placeholder="{{i.placeholder}}" type="{{i.type || 'text'}}" password="{{i.pw}}" ${field} ${common} ${tapEvents} ${inputEvents}/></template>`,
+      `<template name="vtp_textarea_${level}"><textarea value="{{i.value}}" placeholder="{{i.placeholder}}" auto-height="{{i.ah}}" ${field} ${common} ${tapEvents} ${inputEvents}/></template>`,
     );
   }
   return templates.join('\n');

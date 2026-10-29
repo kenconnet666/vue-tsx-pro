@@ -81,4 +81,36 @@ describe('事件', () => {
     await page.tap(spans('禁用'));
     expect(clicks).toEqual(['button', 'div']);
   });
+
+  it('输入框：输入的值写回节点（event.target.value），确认键是 keydown Enter；类型与禁用映射到模板', async () => {
+    const text = ref('');
+    const keys: string[] = [];
+    const Demo = defineComponent(
+      () => () =>
+        h('div', [
+          h('input', {
+            value: text.value,
+            type: 'password',
+            onInput: (event: { target: { value: string } }) => (text.value = event.target.value),
+            onKeydown: (event: { key?: string }) => keys.push(event.key ?? ''),
+          }),
+          h('textarea', { readonly: true, 'data-autosize': true }),
+          h('input', { type: 'number' }),
+        ]),
+    );
+    const page = mountPage(Demo);
+    await page.settle();
+    const [password, area, amount] = ['input', 'textarea', 'input'].map(
+      (type, index) => page.data.root.cn[0]!.cn![index]!,
+    );
+    expect(password).toMatchObject({ t: 'input', type: 'text', pw: 1 });
+    expect(area).toMatchObject({ t: 'textarea', dis: 1, ah: 'true' });
+    expect(amount).toMatchObject({ type: 'digit' });
+
+    await page.dispatch(password!, 'input', { value: 'abc' });
+    expect(text.value).toBe('abc');
+    expect(page.data.root.cn[0]!.cn![0]!.value).toBe('abc');
+    await page.dispatch(password!, 'confirm', { value: 'abc' });
+    expect(keys).toEqual(['Enter']);
+  });
 });
