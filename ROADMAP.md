@@ -481,7 +481,7 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 
 ### 16.4 写入与保存（ability/insert、update、delete、batch、savable、adv）
 
-- [ ] 16.4.1 聚合保存（savable/*）：多对多中间表按现状比较增删、多对一 / 一对一、多层、脱钩方式（删除 / 设 null / 不动）、只保存哪些路径；
+- [x] 16.4.1 聚合保存（savable/*）：多对多中间表按现状比较增删、多对一 / 一对一、多层、脱钩方式（删除 / 设 null / 不动）、只保存哪些路径；
       cascade 路径做成类型（`['posts', 'posts.comments', 'roles']` 由关系推出）
 - [ ] 16.4.2 插入 / 更新策略（只写非 null 列等）对照，`batch`（驱动层的批量执行，MySQL / PG 一次往返多条）
 - [ ] 16.4.3 `afterWrite` 可选带"改之前的值"（拦截器声明 `before: true` 时核心先按同样条件查一次）
