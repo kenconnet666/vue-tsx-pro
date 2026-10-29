@@ -5,6 +5,7 @@
  */
 import { cssValue, dashify, SELF, walk, type Leaf, type StyleValue } from './declarations';
 import { CLASS, type ClassStyle } from './fragment';
+import { registerInlineClass } from './inline';
 import { hash, insert, isInserted } from './sheet';
 
 /** 变量组上的组名（不可枚举：遍历 token 时不出现） */
@@ -68,6 +69,14 @@ export function createTheme(group: VarGroup, overrides: Record<string, StyleValu
     return atRule ? `${atRule}{${rule}}` : rule;
   });
   const name = `x${hash(group[VAR_GROUP] + rules.join(''))}`;
+  // 小程序这类不能插规则的宿主把主题类展开成行内的变量声明（inline.ts）
+  registerInlineClass(
+    name,
+    [...byAtRule(values)].map(([atRule, list]) => ({
+      atRules: atRule ? atRule.split(/(?=@)/) : [],
+      body: list.join(';'),
+    })),
+  );
   if (!isInserted(name))
     insert(
       name,

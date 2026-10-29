@@ -26,6 +26,9 @@ interface Callbacks<T> {
 /** 微信（wx）与支付宝（my）全局 API 里用到的部分 */
 export interface MiniApi {
   getWindowInfo?(): { windowWidth: number; windowHeight: number };
+  /** 深浅色（微信要在 app.json 里开 darkmode 才会给 dark） */
+  getAppBaseInfo?(): { theme?: 'light' | 'dark' };
+  onThemeChange?(listener: (result: { theme: 'light' | 'dark' }) => void): void;
   getSystemInfoSync(): { windowWidth: number; windowHeight: number };
   createSelectorQuery(): SelectorQuery;
   pageScrollTo(options: { scrollTop: number; duration?: number }): void;

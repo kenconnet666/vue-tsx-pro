@@ -6,7 +6,7 @@
  *   const style = inlineStyle(className, (condition) => matchOn(node, condition));
  *
  * 条件块按 serialize 的顺序拼接（无条件在前、权重高的条件在后），同一属性后写的覆盖先写的，与样式表的层叠一致。
- * 伪元素（::before、::placeholder）没法写进行内样式，跳过。
+ * 伪元素（::before、::placeholder）没法写进行内样式，跳过。主题类（createTheme）展开成变量声明，子孙照常继承。
  */
 import { merge, serialize, SELF, type Declarations } from './declarations';
 import { compositeFragments, FRAGMENT } from './fragment';
@@ -20,6 +20,20 @@ interface ChainBlock {
   readonly body: string;
 }
 
+/** 固定类（createTheme 的主题类）→ 它的条件块：只有变量声明，条件只有 @ 规则（vars.ts 登记） */
+const fixedBlocks = new Map<string, ChainBlock[]>();
+
+/** 登记一个主题类的变量声明：atRules 是外层的 @ 规则（没有时空数组），body 形如 `--x:1;--y:2` */
+export function registerInlineClass(
+  name: string,
+  blocks: readonly { atRules: readonly string[]; body: string }[],
+) {
+  fixedBlocks.set(
+    name,
+    blocks.map((block) => ({ conditions: block.atRules, body: block.body })),
+  );
+}
+
 /** 组合类 → 它的条件块；记下当时的声明表，热更新换了片段的声明表时重新展开 */
 const blocksByName = new Map<string, { tables: readonly Declarations[]; blocks: ChainBlock[] }>();
 
@@ -28,7 +42,7 @@ const blocksByName = new Map<string, { tables: readonly Declarations[]; blocks: 
  * 宿主照常把它当普通类名（使用方自己写的样式表）
  */
 export function inlineStyle(className: string, matches: ConditionMatcher): string | undefined {
-  const blocks = blocksOf(className);
+  const blocks = blocksOf(className) ?? fixedBlocks.get(className);
   if (!blocks) return undefined;
   const bodies: string[] = [];
   for (const block of blocks) {

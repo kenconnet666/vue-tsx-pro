@@ -12,6 +12,7 @@ for (const platform of platforms) {
     plugins: vueTsxPro(),
     // 微信「小程序测试号」，只用于本地开发者工具预览
     appId: 'wxbc70cc8a7367b5e9',
+    darkmode: true,
     window: {
       navigationBarTitleText: 'vue-tsx-pro',
       navigationBarBackgroundColor: '#ffffff',

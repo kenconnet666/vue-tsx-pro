@@ -8,8 +8,8 @@ import type { App, Component } from 'vue';
 import { FORM_CONTROLS, templateOf, type TemplateType } from './elements.ts';
 import { MiniNode, type MiniEvent, type MiniTouch, type NodeHost } from './node.ts';
 import { createMiniApp } from './renderer.ts';
-import { createMiniHost, HOST_KEY, platform, windowSize } from './host.ts';
-import { resolveStyle, setWindowWidth } from './style.ts';
+import { createMiniHost, HOST_KEY, platform, windowSize, type MiniApi } from './host.ts';
+import { resolveStyle, setColorScheme, setWindowWidth } from './style.ts';
 import { svgMaskStyle } from './svg.ts';
 
 /** 页面实例上要用到的部分（微信、支付宝相同） */
@@ -132,6 +132,11 @@ class PageHost implements NodeHost {
       this.waiting.push(resolve);
       this.schedule();
     });
+  }
+
+  /** 所有节点重新展开样式（系统换了深浅色：跟随系统的主题类展开出的变量变了） */
+  restyle() {
+    for (const node of this.nodes.values()) this.touch(node);
   }
 
   touch(node: MiniNode) {
@@ -316,6 +321,21 @@ function insideDisabledControl(node: MiniNode): boolean {
 }
 
 /** 页面实例 → 它的 Vue 应用与宿主；同一个页面可能在页面栈里开多次，不能放在闭包里 */
+const live = new Set<PageHost>();
+let watchingTheme = false;
+
+/** 读系统的深浅色，并在系统切换时让所有页面重新展开样式（只订阅一次） */
+function followColorScheme(api: MiniApi) {
+  const info = api.getAppBaseInfo?.() ?? (api.getSystemInfoSync() as { theme?: 'light' | 'dark' });
+  setColorScheme(info.theme === 'dark' ? 'dark' : 'light');
+  if (watchingTheme || !api.onThemeChange) return;
+  watchingTheme = true;
+  api.onThemeChange(({ theme }) => {
+    setColorScheme(theme === 'dark' ? 'dark' : 'light');
+    for (const host of live) host.restyle();
+  });
+}
+
 const mounted = new WeakMap<object, { app: App<MiniNode>; host: PageHost }>();
 
 /** 页面的选项：交给小程序的 Page() */
@@ -324,7 +344,10 @@ export function pageOptions(component: Component, setup?: (app: App<MiniNode>) =
     data: { root: { cn: [] } },
     onLoad(this: PageInstance, query: Record<string, string>) {
       const current = platform();
-      if (current) setWindowWidth(windowSize(current.api).width);
+      if (current) {
+        setWindowWidth(windowSize(current.api).width);
+        followColorScheme(current.api);
+      }
       const host = new PageHost(this, new MiniNode('#root'));
       const app = createMiniApp(component, { query });
       app.provide(HOST_KEY, createMiniHost(host));
@@ -333,9 +356,12 @@ export function pageOptions(component: Component, setup?: (app: App<MiniNode>) =
       // 浮层根排在应用的节点后面：后渲染的盖在上面
       host.root.insertBefore(host.overlay, null);
       mounted.set(this, { app, host });
+      live.add(host);
     },
     onUnload(this: PageInstance) {
-      mounted.get(this)?.app.unmount();
+      const page = mounted.get(this);
+      if (page) live.delete(page.host);
+      page?.app.unmount();
       mounted.delete(this);
     },
     /** 模板上所有事件的入口（build/templates.ts） */

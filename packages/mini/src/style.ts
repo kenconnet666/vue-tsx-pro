@@ -6,7 +6,7 @@
  *   - 伪类：:active 看节点是否按着；:disabled、:checked 看布尔属性；:first-child、:last-child、:only-child 看元素兄弟；
  *     :hover、:focus 系列在触屏上不成立
  *   - 属性选择器 [name]、[name="value"]，以及 :is / :where / :not 包着的组合
- *   - @media：宽度按窗口算；减少动效、强制颜色、悬停能力一律不成立
+ *   - @media：宽度按窗口算，prefers-color-scheme 按系统的深浅色；减少动效、强制颜色、悬停能力一律不成立
  */
 import { inlineStyle } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { baseClassOf } from './elements.ts';
@@ -22,6 +22,12 @@ export interface ResolvedStyle {
 let windowWidth = 375;
 export const setWindowWidth = (width: number) => {
   windowWidth = width;
+};
+
+/** 系统的深浅色，prefers-color-scheme 用；页面初始化与系统切换时设（page.ts） */
+let colorScheme: 'light' | 'dark' = 'light';
+export const setColorScheme = (scheme: 'light' | 'dark') => {
+  colorScheme = scheme;
 };
 
 export function resolveStyle(node: MiniNode): ResolvedStyle {
@@ -44,9 +50,11 @@ export function matchCondition(node: MiniNode, condition: string): boolean {
   return matchCompound(node, condition);
 }
 
-/** 媒体查询：and 连接的各项都成立才成立；只认宽度，其余能力在小程序里当作没有 */
+/** 媒体查询：and 连接的各项都成立才成立；只认宽度与深浅色，其余能力在小程序里当作没有 */
 function matchMedia(query: string): boolean {
   return query.split(/\s+and\s+/).every((feature) => {
+    const scheme = /\(\s*prefers-color-scheme\s*:\s*(light|dark)\s*\)/.exec(feature);
+    if (scheme) return scheme[1] === colorScheme;
     const match = /\(\s*(min|max)-width\s*:\s*([\d.]+)px\s*\)/.exec(feature);
     if (!match) return false;
     const limit = Number(match[2]);

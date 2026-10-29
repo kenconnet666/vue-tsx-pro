@@ -1,8 +1,8 @@
 // 样式条件按节点状态判定：组件库的条件别名（属性选择器、:is/:not）、:active、@media 宽度
 import { describe, expect, it } from 'vitest';
-import { conditions } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { conditions, css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { MiniNode } from '../src/node.ts';
-import { matchCondition, setWindowWidth } from '../src/style.ts';
+import { matchCondition, resolveStyle, setColorScheme, setWindowWidth } from '../src/style.ts';
 
 const nodeWith = (attrs: Record<string, unknown> = {}) => {
   const node = new MiniNode('button');
@@ -55,5 +55,23 @@ describe('条件判定', () => {
       true,
     );
     expect(matchCondition(nodeWith(), conditions._reducedMotion)).toBe(false);
+  });
+});
+
+describe('主题', () => {
+  it('主题类展开成节点上的变量；跟随系统的值按系统的深浅色取', () => {
+    const colors = css.defineVars('mini-theme-colors', { text: '#111' });
+    const system = css.createTheme(colors, {
+      text: { default: '#111', '@media (prefers-color-scheme: dark)': '#eee' },
+    });
+    const node = new MiniNode('div');
+    node.className = css.attrs(system).class!;
+    setColorScheme('light');
+    expect(resolveStyle(node).style).toBe('--mini-theme-colors-text:#111');
+    setColorScheme('dark');
+    expect(resolveStyle(node).style).toBe(
+      '--mini-theme-colors-text:#111;--mini-theme-colors-text:#eee',
+    );
+    setColorScheme('light');
   });
 });

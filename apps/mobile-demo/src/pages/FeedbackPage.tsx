@@ -24,6 +24,7 @@ import {
   type ActionSheetAction,
   type PopupPositions,
 } from '@zerodep-dev/vue-tsx-pro-mobile';
+import { demoSettings } from '../settings.ts';
 
 const styles = css.create({
   page: { minHeight: '100vh', paddingBlockEnd: '_xxl', backgroundColor: '_background' },
@@ -93,7 +94,7 @@ export const FeedbackPage = _component(() => {
   };
 
   return () => (
-    <ConfigProvider {...css.attrs(styles.page)}>
+    <ConfigProvider theme={demoSettings.theme} {...css.attrs(styles.page)}>
       <PullRefresh _refreshing={refreshing} onRefresh={refresh} successText="刷新成功">
         <div {...css.attrs(styles.hint)}>在页面顶部往下拉可以刷新（已刷新 {refreshed} 次）</div>
 

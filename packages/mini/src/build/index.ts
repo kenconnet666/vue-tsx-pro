@@ -28,6 +28,11 @@ export interface MiniBuildOptions {
   appId?: string;
   /** app.json 的 window */
   window?: Record<string, unknown>;
+  /**
+   * 跟随系统的深浅色：微信要在 app.json 里开 darkmode 才会报告深色（ConfigProvider 的 theme="system" 用）；
+   * 导航栏的颜色在 window 里写死时不受影响
+   */
+  darkmode?: boolean;
   /** 开发构建：不压缩，Vue 带开发期检查 */
   development?: boolean;
 }
@@ -119,7 +124,15 @@ function emit(outDir: string, platform: Platform, bundle: Bundle, options: MiniB
   write('app.js', "require('./vtp.js');\nApp({});\n");
   write(
     'app.json',
-    JSON.stringify({ pages, window: windowConfig(platform, options.window) }, null, 2),
+    JSON.stringify(
+      {
+        pages,
+        window: windowConfig(platform, options.window),
+        ...(options.darkmode && platform.name === 'wx' ? { darkmode: true } : {}),
+      },
+      null,
+      2,
+    ),
   );
   write(`app.${platform.style}`, appStyles(bundle.styleText()));
   write(`base.${platform.template}`, baseTemplate(platform));

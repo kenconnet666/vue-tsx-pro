@@ -27,6 +27,7 @@ import {
   type SliderValue,
   type UploaderFile,
 } from '@zerodep-dev/vue-tsx-pro-mobile';
+import { demoSettings } from '../settings.ts';
 import { onBeforeUnmount } from 'vue';
 
 const styles = css.create({
@@ -84,7 +85,7 @@ export const FormPage = _component(() => {
   };
 
   return () => (
-    <ConfigProvider {...css.attrs(styles.page)}>
+    <ConfigProvider theme={demoSettings.theme} {...css.attrs(styles.page)}>
       <Search _value={keyword} onSearch={(text) => showToast(`搜索：${text || '（空）'}`)} />
       <Form
         onSubmit={(values) =>

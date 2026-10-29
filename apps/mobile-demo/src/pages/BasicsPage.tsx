@@ -11,10 +11,13 @@ import {
   Divider,
   Icon,
   Image,
+  Radio,
+  RadioGroup,
   Loading,
   Space,
   Tag,
 } from '@zerodep-dev/vue-tsx-pro-mobile';
+import { demoSettings } from '../settings.ts';
 import { go } from '../nav.ts';
 
 const styles = css.create({
@@ -33,7 +36,16 @@ export const BasicsPage = _component(() => {
   let tags = _state(['新品', '包邮', '限时折扣']);
 
   return () => (
-    <ConfigProvider {...css.attrs(styles.page)}>
+    <ConfigProvider theme={demoSettings.theme} {...css.attrs(styles.page)}>
+      <CellGroup title="主题">
+        <div {...css.attrs(styles.section)}>
+          <RadioGroup _value={demoSettings.theme} direction="horizontal">
+            <Radio name="light">亮色</Radio>
+            <Radio name="dark">暗色</Radio>
+            <Radio name="system">跟随系统</Radio>
+          </RadioGroup>
+        </div>
+      </CellGroup>
       <CellGroup title="更多演示">
         <Cell
           title="浮层与反馈"
