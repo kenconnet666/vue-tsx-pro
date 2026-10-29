@@ -1,7 +1,7 @@
 // 命令式的小表单对话框：字段、必填与校验、提交的值（关闭、离场过渡见浏览器测试）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { nextTick, useId } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { useFormDialog, type FormDialogOptions } from '../form-dialog';
 
@@ -33,6 +33,33 @@ afterEach(() => {
 });
 
 describe('useFormDialog', () => {
+  it('字段的 id 不和页面上已有的撞（标签关联到对话框里自己的控件）', async () => {
+    const Page = _component(() => {
+      const ids = [useId(), useId(), useId(), useId()];
+      return () => (
+        <div>
+          {ids.map((id) => (
+            <input key={id} id={`${id}-control`} />
+          ))}
+        </div>
+      );
+    });
+    mount(() => <Page />);
+    const dialog = await open({
+      title: '登记',
+      fields: [
+        { name: 'a', label: '甲' },
+        { name: 'b', label: '乙' },
+        { name: 'c', label: '丙' },
+      ],
+    });
+    const ids = [...document.querySelectorAll('[id]')].map((element) => element.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const label of dialog.querySelectorAll('label')) {
+      expect(dialog.contains(document.getElementById(label.htmlFor))).toBe(true);
+    }
+  });
+
   it('渲染到 body：标题、各字段的标签；必填的没填时报错、不提交', async () => {
     const onSubmit = vi.fn();
     const dialog = await open({

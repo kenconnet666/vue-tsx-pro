@@ -36,9 +36,19 @@ export interface DetachedDialogHost {
   closed: () => void;
 }
 
-/** 组件树之外的根：提供调用处的配置，内容包在 ConfigScope 里（主题变量、语言） */
+/** 组件树之外的根数到第几个了：给每个根一个自己的 useId 命名段 */
+let detachedRoots = 0;
+
+/**
+ * 组件树之外的根：提供调用处的配置，内容包在 ConfigScope 里（主题变量、语言）。
+ * render() 出来的根，useId 从头计数、前缀又和应用相同（共用 appContext），生成的 id 会和页面上已有的撞上
+ * （表单对话框的 label 关联到页面里另一个控件）。照 Vue 处理异步边界的做法（markAsyncBoundary）换一个命名段：
+ * 子组件沿用父组件的 ids，所以在根上换一次就够了。
+ */
 const DetachedRoot = _component(
   ({ config, content }: { config: UiConfig; content: () => VNodeChild }) => {
+    const instance = getCurrentInstance() as { ids?: [string, number, number] } | null;
+    if (instance?.ids) instance.ids = [`d${++detachedRoots}-`, 0, 0];
     ConfigContext.provide(config);
     return () => <ConfigScope>{content()}</ConfigScope>;
   },
