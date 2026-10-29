@@ -137,7 +137,12 @@ export default _component(() => () => (
       </ListItem>
       <ListItem>
         拦截器：<Code>tenant</Code>（按租户隔离）、<Code>touch</Code>
-        （更新时间）、逻辑删除、乐观锁的版本列。
+        （更新时间）、逻辑删除、乐观锁的版本列。开关写成 <Code>{'{ use, skip }'}</Code>，语句、Db（
+        <Code>withInterceptors</Code>）、一对多导航、join 的表上都能用；名字写错在编译期就报。
+      </ListItem>
+      <ListItem>
+        <Code>changes(before, after)</Code>：只更新变了的列，不需要追踪上下文；
+        <Code>afterWrite</Code> 的事件带上插入的行、更新的值和语句，审计日志直接写在拦截器里。
       </ListItem>
     </List>
     <H2 id="advanced" size="xl" anchor>
