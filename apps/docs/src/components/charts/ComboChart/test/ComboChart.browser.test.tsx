@@ -30,7 +30,8 @@ it('组合图：柱与线都画出；右侧刻度与左侧刻度一一同高', a
   expect(right.every(Boolean)).toBe(true);
   // 同一格的左右刻度落在同一条网格线上（文字的垂直中心相差不到 3px）。
   // 右轴的刻度可能还在过渡（Firefox 上偶尔晚一拍），轮询到对齐为止，超时再按最后一次报错
-  const gaps = () => left.map((tick, position) => Math.abs(center(tick) - center(right[position]!)));
+  const gaps = () =>
+    left.map((tick, position) => Math.abs(center(tick) - center(right[position]!)));
   await expect.poll(() => Math.max(...gaps())).toBeLessThan(3);
 });
 
