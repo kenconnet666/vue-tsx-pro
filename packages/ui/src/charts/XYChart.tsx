@@ -452,7 +452,8 @@ export const XYChart = _component(
       const primarySeries = shown.filter((item) => !onSecondary(item.key));
       const secondarySeries = shown.filter((item) => onSecondary(item.key));
 
-      // 数值轴的范围要包含的值：系列（堆叠时按正负各自的总和）、目标线、数值轴上的区间
+      // 数值轴的范围要包含的值：系列（堆叠时按正负各自的总和）、目标线、数值轴上的区间。
+      // 不叠的系列里空值不算：散点图里一行通常只落在一个系列上，其余系列是空的
       const totals = rows.map((row) =>
         primarySeries.map((item) => seriesNumber(row, item.key) ?? 0),
       );
@@ -463,8 +464,7 @@ export const XYChart = _component(
               row.reduce((sum, value) => sum + Math.max(value, 0), 0),
               row.reduce((sum, value) => sum + Math.min(value, 0), 0),
             ])
-          : // 不叠的系列：空值不算（散点图里一行通常只落在一个系列上，其余系列是空的）
-            rows.flatMap((row) =>
+          : rows.flatMap((row) =>
               primarySeries.flatMap((item) => seriesNumber(row, item.key) ?? []),
             );
       const values = [
