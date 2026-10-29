@@ -5,14 +5,8 @@ import { mount } from '../../../../test/mount';
 import { until } from '../../../../test/until';
 import Network from '../demo/Network';
 
-const nodes = (root: Element) => [
-  ...root.querySelectorAll('[class*="graph-component"] g[class*="g-node"]'),
-];
-const links = (root: Element) => [
-  ...root.querySelectorAll(
-    '[class*="graph-component"] path[class*="link"]:not([class*="support"]):not([class*="band"])',
-  ),
-];
+const nodes = (root: Element) => [...root.querySelectorAll('[data-part="node"]')];
+const links = (root: Element) => [...root.querySelectorAll('[data-part="link"]')];
 
 it('8 个节点、8 条连线，节点写名称', async () => {
   const root = mount(Network);
@@ -24,12 +18,10 @@ it('8 个节点、8 条连线，节点写名称', async () => {
 it('点“技术部”选中它，点空白处取消', async () => {
   const root = mount(Network);
   const all = await until(() => nodes(root).length === 8 && nodes(root));
-  // 布局是异步算的：画出来之后才绑上点击
-  await new Promise((resolve) => setTimeout(resolve, 500));
   const node = all.find((item) => item.textContent!.includes('技术部'))!;
   click(node);
   await until(() => root.textContent!.includes('选中：技术部'));
-  click(root.querySelector('[class*="graph-component"] rect[class*="background"]')!);
+  click(root.querySelector('[data-part="background"]')!);
   await until(() => root.textContent!.includes('点一个节点'));
   expect(root.textContent).not.toContain('选中：');
 });

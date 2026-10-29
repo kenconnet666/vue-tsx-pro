@@ -1,4 +1,4 @@
-// 浏览器测试的等待：Unovis 等在动画帧里绘制，逐帧检查直到条件成立
+// 浏览器测试的等待：图表量到绘图区的大小（ResizeObserver）之后才画，逐帧检查直到条件成立
 //
 //   const bars = await until(() => root.querySelectorAll('path').length === 12 && root.querySelectorAll('path'));
 

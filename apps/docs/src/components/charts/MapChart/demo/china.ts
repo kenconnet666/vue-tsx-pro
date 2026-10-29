@@ -1,5 +1,5 @@
 /**
- * 示例共用的省份：Unovis 自带的中国省份 TopoJSON 的要素 id 与中文名、所属大区。
+ * 示例共用的省份：组件库自带的中国省份 TopoJSON（@zerodep-dev/vue-tsx-pro-ui/maps 的 chinaProvinces）的要素 id 与中文名、所属大区。
  * 这份数据里湖北是 CN-HU、河北是 CN-HB、河南是 CN-HE、海南是 CN-HA、陕西是 CN-SA、内蒙古是 CN-NM。
  */
 export const provinces: readonly { id: string; name: string; region: string }[] = [

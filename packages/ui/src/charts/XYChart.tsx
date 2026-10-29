@@ -1,57 +1,48 @@
 /**
- * 直角坐标图表（柱状图、折线图、面积图）的公共部分：坐标轴、十字线与提示框、数值范围；外层结构（图例、单位、
- * 空与加载状态、给读屏的数据表）交给 ChartFrame。
- * 绘图交给 Unovis 的 XYContainer：组件实例只建一次，数据与配置变化时 update，卸载时 destroy；
- * 绘图区换了元素（加载、空状态之后重新出现）时容器连同全部实例一起重建。
- * 各种图只决定画什么（kind.components），坐标轴、十字线、提示框、配色都在这里统一。
- * 目标线（targets）用 Unovis 的 Plotline。点了下钻（onItemClick）：有图形可点的图（柱子）按图形的点击事件
- * （kind.itemSelector），折线、面积图按十字线所在的那一行，散点图按悬停的点。
+ * 直角坐标图表（柱状图、折线图、面积图、散点图、组合图、瀑布图）的公共部分：比例尺与坐标轴、网格、十字线与提示框、
+ * 目标线、标注与区间、缩放、下钻；外层结构（图例、单位、空与加载状态、给读屏的数据表）交给 ChartFrame。
+ * 各种图只决定画什么（kind.render），坐标由 XYChartContext 换算，配色、坐标轴、提示框都在这里统一。
  *
- * 标注（annotations）：类目上的事件画成竖线（Plotline），圈出某个系列的值画成空心圈带文字（Scatter）；
- * 区间（bands）画成浅色的带（Plotband）。百分比堆叠（kind.percent）按每个类目里各系列的占比画。
- * 第二数值轴（kind.secondary，组合图）：刻度与主轴对齐（alignedTicks），第二轴的系列换算到主轴的坐标里画，
- * 右侧的刻度文字是不裁剪的 Plotline 标签。
+ * - 类目轴：每行一个类目。柱（kind.band）每个类目占一格、画在格子中间；折线、面积的第一个、最后一个类目贴着两端。
+ *   刻度文字放不下时隔几个写一个；横向（kind.horizontal）时类目在纵轴，名字太长截短。
+ * - 数值轴：范围默认从 0 起（有负数时含负数），两端扩到“好看”的刻度上；valueDomain 指定的一端不扩。
+ *   百分比堆叠（kind.percent）按每个类目里各系列的占比画，数值轴是 0–100%。
+ * - 第二数值轴（kind.secondary，组合图）：刻度与主轴对齐（alignedTicks），第二轴的系列换算到主轴的坐标里画。
+ * - 悬停：指针所在的类目画十字线（折线、面积给各系列标出圆点）或一层浅底（柱），提示框列出这一类目的各系列；
+ *   散点图（kind.pointTooltip）按离指针最近的点。点了下钻（onItemClick）：点在柱上按那根柱，其余按悬停的类目。
+ * - 标注（annotations）：类目上的事件是竖线，圈出某个系列的值是空心圈带文字；区间（bands）是浅色的带。
  */
-import {
-  Axis,
-  AxisType,
-  Crosshair,
-  Plotband,
-  PlotbandLabelPosition,
-  Plotline,
-  PlotlineLabelPosition,
-  PlotlineLineStylePresets,
-  Position,
-  Scatter,
-  Tooltip,
-  XYContainer,
-  type XYComponentCore,
-} from '@unovis/ts';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { useId, type VNodeChild } from 'vue';
-import { useDetachedRender } from '../overlay/detached';
+import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
-import { colors } from '../config/theme/tokens';
 import { Skeleton } from '../feedback/Skeleton';
 import { Button } from '../base/Button';
 import { Slider } from '../input/Slider';
-import { alignedTicks, type AlignedAxes } from './axis-ticks';
+import { svgNumber } from '../utils/data/number';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
+import { alignedTicks, type AlignedAxes } from './axis-ticks';
 import {
   ChartFrame,
-  chartDuration,
   chartTooltip,
-  createChartInstances,
-  uniqueHighlightFilter,
   useChartValueText,
-  usePlotSeen,
   type ChartFrameParts,
   type ChartTable,
   type ChartTooltipItem,
 } from './frame';
+import {
+  ChartTooltipBox,
+  chartAxis,
+  chartSvgStyles,
+  pointerIn,
+  usePlotArea,
+  type AxisTick,
+  type ChartTip,
+  type PlotRect,
+} from './plot';
+import { linearScale, linearTicks, niceDomain } from './scale';
 import {
   resolveColor,
   resolveSeries,
@@ -61,6 +52,8 @@ import {
   type ChartSeries,
   type ResolvedSeries,
 } from './series';
+import { stackValues, type StackSegment } from './stack';
+import { estimateTextWidth, truncateText } from './text-size';
 
 /** 目标线（参考线）：数值轴上的一条虚线 */
 export interface ChartTarget {
@@ -179,27 +172,43 @@ export interface XYChartProps<T extends object>
   _zoomRange?: [number, number] | null;
 }
 
-/** 交给各种图的绘制上下文 */
+/** 交给各种图的绘制上下文：坐标都是 SVG 里的 px */
 export interface XYChartContext<T extends object> {
   /** 显示中的系列（去掉了图例里隐藏的），颜色已定 */
   series: ResolvedSeries<T>[];
-  /** 类目的位置：第几行 */
-  x: (row: T, index: number) => number;
-  /** 系列的取值函数，空值返回 undefined（Unovis 跳过） */
-  y: (series: ResolvedSeries<T>) => (row: T) => number | undefined;
-  /** 取一个跨渲染保留的组件实例：第一次调用时创建；Unovis 组件保留实例，更新时才有过渡动画 */
-  instance: <C>(key: string, create: () => C) => C;
-  /** 点图形下钻的事件（写了 itemSelector 时）：并进组件的 events；没有 onItemClick 时是空的。参数同 Unovis：图形的数据、事件、位置 */
-  events: Record<string, Record<string, (row: T, event: Event, index: number) => void>>;
+  /** 画的行（缩放时是选中的一段） */
+  rows: readonly T[];
+  /** 横向：类目在纵轴、数值在横轴 */
+  horizontal: boolean;
+  /** 绘图区（坐标轴以内） */
+  plot: PlotRect;
+  /** 一个类目在类目轴上占的长度：柱按它定宽 */
+  step: number;
+  /** 数值轴的范围 */
+  domain: readonly [number, number];
+  /** 第 index 行在类目轴上的坐标（格子的中心）；散点图是横轴数值的位置 */
+  category: (row: T, index: number) => number;
+  /** 数值 → 数值轴上的坐标 */
+  value: (value: number) => number;
+  /** 系列在一行上画的值：百分比堆叠时是占比，第二数值轴上的换算到主轴；空值 undefined */
+  valueOf: (series: ResolvedSeries<T>, row: T) => number | undefined;
+  /** 堆叠（kind.stacked）后各系列每一行的一段：系列的 key → 每行一段 */
+  stacks: ReadonlyMap<string, readonly StackSegment[]>;
+  /** 类目坐标、数值坐标 → SVG 的 [x, y]（横向时对调） */
+  point: (category: number, value: number) => [number, number];
+  /** 指针所在的那一行（在 rows 里的位置），没有时为 null */
+  hovered: number | null;
 }
 
-/** 一种图：画哪些组件，以及与坐标轴、十字线有关的差别 */
+/** 一种图：画什么，以及与坐标轴、十字线有关的差别 */
 export interface XYChartKind<T extends object> {
-  /** 配置并返回要画的 Unovis 组件（每次数据或属性变化都会调用） */
-  components: (context: XYChartContext<T>) => XYComponentCore<T>[];
+  /** 画出图形（坐标轴、网格、目标线、标注、十字线由 XYChart 画）；每次数据、属性、悬停变化都会调用 */
+  render: (context: XYChartContext<T>) => VNodeChild;
+  /** 类目占一格（柱）：图形画在格子中间、两端各留半格；不写时第一个、最后一个类目贴着两端（折线、面积） */
+  band?: boolean;
   /** 横向：类目在纵轴、数值在横轴 */
   horizontal?: boolean;
-  /** 十字线上给每个系列画圆点（折线图、面积图）；柱状图不画 */
+  /** 十字线上给每个系列画圆点（折线图、面积图）；柱状图不画，悬停的类目铺一层浅底 */
   crosshairDots?: boolean;
   /** 加载中的骨架，默认 block */
   skeleton?: keyof ChartSkeletons;
@@ -207,6 +216,8 @@ export interface XYChartKind<T extends object> {
   padding?: { left?: number; right?: number; top?: number; bottom?: number };
   /** 数值范围按堆叠后的总和算（堆叠的柱子、面积） */
   stacked?: boolean;
+  /** 参与堆叠的系列（组合图只叠柱）；不写时是全部显示中的系列 */
+  stackSeries?: (series: ResolvedSeries<T>) => boolean;
   /** 百分比堆叠：各系列按它在这个类目里的占比画（加起来 100%），数值轴是百分比，提示框带上占比 */
   percent?: boolean;
   /** 第二数值轴（组合图）：这些系列画在右侧的轴上，刻度与主轴对齐 */
@@ -222,28 +233,29 @@ export interface XYChartKind<T extends object> {
   };
   /** 数值轴默认从 0 起（数据有负数时取负数）；false 时按数据自动取（散点图） */
   zeroBaseline?: boolean;
-  /** 提示框跟着数据点（散点图），没有十字线：按选择器触发，悬停的数据是这一行 */
-  pointTooltip?: string;
+  /** 提示框跟着离指针最近的数据点（散点图），没有十字线 */
+  pointTooltip?: boolean;
   /** 提示框里列的项；不写时每个显示中的系列一行（瀑布图列变动与累计） */
   tooltipItems?: (row: T) => ChartTooltipItem[];
   /** 数值轴（主轴）的范围要包含的值；shown 是显示中的系列（第二数值轴的已去掉）。不写时按系列的值（stacked 时按正负各自的总和） */
   domainValues?: (rows: readonly T[], shown: readonly ResolvedSeries<T>[]) => number[];
   /** 给读屏的数据表；不写时类目一列加每个系列一列 */
   table?: (rows: readonly T[]) => ChartTable;
-  /** 点哪种图形算点了这一行（柱子的选择器，图形绑定的数据是这一行）；不写时按十字线所在的那一行 */
-  itemSelector?: string;
 }
 
-/** 第二数值轴的刻度文字占的宽度（px） */
-const SECONDARY_AXIS_WIDTH = 48;
+/** 刻度文字的字号（px）：主题的 xs */
+const TICK_FONT = 12;
+/** 刻度文字与绘图区的距离 */
+const TICK_GAP = 8;
+/** 散点图找最近的点时，离指针多远以内算悬停在点上（px） */
+const POINT_REACH = 24;
 
 /** 骨架柱的高度（百分比）：高低错落，看起来像一组数据 */
 const SKELETON_BARS = [55, 80, 40, 70, 90, 50, 65];
 
-/** XYChart 的样式：hideCrosshairLine 与加载中的骨架（外层结构的样式见 chartStyles） */
+/** XYChart 的样式：缩放的滑块、加载中的骨架、标注（外层结构的样式见 chartStyles） */
 export const xyChartStyles = css.create({
-  // 柱状图的十字线只用来定位提示框，不画竖线
-  hideCrosshairLine: { '--vis-crosshair-line-stroke-opacity': '0' },
+  svg: { touchAction: 'pan-y' },
   skeleton: { display: 'block', width: '100%', height: '100%' },
   // 缩放：滑块占满，“显示全部”在结束边
   zoom: { display: 'flex', alignItems: 'center', gap: '_md', paddingInline: '_sm' },
@@ -259,6 +271,12 @@ export const xyChartStyles = css.create({
   skeletonBar: { display: 'block', flexGrow: 1, flexBasis: 0, borderRadius: '_sm' },
   skeletonBarSize: (percent: string) => ({ height: percent }),
   skeletonBarSizeHorizontal: (percent: string) => ({ width: percent }),
+  targetLine: { strokeWidth: 1.5, strokeDasharray: '6 4', pointerEvents: 'none' },
+  eventLine: { strokeWidth: 1, strokeDasharray: '3 3', pointerEvents: 'none' },
+  mark: { fill: 'none', strokeWidth: 2, pointerEvents: 'none' },
+  crosshairDot: { stroke: '_surface', strokeWidth: 2, pointerEvents: 'none' },
+  bandFill: (color: string) => ({ fill: `color-mix(in srgb, ${color} 12%, transparent)` }),
+  textFill: (color: string) => ({ fill: color }),
 });
 
 /** 加载中绘图区的骨架：柱状图是一排高低不一的柱（横向时是条），其余是一整块 */
@@ -287,6 +305,17 @@ function chartSkeleton({
   );
 }
 
+/** 数值轴上约几格：每格不少于 45px（横着的轴 90px），2–6 格 */
+const tickCount = (length: number, horizontal: boolean) =>
+  Math.max(2, Math.min(6, Math.round(length / (horizontal ? 90 : 45))));
+
+/** 指针悬停的状态：行的位置、提示框的位置 */
+interface Hover {
+  index: number;
+  x: number;
+  y: number;
+}
+
 /** 直角坐标图表的公共实现（组件库内部用，见 BarChart、LineChart、AreaChart） */
 export const XYChart = _component(
   <T extends object>({
@@ -311,14 +340,14 @@ export const XYChart = _component(
     zoom = false,
     _zoomRange: zoomRange = _bindable<[number, number] | null>(null),
     kind,
-    sx,
     ...rest
   }: XYChartProps<T> & { kind: XYChartKind<T> }) => {
     const lang = useLang();
     const format = useFormat();
-    const id = useId();
+    const area = usePlotArea();
     const resolved = _derived(resolveSeries(series));
     const visible = _derived(resolved.filter((item) => !hiddenSeries.includes(item.key)));
+    let hover = _state.raw<Hover | null>(null);
 
     const categoryText = (row: T | undefined) =>
       row === undefined
@@ -379,74 +408,51 @@ export const XYChart = _component(
       );
     };
 
-    const instances = createChartInstances();
-    let tooltipElement: HTMLElement | undefined;
-    // 提示框的内容渲染进 Unovis 管的元素：带上调用处的主题与语言，组件卸载时一起卸载
-    const renderDetached = useDetachedRender();
-
-    // 指针所在的那一行：十字线移动时记下，点绘图区时下钻到它；离开绘图区时清掉
-    let hovered: { row: T; index: number } | null = null;
-    const hover = (row: T | undefined) => {
-      hovered = row === undefined ? null : { row, index: data.indexOf(row) };
-    };
-
-    /** 十字线的提示框：内容用 Vue 渲染进同一个元素，交给 Unovis 定位 */
-    function renderTooltip(row: T) {
-      tooltipElement ??= document.createElement('div');
-      // 跟着数据点的提示框（散点图）没有十字线：悬停哪个点就是哪一行
-      if (kind.pointTooltip) hover(row);
-      renderDetached(
-        chartTooltip(
-          categoryText(row),
-          kind.tooltipItems?.(row) ?? [
-            ...(kind.continuousX
-              ? [{ label: kind.continuousX.label, color: 'transparent', value: xText(row) }]
-              : []),
-            // 跟着数据点的提示框只列这一行有值的系列（散点图里一行通常只落在一个系列上）
-            ...visible
-              .filter((item) => !kind.pointTooltip || seriesValue(row, item.key) !== undefined)
-              .map((item) => {
-                const value = seriesValue(row, item.key);
-                const total = kind.percent ? rowTotal(row) : 0;
-                return {
-                  label: item.label,
-                  color: item.color,
-                  value:
-                    kind.percent && value !== undefined && total > 0
-                      ? `${seriesText(item.key, value)}（${percentText(toNumber(value) / total)}）`
-                      : seriesText(item.key, value),
-                };
-              }),
-          ],
-        ),
-        tooltipElement,
+    /** 提示框的内容：类目（或点的名字）与各系列的值 */
+    function tooltipContent(row: T) {
+      return chartTooltip(
+        categoryText(row),
+        kind.tooltipItems?.(row) ?? [
+          ...(kind.continuousX
+            ? [{ label: kind.continuousX.label, color: 'transparent', value: xText(row) }]
+            : []),
+          // 跟着数据点的提示框只列这一行有值的系列（散点图里一行通常只落在一个系列上）
+          ...visible
+            .filter((item) => !kind.pointTooltip || seriesValue(row, item.key) !== undefined)
+            .map((item) => {
+              const value = seriesValue(row, item.key);
+              const total = kind.percent ? rowTotal(row) : 0;
+              return {
+                label: item.label,
+                color: item.color,
+                value:
+                  kind.percent && value !== undefined && total > 0
+                    ? `${seriesText(item.key, value)}（${percentText(toNumber(value) / total)}）`
+                    : seriesText(item.key, value),
+              };
+            }),
+        ],
       );
-      return tooltipElement;
     }
 
-    let plot = _state.raw<HTMLElement | null>(null);
-    const seen = usePlotSeen(() => plot);
-    let container: XYContainer<T> | undefined;
-    let containerElement: HTMLElement | undefined;
-    _effect(() => () => {
-      container?.destroy();
+    /** 缩放：只画选中的一段（散点图的横轴是连续的数值，不按类目缩放） */
+    const range = () => (zoom && !kind.continuousX ? zoomRange : null);
+    const shownRows = _derived.by(() => {
+      const selected = range();
+      return selected ? data.slice(selected[0], selected[1] + 1) : data;
     });
-    _effect(() => {
-      // 缩放：只画选中的一段（散点图的横轴是连续的数值，不按类目缩放）
-      const range = zoom && !kind.continuousX ? zoomRange : null;
-      const rows = range ? data.slice(range[0], range[1] + 1) : [...data];
-      const shown = visible;
-      const element = plot;
-      if (!element || loading || rows.length === 0 || !seen()) return;
-      // 绘图区换了元素：旧容器连同它的组件、坐标轴一起销毁，实例表清空后重新创建
-      if (container && containerElement !== element) {
-        container.destroy();
-        container = undefined;
-        instances.reset();
-      }
 
+    /** 画图要的一切：比例尺、刻度、边距；随数据、属性、绘图区大小变 */
+    const layout = _derived.by(() => {
+      const rows = shownRows;
+      const width = area.width;
+      const plotHeight = area.height;
+      const horizontal = kind.horizontal ?? false;
+      const shown = visible;
       const primarySeries = shown.filter((item) => !onSecondary(item.key));
       const secondarySeries = shown.filter((item) => onSecondary(item.key));
+
+      // 数值轴的范围要包含的值：系列（堆叠时按正负各自的总和）、目标线、数值轴上的区间
       const totals = rows.map((row) =>
         primarySeries.map((item) => seriesNumber(row, item.key) ?? 0),
       );
@@ -457,16 +463,17 @@ export const XYChart = _component(
               row.reduce((sum, value) => sum + Math.max(value, 0), 0),
               row.reduce((sum, value) => sum + Math.min(value, 0), 0),
             ])
-          : totals.flat();
-      // 目标线、数值轴上的区间要落在数值轴的范围里
+          : // 不叠的系列：空值不算（散点图里一行通常只落在一个系列上，其余系列是空的）
+            rows.flatMap((row) =>
+              primarySeries.flatMap((item) => seriesNumber(row, item.key) ?? []),
+            );
       const values = [
         ...seriesValues,
         ...(targets ?? []).map((target) => toNumber(target.value)),
         ...(bands ?? [])
           .filter((band) => band.axis === 'value')
           .flatMap((band) => [Number(band.from), Number(band.to)]),
-      ];
-      // 第二数值轴：两条轴的刻度对齐，第二轴的值换算到主轴的坐标
+      ].filter(Number.isFinite);
       const aligned: AlignedAxes | undefined =
         secondarySeries.length > 0
           ? alignedTicks(
@@ -481,273 +488,591 @@ export const XYChart = _component(
               ),
             )
           : undefined;
-      const domain: [number | undefined, number | undefined] = kind.percent
-        ? [0, 1]
-        : aligned
-          ? aligned.primary.domain
-          : [
-              valueDomain?.[0] ??
-                (kind.zeroBaseline === false ? undefined : Math.min(0, ...values)),
-              valueDomain?.[1],
-            ];
-      const x = kind.continuousX
-        ? (row: T) => kind.continuousX!.value(row) ?? Number.NaN
-        : (_row: T, position: number) => position;
-      const y = (item: (typeof shown)[number]) => {
-        if (kind.percent)
-          return (row: T) => {
-            const value = seriesNumber(row, item.key);
-            const total = rowTotal(row);
-            return value === undefined || total === 0 ? undefined : value / total;
-          };
-        if (aligned && onSecondary(item.key))
-          return (row: T) => {
-            const value = seriesNumber(row, item.key);
-            return value === undefined ? undefined : aligned.toPrimary(value);
-          };
-        return (row: T) => seriesNumber(row, item.key);
-      };
-      /** 类目在类目轴上的位置：散点图是横轴的数值，其余是第几行；找不到时 undefined */
-      const positionOf = (at: unknown) => {
-        if (kind.continuousX) return Number(at);
-        const found = rows.findIndex((row) => row[index] === at);
-        return found < 0 ? undefined : found;
-      };
-      const categoryAxisName = kind.horizontal ? AxisType.Y : AxisType.X;
-      const valueAxisName = kind.horizontal ? AxisType.X : AxisType.Y;
-      const lines = (targets ?? []).map((target, position) => {
-        const line = instances.get(`target-${position}`, () => new Plotline<T>({}));
-        const value = toNumber(target.value);
-        const label = valueText(target.value);
-        line.setConfig({
-          axis: kind.horizontal ? 'x' : 'y',
-          value,
-          color: resolveColor(target.color ?? 'danger', 0),
-          lineWidth: 1.5,
-          lineStyle: PlotlineLineStylePresets.Dash,
-          labelText: target.label ? `${target.label} ${label}` : label,
-          labelPosition: kind.horizontal
-            ? PlotlineLabelPosition.TopRight
-            : PlotlineLabelPosition.TopLeft,
-          labelOffsetX: 4,
-          labelOffsetY: 10,
-        });
-        return line;
-      });
 
-      // 区间：浅色的带，文字在左上角
-      const bandComponents = (bands ?? []).flatMap((band, position) => {
-        const onIndex = band.axis !== 'value';
-        const from = onIndex ? positionOf(band.from) : Number(band.from);
-        const to = onIndex ? positionOf(band.to) : Number(band.to);
-        if (from === undefined || to === undefined) return [];
-        // 类目轴上的区间盖住两端的类目：往外各扩半格
-        const half = onIndex && !kind.continuousX ? 0.5 : 0;
-        const plotband = instances.get(`band-${position}`, () => new Plotband<T>({}));
-        plotband.setConfig({
-          axis: onIndex ? categoryAxisName : valueAxisName,
-          from: Math.min(from, to) - half,
-          to: Math.max(from, to) + half,
-          color: `color-mix(in srgb, ${resolveColor(band.color ?? 'neutral', 0)} 12%, transparent)`,
-          labelText: band.label,
-          // 类目轴上的区间文字在左下角：顶上留给事件竖线的文字
-          labelPosition: onIndex
-            ? PlotbandLabelPosition.BottomLeftInside
-            : PlotbandLabelPosition.TopLeftInside,
-          labelColor: colors.textMuted,
-          labelOffsetX: 6,
-          labelOffsetY: 6,
-        });
-        return [plotband];
-      });
-
-      // 标注：事件是类目上的竖线；圈出的值是一个空心圈，文字在上方
-      const events = (annotations ?? []).filter((item) => item.series === undefined);
-      const eventLines = events.flatMap((item, position) => {
-        const at = positionOf(item.at);
-        if (at === undefined) return [];
-        const line = instances.get(`event-${position}`, () => new Plotline<T>({}));
-        line.setConfig({
-          axis: categoryAxisName,
-          value: at,
-          color: resolveColor(item.color ?? 'neutral', 0),
-          lineWidth: 1,
-          lineStyle: PlotlineLineStylePresets.ShortDash,
-          labelText: item.label,
-          labelPosition: kind.horizontal
-            ? PlotlineLabelPosition.BottomRight
-            : PlotlineLabelPosition.TopRight,
-          labelOffsetX: 4,
-          labelOffsetY: 4,
-        });
-        return [line];
-      });
-      const marked = (annotations ?? []).filter(
-        (item) => item.series !== undefined && !kind.horizontal,
-      );
-      const markOf = (row: T) => {
-        const at = kind.continuousX ? kind.continuousX.value(row) : rows.indexOf(row);
-        return marked.find(
-          (item) =>
-            positionOf(item.at) === at && shown.some((series) => series.key === item.series),
+      const valueLength = horizontal ? width : plotHeight;
+      let domain: [number, number];
+      let ticks: number[];
+      if (kind.percent) {
+        domain = [0, 1];
+        ticks = linearTicks(0, 1, tickCount(valueLength, horizontal));
+      } else if (aligned) {
+        domain = aligned.primary.domain;
+        ticks = aligned.primary.ticks;
+      } else {
+        const fromZero = kind.zeroBaseline !== false;
+        const low = values.length ? Math.min(...values, ...(fromZero ? [0] : [])) : 0;
+        const high = values.length ? Math.max(...values, ...(fromZero ? [0] : [])) : 1;
+        const [autoLow, autoHigh] = low === high ? [low - 1, high + 1] : [low, high];
+        const nice = niceDomain(
+          [valueDomain?.[0] ?? autoLow, valueDomain?.[1] ?? autoHigh],
+          tickCount(valueLength, horizontal),
         );
-      };
-      /** 圈的位置：系列的值；堆叠时是它在这一摞里的顶端 */
-      const markY = (row: T) => {
-        const mark = markOf(row);
-        if (!mark) return undefined;
-        const series = shown.find((item) => item.key === mark.series)!;
-        if (!kind.stacked || kind.percent) return y(series)(row);
-        const upTo = shown.slice(0, shown.indexOf(series) + 1);
-        return upTo.reduce((sum, item) => sum + Math.max(y(item)(row) ?? 0, 0), 0);
-      };
-      const markColor = (row: T) => {
-        const mark = markOf(row);
-        const series = shown.find((item) => item.key === mark?.series);
-        return mark?.color ? resolveColor(mark.color, 0) : (series?.color ?? colors.textMuted);
-      };
-      const marks = instances.get('marks', () => new Scatter<T>({ x, y: () => undefined }));
-      marks.setConfig({
-        x,
-        y: markY,
-        size: 16,
-        color: 'transparent',
-        strokeColor: markColor,
-        strokeWidth: 2,
-        label: (row: T) => markOf(row)?.label ?? '',
-        labelPosition: Position.Top,
-        labelColor: colors.text,
-      });
-
-      // 第二数值轴的刻度：与主轴的刻度同高，文字在绘图区右侧（不裁剪的 Plotline 标签，线本身透明）
-      const secondaryLabels = aligned
-        ? aligned.secondary.ticks.map((tick, position) => {
-            const label = instances.get(`secondary-${position}`, () => {
-              const line = new Plotline<T>({});
-              line.clippable = false;
-              return line;
-            });
-            label.setConfig({
-              axis: 'y',
-              value: aligned.primary.ticks[position]!,
-              color: 'transparent',
-              lineWidth: 0,
-              labelText: format.number(tick, kind.secondary?.format),
-              labelPosition: PlotlineLabelPosition.Right,
-              labelOffsetX: -(SECONDARY_AXIS_WIDTH - 4),
-              labelColor: colors.textMuted,
-            });
-            return label;
-          })
-        : [];
-      const components = [
-        ...bandComponents,
-        ...kind.components({
-          series: shown,
-          x,
-          y,
-          instance: instances.get,
-          events:
-            kind.itemSelector && onItemClick
-              ? {
-                  [kind.itemSelector]: {
-                    // 分组柱给的是原来的行；堆叠柱给的是拼出来的副本，第三个参数才是行的位置
-                    click: (row: T, _event: Event, index: number) => {
-                      const position = data.indexOf(row);
-                      const at = position >= 0 ? position : index;
-                      onItemClick(data[at] ?? row, at);
-                    },
-                  },
-                }
-              : {},
-        }),
-        ...lines,
-        ...eventLines,
-        ...(marked.length > 0 ? [marks] : []),
-        ...secondaryLabels,
-      ];
-      const xAxis = instances.get('xAxis', () => new Axis<T>({ type: 'x' }));
-      const yAxis = instances.get('yAxis', () => new Axis<T>({ type: 'y' }));
-      const crosshair = instances.get('crosshair', () => new Crosshair<T>());
-      const tooltipBox = instances.get('tooltip', () => new Tooltip());
-      const [categoryAxis, valueAxis] = kind.horizontal ? [yAxis, xAxis] : [xAxis, yAxis];
-      const continuous = kind.continuousX;
-      categoryAxis.setConfig({
-        type: kind.horizontal ? 'y' : 'x',
-        // 连续的横轴：Unovis 自己取刻度，网格线与数值轴一样；类目轴：每行一个刻度
-        tickValues: continuous ? undefined : rows.map((_row, position) => position),
-        numTicks: continuous ? 6 : undefined,
-        tickFormat: continuous
-          ? (tick) => continuous.format(Number(tick))
-          : (tick) => categoryText(rows[Number(tick)]),
-        gridLine: continuous ? grid : false,
-        tickLine: false,
-        domainLine: false,
-        tickTextHideOverlapping: true,
-        tickPadding: 8,
-        label: continuous?.title,
-        labelMargin: 8,
-      });
-      valueAxis.setConfig({
-        type: kind.horizontal ? 'x' : 'y',
-        numTicks: 5,
-        // 有第二数值轴时用对齐的刻度，两边的刻度落在同一组网格线上
-        tickValues: aligned?.primary.ticks,
-        tickFormat: (tick) =>
-          kind.percent
-            ? format.number(Number(tick), { style: 'percent', maximumFractionDigits: 0 })
-            : format.number(Number(tick), valueFormat),
-        gridLine: grid,
-        tickLine: false,
-        domainLine: false,
-        tickPadding: 8,
-      });
-      const dotted = kind.crosshairSeries ? shown.filter(kind.crosshairSeries) : shown;
-      crosshair.setConfig({
-        // 访问器直接给：容器还没按尺寸渲染过时不会把组件的访问器转交十字线，Unovis 会报 “Y accessors have not been configured”
-        x,
-        ...(kind.stacked ? { yStacked: dotted.map(y) } : { y: dotted.map(y) }),
-        template: (row: T) => renderTooltip(row),
-        color: (_row: T, position: number) => dotted[position]?.color ?? 'transparent',
-        getCircles: kind.crosshairDots ? undefined : () => [],
-        hideWhenFarFromPointer: false,
-        onCrosshairMove: (_x, row) => hover(row),
-      });
-
-      tooltipBox.setConfig({
-        triggers: kind.pointTooltip ? { [kind.pointTooltip]: (row: T) => renderTooltip(row) } : {},
-      });
-      const config = {
-        components,
-        xAxis,
-        yAxis,
-        // 能下钻时没有提示框也要十字线：靠它知道指针在哪一行
-        crosshair:
-          (tooltip || (onItemClick && !kind.itemSelector)) && !kind.pointTooltip
-            ? crosshair
-            : undefined,
-        tooltip: tooltip ? tooltipBox : undefined,
-        [kind.horizontal ? 'xDomain' : 'yDomain']: domain,
-        // 第二数值轴的刻度文字画在右侧留出的空白里
-        padding: aligned
-          ? { ...kind.padding, right: Math.max(kind.padding?.right ?? 0, SECONDARY_AXIS_WIDTH) }
-          : (kind.padding ?? {}),
-        ariaLabel: null,
-        duration: chartDuration(element),
-        onRenderComplete: haloPlotlineLabels,
-      };
-      if (container) container.update(config, undefined, rows);
-      else {
-        container = new XYContainer<T>(element, config, rows);
-        containerElement = element;
-        uniqueHighlightFilter(element, `${id}-highlight`);
+        domain = [valueDomain?.[0] ?? nice[0], valueDomain?.[1] ?? nice[1]];
+        ticks = linearTicks(domain[0], domain[1], tickCount(valueLength, horizontal));
       }
+      const valueLabel = (tick: number) =>
+        kind.percent
+          ? format.number(tick, { style: 'percent', maximumFractionDigits: 0 })
+          : format.number(tick, valueFormat);
+      const valueLabels = ticks.map(valueLabel);
+      const secondaryLabels = aligned
+        ? aligned.secondary.ticks.map((tick) => format.number(tick, kind.secondary?.format))
+        : [];
+
+      // 连续的横轴（散点图）：按数据取范围与刻度
+      const continuous = kind.continuousX;
+      const xValues = continuous
+        ? rows.map((row) => continuous.value(row)).filter((x): x is number => x !== undefined)
+        : [];
+      const xDomain = niceDomain(
+        xValues.length ? [Math.min(...xValues), Math.max(...xValues)] : [0, 1],
+        tickCount(width, true),
+      );
+      const xTicks = continuous ? linearTicks(xDomain[0], xDomain[1], tickCount(width, true)) : [];
+
+      // 边距：放得下刻度文字
+      const widest = (labels: readonly string[]) =>
+        Math.max(0, ...labels.map((label) => estimateTextWidth(label, TICK_FONT)));
+      const categoryLabels = rows.map((row) => categoryText(row));
+      const padding = { left: 0, right: 0, top: 0, bottom: 0, ...kind.padding };
+      const bottomLabels = horizontal
+        ? valueLabels
+        : continuous
+          ? xTicks.map(continuous.format)
+          : categoryLabels;
+      const margin = horizontal
+        ? {
+            left: Math.min(widest(categoryLabels), width * 0.3) + TICK_GAP,
+            right: Math.max(8, widest(valueLabels.slice(-1)) / 2),
+            top: 4,
+            bottom: TICK_FONT + TICK_GAP + 2,
+          }
+        : {
+            left: widest(valueLabels) + TICK_GAP,
+            right: aligned ? widest(secondaryLabels) + TICK_GAP : 8,
+            top: 8,
+            bottom: TICK_FONT + TICK_GAP + 2 + (continuous?.title ? TICK_FONT + 8 : 0),
+          };
+      // 横轴两端的文字居中在端点上：别伸出绘图区外
+      if (!horizontal && bottomLabels.length && !kind.band) {
+        margin.left = Math.max(margin.left, widest(bottomLabels.slice(0, 1)) / 2 - padding.left);
+        margin.right = Math.max(margin.right, widest(bottomLabels.slice(-1)) / 2 - padding.right);
+      }
+      const plot: PlotRect = {
+        left: margin.left,
+        top: margin.top,
+        width: Math.max(0, width - margin.left - margin.right),
+        height: Math.max(0, plotHeight - margin.top - margin.bottom),
+      };
+
+      // 类目轴：带（柱）每个类目一格；点（折线）首尾贴边；散点图是连续的数值
+      const [cStart, cEnd] = horizontal
+        ? [plot.top + padding.top, plot.top + plot.height - padding.bottom]
+        : [plot.left + padding.left, plot.left + plot.width - padding.right];
+      const count = rows.length;
+      const step = kind.band
+        ? (cEnd - cStart) / Math.max(count, 1)
+        : count > 1
+          ? (cEnd - cStart) / (count - 1)
+          : cEnd - cStart;
+      const xScale = linearScale(xDomain, [cStart, cEnd]);
+      const category = continuous
+        ? (row: T) => xScale(continuous.value(row) ?? Number.NaN)
+        : (_row: T, position: number) =>
+            kind.band
+              ? cStart + step * (position + 0.5)
+              : count > 1
+                ? cStart + step * position
+                : (cStart + cEnd) / 2;
+      const valueScale = horizontal
+        ? linearScale(domain, [plot.left + padding.left, plot.left + plot.width - padding.right])
+        : linearScale(domain, [plot.top + plot.height - padding.bottom, plot.top + padding.top]);
+
+      const valueOf = (item: ResolvedSeries<T>, row: T) => {
+        const value = seriesNumber(row, item.key);
+        if (value === undefined) return undefined;
+        if (kind.percent) {
+          const total = rowTotal(row);
+          return total === 0 ? undefined : value / total;
+        }
+        return aligned && onSecondary(item.key) ? aligned.toPrimary(value) : value;
+      };
+      const stacked = kind.stacked ? shown.filter(kind.stackSeries ?? (() => true)) : [];
+      const segments = stackValues(stacked.map((item) => rows.map((row) => valueOf(item, row))));
+      const stacks = new Map(stacked.map((item, s) => [item.key, segments[s]!]));
+
+      // 类目刻度：放不下时隔几个写一个（横着排时按文字宽度，竖着排时按行高）
+      const every = continuous
+        ? 1
+        : Math.max(
+            1,
+            Math.ceil(
+              (horizontal ? TICK_FONT + 4 : widest(categoryLabels) + 12) / Math.max(step, 1),
+            ),
+          );
+      const categoryTicks: AxisTick[] = continuous
+        ? xTicks.map((tick) => ({ position: xScale(tick), label: continuous.format(tick) }))
+        : rows.map((row, position) => ({
+            position: category(row, position),
+            label:
+              position % every === 0
+                ? horizontal
+                  ? truncateText(categoryLabels[position]!, width * 0.3, TICK_FONT)
+                  : categoryLabels[position]!
+                : '',
+          }));
+      const valueTicks: AxisTick[] = ticks.map((tick, position) => ({
+        position: valueScale(tick),
+        label: valueLabels[position]!,
+      }));
+      const secondaryTicks: AxisTick[] = aligned
+        ? aligned.primary.ticks.map((tick, position) => ({
+            position: valueScale(tick),
+            label: secondaryLabels[position]!,
+          }))
+        : [];
+      return {
+        rows,
+        shown,
+        horizontal,
+        plot,
+        step,
+        domain,
+        category,
+        valueScale,
+        valueOf,
+        stacks,
+        categoryTicks,
+        valueTicks,
+        secondaryTicks,
+      };
     });
+
+    /** 一个类目在类目轴上的位置（标注、区间用）：散点图是横轴的数值，其余是第几行；找不到时 undefined */
+    function positionOf(at: unknown): number | undefined {
+      const { rows, category } = layout;
+      if (kind.continuousX) {
+        const row = rows.find((item) => kind.continuousX!.value(item) === Number(at));
+        return row ? category(row, 0) : undefined;
+      }
+      const found = rows.findIndex((row) => row[index] === at);
+      return found < 0 ? undefined : category(rows[found]!, found);
+    }
+
+    /** 指针移动：找出悬停的行（散点图是最近的点） */
+    function onPointermove(event: PointerEvent) {
+      const svg = event.currentTarget as SVGSVGElement;
+      const { x, y } = pointerIn(event, svg);
+      const { rows, plot, horizontal, category, valueScale, valueOf, shown, step } = layout;
+      const inside =
+        x >= plot.left - 4 &&
+        x <= plot.left + plot.width + 4 &&
+        y >= plot.top - 4 &&
+        y <= plot.top + plot.height + 4;
+      if (!inside || rows.length === 0) {
+        hover = null;
+        return;
+      }
+      if (kind.pointTooltip) {
+        let best: Hover | null = null;
+        let distance = POINT_REACH;
+        rows.forEach((row, position) => {
+          for (const item of shown) {
+            const value = valueOf(item, row);
+            if (value === undefined) continue;
+            const [px, py] = [category(row, position), valueScale(value)];
+            const d = Math.hypot(px - x, py - y);
+            if (d < distance) {
+              distance = d;
+              best = { index: position, x: px, y: py };
+            }
+          }
+        });
+        hover = best;
+        return;
+      }
+      const along = horizontal ? y : x;
+      let nearest = 0;
+      rows.forEach((row, position) => {
+        if (
+          Math.abs(category(row, position) - along) <
+          Math.abs(category(rows[nearest]!, nearest) - along)
+        )
+          nearest = position;
+      });
+      const center = category(rows[nearest]!, nearest);
+      if (Math.abs(center - along) > Math.max(step, 8)) {
+        hover = null;
+        return;
+      }
+      hover = horizontal ? { index: nearest, x, y: center } : { index: nearest, x: center, y };
+    }
+
+    /** 点击下钻：点在柱上按那根柱（data-index），其余按悬停的行 */
+    function onClick(event: MouseEvent) {
+      if (!onItemClick) return;
+      const target = (event.target as Element | null)?.closest?.('[data-index]');
+      const position = target ? Number(target.getAttribute('data-index')) : hover?.index;
+      if (position === undefined || Number.isNaN(position)) return;
+      const offset = range()?.[0] ?? 0;
+      const row = layout.rows[position];
+      if (row !== undefined) onItemClick(row, offset + position);
+    }
+
+    /** 区间：浅色的带，文字在左下角（类目轴）或左上角（数值轴） */
+    function renderBands() {
+      const { plot, horizontal, step, valueScale } = layout;
+      return (bands ?? []).map((band, position) => {
+        const onIndex = band.axis !== 'value';
+        const color = resolveColor(band.color ?? 'neutral', 0);
+        let from: number | undefined;
+        let to: number | undefined;
+        if (onIndex) {
+          const a = positionOf(band.from);
+          const b = positionOf(band.to);
+          if (a === undefined || b === undefined) return null;
+          // 类目轴上的区间盖住两端的类目：往外各扩半格
+          const half = kind.continuousX ? 0 : step / 2;
+          from = Math.min(a, b) - half;
+          to = Math.max(a, b) + half;
+        } else {
+          from = Math.min(valueScale(Number(band.from)), valueScale(Number(band.to)));
+          to = Math.max(valueScale(Number(band.from)), valueScale(Number(band.to)));
+        }
+        const alongCategory = onIndex !== horizontal;
+        const clampedFrom = Math.max(from, alongCategory ? plot.left : plot.top);
+        const clampedTo = Math.min(
+          to,
+          alongCategory ? plot.left + plot.width : plot.top + plot.height,
+        );
+        const rect = alongCategory
+          ? { x: clampedFrom, y: plot.top, width: clampedTo - clampedFrom, height: plot.height }
+          : { x: plot.left, y: clampedFrom, width: plot.width, height: clampedTo - clampedFrom };
+        if (rect.width <= 0 || rect.height <= 0) return null;
+        return (
+          <g key={`band-${position}`} data-part="band">
+            <rect
+              {...rect}
+              {...css.attrs(xyChartStyles.bandFill(color), chartSvgStyles.noPointer)}
+            />
+            {band.label && (
+              <text
+                x={rect.x + 6}
+                y={onIndex && !horizontal ? rect.y + rect.height - 6 : rect.y + 6}
+                dominant-baseline={onIndex && !horizontal ? 'auto' : 'hanging'}
+                {...css.attrs(chartSvgStyles.labelMuted, chartSvgStyles.noPointer)}
+              >
+                {band.label}
+              </text>
+            )}
+          </g>
+        );
+      });
+    }
+
+    /** 目标线与事件竖线 */
+    function renderLines() {
+      const { plot, horizontal, valueScale } = layout;
+      const right = plot.left + plot.width;
+      const bottom = plot.top + plot.height;
+      const targetLines = (targets ?? []).map((target, position) => {
+        const color = resolveColor(target.color ?? 'danger', 0);
+        const at = svgNumber(valueScale(toNumber(target.value)));
+        const label = target.label
+          ? `${target.label} ${valueText(target.value)}`
+          : valueText(target.value);
+        return (
+          <g key={`target-${position}`} data-part="target">
+            {horizontal ? (
+              <line
+                x1={at}
+                x2={at}
+                y1={plot.top}
+                y2={bottom}
+                {...css.attrs(xyChartStyles.targetLine, chartSvgStyles.stroke(color))}
+              />
+            ) : (
+              <line
+                x1={plot.left}
+                x2={right}
+                y1={at}
+                y2={at}
+                {...css.attrs(xyChartStyles.targetLine, chartSvgStyles.stroke(color))}
+              />
+            )}
+            <text
+              x={horizontal ? at + 4 : plot.left + 4}
+              y={horizontal ? plot.top + 4 : at - 5}
+              dominant-baseline={horizontal ? 'hanging' : 'auto'}
+              {...css.attrs(
+                chartSvgStyles.labelMuted,
+                chartSvgStyles.halo,
+                xyChartStyles.textFill(color),
+                chartSvgStyles.noPointer,
+              )}
+            >
+              {label}
+            </text>
+          </g>
+        );
+      });
+      const events = (annotations ?? [])
+        .filter((item) => item.series === undefined)
+        .map((item, position) => {
+          const at = positionOf(item.at);
+          if (at === undefined) return null;
+          const color = resolveColor(item.color ?? 'neutral', 0);
+          const p = svgNumber(at);
+          return (
+            <g key={`event-${position}`} data-part="event">
+              {horizontal ? (
+                <line
+                  x1={plot.left}
+                  x2={right}
+                  y1={p}
+                  y2={p}
+                  {...css.attrs(xyChartStyles.eventLine, chartSvgStyles.stroke(color))}
+                />
+              ) : (
+                <line
+                  x1={p}
+                  x2={p}
+                  y1={plot.top}
+                  y2={bottom}
+                  {...css.attrs(xyChartStyles.eventLine, chartSvgStyles.stroke(color))}
+                />
+              )}
+              <text
+                x={horizontal ? right - 4 : p + 4}
+                y={horizontal ? p - 4 : plot.top + 4}
+                text-anchor={horizontal ? 'end' : 'start'}
+                dominant-baseline={horizontal ? 'auto' : 'hanging'}
+                {...css.attrs(
+                  chartSvgStyles.labelMuted,
+                  chartSvgStyles.halo,
+                  chartSvgStyles.noPointer,
+                )}
+              >
+                {item.label}
+              </text>
+            </g>
+          );
+        });
+      return [...targetLines, ...events];
+    }
+
+    /** 一个系列在一行上的值的坐标：堆叠时是它在这一摞里的外端 */
+    function valuePosition(item: ResolvedSeries<T>, row: T, position: number): number | undefined {
+      const segment = layout.stacks.get(item.key)?.[position];
+      if (segment)
+        return segment.value === undefined
+          ? undefined
+          : segment.value < 0
+            ? segment.low
+            : segment.high;
+      return layout.valueOf(item, row);
+    }
+
+    /** 标注圈出的值：空心圈，文字在上方 */
+    function renderMarks() {
+      if (layout.horizontal) return null;
+      return (annotations ?? [])
+        .filter((item) => item.series !== undefined)
+        .map((item, position) => {
+          const series = layout.shown.find((entry) => entry.key === item.series);
+          const rowIndex = kind.continuousX
+            ? layout.rows.findIndex((row) => kind.continuousX!.value(row) === Number(item.at))
+            : layout.rows.findIndex((row) => row[index] === item.at);
+          const row = layout.rows[rowIndex];
+          if (!series || row === undefined) return null;
+          const value = valuePosition(series, row, rowIndex);
+          if (value === undefined) return null;
+          const [x, y] = [
+            svgNumber(layout.category(row, rowIndex)),
+            svgNumber(layout.valueScale(value)),
+          ];
+          const color = item.color ? resolveColor(item.color, 0) : series.color;
+          // 文字居中在圈的上方；靠近绘图区两端时改成对齐圈的外沿，不伸出去
+          const half = estimateTextWidth(item.label, TICK_FONT) / 2;
+          const { left, width } = layout.plot;
+          const anchor = x + half > left + width ? 'end' : x - half < left ? 'start' : 'middle';
+          const textX = anchor === 'end' ? x + 8 : anchor === 'start' ? x - 8 : x;
+          return (
+            <g key={`mark-${position}`} data-part="mark">
+              <circle
+                cx={x}
+                cy={y}
+                r={8}
+                {...css.attrs(xyChartStyles.mark, chartSvgStyles.stroke(color))}
+              />
+              <text
+                x={textX}
+                y={y - 14}
+                text-anchor={anchor}
+                {...css.attrs(chartSvgStyles.label, chartSvgStyles.halo, chartSvgStyles.noPointer)}
+              >
+                {item.label}
+              </text>
+            </g>
+          );
+        });
+    }
+
+    /** 十字线：悬停的类目一条竖线，线上给各系列画圆点；柱状图铺一层浅底 */
+    function renderCrosshair(front: boolean) {
+      const current = hover;
+      if (!current || kind.pointTooltip) return null;
+      const { rows, plot, horizontal, step, category, valueScale } = layout;
+      const row = rows[current.index];
+      if (row === undefined) return null;
+      const center = category(row, current.index);
+      if (!front) {
+        if (kind.crosshairDots && !kind.band) return null;
+        const half = Math.max(step / 2, 1);
+        return horizontal ? (
+          <rect
+            x={plot.left}
+            y={center - half}
+            width={plot.width}
+            height={half * 2}
+            {...css.attrs(chartSvgStyles.hoverBand)}
+          />
+        ) : (
+          <rect
+            x={center - half}
+            y={plot.top}
+            width={half * 2}
+            height={plot.height}
+            {...css.attrs(chartSvgStyles.hoverBand)}
+          />
+        );
+      }
+      if (!kind.crosshairDots) return null;
+      const dotted = kind.crosshairSeries
+        ? layout.shown.filter(kind.crosshairSeries)
+        : layout.shown;
+      const p = Math.round(center) + 0.5;
+      return (
+        <g data-part="crosshair">
+          {!kind.band && (
+            <line
+              x1={p}
+              x2={p}
+              y1={plot.top}
+              y2={plot.top + plot.height}
+              {...css.attrs(chartSvgStyles.crosshair)}
+            />
+          )}
+          {dotted.map((item) => {
+            const value = valuePosition(item, row, current.index);
+            if (value === undefined) return null;
+            return (
+              <circle
+                key={item.key}
+                cx={svgNumber(center)}
+                cy={svgNumber(valueScale(value))}
+                r={4.5}
+                {...css.attrs(xyChartStyles.crosshairDot, chartSvgStyles.fill(item.color))}
+              />
+            );
+          })}
+        </g>
+      );
+    }
+
+    /** 绘图区的 SVG */
+    function renderPlot() {
+      const { rows, shown, horizontal, plot, step, domain, category, valueScale, valueOf, stacks } =
+        layout;
+      const context: XYChartContext<T> = {
+        series: shown,
+        rows,
+        horizontal,
+        plot,
+        step,
+        domain,
+        category,
+        value: valueScale,
+        valueOf,
+        stacks,
+        point: (c, v) => (horizontal ? [v, c] : [c, v]),
+        hovered: hover?.index ?? null,
+      };
+      const zero = valueScale(0);
+      const showZero = domain[0] < 0 && domain[1] > 0;
+      return (
+        <svg
+          width={area.width}
+          height={area.height}
+          {...css.attrs(chartSvgStyles.svg, xyChartStyles.svg)}
+          onPointermove={onPointermove}
+          onPointerleave={() => (hover = null)}
+          onClick={onClick}
+        >
+          {renderBands()}
+          {chartAxis({
+            side: horizontal ? 'bottom' : 'left',
+            ticks: layout.valueTicks,
+            plot,
+            grid,
+          })}
+          {chartAxis({
+            side: horizontal ? 'left' : 'bottom',
+            ticks: layout.categoryTicks,
+            plot,
+            grid: kind.continuousX ? grid : false,
+          })}
+          {layout.secondaryTicks.length > 0 &&
+            chartAxis({ side: 'right', ticks: layout.secondaryTicks, plot })}
+          {kind.continuousX?.title && (
+            <text
+              x={plot.left + plot.width / 2}
+              y={area.height - 2}
+              text-anchor="middle"
+              {...css.attrs(chartSvgStyles.axisTitle)}
+            >
+              {kind.continuousX.title}
+            </text>
+          )}
+          {showZero &&
+            (horizontal ? (
+              <line
+                x1={Math.round(zero) + 0.5}
+                x2={Math.round(zero) + 0.5}
+                y1={plot.top}
+                y2={plot.top + plot.height}
+                {...css.attrs(chartSvgStyles.baseline)}
+              />
+            ) : (
+              <line
+                x1={plot.left}
+                x2={plot.left + plot.width}
+                y1={Math.round(zero) + 0.5}
+                y2={Math.round(zero) + 0.5}
+                {...css.attrs(chartSvgStyles.baseline)}
+              />
+            ))}
+          {renderCrosshair(false)}
+          {kind.render(context)}
+          {renderLines()}
+          {renderMarks()}
+          {renderCrosshair(true)}
+        </svg>
+      );
+    }
+
+    const tip = (): ChartTip | null => {
+      const current = hover;
+      if (!tooltip || !current) return null;
+      const row = layout.rows[current.index];
+      return row === undefined
+        ? null
+        : { x: current.x, y: current.y, content: tooltipContent(row) };
+    };
 
     return () => (
       <ChartFrame
         {...rest}
-        sx={[!kind.crosshairDots && xyChartStyles.hideCrosshairLine, sx]}
         // 百分比堆叠时数值轴是占比：轴上方不写单位（提示框、数据表里仍带）
         unit={kind.percent ? undefined : unit}
         unitEnd={kind.secondary?.unit}
@@ -760,13 +1085,6 @@ export const XYChart = _component(
         isEmpty={data.length === 0}
         empty={empty}
         clickable={onItemClick != null}
-        onPlotClick={
-          onItemClick && !kind.itemSelector
-            ? () => {
-                if (hovered) onItemClick(hovered.row, hovered.index);
-              }
-            : undefined
-        }
         table={
           kind.table?.(data) ?? {
             columns: [
@@ -794,22 +1112,14 @@ export const XYChart = _component(
             })),
           }
         }
-        plotRef={(element) => (plot = element)}
+        plotRef={area.ref}
+        plot={
+          area.ready && shownRows.length > 0
+            ? [renderPlot(), <ChartTooltipBox key="tooltip" tip={tip()} width={area.width} />]
+            : null
+        }
         footer={zoom && !kind.continuousX && data.length > 2 ? zoomBar() : undefined}
       />
     );
   },
 );
-
-/**
- * 目标线、事件竖线的文字描一圈表面色的边（同地图上地点的名字）：压在柱子、折线上也看得清。
- * Unovis 的 Plotline 文字没有描边的配置项，渲染完成后补在元素上；导出图片时按计算样式一并带走
- */
-function haloPlotlineLabels(svg: SVGSVGElement) {
-  for (const label of svg.querySelectorAll<SVGTextElement>('text[class*="plotline-label"]')) {
-    label.style.setProperty('paint-order', 'stroke');
-    label.style.setProperty('stroke', colors.surface);
-    label.style.setProperty('stroke-width', '3px');
-    label.style.setProperty('stroke-linejoin', 'round');
-  }
-}

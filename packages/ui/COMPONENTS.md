@@ -316,24 +316,24 @@ interface Lang {
 
 **依赖**：算法与数据用成熟库，组件自己写；不用无样式组件库（它们本身就是组件逻辑）。构建时全部外置，`packages/ui/src/utils/.test/dependencies.test.ts` 逐一验证。使用方直接导入的（图标）是 peer 依赖；只有部分组件才用的重型库（图表、3D）是可选 peer 依赖：组件库开发时装在 devDependencies，以后封装成组件时放在子路径，主入口不导入，使用方用到才安装；其余是普通依赖。
 
-| 用途     | 选择                                | 说明                                                                                                                                                           |
-| -------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                                                                              |
-| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon.tsx`）                                                                                                 |
-| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                                                                           |
-| 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                                                                                 |
-| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                                                                               |
-| 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`form/form-constraints.ts`）                               |
-| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/motion/animation`                                                                            |
-| 图表     | `@unovis/ts`（可选 peer）           | 子路径 `@zerodep-dev/vue-tsx-pro-ui/charts`（Bar、Line、Area、Scatter、Donut、Sankey、Chord，§10.21）；SVG，外观靠 `--vis-*` 变量接到 tokens，明暗切换不用重画 |
-| 3D       | `three`（可选 peer）                | 子路径 `@zerodep-dev/vue-tsx-pro-ui/three`（ThreeCanvas、useThree、主题色、效果，§10.22）；实例放普通变量或 `_state.raw`，不进深层响应式                       |
-| 代码高亮 | `shiki`（可选 peer）                | 子路径 `@zerodep-dev/vue-tsx-pro-ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                                       |
-| 路由     | `vue-router`（可选 peer）           | 子路径 `@zerodep-dev/vue-tsx-pro-ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）                                             |
-| 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                                                                               |
-| 色板     | `@radix-ui/colors`                  | 主题定制按色阶换品牌色、中性色（palette.ts，子路径 theme-customize）；测试里也用它校验 tokens 取值                                                             |
-| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                                                                           |
-| 拖拽排序 | 自己实现                            | `utils/dom/sortable`（Sortable、DataTable 的行拖动）；键盘拿起放下与读屏播报参考 dnd-kit                                                                       |
-| 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                                                                                      |
+| 用途     | 选择                                | 说明                                                                                                                                                   |
+| -------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                                                                      |
+| 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon.tsx`）                                                                                         |
+| 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                                                                   |
+| 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                                                                         |
+| 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                                                                       |
+| 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`form/form-constraints.ts`）                       |
+| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/motion/animation`                                                                    |
+| 图表     | 自己画 SVG（无第三方依赖）          | 子路径 `@zerodep-dev/vue-tsx-pro-ui/charts`（Bar、Line、Area、Scatter、Donut、Sankey、Chord，§10.21）；SVG 的颜色、字号直接用 tokens，明暗切换不用重画 |
+| 3D       | `three`（可选 peer）                | 子路径 `@zerodep-dev/vue-tsx-pro-ui/three`（ThreeCanvas、useThree、主题色、效果，§10.22）；实例放普通变量或 `_state.raw`，不进深层响应式               |
+| 代码高亮 | `shiki`（可选 peer）                | 子路径 `@zerodep-dev/vue-tsx-pro-ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                               |
+| 路由     | `vue-router`（可选 peer）           | 子路径 `@zerodep-dev/vue-tsx-pro-ui/vue-router` 的 `vueRouterAdapter(router)`；组件只依赖 `UiRouter` 接口（§10.9）                                     |
+| 共享状态 | `pinia`（可选 peer）                | 需要跨组件、跨页面共享状态的组件出现时再用；组件内部状态仍用符文                                                                                       |
+| 色板     | `@radix-ui/colors`                  | 主题定制按色阶换品牌色、中性色（palette.ts，子路径 theme-customize）；测试里也用它校验 tokens 取值                                                     |
+| 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                                                                   |
+| 拖拽排序 | 自己实现                            | `utils/dom/sortable`（Sortable、DataTable 的行拖动）；键盘拿起放下与读屏播报参考 dnd-kit                                                               |
+| 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                                                                              |
 
 **待办**都在 [ROADMAP.md](../../ROADMAP.md)。双指缩放、旋转等手势等图片预览组件出现时在 `utils/dom/move.ts` 旁边加。
 
@@ -791,20 +791,22 @@ apps/docs/src/components/base/Button/
 
 ### 10.21 图表与统计数值（已完成）
 
-子路径 `@zerodep-dev/vue-tsx-pro-ui/charts` 封装 `@unovis/ts`（可选 peer），主入口不导入：没用到图表的应用不打包 Unovis。柱状 + 折线按需打包约 77 KB（gzip，含 d3 与 emotion）。
+子路径 `@zerodep-dev/vue-tsx-pro-ui/charts`，主入口不导入：没用到图表的应用不打包这些代码。2026-10-30 起不再依赖 `@unovis/ts`（连带 d3、emotion）：
+比例尺、曲线、堆叠与各种布局（桑基、弦、矩形树、网络、地图投影）都是 `charts/` 里按 d3 的算法写的精简实现，只产出 SVG 路径与坐标，
+渲染全走 Vue。地图的地理数据（中国省份、世界各国的 TopoJSON）单独一个子路径 `@zerodep-dev/vue-tsx-pro-ui/maps`。
 
 | 项         | 做法                                                                                                                                                                                                                                                                                                                                                                             |
 | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 公共部分   | `charts/XYChart.tsx`（内部）：图例（按钮，`aria-pressed`，隐藏的系列 `_hiddenSeries` 可 `_bind`）、单位、绘图区、十字线与提示框（内容用 Vue 渲染进 Unovis 的提示框）、空与加载状态、给读屏的数据表；各种图只给出要画的 Unovis 组件                                                                                                                                               |
-| 生命周期   | Unovis 组件实例只建一次（`instance(key, create)`），数据与属性变化时 `setConfig` + `container.update`，卸载时 `destroy`，更新才有过渡动画                                                                                                                                                                                                                                        |
-| 外观       | 根元素上把 `--vis-*` 变量（坐标轴、网格、十字线、提示框、字体）指到 tokens；系列颜色是 CSS 变量；动画时长取 `durations.lg`（`themeTransition` 解析，减少动态效果时为 0）                                                                                                                                                                                                         |
+| 公共部分   | `frame.tsx` 的 `ChartFrame`：图例（按钮，`aria-pressed`，隐藏的系列 `_hiddenSeries` 可绑定）、单位、绘图区、空与加载状态、给读屏的数据表、导出；`plot.tsx`：量绘图区、坐标轴、提示框；`XYChart.tsx`：直角坐标图的比例尺、十字线、目标线、标注、缩放，各种图只给出 `kind.render`（`marks.tsx` 的柱、线、面积、点）                                                                |
+| 生命周期   | 普通的 Vue 渲染：数据变了重新算路径；进场动画用 `@starting-style`（只在图形第一次出现时播），坐标与路径保留三位小数，服务端与浏览器一致                                                                                                                                                                                                                                          |
+| 外观       | 坐标轴、网格、十字线、提示框的样式直接写 tokens；系列颜色是 CSS 变量；动画时长取 `durations.lg`（减少动态效果时为 0）                                                                                                                                                                                                                                                            |
 | 色板       | 新 tokens `colors.chart1–chart8`：Radix 各色阶里能在背景上到 3:1（WCAG 图形对比度）的最浅一级；`chart1` 跟随品牌色（palette 的 ACCENT_STEPS），亮、暗、纸张三套主题都进 `themes:check`                                                                                                                                                                                           |
 | 组件       | `BarChart`（分组 / 堆叠、竖向 / 横向、圆角）、`LineChart`（直线 / 平滑 / 阶梯、实心或空心数据点、空值断开）、`AreaChart`、`ScatterChart`；单容器的 `DonutChart`、`SankeyChart`、`ChordChart`、`GraphChart`；`WaterfallChart`（基于 XYChart 的堆叠柱）、`FunnelChart`（tokens 直接画）；`targets` 目标线、`onItemClick` 下钻；`series` 的 `key` 只接受数值字段（`NumericKey<T>`） |
 | Stat       | 主入口的 `Stat`（`display/Stat.tsx`）：`dl` 结构的指标名、数值（AnimatedNumber）、单位、图标、变化量（`invertChange` 用于越低越好）                                                                                                                                                                                                                                              |
 | 文档站     | “图表”分类：统计看板示例（筛选、指标卡、两张图、明细表、导出 CSV）、BarChart、LineChart；Stat 在“展示”                                                                                                                                                                                                                                                                           |
-| 顺带的基础 | StyleX 类型支持自定义属性（`'--x': …`，scripts/css-docs 生成）；API 表能读子路径导出的类型；`prebundle.config.ts` 加上 `@unovis/ts`                                                                                                                                                                                                                                              |
+| 顺带的基础 | StyleX 类型支持自定义属性（`'--x': …`，scripts/css-docs 生成）；API 表能读子路径导出的类型                                                                                                                                                                                                                                                                                       |
 
-**Unovis 的坑**：每个 XYContainer 都插一个 id 固定为 `saturate` 的滤镜，一页多张图时 id 重复，创建后改成各自的 id（`useId`）；GroupedBar 默认给空值画 2px 的最小高度，设为 0；happy-dom 没有 SVG 的 `transform.baseVal.consolidate`，时长为 0 时不走 d3 的过渡，单元测试不受影响；绘制在动画帧里，页面在后台（标签页隐藏）时暂停，回到前台才画。
+**换掉 Unovis 的原因**：它的组件在动画帧里命令式地改 DOM（页面在后台时不画）、提示框要把 Vue 内容渲染进它管的 div（丢应用上下文）、每个容器插 id 固定的滤镜、样式靠 emotion 注入全局变量；体积里 d3 与 emotion 占了大半。
 
 **之后**：组合图、其余新图表与键盘逐点浏览见 ROADMAP.md 阶段 7。
 

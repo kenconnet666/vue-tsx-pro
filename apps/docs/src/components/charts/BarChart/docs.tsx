@@ -18,7 +18,7 @@ import States from './demo/States.tsx?demo';
 export const meta = {
   title: 'BarChart 柱状图',
   description:
-    '比较各类目的数值：分组或堆叠，竖向或横向。基于 Unovis，颜色、字体、提示框都跟随主题；需要安装 @unovis/ts。',
+    '比较各类目的数值：分组或堆叠，竖向或横向。自己用 SVG 画，颜色、字体、提示框都跟随主题，没有第三方依赖。',
   order: 1,
 };
 

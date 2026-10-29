@@ -13,8 +13,8 @@ const settle = () => new Promise((resolve) => setTimeout(resolve, 600));
 
 it('组合图：柱与线都画出；右侧刻度与左侧刻度一一同高', async () => {
   const root = mount(Savings);
-  await until(() => root.querySelectorAll('[class*="grouped-bar-component"] path').length === 18);
-  await until(() => root.querySelector('[class*="line-component"] path'));
+  await until(() => root.querySelectorAll('[data-part="bar"]').length === 18);
+  await until(() => root.querySelector('[data-part="line"]'));
   await settle();
   const texts = [...root.querySelectorAll('svg text')];
   const center = (element: Element) => {
@@ -37,7 +37,7 @@ it('组合图：柱与线都画出；右侧刻度与左侧刻度一一同高', a
 
 it('标注：事件的竖线与文字、圈出的值与文字、类目轴与数值轴上的区间都画出', async () => {
   const root = mount(Annotations);
-  await until(() => root.querySelector('[class*="line-component"] path'));
+  await until(() => root.querySelector('[data-part="line"]'));
   await settle();
   const text = root.querySelector('svg')!.textContent!;
   for (const label of [
@@ -49,7 +49,7 @@ it('标注：事件的竖线与文字、圈出的值与文字、类目轴与数�
     '目标区间',
   ])
     expect(text).toContain(label);
-  expect(root.querySelectorAll('[class*="plotband"] rect').length).toBeGreaterThanOrEqual(2);
+  expect(root.querySelectorAll('[data-part="band"] rect').length).toBeGreaterThanOrEqual(2);
 });
 
 it('百分比堆叠：每根柱子都叠满，一样高', async () => {
@@ -73,7 +73,7 @@ it('百分比堆叠：每根柱子都叠满，一样高', async () => {
         }),
     ),
   );
-  const bars = () => [...root.querySelectorAll('[class*="stacked-bar-component"] path')];
+  const bars = () => [...root.querySelectorAll('[data-part="bar"]')];
   await until(() => bars().length === 6);
   await settle();
   // 每个类目两段：按横坐标分组，量每组的总高

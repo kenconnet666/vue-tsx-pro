@@ -5,12 +5,8 @@ import { mount } from '../../../../test/mount';
 import { until } from '../../../../test/until';
 import Teams from '../demo/Teams';
 
-const arcs = (root: Element) => [
-  ...root.querySelectorAll('[class*="chord-diagram-component"] path[class*="node"]'),
-];
-const chords = (root: Element) => [
-  ...root.querySelectorAll('[class*="chord-diagram-component"] path[class*="link"]'),
-];
+const arcs = (root: Element) => [...root.querySelectorAll('[data-part="node"]')];
+const chords = (root: Element) => [...root.querySelectorAll('[data-part="link"]')];
 
 it('6 段弧、10 根弦；有图例时部门名写在图例里', async () => {
   const root = mount(Teams);

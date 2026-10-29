@@ -1,6 +1,6 @@
 // 同比变化：scheme="diverging" 以 0 为界，降了用 danger、涨了用 success，离 0 越远越深；连续着色，色带中间是 0
-import { ChinaTopoJSON } from '@unovis/ts/maps';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { chinaProvinces } from '@zerodep-dev/vue-tsx-pro-ui/maps';
 import { MapChart, type MapArea } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 import { provinces } from './china';
 
@@ -13,7 +13,7 @@ const areas: MapArea[] = provinces.map((province, index) => ({
 export default _component(() => () => (
   <MapChart
     aria-label="各省采购额同比"
-    topology={ChinaTopoJSON}
+    topology={chinaProvinces}
     feature="provinces"
     areas={areas}
     scheme="diverging"

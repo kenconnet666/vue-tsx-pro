@@ -48,6 +48,11 @@
       "types": "./dist/charts/index.d.ts",
       "default": "./dist/charts/index.js"
     },
+    "./maps": {
+      "@vue-tsx-pro/source": "./src/maps/index.ts",
+      "types": "./dist/maps/index.d.ts",
+      "default": "./dist/maps/index.js"
+    },
     "./docs-kit": {
       "@vue-tsx-pro/source": "./src/docs-kit/index.ts",
       "types": "./dist/docs-kit/index.d.ts",
@@ -129,7 +134,6 @@
     "pinia": "^4.0.0",
     "shiki": "^4.0.0",
     "three": ">=0.170.0",
-    "@unovis/ts": "^1.7.0",
     "vue": "^3.5.0",
     "vue-router": "^5.0.0",
     "zod": "^4.6.0",
@@ -152,9 +156,6 @@
       "optional": true
     },
     "three": {
-      "optional": true
-    },
-    "@unovis/ts": {
       "optional": true
     },
     "vue-router": {
@@ -206,7 +207,6 @@
         "@lezer/highlight",
         "@lucide/icons",
         "@radix-ui/colors",
-        "@unovis/ts",
         "animejs",
         "culori/fn",
         "exceljs",
@@ -236,7 +236,6 @@
     "three": "catalog:",
     "@types/three": "catalog:",
     "typescript": "catalog:",
-    "@unovis/ts": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",
     "vue": "catalog:",

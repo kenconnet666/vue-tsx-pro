@@ -1,9 +1,9 @@
 // 只标地点：区域不给数值时是底色；供应商按交付状态着色（color 用语义色），大小按年采购额；
 // 长三角的地点挤在一起：名字自动换到放得下的方位，再挤就退到外一圈画引线，放不下的悬停看；
 // 点一个地点在下面显示它（onPointClick）
-import { ChinaTopoJSON } from '@unovis/ts/maps';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { chinaProvinces } from '@zerodep-dev/vue-tsx-pro-ui/maps';
 import { MapChart, type MapPoint } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 
 const status = { success: '准时', warning: '延误', danger: '断供风险' } as const;
@@ -35,7 +35,7 @@ export default _component(() => {
     <Flex direction="column" gap="sm">
       <MapChart
         aria-label="供应商分布"
-        topology={ChinaTopoJSON}
+        topology={chinaProvinces}
         feature="provinces"
         points={sites}
         unit="万元"

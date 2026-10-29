@@ -9,3 +9,5 @@ pnpm-lock.yaml
 patches/
 .mcp.json
 .claude/
+# 地图的地理数据：压缩成一行的 TopoJSON，格式化后会大几倍
+packages/ui/src/maps/*.json

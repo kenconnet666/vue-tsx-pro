@@ -18,7 +18,7 @@ import SupplyChain from './demo/SupplyChain.tsx?demo';
 export const meta = {
   title: 'MapChart 地图',
   description:
-    '按区域着色（分省的金额、各国的采购额），标出地点与流向；地理数据是 TopoJSON，Unovis 自带中国省份、世界等。',
+    '按区域着色（分省的金额、各国的采购额），标出地点与流向；地理数据是 TopoJSON，组件库自带中国省份与世界各国（@zerodep-dev/vue-tsx-pro-ui/maps）。',
   order: 11,
 };
 
@@ -27,12 +27,13 @@ export default _component(() => () => (
     wide
     meta={meta}
     imports={
-      "import { MapChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';\nimport { ChinaTopoJSON } from '@unovis/ts/maps';"
+      "import { MapChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';\nimport { chinaProvinces } from '@zerodep-dev/vue-tsx-pro-ui/maps';"
     }
   >
     <Example id="provinces" title="各省的销售额：分级着色、省名、仓库" demo={Provinces}>
-      <Code>topology</Code> 是 TopoJSON，<Code>feature</Code> 是要画的那组要素（中国省份是{' '}
-      <Code>provinces</Code>）。
+      <Code>topology</Code> 是 TopoJSON（组件库的 <Code>@zerodep-dev/vue-tsx-pro-ui/maps</Code> 带着{' '}
+      <Code>chinaProvinces</Code> 与 <Code>worldCountries</Code>，也可以用自己的），
+      <Code>feature</Code> 是要画的那组要素（中国省份是 <Code>provinces</Code>）。
       <Code>areas</Code> 按要素的 <Code>id</Code> 给名称与数值；<Code>bins</Code>{' '}
       分成几档着色，图例是几个色块（不写时连续着色，图例是色带），
       <Code>areaLabels</Code> 把名称写在区域上。<Code>points</Code> 是经纬度上的地点，
@@ -47,7 +48,8 @@ export default _component(() => () => (
           默认按地理数据的范围选投影：一个国家、一个地区用以它为中心的等积圆锥投影（
           <Code>conic</Code>，中国地图常用的 Albers，正着、面积不失真），跨了大半个地球时用{' '}
           <Code>naturalEarth</Code>。也可以指定 <Code>mercator</Code>、<Code>equalEarth</Code>、
-          <Code>orthographic</Code>（地球仪）或自己的 d3 投影；<Code>center</Code> 改投影的中心。
+          <Code>equirectangular</Code>、<Code>orthographic</Code>（地球仪）或自己的投影函数（d3-geo
+          的投影可以直接传）；<Code>center</Code> 改投影的中心。
         </Example>
         <Example id="regions" title="分类着色" demo={Regions}>
           区域写了 <Code>color</Code>{' '}
@@ -67,7 +69,7 @@ export default _component(() => () => (
       </ExampleColumn>
     </Examples>
     <Example id="supply-chain" title="全球供应链：流向" demo={SupplyChain}>
-      世界地图（<Code>WorldMap110mAlphaTopoJSON</Code>，ISO 两位国家代码）。<Code>links</Code>{' '}
+      世界地图（<Code>worldCountries</Code>，ISO 两位国家代码）。<Code>links</Code>{' '}
       是地点之间的流向，粗细按 <Code>value</Code>，<Code>flow</Code> 时有流动的粒子；地点的{' '}
       <Code>shape</Code> 与 <Code>color</Code> 区分供应商与组装厂；<Code>center</Code>{' '}
       把中央经线放在东经 110°，中国在中间。悬停看名称与数值；读屏的数据表列出各区域、地点与流向。

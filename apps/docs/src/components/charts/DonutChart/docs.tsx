@@ -12,7 +12,7 @@ import Options from './demo/Options.tsx?demo';
 export const meta = {
   title: 'DonutChart 环形图',
   description:
-    '看各部分在整体里占多少：环形或饼图，中间写合计。基于 Unovis，跟随主题；需要安装 @unovis/ts。',
+    '看各部分在整体里占多少：环形或饼图，中间写合计。自己用 SVG 画，跟随主题，没有第三方依赖。',
   order: 4,
 };
 

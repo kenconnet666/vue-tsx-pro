@@ -5,14 +5,8 @@ import { mount } from '../../../../test/mount';
 import { until } from '../../../../test/until';
 import Budget from '../demo/Budget';
 
-const nodes = (root: Element) => [
-  ...root.querySelectorAll(
-    '[class*="sankey-component"] rect[class*="node"]:not([class*="selection"])',
-  ),
-];
-const links = (root: Element) => [
-  ...root.querySelectorAll('[class*="sankey-component"] path[class*="visible"]'),
-];
+const nodes = (root: Element) => [...root.querySelectorAll('[data-part="node"]')];
+const links = (root: Element) => [...root.querySelectorAll('[data-part="link"]')];
 
 it('10 个节点、11 条流；节点写名称，金额按货币格式', async () => {
   const root = mount(Budget);

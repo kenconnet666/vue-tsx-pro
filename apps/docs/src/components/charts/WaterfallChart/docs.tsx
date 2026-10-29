@@ -11,7 +11,7 @@ import Versions from './demo/Versions.tsx?demo';
 export const meta = {
   title: 'WaterfallChart 瀑布图',
   description:
-    '从起点一步步加减到终点，看总数是怎么变过来的：测算版本差异、预算到实际。基于 Unovis 的堆叠柱，跟随主题；需要安装 @unovis/ts。',
+    '从起点一步步加减到终点，看总数是怎么变过来的：测算版本差异、预算到实际。自己用 SVG 画，相邻两步之间有连接线，跟随主题。',
   order: 8,
 };
 

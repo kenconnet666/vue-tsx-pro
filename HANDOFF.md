@@ -46,7 +46,7 @@
   - 页面组合（子路径 `@zerodep-dev/vue-tsx-pro-ui/patterns`）：AppShell / AppShellBrand（顶部导航、页签区、页脚、可收起侧栏）、PageTabs（路由用 `vue-router` 子路径的 useRouteTabs）、QueryTable（查询栏 + 工具栏 + 表格 + 分页，接 useTableQuery）、StepsForm（分步表单）、DataImport（导入：上传、对应列、逐行校验、就地改正）、CommentThread / CommentComposer（留言与回复、@、附件）、ActionBar、FilterBar、NotificationCenter / NotificationList、KanbanBoard、DeadlineBadge、ThemeSwitcher、useFormDialog；文案在 patternsMessages
   - 画布（子路径 `@zerodep-dev/vue-tsx-pro-ui/diagram`）：Diagram（视口、点选与框选、拖动、连线与改接、正交路由、键盘与读屏）、DiagramNode、DiagramLanes、DiagramControls、小地图、导出 SVG / PNG；撤销重做 `createHistory` 在主入口
   - Excel（子路径 `@zerodep-dev/vue-tsx-pro-ui/xlsx`，可选 peer exceljs）：exportXlsx / tableToXlsx（列定义导出，分组表头合并、数字格式、合计）、readXlsx（展开合并、多行表头、换行拆行）；CSV 用主入口的 readCsvFile、parseCsv
-  - 图表（子路径 `@zerodep-dev/vue-tsx-pro-ui/charts`，包装 Unovis）：BarChart、LineChart、AreaChart、ComboChart（柱 + 线、对齐的第二数值轴）、ScatterChart、DonutChart、SankeyChart、ChordChart、WaterfallChart、FunnelChart、GraphChart、TimelineChart（计划与实际、今天、里程碑）、RadarChart、TreemapChart、MapChart（TopoJSON 分区着色与地点）；缩放（zoom）、导出图片与数据（exportable）、目标线（targets）、标注（annotations）、区间（bands）、百分比堆叠（stacked="percent"）、下钻（onItemClick）
+  - 图表（子路径 `@zerodep-dev/vue-tsx-pro-ui/charts`，自己画 SVG；地图数据在 `-ui/maps`）：BarChart、LineChart、AreaChart、ComboChart（柱 + 线、对齐的第二数值轴）、ScatterChart、DonutChart、SankeyChart、ChordChart、WaterfallChart、FunnelChart、GraphChart、TimelineChart（计划与实际、今天、里程碑）、RadarChart、TreemapChart、MapChart（TopoJSON 分区着色与地点）；缩放（zoom）、导出图片与数据（exportable）、目标线（targets）、标注（annotations）、区间（bands）、百分比堆叠（stacked="percent"）、下钻（onItemClick）
   - 3D（子路径 `@zerodep-dev/vue-tsx-pro-ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer
   - 卡片的装饰效果是 Card 的 `effect`（tilt 倾斜、spotlight 聚光、beam 流光边框，纯 CSS）；跑马灯 Marquee 在主入口（展示）。原 `@zerodep-dev/vue-tsx-pro-ui/effects` 子路径 2026-10-24 取消
   - 主题定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`）：customizeTheme、对比度、设计令牌、ThemeCustomizer、ThemeThumbnail；文档站组件在 `@zerodep-dev/vue-tsx-pro-ui/docs-kit`（CodePreview、PropsTable、CodeGroup、ColorSwatch）
@@ -68,7 +68,7 @@
 
 文档的放法：给使用者的只在文档站（`apps/docs`）；仓库里的 Markdown 是给维护者的，全局的放根目录，模块的跟着包走（`packages/<包>/`）。
 代码注释里写文件名（`COMPONENTS.md §4`）即可，`pnpm refs:check` 检查文档与注释里提到的 `.md` 都找得到。
-| `.claude/reports/` | 调研报告：全站审查（2026-10-22，标出已修与待办）、构建与加载性能、Unovis 的 API 清单 |
+| `.claude/reports/` | 调研报告：全站审查（2026-10-22，标出已修与待办）、构建与加载性能 |
 | `packages/ui/src/index.ts` | 组件库的全部导出，按目录分组；由 `pnpm exports` 生成，不要手改 |
 | `apps/docs/src/components/<分类>/<Name>/` | 文档页 `docs.tsx`、示例 `demo/`（整页示例在 `frames/`）；站点自己的组件在 `apps/docs/src/site/` |
 
@@ -258,7 +258,7 @@ tests/consumer 发布产物验证
 8. **目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`，测试在同级 `.test/`；文档与示例在 `apps/docs`。
 9. **对比度**：所有内置主题满足 WCAG AA 4.5:1；文档站的 axe 测试跑亮色与暗色。
 10. **工具全部导出**：名字全局唯一（`<组件>Styles`、`<组件>Managed`）；入口由 `pnpm exports` 生成。
-11. **依赖用起来**：表单校验用 zod，JS 动画用 Anime.js（`useAnimate`），日期用 `@internationalized/date`，图表用 Unovis；先看已有依赖能不能做，再自己写。
+11. **依赖用起来**：表单校验用 zod，JS 动画用 Anime.js（`useAnimate`），日期用 `@internationalized/date`；先看已有依赖能不能做，再自己写。
 12. **上层组件用好基础组件与工具**：ButtonBase、ListPopover、ChartFrame、controlIcon、Field……重复的逻辑出现第三次就抽出来。
 13. **`_` 前缀保留给符文**：项目代码里普通函数和变量不用 `_` 开头。
 14. **只有 Node 直接加载的** `packages/tsx/src/compiler` 与 `src/vite` 在相对导入里写 `.ts` 扩展名。
@@ -348,8 +348,7 @@ tests/consumer 发布产物验证
 审查的细节在 `.claude/reports/audit-2026-10-22.md`（已修的已标出）。每做完一块：勾 ROADMAP、`check.sh`、分开提交（整理与功能）、
 `push.sh`。
 
-做图表时照 SankeyChart / ChordChart 的结构：数据类型、`useSingleChart` 或 XYChart、`ChartFrame`；`--vis-*` 变量映射到 tokens；
-Unovis 的选项先查 `.claude/reports/unovis-api.md` 和 `node_modules/.pnpm/@unovis+ts@1.7.1/node_modules/@unovis/ts/components/<name>/config.d.ts`；
+做图表时照 SankeyChart / ChordChart 的结构：数据类型、布局（`charts/layout/`）或 XYChart、`ChartFrame` + `usePlotArea`；样式直接写 tokens；
 导出加到 `charts/index.ts`，测试加到 `charts/.test/charts.test.tsx`，文档页放 `apps/docs/src/components/charts/<Name>/`。
 
 新组件的页面照现有的做：示例饱满、贴近真实场景、键盘一节、API 表；`pnpm docs:coverage` 列出示例没用到的属性。

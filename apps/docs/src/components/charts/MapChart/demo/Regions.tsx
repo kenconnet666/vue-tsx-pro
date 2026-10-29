@@ -1,8 +1,8 @@
 // 分类着色：区域写了 color 时按它，不按数值（这里按所属的大区，颜色取色板）；所有区域都指定了颜色时不显示色带，
 // 图例自己写在下面
-import { ChinaTopoJSON } from '@unovis/ts/maps';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Flex, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { chinaProvinces } from '@zerodep-dev/vue-tsx-pro-ui/maps';
 import { MapChart, resolveColor, type MapArea } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { provinces } from './china';
@@ -25,7 +25,7 @@ export default _component(() => () => (
   <Flex direction="column" gap="sm">
     <MapChart
       aria-label="各大区"
-      topology={ChinaTopoJSON}
+      topology={chinaProvinces}
       feature="provinces"
       areas={areas}
       height={320}

@@ -8,7 +8,7 @@ import { API } from 'typescript/sync';
 /** 仓库根目录 */
 export const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 
-/** 从工作区里某个包解析依赖（脚本要用的库装在那个包里）：`requireFrom('packages/ui')('@unovis/ts')` */
+/** 从工作区里某个包解析依赖（脚本要用的库装在那个包里）：`requireFrom('packages/ui')('three')` */
 export const requireFrom = (dir) => createRequire(join(root, dir, 'package.json'));
 
 let api;

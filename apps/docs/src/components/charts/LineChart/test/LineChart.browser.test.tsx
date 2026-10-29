@@ -6,10 +6,10 @@ import Basic from '../demo/Basic';
 import Gaps from '../demo/Gaps';
 
 const lines = (root: Element) =>
-  [...root.querySelectorAll<SVGPathElement>('[class*="line-component"] path')].filter((path) =>
+  [...root.querySelectorAll<SVGPathElement>('[data-part="line"]')].filter((path) =>
     path.getAttribute('d'),
   );
-const dots = (root: Element) => root.querySelectorAll('[class*="scatter-component"] path');
+const dots = (root: Element) => root.querySelectorAll('[data-part="dot"]');
 
 it('两条线；空心的数据点：12 个月 × 2 个系列', async () => {
   const root = mount(Basic);
@@ -23,7 +23,7 @@ it('悬停：提示框列出当月各系列的值', async () => {
   const svg = root.querySelector('svg')!;
   const box = svg.getBoundingClientRect();
   svg.dispatchEvent(
-    new MouseEvent('mousemove', {
+    new PointerEvent('pointermove', {
       bubbles: true,
       clientX: box.right - 20,
       clientY: box.top + box.height / 2,

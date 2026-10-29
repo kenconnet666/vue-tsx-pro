@@ -2,7 +2,7 @@
  * 渲染到组件树之外：沿用调用处的配置（主题、语言、默认值，经 ConfigScope）与应用上下文（全局组件），
  * 生命周期跟着调用的组件——它卸载时一起收掉，不留孤儿。
  *
- *   const renderDetached = useDetachedRender();   // setup 里；第三方库管的元素（图表的提示框）
+ *   const renderDetached = useDetachedRender();   // setup 里；第三方库管的元素（如别的图表库的提示框）
  *   renderDetached(<Tip />, element);             // 再调一次换内容，传 null 卸载；组件卸载时自动卸载
  *
  *   const mount = useDetachedDialog();            // setup 里；命令式的对话框（useConfirm、useFormDialog）

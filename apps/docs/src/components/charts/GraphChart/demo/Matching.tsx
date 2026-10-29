@@ -32,13 +32,13 @@ const links = [
 ];
 
 export default _component(() => {
-  let layout = _state<keyof GraphChartLayouts>('dagre');
+  let layout = _state<keyof GraphChartLayouts>('layered');
   let direction = _state<'LR' | 'TB'>('LR');
   return () => (
     <Flex direction="column" gap="md">
       <Flex gap="md" wrap>
         <ToggleGroup _value={layout} aria-label="布局" size="sm" required>
-          <ToggleItem value="dagre">分层</ToggleItem>
+          <ToggleItem value="layered">分层</ToggleItem>
           <ToggleItem value="parallel">分列</ToggleItem>
           <ToggleItem value="force">力导向</ToggleItem>
         </ToggleGroup>

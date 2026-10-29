@@ -13,37 +13,31 @@
  *   />
  *
  * 时间可以是 Date、时间戳或 ISO 字符串；只有日期（'2026-06-30'）的结束含这一天。行按 rows 的顺序，没给时按第一次出现。
- * 悬停一段显示名称、起止与天数；读屏的数据表列出每一项。绘图交给 Unovis 的 Timeline（XYContainer、时间轴）。
+ * 左侧是行名，底下是整齐的时间刻度（月初、周、日、整点，见 timeTicks）；悬停一段显示名称、起止与天数；
+ * 读屏的数据表列出每一项。
  */
-import {
-  Axis,
-  Scale,
-  Plotline,
-  PlotlineLabelPosition,
-  PlotlineLineStylePresets,
-  Timeline,
-  Tooltip,
-  XYContainer,
-} from '@unovis/ts';
 import { getLocalTimeZone } from '@internationalized/date';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { useId, type VNodeChild } from 'vue';
-import { useDetachedRender } from '../overlay/detached';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
 import { parseIsoDate, parseIsoDateTime } from '../utils/data/date';
+import { svgNumber } from '../utils/data/number';
 import type { PartProps } from '../utils/props';
+import { ChartFrame, chartTooltip, type ChartFrameParts } from './frame';
 import {
-  ChartFrame,
-  chartDuration,
-  chartTooltip,
-  createChartInstances,
-  uniqueHighlightFilter,
-  usePlotSeen,
-  type ChartFrameParts,
-} from './frame';
+  ChartTooltipBox,
+  chartAxis,
+  chartSvgStyles,
+  pointerIn,
+  usePlotArea,
+  type ChartTip,
+} from './plot';
+import { linearScale, timeTicks } from './scale';
 import { resolveColor, type ChartColor } from './series';
+import { estimateTextWidth, truncateText } from './text-size';
 import { xyChartStyles } from './XYChart';
 
 /** 一个时间点：Date、时间戳（毫秒）或 ISO 字符串（日期或日期时间） */
@@ -130,6 +124,16 @@ interface Segment {
 const DAY = 86_400_000;
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+/** 行名最宽多少（px），更长的截短 */
+const LABEL_WIDTH = 160;
+
+/** TimelineChart 的样式：隔行的底色、时间条 */
+export const timelineChartStyles = css.create({
+  stripe: { fill: '_surfaceMuted' },
+  segment: { stroke: '_surface', strokeWidth: 0 },
+  segmentActive: { strokeWidth: 1.5, stroke: '_text' },
+});
+
 /** 轨道（计划）的颜色：系列色调浅 */
 const trackColor = (color: string) => `color-mix(in srgb, ${color} 30%, transparent)`;
 
@@ -171,7 +175,6 @@ export const TimelineChart = _component(
   }: TimelineChartProps) => {
     const lang = useLang();
     const format = useFormat();
-    const id = useId();
     const zone = () => lang.timeZone ?? getLocalTimeZone();
     const colorOf = (key: string | undefined) => {
       const position = series.findIndex((item) => item.key === key);
@@ -220,111 +223,164 @@ export const TimelineChart = _component(
       ...(markers ?? []),
     ];
 
-    const instances = createChartInstances();
-    let tooltipElement: HTMLElement | undefined;
-    // 提示框的内容渲染进 Unovis 管的元素：带上调用处的主题与语言，组件卸载时一起卸载
-    const renderDetached = useDetachedRender();
-    let plot = _state.raw<HTMLElement | null>(null);
-    const seen = usePlotSeen(() => plot);
-    let container: XYContainer<Segment> | undefined;
-    let containerElement: HTMLElement | undefined;
-    _effect(() => () => {
-      container?.destroy();
-    });
-    _effect(() => {
-      const data = segments();
-      const element = plot;
-      if (!element || loading || items.length === 0 || !seen()) return;
-      if (container && containerElement !== element) {
-        container.destroy();
-        container = undefined;
-        instances.reset();
+    const area = usePlotArea();
+    let hovered = _state.raw<{ index: number; x: number; y: number } | null>(null);
+
+    function onPointermove(event: PointerEvent) {
+      const target = (event.target as Element).closest?.('[data-segment]');
+      if (!target) {
+        hovered = null;
+        return;
       }
+      const { x, y } = pointerIn(event, event.currentTarget as Element);
+      hovered = { index: Number(target.getAttribute('data-segment')), x, y };
+    }
+
+    function renderPlot(shown: readonly Segment[]) {
+      const { width } = area;
+      const rowsHeight = rowOrder.length * rowHeight;
+      const labelWidth = Math.min(
+        LABEL_WIDTH,
+        Math.max(0, ...rowOrder.map((row) => estimateTextWidth(row))) + 16,
+      );
+      const marks = allMarkers().map((marker) => ({ ...marker, time: toTime(marker.at, zone()) }));
       const times = [
-        ...data.flatMap((segment) => [segment.start, segment.end]),
-        ...allMarkers().map((marker) => toTime(marker.at, zone())),
+        ...shown.flatMap((segment) => [segment.start, segment.end]),
+        ...marks.map((m) => m.time),
       ];
-      const ticks = Scale.scaleTime()
-        .domain([Math.min(...times), Math.max(...times)])
-        .ticks(6);
-      const timeline = instances.get('timeline', () => new Timeline<Segment>({ x: () => 0 }));
-      timeline.setConfig({
-        x: (segment) => segment.start,
-        lineDuration: (segment) => segment.end - segment.start,
-        lineRow: (segment) => segment.item.row,
-        lineWidth: (segment) => segment.width,
-        color: (segment) => (segment.track ? trackColor(segment.color) : segment.color),
-        lineCap: true,
-        rowHeight,
-        showRowLabels: true,
-        rowMaxLabelWidth: 160,
-        alternatingRowColors: true,
-      });
-      const lines = allMarkers().map((marker, position) => {
-        const line = instances.get(`marker-${position}`, () => new Plotline<Segment>({}));
-        line.setConfig({
-          axis: 'x',
-          value: toTime(marker.at, zone()),
-          color: resolveColor(marker.color ?? 'neutral', 0),
-          lineWidth: 1,
-          lineStyle: PlotlineLineStylePresets.ShortDash,
-          labelText: marker.label,
-          labelPosition: PlotlineLabelPosition.TopRight,
-          labelOffsetX: 4,
-          labelOffsetY: 2,
-        });
-        return line;
-      });
-      const xAxis = instances.get('xAxis', () => new Axis<Segment>({ type: 'x' }));
-      xAxis.setConfig({
-        type: 'x',
-        // 整齐的时间刻度：月初、周、日、整点（d3 的时间刻度）
-        tickValues: ticks.map((tick) => tick.getTime()),
-        tickFormat: (tick) => format.date(new Date(Number(tick)), dateFormat ?? autoFormat(ticks)),
-        gridLine: true,
-        tickLine: false,
-        domainLine: false,
-        tickPadding: 8,
-      });
-      const tooltipBox = instances.get('tooltip', () => new Tooltip());
-      tooltipBox.setConfig({
-        triggers: {
-          [Timeline.selectors.line]: (segment: Segment) => {
-            tooltipElement ??= document.createElement('div');
-            const name = series.find((entry) => entry.key === segment.item.series)?.label;
-            renderDetached(
-              chartTooltip(segment.item.label ?? segment.item.row, [
-                ...(name ? [{ label: name, color: segment.color, value: daysText(segment) }] : []),
-                { label: lang.chartStart, color: 'transparent', value: dateText(segment.start) },
-                { label: lang.chartEnd, color: 'transparent', value: dateText(segment.end - 1) },
-              ]),
-              tooltipElement,
-            );
-            return tooltipElement;
-          },
-        },
-      });
-      const config = {
-        components: [timeline, ...lines],
-        xAxis,
-        tooltip: tooltip ? tooltipBox : undefined,
-        ariaLabel: null,
-        duration: chartDuration(element),
+      const [low, high] = times.length ? [Math.min(...times), Math.max(...times)] : [0, DAY];
+      const [start, end] = low === high ? [low - DAY, high + DAY] : [low, high];
+      const scale = linearScale(
+        [start, end],
+        [labelWidth + 8, Math.max(labelWidth + 9, width - 16)],
+      );
+      const ticks = timeTicks(start, end, Math.max(2, Math.round((width - labelWidth) / 110)));
+      const tickFormat = dateFormat ?? autoFormat(ticks);
+      const plot = {
+        left: labelWidth + 8,
+        top: 0,
+        width: Math.max(0, width - labelWidth - 24),
+        height: rowsHeight,
       };
-      if (container) container.update(config, undefined, data);
-      else {
-        container = new XYContainer<Segment>(element, config, data);
-        containerElement = element;
-        uniqueHighlightFilter(element, `${id}-highlight`);
-      }
-    });
+      const rowOf = (row: string) => rowOrder.indexOf(row);
+      return (
+        <svg
+          width={width}
+          height={area.height}
+          {...css.attrs(chartSvgStyles.svg)}
+          onPointermove={onPointermove}
+          onPointerleave={() => (hovered = null)}
+        >
+          {rowOrder.map((row, position) =>
+            position % 2 === 0 ? (
+              <rect
+                key={`stripe:${row}`}
+                x={0}
+                y={position * rowHeight}
+                width={width}
+                height={rowHeight}
+                {...css.attrs(timelineChartStyles.stripe)}
+              />
+            ) : null,
+          )}
+          {chartAxis({
+            side: 'bottom',
+            ticks: ticks.map((tick) => ({
+              position: scale(tick.getTime()),
+              label: format.date(tick, tickFormat),
+            })),
+            plot,
+            grid: true,
+          })}
+          {rowOrder.map((row, position) => (
+            <text
+              key={`label:${row}`}
+              x={0}
+              y={svgNumber(position * rowHeight + rowHeight / 2)}
+              dominant-baseline="central"
+              {...css.attrs(chartSvgStyles.label)}
+            >
+              {truncateText(row, labelWidth - 12)}
+            </text>
+          ))}
+          <g {...css.attrs(chartSvgStyles.fadeIn)}>
+            {shown.map((segment, index) => {
+              const row = rowOf(segment.item.row);
+              if (row < 0) return null;
+              const x = scale(segment.start);
+              const length = Math.max(segment.width, scale(segment.end) - x);
+              return (
+                <rect
+                  key={index}
+                  data-part="segment"
+                  data-segment={index}
+                  x={svgNumber(x)}
+                  y={svgNumber(row * rowHeight + (rowHeight - segment.width) / 2)}
+                  width={svgNumber(length)}
+                  height={svgNumber(segment.width)}
+                  rx={svgNumber(segment.width / 2)}
+                  {...css.attrs(
+                    timelineChartStyles.segment,
+                    chartSvgStyles.fill(segment.track ? trackColor(segment.color) : segment.color),
+                    hovered?.index === index && timelineChartStyles.segmentActive,
+                  )}
+                />
+              );
+            })}
+          </g>
+          {marks.map((marker, position) => {
+            const x = Math.round(scale(marker.time)) + 0.5;
+            const color = resolveColor(marker.color ?? 'neutral', 0);
+            return (
+              <g key={`marker:${position}`} data-part="marker">
+                <line
+                  x1={x}
+                  x2={x}
+                  y1={0}
+                  y2={rowsHeight}
+                  {...css.attrs(xyChartStyles.eventLine, chartSvgStyles.stroke(color))}
+                />
+                <text
+                  x={x + 4}
+                  y={4}
+                  dominant-baseline="hanging"
+                  {...css.attrs(
+                    chartSvgStyles.labelMuted,
+                    chartSvgStyles.halo,
+                    xyChartStyles.textFill(color),
+                    chartSvgStyles.noPointer,
+                  )}
+                >
+                  {marker.label}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+      );
+    }
+
+    const tip = (shown: readonly Segment[]): ChartTip | null => {
+      const current = hovered;
+      const segment = current && shown[current.index];
+      if (!tooltip || !current || !segment) return null;
+      const name = series.find((entry) => entry.key === segment.item.series)?.label;
+      return {
+        x: current.x,
+        y: current.y,
+        content: chartTooltip(segment.item.label ?? segment.item.row, [
+          ...(name ? [{ label: name, color: segment.color, value: daysText(segment) }] : []),
+          { label: lang.chartStart, color: 'transparent', value: dateText(segment.start) },
+          { label: lang.chartEnd, color: 'transparent', value: dateText(segment.end - 1) },
+        ]),
+      };
+    };
 
     return () => {
       const shown = segments();
       return (
         <ChartFrame
           {...rest}
-          sx={[xyChartStyles.hideCrosshairLine, rest.sx]}
           // 行数 × 行高，加上时间轴
           height={rowOrder.length * rowHeight + 36}
           legend={series.map((item, position) => {
@@ -359,7 +415,15 @@ export const TimelineChart = _component(
               ],
             })),
           }}
-          plotRef={(element) => (plot = element)}
+          plotRef={area.ref}
+          plot={
+            area.ready
+              ? [
+                  renderPlot(shown),
+                  <ChartTooltipBox key="tooltip" tip={tip(shown)} width={area.width} />,
+                ]
+              : null
+          }
         />
       );
     };

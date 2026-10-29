@@ -17,13 +17,13 @@
  * 柱子并排（stacked 时叠起），线可以带数据点。第二数值轴的刻度与主轴对齐（同一组网格线），
  * 它的单位写在右上方，提示框、数据表里按各自的格式与单位显示。其余（图例、目标线、标注、区间、下钻）同 XYChart。
  */
-import { GroupedBar, Line, Scatter, StackedBar, type XYComponentCore } from '@unovis/ts';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { NumericFormat } from '../config/lang/format';
-import { colors } from '../config/theme/tokens';
-import { CURVES, type LineCurves, type LineDots } from './LineChart';
+import type { LineDots } from './LineChart';
+import { chartBars, chartDots, chartLines } from './marks';
 import type { ChartSeries } from './series';
 import { seriesNumber } from './series';
+import type { LineCurves } from './shape';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 
 /** 组合图的一个系列 */
@@ -52,9 +52,6 @@ export interface ComboChartProps<T extends object> extends Omit<XYChartProps<T>,
   radius?: number;
 }
 
-/** 数据点的直径（px） */
-const DOT_SIZE = 8;
-
 /** 组合图：柱 + 线，可以有第二数值轴 */
 export const ComboChart = _component(
   <T extends object>({
@@ -74,12 +71,14 @@ export const ComboChart = _component(
     );
 
     const kind = _derived<XYChartKind<T>>({
+      band: true,
       skeleton: 'bars',
       stacked,
+      // 只有柱叠起，线按各自的值
+      stackSeries: (item) => !isLine(item.key),
       crosshairDots: true,
       // 十字线只在线上画圆点，柱子不画
       crosshairSeries: (item) => isLine(item.key),
-      itemSelector: stacked ? StackedBar.selectors.bar : GroupedBar.selectors.bar,
       secondary:
         secondaryKeys.length > 0
           ? { keys: secondaryKeys, format: secondaryFormat, unit: secondaryUnit }
@@ -102,59 +101,14 @@ export const ComboChart = _component(
             ...values(lines),
           ];
         }),
-      components: ({ series: shown, x, y, instance, events }) => {
-        const bars = shown.filter((item) => !isLine(item.key));
-        const lines = shown.filter((item) => isLine(item.key));
-        const components: XYComponentCore<T>[] = [];
-        if (bars.length > 0) {
-          const common = {
-            x,
-            y: bars.map(y),
-            color: (_row: T, position: number) => bars[position]?.color,
-            roundedCorners: radius,
-            events,
-          };
-          if (stacked) {
-            const stack = instance('stacked', () => new StackedBar<T>({ x, y: [] }));
-            stack.setConfig({ ...common, barPadding: 0.4, barMaxWidth: 48 });
-            components.push(stack);
-          } else {
-            const group = instance('grouped', () => new GroupedBar<T>({ x, y: [] }));
-            group.setConfig({
-              ...common,
-              groupPadding: 0.3,
-              barPadding: 0.1,
-              groupMaxWidth: 96,
-              barMinHeight: 0,
-            });
-            components.push(group);
-          }
-        }
-        if (lines.length > 0) {
-          const line = instance('line', () => new Line<T>({ x, y: [] }));
-          line.setConfig({
-            x,
-            y: lines.map(y),
-            color: (_rows: T[], position: number) => lines[position]?.color,
-            curveType: CURVES[curve],
-            lineWidth: 2,
-          });
-          components.push(line);
-          if (dots !== 'none')
-            for (const item of lines) {
-              const points = instance(`dots:${item.key}`, () => new Scatter<T>({ x, y: () => 0 }));
-              points.setConfig({
-                x,
-                y: y(item),
-                size: DOT_SIZE,
-                color: dots === 'hollow' ? colors.surface : item.color,
-                strokeColor: item.color,
-                strokeWidth: dots === 'hollow' ? 2 : 0,
-              });
-              components.push(points);
-            }
-        }
-        return components;
+      render: (context) => {
+        const bars = context.series.filter((item) => !isLine(item.key));
+        const lines = context.series.filter((item) => isLine(item.key));
+        return [
+          chartBars(context, bars, { stacked, radius }),
+          chartLines(context, lines, { curve, width: 2 }),
+          dots !== 'none' && chartDots(context, lines, dots),
+        ];
       },
     });
     return () => <XYChart {...rest} series={series} _hiddenSeries={hiddenSeries} kind={kind} />;

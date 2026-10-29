@@ -11,20 +11,10 @@
  *
  * 空值（null、undefined）处断开；颜色、坐标轴、提示框、图例、读屏的数据表见 XYChart。
  */
-import { CurveType, Line, Scatter } from '@unovis/ts';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { colors } from '../config/theme/tokens';
+import { chartDots, chartLines } from './marks';
+import type { LineCurves } from './shape';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
-
-/** 线的形状 */
-export interface LineCurves {
-  /** 折线：相邻的点直线相连（默认） */
-  linear: unknown;
-  /** 平滑曲线：不会越过数据点（单调插值），趋势更柔和 */
-  monotone: unknown;
-  /** 阶梯：值保持到下一个点才跳变，适合离散的状态、价格档位 */
-  step: unknown;
-}
 
 /** 数据点的样式 */
 export interface LineDots {
@@ -46,16 +36,6 @@ export interface LineChartProps<T extends object> extends XYChartProps<T> {
   lineWidth?: number;
 }
 
-/** 曲线的形状 → Unovis 的 CurveType（折线图、面积图共用） */
-export const CURVES = {
-  linear: CurveType.Linear,
-  monotone: CurveType.MonotoneX,
-  step: CurveType.StepAfter,
-} satisfies Record<keyof LineCurves, CurveType>;
-
-/** 数据点的直径（px） */
-const DOT_SIZE = 8;
-
 /** 折线图：直线、平滑或阶梯，可带数据点 */
 export const LineChart = _component(
   <T extends object>({
@@ -69,30 +49,10 @@ export const LineChart = _component(
       crosshairDots: true,
       // 两端的点不贴着绘图区边缘，圆点与十字线的圆点能完整显示
       padding: { left: 12, right: 12, top: 8 },
-      components: ({ series, x, y, instance }) => {
-        const line = instance('line', () => new Line<T>({ x, y: [] }));
-        line.setConfig({
-          x,
-          y: series.map(y),
-          color: (_rows: T[], position: number) => series[position]?.color,
-          curveType: CURVES[curve],
-          lineWidth,
-        });
-        if (dots === 'none') return [line];
-        const points = series.map((item) => {
-          const scatter = instance(`dots:${item.key}`, () => new Scatter<T>({ x, y: () => 0 }));
-          scatter.setConfig({
-            x,
-            y: y(item),
-            size: DOT_SIZE,
-            color: dots === 'hollow' ? colors.surface : item.color,
-            strokeColor: item.color,
-            strokeWidth: dots === 'hollow' ? 2 : 0,
-          });
-          return scatter;
-        });
-        return [line, ...points];
-      },
+      render: (context) => [
+        chartLines(context, context.series, { curve, width: lineWidth }),
+        dots !== 'none' && chartDots(context, context.series, dots),
+      ],
     });
     return () => <XYChart {...rest} _hiddenSeries={hiddenSeries} kind={kind} />;
   },

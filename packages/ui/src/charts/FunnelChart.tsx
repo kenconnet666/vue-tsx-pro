@@ -4,7 +4,7 @@
  *   <FunnelChart aria-label="渠道转化" stages={[{ label: '提交建议', value: 120 }, { label: '立项', value: 46 }]} unit="项" />
  *
  * 每个环节一条居中的横条，长短按数值（最大的环节占满）；环节之间写比上一环节的转化率，末尾写总转化。
- * 横条默认同一个颜色（chart1），环节可以单独给 color。Unovis 没有漏斗图：这里用主题 tokens 直接画，
+ * 横条默认同一个颜色（chart1），环节可以单独给 color。横条是 HTML（不是 SVG），长短、颜色直接用主题 tokens；
  * 外层结构（单位、加载与空状态、给读屏的数据表）同其他图表（见 ChartFrame）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';

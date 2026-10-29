@@ -189,7 +189,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 标注、组合图（柱 + 线，双轴）、100% 堆叠
 - [x] 热力图 / PivotTable、Gauge、Sparkline（Stat 里用）、TimelineChart
 - [x] 雷达、矩形树图、缩放、导出图片与数据；地图（TopoJSON、Leaflet）排在最后
-      （Leaflet 瓦片地图不包装：要瓦片服务与 leaflet 的样式，需要时直接用 Unovis 的 LeafletMap；TopoJSON 的 MapChart 已有）
+      （Leaflet 瓦片地图不包装：要瓦片服务与 leaflet 的样式，需要时直接用 leaflet；TopoJSON 的 MapChart 已有）
 - [x] 浏览器测试补上 Area、Scatter、Donut、Sankey、Chord、Funnel、Graph、Waterfall；部件属性的示例（柱状图页）
 
 ## 阶段 8：质量与发布
@@ -725,7 +725,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [x] 静态 Table 与 DataTable 共用的外观移到 table-styles.ts（Table 不再连带打包 DataTable 的视图）；MenuItem、MenuCheckboxItem、
       MenuRadioItem 共用 `useButtonItem`。MenuSub 的触发项要管子菜单的打开与安全三角，与它们不同，不合并
 - [x] 3D：一列颜色变成主题色的写法（四处）收成 setup 上下文的 `themeColorList`；Globe 改 landColor、markerColor 不生效（不在 sceneKey 里）。
-      决定保留：Unovis 容器的生命周期两份对应两种容器（XYContainer 给直角坐标图、SingleContainer 给其余），各自已被同类图表共用；
+      决定保留（当时）：Unovis 容器的生命周期两份对应两种容器；2026-10-30 换成自己的 SVG 实现后已没有这两份；
       四类图表的公共属性说明里带着各自的默认高度、骨架形状与格式的用处，不合成 `ChartCommonProps`
 - [x] Lang 只留通用组件的文案；主题编辑器与文档站组件各带中英文的文案表，`useMessages` 按语言代码取、退到同语种再退到英文
       （同 React Aria），改写或补语言写在 `lang.messages`，`defineLang` 按组件合并

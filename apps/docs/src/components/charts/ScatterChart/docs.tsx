@@ -12,7 +12,7 @@ import Options from './demo/Options.tsx?demo';
 export const meta = {
   title: 'ScatterChart 散点图',
   description:
-    '看两个数值之间的关系：每一行一个点，点的大小可以再表示第三个数值（气泡图）。基于 Unovis，跟随主题；需要安装 @unovis/ts。',
+    '看两个数值之间的关系：每一行一个点，点的大小可以再表示第三个数值（气泡图）。自己用 SVG 画，跟随主题，没有第三方依赖。',
   order: 5,
 };
 

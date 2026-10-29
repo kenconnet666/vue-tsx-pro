@@ -58,7 +58,7 @@ export interface LabelLayoutOptions {
   rings?: number;
 }
 
-// 方位的优先级：下（与 Unovis 的默认一致）、上、右、左，然后四个斜角
+// 方位的优先级：下（地图上地名常见的位置）、上、右、左，然后四个斜角
 const directions: readonly (readonly [number, number])[] = [
   [0, 1],
   [0, -1],

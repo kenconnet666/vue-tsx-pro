@@ -18,12 +18,14 @@
  * 成本类的图里减少是好事时对调）。提示框与读屏的数据表列出变动与累计。
  * 坐标轴、目标线、下钻、加载与空状态同 BarChart（见 XYChart）。
  */
-import { StackedBar } from '@unovis/ts';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import { useChartValueText } from './frame';
+import { chartBar, chartMarkStyles } from './marks';
+import { chartSvgStyles } from './plot';
 import { resolveColor, type ChartColor } from './series';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 
@@ -37,7 +39,7 @@ export interface WaterfallStep {
   total?: boolean;
 }
 
-/** 画图用的一行（waterfallRows 算出）：柱子从 low 画到 high；跨过 0 的分成正负两段（Unovis 的堆叠正负分开叠） */
+/** 画图用的一行（waterfallRows 算出）：柱子从 low 画到 high */
 export interface WaterfallRow {
   /** 名称 */
   label: string;
@@ -47,12 +49,6 @@ export interface WaterfallRow {
   change: NumericValue | undefined;
   /** 这一步之后的累计 */
   cumulative: number;
-  /** 透明的垫底：柱子悬在上一步的累计处 */
-  base: number;
-  /** 看得见的一段 */
-  bar: number;
-  /** 跨过 0 时负的那一段 */
-  below: number;
   /** 柱子的下沿 */
   low: number;
   /** 柱子的上沿 */
@@ -87,6 +83,16 @@ export interface WaterfallChartProps extends Omit<
   onItemClick?: (step: WaterfallStep, index: number) => void;
 }
 
+/** WaterfallChart 的样式 */
+export const waterfallChartStyles = css.create({
+  connector: {
+    stroke: '_borderStrong',
+    strokeWidth: 1,
+    strokeDasharray: '2 2',
+    pointerEvents: 'none',
+  },
+});
+
 /** 各步算成画图用的行：累计、每根柱子的上下沿 */
 export function waterfallRows(steps: readonly WaterfallStep[]): WaterfallRow[] {
   let running = 0;
@@ -95,18 +101,11 @@ export function waterfallRows(steps: readonly WaterfallStep[]): WaterfallRow[] {
     if (step.total) running = step.value === undefined ? running : toNumber(step.value);
     else running += step.value === undefined ? 0 : toNumber(step.value);
     const [low, high] = before <= running ? [before, running] : [running, before];
-    // 不跨 0：透明的一段垫到较近 0 的一端，看得见的一段补到另一端；跨 0：正负各一段，不垫底
-    const crosses = low < 0 && high > 0;
-    const base = crosses ? 0 : high <= 0 ? high : low;
-    const bar = crosses ? high : high <= 0 ? low - high : high - low;
     return {
       label: step.label,
       kind: step.total ? 'total' : running >= before ? 'increase' : 'decrease',
       change: step.value,
       cumulative: running,
-      base,
-      bar,
-      below: crosses ? low : 0,
       low,
       high,
     };
@@ -151,23 +150,57 @@ export const WaterfallChart = _component(
 
     const kind = _derived<XYChartKind<WaterfallRow>>({
       skeleton: 'bars',
-      stacked: true,
+      band: true,
       domainValues: (list) => list.flatMap((row) => [row.low, row.high]),
-      itemSelector: StackedBar.selectors.bar,
-      components: ({ x, instance, events }) => {
-        const bars = instance('waterfall', () => new StackedBar<WaterfallRow>({ x, y: [] }));
-        bars.setConfig({
-          x,
-          y: [(row) => row.base, (row) => row.bar, (row) => row.below],
-          // 垫底的一段透明：看起来柱子悬在上一步的累计处
-          color: (row: WaterfallRow, position: number) =>
-            position === 0 ? 'transparent' : colorOf(row),
-          roundedCorners: radius,
-          barPadding: 0.3,
-          barMaxWidth: 56,
-          events,
-        });
-        return [bars];
+      render: (context) => {
+        const width = Math.min(context.step * 0.7, 56);
+        return (
+          <g data-part="bars">
+            {context.rows.map((row, index) => {
+              const center = context.category(row, index);
+              const next = context.rows[index + 1];
+              // 连接线：这一步的累计接到下一根柱子
+              const level = context.value(row.cumulative);
+              const connector =
+                next &&
+                (context.horizontal
+                  ? {
+                      x1: level,
+                      x2: level,
+                      y1: center + width / 2,
+                      y2: context.category(next, index + 1) - width / 2,
+                    }
+                  : {
+                      x1: center + width / 2,
+                      x2: context.category(next, index + 1) - width / 2,
+                      y1: level,
+                      y2: level,
+                    });
+              const { d, grow } = chartBar(context, {
+                start: center - width / 2,
+                width,
+                low: row.low,
+                high: row.high,
+                radius,
+                round: true,
+                down: row.kind === 'decrease' || (row.kind === 'total' && row.cumulative < 0),
+              });
+              return (
+                <g key={index}>
+                  {connector && (
+                    <line {...connector} {...css.attrs(waterfallChartStyles.connector)} />
+                  )}
+                  <path
+                    data-part="bar"
+                    data-index={index}
+                    d={d}
+                    {...css.attrs(chartMarkStyles.bar, grow, chartSvgStyles.fill(colorOf(row)))}
+                  />
+                </g>
+              );
+            })}
+          </g>
+        );
       },
       tooltipItems: (row) => [
         {
@@ -221,7 +254,7 @@ export const WaterfallChart = _component(
         data={rows}
         index="label"
         // 系列只用来给十字线定位与算范围；画法、提示框、数据表由 kind 决定
-        series={[{ key: 'bar', label: lang.chartChange }]}
+        series={[{ key: 'cumulative', label: lang.chartChange }]}
         legend={false}
         kind={kind}
         onItemClick={onItemClick && ((_row, position) => onItemClick(steps[position]!, position))}

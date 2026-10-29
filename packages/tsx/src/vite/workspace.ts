@@ -191,7 +191,7 @@ interface Manifest {
 /**
  * 按源码读的 @zerodep-dev/vue-tsx-pro-* 包自己导入的第三方依赖：不声明的话 Vite 要等页面（或浏览器测试）用到才发现，
  * 发现时重新预构建、刷新页面，正在初始化的测试页会卡住。写成“包 > 依赖”，从包的目录解析，应用不必自己安装；
- * 没装的可选依赖（three、@unovis/ts 等）跳过，免得 Vite 报解析不到
+ * 没装的可选依赖（three、shiki 等）跳过，免得 Vite 报解析不到
  */
 function sourceDependencies(root: string) {
   const include: string[] = [];

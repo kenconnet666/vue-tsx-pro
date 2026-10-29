@@ -6,8 +6,7 @@ import Projects from '../demo/Projects';
 
 it('每段一条线；行标签、今天与里程碑的文字、按月的刻度都画出', async () => {
   const root = mount(Projects);
-  // Unovis 给每段画一个 class 带“-line”的 rect
-  const segments = () => root.querySelectorAll('rect[class*="-line"]');
+  const segments = () => root.querySelectorAll('[data-part="segment"]');
   await until(() => segments().length === 10);
   await new Promise((resolve) => setTimeout(resolve, 600));
   const text = root.querySelector('svg')!.textContent!;

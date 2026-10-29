@@ -7,7 +7,7 @@
  *   axes.secondary.ticks    // [0, 0.05, 0.1, …, 0.35]
  *   axes.toPrimary(0.2)     // 第二轴的 0.2 在主轴坐标里的位置
  */
-import { Scale } from '@unovis/ts';
+import { linearTicks, niceDomain } from './scale';
 
 /** 一条数值轴：范围与刻度 */
 export interface AxisTicks {
@@ -42,7 +42,7 @@ const tidy = (value: number) => Number(value.toPrecision(12));
 
 /**
  * 两组值的对齐刻度：primary、secondary 是两条轴要包含的值（含 0 时从 0 起）。
- * 主轴约 count 格（d3 的 nice），第二轴取同样多的格
+ * 主轴约 count 格（范围扩到刻度上），第二轴取同样多的格
  */
 export function alignedTicks(
   primary: readonly number[],
@@ -51,11 +51,8 @@ export function alignedTicks(
 ): AlignedAxes {
   const finite = (values: readonly number[]) => values.filter(Number.isFinite);
   const p = finite(primary);
-  const scale = Scale.scaleLinear()
-    .domain([Math.min(...p, 0), Math.max(...p, 0) || 1])
-    .nice(count);
-  const ticks = scale.ticks(count).map(tidy);
-  const [p0, p1] = scale.domain() as [number, number];
+  const [p0, p1] = niceDomain([Math.min(...p, 0), Math.max(...p, 0) || 1], count);
+  const ticks = linearTicks(p0, p1, count).map(tidy);
   const intervals = Math.max(ticks.length - 1, 1);
 
   const s = finite(secondary);

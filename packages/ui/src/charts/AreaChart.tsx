@@ -8,9 +8,9 @@
  *
  * 坐标轴、十字线（带圆点）与提示框、图例、单位、加载与空状态、给读屏的数据表同 LineChart（见 XYChart）。
  */
-import { Area } from '@unovis/ts';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { CURVES, type LineCurves } from './LineChart';
+import { chartAreas } from './marks';
+import type { LineCurves } from './shape';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 
 /** 未声明的属性落到外层 div（role="figure"）上 */
@@ -42,37 +42,12 @@ export const AreaChart = _component(
       stacked: stacked !== false,
       percent: stacked === 'percent',
       padding: { left: 12, right: 12, top: 8 },
-      components: ({ series, x, y, instance }) => {
-        const common = {
-          x,
-          curveType: CURVES[curve],
-          line: true,
-          lineWidth: 2,
-        };
-        if (stacked) {
-          const area = instance('stacked', () => new Area<T>({ x, y: [] }));
-          area.setConfig({
-            ...common,
-            y: series.map(y),
-            color: (_rows: T[], position: number) => series[position]?.color,
-            lineColor: (_rows: T[], position: number) => series[position]?.color,
-            opacity: opacity ?? 0.8,
-          });
-          return [area];
-        }
-        // 重叠：每个系列一个 Area（Unovis 的多个 y 总是堆叠的）
-        return series.map((item) => {
-          const area = instance(`area:${item.key}`, () => new Area<T>({ x, y: () => 0 }));
-          area.setConfig({
-            ...common,
-            y: y(item),
-            color: item.color,
-            lineColor: item.color,
-            opacity: opacity ?? 0.25,
-          });
-          return area;
-        });
-      },
+      render: (context) =>
+        chartAreas(context, context.series, {
+          curve,
+          stacked: stacked !== false,
+          opacity: opacity ?? (stacked ? 0.8 : 0.25),
+        }),
     });
     return () => <XYChart {...rest} _hiddenSeries={hiddenSeries} kind={kind} />;
   },

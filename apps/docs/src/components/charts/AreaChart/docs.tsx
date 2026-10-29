@@ -12,7 +12,7 @@ import Options from './demo/Options.tsx?demo';
 export const meta = {
   title: 'AreaChart 面积图',
   description:
-    '折线下面填上颜色：看总量随时间的变化，堆叠时还能看出构成。基于 Unovis，跟随主题；需要安装 @unovis/ts。',
+    '折线下面填上颜色：看总量随时间的变化，堆叠时还能看出构成。自己用 SVG 画，跟随主题，没有第三方依赖。',
   order: 3,
 };
 

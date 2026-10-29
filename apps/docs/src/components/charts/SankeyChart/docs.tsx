@@ -12,7 +12,7 @@ import Options from './demo/Options.tsx?demo';
 export const meta = {
   title: 'SankeyChart 桑基图',
   description:
-    '看量从哪来、到哪去、在哪流失：节点之间的流量画成粗细不同的带子。基于 Unovis，跟随主题；需要安装 @unovis/ts。',
+    '看量从哪来、到哪去、在哪流失：节点之间的流量画成粗细不同的带子。自己用 SVG 画，跟随主题，没有第三方依赖。',
   order: 6,
 };
 

@@ -11,7 +11,7 @@ import Options from './demo/Options.tsx?demo';
 export const meta = {
   title: 'FunnelChart 漏斗图',
   description:
-    '一串前后相接的环节，看每一步留下多少、在哪一步流失最多。用主题 tokens 直接画，不依赖 Unovis 的绘图；外层结构与其他图表一致。',
+    '一串前后相接的环节，看每一步留下多少、在哪一步流失最多。用主题 tokens 直接画；外层结构与其他图表一致。',
   order: 9,
 };
 

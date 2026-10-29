@@ -7,11 +7,9 @@ import Budget from '../demo/Budget';
 import Sources from '../demo/Sources';
 
 const segments = (root: Element) =>
-  [...root.querySelectorAll('[class*="donut-component"] path[class*="segment"]')].filter((path) =>
-    path.getAttribute('d'),
-  );
+  [...root.querySelectorAll('[data-part="segment"]')].filter((path) => path.getAttribute('d'));
 const center = (root: Element) =>
-  [...root.querySelectorAll('[class*="central-label"]')]
+  [...root.querySelectorAll('[data-part="center-label"] text')]
     .map((text) => text.textContent)
     .filter(Boolean)
     .join(' ');

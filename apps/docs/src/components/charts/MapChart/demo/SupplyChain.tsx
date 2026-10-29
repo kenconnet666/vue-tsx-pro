@@ -1,9 +1,9 @@
 // 全球供应链：世界地图（ISO 两位国家代码）按各国的采购额着色，跨了大半个地球，默认用 Natural Earth 投影，
 // center 把中央经线放在东经 110°（中国在中间，欧洲在左、美洲在右）；
 // 供应商是方形的点、组装厂是圆点，流向连到上海，粗细按年采购额，flow 时有流动的粒子
-import { WorldMap110mAlphaTopoJSON } from '@unovis/ts/maps';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { MapChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
+import { worldCountries } from '@zerodep-dev/vue-tsx-pro-ui/maps';
 
 /** 国家代码 → 名称 */
 const countries: Record<string, string> = {
@@ -30,7 +30,7 @@ const suppliers = [
 export default _component(() => () => (
   <MapChart
     aria-label="全球采购额与流向"
-    topology={WorldMap110mAlphaTopoJSON}
+    topology={worldCountries}
     feature="countries"
     areas={[
       ...suppliers.map((supplier) => ({

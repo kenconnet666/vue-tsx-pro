@@ -52,11 +52,10 @@ catalog:
   zod: 4.6.7
   # 动画引擎（MIT）：animate、timeline、spring、stagger、拖拽、布局动画、滚动观察
   animejs: 4.5.0
-  # 可选 peer 依赖（组件库开发时安装）：常规图表 Unovis、3D three.js、代码高亮 Shiki、拼音匹配 pinyin-pro、Excel 读写 ExcelJS
-  '@unovis/ts': 1.7.1
   # 地图的简化（ISC，topojson 作者）：MapChart 按绘图区的像素去掉看不出的细节，绘制快一个数量级
   topojson-simplify: 3.0.3
   '@types/topojson-simplify': 3.0.3
+  # 可选 peer 依赖（组件库开发时安装）：3D three.js、代码高亮 Shiki、拼音匹配 pinyin-pro、Excel 读写 ExcelJS
   three: 0.186.1
   '@types/three': 0.186.0
   shiki: 4.5.0

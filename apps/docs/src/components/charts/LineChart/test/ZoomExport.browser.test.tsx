@@ -12,8 +12,9 @@ afterEach(() => vi.restoreAllMocks());
 
 it('缩放：只画选中的 12 个月；“显示全部”后刻度回到第一年', async () => {
   const root = mount(Zoom);
-  await until(() => tickLabels(root).includes('2026-12'));
-  expect(tickLabels(root)).not.toContain('2024-01');
+  // 刻度放不下时隔一个写一个：选中的一段从 2026-01 起，前两年的都不出现
+  await until(() => tickLabels(root).includes('2026-01'));
+  expect(tickLabels(root).some((label) => /^202[45]-/.test(label))).toBe(false);
   const reset = [...root.querySelectorAll('button')].find((b) => b.textContent === '显示全部')!;
   reset.click();
   await nextTick();

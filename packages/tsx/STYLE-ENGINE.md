@@ -338,7 +338,7 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`，编译器改写成 `css.
   编译器里的 StyleX 与 token 两步、优先级与 StyleX 逐项对照的测试、演练场的 `@babel/standalone` 替身与 token 名的传递，
   以及 `@stylexjs/*`、`lightningcss`、`browserslist` 依赖。
 - **顺带修复**：组件库 package.json 的 `vueTsxPro.optimizeDeps` 原来只有编译模式读，切到运行时后没人读了，
-  按源码读组件库的应用（文档站的浏览器测试）跑到图表才发现 `@unovis/ts` 等依赖、重新预构建，正在初始化的测试页卡住
+  按源码读组件库的应用（文档站的浏览器测试）跑到图表、3D 才发现它们的第三方依赖、重新预构建，正在初始化的测试页卡住
   （合并后那次 CI 的 ComboChart 超时）。改由 `workspaceSource()` 读它，按“包 > 依赖”预构建。
 
 ### 9.6 改名（2026-10-24）

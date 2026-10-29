@@ -1,16 +1,16 @@
 /**
- * 各种图表共用的外层结构（XYChart、DonutChart、SankeyChart、ChordChart、FunnelChart、GraphChart）：外层 figure、单位与图例、绘图区（加载中的骨架、空状态、Unovis 画布）、
- * 给读屏的数据表；还有提示框的内容、Unovis 实例表与主题变量。
+ * 各种图表共用的外层结构：外层 figure、单位与图例、绘图区（加载中的骨架、空状态、图表自己画的 SVG）、
+ * 给读屏的数据表、导出菜单；还有提示框的内容与数值的文字。
  *
  *   <ChartFrame unit="万元" legend={items} hiddenKeys={hidden} onLegendToggle={toggle} loading={loading}
- *     isEmpty={rows.length === 0} skeleton={…} table={{ columns, rows }} plotRef={(el) => (plot = el)} />
+ *     isEmpty={rows.length === 0} skeleton={…} table={{ columns, rows }} plotRef={area.ref} plot={<svg …/>} />
  *
- * 外观全走主题：Unovis 的样式由 --vis-* 变量控制，这里把它们指到 tokens 上；系列颜色是 CSS 变量，
- * 切换主题、改品牌色都不用重画。绘图区对读屏隐藏，数据由同样内容的表格读出。
+ * 外观全走主题 tokens；系列颜色是 CSS 变量，切换主题、改品牌色都不用重画。
+ * 绘图区对读屏隐藏，数据由同样内容的表格读出。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { shallowRef, watch, type VNodeChild } from 'vue';
+import type { VNodeChild } from 'vue';
 import { Download, FileSpreadsheet, ImageDown } from '@lucide/icons';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { IconButton } from '../base/IconButton';
@@ -19,23 +19,9 @@ import { exportChartData, exportChartImage } from './export';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
-import {
-  borderWidths,
-  colors,
-  durations,
-  fonts,
-  fontSizes,
-  fontWeights,
-  radii,
-  shadows,
-  space,
-  t,
-} from '../config/theme/tokens';
+import { borderWidths, t } from '../config/theme/tokens';
 import { Empty } from '../feedback/Empty';
 import type { NumericValue } from '../utils/data/numeric';
-import { themeTransition } from '../utils/motion/animation';
-import { useEventListener } from '../utils/dom/event-listener';
-import { useIntersectionObserver } from '../utils/dom/intersection';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 
 /** 图例里的一项 */
@@ -70,13 +56,13 @@ export interface ChartFrameParts {
   propsLegend?: PartProps<'div', 'role'>;
   /** 图例每一项（按钮）的部件属性 */
   propsLegendItem?: Omit<Partial<ButtonBaseProps>, 'aria-pressed' | 'onClick'>;
-  /** 绘图区（Unovis 画在这里）的部件属性 */
+  /** 绘图区（SVG 画在这里）的部件属性 */
   propsPlot?: PartProps<'div', 'aria-hidden'>;
   /** 给读屏的数据表的部件属性 */
   propsTable?: PartProps<'table'>;
 }
 
-/** 图表共用的样式：root（--vis-* 主题变量）、header、unit、legend、swatch、plot、tooltip… */
+/** 图表共用的样式：root、header、unit、legend、swatch、plot、tooltip… */
 export const chartStyles = css.create({
   root: {
     display: 'flex',
@@ -86,37 +72,6 @@ export const chartStyles = css.create({
     width: '100%',
     minWidth: 0,
     fontSize: '_sm',
-    // Unovis 的外观变量：坐标轴、网格、十字线、提示框、标签都指到主题 tokens
-    '--vis-font-family': fonts.sans,
-    '--vis-axis-tick-label-font-size': fontSizes.xs,
-    '--vis-axis-tick-label-color': colors.textMuted,
-    '--vis-axis-label-color': colors.textMuted,
-    '--vis-axis-label-font-size': fontSizes.xs,
-    '--vis-axis-label-weight': fontWeights.normal,
-    '--vis-axis-grid-color': colors.borderMuted,
-    '--vis-axis-domain-color': colors.border,
-    '--vis-axis-tick-color': colors.border,
-    '--vis-crosshair-line-stroke-color': colors.borderStrong,
-    '--vis-crosshair-circle-stroke-color': colors.surface,
-    '--vis-tooltip-background-color': colors.surfaceRaised,
-    '--vis-tooltip-border-color': colors.borderMuted,
-    '--vis-tooltip-text-color': colors.text,
-    '--vis-tooltip-border-radius': radii.md,
-    '--vis-tooltip-box-shadow': shadows.md,
-    '--vis-tooltip-padding': `${space.sm} ${space.md}`,
-    '--vis-tooltip-backdrop-filter': 'none',
-    '--vis-tooltip-transition-duration': durations.sm,
-    '--vis-grouped-bar-hover-stroke-width': '0',
-    // 环形图：底色、扇区之间的缝、中间的标签
-    '--vis-donut-background-color': colors.fill,
-    '--vis-donut-segment-stroke-width': borderWidths.md,
-    '--vis-donut-central-label-text-color': colors.text,
-    '--vis-donut-central-label-font-size': fontSizes.xl,
-    '--vis-donut-central-sub-label-text-color': colors.textMuted,
-    '--vis-donut-central-sub-label-font-size': fontSizes.xs,
-    // 目标线：虚线，标签是小号的次要文字（颜色由各条线自己给）
-    '--vis-plotline-label-font-size': fontSizes.xs,
-    '--vis-plotline-label-color': colors.textMuted,
   },
   header: {
     display: 'flex',
@@ -156,7 +111,7 @@ export const chartStyles = css.create({
     boxShadow: `inset 0 0 0 ${borderWidths.md} ${color}`,
   }),
   // contain: inline-size：画好的 SVG 写死了宽度，不能让它反过来撑住按内容定宽的外层（表格式的滚动区、
-  // 起始对齐的弹性布局）；不然容器变窄时图表还是原来那么宽，Unovis 量不到变化也就不重画
+  // 起始对齐的弹性布局）；不然容器变窄时图表还是原来那么宽，量不到变化也就不重画
   plot: { position: 'relative', minWidth: 0, contain: 'inline-size' },
   // 点了能下钻：手形指针
   plotClickable: { cursor: 'pointer' },
@@ -183,7 +138,7 @@ export interface ChartTooltipItem {
   value: string;
 }
 
-/** 提示框的内容：标题（类目、扇区名）+ 每个系列一行；Unovis 定位，Vue 渲染 */
+/** 提示框的内容：标题（类目、扇区名）+ 每个系列一行；放进 ChartTooltipBox 跟着指针显示 */
 export function chartTooltip(title: string, items: readonly ChartTooltipItem[]) {
   return (
     <div {...css.attrs(chartStyles.tooltip)}>
@@ -213,87 +168,6 @@ export function useChartValueText(read: () => { valueFormat?: NumericFormat; uni
   };
 }
 
-/** 绘图区离视口多近就算看见了（px）：滚到之前先画好，进来时已经是画好的 */
-const SEEN_MARGIN = 200;
-
-/**
- * 绘图区进入过视口：之前不画，进来之后一直算看见（滚出去不拆掉）。一页很多图表时先画看得见的，
- * 其余的滚到附近再画（地图、网络图绘制很重）。在 setup 里调用，绘制的 effect 里读返回的函数。
- * 挂上时就在视口附近的立即算看见（不等观察器的第一次回调；没有布局的测试环境里框都在原点，也算看见）；
- * 打印前全部画上；没有 IntersectionObserver 的环境当作看见了。
- */
-export function usePlotSeen(plot: () => HTMLElement | null | undefined): () => boolean {
-  const seen = shallowRef(typeof IntersectionObserver === 'undefined');
-  const near = (element: Element) => {
-    const box = element.getBoundingClientRect();
-    return (
-      box.top < window.innerHeight + SEEN_MARGIN &&
-      box.bottom > -SEEN_MARGIN &&
-      box.left < window.innerWidth + SEEN_MARGIN &&
-      box.right > -SEEN_MARGIN
-    );
-  };
-  watch(
-    plot,
-    (element) => {
-      if (element && !seen.value && near(element)) seen.value = true;
-    },
-    { immediate: true, flush: 'post' },
-  );
-  useIntersectionObserver(
-    () => (seen.value ? null : plot()),
-    (entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) seen.value = true;
-    },
-    () => ({ rootMargin: `${SEEN_MARGIN}px` }),
-  );
-  useEventListener(
-    () => window,
-    'beforeprint',
-    () => (seen.value = true),
-  );
-  return () => seen.value;
-}
-
-/** 主题的 lg 时长（毫秒），减少动态效果时为 0；读不到（元素不在主题范围内）时不要动画 */
-export function chartDuration(element: Element): number {
-  try {
-    return themeTransition(element, { duration: 'lg' }).duration ?? 0;
-  } catch {
-    return 0;
-  }
-}
-
-/**
- * Unovis 每个容器都插一个 id 固定为 saturate 的滤镜（悬停高亮用），一页多张图时 id 重复；
- * 改成每张图自己的 id，并让引用它的 CSS 变量指过去
- */
-export function uniqueHighlightFilter(element: HTMLElement, id: string): void {
-  const filter = element.querySelector<SVGFilterElement>('filter#saturate');
-  if (!filter) return;
-  filter.id = id;
-  element.querySelector('svg')?.style.setProperty('--highlight-filter-id', `url(#${id})`);
-}
-
-/**
- * Unovis 实例表：组件、坐标轴、十字线只建一次，之后 setConfig + update（保留实例才有过渡动画）。
- * 容器 destroy 时会连带销毁这些实例：重建容器前 reset，下次取用时重新创建
- */
-export function createChartInstances() {
-  let instances = new Map<string, unknown>();
-  return {
-    /** 取一个实例：第一次调用时创建 */
-    get: <C,>(key: string, create: () => C): C => {
-      if (!instances.has(key)) instances.set(key, create());
-      return instances.get(key) as C;
-    },
-    /** 容器销毁了：清空，之后重新创建 */
-    reset() {
-      instances = new Map();
-    },
-  };
-}
-
 /** ChartFrame 的属性：未声明的属性落到外层 div（role="figure"）上 */
 export interface ChartFrameProps extends PartProps<'div', 'role' | 'aria-busy'>, ChartFrameParts {
   /** 单位：显示在左上方 */
@@ -318,9 +192,9 @@ export interface ChartFrameProps extends PartProps<'div', 'role' | 'aria-busy'>,
   empty?: VNodeChild;
   /** 给读屏的数据表 */
   table: ChartTable;
-  /** 取得绘图区元素（Unovis 画在这里）；加载、空状态之后重新出现时是新的元素 */
+  /** 取得绘图区元素（量大小用，见 usePlotArea）；加载、空状态之后重新出现时是新的元素 */
   plotRef?: (element: HTMLElement | null) => void;
-  /** 绘图区里直接渲染的内容（不用 Unovis 的图，如漏斗图）；同样对读屏隐藏 */
+  /** 绘图区里的内容（图表画的 SVG、提示框，漏斗图的横条）；同样对读屏隐藏 */
   plot?: VNodeChild;
   /** 绘图区下面的内容（缩放的滑块、地图的色带） */
   footer?: VNodeChild;
@@ -457,7 +331,7 @@ export const ChartFrame = _component(
               {exportable && !isEmpty && !loading && exportMenu()}
             </div>
           )}
-          {/* key 不同：两种状态不复用同一个 div，否则 Unovis 画进去的 svg 会留在骨架、空状态里 */}
+          {/* key 不同：两种状态不复用同一个 div，绘图区重新出现时是新的元素，大小重新量 */}
           {body ? (
             <div key="state" {...css.attrs(chartStyles.plot, chartStyles.plotHeight(plotHeight))}>
               {body}

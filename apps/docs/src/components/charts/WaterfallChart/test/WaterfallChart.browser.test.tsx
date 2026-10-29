@@ -6,14 +6,10 @@ import { until } from '../../../../test/until';
 import Budget from '../demo/Budget';
 import Versions from '../demo/Versions';
 
-/** 看得见的柱子，从左到右（垫在下面的透明段不算） */
+/** 柱子，从左到右 */
 const bars = (root: Element) =>
-  [...root.querySelectorAll('[class*="stacked-bar-component"] path[class*="bar"]')]
-    .filter(
-      (bar) =>
-        bar.getBoundingClientRect().height > 0.5 &&
-        getComputedStyle(bar).fill !== 'rgba(0, 0, 0, 0)',
-    )
+  [...root.querySelectorAll('[data-part="bar"]')]
+    .filter((bar) => bar.getBoundingClientRect().height > 0.5)
     .sort((a, b) => a.getBoundingClientRect().left - b.getBoundingClientRect().left);
 
 it('7 步 7 根柱子：材料单价从 V1 的顶往下，成材率从材料单价的底往上，V2 到批量的顶', async () => {

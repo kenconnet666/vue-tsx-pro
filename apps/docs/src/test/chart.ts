@@ -1,19 +1,19 @@
-// 图表浏览器测试的交互：把指针移到一个图形或一个类目上（Unovis 的提示框按 mousemove、mouseover 触发），读提示框的文字。
-// Unovis 对连续的指针事件节流：一个测试里只移一次
+// 图表浏览器测试的交互：把指针移到一个图形或一个类目上（图表按 pointermove 找悬停的图形、类目），读提示框的文字。
+// 图形用 data-part 找（bar、line、area、dot、point、segment、node、link、feature…），提示框是 data-part="tooltip"
 //
-//   hover(root.querySelectorAll('[class*="segment"]')[0]!);
+//   hover(root.querySelectorAll('[data-part="segment"]')[0]!);
 //   const text = await until(() => tooltipText(root).includes('搜索引擎') && tooltipText(root));
 
-/** 指针移到元素的中心 */
+/** 指针移到元素的中心（事件从元素冒泡到图表的 SVG） */
 export function hover(element: Element): void {
   const box = element.getBoundingClientRect();
-  const init = {
-    bubbles: true,
-    clientX: box.left + box.width / 2,
-    clientY: box.top + box.height / 2,
-  };
-  element.dispatchEvent(new MouseEvent('mouseover', init));
-  element.dispatchEvent(new MouseEvent('mousemove', init));
+  element.dispatchEvent(
+    new PointerEvent('pointermove', {
+      bubbles: true,
+      clientX: box.left + box.width / 2,
+      clientY: box.top + box.height / 2,
+    }),
+  );
 }
 
 /** 点一下元素 */
@@ -21,9 +21,9 @@ export function click(element: Element): void {
   element.dispatchEvent(new MouseEvent('click', { bubbles: true }));
 }
 
-/** 提示框的文字（没有显示时是空串）；不含给读屏的数据表。提示框里的内容也带 tooltip 的类名，取最外层的 */
+/** 提示框的文字（没有显示或正在淡出时是空串）；不含给读屏的数据表 */
 export function tooltipText(root: Element): string {
-  const box = root.querySelector<HTMLElement>('[class*="tooltip"]');
+  const box = root.querySelector<HTMLElement>('[data-part="tooltip"]');
   return box && getComputedStyle(box).opacity !== '0' ? (box.textContent ?? '') : '';
 }
 
@@ -34,7 +34,7 @@ export function hoverCategory(root: Element, category: string): void {
   const x = tick.getBoundingClientRect();
   const box = svg.getBoundingClientRect();
   svg.dispatchEvent(
-    new MouseEvent('mousemove', {
+    new PointerEvent('pointermove', {
       bubbles: true,
       clientX: x.left + x.width / 2,
       clientY: box.top + box.height / 2,

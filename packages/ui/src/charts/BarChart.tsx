@@ -9,10 +9,10 @@
  *     unit="万元"
  *   />
  *
- * 颜色、坐标轴、提示框、图例、读屏的数据表见 XYChart；悬停一个类目时提示框列出这一组的全部系列。
+ * 颜色、坐标轴、提示框、图例、读屏的数据表见 XYChart；悬停一个类目时这一格铺一层浅底，提示框列出这一组的全部系列。
  */
-import { GroupedBar, StackedBar } from '@unovis/ts';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { chartBars } from './marks';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 
 /** 柱子的方向 */
@@ -43,36 +43,13 @@ export const BarChart = _component(
     ...rest
   }: BarChartProps<T>) => {
     const kind = _derived<XYChartKind<T>>({
+      band: true,
       horizontal: orientation === 'horizontal',
       skeleton: 'bars',
       stacked: stacked !== false,
       percent: stacked === 'percent',
-      itemSelector: stacked ? StackedBar.selectors.bar : GroupedBar.selectors.bar,
-      components: ({ series, x, y, instance, events }) => {
-        const common = {
-          x,
-          y: series.map(y),
-          color: (_row: T, position: number) => series[position]?.color,
-          roundedCorners: radius,
-          orientation,
-          events,
-        };
-        if (stacked) {
-          const bars = instance('stacked', () => new StackedBar<T>({ x, y: [] }));
-          bars.setConfig({ ...common, barPadding: 0.4, barMaxWidth: 48 });
-          return [bars];
-        }
-        const bars = instance('grouped', () => new GroupedBar<T>({ x, y: [] }));
-        // 空值不画柱子（Unovis 默认给 2px 的最小高度，空值也会画出一条线）
-        bars.setConfig({
-          ...common,
-          groupPadding: 0.3,
-          barPadding: 0.1,
-          groupMaxWidth: 96,
-          barMinHeight: 0,
-        });
-        return [bars];
-      },
+      render: (context) =>
+        chartBars(context, context.series, { stacked: stacked !== false, radius }),
     });
     return () => <XYChart {...rest} _hiddenSeries={hiddenSeries} kind={kind} />;
   },

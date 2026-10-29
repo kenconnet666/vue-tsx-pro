@@ -1,4 +1,4 @@
-// BarChart 在真实浏览器里：Unovis 画出柱子，悬停出提示框，图例隐藏系列，颜色与坐标轴跟随主题
+// BarChart 在真实浏览器里：画出柱子，悬停出提示框，图例隐藏系列，颜色与坐标轴跟随主题
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { createUi, darkTheme } from '@zerodep-dev/vue-tsx-pro-ui';
 import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
@@ -8,7 +8,7 @@ import { mount } from '../../../../test/mount';
 import { until } from '../../../../test/until';
 import Basic from '../demo/Basic';
 
-const bars = (root: Element) => root.querySelectorAll('[class*="grouped-bar-component"] path');
+const bars = (root: Element) => root.querySelectorAll('[data-part="bar"]');
 
 it('每个类目一组柱子：6 个项目 × 2 个系列', async () => {
   const root = mount(Basic);
@@ -25,7 +25,7 @@ it('悬停一个类目：提示框列出这一组的各系列，数值带单位'
   // 移到第二组的柱子上（柱子按组排列：每组 2 根）
   const second = bars(root)[2]!.getBoundingClientRect();
   svg.dispatchEvent(
-    new MouseEvent('mousemove', {
+    new PointerEvent('pointermove', {
       bubbles: true,
       clientX: second.left + second.width / 2,
       clientY: box.top + box.height / 2,
@@ -67,14 +67,14 @@ it('暗色主题：坐标轴文字取主题的次要文字色，系列颜色是�
   host.remove();
 });
 
-it('一页多张图没有重复的 id（Unovis 的高亮滤镜换成各自的 id）', async () => {
+it('一页多张图没有重复的 id', async () => {
   const root = mount(_component(() => () => [h(Basic), h(Basic)]));
   await until(() => bars(root).length === 24);
   const ids = [...root.querySelectorAll('[id]')].map((element) => element.id);
   expect(new Set(ids).size).toBe(ids.length);
 });
 
-it('加载中之后再显示：绘图区换了元素，容器与坐标轴整套重建，柱子与刻度照常画出', async () => {
+it('加载中之后再显示：绘图区换了元素，重新量大小，柱子与刻度照常画出', async () => {
   let loading = _state(false);
   const rows = [
     { name: 'A', value: 3 },
@@ -96,7 +96,7 @@ it('加载中之后再显示：绘图区换了元素，容器与坐标轴整套�
   await until(() => bars(root).length === 0);
   loading = false;
   await until(() => bars(root).length === 2);
-  // 坐标轴是新容器里新建的：类目刻度照常显示
+  // 类目刻度照常显示
   await until(() =>
     [...root.querySelectorAll('svg text')].some((text) => text.textContent === 'B'),
   );

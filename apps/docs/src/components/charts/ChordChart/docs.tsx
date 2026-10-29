@@ -12,7 +12,7 @@ import Options from './demo/Options.tsx?demo';
 export const meta = {
   title: 'ChordChart 弦图',
   description:
-    '看几方之间相互往来的多少：节点排成一圈，两两之间的流量画成弦。基于 Unovis，跟随主题；需要安装 @unovis/ts。',
+    '看几方之间相互往来的多少：节点排成一圈，两两之间的流量画成弦。自己用 SVG 画，跟随主题，没有第三方依赖。',
   order: 7,
 };
 

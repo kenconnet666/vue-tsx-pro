@@ -143,7 +143,6 @@ describe('BarChart、LineChart', () => {
         <BarChart aria-label="b" data={rows} index="name" series={[...one]} legend />
       </>
     ));
-    // Unovis 画出的 svg 自己也是 role="figure"：按名称找外层
     expect(root.querySelector('[aria-label="a"] [role="group"]')).toBeNull();
     expect(root.querySelector('[aria-label="b"] [role="group"]')).not.toBeNull();
   });
@@ -234,7 +233,6 @@ describe('DonutChart、ScatterChart、AreaChart', () => {
         <AreaChart aria-label="空" data={[] as Row[]} index="name" series={[...series]} />
       </>
     ));
-    // 只取外层：Unovis 画出的 svg 自己也带 role="figure"
     const [area, empty] = root.querySelectorAll(':scope > [role="figure"]');
     expect(area!.querySelectorAll('tbody tr')).toHaveLength(2);
     expect(empty!.textContent).toContain('暂无数据');
@@ -254,7 +252,7 @@ describe('SankeyChart、ChordChart', () => {
     { source: 'visit', target: 'pay', value: 0 },
   ];
 
-  it('流向数据：节点按顺序取色板；交给 Unovis 前去掉指向不存在节点、值不为正的流向', () => {
+  it('流向数据：节点按顺序取色板；布局前去掉指向不存在节点、值不为正的流向', () => {
     const resolved = resolveFlowNodes(nodes);
     expect(resolved.get('visit')).toMatchObject({
       label: '访问',
@@ -266,8 +264,7 @@ describe('SankeyChart、ChordChart', () => {
       ['visit', 'signup', 300],
       ['signup', 'pay', 120.5],
     ]);
-    // 复制一份：Unovis 往节点上写布局字段，不能改到调用方的数据
-    expect(data.nodes[0]).not.toBe(resolved.get('visit'));
+    expect(data.nodes.map((node) => node.id)).toEqual(['visit', 'signup', 'pay']);
   });
 
   it('桑基图：数据表每条流向一行，写“起点 → 终点”，数值按原值格式化', () => {

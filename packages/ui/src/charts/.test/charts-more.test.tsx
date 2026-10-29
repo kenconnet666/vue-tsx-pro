@@ -36,18 +36,16 @@ describe('WaterfallChart', () => {
       ['increase', 82.5, 70, 82.5],
       ['total', 82.5, 0, 82.5],
     ]);
-    // 不跨 0：透明的垫底到较低的一端，看得见的一段补上差
-    expect(rows[1]).toMatchObject({ base: 70, bar: 30, below: 0 });
   });
 
-  it('跨过 0 的一步分成正负两段；全在 0 以下的从 0 往下叠', () => {
+  it('跨过 0 的一步：柱子从上一步的累计画到这一步的累计；全在 0 以下的在 0 以下', () => {
     const [, cross, under] = waterfallRows([
       { label: '起', value: 20, total: true },
       { label: '跌穿', value: -50 },
       { label: '再跌', value: -10 },
     ]);
-    expect(cross).toMatchObject({ low: -30, high: 20, base: 0, bar: 20, below: -30 });
-    expect(under).toMatchObject({ low: -40, high: -30, base: -30, bar: -10, below: 0 });
+    expect(cross).toMatchObject({ kind: 'decrease', low: -30, high: 20, cumulative: -30 });
+    expect(under).toMatchObject({ kind: 'decrease', low: -40, high: -30, cumulative: -40 });
   });
 
   it('数据表列出变动（带正负号）与累计；合计柱的变动写“—”', () => {

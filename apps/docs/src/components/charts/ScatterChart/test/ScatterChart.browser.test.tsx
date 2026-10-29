@@ -6,9 +6,7 @@ import { until } from '../../../../test/until';
 import Bubbles from '../demo/Bubbles';
 import Cities from '../demo/Cities';
 
-const points = (root: Element) => [
-  ...root.querySelectorAll('[class*="scatter-component"] g[class*="point"]:not([class*="group"])'),
-];
+const points = (root: Element) => [...root.querySelectorAll('[data-part="point"]')];
 
 it('12 座城市 12 个点；悬停一个点：提示框写城市名与通勤时间', async () => {
   const root = mount(Cities);

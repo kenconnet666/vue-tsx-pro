@@ -9,7 +9,7 @@ import Sites from '../demo/Sites';
 import SupplyChain from '../demo/SupplyChain';
 
 const featuresOf = (root: Element) => [
-  ...root.querySelectorAll<SVGPathElement>('svg path[class*="feature"]'),
+  ...root.querySelectorAll<SVGPathElement>('[data-part="feature"]'),
 ];
 
 /** 地图（所有区域合起来）占绘图区的比例：宽、高里占得多的那边（窄的绘图区里地图撑满宽） */
@@ -37,7 +37,7 @@ it('省份分 5 档着色，图例是 5 个色块，地点写上名字，地图�
   expect(bins).toHaveLength(5);
   // 地点的名字在画完之后的下一帧排好
   const svg = features[0]!.ownerSVGElement!;
-  await until(() => svg.querySelector('[data-point-labels] text'));
+  await until(() => svg.querySelector('[data-part="point-labels"] text'));
   for (const label of ['上海总仓', '西安仓', '成都仓']) expect(svg.textContent).toContain(label);
   // 区域的形状在第一帧之后才画出来
   await until(() => fillRatio(root) > 0.9);
@@ -54,13 +54,14 @@ it('滚轮不按 Ctrl 时不缩放、提示按住 Ctrl；按住 Ctrl 才缩放�
 
   wheel(false);
   await new Promise((resolve) => setTimeout(resolve, 300));
-  expect(group.getAttribute('transform') ?? '').not.toContain('scale');
+  expect(group.getAttribute('transform') ?? '').toMatch(/scale\(1\)/);
   expect(root.querySelector('[role="status"]')?.textContent).toContain('Ctrl');
 
   wheel(true);
-  await until(() => /scale\((?!1\b)/.test(group.getAttribute('transform') ?? ''));
+  // 放大后 scale 不是 1（是 1.5 这类：不能写 1\b，1 与小数点之间也是单词边界）
+  await until(() => /scale\((?!1\))/.test(group.getAttribute('transform') ?? ''));
   root.querySelector<HTMLButtonElement>('[aria-label="复位"]')!.click();
-  await until(() => /scale\(1(,1)?\)/.test(group.getAttribute('transform') ?? ''));
+  await until(() => /scale\(1\)/.test(group.getAttribute('transform') ?? ''));
 });
 
 it('换投影之后地图仍占满绘图区', async () => {
@@ -68,10 +69,12 @@ it('换投影之后地图仍占满绘图区', async () => {
   await until(() => featuresOf(root).length > 30);
   for (const name of ['墨卡托', '地球仪', '等积圆锥']) {
     const button = [...root.querySelectorAll('button')].find((item) => item.textContent === name)!;
-    const before = featuresOf(root)[0];
+    const before = featuresOf(root)[0]!.getAttribute('d');
     button.click();
-    // 换投影会换一个新的地图：等新地图的区域出现、画好（固定等一段时间在负载高的 CI 上不够）
-    await until(() => featuresOf(root)[0] !== before && featuresOf(root).length > 30);
+    // 换投影后区域的路径重新算：等第一个区域的形状变了（固定等一段时间在负载高的 CI 上不够）
+    await until(
+      () => featuresOf(root)[0]?.getAttribute('d') !== before && featuresOf(root).length > 30,
+    );
     await until(() => fillRatio(root) > 0.9).catch(() => undefined);
     expect(fillRatio(root), name).toBeGreaterThan(0.9);
   }
@@ -80,7 +83,7 @@ it('换投影之后地图仍占满绘图区', async () => {
 it('流向画成连线，每条一根', async () => {
   const root = mount(SupplyChain);
   const links = await until(() => {
-    const paths = root.querySelectorAll('svg g[class*="links"] path');
+    const paths = root.querySelectorAll('[data-part="link"]');
     return paths.length > 0 && paths;
   });
   expect(links).toHaveLength(6);
@@ -89,14 +92,20 @@ it('流向画成连线，每条一根', async () => {
 it('挤在一起的地点：名字互不重叠、不压地点，挤的画引线', async () => {
   const root = mount(Sites);
   const labels = await until(() => {
-    const texts = [...root.querySelectorAll<SVGTextElement>('[data-point-labels] text')];
+    const texts = [...root.querySelectorAll<SVGTextElement>('[data-part="point-labels"] text')];
     return texts.length > 0 && texts;
   });
-  const boxes = labels.map((text) => text.getBoundingClientRect());
-  const markers = [...root.querySelectorAll('svg g[class*="point"] path')]
-    .map((path) => path.getBoundingClientRect())
-    .filter((box) => box.width);
-  const overlap = (a: DOMRect, b: DOMRect) =>
+  // 用 getBBox（SVG 坐标、不含描边）：Firefox 的 getBoundingClientRect 把名字的光晕、标记的描边也算进去，Chromium 不算
+  const shape = (element: SVGGraphicsElement) => {
+    const box = element.getBBox();
+    return { left: box.x, top: box.y, right: box.x + box.width, bottom: box.y + box.height };
+  };
+  type Box = ReturnType<typeof shape>;
+  const boxes = labels.map(shape);
+  const markers = [...root.querySelectorAll<SVGPathElement>('[data-part="point"]')]
+    .map(shape)
+    .filter((box) => box.right > box.left);
+  const overlap = (a: Box, b: Box) =>
     a.left < b.right - 1 && b.left < a.right - 1 && a.top < b.bottom - 1 && b.top < a.bottom - 1;
   boxes.forEach((box, index) => {
     const name = labels[index]!.textContent!;
@@ -111,5 +120,5 @@ it('挤在一起的地点：名字互不重叠、不压地点，挤的画引线'
   expect(labels.filter((text) => delta.includes(text.textContent!)).length).toBeGreaterThanOrEqual(
     5,
   );
-  expect(root.querySelectorAll('[data-point-labels] line').length).toBeGreaterThan(0);
+  expect(root.querySelectorAll('[data-part="point-labels"] line').length).toBeGreaterThan(0);
 });

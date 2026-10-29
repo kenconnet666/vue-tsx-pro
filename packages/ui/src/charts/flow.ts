@@ -1,6 +1,6 @@
 /**
- * 流向图（桑基图、弦图）共用的数据：节点与节点之间的流向。节点的颜色按顺序取图表色板，
- * 交给 Unovis 前复制一份（它会往节点上写布局用的字段），值不是正数的流向去掉（d3-sankey 要求为正）。
+ * 流向图（桑基图、弦图）共用的数据：节点与节点之间的流向。节点的颜色按顺序取图表色板；
+ * 布局只接受正的流量，值不是正数、指向不存在节点的流向在布局前去掉。
  */
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import { resolveColor, type ChartColor } from './series';
@@ -43,10 +43,10 @@ export function resolveFlowNodes(nodes: readonly FlowNode[]): Map<string, Resolv
   );
 }
 
-/** 交给 Unovis 的数据：节点与流向都复制一份；值不是正数、指向不存在的节点的流向去掉 */
+/** 布局用的数据：节点按原来的顺序；值不是正数、指向不存在的节点的流向去掉，流量转成 number（amount） */
 export function flowData(nodes: ReadonlyMap<string, ResolvedFlowNode>, links: readonly FlowLink[]) {
   return {
-    nodes: [...nodes.values()].map((node) => ({ ...node })),
+    nodes: [...nodes.values()],
     links: links
       .filter(
         (link) => nodes.has(link.source) && nodes.has(link.target) && toNumber(link.value) > 0,

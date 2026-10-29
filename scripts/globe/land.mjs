@@ -1,39 +1,60 @@
 /**
- * 生成 Globe 的陆地位图（packages/ui/src/three/globe/land.ts）：世界地图（Natural Earth 1:110m，经 @unovis/ts 的
- * WorldMapTopoJSON）按 1° 的经纬网格判断每格中心是不是陆地，一格一位，打包成 base64。
+ * 生成 Globe 的陆地位图（packages/ui/src/three/globe/land.ts）：世界地图（Natural Earth 1:110m，组件库
+ * `@zerodep-dev/vue-tsx-pro-ui/maps` 的 worldCountries）按 1° 的经纬网格判断每格中心是不是陆地，一格一位，打包成 base64。
  * 地图数据更新时重跑：pnpm gen:globe-land
+ *
+ * Natural Earth 的多边形已在反子午线处切开，经纬度当平面坐标判断点在不在多边形里（射线法、奇偶规则）即可。
  */
-import { writeFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { requireFrom, root } from '../lib/repo.mjs';
+import { root } from '../lib/repo.mjs';
 
-// 地图与几何库是组件库（图表）的依赖，从那里解析
-const fromUi = requireFrom('packages/ui');
-const unovisRequire = createRequire(fromUi.resolve('@unovis/ts'));
-const load = (name) => import(pathToFileURL(unovisRequire.resolve(name)).href);
-const { WorldMapTopoJSON } = await load('@unovis/ts/maps');
-const { feature } = await load('topojson-client');
-const { geoBounds, geoContains } = await load('d3-geo');
+// 解 TopoJSON 用组件库里的实现（Node 直接运行 TS，类型去掉即可）
+const { topologyFeatures } = await import(
+  pathToFileURL(join(root, 'packages/ui/src/charts/geo/topojson.ts')).href
+);
+const world = JSON.parse(
+  readFileSync(join(root, 'packages/ui/src/maps/world-countries.json'), 'utf8'),
+);
 
 const WIDTH = 360;
 const HEIGHT = 180;
-const land = feature(WorldMapTopoJSON, WorldMapTopoJSON.objects.countries);
-// 先按外接矩形筛：球面上的点在多边形内的判断很慢，每格只和外接矩形盖住它的国家比
-const countries = land.features.map((country) => ({ country, bounds: geoBounds(country) }));
-const inBounds = ([[west, south], [east, north]], lng, lat) =>
-  lat >= south &&
-  lat <= north &&
-  (west <= east ? lng >= west && lng <= east : lng >= west || lng <= east);
+// 先按外接矩形筛：每格只和外接矩形盖住它的多边形比
+const polygons = topologyFeatures(world, 'countries').flatMap((country) =>
+  country.polygons.map((rings) => {
+    const points = rings.flat();
+    const lngs = points.map(([lng]) => lng);
+    const lats = points.map(([, lat]) => lat);
+    return {
+      rings,
+      bounds: [Math.min(...lngs), Math.min(...lats), Math.max(...lngs), Math.max(...lats)],
+    };
+  }),
+);
+
+/** 点在多边形里（含洞，奇偶规则）：从点往右的射线穿过边的次数是奇数 */
+function contains(rings, lng, lat) {
+  let inside = false;
+  for (const ring of rings)
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i];
+      const [xj, yj] = ring[j];
+      if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi)
+        inside = !inside;
+    }
+  return inside;
+}
+
 const bits = new Uint8Array((WIDTH * HEIGHT) / 8);
 let count = 0;
 for (let row = 0; row < HEIGHT; row++) {
   const lat = 90 - row - 0.5;
   for (let column = 0; column < WIDTH; column++) {
     const lng = column - 180 + 0.5;
-    const hit = countries.some(
-      ({ country, bounds }) => inBounds(bounds, lng, lat) && geoContains(country, [lng, lat]),
+    const hit = polygons.some(
+      ({ rings, bounds: [west, south, east, north] }) =>
+        lng >= west && lng <= east && lat >= south && lat <= north && contains(rings, lng, lat),
     );
     if (!hit) continue;
     const index = row * WIDTH + column;

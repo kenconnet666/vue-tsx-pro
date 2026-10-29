@@ -1,9 +1,9 @@
 // 各省的销售额：默认的等积圆锥投影以中国为中心（正着、面积不失真），分成 5 档着色，图例是 5 个色块；
 // 省名写在区域上（areaLabels），工厂的点按产值定大小；可以拖动、按住 Ctrl 滚轮缩放，右上角有放大、缩小、复位；
 // 点一个省份在下面显示它
-import { ChinaTopoJSON } from '@unovis/ts/maps';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import { chinaProvinces } from '@zerodep-dev/vue-tsx-pro-ui/maps';
 import { MapChart, type MapArea } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 import { provinces, sampleValue } from './china';
 
@@ -19,7 +19,7 @@ export default _component(() => {
     <>
       <MapChart
         aria-label="各省销售额"
-        topology={ChinaTopoJSON}
+        topology={chinaProvinces}
         feature="provinces"
         areas={areas}
         points={[

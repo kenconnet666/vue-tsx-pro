@@ -7,9 +7,7 @@ import Stacked from '../demo/Stacked';
 import Traffic from '../demo/Traffic';
 
 const areas = (root: Element) =>
-  [...root.querySelectorAll('[class*="area-component"] path[class*="area"]')].filter(
-    (path) => !path.getAttribute('class')!.includes('Line') && path.getAttribute('d'),
-  );
+  [...root.querySelectorAll('[data-part="area"]')].filter((path) => path.getAttribute('d'));
 const ticks = (root: Element) =>
   [...root.querySelectorAll('svg text')].map((text) => text.textContent);
 
