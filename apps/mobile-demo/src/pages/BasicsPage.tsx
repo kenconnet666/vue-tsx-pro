@@ -59,6 +59,12 @@ export const BasicsPage = _component(() => {
           arrow
           onClick={() => go('form')}
         />
+        <Cell
+          title="展示"
+          description="通知栏、宫格、步骤条、折叠面板、空状态"
+          arrow
+          onClick={() => go('display')}
+        />
       </CellGroup>
       <CellGroup title="按钮">
         <div {...css.attrs(styles.section)}>

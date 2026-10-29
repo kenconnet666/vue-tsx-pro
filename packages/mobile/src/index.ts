@@ -30,6 +30,11 @@ export * from './display/Tag';
 export * from './display/Badge';
 export * from './display/Image';
 export * from './display/SwipeCell';
+export * from './display/Empty';
+export * from './display/NoticeBar';
+export * from './display/Grid';
+export * from './display/Collapse';
+export * from './display/Steps';
 
 // 浮层
 export * from './overlay/Overlay';
