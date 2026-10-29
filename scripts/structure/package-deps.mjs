@@ -5,6 +5,7 @@
  *   - easy-query 不导入 vue 与组件库：ORM 在服务端用，不依赖界面
  *   - 流程引擎的模型包两端通用，不导入 vue、组件库与 easy-query；引擎在服务端，不导入 vue 与组件库
  *   - 组件库不导入框架（kit），框架不导入 easy-query 与流程引擎
+ *   - 小程序运行时（mini）不导入组件库、框架与服务端的包
  *
  * 用法：node scripts/structure/package-deps.mjs（pnpm layers:check 里一起跑）
  */
@@ -17,6 +18,16 @@ const RULES = [
   {
     dirs: ['packages/tsx', 'packages/ui'],
     forbidden: ['@zerodep-dev/easy-query-ts', '@zerodep-dev/vue-tsx-pro-kit'],
+  },
+  // 小程序渲染运行时只认 Vue 与样式引擎：组件库由应用引入，运行时不绑定具体组件
+  {
+    dirs: ['packages/mini'],
+    forbidden: [
+      '@zerodep-dev/vue-tsx-pro-ui',
+      '@zerodep-dev/vue-tsx-pro-kit',
+      '@zerodep-dev/easy-query-ts',
+      '@zerodep-dev/flow-ts-',
+    ],
   },
   // 框架只管渲染、数据、action 与会话；ORM、流程引擎由应用接进来
   { dirs: ['packages/kit'], forbidden: ['@zerodep-dev/easy-query-ts', '@zerodep-dev/flow-ts-'] },

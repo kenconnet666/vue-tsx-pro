@@ -969,6 +969,12 @@ importers:
       '@zerodep-dev/vue-tsx-pro-tsx':
         specifier: workspace:^
         version: link:../tsx
+      '@zerodep-dev/vue-tsx-pro-ui':
+        specifier: workspace:^
+        version: link:../ui
+      happy-dom:
+        specifier: 'catalog:'
+        version: 21.0.3
       typescript:
         specifier: 'catalog:'
         version: 7.1.0-beta

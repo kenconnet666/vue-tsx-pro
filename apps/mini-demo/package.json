@@ -1,0 +1,22 @@
+{
+  "name": "@vue-tsx-pro/mini-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --configLoader native",
+    "build": "node build.ts",
+    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo"
+  },
+  "dependencies": {
+    "@lucide/icons": "catalog:",
+    "vue": "catalog:",
+    "@zerodep-dev/vue-tsx-pro-mini": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

@@ -36,6 +36,19 @@
         "--strictPort"
       ],
       "port": 4174
+    },
+    {
+      "name": "mini-demo-h5",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "--filter",
+        "@vue-tsx-pro/mini-demo",
+        "dev",
+        "--port",
+        "4321",
+        "--strictPort"
+      ],
+      "port": 4321
     }
   ]
 }

@@ -92,6 +92,10 @@ export function composite(fragments: readonly Fragment[]): string {
   return name;
 }
 
+/** 组合类由哪些片段组成；不是引擎生成的组合类时 undefined（行内样式按它查回声明表，见 inline.ts） */
+export const compositeFragments = (name: string): readonly Fragment[] | undefined =>
+  composites.get(name);
+
 /** 片段换成新的声明表，用到它的组合类按原类名重写规则 */
 export function replaceFragment(target: Fragment, table: Declarations) {
   (target as { [FRAGMENT]: Declarations })[FRAGMENT] = table;

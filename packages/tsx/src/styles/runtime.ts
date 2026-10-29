@@ -53,6 +53,7 @@ export { CONDITIONS } from './declarations';
 export { bind, select } from './dynamic';
 export { HOT, hotStyles, hotUpdate } from './hot';
 export { hash, renderStyleTag, styleText } from './sheet';
+export { inlineStyle, type ConditionMatcher } from './inline';
 export { defineTokens } from './tokens';
 export { createTheme, defineMarker, defineVars, when } from './vars';
 

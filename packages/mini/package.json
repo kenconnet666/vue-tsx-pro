@@ -1,0 +1,44 @@
+{
+  "name": "@zerodep-dev/vue-tsx-pro-mini",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Render vue-tsx-pro components in WeChat and Alipay mini programs: a Vue renderer over setData with generic templates, runtime styles resolved inline",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": [
+    "./src/globals.ts"
+  ],
+  "exports": {
+    ".": {
+      "@vue-tsx-pro/source": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./globals": {
+      "@vue-tsx-pro/source": "./src/globals.ts",
+      "default": "./src/globals.ts"
+    },
+    "./build": {
+      "@vue-tsx-pro/source": "./src/build/index.ts",
+      "default": "./src/build/index.ts"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
+    "test": "vitest run --configLoader native"
+  },
+  "peerDependencies": {
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "vite": "catalog:",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
+    "happy-dom": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vitest": "catalog:",
+    "vue": "catalog:"
+  }
+}

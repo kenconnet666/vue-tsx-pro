@@ -56,14 +56,17 @@ packages/
     engine/                只在服务端：命令、推进、作业；依赖 easy-query
     ui/                    只在浏览器：流程图、设计器、审批面板；依赖组件库
     spec/                  语言无关的共用用例（JSON），不是包
+  mini/                    新：小程序渲染运行时 @zerodep-dev/vue-tsx-pro-mini（Vue 渲染器 + setData + 通用模板，
+                           样式按节点展开成行内样式）+ 子路径 ./build（打包成微信 / 支付宝工程）；见 ROADMAP 阶段 17
 apps/
   docs/                    唯一的文档站：组件库、ORM、框架、流程引擎各一个分区；也是 SSR / 预渲染的第一个使用方
   host-demo/               现有：验证"装进已有的 Vue 项目"这条路，保留
   fullstack-demo/          新：框架的最小应用，以后变成新项目模板
   flow-demo/               新：真实的审批应用，驱动框架与引擎
+  mini-demo/               新：同一套页面跑在 H5、微信、支付宝三端，验证移动端路线（阶段 17）
 ```
 
-`pnpm-workspace.yaml` 逐个写出包族（`packages/tsx`、`packages/ui`、`packages/easy-query/*`、`packages/kit`、`packages/flow/*`、`apps/*`），
+`pnpm-workspace.yaml` 逐个写出包族（`packages/tsx`、`packages/ui`、`packages/easy-query/*`、`packages/kit`、`packages/mini`、`packages/flow/*`、`apps/*`），
 不用 `packages/*/*` 这种会把任意子目录都扫一遍的通配。
 
 ### 3.1 分包的规则
