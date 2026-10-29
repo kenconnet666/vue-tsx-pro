@@ -61,10 +61,10 @@ app.use(
 );
 ```
 
-写样式从 `@zerodep-dev/vue-tsx-pro-tsx/styles` 导入（`import * as css`，写法像 StyleX；属性悬停、补全、跳转都有中文说明）。主题 tokens 整个值是一个 token 时直接写成字符串，值里夹着 token 时在模板字符串里写 `t.组.名`；预设编译时都换成 token 变量并补上导入：
+写样式从 `@zerodep-dev/vue-tsx-pro-tsx/styles` 导入（`import { css }`，写法像 StyleX；属性悬停、补全、跳转都有中文说明）。`import * as css` 也可以，编译结果一样，只是命名空间导入的名字编辑器推不出来，不能自动导入。主题 tokens 整个值是一个 token 时直接写成字符串，值里夹着 token 时在模板字符串里写 `t.组.名`；预设编译时都换成 token 变量并补上导入：
 
 ```ts
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({

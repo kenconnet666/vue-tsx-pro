@@ -1,7 +1,8 @@
 /**
  * 样式入口：运行时样式引擎（runtime.ts）加上中文注释的类型。
  *
- *   import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+ *   import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';   // 编辑器能自动导入
+ *   import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';   // 同一个模块对象，编译结果一样
  *
  * create 的参数只让样式组名参与推导，组内属性的上下文类型固定为带注释的 DocumentedStyles，
  * 悬停、补全、跳转都能看到说明（整个参数做泛型推导时，TypeScript 悬停只显示推导出的字面量）。
@@ -281,3 +282,9 @@ export const select: (
   /** 读取函数只读渲染函数外面的来源（编译器判断后填 true）：重新渲染时不必重新收集依赖 */
   stable?: boolean,
 ) => CompiledStyles = runtime.select as never;
+
+/**
+ * 整个入口作为具名导出：`import { css }` 与 `import * as css` 拿到的是同一个模块对象，编译器两种写法都认。
+ * 命名空间导入的名字由使用方起，编辑器的自动导入推不出来；具名的 css 能被自动导入
+ */
+export * as css from './index';

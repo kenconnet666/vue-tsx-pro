@@ -13,7 +13,7 @@
  * 绑定只会多一个 effect。
  */
 import { types as t, type NodePath, type PluginObject } from '@babel/core';
-import { renderFunctionOf, STYLE_SOURCE } from './ast.ts';
+import { isStyleNamespace, renderFunctionOf, STYLE_SOURCE } from './ast.ts';
 
 /** 粗筛：文件里有样式入口的导入、也有 create 调用 */
 export const needsStyleBindings = (code: string) =>
@@ -119,7 +119,7 @@ export function styleBindingsPlugin(): PluginObject {
 }
 
 interface StyleImports {
-  /** 命名空间导入的本地名（import * as css） */
+  /** 整个入口导入时的本地名（import * as css、import { css }） */
   namespace?: string;
   /** 具名导入的 create 的本地名 */
   create?: string;
@@ -134,7 +134,7 @@ function styleImports(program: NodePath<t.Program>): StyleImports | undefined {
     if (!t.isImportDeclaration(statement) || statement.source.value !== STYLE_SOURCE) continue;
     const found: StyleImports = { source: statement.source.value };
     for (const specifier of statement.specifiers) {
-      if (t.isImportNamespaceSpecifier(specifier)) found.namespace = specifier.local.name;
+      if (isStyleNamespace(specifier)) found.namespace = specifier.local.name;
       else if (t.isImportSpecifier(specifier) && t.isIdentifier(specifier.imported)) {
         if (specifier.imported.name === 'create') found.create = specifier.local.name;
         if (specifier.imported.name === 'attrs') found.attrs = specifier.local.name;

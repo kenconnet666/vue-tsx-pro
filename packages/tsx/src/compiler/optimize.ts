@@ -15,7 +15,13 @@
  * 这类数据变了不会通知任何组件，以前靠父组件碰巧重新渲染才刷新。
  */
 import { types as t, type NodePath } from '@babel/core';
-import { isComponentSetup, prependToBody, STYLE_SOURCE, type Binding } from './ast.ts';
+import {
+  isComponentSetup,
+  isStyleNamespace,
+  prependToBody,
+  STYLE_SOURCE,
+  type Binding,
+} from './ast.ts';
 import type { RuntimeImports } from './imports.ts';
 import type { TrackedInfo } from './runes.ts';
 
@@ -168,7 +174,7 @@ function readsInside(reference: NodePath) {
 const STYLE_FACTORIES = new Set(['create', 'createTheme', 'defineVars', 'defineMarker', 'recipe']);
 
 /**
- * 读的成员不会变：同一文件里 css.create（等）的结果；命名空间导入（import * as icons）的一层成员。
+ * 读的成员不会变：同一文件里 css.create（等）的结果；命名空间导入（import * as icons，样式入口的 import { css }）的一层成员。
  * 再往下一层（icons.X.y）、或别的常量的成员都可能会变
  */
 function isFrozenRead(reference: NodePath) {
@@ -176,7 +182,11 @@ function isFrozenRead(reference: NodePath) {
   const binding = reference.scope.getBinding(reference.node.name);
   if (!binding) return false;
   const member = reference.parentPath!;
-  if (binding.path.isImportNamespaceSpecifier()) {
+  const styleEntry =
+    isStyleNamespace(binding.path.node) &&
+    t.isImportDeclaration(binding.path.parent) &&
+    binding.path.parent.source.value === STYLE_SOURCE;
+  if (binding.path.isImportNamespaceSpecifier() || styleEntry) {
     const outer = member.parentPath;
     const deeper =
       (outer?.isMemberExpression() || outer?.isOptionalMemberExpression()) &&

@@ -7,6 +7,17 @@ export type Binding = NonNullable<ReturnType<Scope['getBinding']>>;
 
 export { languageOf, parserPlugins, STYLE_SOURCE, type Language } from './detect.ts';
 
+/**
+ * 把样式入口整个当一个值导入的说明符：`import * as css`，或具名的 `import { css }`（入口导出的 css 就是它自己的模块对象）。
+ * 命名空间导入的名字由使用方起，编辑器的自动导入推不出来；具名的 css 能被自动导入，两种写法编译结果一样
+ */
+export function isStyleNamespace(specifier: t.Node): boolean {
+  return (
+    t.isImportNamespaceSpecifier(specifier) ||
+    (t.isImportSpecifier(specifier) && t.isIdentifier(specifier.imported, { name: 'css' }))
+  );
+}
+
 /** 组件边界：第一个参数是 setup 函数的调用 */
 const COMPONENT_CALLEES = new Set(['_component', 'defineComponent']);
 

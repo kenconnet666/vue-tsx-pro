@@ -97,3 +97,21 @@ export const Row = _component(({ item, size, active, shown, rows }: { item: { ho
   expect(output).toContain('css.attrs(DEBUG && styles.hot)');
   expect(output).toMatch(/"extra": shown\.value && styles\.on/);
 });
+
+it('具名导入的 import { css } 与 import * as css 一样：样式绑定和热更新都认', async () => {
+  const code = `import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+export const styles = css.create({ bar: (width: number) => ({ width }), hot: { color: 'red' } });
+export const Bar = _component(({ width, item }: { width: number; item: { hot: boolean } }) => () => (
+  <div {...css.attrs(styles.bar(width), item.hot && styles.hot)} />
+));`;
+  const output = (await compile(code, {
+    filename: '/src/Bar.tsx',
+    styleBindings: true,
+    styleHot: 'src/Bar.tsx',
+    sourceMaps: false,
+  }))!.code;
+  expect(output).toMatch(/css\.bind\(styles\.bar, \(\) => \[width\.value\], true\)/);
+  expect(output).toMatch(/css\.select\(\(\) => item\.value\.hot && styles\.hot, true\)/);
+  expect(output).toMatch(/_hotStyles\("src\/Bar\.tsx#styles", css\.create\(/);
+});

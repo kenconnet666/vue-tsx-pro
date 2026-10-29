@@ -19,7 +19,7 @@ tsconfig 里写 `"jsx": "preserve"` 与 `"jsxImportSource": "@zerodep-dev/vue-ts
 
 ```tsx
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles'; // 也可以 import * as css，编译结果一样
 
 const styles = css.create({ button: { padding: '_sm', borderRadius: '_md' } });
 

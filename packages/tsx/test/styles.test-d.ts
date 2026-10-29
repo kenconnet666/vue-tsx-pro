@@ -1,6 +1,7 @@
 // 样式入口的类型：合法写法通过，拼错的属性、类型不对的值、缺 default 的条件值报错；
 // 每个属性接受的值与 CSS 类型表（css-properties.ts）一个不多、一个不少
 import * as css from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css as named } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { CSSProperties } from '../src/styles/css-properties';
 
 const vars = css.defineVars('vars', {
@@ -67,3 +68,6 @@ css.create({ ok: { color: { default: 'black', _selected: 'blue', _hover: 'red' }
 css.create({ bad: { color: { default: 'black', _selectd: 'blue' } } });
 // @ts-expect-error 条件取值必须有 default
 css.create({ bad: { color: { ':hover': 'blue' } } });
+
+// 具名的 css 就是整个入口：类型和命名空间导入一样
+export const sameEntry: typeof css = named;
