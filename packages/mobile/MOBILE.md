@@ -103,3 +103,14 @@
 - **Tag**：`closable` 的关闭按钮阻止冒泡（标签常放在可点击的单元格里）。
 - **Badge**：内容是 0 时默认隐藏（`showZero`），`max` 截断成 `99+`；没有子内容时单独显示。
 - **Image**：`fit` 同 object-fit，小程序里换成 image 的 `mode`；加载中与失败各有占位。
+
+- **Overlay / Popup / ActionSheet / Dialog**：渲染到宿主的浮层根；进场等宿主的 `nextFrame`；关闭原因（遮罩、关闭按钮、选中、取消）随 `onOpenChange` 给出；命令式的 `showDialog` 返回 Promise。
+- **Toast / Notify**：命令式为主，同一时间一个、后一个替换前一个；出口在最外层的 ConfigProvider 里。
+- **SwipeCell / PullRefresh / Slider**：只接管自己方向的手势（H5 靠 `touch-action`，小程序拖动期间把 touchmove 换成 catch），竖滑照常滚动页面。
+- **Form / FormItem / Field**：不渲染原生 form（小程序没有）：Form 认出 `type="submit"` 的按钮与输入框里的确认键；
+  规则是 `{ required, pattern, validator, message, trigger }`，校验器可以是异步的；值变了时已报错的项整个重查，改对了消息就消失。
+  输入框之外的控件放进 FormItem（`name` + `value` 参与提交与校验）。
+- **Field**：数字用文本框加 `inputmode`（不出现上下箭头）；拼音组字中不写回；清除按钮在聚焦时出现，失焦稍后才藏（小程序里点它会先失焦）。
+- **Checkbox / Radio**：同一套外观（圆框里打勾，`shape="square"` 是方框），按钮元素加 `role`；组的 `max` 选满后其余禁用。
+- **Stepper**：按住连续加减；输入的数失焦时按范围与小数位修正。**Rate** 可半颗、可在星上滑动，再点当前分数清零。
+- **Uploader**：只管选图与展示，上传在 `onRead` 里做；文件对象是响应式的，改 `status` 显示上传中、失败。

@@ -41,6 +41,12 @@ export const BasicsPage = _component(() => {
           arrow
           onClick={() => go('feedback')}
         />
+        <Cell
+          title="表单"
+          description="输入框、校验、开关、单选多选、步进器、评分、滑块、上传"
+          arrow
+          onClick={() => go('form')}
+        />
       </CellGroup>
       <CellGroup title="按钮">
         <div {...css.attrs(styles.section)}>

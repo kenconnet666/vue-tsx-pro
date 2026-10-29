@@ -27,6 +27,10 @@ export interface MobileLang {
   loadFailed: string;
   /** 列表：没有更多了 */
   noMore: string;
+  /** 表单：必填项没填时的消息 */
+  fieldRequired: (label: string) => string;
+  /** 搜索框：占位文字、按钮 */
+  search: string;
   /** 输入框：已输入字数 / 上限 */
   wordLimit: (count: number, max: number) => string;
   /** 步进器：增加、减少的读屏名称 */
@@ -55,6 +59,8 @@ export const zhCN: MobileLang = {
   loosing: '释放即可刷新…',
   refreshing: '加载中…',
   loadFailed: '加载失败，点击重试',
+  fieldRequired: (label) => (label ? `请填写${label}` : '请填写'),
+  search: '搜索',
   noMore: '没有更多了',
   wordLimit: (count, max) => `${count}/${max}`,
   increase: '增加',
@@ -79,6 +85,8 @@ export const enUS: MobileLang = {
   loosing: 'Release to refresh…',
   refreshing: 'Loading…',
   loadFailed: 'Failed to load, tap to retry',
+  fieldRequired: (label) => (label ? `${label} is required` : 'Required'),
+  search: 'Search',
   noMore: 'No more',
   wordLimit: (count, max) => `${count}/${max}`,
   increase: 'Increase',

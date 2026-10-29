@@ -608,8 +608,8 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 ### 17.2 小程序运行时补全（packages/mini）
 
 - [ ] 17.2.1 模板层数用完后接一个递归的自定义组件（同 Taro 的 comp）；长列表的每一项用自定义组件隔开，setData 只到那一项
-- [ ] 17.2.2 原生组件：image、input、textarea、scroll-view、swiper（按约定属性映射）的属性与事件（input 的值双向、聚焦、键盘高度）（image 的 mode、lazy-load、load / error 已做）
-- [ ] 17.2.3 事件补全：touchmove、longpress、scroll、input / change；事件对象的 touches、目标节点等 DOM 形状（touchmove 只在 data-touch-move / data-scroll-lock 的节点上，横滑期间换 catch；事件对象带 touches；页面滚动接进宿主；差 input / change）
+- [ ] 17.2.2 原生组件：image、input、textarea、scroll-view、swiper（按约定属性映射）的属性与事件（input 的值双向、聚焦、键盘高度）（image 的 mode、lazy-load、load / error 已做；input、textarea 的值随输入写回节点、type / inputmode → 键盘类型、密码、禁用与只读、focus、确认键、auto-height 已做；差 scroll-view、swiper、键盘高度）
+- [x] 17.2.3 事件补全：touchmove、longpress、scroll、input / change；事件对象的 touches、目标节点等 DOM 形状（touchmove 只在 data-touch-move / data-scroll-lock 的节点上，横滑期间换 catch；事件对象带 touches；页面滚动接进宿主；input 的 event.target.value；键盘确认键转成 keydown Enter）
 - [x] 17.2.4 宿主约定的小程序实现：SelectorQuery 测量、pageScrollTo、系统信息与安全区、页面滚动锁、震动、剪贴板、chooseMedia
 - [x] 17.2.5 浮层：页面级浮层根接住 Teleport；`position: fixed` 与层级在两端一致；宿主的 `nextFrame` 等 setData 生效后再播进场动画
 - [ ] 17.2.6 `data-*`、`id` 透传到模板；role、aria-label 映射到小程序的无障碍属性（id 已做，测量时按需挂上）
@@ -632,8 +632,8 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
       Tag、Badge、Divider、Space、Image（懒加载、失败占位）、Loading；演示与 mini 的测试不再依赖 `-ui`（三端截图与交互核对过）
 - [x] 17.4.2 浮层与反馈：Overlay、Popup（上下左右中、圆角、安全区、关闭方式）、Toast（命令式）、Dialog（组件与命令式）、ActionSheet、Notify、
       SwipeCell、PullRefresh、Skeleton（H5 与微信核对过；支付宝待下一轮截图）
-- [ ] 17.4.3 表单：Field（输入框、多行、清除、字数）、Switch、Checkbox / CheckboxGroup、Radio / RadioGroup、Stepper、Rate、Slider、Search、
-      Form（校验规则自己写，可接 zod）、Uploader（选择、预览、进度；小程序端经宿主约定）
+- [x] 17.4.3 表单：Field（输入框、多行、清除、字数）、Switch、Checkbox / CheckboxGroup、Radio / RadioGroup、Stepper、Rate、Slider、Search、
+      Form（校验规则自己写，可接 zod）、Uploader（选择、预览、进度；小程序端经宿主约定）；另有 FormItem 放任意控件（H5 与微信核对过，支付宝离线编译通过）
 - [ ] 17.4.4 展示与导航：List（触底加载、错误重试）、Tabs（滑动切换、吸顶）、NavBar、TabBar、Grid、Collapse、Empty、Steps、NoticeBar、
       Swiper、Sticky、IndexBar、BackTop
 - [ ] 17.4.5 选择：Picker（滚轮、多列、联动）、DatePicker / TimePicker、Cascader、Calendar（单选、区间、多选）、DropdownMenu、

@@ -3,7 +3,7 @@ import { mountPage } from '@zerodep-dev/vue-tsx-pro-mini/testing';
 import { describe, expect, it } from 'vitest';
 import { defineComponent, nextTick, ref } from 'vue';
 import { mount } from '../../utils/.test/mount';
-import { FixedMeasure, swipe, touch } from '../../utils/.test/touch';
+import { measureAs, swipe, touch, WithHost } from '../../utils/.test/touch';
 import { SwipeCell } from '../SwipeCell';
 
 const flush = async () => {
@@ -15,7 +15,7 @@ describe('SwipeCell（H5）', () => {
   it('左滑超过右边宽度的三成打开；点击收起', async () => {
     const side = ref<'left' | 'right' | false>(false);
     const root = mount(() => (
-      <FixedMeasure rect={{ width: 80 }}>
+      <WithHost host={{ measure: measureAs({ width: 80 }) }}>
         <SwipeCell
           _open={side.value}
           onOpenChange={(next) => (side.value = next)}
@@ -23,7 +23,7 @@ describe('SwipeCell（H5）', () => {
         >
           内容
         </SwipeCell>
-      </FixedMeasure>
+      </WithHost>
     ));
     await flush();
     const cell = root.firstElementChild!;
@@ -47,9 +47,9 @@ describe('SwipeCell（H5）', () => {
 
   it('竖滑不接管：偏移不变，也不取消触摸', async () => {
     const root = mount(() => (
-      <FixedMeasure rect={{ width: 80 }}>
+      <WithHost host={{ measure: measureAs({ width: 80 }) }}>
         <SwipeCell right={<span>删除</span>}>内容</SwipeCell>
-      </FixedMeasure>
+      </WithHost>
     ));
     await flush();
     const cell = root.firstElementChild!;

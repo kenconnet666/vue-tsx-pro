@@ -37,6 +37,8 @@ export interface IconProps extends PartProps<'svg', IconManaged> {
    * @default 2
    */
   strokeWidth?: number;
+  /** 实心：轮廓里也填上文字颜色（评分的星、选中的心） */
+  filled?: boolean;
 }
 
 /** Icon 的样式：icon */
@@ -51,26 +53,29 @@ export const iconStyles = css.create({
 });
 
 /** 图标（svg）：不传 aria-label 时是装饰性的 */
-export const Icon = _component(({ icon, size, strokeWidth = 2, ...rest }: IconProps) => () => {
-  const labelled = rest['aria-label'] != null;
-  return (
-    <svg
-      {...mergeAttrs<'svg'>({ sx: iconStyles.icon }, rest, {
-        style: size == null ? undefined : { fontSize: `${size}px` },
-        viewBox: viewBox(icon),
-        fill: 'none',
-        stroke: 'currentColor',
-        // 写成属性而不是样式：小程序把 svg 画成遮罩图片，读不到页面的样式
-        'stroke-width': strokeWidth,
-        'stroke-linecap': 'round',
-        'stroke-linejoin': 'round',
-        role: labelled ? 'img' : undefined,
-        'aria-hidden': labelled ? undefined : 'true',
-      })}
-      innerHTML={iconMarkup(icon)}
-    />
-  );
-});
+export const Icon = _component(
+  ({ icon, size, strokeWidth = 2, filled = false, ...rest }: IconProps) =>
+    () => {
+      const labelled = rest['aria-label'] != null;
+      return (
+        <svg
+          {...mergeAttrs<'svg'>({ sx: iconStyles.icon }, rest, {
+            style: size == null ? undefined : { fontSize: `${size}px` },
+            viewBox: viewBox(icon),
+            fill: filled ? 'currentColor' : 'none',
+            stroke: 'currentColor',
+            // 写成属性而不是样式：小程序把 svg 画成遮罩图片，读不到页面的样式
+            'stroke-width': strokeWidth,
+            'stroke-linecap': 'round',
+            'stroke-linejoin': 'round',
+            role: labelled ? 'img' : undefined,
+            'aria-hidden': labelled ? undefined : 'true',
+          })}
+          innerHTML={iconMarkup(icon)}
+        />
+      );
+    },
+);
 
 function viewBox(icon: IconData) {
   const width = icon.width ?? icon.size ?? 24;

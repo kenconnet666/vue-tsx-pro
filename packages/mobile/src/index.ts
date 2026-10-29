@@ -36,6 +36,21 @@ export * from './overlay/Overlay';
 export * from './overlay/Popup';
 export * from './overlay/ActionSheet';
 
+// 表单
+export * from './form/context';
+export * from './form/Form';
+export * from './form/FormItem';
+export * from './form/Field';
+export * from './form/Search';
+export * from './form/Switch';
+export * from './form/Checkbox';
+export * from './form/Radio';
+export * from './form/Stepper';
+export * from './form/Rate';
+export * from './form/Slider';
+export * from './form/Uploader';
+export type { ChoiceDirections, ChoiceShapes } from './form/choice';
+
 // 反馈
 export * from './feedback/Loading';
 export * from './feedback/Toast';

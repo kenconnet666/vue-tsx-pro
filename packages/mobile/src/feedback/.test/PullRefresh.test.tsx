@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
-import { FixedMeasure, swipe, touch } from '../../utils/.test/touch';
+import { swipe, touch, WithHost } from '../../utils/.test/touch';
 import { PullRefresh } from '../PullRefresh';
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -55,9 +55,9 @@ describe('PullRefresh（H5）', () => {
     touch(box, 'touchend', 100, 60);
 
     const scrolled = mount(() => (
-      <FixedMeasure rect={{}} scrollTop={200}>
+      <WithHost host={{ scrollTop: () => 200 }}>
         <PullRefresh onRefresh={onRefresh}>列表</PullRefresh>
-      </FixedMeasure>
+      </WithHost>
     ));
     const lower = scrolled.firstElementChild!;
     swipe(lower, [100, 100], [100, 300]);
