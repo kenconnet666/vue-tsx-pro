@@ -192,7 +192,7 @@ export const Dialog = _component(
                     tone: confirmTone,
                     loading: confirming,
                     sx: dialogStyles.action,
-                    onClick: confirm,
+                    onClick: () => void confirm(),
                   },
                   propsConfirm,
                 )}

@@ -44,12 +44,12 @@ const styles = css.create({
   articleText: { fontSize: '_sm', color: '_textMuted', lineHeight: '1.6' },
 });
 
-const SHARE: ActionSheetAction[] = [
+const SHARE = [
   { name: '微信好友', icon: Share2 },
   { name: '朋友圈', description: '仅自己可见时不能分享', disabled: true },
   { name: '收藏', icon: Star },
   { name: '删除', tone: 'danger', description: '删除后不能恢复' },
-];
+] satisfies ActionSheetAction[];
 
 const POSITIONS: [keyof PopupPositions, string][] = [
   ['bottom', '底部弹出'],
@@ -115,9 +115,11 @@ export const FeedbackPage = _component(() => {
           <Cell
             title="提示对话框"
             arrow
-            onClick={() => showDialog({ title: '提示', message: '订单已提交，商家会尽快发货。' })}
+            onClick={() =>
+              void showDialog({ title: '提示', message: '订单已提交，商家会尽快发货。' })
+            }
           />
-          <Cell title="确认对话框（危险操作）" arrow onClick={confirmDelete} />
+          <Cell title="确认对话框（危险操作）" arrow onClick={() => void confirmDelete()} />
           <Cell title="异步确认（按钮转圈）" arrow onClick={() => (dialog = true)} />
         </CellGroup>
 
@@ -127,7 +129,7 @@ export const FeedbackPage = _component(() => {
               <Button size="sm" variant="soft" onClick={() => showToast('已复制到剪贴板')}>
                 文字
               </Button>
-              <Button size="sm" variant="soft" onClick={submit}>
+              <Button size="sm" variant="soft" onClick={() => void submit()}>
                 加载中
               </Button>
               <Button
@@ -250,7 +252,7 @@ export const FeedbackPage = _component(() => {
         _open={sheet}
         title="分享到"
         actions={SHARE}
-        onSelect={(action) => showToast(`选了：${String(action.name)}`)}
+        onSelect={(_, index) => showToast(`选了：${SHARE[index]!.name}`)}
         onOpenChange={(open) => (sheet = open)}
       />
       <Dialog

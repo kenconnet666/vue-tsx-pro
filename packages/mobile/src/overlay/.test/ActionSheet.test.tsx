@@ -68,12 +68,12 @@ describe('ActionSheet（H5）', () => {
 describe('ActionSheet（小程序）', () => {
   it('渲染到浮层节点，点一项选中并关闭', async () => {
     const open = ref(true);
-    const picked = ref('');
+    const picked = ref(-1);
     const Demo = defineComponent(() => () => (
       <ActionSheet
         _open={open.value}
         actions={actions}
-        onSelect={(action) => (picked.value = String(action.name))}
+        onSelect={(_, index) => (picked.value = index)}
         onOpenChange={(next) => (open.value = next)}
       />
     ));
@@ -84,7 +84,7 @@ describe('ActionSheet（小程序）', () => {
       (node) => node.t === 'x' && JSON.stringify(node).includes('"v":"微信"'),
     )!;
     await page.tap(wechat);
-    expect(picked.value).toBe('微信');
+    expect(picked.value).toBe(0);
     expect(open.value).toBe(false);
   });
 });
