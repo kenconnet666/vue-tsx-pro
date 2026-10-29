@@ -520,8 +520,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [ ] 16.7.8 TDengine 等时序库（官方 sql-tsdb）：先看官方支持到什么程度再定
 - [ ] 16.7.9 H2：JVM 内的库，Node 没有驱动——不适用，写进清单
 - [ ] 16.7.10 每种方言：共用实库套件全绿、方言专属函数入口（同 `MySQL.` / `Pg.` / `Hana.`）、建表类型映射、CI（大的放 nightly）
-- [ ] 16.7.11 按版本渲染推广到各方言（核心 `DialectOptions.version`，SQL Server 已做）：新版本用更好的写法，旧版本退回旧写法，做不到的渲染时报出最低版本；
-      MySQL 5.7 / 8.0.x（窗口、CTE、JSON_OVERLAPS 8.0.17、VALUES ROW 8.0.19）、PG、Oracle 12c 前后的分页等；版本取值在类型上限定
+- [x] 16.7.11 按版本渲染收敛（2026-10-29 定）：默认一套各版本都能跑的写法，只在旧写法被弃用、旧版本没有该能力（渲染时报最低版本）、新旧语义或性能差别大时分支；
+      `mysql.detect` / `mssql.detect` / `oracle.detect` 连库读出版本，部署不用手配；只为写法好看的分支（SQL Server 的 TRIM、DATETRUNC、IS NOT DISTINCT FROM）已删
 
 ### 16.8 文档站与收尾
 
