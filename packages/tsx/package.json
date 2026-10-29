@@ -1,6 +1,6 @@
 {
   "name": "@zerodep-dev/vue-tsx-pro-tsx",
-  "version": "0.4.0-dev",
+  "version": "0.3.3",
   "description": "更自然的 Vue TSX：组件边界、符文编译与 Vite 预设",
   "type": "module",
   "license": "MIT",
