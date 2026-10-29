@@ -501,7 +501,7 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
       多张表 `UNION ALL` 后在库里排序、分页、聚合；按时间自动建表
 - [ ] 16.6.3 分库（super/sharding-datasource、sharding-all）：多个 Db 按键路由，跨库查询在内存里归并排序、分页、聚合（流式 k 路归并），并发上限；
       跨库写入不做分布式事务（写明）
-- [ ] 16.6.4 读写分离（官方超级功能之一）：`createDb({ replicas })`，事务里一律走主库
+- [x] 16.6.4 读写分离（官方超级功能之一）：`createDb({ replicas })`，事务里一律走主库
 - [ ] 16.6.5 search 扩展（官方 sql-search，EasySearch* 测试）与我们的 `table()` / 条件树对照，缺的补上
 
 ### 16.7 方言：官方支持的都支持（容器进 `infra/dev/compose.yaml`）
