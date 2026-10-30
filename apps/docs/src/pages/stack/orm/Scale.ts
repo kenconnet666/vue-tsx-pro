@@ -11,7 +11,7 @@ export default ormChapter({
     {
       id: 'cache',
       title: '二级缓存',
-      text: '`easy-query-ts-cache`：kv 模式按主键缓存单行，all 模式缓存整张小表；写入时由拦截器失效（按改之前的行算出要删的键），事务提交后再删一次（官方的延迟双删）；`onEvict` 收到删掉的键，转给别的实例或推给前端。浏览器里跑时用前端存储包 `@zerodep-dev/storage` 的 `cacheStore(indexedDbDriver())` 当存储。',
+      text: '`easy-query-ts-cache`：kv 模式按主键缓存单行，all 模式缓存整张小表；写入时由拦截器失效（按改之前的行算出要删的键），事务提交后再删一次（官方的延迟双删）；`onEvict` 收到删掉的键与表，转给别的实例；`tableChanges` 报出每次写入的表名，经 kit 的失效推送让前端缓存按表名失效。浏览器里跑时用前端存储包 `@zerodep-dev/storage` 的 `cacheStore(indexedDbDriver())` 当存储。',
       code: `const cache = createCache({ entities: [User, Province], store: memoryStore() }); // 多实例部署换成自己的 Redis store
 const db = createDb({ schema, adapter, interceptors: [cache.interceptor] });
 await cache.of(db).kv(User).find(1);

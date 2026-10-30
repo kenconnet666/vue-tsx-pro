@@ -84,6 +84,54 @@ describe('createCache', () => {
   });
 });
 
+describe('标签与本页的失效通知', () => {
+  it('invalidateTag 让标了这些标签的全部失效，连同它们别的标签的索引；没标的不动', async () => {
+    const driver = memoryDriver();
+    const cache = createCache(driver);
+    await cache.set('cities:浙江', ['杭州'], { tags: ['t_city'] });
+    await cache.set('report', { n: 1 }, { tags: ['t_city', 't_order'] });
+    await cache.set('orders', [1], { tags: ['t_order'] });
+    await cache.set('plain', 1);
+    await cache.invalidateTag('t_city');
+    assert.equal(await cache.get('cities:浙江'), undefined);
+    assert.equal(await cache.get('report'), undefined);
+    assert.deepEqual(await cache.get('orders'), [1]);
+    assert.equal(await cache.get('plain'), 1);
+    // report 的 t_order 索引也删了：只剩 orders 的
+    assert.deepEqual(
+      (await driver.keys()).filter((key) => key.includes('\u001e')),
+      ['cache:\u001et_order\u001eorders'],
+    );
+    await assert.rejects(cache.set('x', 1, { tags: [''] }), /non-empty string/);
+  });
+
+  it('值过期删掉后只剩索引：invalidateTag 照样清掉索引', async () => {
+    const time = clock();
+    const driver = memoryDriver();
+    const cache = createCache(driver, { ttl: 10, now: time.now });
+    await cache.set('k', 1, { tags: ['t'] });
+    await driver.delete('cache:k');
+    await cache.invalidateTag('t');
+    assert.deepEqual(await driver.keys(), []);
+  });
+
+  it('watch 收到本页的 invalidate / invalidateTag / invalidatePrefix，set 不通知；清空整个缓存是 undefined', async () => {
+    const cache = createCache(memoryDriver());
+    const seen: (readonly string[] | undefined)[] = [];
+    const stop = cache.watch((keys) => seen.push(keys));
+    await cache.set('a', 1, { tags: ['t'] });
+    await cache.set('b', 2);
+    await cache.invalidateTag('t');
+    await cache.invalidate('b');
+    await cache.set('user:1', 1);
+    await cache.invalidatePrefix('user:');
+    await cache.invalidatePrefix('');
+    stop();
+    await cache.invalidate('b');
+    assert.deepEqual(seen, [['a'], ['b'], ['user:1'], undefined]);
+  });
+});
+
 describe('cacheStore（easy-query 二级缓存的存储）', () => {
   it('一个键下多个字段，各自过期，按键删除全部字段', async () => {
     const time = clock();

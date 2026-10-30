@@ -206,6 +206,68 @@ describe('useRequest 的 cache', () => {
     stop();
   });
 
+  it('写回时带上 tags；当前参数的键失效了自动再请求，别的键、别处写进的新值不请求', async () => {
+    const entries: Record<string, { value: unknown; fresh: boolean }> = {};
+    const written: unknown[] = [];
+    const listeners = new Set<(keys: readonly string[] | undefined) => void>();
+    const store: RequestCache = {
+      read: (key) => Promise.resolve(entries[key]),
+      set: (key, value, options) => {
+        entries[key] = { value, fresh: true };
+        written.push(options);
+        return Promise.resolve();
+      },
+      watch: (listener) => {
+        listeners.add(listener);
+        return () => listeners.delete(listener);
+      },
+    };
+    const emit = (keys: readonly string[] | undefined) => listeners.forEach((l) => l(keys));
+    const { fetcher, calls } = deferredFetcher<string[], string>();
+    const { state, stop } = run(fetcher, {
+      params: () => '浙江',
+      cache: { store, key: (p) => `city:${p}`, tags: () => ['t_city'] },
+    });
+    await flush();
+    calls[0]!.resolve(['杭州']);
+    await flush();
+    expect(written).toEqual([{ tags: ['t_city'] }]);
+
+    emit(['city:江苏']);
+    await flush();
+    expect(calls).toHaveLength(1);
+    // 别的标签页写进了新值：读缓存就够了
+    entries['city:浙江'] = { value: ['杭州', '宁波'], fresh: true };
+    emit(['city:浙江']);
+    await flush();
+    expect([calls.length, state.data]).toEqual([1, ['杭州', '宁波']]);
+    // 失效了（缓存里没了）：再请求
+    delete entries['city:浙江'];
+    emit(['city:浙江']);
+    await flush();
+    expect(calls).toHaveLength(2);
+    stop();
+    expect(listeners.size).toBe(0);
+  });
+
+  it('还没请求过（immediate: false）时失效不触发请求', async () => {
+    const listeners = new Set<(keys: readonly string[] | undefined) => void>();
+    const store: RequestCache = {
+      read: () => Promise.resolve(undefined),
+      set: () => Promise.resolve(),
+      watch: (listener) => {
+        listeners.add(listener);
+        return () => listeners.delete(listener);
+      },
+    };
+    const { fetcher, calls } = deferredFetcher<string, undefined>();
+    const { stop } = run(fetcher, { immediate: false, cache: { store, key: () => 'k' } });
+    listeners.forEach((listener) => listener(undefined));
+    await flush();
+    expect(calls).toHaveLength(0);
+    stop();
+  });
+
   it('缓存读写出错当作没有缓存，请求照常', async () => {
     const store: RequestCache = {
       read: () => Promise.reject(new Error('disk')),

@@ -30,4 +30,5 @@ export {
   type InputSchema,
 } from './action.ts';
 export { useSession, type Session, type SessionData } from './session.ts';
+export { INVALIDATION_PATH, listenInvalidation } from './invalidation.ts';
 export { PageView, type PageViewProps } from './PageView.tsx';

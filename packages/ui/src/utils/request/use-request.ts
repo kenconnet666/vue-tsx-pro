@@ -12,7 +12,11 @@
  * 结果可以经 cache 选项存进 IndexedDB、localStorage（@zerodep-dev/storage 的 createCache）：
  *
  *   const cache = createCache(indexedDbDriver({ name: 'app' }), { ttl: 60_000, stale: 86_400_000 });
- *   useRequest(fetchCities, { params: () => province, cache: { store: cache, key: (p) => `cities:${p}` } });
+ *   useRequest(fetchCities, {
+ *     params: () => province,
+ *     cache: { store: cache, key: (p) => `cities:${p}`, tags: () => ['t_city'] },   // 标上依赖的表
+ *   });
+ *   // t_city 改了（kit 的失效推送、或自己保存后）：await cache.invalidateTag('t_city')，正显示着的这个请求自动重新请求
  *
  * 只在浏览器里自动请求：服务端渲染时 data 留空，等页面在浏览器里接管后再请求。
  * 一开始就请求时 loading 从 true 开始，服务端也按“加载中”渲染：水合时两边一致，浏览器接着发请求。
@@ -25,8 +29,10 @@ import { isAbortError } from './http';
 export interface RequestCache {
   /** 缓存的值；fresh 为 false 是过期但还能先显示的 */
   read(key: string): Promise<{ value: unknown; fresh: boolean } | undefined>;
-  /** 写回请求的结果 */
-  set(key: string, value: unknown): Promise<void>;
+  /** 写回请求的结果；tags 是这条依赖的东西（后端的表名），按它失效 */
+  set(key: string, value: unknown, options?: { tags?: readonly string[] }): Promise<void>;
+  /** 缓存的键失效或被别处改了时回调（keys 为 undefined 表示全清了）；返回取消收听 */
+  watch?(listener: (keys: readonly string[] | undefined) => void): () => void;
 }
 
 /** useRequest 的选项 */
@@ -46,9 +52,14 @@ export interface RequestOptions<P, T> {
   enabled?: () => boolean;
   /**
    * 结果的缓存（先显示旧值、后台刷新）：有缓存先显示；新鲜的不再请求（refresh 照样请求），过期的接着请求、到了替换并写回。
-   * key 由参数算出，不同参数各存各的；缓存读写出错时当作没有缓存。命中新鲜缓存时不调 onSuccess
+   * key 由参数算出，不同参数各存各的；tags 是写回时标上的标签（依赖的表）。缓存读写出错时当作没有缓存，命中新鲜缓存时不调 onSuccess。
+   * 当前参数的键失效了（本页或别的标签页）自动再请求一次；别的标签页写进了新值时直接用它，不再请求
    */
-  cache?: { store: RequestCache; key: (params: P) => string };
+  cache?: {
+    store: RequestCache;
+    key: (params: P) => string;
+    tags?: (params: P) => readonly string[];
+  };
   /** 成功后调用 */
   onSuccess?: (data: T, params: P) => void;
   /** 失败后调用（取消的不算） */
@@ -76,7 +87,7 @@ export function useRequest<T, P = undefined>(
   fetcher: (params: P, signal: AbortSignal) => Promise<T>,
   options: RequestOptions<P, T> = {},
 ): RequestState<T> {
-  const { params, debounce = 0, immediate = true, keepPrevious = true } = options;
+  const { params, cache, debounce = 0, immediate = true, keepPrevious = true } = options;
   const data = shallowRef<T>();
   const error = shallowRef<unknown>();
   const starts = immediate && options.enabled?.() !== false;
@@ -99,7 +110,6 @@ export function useRequest<T, P = undefined>(
 
   /** 读缓存；没配缓存时 undefined（不 await，没缓存的请求照旧同步发出） */
   function readCache(current: P) {
-    const { cache } = options;
     return cache?.store.read(cache.key(current)).catch(() => undefined);
   }
 
@@ -122,8 +132,12 @@ export function useRequest<T, P = undefined>(
       if (id !== latest) return undefined;
       data.value = result;
       error.value = undefined;
-      const { cache } = options;
-      if (cache) void cache.store.set(cache.key(current), result).catch(() => undefined);
+      if (cache) {
+        const tags = cache.tags?.(current);
+        void cache.store
+          .set(cache.key(current), result, tags ? { tags } : undefined)
+          .catch(() => undefined);
+      }
       options.onSuccess?.(result, current);
       return result;
     } catch (reason) {
@@ -151,6 +165,15 @@ export function useRequest<T, P = undefined>(
   }
   if (starts && typeof window !== 'undefined') {
     void run(readParams());
+  }
+  if (cache?.store.watch && typeof window !== 'undefined') {
+    // 不强制：失效了缓存里没有、照常请求；别的标签页刚写进新值时直接读到它。还没请求过（immediate: false）的不管
+    const stop = cache.store.watch((keys) => {
+      if (latest === 0 || options.enabled?.() === false) return;
+      const current = readParams();
+      if (!keys || keys.includes(cache.key(current))) void run(current);
+    });
+    onScopeDispose(stop);
   }
   onScopeDispose(cancel);
 

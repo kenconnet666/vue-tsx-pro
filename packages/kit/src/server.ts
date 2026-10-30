@@ -1,6 +1,7 @@
 /**
  * 服务端的请求处理（ROADMAP 13.3–13.7）：页面按模式输出整页 HTML（ssr、static 渲染正文交给浏览器水合，csr 只发空壳），
- * 另有三个接口——GET /_data（浏览器取页面数据）、POST /_action/<名字>（调用 action）、GET /_session（预渲染页取会话）。
+ * 另有几个接口——GET /_data（浏览器取页面数据）、POST /_action/<名字>（调用 action）、GET /_session（预渲染页取会话）、
+ * GET /_invalidation（给了 invalidation 时：前端缓存的失效推送，SSE）。
  * 每个请求先建请求上下文（createContext），loader、action 在它里面执行；页面与 action 要求的权限在这里拦。
  * 渲染出错时记下错误、改发空壳，页面照样能用（浏览器渲染）。Nitro 的服务端入口把请求交给它：
  *
@@ -25,6 +26,8 @@ import {
   type Loaders,
   type PageData,
 } from './data.ts';
+import { INVALIDATION_PATH } from './invalidation.ts';
+import type { InvalidationHub } from './invalidation-hub.ts';
 import { pageTitle } from './page.ts';
 import { createSession, provideSession, SESSION_PATH, type SessionData } from './session.ts';
 
@@ -46,6 +49,8 @@ export interface RendererOptions<C extends object> extends AppDefinition {
   session?: (context: C) => SessionData;
   /** 'csr' 时整站改成浏览器渲染（服务端渲染出问题时的总开关，部署时用环境变量切换）；默认按各页的 mode */
   renderMode?: 'auto' | 'csr';
+  /** 前端缓存的失效推送（createInvalidationHub）：给了才开 GET /_invalidation，浏览器用 listenInvalidation 连上 */
+  invalidation?: InvalidationHub;
   /** 模块：各自带来的 loader、action 并进来，start 在服务端第一次处理请求前执行一次（作业轮询这类常驻的事） */
   modules?: readonly KitModule[];
 }
@@ -129,6 +134,9 @@ export function createRenderer<C extends object>(
     return runInContext(context, async () => {
       const url = new URL(request.url);
       if (url.pathname === SESSION_PATH) return Response.json(sessionData);
+      if (url.pathname === INVALIDATION_PATH && options.invalidation) {
+        return options.invalidation.connect(request);
+      }
       if (url.pathname.startsWith(ACTION_PATH) && request.method === 'POST') {
         return callAction(url.pathname.slice(ACTION_PATH.length), request, session.can);
       }

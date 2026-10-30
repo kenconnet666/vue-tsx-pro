@@ -9,3 +9,8 @@ export {
   type RendererOptions,
 } from './server.ts';
 export { currentContext, runInContext } from './context.ts';
+export {
+  createInvalidationHub,
+  type InvalidationHub,
+  type InvalidationHubOptions,
+} from './invalidation-hub.ts';

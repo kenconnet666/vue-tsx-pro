@@ -29,7 +29,8 @@
     }
   },
   "scripts": {
-    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo"
+    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
+    "test": "vitest run --configLoader native"
   },
   "peerDependencies": {
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
@@ -44,6 +45,7 @@
     "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
     "typescript": "catalog:",
     "vite": "catalog:",
+    "vitest": "catalog:",
     "vue": "catalog:",
     "vue-router": "catalog:"
   }

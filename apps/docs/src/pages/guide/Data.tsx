@@ -64,9 +64,12 @@ const cache = createCache(indexedDbDriver({ name: 'app' }), { ttl: 60_000, stale
 
 const cities = useRequest((province, signal) => http.get<City[]>('/cities', { query: { province }, signal }), {
   params: () => province.value,
-  cache: { store: cache, key: (p) => \`cities:\${p}\` },
+  // tags：依赖的表；t_city 失效时正显示着的这个请求自动重新请求
+  cache: { store: cache, key: (p) => \`cities:\${p}\`, tags: () => ['t_city'] },
 });
-// 后台改了城市：await cache.invalidatePrefix('cities:')`;
+
+// 全栈框架（kit）里：服务端的写入经 SSE 推来改了的表名
+listenInvalidation((tags) => (tags ? cache.invalidateTag(tags) : cache.invalidatePrefix('')));`;
 
 const errors = `import { defineLang, HttpError, isAbortError, useErrorMessage, zhCN } from '@zerodep-dev/vue-tsx-pro-ui';
 
@@ -145,7 +148,9 @@ export default _component(() => () => (
         <ListItem>
           <Code>cache</Code> 把结果存进 IndexedDB、localStorage（前端存储包{' '}
           <Code>@zerodep-dev/storage</Code> 的 <Code>createCache</Code>
-          ）：有缓存先显示，新鲜的不再请求，过期的后台刷新；<Code>key</Code> 由参数算出。
+          ）：有缓存先显示，新鲜的不再请求，过期的后台刷新；<Code>key</Code> 由参数算出，
+          <Code>tags</Code> 标上依赖的表，表改了（kit 的失效推送，或自己保存后{' '}
+          <Code>invalidateTag</Code>）正显示着的请求自动重新请求。
         </ListItem>
       </List>
       <CodeBlock title="cached-request.ts" code={cachedRequest} lang="ts" />

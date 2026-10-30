@@ -33,15 +33,27 @@ await cache.invalidatePrefix('user:');
 
 ## 缓存
 
-`createCache(driver, { prefix, ttl, stale })`：存进驱动的是 `{ value, expires, until }`，过期时间在这里算，驱动不用支持 TTL。
+`createCache(driver, { prefix, ttl, stale })`：存进驱动的是 `{ value, expires, until, tags }`，过期时间在这里算，驱动不用支持 TTL。
 
 - `get` 只给新鲜的；`read` 还给过期但在 `stale` 窗口里的（`fresh: false`），窗口过了删掉
 - `load(键, loader)` 新鲜的直接给，否则调 loader 写回；同一个键并发只调一次，失败不写
-- `invalidate(键)` / `invalidatePrefix(前缀)`；`watch` 收到别的标签页改了或失效的键
+- `set(键, 值, { tags })` 标上依赖的东西（通常是后端的表名），`invalidateTag(标签)` 让标了它的全部失效；标签索引也是驱动里的键，
+  不用读改写一份列表，几个标签页同时写不会丢
+- `invalidate(键)` / `invalidatePrefix(前缀)`；`watch` 收到本页的失效与别的标签页的写入、失效
 
-组件库的 `useRequest` 的 `cache` 选项按 `read` / `set` 对接：有缓存先显示，新鲜的不再请求，过期的后台刷新。
+组件库的 `useRequest` 的 `cache` 选项按 `read` / `set` / `watch` 对接：有缓存先显示，新鲜的不再请求，过期的后台刷新；
+`tags` 写回时标上，当前参数的键失效了自动再请求。
 
 ## 与 easy-query 的二级缓存
 
 `cacheStore(driver)` 把任意驱动变成 easy-query-ts-cache 的 `CacheStore`（浏览器里跑 PGlite、SQLite WASM 时用）；
-反方向，easy-query 的 `createCache({ onEvict })` 在服务端失效时收到删掉的键，可以经 SSE、WebSocket 推给前端，前端 `cache.invalidate(keys)`。
+反方向，服务端的写入经 easy-query-ts-cache 的 `tableChanges` 报出表名，kit 的失效推送（`createInvalidationHub`、SSE）送到浏览器：
+
+```ts
+// 服务端
+const hub = createInvalidationHub();
+const db = createDb({ …, interceptors: [tableChanges((tables) => hub.publish(tables))] });
+createRenderer({ …, invalidation: hub });
+// 浏览器
+listenInvalidation((tags) => (tags ? cache.invalidateTag(tags) : cache.invalidatePrefix('')));
+```

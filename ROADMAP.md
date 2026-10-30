@@ -777,7 +777,12 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       没给 api 时按全局对象找；存 JSON 文字，与 mobile 的 `useStorage`、mini 的宿主存储同一种格式，彼此读得到，所以不另做 `HostStorage` 的转接；
       localStorage 与小程序共用一层文字存储（前缀、编码、错误）；内存驱动在没有 structuredClone 的逻辑层退回 JSON。微信模拟器（基础库 3.17.5）里实测：
       没有的键给 ''、读写、前缀清空、缓存的 load；支付宝按官方文档实现、单测覆盖，没在模拟器里跑
-- [ ] 22.7 以后：IndexedDB 的索引与范围查询
+- [x] 22.7 前端缓存的标签：`set(键, 值, { tags })`、`invalidateTag`（标签索引也是驱动里的键，不读改写列表）；`watch` 也报本页的失效；
+      `useRequest` 的 `cache.tags` 写回时标上，当前参数的键失效了自动再请求（别的标签页写进新值时直接用）
+- [x] 22.8 后端：`onEvict({ keys, tables })`；`tableChanges(onChange)` 拦截器在提交后报出每次写入的表名（不限于缓存的实体，回滚不报）
+- [x] 22.9 kit 的失效推送：`createInvalidationHub`（同一轮合并、心跳、按 Last-Event-ID 补发，超出保留或重启过时 reset）、
+      `createRenderer({ invalidation })` 开 `GET /_invalidation`（SSE），浏览器 `listenInvalidation`
+- [ ] 22.10 以后：IndexedDB 的索引与范围查询
 
 ## 已知局限（有意的取舍，写在文档里）
 
