@@ -621,7 +621,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 
 - [x] 17.3.1 主题：`createTheme` 的类在小程序里换成根节点上的行内变量，换主题只改这一处（`inlineStyle` 也展开主题类，按 @ 规则取值）
 - [x] 17.3.2 暗色：跟系统主题（`getSystemInfo().theme`、`onThemeChange`）（`prefers-color-scheme` 按系统深浅色判定，切换时所有页面重新展开；`buildMini` 的 `darkmode` 写进微信的 app.json；导航栏颜色仍按 window 配置）
-- [ ] 17.3.3 开发期检查 WXSS 不认的写法（`:root` 与 page 同一选择器列表、`:not` 里的选择器列表）与行内样式展开不了的条件（伪元素），开发模式下警告
+- [x] 17.3.3 开发期检查 WXSS 不认的写法（`:root` 与 page 同一选择器列表、`:not` 里的选择器列表）与行内样式展开不了的条件（伪元素），开发模式下警告（运行时的条件判定遇到不认的伪类、选择器、@ 规则、伪元素，开发构建里每种 console.warn 一次；app 样式表留着 WXSS 不认的写法时构建时提示）
 
 ### 17.4 移动端组件
 

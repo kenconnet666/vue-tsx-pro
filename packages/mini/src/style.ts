@@ -7,6 +7,7 @@
  *     :hover、:focus 系列在触屏上不成立
  *   - 属性选择器 [name]、[name="value"]，以及 :is / :where / :not 包着的组合
  *   - @media：宽度按窗口算，prefers-color-scheme 按系统的深浅色；减少动效、强制颜色、悬停能力一律不成立
+ * 别的写法（标签与类名选择器、:nth-child、@supports、伪元素……）展开不了，按不成立处理，开发构建里每种提示一次。
  */
 import { inlineStyle } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { baseClassOf } from './elements.ts';
@@ -35,7 +36,11 @@ export function resolveStyle(node: MiniNode): ResolvedStyle {
   const declarations: string[] = [];
   for (const name of node.className.split(/\s+/)) {
     if (!name) continue;
-    const inline = inlineStyle(name, (condition) => matchCondition(node, condition));
+    const inline = inlineStyle(
+      name,
+      (condition) => matchCondition(node, condition),
+      (selector) => unsupported(selector, '伪元素进不了行内样式'),
+    );
     if (inline === undefined) classes.push(name);
     else if (inline) declarations.push(inline);
   }
@@ -43,23 +48,44 @@ export function resolveStyle(node: MiniNode): ResolvedStyle {
   return { className: classes.filter(Boolean).join(' '), style: declarations.join(';') };
 }
 
+/** 已经提示过的写法 */
+const warned = new Set<string>();
+
+/** 开发构建里提示一次展开不了的样式写法，返回 false（按不成立处理）；生产构建里 NODE_ENV 换成了常量，提示整段去掉 */
+function unsupported(condition: string, reason: string): false {
+  if (process.env.NODE_ENV !== 'production' && !warned.has(condition)) {
+    warned.add(condition);
+    console.warn(`[vtp-mini] 样式条件 ${condition} 在小程序里展开不了（${reason}），按不成立处理`);
+  }
+  return false;
+}
+
 /** 判定条件链里的一段：@ 规则或选择器（伪类、属性选择器的组合） */
 export function matchCondition(node: MiniNode, condition: string): boolean {
   if (condition.startsWith('@media')) return matchMedia(condition.slice('@media'.length));
-  if (condition.startsWith('@')) return false;
+  if (condition.startsWith('@')) return unsupported(condition, '只认 @media');
   return matchCompound(node, condition);
 }
 
+/** 小程序里当作没有的媒体能力：不提示，直接不成立 */
+const ABSENT_MEDIA =
+  /^\(\s*(?:prefers-reduced-motion|prefers-contrast|forced-colors|any-hover|hover|any-pointer|pointer)\b/;
+
 /** 媒体查询：and 连接的各项都成立才成立；只认宽度与深浅色，其余能力在小程序里当作没有 */
 function matchMedia(query: string): boolean {
-  return query.split(/\s+and\s+/).every((feature) => {
-    const scheme = /\(\s*prefers-color-scheme\s*:\s*(light|dark)\s*\)/.exec(feature);
-    if (scheme) return scheme[1] === colorScheme;
-    const match = /\(\s*(min|max)-width\s*:\s*([\d.]+)px\s*\)/.exec(feature);
-    if (!match) return false;
-    const limit = Number(match[2]);
-    return match[1] === 'min' ? windowWidth >= limit : windowWidth <= limit;
-  });
+  return query
+    .trim()
+    .split(/\s+and\s+/)
+    .every((feature) => {
+      if (feature === 'all' || feature === 'screen') return true;
+      if (feature === 'print' || ABSENT_MEDIA.test(feature)) return false;
+      const scheme = /^\(\s*prefers-color-scheme\s*:\s*(light|dark)\s*\)$/.exec(feature);
+      if (scheme) return scheme[1] === colorScheme;
+      const match = /^\(\s*(min|max)-width\s*:\s*([\d.]+)px\s*\)$/.exec(feature);
+      if (!match) return unsupported(`@media ${feature}`, '宽度只认 px 的 min-width / max-width');
+      const limit = Number(match[2]);
+      return match[1] === 'min' ? windowWidth >= limit : windowWidth <= limit;
+    });
 }
 
 /** 复合选择器（`:hover:not([x])`、`[a="b"]`）：每一段都成立才成立 */
@@ -82,8 +108,8 @@ function matchCompound(node: MiniNode, selector: string): boolean {
       }
       if (!matchPseudo(node, name, argument)) return false;
     } else {
-      // 标签、类名、组合符：组件库的条件里不会出现，按不成立处理
-      return false;
+      // 标签、类名、组合符：组件库的条件里不会出现
+      return unsupported(selector, '只认伪类与属性选择器');
     }
   }
   return true;
@@ -108,9 +134,15 @@ function matchPseudo(node: MiniNode, name: string, argument: string): boolean {
     case 'checked':
     case 'indeterminate':
       return node.attribute(name) !== undefined;
-    default:
-      // :hover、:focus、:focus-visible、:focus-within、:dir(rtl)…：触屏、从左到右的小程序里不成立
+    case 'hover':
+    case 'focus':
+    case 'focus-visible':
+    case 'focus-within':
+    case 'dir':
+      // 触屏、从左到右的小程序里不成立
       return false;
+    default:
+      return unsupported(`:${name}${argument ? `(${argument})` : ''}`, '运行时不认这个伪类');
   }
 }
 

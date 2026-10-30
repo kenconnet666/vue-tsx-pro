@@ -44,12 +44,18 @@ it('@ 规则外层的条件与选择器里的伪类都交给宿主判定；伪�
   });
   const className = attrs(styles.base).class!;
   const asked: string[] = [];
-  const style = inlineStyle(className, (condition) => {
-    asked.push(condition);
-    return true;
-  });
+  const skipped: string[] = [];
+  const style = inlineStyle(
+    className,
+    (condition) => {
+      asked.push(condition);
+      return true;
+    },
+    (selector) => skipped.push(selector),
+  );
   expect(asked).toEqual(['@media (prefers-reduced-motion: reduce)', ':hover']);
   expect(style).toBe('opacity:1;opacity:0.5');
+  expect(skipped).toEqual(['::before']);
 });
 
 it('主题类展开成变量声明；按条件取的值在宿主判定 @ 规则成立时加上', () => {

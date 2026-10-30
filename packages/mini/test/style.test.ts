@@ -1,7 +1,8 @@
-// 样式条件按节点状态判定：组件库的条件别名（属性选择器、:is/:not）、:active、@media 宽度
-import { describe, expect, it } from 'vitest';
+// 样式条件按节点状态判定：组件库的条件别名（属性选择器、:is/:not）、:active、@media 宽度；展开不了的写法提示；app 样式表
+import { describe, expect, it, vi } from 'vitest';
 import { conditions, css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { MiniNode } from '../src/node.ts';
+import { appStyles } from '../src/build/styles.ts';
 import { matchCondition, resolveStyle, setColorScheme, setWindowWidth } from '../src/style.ts';
 
 const nodeWith = (attrs: Record<string, unknown> = {}) => {
@@ -56,6 +57,28 @@ describe('条件判定', () => {
     );
     expect(matchCondition(nodeWith(), conditions._reducedMotion)).toBe(false);
   });
+
+  it('展开不了的写法按不成立处理，开发构建里每种提示一次；触屏上本来就不成立的不提示', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    expect(matchCondition(nodeWith(), ':nth-child(2)')).toBe(false);
+    expect(matchCondition(nodeWith(), ':nth-child(2)')).toBe(false);
+    expect(matchCondition(nodeWith(), '@supports (display: grid)')).toBe(false);
+    expect(matchCondition(nodeWith(), '@media (orientation: portrait)')).toBe(false);
+    expect(matchCondition(nodeWith(), ':hover')).toBe(false);
+    expect(matchCondition(nodeWith(), conditions._reducedMotion)).toBe(false);
+    const node = new MiniNode('div');
+    node.className = css.attrs(
+      css.create({ base: { color: 'red', '::before': { content: '""' } } }).base,
+    ).class!;
+    expect(resolveStyle(node).style).toBe('color:red');
+    expect(warn.mock.calls.map(([message]) => String(message).split(' ')[2])).toEqual([
+      ':nth-child(2)',
+      '@supports',
+      '@media',
+      '::before',
+    ]);
+    warn.mockRestore();
+  });
 });
 
 describe('主题', () => {
@@ -73,5 +96,19 @@ describe('主题', () => {
       '--mini-theme-colors-text:#111;--mini-theme-colors-text:#eee',
     );
     setColorScheme('light');
+  });
+});
+
+describe('app 样式表', () => {
+  it(':root 上的变量组换到 page 上；WXSS 不认的写法在构建时提示', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const sheet = appStyles(':root{--a:1}.x{color:red}@keyframes k{to{opacity:0}}');
+    expect(sheet).toContain('page{--a:1}');
+    expect(sheet).toContain('@keyframes k');
+    expect(sheet).not.toContain('.x{');
+    expect(warn).not.toHaveBeenCalled();
+    appStyles(':root,.dark{--a:2}');
+    expect(String(warn.mock.calls[0]?.[0])).toContain(':root 没换成 page');
+    warn.mockRestore();
   });
 });

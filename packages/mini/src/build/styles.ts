@@ -16,8 +16,19 @@ export function appStyles(styleText: string): string {
       (rule.startsWith('@media') && rule.includes(':root{')),
   );
   // 小程序的样式表不认 :root；变量写在 page 上，组件里照样继承
-  return [BASE, ...kept.map((rule) => rule.replaceAll(':root{', 'page{'))].join('\n');
+  const rules = kept.map((rule) => rule.replaceAll(':root{', 'page{'));
+  for (const rule of rules) {
+    const problem = WXSS_REJECTS.find(({ pattern }) => pattern.test(rule));
+    if (problem) console.warn(`[vtp-mini] app 样式表里 ${problem.reason}，WXSS 编不过：${rule}`);
+  }
+  return [BASE, ...rules].join('\n');
 }
+
+/** WXSS 编译器不认的写法（微信开发者工具的 wcsc 报错）：引擎改了规则的输出格式时在构建时就提示 */
+const WXSS_REJECTS = [
+  { pattern: /:root\b/, reason: ':root 没换成 page（和别的选择器写在同一个列表里）' },
+  { pattern: /:not\([^)]*,/, reason: ':not 里写了选择器列表' },
+];
 
 /** 按顶层花括号配平切出规则（@media 等块规则整体算一条） */
 function topLevelRules(css: string): string[] {
