@@ -8,7 +8,7 @@
 import { ChevronRight, Volume2, X } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { onMounted, watch, type VNodeChild } from 'vue';
+import { onMounted, onUpdated, type VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { useConfig } from '../config/context';
 import { useHost } from '../utils/host';
@@ -124,13 +124,13 @@ export const NoticeBar = _component(
       const [box, inner] = await Promise.all([host.measure(viewport), host.measure(content)]);
       // 滚动时文字左边加了可视宽度的内边距，量到的宽度要减掉
       const width = (inner?.width ?? 0) - (scroll?.viewport ?? 0);
-      scroll = box && width > box.width ? { viewport: box.width, text: width } : null;
+      const next = box && width > box.width ? { viewport: box.width, text: width } : null;
+      // 量出来没变就不赋值：否则又触发一次渲染、再量一次，停不下来
+      if (next?.viewport !== scroll?.viewport || next?.text !== scroll?.text) scroll = next;
     };
+    // 文字、children 换了都会重新渲染，渲染完再量（children 是插槽，不能在渲染函数外读）
     onMounted(() => void measure());
-    watch(
-      () => [text, children, wrapable],
-      () => void measure(),
-    );
+    onUpdated(() => void measure());
 
     return () => {
       if (closed) return null;

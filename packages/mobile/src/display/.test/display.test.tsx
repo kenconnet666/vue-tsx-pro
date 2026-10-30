@@ -25,14 +25,15 @@ describe('Empty / NoticeBar', () => {
 
   it('NoticeBar：文字比可视区宽时滚动（时长按速度算）；关闭后不再显示', async () => {
     const onClose = vi.fn();
-    let call = 0;
-    // 第一次量可视区（200），第二次量文字（500）
-    const measure = vi.fn(async () => ({
-      top: 0,
-      left: 0,
-      height: 20,
-      width: call++ % 2 ? 500 : 200,
-    }));
+    // 可视区 200；文字 500，滚动时再加上左边的内边距（同浏览器量到的）
+    const measure = vi.fn(async (node: unknown) => {
+      const element = node as HTMLElement;
+      const width =
+        element.tagName === 'SPAN'
+          ? 500 + (Number.parseFloat(element.style.paddingInlineStart) || 0)
+          : 200;
+      return { top: 0, left: 0, height: 20, width };
+    });
     const root = mount(() => (
       <WithHost host={{ measure }}>
         <NoticeBar mode="closeable" speed={100} onClose={onClose}>
