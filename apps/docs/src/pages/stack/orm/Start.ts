@@ -41,6 +41,17 @@ export const schema = defineSchema(
       file: 'schema.ts',
     },
     {
+      id: 'column-types',
+      title: 'uuid、数组与无符号列',
+      text: '`col.uuid()` 在 PG 存 UUID、MySQL 存 BINARY(16)（绑定时换成 16 个字节）、SQL Server 存 UNIQUEIDENTIFIER，读出统一成小写文字；主键配 `uuidv7`（按时间有序，同一毫秒也单调）。`col.array(col.string())` 是 PG 的数组列，条件用 `has`、`hasAll`、`hasAny`、`arrayLength`；别的库建表时报不支持。`unsigned()` 在 MySQL 建成 INT UNSIGNED。',
+      code: `const Article = entity('t_article', {
+  id: col.uuid().primaryKey().$default(uuidv7),
+  tags: col.array(col.string(30)),
+  views: col.bigint().unsigned(),
+});
+db.queryable(Article).where((a) => [a.tags.has('orm'), a.tags.arrayLength().gt(2)]);`,
+    },
+    {
       id: 'brand',
       title: '带品牌的主键与外键',
       text: '`col.bigint().brand<\x27UserId\x27>()` 让值类型带上品牌：UserId 与 OrderId 不能混传，关系的 from / to 品牌对不上在定义处就报错。品牌只在类型里，运行时就是原来的值。',
