@@ -65,6 +65,12 @@ export const BasicsPage = _component(() => {
           arrow
           onClick={() => go('display')}
         />
+        <Cell
+          title="导航"
+          description="导航栏、吸顶标签页（可滑动）、底部标签栏、回到顶部"
+          arrow
+          onClick={() => go('navigation')}
+        />
       </CellGroup>
       <CellGroup title="按钮">
         <div {...css.attrs(styles.section)}>

@@ -36,6 +36,13 @@ export * from './display/Grid';
 export * from './display/Collapse';
 export * from './display/Steps';
 
+// 导航
+export * from './navigation/NavBar';
+export * from './navigation/TabBar';
+export * from './navigation/Tabs';
+export * from './navigation/Sticky';
+export * from './navigation/BackTop';
+
 // 浮层
 export * from './overlay/Overlay';
 export * from './overlay/Popup';

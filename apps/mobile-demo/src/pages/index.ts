@@ -3,12 +3,14 @@ import { BasicsPage } from './BasicsPage.tsx';
 import { FeedbackPage } from './FeedbackPage.tsx';
 import { DisplayPage } from './DisplayPage.tsx';
 import { FormPage } from './FormPage.tsx';
+import { NavigationPage } from './NavigationPage.tsx';
 
 export const DEMO_PAGES = {
   index: BasicsPage,
   feedback: FeedbackPage,
   form: FormPage,
   display: DisplayPage,
+  navigation: NavigationPage,
 };
 
 /** 演示页的名字 */

@@ -71,7 +71,7 @@
   `button` 的默认显示方式是行内块，`span` 等是行内（运行时补上浏览器的默认值）。
 - **滚动锁**：遮罩节点写 `data-scroll-lock`，小程序里换成 catch 掉 touchmove 的模板；H5 由 `host.lockScroll()` 锁 body。
 - **手势**：要收 touchmove 的节点写 `data-touch-move`（普通节点不绑 touchmove，滚动时不往逻辑层发事件）。
-- **浮层**：Teleport 到 `host.overlayRoot()`（H5 是 body，小程序是页面根节点下的浮层节点），层级写字面量：弹出层 2000、轻提示与通知 3000（zIndex 的类型不收 var()，也没有主题化的需要）；
+- **浮层**：Teleport 到 `host.overlayRoot()`（H5 是 body，小程序是页面根节点下的浮层节点），层级写字面量：吸顶 100、导航栏与标签栏 1000、回到顶部 1500、弹出层 2000、轻提示与通知 3000（zIndex 的类型不收 var()，也没有主题化的需要）；
   不用原生 popover / dialog（小程序没有顶层）。
 
 ## 7. 事件
