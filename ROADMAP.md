@@ -689,6 +689,31 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [x] 18.3.5 Serverless 与嵌入式驱动：Cloudflare D1、libSQL / Turso、Bun 的 sqlite、Neon serverless、PGlite（WASM 版 PG，单测不用容器）
 - [x] 18.3.6 构建期导出查询：`defineSnapshots` + `eqts snapshot [--check]` 把查询按各方言渲染成 SQL 快照，用于评审与回归对比（定义文件由 Node 直接加载：查询链要运行时求值，不经 Babel 静态分析）
 
+## 阶段 19：PG、MySQL 方言的针对性补全
+
+目标（用户 2026-10-30 定）：两个最常用的库把各自的特色能力用起来，而不只是"各库都能跑的公共子集"。每项都要有 SQL 文本测试与实库测试
+（本地 pg、mysql84 容器常开，PGlite 进程内；MySQL 8.0.18 基线交给 CI），文档站一节；别的方言没有的写法在渲染时报出、或在能力类型里标红。
+按顺序做：
+
+- [ ] 19.1 列类型：PG 的 `col.uuid()`（默认 gen_random_uuid）、数组列 `col.array(col.string())`（读写、`has` / `overlaps` / `length`）、
+      原生枚举（`CREATE TYPE … AS ENUM`）、interval；MySQL 的无符号整数、uuid 存 `BINARY(16)`（`UUID_TO_BIN(…, 1)` 有序）；
+      其它方言按最接近的类型落地（uuid 存文字），建表、同步、pull 都认得
+- [ ] 19.2 一条 SQL 出对象树：`toList()` 导航在 PG 用 `jsonb_agg` / `jsonb_build_object`、MySQL 8 用 `JSON_ARRAYAGG` / `JSON_OBJECTAGG`
+      聚合进父行，不再发第二条语句；结果与现在的两步写法逐行一致（共用套件里两种都跑），列的 codec 照常解码
+- [ ] 19.3 服务端真正超时与取消：`withSignal` / 新的 `timeout` 选项让库里的语句也停下——PG `SET LOCAL statement_timeout` 与
+      `pg_cancel_backend`，MySQL `/*+ MAX_EXECUTION_TIME(n) */` 与 `KILL QUERY`
+- [ ] 19.4 JSON 的更新写法与展开：PG `jsonb_set` / `||` / `-` / JSONPath（`jsonb_path_exists`），MySQL `JSON_SET` / `JSON_REMOVE` /
+      `JSON_ARRAY_APPEND` 与 `JSON_TABLE`（JSON 数组展开成行参与连接、过滤）
+- [ ] 19.5 批量写入：PG 用 `unnest($1::int[], …)` 一条语句插入大批行（不受 65535 个参数的限制）、`ON CONFLICT … DO UPDATE … WHERE`、
+      `MERGE`（15+）；MySQL 的 `UPDATE / DELETE … ORDER BY … LIMIT` 分批改大表、批量插入按 `max_allowed_packet` 自动切分
+- [ ] 19.6 查询写法：PG 的 `DISTINCT ON`、`LATERAL` 连接、`ILIKE`、正则 `~` / `~*`（MySQL `REGEXP_LIKE`）、`FOR SHARE` /
+      `FOR NO KEY UPDATE` / `FOR UPDATE OF`；MySQL 的索引提示 `USE INDEX` / `FORCE INDEX` 与优化器提示、按查询的 `COLLATE`
+- [ ] 19.7 建表时的索引与列：PG 的 GIN 索引（jsonb、数组、全文）、部分索引（WHERE）、表达式索引、生成列；
+      MySQL 的多值索引（`MEMBER OF` 要靠它走索引）、虚拟 / 存储生成列；planSync 能比较它们
+- [ ] 19.8 `q.explain()`：返回执行计划（PG `EXPLAIN (FORMAT JSON)`、MySQL `EXPLAIN FORMAT=JSON`），`queryWatch` 的慢查询可以自动带上计划
+- [ ] 19.9 MySQL 系的兼容库：从 MySQL 方言继承出 MariaDB（10.5+ 有 RETURNING，没有 JSON_TABLE 的部分写法），容器进 compose 与 CI
+- [ ] 19.10 PG 的 advisory lock（`db.advisoryLock(key)`，事务级，跨进程的锁）与 `LISTEN / NOTIFY`（二级缓存的失效通知可以接它）
+
 ## 已知局限（有意的取舍，写在文档里）
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）
