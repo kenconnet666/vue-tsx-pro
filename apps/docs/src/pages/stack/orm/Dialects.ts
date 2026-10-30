@@ -24,6 +24,14 @@ export default ormChapter({
       ],
     },
     {
+      id: 'capabilities',
+      title: '方言能力写进类型',
+      text: '方言包的 adapter 带上它支持的能力（`Adapter<Without<\x27returning\x27>>`），`createDb` 把能力挂在 schema 类型上：TDengine 上 `db.update`、ClickHouse 上 `db.transaction`、MySQL 上 `returning()` 在编辑器里就标红，错误信息写出缺的能力；运行时的报错留作兜底。',
+      code: `const db = createDb({ schema, adapter: tdengine(sql) });
+db.update(Reading); // 类型错误：Unsupported<"update">
+db.insert(Reading).values(row).onConflict((r) => r.ts).merge(); // 写同一时间戳就是覆盖，照常可用`,
+    },
+    {
       id: 'versions',
       title: '按版本渲染',
       text: '默认一套各版本都能跑的写法；只在三种情况按版本分支：旧写法在新版本里被弃用（MySQL upsert 的 `VALUES(col)` 换成行别名）、旧版本没有这个能力（渲染时报出最低版本，例如 `STRING_AGG needs sqlserver 2017 or later`）、新旧写法语义或性能差别大（分页、`IF NOT EXISTS`）。部署时用 `detect` 连库读版本；`version` 选项用在不连库只看 SQL、或要锁定基线的场合。',
