@@ -11,7 +11,7 @@ import { join, resolve } from 'node:path';
 import { build, type PluginOption } from 'vite';
 import { PLATFORMS, type Platform } from './platforms.ts';
 import { appStyles } from './styles.ts';
-import { baseTemplate, pageTemplate } from './templates.ts';
+import { baseTemplate, componentTemplate, pageTemplate } from './templates.ts';
 
 export interface MiniBuildOptions {
   /** 应用目录 */
@@ -104,9 +104,23 @@ function writeEntry(root: string, appEntry: string): string {
       `export { styleText } from '@zerodep-dev/vue-tsx-pro-tsx/styles';`,
       'export const names = pages.names;',
       'export const page = (name) => pages.page(name);',
+      // 递归组件 vtp-comp 的事件入口（templates.ts）
+      `export { dispatchToCurrentPage as eh } from '@zerodep-dev/vue-tsx-pro-mini';`,
     ].join('\n'),
   );
   return file;
+}
+
+/**
+ * 递归组件的脚本：节点数据从属性 i 传进来，事件交给运行时（页面栈顶的页面）。
+ * 不渲染组件自己的节点（virtualHost），也用 app 的样式表（微信默认把组件的样式隔开）
+ */
+function componentScript(platform: Platform): string {
+  const options =
+    platform.name === 'wx'
+      ? `{ options: { virtualHost: true, styleIsolation: 'apply-shared' }, properties: { i: { type: Object, value: {} } }, methods: { eh } }`
+      : `{ options: { virtualHost: true }, props: { i: {} }, methods: { eh } }`;
+  return `const { eh } = require('../../vtp.js');\nComponent(${options});\n`;
 }
 
 /** app.json 的 window 按微信的字段写；支付宝的标题字段叫 defaultTitle，补上 */
@@ -121,6 +135,8 @@ function emit(outDir: string, platform: Platform, bundle: Bundle, options: MiniB
     writeFileSync(join(outDir, path), content);
   };
   const pages = bundle.names.map((name) => `pages/${name}/index`);
+  // 递归组件：通用模板（base）里引用它，要在 app.json 全局登记（只在页面里登记时微信不实例化）；页面、它自己也登记一遍
+  const usingComponents = { 'vtp-comp': '/components/vtp-comp/index' };
   write('app.js', "require('./vtp.js');\nApp({});\n");
   write(
     'app.json',
@@ -128,6 +144,7 @@ function emit(outDir: string, platform: Platform, bundle: Bundle, options: MiniB
       {
         pages,
         window: windowConfig(platform, options.window),
+        usingComponents,
         ...(options.darkmode && platform.name === 'wx' ? { darkmode: true } : {}),
       },
       null,
@@ -141,9 +158,12 @@ function emit(outDir: string, platform: Platform, bundle: Bundle, options: MiniB
       `pages/${name}/index.js`,
       `Page(require('../../vtp.js').page(${JSON.stringify(name)}));\n`,
     );
-    write(`pages/${name}/index.json`, '{}');
+    write(`pages/${name}/index.json`, JSON.stringify({ usingComponents }));
     write(`pages/${name}/index.${platform.template}`, pageTemplate(platform));
   }
+  write('components/vtp-comp/index.json', JSON.stringify({ component: true, usingComponents }));
+  write(`components/vtp-comp/index.${platform.template}`, componentTemplate(platform));
+  write('components/vtp-comp/index.js', componentScript(platform));
   if (platform.name === 'wx') {
     write(
       'project.config.json',

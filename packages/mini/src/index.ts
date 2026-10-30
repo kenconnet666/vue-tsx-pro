@@ -11,7 +11,7 @@ import { pageOptions } from './page.ts';
 
 export { MiniNode, type MiniEvent } from './node.ts';
 export { createMiniApp } from './renderer.ts';
-export { pageOptions } from './page.ts';
+export { dispatchToCurrentPage, pageOptions } from './page.ts';
 export {
   navigateBack,
   navigateTo,

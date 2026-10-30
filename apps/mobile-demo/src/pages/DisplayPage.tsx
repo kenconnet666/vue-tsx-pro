@@ -30,10 +30,12 @@ import {
   type IconData,
 } from '@zerodep-dev/vue-tsx-pro-mobile';
 import { demoSettings } from '../settings.ts';
+import type { VNodeChild } from 'vue';
 
 const styles = css.create({
   page: { minHeight: '100vh', paddingBlockEnd: '_xxl', backgroundColor: '_background' },
   gap: { height: '0.5em' },
+  nest: { paddingInlineStart: '1px', backgroundColor: '_surface' },
 });
 
 /** 宫格的一格 */
@@ -68,10 +70,15 @@ const LOGISTICS = [
   { title: '已发货', description: '10-29 10:03 · 杭州仓' },
 ];
 
+/** 嵌套 depth 层的 div，最里面放 children：小程序模板层数（24）用完后交给递归组件 */
+const nest = (depth: number, children: VNodeChild): VNodeChild =>
+  depth === 0 ? children : <div {...css.attrs(styles.nest)}>{nest(depth - 1, children)}</div>;
+
 export const DisplayPage = _component(() => {
   let faq = _state<string[] | string | null>(['ship']);
   let single = _state<string[] | string | null>(null);
   let loaded = _state(false);
+  let deepClicks = _state(0);
 
   return () => (
     <ConfigProvider theme={demoSettings.theme} {...css.attrs(styles.page)}>
@@ -135,6 +142,15 @@ export const DisplayPage = _component(() => {
             每消费 1 元得 1 积分，积分可抵现。
           </CollapseItem>
         </Collapse>
+      </CellGroup>
+
+      <CellGroup title="深层嵌套（40 层，小程序里超过模板层数的部分走递归组件）">
+        {nest(
+          40,
+          <Button size="sm" onClick={() => deepClicks++}>
+            最里面的按钮：点了 {deepClicks} 次
+          </Button>,
+        )}
       </CellGroup>
 
       <CellGroup title="空状态">

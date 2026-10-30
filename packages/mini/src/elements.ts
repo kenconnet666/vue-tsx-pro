@@ -11,6 +11,9 @@
 export type TemplateType =
   'v' | 'x' | 'n' | 'svg' | 'image' | 'input' | 'textarea' | 'lock' | 'touch';
 
+/** 通用模板展开的层数：更深的节点画在递归组件里（build/templates.ts） */
+export const TEMPLATE_DEPTH = 24;
+
 /** 标签 → 模板类型；没列出的都是 view */
 const TEMPLATES: Readonly<Record<string, TemplateType>> = {
   '#text': 'x',

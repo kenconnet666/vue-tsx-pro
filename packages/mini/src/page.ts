@@ -5,7 +5,7 @@
  * 数据的形状：{ root: { cn: [节点…] } }，节点是 { s: 编号, t: 模板类型, c: 类名, st: 样式, v: 文字, cn: 子节点 }
  */
 import type { App, Component } from 'vue';
-import { FORM_CONTROLS, templateOf, type TemplateType } from './elements.ts';
+import { FORM_CONTROLS, TEMPLATE_DEPTH, templateOf, type TemplateType } from './elements.ts';
 import { MiniNode, type MiniEvent, type MiniTouch, type NodeHost } from './node.ts';
 import { createMiniApp } from './renderer.ts';
 import { createMiniHost, HOST_KEY, platform, windowSize, type MiniApi } from './host.ts';
@@ -140,6 +140,8 @@ class PageHost implements NodeHost {
   scrollTop = 0;
   /** 上一次处理的 touchmove 的时间（去掉冒泡带来的重复） */
   private lastMove = -1;
+  /** 递归组件里按下的节点与位置（合成点击用） */
+  private pressStart: { node: MiniNode; x: number; y: number; time: number } | null = null;
   readonly scrollListeners = new Set<(top: number) => void>();
 
   constructor(page: PageInstance, root: MiniNode) {
@@ -281,6 +283,9 @@ class PageHost implements NodeHost {
     }
     const type = EVENT_TYPES[nativeType];
     if (!target || !type) return;
+    // 递归组件里的节点（超过模板层数）：原生的 tap 不可靠（按下时整段子树重发，tap 会丢），点击由按下、松开合成
+    const deep = levelOf(target) >= TEMPLATE_DEPTH;
+    if (deep && nativeType === 'tap') return;
     if (nativeType === 'touchstart' || nativeType === 'touchend' || nativeType === 'touchcancel')
       this.press(target, nativeType === 'touchstart');
     if (type === 'click' && insideDisabledControl(target)) return;
@@ -291,6 +296,33 @@ class PageHost implements NodeHost {
       if (nativeType === 'blur' && target.attrs.has('autofocus'))
         target.removeAttribute('autofocus');
     }
+    this.deliver(type, target, native);
+    if (deep && this.isTap(target, nativeType, native) && !insideDisabledControl(target))
+      this.deliver('click', target, native);
+  }
+
+  /** 递归组件里的点击：按下与松开在同一个节点、移动不到 10px、不到 700ms */
+  private isTap(target: MiniNode, nativeType: string, native: NativeEvent): boolean {
+    const point = native.changedTouches?.[0] ?? native.touches?.[0];
+    if (nativeType === 'touchstart' && point) {
+      const { clientX: x, clientY: y } = toTouch(point, 0);
+      this.pressStart = { node: target, x, y, time: Date.now() };
+      return false;
+    }
+    if (nativeType !== 'touchend' || !this.pressStart || !point) return false;
+    const start = this.pressStart;
+    this.pressStart = null;
+    const { clientX: x, clientY: y } = toTouch(point, 0);
+    return (
+      start.node === target &&
+      Math.hypot(x - start.x, y - start.y) < 10 &&
+      Date.now() - start.time < 700
+    );
+  }
+
+  /** 交给节点上的处理函数，从目标往上冒泡 */
+  private deliver(type: string, target: MiniNode, native: NativeEvent) {
+    const nativeType = native.type.toLowerCase();
     let stopped = false;
     const event: MiniEvent = {
       type,
@@ -328,6 +360,13 @@ class PageHost implements NodeHost {
   }
 }
 
+/** 节点在模板里的层级：根节点的子节点是 0；不小于模板层数的画在递归组件里 */
+function levelOf(node: MiniNode): number {
+  let level = -1;
+  for (let current = node.parent; current; current = current.parent) level++;
+  return level;
+}
+
 /** svg 子树里的节点 → 那个 svg；不在 svg 里时 undefined */
 function svgRoot(node: MiniNode): MiniNode | undefined {
   for (let current: MiniNode | null = node; current; current = current.parent)
@@ -359,6 +398,18 @@ function followColorScheme(api: MiniApi) {
 }
 
 const mounted = new WeakMap<object, { app: App<MiniNode>; host: PageHost; hooks: PageHooks }>();
+
+/**
+ * 递归组件（模板层数用完后的那一段，build/templates.ts）里的事件：组件的方法拿不到页面实例，交给页面栈顶的页面——
+ * 能收到触摸的只有正在显示的页面
+ */
+declare const getCurrentPages: (() => object[]) | undefined;
+
+export function dispatchToCurrentPage(event: NativeEvent) {
+  const pages = typeof getCurrentPages === 'function' ? getCurrentPages() : [];
+  const page = pages[pages.length - 1];
+  if (page) mounted.get(page)?.host.dispatch(event);
+}
 
 /** 页面参数：跳转时编码过（lifecycle.ts 的 pageUrl），这里解开；解不开的原样给 */
 function decodeQuery(query: Record<string, string> = {}): Record<string, string> {

@@ -107,9 +107,10 @@ export function mountPage(component: Component, query: Record<string, string> = 
         .map((node) => node.v ?? '')
         .join(''),
     async tap(node) {
-      await dispatch(node, 'touchstart');
-      await dispatch(node, 'touchend');
-      await dispatch(node, 'tap');
+      // 同真机：按下、松开带触点，tap 带松开时的触点
+      await this.touch(node, 'touchstart', 0, 0);
+      await this.touch(node, 'touchend', 0, 0);
+      await fire(node, { type: 'tap', changedTouches: [{ clientX: 0, clientY: 0 }] });
     },
     dispatch,
     touch(node, type, x, y) {

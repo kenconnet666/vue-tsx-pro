@@ -607,7 +607,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 
 ### 17.2 小程序运行时补全（packages/mini）
 
-- [ ] 17.2.1 模板层数用完后接一个递归的自定义组件（同 Taro 的 comp）；长列表的每一项用自定义组件隔开，setData 只到那一项
+- [x] 17.2.1 模板层数用完后接一个递归的自定义组件（同 Taro 的 comp）；长列表的每一项用自定义组件隔开，setData 只到那一项（递归组件 vtp-comp 已做，微信实测 40 层可画可点；长列表按项隔开归到 17.2.7 看基准再定）
 - [ ] 17.2.2 原生组件：image、input、textarea、scroll-view、swiper（按约定属性映射）的属性与事件（input 的值双向、聚焦、键盘高度）（image 的 mode、lazy-load、load / error 已做；input、textarea 的值随输入写回节点、type / inputmode → 键盘类型、密码、禁用与只读、focus、确认键、auto-height 已做；差 scroll-view、swiper、键盘高度）
 - [x] 17.2.3 事件补全：touchmove、longpress、scroll、input / change；事件对象的 touches、目标节点等 DOM 形状（touchmove 只在 data-touch-move / data-scroll-lock 的节点上，横滑期间换 catch；事件对象带 touches；页面滚动接进宿主；input 的 event.target.value；键盘确认键转成 keydown Enter）
 - [x] 17.2.4 宿主约定的小程序实现：SelectorQuery 测量、pageScrollTo、系统信息与安全区、页面滚动锁、震动、剪贴板、chooseMedia

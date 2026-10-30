@@ -1,11 +1,10 @@
 /**
  * 通用模板：每种元素一套模板，按层级展开（小程序的模板不能递归调用自己），
- * 节点数据的 t 选模板（运行时见 page.ts）。层数够组件库的嵌套深度；更深的部分暂不渲染。
+ * 节点数据的 t 选模板（运行时见 page.ts）。层数用完后，更深的子节点交给递归的自定义组件 vtp-comp：
+ * 它的模板从第 0 层重新开始，所以嵌套多深都能画（同 Taro 的 comp）。
  */
+import { TEMPLATE_DEPTH as DEPTH } from '../elements.ts';
 import type { NativeEventName, Platform } from './platforms.ts';
-
-/** 模板展开的层数 */
-export const DEPTH = 24;
 
 /** base 模板文件（base.wxml / base.axml） */
 export function baseTemplate(platform: Platform): string {
@@ -23,7 +22,7 @@ export function baseTemplate(platform: Platform): string {
     const children =
       level + 1 < DEPTH
         ? `${loop(platform, 'i.cn')}<template is="{{'vtp_' + item.t + '_${level + 1}'}}" data="{{i: item}}"/></block>`
-        : '';
+        : `${loop(platform, 'i.cn')}<vtp-comp i="{{item}}"/></block>`;
     const view = (type: string, events: string) =>
       `<template name="vtp_${type}_${level}"><view ${common} ${events}>${children}</view></template>`;
     templates.push(
@@ -39,6 +38,15 @@ export function baseTemplate(platform: Platform): string {
     );
   }
   return templates.join('\n');
+}
+
+/** 递归组件 vtp-comp 的模板：引入 base，从第 0 层画传进来的节点 */
+export function componentTemplate(platform: Platform): string {
+  return [
+    `<import src="../../base.${platform.template}"/>`,
+    // 属性还没传进来的第一帧 i 是空对象，不画
+    `<block ${platform.directive}:if="{{i.t}}"><template is="{{'vtp_' + i.t + '_0'}}" data="{{i: i}}"/></block>`,
+  ].join('\n');
 }
 
 /** 页面模板：引入 base，从根节点的子节点开始渲染 */

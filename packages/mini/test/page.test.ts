@@ -83,6 +83,21 @@ describe('事件', () => {
     expect(clicks).toEqual(['button', 'div']);
   });
 
+  it('超过模板层数的节点（递归组件里）：点击由按下、松开合成，原生的 tap 不再算；按下后移动了不算点击', async () => {
+    let clicks = 0;
+    const nest = (depth: number): ReturnType<typeof h> =>
+      depth === 0 ? h('div', { onClick: () => clicks++ }, '深处') : h('div', [nest(depth - 1)]);
+    const page = mountPage(defineComponent(() => () => nest(30)));
+    await page.settle();
+    const leaf = page.find((node) => node.cn?.some((child) => child.v === '深处') ?? false)!;
+    // tap 会依次派发 touchstart、touchend、tap：只算一次
+    await page.tap(leaf);
+    expect(clicks).toBe(1);
+    await page.touch(leaf, 'touchstart', 10, 10);
+    await page.touch(leaf, 'touchend', 40, 10);
+    expect(clicks).toBe(1);
+  });
+
   it('读屏属性：role 与常用的 aria-* 发到节点数据（模板上是微信的 aria-role、aria-label…）', async () => {
     const Demo = defineComponent(
       () => () =>
