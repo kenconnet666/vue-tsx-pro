@@ -1,0 +1,50 @@
+{
+  "name": "@zerodep-dev/storage",
+  "version": "0.1.0",
+  "description": "Pluggable front-end storage: one async driver interface over IndexedDB, localStorage and memory, with a TTL / stale-while-revalidate cache on top",
+  "license": "MIT",
+  "author": "lionheart (https://github.com/kenconnet666)",
+  "homepage": "https://github.com/kenconnet666/vue-tsx-pro/tree/master/packages/storage#readme",
+  "bugs": {
+    "url": "https://github.com/kenconnet666/vue-tsx-pro/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kenconnet666/vue-tsx-pro.git",
+    "directory": "packages/storage"
+  },
+  "keywords": [
+    "storage",
+    "indexeddb",
+    "localstorage",
+    "cache",
+    "stale-while-revalidate"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "@vue-tsx-pro/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "prepack": "tsc -b tsconfig.build.json",
+    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
+    "test": "vitest run --configLoader native"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

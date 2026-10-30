@@ -9,12 +9,25 @@
  *   );
  *   users.data?.rows; users.loading; users.error; users.refresh();
  *
+ * 结果可以经 cache 选项存进 IndexedDB、localStorage（@zerodep-dev/storage 的 createCache）：
+ *
+ *   const cache = createCache(indexedDbDriver({ name: 'app' }), { ttl: 60_000, stale: 86_400_000 });
+ *   useRequest(fetchCities, { params: () => province, cache: { store: cache, key: (p) => `cities:${p}` } });
+ *
  * 只在浏览器里自动请求：服务端渲染时 data 留空，等页面在浏览器里接管后再请求。
  * 一开始就请求时 loading 从 true 开始，服务端也按“加载中”渲染：水合时两边一致，浏览器接着发请求。
  */
 import { onScopeDispose, shallowRef, watch } from 'vue';
 import { sameValue } from '../data/equality';
 import { isAbortError } from './http';
+
+/** 请求结果的缓存：@zerodep-dev/storage 的 createCache 满足这个形状（按形状对接，组件库不依赖它） */
+export interface RequestCache {
+  /** 缓存的值；fresh 为 false 是过期但还能先显示的 */
+  read(key: string): Promise<{ value: unknown; fresh: boolean } | undefined>;
+  /** 写回请求的结果 */
+  set(key: string, value: unknown): Promise<void>;
+}
 
 /** useRequest 的选项 */
 export interface RequestOptions<P, T> {
@@ -31,6 +44,11 @@ export interface RequestOptions<P, T> {
    * 变回 true 时不自动补一次，需要时调用 refresh
    */
   enabled?: () => boolean;
+  /**
+   * 结果的缓存（先显示旧值、后台刷新）：有缓存先显示；新鲜的不再请求（refresh 照样请求），过期的接着请求、到了替换并写回。
+   * key 由参数算出，不同参数各存各的；缓存读写出错时当作没有缓存。命中新鲜缓存时不调 onSuccess
+   */
+  cache?: { store: RequestCache; key: (params: P) => string };
   /** 成功后调用 */
   onSuccess?: (data: T, params: P) => void;
   /** 失败后调用（取消的不算） */
@@ -45,7 +63,7 @@ export interface RequestState<T> {
   readonly error: unknown;
   /** 正在请求（防抖等待时还不算） */
   readonly loading: boolean;
-  /** 按当前参数立即请求，取消进行中的；返回结果，失败或被后来的请求顶掉时为 undefined */
+  /** 按当前参数立即请求（缓存新鲜也请求），取消进行中的；返回结果，失败或被后来的请求顶掉时为 undefined */
   refresh(): Promise<T | undefined>;
   /** 取消进行中的请求与等着的防抖 */
   cancel(): void;
@@ -79,7 +97,13 @@ export function useRequest<T, P = undefined>(
     loading.value = false;
   }
 
-  async function run(current: P): Promise<T | undefined> {
+  /** 读缓存；没配缓存时 undefined（不 await，没缓存的请求照旧同步发出） */
+  function readCache(current: P) {
+    const { cache } = options;
+    return cache?.store.read(cache.key(current)).catch(() => undefined);
+  }
+
+  async function run(current: P, force = false): Promise<T | undefined> {
     cancel();
     last = current;
     const id = latest;
@@ -87,10 +111,19 @@ export function useRequest<T, P = undefined>(
     loading.value = true;
     if (!keepPrevious) data.value = undefined;
     try {
+      const reading = readCache(current);
+      const cached = reading && (await reading);
+      if (id !== latest) return undefined;
+      if (cached) {
+        data.value = cached.value as T;
+        if (cached.fresh && !force) return cached.value as T;
+      }
       const result = await fetcher(current, own.signal);
       if (id !== latest) return undefined;
       data.value = result;
       error.value = undefined;
+      const { cache } = options;
+      if (cache) void cache.store.set(cache.key(current), result).catch(() => undefined);
       options.onSuccess?.(result, current);
       return result;
     } catch (reason) {
@@ -131,7 +164,7 @@ export function useRequest<T, P = undefined>(
     get loading() {
       return loading.value;
     },
-    refresh: () => run(readParams()),
+    refresh: () => run(readParams(), true),
     cancel,
     mutate: (value) => (data.value = value),
   };

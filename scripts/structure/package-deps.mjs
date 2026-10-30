@@ -7,6 +7,7 @@
  *   - 组件库不导入框架（kit），框架不导入 easy-query 与流程引擎
  *   - 小程序运行时（mini）不导入组件库、框架与服务端的包
  *   - 移动端组件库（mobile）只依赖 vue 与 tsx：不导入桌面组件库、小程序运行时、框架与服务端的包
+ *   - 前端存储（storage）零依赖、不绑框架：组件库、easy-query 都按形状对接它，它也不导入它们
  *
  * 用法：node scripts/structure/package-deps.mjs（pnpm layers:check 里一起跑）
  */
@@ -37,6 +38,15 @@ const RULES = [
       '@zerodep-dev/vue-tsx-pro-ui',
       '@zerodep-dev/vue-tsx-pro-mini',
       '@zerodep-dev/vue-tsx-pro-kit',
+      '@zerodep-dev/easy-query-ts',
+      '@zerodep-dev/flow-ts-',
+    ],
+  },
+  {
+    dirs: ['packages/storage'],
+    forbidden: [
+      'vue',
+      '@zerodep-dev/vue-tsx-pro-',
       '@zerodep-dev/easy-query-ts',
       '@zerodep-dev/flow-ts-',
     ],

@@ -1,0 +1,6 @@
+{
+  "extends": "../../tsconfig.base.json",
+  // 不绑框架、不用 JSX：去掉基础配置里组件库的符文类型
+  "compilerOptions": { "types": [] },
+  "include": ["src", "test", "*.config.ts"]
+}

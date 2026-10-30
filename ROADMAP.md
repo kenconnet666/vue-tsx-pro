@@ -758,6 +758,23 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [ ] 21.4 发布：安卓签名的 AAB、iOS 签名的 IPA（证书、描述文件、keystore 放进 CI 的密钥），上传到商店或测试渠道（流水线已就绪：每次构建 AAB——有正式密钥就签名上传、没有用临时密钥验证能签；iOS 每次做设备归档，有证书与描述文件时签名导出 IPA；标签 app-v* 定版本。要放的 secrets 见 apps/mobile-demo/README.md。差真的密钥与商店上传）
 - [ ] 21.5 原生体验：状态栏跟随主题、键盘弹起时的布局、启动图与图标、打开系统设置页（社区插件）、App 里的微信 / 支付宝支付与登录（各自的 App SDK）（状态栏已跟随主题：宿主的 themeChanged，最外层 ConfigProvider 通知；演示在 App 里顶上加带返回的导航栏，iOS 没有返回键、内容不再顶进状态栏）
 
+## 阶段 22：可插拔的前端存储与缓存（`@zerodep-dev/storage`）
+
+目标（用户 2026-10-30 定）：一套存储驱动接口，底下可以是 IndexedDB、localStorage、小程序存储、内存；缓存（过期、先返回旧值后台刷新、按键或前缀失效）
+建在驱动之上，换存储不换用法；与 easy-query 的二级缓存互相留钩子。先做 IndexedDB 验证这个想法，网页端能用就行。
+参考 unstorage 的驱动形状（它的 IndexedDB 驱动依赖 idb-keyval、没有小程序驱动、过期时间只有部分驱动支持）与 idb / Dexie 的做法；包本身零依赖、不绑框架。
+
+- [x] 22.1 驱动接口 `StorageDriver`（异步的 get / set / delete / keys / clear，可选 watch）与三个驱动：`memoryDriver`、
+      `webStorageDriver`（localStorage / sessionStorage，存文字、编码可换，storage 事件跨标签页）、`indexedDbDriver`（原生接口直接写，
+      值按结构化克隆原样存，BroadcastChannel 跨标签页，打不开时退回备用驱动，空间满时报出键名，`persist()` 申请持久存储）
+- [x] 22.2 缓存 `createCache(driver)`：`set(键, 值, { ttl })`、`get` 只给新鲜的、`read` 连同过期但还在 stale 窗口里的、`load(键, loader)` 合并并发、
+      `invalidate(键)` / `invalidatePrefix(前缀)`，失效经驱动的 watch 传到别的标签页
+- [x] 22.3 组件库的 `useRequest` 加 `cache` 选项（按结构对接，不导入本包）：有缓存先显示，新鲜的不再请求，过期的后台刷新
+- [x] 22.4 与 easy-query 的钩子：`cacheStore(driver)` 把任意驱动变成二级缓存的 `CacheStore`（浏览器里跑 PGlite 时用）；
+      `createCache` 的 `onEvict(keys)` 在失效时通知（转发给别的实例或推给前端）
+- [x] 22.5 共同的驱动用例（fake-indexeddb 跑 IndexedDB）、包文档；真实浏览器里跑过 IndexedDB 驱动（Date、Map 原样读回，load 合并，另一个标签页的写入与失效 watch 收到）
+- [ ] 22.6 以后：微信 / 支付宝存储驱动、mobile 的 `HostStorage` 转接成驱动、IndexedDB 的索引与范围查询
+
 ## 已知局限（有意的取舍，写在文档里）
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）

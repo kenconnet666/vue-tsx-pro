@@ -1901,7 +1901,12 @@ export {
   type AutosaveOptions,
   type AutosaveStatus,
 } from './utils/request/use-autosave';
-export { useRequest, type RequestOptions, type RequestState } from './utils/request/use-request';
+export {
+  useRequest,
+  type RequestCache,
+  type RequestOptions,
+  type RequestState,
+} from './utils/request/use-request';
 export {
   fromWire,
   toWire,

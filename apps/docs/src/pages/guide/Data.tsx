@@ -57,6 +57,17 @@ const http: HttpClient = {
 
 app.use(createUi({ http }));`;
 
+const cachedRequest = `import { createCache, indexedDbDriver } from '@zerodep-dev/storage';
+
+// 存在 IndexedDB：一分钟内新鲜，过期一天内还先显示旧的
+const cache = createCache(indexedDbDriver({ name: 'app' }), { ttl: 60_000, stale: 86_400_000 });
+
+const cities = useRequest((province, signal) => http.get<City[]>('/cities', { query: { province }, signal }), {
+  params: () => province.value,
+  cache: { store: cache, key: (p) => \`cities:\${p}\` },
+});
+// 后台改了城市：await cache.invalidatePrefix('cities:')`;
+
 const errors = `import { defineLang, HttpError, isAbortError, useErrorMessage, zhCN } from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 语言包补上自己命名空间的码（与自带的 http.、query. 合并）
@@ -131,7 +142,13 @@ export default _component(() => () => (
           重新请求时保留上一次的数据（<Code>keepPrevious</Code> 默认开），表格不闪成空的；
           <Code>mutate</Code> 直接改数据，做乐观更新。
         </ListItem>
+        <ListItem>
+          <Code>cache</Code> 把结果存进 IndexedDB、localStorage（前端存储包{' '}
+          <Code>@zerodep-dev/storage</Code> 的 <Code>createCache</Code>
+          ）：有缓存先显示，新鲜的不再请求，过期的后台刷新；<Code>key</Code> 由参数算出。
+        </ListItem>
       </List>
+      <CodeBlock title="cached-request.ts" code={cachedRequest} lang="ts" />
       <Paragraph>
         下面的演示连着内存里的假接口（300–800 ms
         的随机延迟）：快速输入只发最后一次，翻页立即请求，“模拟一次失败”让下一次请求返回业务错误。

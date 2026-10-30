@@ -320,6 +320,9 @@ catalogs:
     exceljs:
       specifier: 4.4.0
       version: 4.4.0
+    fake-indexeddb:
+      specifier: 6.2.6
+      version: 6.2.6
     happy-dom:
       specifier: 21.0.3
       version: 21.0.3
@@ -1029,6 +1032,9 @@ importers:
       '@zerodep-dev/easy-query-ts-sqlite':
         specifier: workspace:*
         version: link:../sqlite
+      '@zerodep-dev/storage':
+        specifier: workspace:*
+        version: link:../../storage
       vitest:
         specifier: 'catalog:'
         version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
@@ -1220,6 +1226,18 @@ importers:
       vue:
         specifier: 'catalog:'
         version: 3.5.44(typescript@7.1.0-beta)
+
+  packages/storage:
+    devDependencies:
+      fake-indexeddb:
+        specifier: 'catalog:'
+        version: 6.2.6
+      typescript:
+        specifier: 'catalog:'
+        version: 7.1.0-beta
+      vitest:
+        specifier: 'catalog:'
+        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-beta)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
 
   packages/tsx:
     dependencies:
@@ -3585,6 +3603,10 @@ packages:
 
   ext@1.7.0:
     resolution: {integrity: sha512-6hxeJYaL110a9b5TEJSj0gojyHQAmA2ch5Os+ySCiA1QGdS697XWY1pzsrSjqA9LDEEgdB/KypIlR59RcLuHYw==}
+
+  fake-indexeddb@6.2.6:
+    resolution: {integrity: sha512-ihhmr0KoET51jT8R4YhbUYuLLvr1qqO6INISygtN16i8loR8kAxtAUr4+EKHTSMjL+lggaAn4OC7DRqzrNgnuQ==}
+    engines: {node: '>=18'}
 
   fast-csv@4.3.6:
     resolution: {integrity: sha512-2RNSpuwwsJGP0frGsOmTb9oUF+VkFSM4SyLTDgwf2ciHWTarN0lQTC+F2f/t5J9QjW+c65VFIAAu85GsvMIusw==}
@@ -8083,6 +8105,8 @@ snapshots:
   ext@1.7.0:
     dependencies:
       type: 2.7.3
+
+  fake-indexeddb@6.2.6: {}
 
   fast-csv@4.3.6:
     dependencies:

@@ -5,6 +5,7 @@ packages:
   - packages/kit
   - packages/mini
   - packages/mobile
+  - packages/storage
   - packages/easy-query/*
   - packages/flow/*
   - apps/*
@@ -124,6 +125,8 @@ catalog:
   smol-toml: 1.9.1
   # 文档站示例截图的逐像素比对（scripts/docs/shots-compare.mjs）
   pngjs: 7.0.0
+  # 前端存储包（packages/storage）的测试：Node 里的 IndexedDB 实现，与浏览器同一套接口
+  fake-indexeddb: 6.2.6
   # 文档站样式更新基准（/bench/style-updates）的对照组：同样的声明交给 Emotion
   '@emotion/css': 11.13.5
   # 整个仓库只用 TypeScript 7（Go 原生版），跟 7.1 的 beta：类型检查、声明生成用 tsc；脚本与文档站的 API 表用它的

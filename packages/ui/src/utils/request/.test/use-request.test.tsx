@@ -5,7 +5,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Provider } from '../../../config/Provider';
 import { mount } from '../../.test/mount';
 import { useHttp, type HttpClient } from '../http';
-import { useRequest, type RequestOptions } from '../use-request';
+import { useRequest, type RequestCache, type RequestOptions } from '../use-request';
 
 /** 每次请求一个可以手动完成的 Promise，记下收到的参数与 signal */
 function deferredFetcher<T, P>() {
@@ -151,6 +151,73 @@ describe('useRequest', () => {
     const { stop } = run(fetcher);
     stop();
     expect(calls[0]!.signal.aborted).toBe(true);
+  });
+});
+
+describe('useRequest 的 cache', () => {
+  /** 内存里的缓存：fresh 由测试指定 */
+  function memoryCache(entries: Record<string, { value: unknown; fresh: boolean }> = {}) {
+    const store: RequestCache & { entries: typeof entries } = {
+      entries,
+      read: (key) => Promise.resolve(entries[key]),
+      set: (key, value) => {
+        entries[key] = { value, fresh: true };
+        return Promise.resolve();
+      },
+    };
+    return store;
+  }
+
+  it('新鲜的缓存直接用、不请求；refresh 照样请求', async () => {
+    const store = memoryCache({ 'city:浙江': { value: ['杭州'], fresh: true } });
+    const { fetcher, calls } = deferredFetcher<string[], string>();
+    const { state, stop } = run(fetcher, {
+      params: () => '浙江',
+      cache: { store, key: (p) => `city:${p}` },
+    });
+    await flush();
+    expect([calls.length, state.data, state.loading]).toEqual([0, ['杭州'], false]);
+    void state.refresh();
+    await flush();
+    expect(calls).toHaveLength(1);
+    stop();
+  });
+
+  it('过期的先显示再请求，到了替换并写回；没缓存的请求完写进去', async () => {
+    const store = memoryCache({ 'city:浙江': { value: ['杭州'], fresh: false } });
+    const province = ref('浙江');
+    const { fetcher, calls } = deferredFetcher<string[], string>();
+    const { state, stop } = run(fetcher, {
+      params: () => province.value,
+      cache: { store, key: (p) => `city:${p}` },
+    });
+    await flush();
+    expect([state.data, state.loading, calls.length]).toEqual([['杭州'], true, 1]);
+    calls[0]!.resolve(['杭州', '宁波']);
+    await flush();
+    expect(state.data).toEqual(['杭州', '宁波']);
+    expect(store.entries['city:浙江']).toEqual({ value: ['杭州', '宁波'], fresh: true });
+
+    province.value = '江苏';
+    await flush();
+    calls[1]!.resolve(['南京']);
+    await flush();
+    expect(store.entries['city:江苏']?.value).toEqual(['南京']);
+    stop();
+  });
+
+  it('缓存读写出错当作没有缓存，请求照常', async () => {
+    const store: RequestCache = {
+      read: () => Promise.reject(new Error('disk')),
+      set: () => Promise.reject(new Error('disk')),
+    };
+    const { fetcher, calls } = deferredFetcher<string, undefined>();
+    const { state, stop } = run(fetcher, { cache: { store, key: () => 'k' } });
+    await flush();
+    calls[0]!.resolve('ok');
+    await flush();
+    expect([state.data, state.error]).toEqual(['ok', undefined]);
+    stop();
   });
 });
 
