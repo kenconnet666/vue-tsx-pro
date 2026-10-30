@@ -8,8 +8,9 @@ android {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         // 版本由 CI 给（.github/workflows/app.yml）：versionCode 每次构建递增，versionName 取发版标签；本地构建用默认值
-        versionCode (System.getenv('APP_VERSION_CODE') ?: '1') as Integer
-        versionName System.getenv('APP_VERSION_NAME') ?: '1.0'
+        // 写成赋值：不加括号的 versionName x ?: y 会把 ?: 算在调用之外，取不到环境变量时 versionName 成了 null
+        versionCode = (System.getenv('APP_VERSION_CODE') ?: '1') as Integer
+        versionName = System.getenv('APP_VERSION_NAME') ?: '1.0'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
