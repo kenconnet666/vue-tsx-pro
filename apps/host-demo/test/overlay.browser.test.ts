@@ -38,9 +38,10 @@ describe('Popover', () => {
     const trigger = $('.popover-open');
     const panel = $('.popover-demo');
     // 点击只在需要时滚动，触发器可能停在视口底边、下方放不下而翻到上方。
-    // 触发器靠近页尾时滚不到中间：先在页尾垫一屏高度，再让它居中
+    // 让触发器停在视口顶上，下方留出几乎一整屏（WebKit 在 Windows 上的测试视口矮，居中时下方只有半屏，面板放不下会翻到上方）；
+    // 触发器靠近页尾时滚不上去：先在页尾垫一屏高度
     root.style.paddingBottom = '100vh';
-    trigger.scrollIntoView({ block: 'center' });
+    trigger.scrollIntoView({ block: 'start' });
     await userEvent.click(trigger);
     await expect.poll(() => isOpen(panel)).toBe(true);
     await expect.poll(() => panel.dataset.side).toBe('bottom');
