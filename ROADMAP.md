@@ -700,8 +700,8 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
       同步时 ADD VALUE；MySQL 是 ENUM(…)）、PG 的 `col.interval()`、数值列的 `unsigned()`；建表、同步、pull 都认得
 - 19.2 一条 SQL 出对象树（JSON 聚合）：**不做**（用户 2026-10-30 定，做过一版已撤回）。主流 ORM 的 include 都是二次查询：每层 1+1，
   没有 N+1，性能随数据量是恒定的；JSON 聚合让结果变大、库里的聚合变重，换来的往返收益不值得维护两套写法
-- [ ] 19.3 服务端真正超时与取消：`withSignal` / 新的 `timeout` 选项让库里的语句也停下——PG `SET LOCAL statement_timeout` 与
-      `pg_cancel_backend`，MySQL `/*+ MAX_EXECUTION_TIME(n) */` 与 `KILL QUERY`
+- [x] 19.3 服务端真正超时与取消：`db.withTimeout(ms)` / createDb 的 `statementTimeout` 与 `withSignal` 合成每条语句的信号交给驱动；
+      PG 驱动 `pg_cancel_backend`、MySQL 驱动 `KILL QUERY` 在服务端终止语句（连接保留），别的驱动仍是客户端不再等
 - [ ] 19.4 JSON 的更新写法与展开：PG `jsonb_set` / `||` / `-` / JSONPath（`jsonb_path_exists`），MySQL `JSON_SET` / `JSON_REMOVE` /
       `JSON_ARRAY_APPEND` 与 `JSON_TABLE`（JSON 数组展开成行参与连接、过滤）
 - [ ] 19.5 批量写入：PG 用 `unnest($1::int[], …)` 一条语句插入大批行（不受 65535 个参数的限制）、`ON CONFLICT … DO UPDATE … WHERE`、

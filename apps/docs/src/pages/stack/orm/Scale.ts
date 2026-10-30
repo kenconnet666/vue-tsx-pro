@@ -52,6 +52,14 @@ reader.insert(Order); // 类型错误：只读
 await request.run({ tenantId: 7 }, () => reader.queryable(Order).toList());`,
     },
     {
+      id: 'timeout',
+      title: '超时与取消',
+      text: '`db.withTimeout(ms)`（或 createDb 的 `statementTimeout`）给每条语句计时，`withSignal(signal)` 跟着请求取消；到点调用方立刻失败，PG、MySQL 的驱动还会在服务端终止正在跑的语句（`pg_cancel_backend`、`KILL QUERY`），连接照常可用。',
+      code: `const ac = new AbortController();
+req.on('close', () => ac.abort());
+await db.withSignal(ac.signal).withTimeout(5000).queryable(Order).toList();`,
+    },
+    {
       id: 'observability',
       title: '链路追踪、N+1 与慢查询',
       text: '`statementSpans(tracer)` 给每条语句记一个 OpenTelemetry span（按数据库语义约定，不依赖 OTel 包）；开发环境的 `queryWatch` 在一个请求里同一条 SQL 反复执行（N+1）或单条太慢时报出来。',
