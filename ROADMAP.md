@@ -520,8 +520,8 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 16.7.6b Apache Doris（官方没有，额外支持；MySQL 协议，`doris(pool)` 在 MySQL 包里）：主键模型建表、整行覆盖的 upsert、倒排索引；
       与 ClickHouse 共用主键由应用给值的分析型套件（`test/src/analytic.ts`），CI 单独一个 runner
 - [x] 16.7.7 DB2（`icr.io/db2_community/db2` 12.1，驱动 `ibm_db`）：共用套件全绿（Linux；Windows 上 ibm_db 的 CLI 环境建不出来），CI 单独一个 runner
-- [ ] 16.7.8 TDengine 等时序库（官方 sql-tsdb）：先看官方支持到什么程度再定
-- [ ] 16.7.9 H2：JVM 内的库，Node 没有驱动——不适用，写进清单
+- [x] 16.7.8 TDengine（官方 sql-tsdb，驱动 `@tdengine/websocket`）：时间戳主键、写入覆盖、按条件删除、没有 UPDATE / 子查询 / 窗口；专用实库测试进 CI
+- [x] 16.7.9 H2：JVM 内的库，Node 没有驱动——不适用，写进清单（对照表 dialect.h2 为不适用）
 - [ ] 16.7.10 每种方言：共用实库套件全绿、方言专属函数入口（同 `MySQL.` / `Pg.` / `Hana.`）、建表类型映射、CI（大的放 nightly）
 - [x] 16.7.11 按版本渲染收敛（2026-10-29 定）：默认一套各版本都能跑的写法，只在旧写法被弃用、旧版本没有该能力（渲染时报最低版本）、新旧语义或性能差别大时分支；
       `mysql.detect` / `mssql.detect` / `oracle.detect` 连库读出版本，部署不用手配；只为写法好看的分支（SQL Server 的 TRIM、DATETRUNC、IS NOT DISTINCT FROM）已删

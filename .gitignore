@@ -1,4 +1,6 @@
 *.log
+# @tdengine/websocket 的日志（winston 按天滚动，在运行目录下建 logs/）
+*-audit.json
 node_modules
 **/dist/
 **/.output/

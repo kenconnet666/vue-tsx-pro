@@ -9,9 +9,11 @@ packages:
   - packages/flow/*
   - apps/*
 
-# 依赖的安装脚本：oracledb 的 install 只检查 Thick 模式的原生模块，easy-query-ts-oracle 用 Thin 模式（纯 JS），不运行
+# 依赖的安装脚本：oracledb 的 install 只检查 Thick 模式的原生模块，easy-query-ts-oracle 用 Thin 模式（纯 JS），不运行；
+# ibm_db 的 install 要下载上百 MB 的 IBM CLI 驱动，只在跑 Db2 实库测试时手动执行（pnpm db2:driver）
 allowBuilds:
   oracledb: false
+  ibm_db: false
 
 # 共享依赖的精确版本；各包用 "catalog:" 引用，升级只改这里
 catalog:
@@ -81,6 +83,8 @@ catalog:
   '@duckdb/node-api': 1.5.6-r.1
   dmdb: 1.0.52452
   '@clickhouse/client': 1.24.1
+  ibm_db: 4.1.0
+  '@tdengine/websocket': 3.5.0
   # typed JSON 的线上格式（独立仓库 json-wire）：流程引擎的模型包按它比较与还原值
   '@zerodep-dev/json-wire': 0.1.0
   # 全栈的服务端底座（apps/fullstack-demo，之后的框架 kit）：Nitro 3 还在 beta，固定精确版本，升级时一起跑两种模式的端到端测试

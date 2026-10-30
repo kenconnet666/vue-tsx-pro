@@ -230,6 +230,37 @@ services:
       - '29030:9030'
       - '28030:8030'
 
+  # IBM Db2 12.1 Community（privileged；首次初始化要几分钟，日志出现 Setup has completed 后可用）
+  db2:
+    profiles: [db2]
+    image: icr.io/db2_community/db2:12.1.2.0@sha256:9cc0d21df5d86cd9a5ce1c65c390dc10d56b1d38ab6e992c8a08eda677368781
+    restart: unless-stopped
+    privileged: true
+    mem_limit: 4g
+    environment:
+      LICENSE: accept
+      DB2INSTANCE: db2inst1
+      DB2INST1_PASSWORD: ${VTP_DB2_PASSWORD:?run infra/dev/db.sh to add VTP_DB2_PASSWORD}
+      DBNAME: eqts
+      ARCHIVE_LOGS: 'false'
+      AUTOCONFIG: 'false'
+      TZ: Asia/Shanghai
+    ports:
+      - '25000:50000'
+    volumes:
+      - db2-data:/database
+
+  # TDengine 3.3（时序库；taosAdapter 的 WebSocket 接口 6041，默认账号 root / taosdata，只给本机测试用）
+  tdengine:
+    profiles: [tdengine]
+    image: tdengine/tdengine:3.3.6.13@sha256:79d32ce8a42f64c7dbfc33946a36b3e176ea23c0cd695a1bc9e8aa889ca03b88
+    restart: unless-stopped
+    mem_limit: 2g
+    environment:
+      TZ: UTC
+    ports:
+      - '26041:6041'
+
 volumes:
   mysql8018-data:
   mysql84-data:
@@ -240,3 +271,4 @@ volumes:
   dameng-data:
   opengauss-data:
   clickhouse-data:
+  db2-data:
