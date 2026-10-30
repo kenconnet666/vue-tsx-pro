@@ -89,6 +89,10 @@ catalog:
   '@clickhouse/client': 1.24.1
   ibm_db: 4.1.0
   '@tdengine/websocket': 3.5.0
+  # 嵌入式与 serverless 驱动（18.3.5）：PGlite 跑共用套件不用容器；libSQL 本地文件库
+  '@electric-sql/pglite': 0.5.10
+  '@libsql/client': 0.18.0
+  '@neondatabase/serverless': 1.2.0
   # typed JSON 的线上格式（独立仓库 json-wire）：流程引擎的模型包按它比较与还原值
   '@zerodep-dev/json-wire': 0.1.0
   # 全栈的服务端底座（apps/fullstack-demo，之后的框架 kit）：Nitro 3 还在 beta，固定精确版本，升级时一起跑两种模式的端到端测试
