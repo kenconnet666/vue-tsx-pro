@@ -42,6 +42,17 @@ await db.syncTables();               // 执行 plan.statements（能放进事务
       text: '已有的库（例如从 Java 迁过来的表）不用手写一遍实体：`eqts pull --adapter ./db-adapter.ts --out src/schema.ts` 读库结构，生成 `entity()` 与带导航的 `defineSchema`；生成的实体与库再 `planSync` 一次是空计划。认不得的类型用 `.dbType(…)` 原样保留。',
     },
     {
+      id: 'generated',
+      title: '生成列与索引的写法',
+      text: '`generatedAs(sql, { stored })` 是库算出来的列（写入时不能给值）；索引可以写 `using`（PG 的 GIN 等）、`where`（部分索引）、`expressions`（表达式索引，MySQL 的多值索引也靠它），方言不支持的写法建表时报错。',
+      code: `total: col.int().generatedAs('qty * price'),
+// 实体选项
+indexes: [
+  { columns: ['attrs'], using: 'gin', name: 't_line_attrs_gin' },
+  { expressions: ['lower(sku)'], name: 't_line_lower_sku_idx' },
+],`,
+    },
+    {
       id: 'migrate',
       title: '迁移历史',
       text: '生产环境用迁移代替 syncTables：`eqts migrate generate` 对开发库算 planSync 写成迁移文件（可以手改），`eqts migrate up` 或 `db.migrate(migrations)` 按顺序执行还没执行过的，记进历史表；已经执行过的迁移被改了直接报错。',

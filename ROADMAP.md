@@ -710,8 +710,9 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [x] 19.6 查询写法：PG 的 `distinctOn`、like 家族的 `{ ignoreCase }`（PG 写 ILIKE）、正则 `matches`（PG、MySQL、Oracle、DuckDB）、
       `forShare` / `forNoKeyUpdate`、`collate`、`optimizerHint`；MySQL 的索引提示用已有的 `tableHint`。`LATERAL` 与 `FOR UPDATE OF` 暂缓
       （每父行前 n 条已由 toList 的 limit 用窗口函数做了，分组聚合有 groupJoin；多表锁定场景少）
-- [ ] 19.7 建表时的索引与列：PG 的 GIN 索引（jsonb、数组、全文）、部分索引（WHERE）、表达式索引、生成列；
-      MySQL 的多值索引（`MEMBER OF` 要靠它走索引）、虚拟 / 存储生成列；planSync 能比较它们
+- [x] 19.7 建表时的索引与列：`generatedAs(sql, { stored })` 生成列（PG、MySQL、SQLite，写入时拒绝）；索引的 `using`（PG 的 GIN 等）、
+      `where`（部分索引）、`expressions`（表达式索引，MySQL 多值索引也靠它），不支持的方言建表时报错；planSync 按名字比较索引，
+      SQLite 改读 table_xinfo（看得到生成列）、PG 读得出表达式索引，eqts pull 生成 expressions
 - [ ] 19.8 `q.explain()`：返回执行计划（PG `EXPLAIN (FORMAT JSON)`、MySQL `EXPLAIN FORMAT=JSON`），`queryWatch` 的慢查询可以自动带上计划
 - [ ] 19.9 MySQL 系的兼容库：从 MySQL 方言继承出 MariaDB（10.5+ 有 RETURNING，没有 JSON_TABLE 的部分写法），容器进 compose 与 CI
 - [ ] 19.10 PG 的 advisory lock（`db.advisoryLock(key)`，事务级，跨进程的锁）与 `LISTEN / NOTIFY`（二级缓存的失效通知可以接它）
