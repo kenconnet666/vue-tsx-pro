@@ -121,12 +121,9 @@ export function mountPage(component: Component, query: Record<string, string> = 
       });
     },
     async lifecycle(event) {
-      const handler = {
-        show: options.onShow,
-        hide: options.onHide,
-        reachBottom: options.onReachBottom,
-      }[event];
-      handler.call(page);
+      if (event === 'show') options.onShow.call(page);
+      else if (event === 'hide') options.onHide.call(page);
+      else options.onReachBottom.call(page);
       await settle();
     },
     unmount: () => options.onUnload.call(page),
