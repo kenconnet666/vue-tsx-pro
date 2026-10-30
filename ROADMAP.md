@@ -615,7 +615,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [x] 17.2.6 `data-*`、`id` 透传到模板；role、aria-label 映射到小程序的无障碍属性（id 测量时按需挂上；data-* 只参与样式条件与运行时的事件，不必发到模板；role 与 aria-label / hidden / checked / disabled / selected / expanded 发到微信的 aria-*，支付宝没有对应属性不发）
 - [x] 17.2.7 性能基准：1000 行列表首屏与更新的 setData 体积、频率；样式展开按"类名 + 状态"缓存；按住时只发样式真的变了的节点（基准是 mobile 的 `src/.test/setdata.bench.test.tsx`，带预算断言：首屏 1 次 320 KB、改一行 0.1 KB、按住 0.7 KB；行内样式改成字典后首屏小了 6 倍）
 - [x] 17.2.8 页面生命周期（onShow、onHide、下拉刷新、触底、分享）接进组合式 API；路由跳转包一层，页面参数作为 props（onPageShow / onPageHide / onReachBottom、navigateTo 等按页面名跳转、query 属性解码；下拉刷新用组件库的 PullRefresh；分享等有页面配置时再加）
-- [ ] 17.2.9 开发模式：`buildMini` 的监听重建只重打应用代码，依赖走缓存；目标是改一个页面 1 s 内出新包；源码映射
+- [x] 17.2.9 开发模式：`buildMini` 的监听重建只重打应用代码，依赖走缓存；目标是改一个页面 1 s 内出新包；源码映射（`watchMini`：依赖单独成包 vtp-vendor.js，插件的编译结果按内容缓存、编译线程留着，改一个页面 0.3–0.5 s）
 
 ### 17.3 样式引擎的小程序后端补全
 

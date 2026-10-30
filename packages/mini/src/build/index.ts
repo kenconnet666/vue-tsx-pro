@@ -5,10 +5,10 @@
  *
  *   await buildMini({ root: import.meta.dirname, platform: 'wx', plugins: vueTsxPro(), appId: 'wx…' });
  */
-import { copyFileSync, mkdirSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
-import { build, type PluginOption } from 'vite';
+import { build, type InlineConfig, type Plugin, type PluginOption } from 'vite';
 import { PLATFORMS, type Platform } from './platforms.ts';
 import { appStyles } from './styles.ts';
 import { baseTemplate, componentTemplate, pageTemplate } from './templates.ts';
@@ -46,12 +46,158 @@ interface Bundle {
 export async function buildMini(
   options: MiniBuildOptions,
 ): Promise<{ outDir: string; pages: readonly string[] }> {
+  const { config, outDir, platform } = prepare(options, false);
+  await build(config);
+  return finish(options, platform, outDir, 0);
+}
+
+/** 监听模式的句柄 */
+export interface MiniWatcher {
+  /** 停止监听 */
+  close(): Promise<void>;
+}
+
+/** 监听模式下依赖单独成包的文件名 */
+const VENDOR = 'vtp-vendor.js';
+
+/** 包名（依赖）：不是相对路径、绝对路径、虚拟模块 */
+const isBare = (id: string) => !/^(?:[./\\]|[A-Za-z]:|\0)/.test(id);
+
+/**
+ * 监听模式：应用的包不打依赖（Vue、运行时、组件库……），对它们的 require 换成从 vtp-vendor.js 取；
+ * 依赖包只在依赖的列表变了时重打。源码改了只重打应用自己的代码，再重写小程序的文件，开发者工具看到产物变了会自己重新编译。
+ * 每次打完调用 onBuild（第几次、页面、耗时）
+ *
+ *   const watcher = await watchMini({ ...options, development: true }, ({ pages, ms }) => console.log(ms));
+ */
+export async function watchMini(
+  options: MiniBuildOptions,
+  onBuild?: (result: {
+    outDir: string;
+    pages: readonly string[];
+    ms: number;
+    count: number;
+  }) => void,
+): Promise<MiniWatcher> {
+  const { config, outDir, platform } = prepare(options, true);
+  const externals = new Set<string>();
+  config.plugins = [...(await cacheTransforms(config.plugins ?? [])), vendorRequires(externals)];
+  config.build!.rolldownOptions!.external = isBare;
+  const watcher = (await build(config)) as unknown as {
+    on(event: 'event', listener: (event: { code: string; error?: unknown }) => void): void;
+    close(): Promise<void>;
+  };
+  let count = 0;
+  let started = performance.now();
+  let vendorKey = '';
+  // 打完之后的处理排成队：上一次还在重打依赖包时又改了源码，不能交错
+  let queue = Promise.resolve();
+  watcher.on('event', (event) => {
+    if (event.code === 'START') started = performance.now();
+    else if (event.code === 'ERROR') console.error(event.error);
+    else if (event.code === 'END')
+      queue = queue
+        .then(async () => {
+          const key = [...externals].sort().join('\n');
+          if (key !== vendorKey) {
+            vendorKey = key;
+            await buildVendor(options, outDir, [...externals].sort());
+          }
+          const result = finish(options, platform, outDir, ++count);
+          onBuild?.({ ...result, ms: Math.round(performance.now() - started), count });
+        })
+        .catch((error: unknown) => console.error(error));
+  });
+  return { close: () => watcher.close() };
+}
+
+/**
+ * 插件的 transform 按文件内容缓存：监听模式下每次重打都会把应用的每个文件再交给插件编译一遍（TSX 编译最费时），
+ * 内容没变的直接用上次的结果
+ */
+async function cacheTransforms(options: PluginOption[]): Promise<Plugin[]> {
+  return (await flatPlugins(options)).map((plugin) => {
+    const hook = plugin.transform;
+    if (!hook) return plugin;
+    const handler = typeof hook === 'function' ? hook : hook.handler;
+    const cache = new Map<string, { code: string; result: unknown }>();
+    const cached = async function (this: unknown, code: string, id: string, ...rest: unknown[]) {
+      const hit = cache.get(id);
+      if (hit?.code === code) return hit.result;
+      const result: unknown = await (handler as (...args: unknown[]) => unknown).call(
+        this,
+        code,
+        id,
+        ...rest,
+      );
+      cache.set(id, { code, result });
+      return result;
+    };
+    return {
+      ...plugin,
+      transform: typeof hook === 'function' ? cached : { ...hook, handler: cached },
+    } as Plugin;
+  });
+}
+
+/** Vite 的插件选项可以嵌套数组、Promise，展开成插件列表 */
+async function flatPlugins(option: PluginOption): Promise<Plugin[]> {
+  const value = await option;
+  if (Array.isArray(value)) return (await Promise.all(value.map(flatPlugins))).flat();
+  return value ? [value] : [];
+}
+
+/** 应用的包里对依赖的 require 换成从 vtp-vendor.js 取（小程序的 require 只认相对路径），顺带记下用到了哪些依赖 */
+function vendorRequires(externals: Set<string>): Plugin {
+  return {
+    name: 'vtp-mini:vendor-requires',
+    renderChunk(code, chunk) {
+      for (const id of chunk.imports) if (isBare(id)) externals.add(id);
+      const replaced = code.replace(
+        /require\((["'])([^"']+)\1\)/g,
+        (match, _quote: string, id: string) =>
+          externals.has(id) ? `require("./${VENDOR}").modules[${JSON.stringify(id)}]` : match,
+      );
+      // 只换了 require(…) 那一小段，行号不变：沿用原来的源码映射
+      return { code: replaced, map: null };
+    },
+  };
+}
+
+/** 依赖单独成包：各依赖的模块对象放进 modules（键是包名），补全全局函数的模块排在最前面 */
+async function buildVendor(options: MiniBuildOptions, outDir: string, ids: string[]) {
+  const file = join(cacheDir(options.root), 'vendor-entry.js');
+  writeFileSync(
+    file,
+    [
+      `import '@zerodep-dev/vue-tsx-pro-mini/globals';`,
+      ...ids.map((id, index) => `import * as m${index} from ${JSON.stringify(id)};`),
+      `export const modules = { ${ids.map((id, index) => `${JSON.stringify(id)}: m${index}`).join(', ')} };`,
+    ].join('\n'),
+  );
+  // 不重写应用的入口文件：它在监听里，改了会触发应用的包再打一遍
+  const { config } = prepare(options, false, file);
+  await build({
+    ...config,
+    // 依赖都是发布的产物，不用应用的插件；共用插件实例时这次构建结束会停掉监听那边的编译线程
+    plugins: [],
+    build: {
+      ...config.build,
+      emptyOutDir: false,
+      sourcemap: false,
+      lib: { entry: file, formats: ['cjs'], fileName: () => VENDOR },
+    },
+  });
+}
+
+/** 两种构建共用的 Vite 配置 */
+function prepare(options: MiniBuildOptions, watch: boolean, entryFile?: string) {
   const platform = PLATFORMS[options.platform];
   const outDir = resolve(options.root, options.outDir ?? `dist/${platform.name}`);
-  const entry = writeEntry(options.root, resolve(options.root, options.entry ?? 'src/app.ts'));
+  const entry =
+    entryFile ?? writeEntry(options.root, resolve(options.root, options.entry ?? 'src/app.ts'));
   const mode = options.development ? 'development' : 'production';
-
-  await build({
+  const config: InlineConfig = {
     root: options.root,
     configFile: false,
     logLevel: 'warn',
@@ -66,24 +212,38 @@ export async function buildMini(
     },
     build: {
       outDir,
-      emptyOutDir: true,
+      // 监听模式下不清空：小程序的其余文件（app.json、模板、依赖包）留着，之后只换 vtp.js
+      emptyOutDir: !watch,
       minify: !options.development,
+      // 开发构建带源码映射（开发者工具的调试器按它显示源码）
+      sourcemap: !!options.development,
       // 小程序的 JS 引擎（iOS 的 JavaScriptCore、支付宝的编译器）对新语法的支持不一，降到 ES2017
       target: 'es2017',
       lib: { entry, formats: ['cjs'], fileName: () => 'vtp.js' },
-      rolldownOptions: { output: { exports: 'named' } },
+      // 只出一个文件：小程序的页面只 require('./vtp.js')，开发构建会把辅助函数拆成单独的 chunk
+      rolldownOptions: { output: { exports: 'named', codeSplitting: false } },
+      watch: watch ? {} : null,
     },
-  });
+  };
+  return { config, outDir, platform };
+}
 
-  // 包在 Node 里也能加载（运行时只在页面 onLoad 时才碰小程序的全局 API）：取页面列表与静态样式。
-  // 应用目录多半是 type: module，.js 会按 ES 模块加载，复制成 .cjs 再 require
-  const copy = join(cacheDir(options.root), `vtp-${platform.name}.cjs`);
-  copyFileSync(join(outDir, 'vtp.js'), copy);
-  const bundle = createRequire(copy)(copy) as Bundle;
+/**
+ * 打完之后：在 Node 里加载包（运行时只在页面 onLoad 时才碰小程序的全局 API）取页面列表与静态样式，写出小程序的其余文件。
+ * 包（与依赖包）复制到缓存目录里一个声明了 CommonJS 的子目录再 require（应用目录多半是 type: module）；
+ * 每次一个新目录，躲开 require 的缓存
+ */
+function finish(options: MiniBuildOptions, platform: Platform, outDir: string, count: number) {
+  const dir = join(cacheDir(options.root), `run-${platform.name}-${count}`);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'package.json'), '{"type":"commonjs"}');
+  for (const name of ['vtp.js', VENDOR])
+    if (existsSync(join(outDir, name))) copyFileSync(join(outDir, name), join(dir, name));
+  const bundle = createRequire(join(dir, 'vtp.js'))(join(dir, 'vtp.js')) as Bundle;
+  rmSync(dir, { recursive: true, force: true });
   emit(outDir, platform, bundle, options);
   return { outDir, pages: bundle.names };
 }
-
 /** 构建的中间文件放在应用的 node_modules/.cache 下，不污染源码目录 */
 function cacheDir(root: string): string {
   const dir = join(root, 'node_modules', '.cache', 'vtp-mini');

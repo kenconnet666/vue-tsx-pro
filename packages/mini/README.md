@@ -29,7 +29,10 @@ await buildMini({ root: import.meta.dirname, platform: 'wx', plugins: vueTsxPro(
 页面组件收到 `query` 属性（跳转时带的参数，已解码）。页面级的回调与跳转：`onPageShow`、`onPageHide`、`onReachBottom`（在 H5 里调用什么也不做），
 `navigateTo('detail', { id: 42 })`、`redirectTo`、`reLaunch`、`navigateBack`（按 definePages 的页面名）。
 
-完整的例子是 `apps/mobile-demo`（`node build.ts` 两端都构建，`pnpm dev` 看 H5）。
+开发时用 `watchMini(options, onBuild)`：依赖（Vue、运行时、组件库）单独打成 `vtp-vendor.js`，只在依赖的列表变了时重打；
+改了源码只重打应用自己的代码（约 0.3–0.5 s，带源码映射），开发者工具看到产物变了会自己重新编译。
+
+完整的例子是 `apps/mobile-demo`（`node build.ts` 两端都构建，`pnpm dev:mini` 监听微信端，`pnpm dev` 看 H5）。
 
 ## 验证与踩过的坑
 

@@ -134,8 +134,12 @@ function compiler(options: VueTsxProOptions): Plugin & VitestHooks {
     configureServer() {
       pool?.warm(2);
     },
-    // 构建结束、服务器关闭时停掉编译线程；多环境构建每个环境都会走到这里，正在编译的线程做完手上的再停（见 pool.ts）
+    // 构建结束、服务器关闭时停掉编译线程；多环境构建每个环境都会走到这里，正在编译的线程做完手上的再停（见 pool.ts）。
+    // 监听模式（build --watch）每次重打完也会走到这里：留着线程，下次重打不用再载入编译器，监听停止时再停
     closeBundle() {
+      if (!this.meta.watchMode) pool?.close();
+    },
+    closeWatcher() {
       pool?.close();
     },
     resolveId: (id) => (id === SSR_REGISTER_ID ? SSR_REGISTER_RESOLVED : undefined),

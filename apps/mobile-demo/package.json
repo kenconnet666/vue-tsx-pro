@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite --configLoader native",
     "build": "node build.ts",
+    "dev:mini": "node build.ts wx --watch",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo"
   },
   "dependencies": {
