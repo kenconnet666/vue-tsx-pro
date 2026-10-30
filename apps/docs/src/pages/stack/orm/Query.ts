@@ -23,6 +23,14 @@ export default ormChapter({
   .toList();`,
     },
     {
+      id: 'scope',
+      title: '可复用的通用条件',
+      text: '`defineScope` 只声明条件依赖的列，任何有这些列的实体都能 `apply`；实体缺列、参数类型不对都是类型错误。',
+      code: `const ofTenant = defineScope<{ tenantId: number }, [tenantId: number]>((row, id) => row.tenantId.eq(id));
+await db.queryable(Order).apply(ofTenant, 7).toList();
+db.queryable(Company).apply(ofTenant, 7); // 类型错误：Company 没有 tenantId 列`,
+    },
+    {
       id: 'group',
       title: '分组、聚合、HAVING、ROLLUP',
       code: `db.queryable(Post)
