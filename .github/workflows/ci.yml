@@ -277,3 +277,14 @@ jobs:
           done
           exit 1
       - run: pnpm test:consumer
+
+  # 移动端：微信、支付宝两端的小程序产物构建得出来，支付宝的产物用 minidev 离线编译一遍
+  #（WXML / WXSS 的编译检查要用微信开发者工具，只有 Windows 与 macOS 版，在本地做）
+  mini:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - run: pnpm --filter @zerodep-dev/vue-tsx-pro-tsx --filter @zerodep-dev/vue-tsx-pro-mobile build
+      - run: pnpm --filter @vue-tsx-pro/mobile-demo build
+      - run: pnpm dlx minidev@2.2.5 build -p apps/mobile-demo/dist/my -o "${{ runner.temp }}/minidev" --machine-output
