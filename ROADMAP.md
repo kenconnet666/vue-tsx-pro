@@ -741,6 +741,8 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
       `requiredPrivateInfos`（原样写入，模糊与精确位置的接口同时声明时构建报错）
 - [ ] 20.7 真机与模拟器验证：两端的授权弹窗与设置页往返、隐私协议弹窗、手机号与头像按钮、支付（要商户号）、订阅消息；
       支付宝的麦克风、蓝牙 authSetting 键名与订阅消息返回结构按实测修正
+      （微信真机（安卓）已测：五项权限的申请与状态、存储重开后读回、昵称键盘、假参数支付报错；真机上暴露并修了点击丢失——
+      按下、松开被 catch 后不再产生 tap，模拟器与自动化接口测不出，改成冒泡绑定。待测：拒绝后去设置页往返、登录、手机号、头像、订阅、隐私协议；支付宝真机）
 - [x] 20.8 演示页“能力”与文档站“能力与权限”页：三端差异表、后台要开通的项目（支付、手机号、模糊定位、隐私指引声明）（mobile-demo 的 capabilities 页；文档站 /mobile/capabilities；微信模拟器里位置授权弹窗带着 app.json 的用途说明弹出）
 
 ## 阶段 21：移动端打成原生应用（Capacitor，iOS / Android）
@@ -755,8 +757,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       AndroidManifest.xml 与 Info.plist 写好权限与用途说明
 - [x] 21.3 CI（`.github/workflows/app.yml`）：安卓出调试 APK 并在模拟器里装上、打开、截图，WebView 控制台报错算失败；
       iOS 在 macOS 26 上出模拟器包，同样装上、打开、截图
-- [ ] 21.4 发布：安卓签名的 AAB、iOS 签名的 IPA（证书、描述文件、keystore 放进 CI 的密钥），上传到商店或测试渠道（流水线已就绪：每次构建 AAB——有正式密钥就签名上传、没有用临时密钥验证能签；iOS 每次做设备归档，有证书与描述文件时签名导出 IPA；标签 app-v* 定版本。要放的 secrets 见 apps/mobile-demo/README.md。差真的密钥与商店上传）
-- [ ] 21.5 原生体验：状态栏跟随主题、键盘弹起时的布局、启动图与图标、打开系统设置页（社区插件）、App 里的微信 / 支付宝支付与登录（各自的 App SDK）（状态栏已跟随主题：宿主的 themeChanged，最外层 ConfigProvider 通知；演示在 App 里顶上加带返回的导航栏，iOS 没有返回键、内容不再顶进状态栏）
+- [ ] 21.4 发布：安卓签名的 AAB、iOS 签名的 IPA（证书、描述文件、keystore 放进 CI 的密钥），上传到商店或测试渠道（流水线已就绪：每次构建 AAB——有正式密钥就签名上传、没有用临时密钥验证能签；iOS 每次做设备归档，有证书与描述文件时签名导出 IPA；标签 app-v* 定版本。要放的 secrets 见 apps/mobile-demo/README.md。安卓上传密钥已放进 secrets，CI 出的 AAB 证书指纹与本地密钥一致；差 iOS 证书（要 Apple 开发者账号）与商店上传）
+- [ ] 21.5 原生体验：状态栏跟随主题、键盘弹起时的布局、启动图与图标、打开系统设置页（社区插件）、App 里的微信 / 支付宝支付与登录（各自的 App SDK）（状态栏已跟随主题：宿主的 themeChanged，最外层 ConfigProvider 通知；演示在 App 里顶上加带返回的导航栏，iOS 没有返回键、内容不再顶进状态栏；占位图标与启动图（含暗色）由 assets/logo.svg 生成，pnpm cap:assets）
 
 ## 阶段 22：可插拔的前端存储与缓存（`@zerodep-dev/storage`）
 
