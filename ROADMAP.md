@@ -602,8 +602,8 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
       Web 版在 mobile 里，小程序版在 mini 里（17.2.4），经 `Symbol.for('vue-tsx-pro.host')` provide 对接，互不导入
 - [x] 17.1.5 mobile 包的组件规范文档（对标 COMPONENTS.md）：上面的写法约束、命名与 API 约定、完成标准；
       检查元素与样式条件的白名单（`packages/mobile/MOBILE.md`；`scripts/structure/mobile-rules.mjs` 进 `pnpm layers:check`）
-- [ ] 17.1.6 测试底座：单测（happy-dom）；小程序渲染测试（mini 导出页面测试工具：挂组件、按路径应用 setData、断言数据树与行内样式）；
-      H5 浏览器测试（Vitest 浏览器模式，手机视口、触摸事件）；三端截图脚本（H5 用 Playwright，微信用开发者工具的截图，支付宝用 minidev 加截图）（单测与小程序渲染测试已做：`@zerodep-dev/vue-tsx-pro-mini/testing`）
+- [x] 17.1.6 测试底座：单测（happy-dom）；小程序渲染测试（mini 导出页面测试工具：挂组件、按路径应用 setData、断言数据树与行内样式）；
+      H5 浏览器测试（Vitest 浏览器模式，手机视口、触摸事件）；三端截图脚本（H5 用 Playwright，微信用开发者工具的截图，支付宝用 minidev 加截图）（单测与小程序渲染测试：`@zerodep-dev/vue-tsx-pro-mini/testing`；浏览器测试在 mobile-demo 的 `test/*.browser.test.tsx`，Chromium 与 WebKit 带触摸屏；截图脚本 mobile-demo 的 `screenshots.ts`，支付宝没有命令行截图，手动截）
 
 ### 17.2 小程序运行时补全（packages/mini）
 

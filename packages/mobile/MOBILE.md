@@ -89,6 +89,9 @@
 
 一个组件算完成：API 对照 Vant 4、NutUI、TDesign Mobile、antd-mobile 取舍过（写在 §11）；三端（H5、微信、支付宝）截图一致；
 有单测（H5，happy-dom）与小程序渲染测试（`@zerodep-dev/vue-tsx-pro-mini/testing` 的 `mountPage`）；亮暗两套主题都看过；演示页示例饱满。
+靠排版与真实触摸的行为（浮层贴边、滑动按量出的尺寸停住、滚轮按行高对齐）放在 `apps/mobile-demo/test/*.browser.test.tsx`
+（Chromium 与 WebKit，手机视口、触摸屏，`pnpm --filter @vue-tsx-pro/mobile-demo test:browser`）。
+截图：`apps/mobile-demo` 里 `node screenshots.ts [h5|wx]`（H5 用 Playwright，微信用开发者工具的 wechatide CLI；支付宝手动截）。
 
 ## 10. 已知限制
 
