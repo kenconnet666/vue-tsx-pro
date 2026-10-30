@@ -9,6 +9,7 @@ import { ProductPage } from './ProductPage.tsx';
 import { CheckoutPage } from './CheckoutPage.tsx';
 import { CitiesPage } from './CitiesPage.tsx';
 import { PickersPage } from './PickersPage.tsx';
+import { CapabilitiesPage } from './CapabilitiesPage.tsx';
 
 export const DEMO_PAGES = {
   index: BasicsPage,
@@ -21,6 +22,7 @@ export const DEMO_PAGES = {
   checkout: CheckoutPage,
   cities: CitiesPage,
   pickers: PickersPage,
+  capabilities: CapabilitiesPage,
 };
 
 /** 演示页的名字 */

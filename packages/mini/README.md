@@ -44,6 +44,11 @@ export default defineMiniConfig({ plugins: vueTsxPro(), appId: 'wx…', darkmode
 监听模式（`vtp-mini dev`、`watchMini`）：依赖（Vue、运行时、组件库）单独打成 `vtp-vendor.js`，只在依赖的列表变了时重打；
 改了源码只重打应用自己的代码（约 0.3–0.5 s，带源码映射），开发者工具看到产物变了会自己重新编译。
 
+授权类能力（`capability.ts`）是宿主约定的一部分：设备权限按微信的 scope、支付宝的 authSetting 查与申请，存储、登录、
+支付、订阅消息、手机号按两端各自的接口调用，支付结果统一成 success / cancel / pending / fail；微信的隐私协议回调交给组件库的弹窗。
+带 `open-type` 的 button 换成原生按钮模板（`btn`），平台事件统一成 `opentype`。`mini.config.ts` 的 `permissions`（位置权限的用途说明）
+与 `requiredPrivateInfos` 写进微信的 app.json。
+
 完整的例子是 `apps/mobile-demo`（`node build.ts` 两端都构建，`pnpm dev:mini` 监听微信端，`pnpm dev` 看 H5）。
 
 ## 验证与踩过的坑

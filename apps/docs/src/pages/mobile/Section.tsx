@@ -38,33 +38,38 @@ const styles = css.create({
   caption: { fontSize: '_sm', color: '_textMuted', textAlign: 'center' },
 });
 
+/** 手机外框里跑 mobile-demo 的一页（H5），旁边是它在微信里的截图（public/mobile/wx/<demo>.png） */
+export const PhoneStage = _component(({ demo, title }: { demo: string; title: string }) => () => (
+  <Flex sx={styles.stage}>
+    <figure {...css.attrs(styles.figure)}>
+      <div {...css.attrs(styles.phone)}>
+        <iframe
+          {...css.attrs(styles.frame)}
+          src={`/mobile-frame.html#${demo}`}
+          title={`${title}：H5 演示`}
+          loading="lazy"
+        />
+      </div>
+      <figcaption {...css.attrs(styles.caption)}>H5（可以点、可以滑）</figcaption>
+    </figure>
+    <figure {...css.attrs(styles.figure)}>
+      <img
+        {...css.attrs(styles.shot)}
+        src={`/mobile/wx/${demo}.png`}
+        alt={`${title}：微信小程序截图`}
+        loading="lazy"
+      />
+      <figcaption {...css.attrs(styles.caption)}>微信小程序（同一份页面代码）</figcaption>
+    </figure>
+  </Flex>
+));
+
 /** 一组的页面 */
 function sectionView(section: MobileSection): Component {
   const meta = { title: section.title, description: section.description };
   return _component(() => () => (
     <DocPage meta={meta} imports="import { … } from '@zerodep-dev/vue-tsx-pro-mobile';" wide>
-      <Flex sx={styles.stage}>
-        <figure {...css.attrs(styles.figure)}>
-          <div {...css.attrs(styles.phone)}>
-            <iframe
-              {...css.attrs(styles.frame)}
-              src={`/mobile-frame.html#${section.demo}`}
-              title={`${section.title}：H5 演示`}
-              loading="lazy"
-            />
-          </div>
-          <figcaption {...css.attrs(styles.caption)}>H5（可以点、可以滑）</figcaption>
-        </figure>
-        <figure {...css.attrs(styles.figure)}>
-          <img
-            {...css.attrs(styles.shot)}
-            src={`/mobile/wx/${section.demo}.png`}
-            alt={`${section.title}：微信小程序截图`}
-            loading="lazy"
-          />
-          <figcaption {...css.attrs(styles.caption)}>微信小程序（同一份页面代码）</figcaption>
-        </figure>
-      </Flex>
+      <PhoneStage demo={section.demo} title={section.title} />
       <Flex direction="column" gap="md">
         <H2 id="components" size="xl" anchor>
           组件

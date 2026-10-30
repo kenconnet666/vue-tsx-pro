@@ -68,7 +68,9 @@ const THEMES = { light: null, dark: darkTheme, system: systemTheme } as const;
 /** 全局配置：主题与语言；根元素是一个 div，后面是命令式反馈的出口 */
 export const ConfigProvider = _component(
   ({ theme = 'light', lang = zhCN, host, children, ...rest }: ConfigProviderProps) => {
-    if (host) provide(HOST_KEY, { ...useHost(), ...host });
+    // 只在创建时读：换宿主能力要重建页面
+    const override = _untrack(host);
+    if (override) provide(HOST_KEY, { ...useHost(), ...override });
     // 嵌套时只有最外层渲染出口，否则同一条提示会出现两次
     const outermost = ConfigContext.inject(null) === null;
     ConfigContext.provide({

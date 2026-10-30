@@ -184,6 +184,12 @@ const mobile: NavSection = {
         default: (await import('../pages/mobile/Section')).sectionPage(demo),
       }),
     })),
+    {
+      path: '/mobile/capabilities',
+      title: 'Capabilities 能力与权限',
+      description: '设备权限、存储、登录与手机号、支付、订阅消息、隐私协议的三端用法与差异',
+      component: () => import('../pages/mobile/Capabilities'),
+    },
   ],
 };
 

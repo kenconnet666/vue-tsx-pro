@@ -64,6 +64,9 @@
 - 测量在小程序里只能异步：需要尺寸的组件（浮层定位、滑块、吸顶）按 `await host.measure(元素)` 写。
 - 安全区用 CSS 的 `env(safe-area-inset-bottom)`，两端都支持，不经宿主。
 - 不直接用 `requestAnimationFrame`：微信的逻辑层里它不可用，而且逻辑层的一帧不代表视图层画好了。进场动画经 `host.nextFrame`（`utils/presence.ts`）。
+- 授权类能力（`capability/`）也在宿主上：`permissions`（位置、相机、麦克风、相册、蓝牙）、`storage`、`login`、`phoneNumber`、`pay`、
+  `subscribe`、`onPrivacyRequest`。组件里用 `usePermission`、`useStorage`；只能由用户点原生按钮触发的（手机号、头像、隐私协议同意）
+  用 Button 的 `openType`。H5 没有的（平台登录）由应用经 ConfigProvider 的 `host` 补上。三端差异见文档站“能力与权限”页。
 
 ## 6. 元素与浮层
 

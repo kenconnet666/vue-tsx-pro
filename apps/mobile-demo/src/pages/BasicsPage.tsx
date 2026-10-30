@@ -91,6 +91,12 @@ export const BasicsPage = _component(() => {
           arrow
           onClick={() => go('pickers')}
         />
+        <Cell
+          title="能力与权限"
+          description="位置、相机等权限，存储，登录、手机号、头像，支付，订阅消息，隐私协议"
+          arrow
+          onClick={() => go('capabilities')}
+        />
       </CellGroup>
       <CellGroup title="按钮">
         <div {...css.attrs(styles.section)}>
