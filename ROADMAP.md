@@ -784,6 +784,25 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       `createRenderer({ invalidation })` 开 `GET /_invalidation`（SSE），浏览器 `listenInvalidation`
 - [ ] 22.10 以后：IndexedDB 的索引与范围查询
 
+## 阶段 23：分布式缓存与最终一致（浏览器 → 本机内存 → Redis → 数据库）
+
+目标（用户 2026-10-30 定）：多个后端实例各有本机内存缓存、共用 Redis，浏览器还有一层；失效经消息通道传到每个实例与它连着的浏览器，
+通道留成接口，用户接自己的 MQ。一致性的保证写清楚：经 ORM 的写入提交后，各层在"消息送达"与"过期时间"两者较早的那个时间内变新，
+消息丢了靠过期时间兜底；要强一致的数据不放本机层与浏览器。实测用 WSL 里的 PG 17 与 Redis 8.2（compose 的 redis 服务，CI 的 db job 同样起一个）。
+
+- [x] 23.1 消息通道：`createBus(transport)`（每个实例一个来源标记，收消息时知道是不是自己发的；消息按传输的大小上限切开）；
+      传输只要 `send(text)` 与 `listen(onText, onReset)` 两个方法：内置 `memoryTransport()`（进程内、测试）、`redisTransport`（发布订阅，
+      ioredis 形状）、PG 包的 `pgTransport(pool)`（NOTIFY / LISTEN，断线自己重连并报 reset）；Kafka、RabbitMQ 等按文档的示例自己接
+- [x] 23.2 多级存储：`redisStore(redis)`（HSET + PEXPIRE）、`tieredStore({ local, shared, localTtlMs })`（先本机、再共享，共享命中时回填本机，
+      本机的过期时间更短）；`createCache({ bus })`：提交后删本机与共享层并发消息，别的实例收到后只删本机层（`evictLocal`）
+- [x] 23.3 一致性的细节：写回守卫（读库前记下代数，期间这个键被失效过就不写回，挡住"读到旧值后写回"）、`lateEvictMs`（提交后隔一会儿再删一次并再发消息，
+      挡住从库延迟与慢请求）、通道断过（reset）时清空本机层；`tableChanges(bus)` 把表的变更也发进通道
+- [x] 23.4 kit：推送由消息通道驱动（每个实例收到后推给连着自己的浏览器），`hub.reset()` 让浏览器全部失效
+- [x] 23.5 发件箱：`outboxTable()` 建表，`createCache({ outbox })` 与 `tableChanges(bus, { outbox })` 把消息和写入在同一个事务里落一行
+      （核心的 afterWrite 事件加 `execute(statement)`，在写入所在的连接上执行），`relayOutbox` 按顺序发出再删；提交后照样马上发一次，发件箱保底
+- [x] 23.6 实测：两个实例共用 PG 与 Redis，一个写入后另一个的本机层、Redis 与浏览器都变新；PG 的监听连接被断开后重连并 reset；
+      全栈示例接上失效推送，端到端测试里一个页面添加待办、另一个页面的缓存数据自动刷新
+
 ## 已知局限（有意的取舍，写在文档里）
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）

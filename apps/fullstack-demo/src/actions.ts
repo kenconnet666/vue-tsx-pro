@@ -14,6 +14,14 @@ export const actions = defineActions({
     },
     async ({ title }) => Number(await db.insert(Todo).values({ title, done: false }).returnId()),
   ),
+  // 待办页的统计：浏览器把结果存进前端缓存，t_todo 改了（任何页面、任何人）由失效推送让它重新取
+  todoStats: defineAction({ input: z.object({}), permission: 'todo.read' }, async () => ({
+    total: await db.queryable(Todo).count(),
+    done: await db
+      .queryable(Todo)
+      .where((t) => t.done.eq(true))
+      .count(),
+  })),
   toggleTodo: defineAction(
     { input: z.object({ id: z.number().int(), done: z.boolean() }), permission: 'todo.write' },
     ({ id, done }) =>

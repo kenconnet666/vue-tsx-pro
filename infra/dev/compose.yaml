@@ -4,7 +4,7 @@
 # MySQL 8.0.18（PolarDB 基线）放在 polardb profile 里：本地实库测试只跑 8.4，基线由 CI 的 8.0.18 服务容器把关，要在本机复现时再启动。
 #
 # 用法：在仓库根目录执行（Windows 下前面加 `wsl -d Debian --`）
-#   bash infra/dev/db.sh up -d                    # MySQL 8.4、PG 17
+#   bash infra/dev/db.sh up -d                    # MySQL 8.4、PG 17、Redis 8.2（二级缓存与失效消息，端口 26379）
 #   bash infra/dev/db.sh --profile polardb up -d  # 再加 MySQL 8.0.18（PolarDB 基线，端口 23318）
 #   bash infra/dev/db.sh --profile hana up -d     # 再加 HANA
 #   bash infra/dev/db.sh --profile mssql up -d    # 再加 SQL Server 2022（端口 21433）
@@ -100,6 +100,22 @@ services:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: [CMD, pg_isready, -h, 127.0.0.1, -U, postgres]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  # Redis 8.2：easy-query 二级缓存的共享存储（redisStore）与失效消息通道（redisTransport）的实测；只当缓存用，不落盘
+  redis:
+    image: redis:8.2.3-alpine@sha256:08ad0b1d280850169a790dba1393ff7a90aef951fc19632cf4d3ce4f78e679ba
+    restart: unless-stopped
+    mem_limit: 256m
+    environment:
+      REDISCLI_AUTH: ${VTP_REDIS_PASSWORD:?run infra/dev/db.sh to create .local/db.env}
+    command: [sh, -c, 'exec redis-server --requirepass "$$REDISCLI_AUTH" --save "" --appendonly no']
+    ports:
+      - '26379:6379'
+    healthcheck:
+      test: [CMD, redis-cli, ping]
       interval: 3s
       timeout: 3s
       retries: 20

@@ -1,6 +1,9 @@
 /**
  * 失效推送的服务端（见 invalidation.ts）：记下连着的浏览器，publish 的标签合并后以 SSE 事件推出去。
- * 事件编号是 `启动标记-序号`：浏览器重连时带上 Last-Event-ID，同一次启动、还在保留范围里的补发，否则发 reset
+ * 事件编号是 `启动标记-序号`：浏览器重连时带上 Last-Event-ID，同一次启动、还在保留范围里的补发，否则发 reset。
+ * 多实例部署时由消息通道驱动（easy-query-ts-cache 的 createBus），每个实例推给连着自己的浏览器：
+ *
+ *   await bus.subscribe((message) => hub.publish(message.tables), () => hub.reset());
  */
 
 /** createInvalidationHub 的选项 */
@@ -15,6 +18,8 @@ export interface InvalidationHubOptions {
 export interface InvalidationHub {
   /** 报出改了的标签（表名）：同一轮事件循环里报的合成一条，推给所有连着的浏览器 */
   publish(tags: readonly string[]): void;
+  /** 说不清漏了哪些（上游的消息通道断过）：连着的浏览器全部失效，之后重连带来的旧编号也按 reset 处理 */
+  reset(): void;
   /** 一个浏览器的 SSE 连接（createRenderer 在 GET /_invalidation 上调用它） */
   connect(request: Request): Response;
 }
@@ -29,8 +34,10 @@ const encoder = new TextEncoder();
 /** 建一个失效推送（每个服务端进程一个） */
 export function createInvalidationHub(options: InvalidationHubOptions = {}): InvalidationHub {
   const { history = 500, heartbeat = 25_000 } = options;
-  // 每次启动不同：重连带来的编号是上一次启动的，说明中间可能漏了
-  const epoch = Date.now().toString(36);
+  // 每次启动（与每次 reset）不同：重连带来的编号是之前的，说明中间可能漏了
+  const started = Date.now().toString(36);
+  let resets = 0;
+  let epoch = started;
   const clients = new Set<(text: string) => void>();
   const sent: Sent[] = [];
   let seq = 0;
@@ -55,7 +62,7 @@ export function createInvalidationHub(options: InvalidationHubOptions = {}): Inv
     const after = Number(lastSeq);
     const oldest = sent[0]?.seq ?? seq + 1;
     if (lastEpoch !== epoch || !Number.isInteger(after) || after < oldest - 1) {
-      return `id: ${epoch}-${seq}\nevent: reset\ndata: \n\n`;
+      return resetFrame();
     }
     return sent
       .filter((item) => item.seq > after)
@@ -63,7 +70,15 @@ export function createInvalidationHub(options: InvalidationHubOptions = {}): Inv
       .join('');
   }
 
+  const resetFrame = () => `id: ${epoch}-${seq}\nevent: reset\ndata: \n\n`;
+
   return {
+    reset() {
+      epoch = `${started}x${++resets}`;
+      sent.length = 0;
+      const text = resetFrame();
+      for (const send of clients) send(text);
+    },
     publish(tags) {
       if (tags.length === 0) return;
       if (!pending) {

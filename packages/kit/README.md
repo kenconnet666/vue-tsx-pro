@@ -31,4 +31,5 @@ startClient(app);
 服务端的写入报出改了的表（easy-query-ts-cache 的 `tableChanges`），`createInvalidationHub()` 把同一轮里的合成一条、经 SSE（`GET /_invalidation`）
 推给连着的浏览器；浏览器里 `listenInvalidation` 收到后让前端缓存（`@zerodep-dev/storage`）按表名标签失效，正显示着的 `useRequest` 自动重新请求。
 断线重连时补发错过的；隔太久或服务端重启过时发 reset，浏览器全部失效。推出去的只有表名，不带数据。
-多实例部署时每个实例只看得到自己的写入：`tableChanges` 里改发到消息通道（PG 的 NOTIFY 等），各实例收到后各自 `hub.publish`。
+多实例部署时每个实例只看得到自己的写入：`tableChanges(bus)` 把变更发进消息通道（easy-query-ts-cache 的 `createBus`），
+每个实例订阅后推给连着自己的浏览器：`bus.subscribe((m) => hub.publish(m.tables), () => hub.reset())`；通道断过时 `hub.reset()` 让浏览器全部失效。

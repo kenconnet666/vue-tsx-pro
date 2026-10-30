@@ -73,12 +73,20 @@ async function checkPermissions(browser) {
   await list.getByText('整理采购台账').waitFor();
   assert.equal(await list.getByRole('listitem').count(), 2);
   assert.equal(await list.getByText('准备季度汇报').count(), 0, '看不到别的租户的');
+  // 前端缓存与失效推送：另一个页面的统计存在 IndexedDB 里，这边改了之后服务端推来 t_todo，它自己重新取
+  const other = await context.newPage();
+  await other.goto(`${base}/todos`, { waitUntil: 'networkidle' });
+  const otherStats = other.getByTestId('todo-stats');
+  await otherStats.getByText('共 2 条，已完成 1 条').waitFor();
   await page.getByRole('textbox', { name: '新的待办' }).fill('联系供应商');
   await page.getByRole('button', { name: '添加' }).click();
   await list.getByText('联系供应商').waitFor();
   await page.getByRole('button', { name: '添加' }).click();
   await page.getByText('写点什么').waitFor();
+  await otherStats.getByText('共 3 条，已完成 1 条').waitFor();
   await list.getByRole('checkbox', { name: '联系供应商' }).check();
+  await otherStats.getByText('共 3 条，已完成 2 条').waitFor();
+  await other.close();
   await page.reload({ waitUntil: 'networkidle' });
   assert.equal(await list.getByRole('checkbox', { name: '联系供应商' }).isChecked(), true);
 

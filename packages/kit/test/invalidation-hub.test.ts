@@ -90,4 +90,26 @@ describe('createInvalidationHub', () => {
     );
     for (const client of [resumed, stale, restarted]) client.close();
   });
+
+  it('reset()：连着的收到 reset；之前的编号作废，重连时也是 reset', async () => {
+    const hub = createInvalidationHub();
+    const live = connect(hub);
+    await tick();
+    hub.publish(['a']);
+    await tick();
+    const [before] = events(live.read()).map(([id]) => id!);
+    hub.reset();
+    await tick();
+    assert.deepEqual(
+      events(live.read()).map(([, name]) => name),
+      ['message', 'reset'],
+    );
+    const again = connect(hub, before);
+    await tick();
+    assert.deepEqual(
+      events(again.read()).map(([, name]) => name),
+      ['reset'],
+    );
+    for (const client of [live, again]) client.close();
+  });
 });
