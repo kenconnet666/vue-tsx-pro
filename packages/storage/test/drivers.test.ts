@@ -4,6 +4,8 @@ import { describe, it } from 'vitest';
 import {
   indexedDbDriver,
   memoryDriver,
+  miniProgramDriver,
+  type MiniProgramStorageApi,
   webStorageDriver,
   type StorageDriver,
 } from '../src/index.ts';
@@ -31,6 +33,34 @@ class MemoryStorage implements Storage {
   }
 }
 
+/**
+ * 小程序存储的假接口，照两家的差异：微信按位置传参、没有的键给 ''；支付宝包成 { key, data }、没有的键报错（错误码 11）。
+ * 单条超过 limit 个字符时写入报错（微信 1MB、支付宝 200KB，这里调小）
+ */
+function fakeMiniProgram(style: 'wx' | 'my', limit = Infinity) {
+  const items = new Map<string, unknown>();
+  const keyOf = (arg: unknown) => (style === 'my' ? (arg as { key: string }).key : (arg as string));
+  const api: MiniProgramStorageApi = {
+    getStorageSync(arg) {
+      const key = keyOf(arg);
+      if (style === 'wx') return items.get(key) ?? '';
+      if (!items.has(key)) throw Object.assign(new Error('no such key'), { error: 11 });
+      return { data: items.get(key) };
+    },
+    setStorageSync(arg, data) {
+      const [key, value] =
+        style === 'my' ? [keyOf(arg), (arg as { data: unknown }).data] : [keyOf(arg), data];
+      if (typeof value === 'string' && value.length > limit)
+        throw new Error('setStorageSync:fail exceed');
+      items.set(key, value);
+    },
+    removeStorageSync: (arg) => void items.delete(keyOf(arg)),
+    getStorageInfoSync: () => ({ keys: [...items.keys()] }),
+    clearStorageSync: () => items.clear(),
+  };
+  return { api, items };
+}
+
 let databases = 0;
 /** 每个用例一个新库，互不影响 */
 const freshIndexedDb = () => indexedDbDriver({ name: `test-${++databases}`, fallback: null });
@@ -45,6 +75,11 @@ const drivers: [string, () => StorageDriver][] = [
     },
   ],
   ['indexedDbDriver', freshIndexedDb],
+  ['miniProgramDriver（微信写法）', () => miniProgramDriver({ api: fakeMiniProgram('wx').api })],
+  [
+    'miniProgramDriver（支付宝写法）',
+    () => miniProgramDriver({ api: fakeMiniProgram('my').api, style: 'my' }),
+  ],
 ];
 
 describe.each(drivers)('%s', (_name, open) => {
@@ -103,7 +138,7 @@ describe('webStorageDriver', () => {
       throw new DOMException('full', 'QuotaExceededError');
     };
     await assert.rejects(webStorageDriver({ storage: () => full }).set('big', 'x'), {
-      message: 'webStorage: cannot write "big" (storage full or disabled)',
+      message: 'webStorage: cannot write "big" (storage full, entry too large or disabled)',
     });
     const disabled = webStorageDriver({
       storage: () => {
@@ -111,7 +146,7 @@ describe('webStorageDriver', () => {
       },
     });
     await assert.rejects(disabled.get('k'), {
-      message: 'webStorage: web storage is not available',
+      message: 'webStorage: storage is not available',
     });
   });
 
@@ -127,6 +162,51 @@ describe('webStorageDriver', () => {
     await driver.set('at', new Date('2026-10-30T08:00:00Z'));
     assert.equal(storage.getItem('at'), 'D2026-10-30T08:00:00.000Z');
     assert.ok((await driver.get('at')) instanceof Date);
+  });
+});
+
+describe('miniProgramDriver', () => {
+  it('存 JSON 文字，与 mobile 的 useStorage、mini 的宿主存储同一种格式；前缀把数据分开', async () => {
+    const { api, items } = fakeMiniProgram('wx');
+    items.set('other', 'kept');
+    // useStorage 写进去的（JSON 文字）
+    items.set('app:history', JSON.stringify(['上海']));
+    const driver = miniProgramDriver({ api, prefix: 'app:' });
+    assert.deepEqual(await driver.get('history'), ['上海']);
+    await driver.set('draft', { title: '草稿' });
+    assert.equal(items.get('app:draft'), '{"title":"草稿"}');
+    await driver.clear();
+    assert.deepEqual([...items.keys()], ['other']);
+  });
+
+  it('别人直接存的对象、空字符串读不了，当作没有', async () => {
+    const { api, items } = fakeMiniProgram('wx');
+    items.set('object', { a: 1 });
+    const driver = miniProgramDriver({ api });
+    assert.equal(await driver.get('object'), undefined);
+    await driver.set('empty', '');
+    assert.equal(await driver.get('empty'), '');
+  });
+
+  it('超出单条上限时以带键名的错误失败', async () => {
+    const driver = miniProgramDriver({ api: fakeMiniProgram('my', 10).api, style: 'my' });
+    await assert.rejects(driver.set('big', 'x'.repeat(20)), {
+      message: 'miniProgram: cannot write "big" (storage full, entry too large or disabled)',
+    });
+  });
+
+  it('没给 api 时按全局对象找：支付宝的 my 用 { key, data } 写法；都没有时读写报错', async () => {
+    const { api, items } = fakeMiniProgram('my');
+    Reflect.set(globalThis, 'my', api);
+    try {
+      await miniProgramDriver().set('k', 1);
+      assert.deepEqual([...items.entries()], [['k', '1']]);
+    } finally {
+      Reflect.deleteProperty(globalThis, 'my');
+    }
+    await assert.rejects(miniProgramDriver().get('k'), {
+      message: 'miniProgram: storage is not available',
+    });
   });
 });
 

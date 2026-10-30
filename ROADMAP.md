@@ -773,7 +773,11 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] 22.4 与 easy-query 的钩子：`cacheStore(driver)` 把任意驱动变成二级缓存的 `CacheStore`（浏览器里跑 PGlite 时用）；
       `createCache` 的 `onEvict(keys)` 在失效时通知（转发给别的实例或推给前端）
 - [x] 22.5 共同的驱动用例（fake-indexeddb 跑 IndexedDB）、包文档；真实浏览器里跑过 IndexedDB 驱动（Date、Map 原样读回，load 合并，另一个标签页的写入与失效 watch 收到）
-- [ ] 22.6 以后：微信 / 支付宝存储驱动、mobile 的 `HostStorage` 转接成驱动、IndexedDB 的索引与范围查询
+- [x] 22.6 小程序存储驱动 `miniProgramDriver`：微信写法（wx、tt、qq、swan、ks、jd，uni / Taro 的同名封装）与支付宝写法（my、dd，`{ key, data }`），
+      没给 api 时按全局对象找；存 JSON 文字，与 mobile 的 `useStorage`、mini 的宿主存储同一种格式，彼此读得到，所以不另做 `HostStorage` 的转接；
+      localStorage 与小程序共用一层文字存储（前缀、编码、错误）；内存驱动在没有 structuredClone 的逻辑层退回 JSON。微信模拟器（基础库 3.17.5）里实测：
+      没有的键给 ''、读写、前缀清空、缓存的 load；支付宝按官方文档实现、单测覆盖，没在模拟器里跑
+- [ ] 22.7 以后：IndexedDB 的索引与范围查询
 
 ## 已知局限（有意的取舍，写在文档里）
 
