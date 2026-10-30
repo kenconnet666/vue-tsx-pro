@@ -41,6 +41,16 @@ export const schema = defineSchema(
       file: 'schema.ts',
     },
     {
+      id: 'brand',
+      title: '带品牌的主键与外键',
+      text: '`col.bigint().brand<\x27UserId\x27>()` 让值类型带上品牌：UserId 与 OrderId 不能混传，关系的 from / to 品牌对不上在定义处就报错。品牌只在类型里，运行时就是原来的值。',
+      code: `const Order = entity('t_order', {
+  id: col.bigint().primaryKey().generated().brand<'OrderId'>(),
+  customerId: col.bigint().brand<'CustomerId'>(),
+});
+db.queryable(Order).where((o) => o.customerId.eq(orderId)); // 类型错误：OrderId 不是 CustomerId`,
+    },
+    {
       id: 'modules',
       title: '按模块组合 schema',
       text: '大项目按模块各写一份 `defineSchema`，模块之间互不 import：`mergeSchemas` 在入口合成一份，跨模块的关系写在第二个参数里；`db.mount` 在运行时给已有的 Db 再挂一组，共用连接与事务。实体键或导航重名在调用处就报类型错误，错误里写出是哪个。',
