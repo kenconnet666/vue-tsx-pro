@@ -1,43 +1,68 @@
 {
   "name": "@zerodep-dev/vue-tsx-pro-mini",
-  "version": "0.0.0",
+  "version": "0.1.0-dev",
   "private": true,
   "description": "Render vue-tsx-pro components in WeChat and Alipay mini programs: a Vue renderer over setData with generic templates, runtime styles resolved inline",
   "license": "MIT",
   "type": "module",
+  "files": [
+    "dist"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kenconnet666/vue-tsx-pro.git",
+    "directory": "packages/mini"
+  },
+  "keywords": [
+    "vue",
+    "vue3",
+    "miniprogram",
+    "wechat",
+    "alipay",
+    "renderer",
+    "tsx"
+  ],
   "sideEffects": [
-    "./src/globals.ts"
+    "./src/globals.ts",
+    "./dist/globals.js"
   ],
   "exports": {
     ".": {
       "@vue-tsx-pro/source": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./globals": {
       "@vue-tsx-pro/source": "./src/globals.ts",
-      "default": "./src/globals.ts"
+      "types": "./dist/globals.d.ts",
+      "default": "./dist/globals.js"
     },
     "./testing": {
       "@vue-tsx-pro/source": "./src/testing.ts",
-      "default": "./src/testing.ts"
+      "types": "./dist/testing.d.ts",
+      "default": "./dist/testing.js"
     },
     "./build": {
       "@vue-tsx-pro/source": "./src/build/index.ts",
-      "default": "./src/build/index.ts"
-    }
+      "types": "./dist/build.d.ts",
+      "default": "./dist/build.js"
+    },
+    "./package.json": "./package.json"
   },
   "scripts": {
+    "build": "tsdown",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
     "test": "vitest run --configLoader native"
   },
   "peerDependencies": {
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
-    "vite": "catalog:",
-    "vue": "catalog:"
+    "vite": "^8.0.0",
+    "vue": "^3.5.0"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "tsdown": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
     "vitest": "catalog:",

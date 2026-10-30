@@ -285,6 +285,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm --filter @zerodep-dev/vue-tsx-pro-tsx --filter @zerodep-dev/vue-tsx-pro-mobile build
+      - run: pnpm --filter @zerodep-dev/vue-tsx-pro-tsx --filter @zerodep-dev/vue-tsx-pro-mobile --filter @zerodep-dev/vue-tsx-pro-mini build
       - run: pnpm --filter @vue-tsx-pro/mobile-demo build
       - run: pnpm dlx minidev@2.2.5 build -p apps/mobile-demo/dist/my -o "${{ runner.temp }}/minidev" --machine-output

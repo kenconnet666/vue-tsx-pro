@@ -1075,6 +1075,9 @@ importers:
       '@zerodep-dev/vue-tsx-pro-tsx':
         specifier: workspace:^
         version: link:../tsx
+      tsdown:
+        specifier: 'catalog:'
+        version: 0.23.1(typescript@7.1.0-beta)
       typescript:
         specifier: 'catalog:'
         version: 7.1.0-beta
