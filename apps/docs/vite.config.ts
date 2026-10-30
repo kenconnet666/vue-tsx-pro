@@ -8,17 +8,20 @@ import { demoSource } from './build/demo.ts';
 import { iconImports } from './build/icons.ts';
 import { docPages } from './build/pages.ts';
 
-/** 应用加载前按记住的主题设好页面底色，不先闪一下亮色 */
+/** 应用加载前按记住的主题设好页面底色，不先闪一下亮色；移动端演示（mobile-frame.html）用自己的主题，不加 */
 function themeBoot(): Plugin {
   return {
     name: 'docs:theme-boot',
-    transformIndexHtml: () => [
-      {
-        tag: 'script',
-        children: themeBootScript({ themes: builtinThemeBootColors }),
-        injectTo: 'head-prepend',
-      },
-    ],
+    transformIndexHtml: (_html, { path }) =>
+      path.endsWith('/mobile-frame.html')
+        ? []
+        : [
+            {
+              tag: 'script',
+              children: themeBootScript({ themes: builtinThemeBootColors }),
+              injectTo: 'head-prepend',
+            },
+          ],
   };
 }
 
@@ -98,7 +101,14 @@ export default defineConfig({
   build: {
     chunkSizeWarningLimit: 1000,
     // 桶文件（组件库入口、@lucide/icons）只编译真正用到的再导出模块：构建时少编译约四分之一的模块，产物不变
-    rolldownOptions: { experimental: { lazyBarrel: true } },
+    rolldownOptions: {
+      // 站点之外还有移动端页面里手机外框加载的演示（mobile-frame.html，单独一个文档）
+      input: {
+        index: resolve(import.meta.dirname, 'index.html'),
+        'mobile-frame': resolve(import.meta.dirname, 'mobile-frame.html'),
+      },
+      experimental: { lazyBarrel: true },
+    },
   },
   test: {
     name: 'docs',

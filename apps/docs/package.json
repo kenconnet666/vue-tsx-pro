@@ -42,6 +42,7 @@
     "@emotion/css": "catalog:",
     "@types/three": "catalog:",
     "@vitest/browser-playwright": "catalog:",
+    "@vue-tsx-pro/mobile-demo": "workspace:^",
     "axe-core": "catalog:",
     "happy-dom": "catalog:",
     "playwright": "catalog:",

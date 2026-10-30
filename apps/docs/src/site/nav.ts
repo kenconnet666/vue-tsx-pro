@@ -4,6 +4,7 @@
  */
 import componentPages from 'virtual:doc-pages';
 import type { Component } from 'vue';
+import { MOBILE_SECTIONS } from '../pages/mobile/sections';
 import { PLAYGROUND_PATH } from '../playground/share';
 import type { PageMeta } from './types';
 
@@ -165,6 +166,27 @@ const stack: NavSection = {
   ],
 };
 
+// 移动端：概览加上按演示页分的几组（sections.ts），分组页共用一个页面组件
+const mobile: NavSection = {
+  label: '移动端',
+  pages: [
+    {
+      path: '/mobile',
+      title: 'Mobile 移动端',
+      description: '同一份 TSX 页面跑在 H5、微信小程序、支付宝小程序：安装、构建、写法约束与测试',
+      component: () => import('../pages/mobile/Overview'),
+    },
+    ...MOBILE_SECTIONS.map(({ demo, title, description }) => ({
+      path: `/mobile/${demo}`,
+      title,
+      description,
+      component: async () => ({
+        default: (await import('../pages/mobile/Section')).sectionPage(demo),
+      }),
+    })),
+  ],
+};
+
 const componentSections: NavSection[] = CATEGORIES.map(([category, label]) => ({
   label,
   pages: componentPages
@@ -181,7 +203,7 @@ const componentSections: NavSection[] = CATEGORIES.map(([category, label]) => ({
 })).filter((section) => section.pages.length > 0);
 
 /** 侧栏的各组 */
-export const sections: NavSection[] = [guide, stack, ...componentSections];
+export const sections: NavSection[] = [guide, stack, mobile, ...componentSections];
 
 /** 所有页面，按侧栏顺序：翻页与搜索用 */
 export const allPages: NavPage[] = sections.flatMap((section) => section.pages);
