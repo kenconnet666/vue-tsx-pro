@@ -41,5 +41,15 @@ await db.syncTables();               // 执行 plan.statements（能放进事务
       title: '由表生成实体',
       text: '已有的库（例如从 Java 迁过来的表）不用手写一遍实体：`eqts pull --adapter ./db-adapter.ts --out src/schema.ts` 读库结构，生成 `entity()` 与带导航的 `defineSchema`；生成的实体与库再 `planSync` 一次是空计划。认不得的类型用 `.dbType(…)` 原样保留。',
     },
+    {
+      id: 'migrate',
+      title: '迁移历史',
+      text: '生产环境用迁移代替 syncTables：`eqts migrate generate` 对开发库算 planSync 写成迁移文件（可以手改），`eqts migrate up` 或 `db.migrate(migrations)` 按顺序执行还没执行过的，记进历史表；已经执行过的迁移被改了直接报错。',
+      code: `export default defineMigration({
+  id: '20261030083000_add_orders',
+  up: ['CREATE TABLE "t_order" (…)'],
+});
+await db.migrate([m1, m2]); // 返回这次执行的 id`,
+    },
   ],
 });
