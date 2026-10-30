@@ -7,8 +7,9 @@ android {
         applicationId "dev.zerodep.vuetsxpro.demo"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        // 版本由 CI 给（.github/workflows/app.yml）：versionCode 每次构建递增，versionName 取发版标签；本地构建用默认值
+        versionCode (System.getenv('APP_VERSION_CODE') ?: '1') as Integer
+        versionName System.getenv('APP_VERSION_NAME') ?: '1.0'
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,10 +17,25 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // release 的签名：密钥文件与口令从环境变量读（CI 的密钥解出来的临时文件），不进仓库；没有时 release 不签名
+    def keystore = System.getenv('ANDROID_KEYSTORE_FILE')
+    signingConfigs {
+        if (keystore) {
+            release {
+                storeFile file(keystore)
+                storePassword System.getenv('ANDROID_KEYSTORE_PASSWORD')
+                keyAlias System.getenv('ANDROID_KEY_ALIAS')
+                keyPassword System.getenv('ANDROID_KEY_PASSWORD')
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (keystore) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
