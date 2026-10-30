@@ -51,5 +51,13 @@ const reader = db.readonly();
 reader.insert(Order); // 类型错误：只读
 await request.run({ tenantId: 7 }, () => reader.queryable(Order).toList());`,
     },
+    {
+      id: 'observability',
+      title: '链路追踪、N+1 与慢查询',
+      text: '`statementSpans(tracer)` 给每条语句记一个 OpenTelemetry span（按数据库语义约定，不依赖 OTel 包）；开发环境的 `queryWatch` 在一个请求里同一条 SQL 反复执行（N+1）或单条太慢时报出来。',
+      code: `const watch = queryWatch({ repeat: 5, slowMs: 200 });
+const db = createDb({ schema, adapter, onExecute: [statementSpans(trace.getTracer('app')), watch.onExecute] });
+app.use((req, res, next) => watch.run(next));`,
+    },
   ],
 });

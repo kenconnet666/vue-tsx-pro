@@ -685,7 +685,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [x] 18.3.1 可复用的通用条件：泛型函数对所有带某些列的实体都能用（结构类型），例如按租户过滤
 - [x] 18.3.2 预编译查询：参数带类型，SQL 只渲染一次就缓存
 - [x] 18.3.3 只读 Db 与请求上下文：`db.readonly()`、从库在类型上没有写方法；AsyncLocalStorage 的类型化请求上下文交给拦截器
-- [ ] 18.3.4 可观测性：每条语句一个 OpenTelemetry span；开发环境报 N+1（同一请求里重复的同形语句）与慢查询
+- [x] 18.3.4 可观测性：每条语句一个 OpenTelemetry span；开发环境报 N+1（同一请求里重复的同形语句）与慢查询
 - [ ] 18.3.5 Serverless 与嵌入式驱动：Cloudflare D1、libSQL / Turso、Bun 的 sqlite、Neon serverless、PGlite（WASM 版 PG，单测不用容器）
 - [ ] 18.3.6 构建期导出查询：借仓库的 Babel 编译器把查询链渲染成 SQL 快照，用于评审与回归对比
 
