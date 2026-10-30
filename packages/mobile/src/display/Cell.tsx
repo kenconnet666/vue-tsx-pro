@@ -13,7 +13,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
-import { t } from '../theme/tokens';
+import { dividerImage, dividerLayout } from '../theme/divider';
 import { dataAttrs, hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 
 /** 箭头的方向 */
@@ -85,13 +85,11 @@ export const cellStyles = css.create({
     backgroundColor: '_surface',
     // 细线：从左边内边距处画到右边，最后一个不画（不用伪元素：小程序把样式展开成行内样式，伪元素进不去）
     backgroundImage: {
-      default: `linear-gradient(${t.colors.border}, ${t.colors.border})`,
+      default: dividerImage,
       ':last-child': 'none',
       '[data-no-divider]': 'none',
     },
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: `calc(100% - ${t.space.lg}) ${t.borderWidths.hairline}`,
-    backgroundPosition: 'right bottom',
+    ...dividerLayout,
   },
   clickable: {
     cursor: 'pointer',

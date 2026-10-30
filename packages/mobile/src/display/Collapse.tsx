@@ -14,7 +14,7 @@ import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
-import { t } from '../theme/tokens';
+import { dividerImage, dividerLayout } from '../theme/divider';
 import { dataAttrs, hasContent, mergeAttrs, type PartProps } from '../utils/props';
 
 /** 面板提供给各项的 */
@@ -43,12 +43,10 @@ export const collapseStyles = css.create({
   item: {
     // 项之间的细线（同 Cell），最后一项不画
     backgroundImage: {
-      default: `linear-gradient(${t.colors.border}, ${t.colors.border})`,
+      default: dividerImage,
       ':last-child': 'none',
     },
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: `calc(100% - ${t.space.lg}) ${t.borderWidths.hairline}`,
-    backgroundPosition: 'right bottom',
+    ...dividerLayout,
   },
   header: {
     boxSizing: 'border-box',

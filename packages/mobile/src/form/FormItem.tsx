@@ -13,7 +13,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
-import { t } from '../theme/tokens';
+import { dividerImage, dividerLayout } from '../theme/divider';
 import { dataAttrs, hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import { useForm, useFormItem, type FormLabelPositions, type FormRule } from './context';
 
@@ -70,12 +70,10 @@ export const formItemStyles = css.create({
     backgroundColor: '_surface',
     // 细线同 Cell：从左边内边距处画到右边，最后一项不画
     backgroundImage: {
-      default: `linear-gradient(${t.colors.border}, ${t.colors.border})`,
+      default: dividerImage,
       ':last-child': 'none',
     },
-    backgroundRepeat: 'no-repeat',
-    backgroundSize: `calc(100% - ${t.space.lg}) ${t.borderWidths.hairline}`,
-    backgroundPosition: 'right bottom',
+    ...dividerLayout,
   },
   top: { flexDirection: 'column', alignItems: 'stretch', gap: '0.4em' },
   center: { alignItems: 'center' },
