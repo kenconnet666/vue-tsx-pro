@@ -37,7 +37,7 @@ export default ormChapter({
     {
       id: 'trees',
       title: '对象树（include）',
-      text: '`toList` 写在 `select` 里得到嵌套列表：每层一条 SQL 取回再拼装，可以带条件、排序、每个父行的 limit；关联键为空串时不查子项。',
+      text: '`toList` 写在 `select` 里得到嵌套列表：默认每层一条 SQL 取回再拼装，可以带条件、排序、每个父行的 limit；关联键为空串时不查子项。PG 与 MySQL 8.0.14+ 上 `listStrategy(\x27json\x27)`（或 createDb 的同名选项）让孩子在库里聚合成 JSON，整棵树一条语句，预编译查询与流式读取也能带 toList。',
       code: `db.queryable(Company).select((c) => ({
   name: c.name,
   users: c.users.where((u) => u.age.ge(18)).orderBy((u) => u.id).limit(3).toList((u) => ({
