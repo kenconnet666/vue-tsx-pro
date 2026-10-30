@@ -13,11 +13,12 @@
  * granted、denied、prompt、prompt-with-rationale（相机的还有 limited）；Preferences 是异步的键值存储，启动时整个读进内存，之后同步读、写穿透。
  */
 import { App } from '@capacitor/app';
-import { SystemBars, SystemBarsStyle } from '@capacitor/core';
+import { Capacitor, SystemBars, SystemBarsStyle } from '@capacitor/core';
 import { Camera } from '@capacitor/camera';
 import { Clipboard } from '@capacitor/clipboard';
 import { Geolocation } from '@capacitor/geolocation';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { Keyboard, KeyboardStyle } from '@capacitor/keyboard';
 import { Preferences } from '@capacitor/preferences';
 import type { DevicePermission, DevicePermissionState, HostStorage } from '../capability/types';
 import { webPermissions } from '../capability/web';
@@ -37,6 +38,13 @@ const BAR_STYLES = {
   light: SystemBarsStyle.Light,
   dark: SystemBarsStyle.Dark,
   system: SystemBarsStyle.Default,
+} as const;
+
+/** 页面主题 → iOS 键盘的深浅色（安卓的键盘由输入法决定，插件不支持） */
+const KEYBOARD_STYLES = {
+  light: KeyboardStyle.Light,
+  dark: KeyboardStyle.Dark,
+  system: KeyboardStyle.Default,
 } as const;
 
 /** 设备权限 → 插件与它的权限名；麦克风没有官方插件，走 WebView 的 getUserMedia（外壳会转成系统授权） */
@@ -116,7 +124,10 @@ let backButtonHooked = false;
 
 /**
  * 原生应用的宿主能力：在浏览器的实现上换掉设备权限、存储、震动、剪贴板、选图；
- * 顺带接上安卓的返回键（页面能后退就后退，到头了退出应用），状态栏的文字颜色跟着页面主题。只在原生外壳里调用
+ * 顺带接上安卓的返回键（页面能后退就后退，到头了退出应用），状态栏的文字颜色、iOS 键盘的深浅色跟着页面主题。只在原生外壳里调用。
+ *
+ * 键盘弹起时的布局由外壳负责：安卓上 Capacitor 8 的 SystemBars 把键盘高度垫在 WebView 下面，
+ * iOS 上 Keyboard 插件的 resize: native 把 WebView 缩到键盘上面——两端页面都变矮，底部固定的元素与正在输入的框露在键盘上方
  */
 export async function createCapacitorHost(): Promise<Host> {
   if (!backButtonHooked) {
@@ -143,6 +154,8 @@ export async function createCapacitorHost(): Promise<Host> {
     },
     themeChanged(theme) {
       void SystemBars.setStyle({ style: BAR_STYLES[theme] });
+      if (Capacitor.getPlatform() === 'ios')
+        void Keyboard.setStyle({ style: KEYBOARD_STYLES[theme] });
     },
     copy: (text) => Clipboard.write({ string: text }),
     async chooseImages({ count }) {

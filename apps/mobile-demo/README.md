@@ -24,6 +24,10 @@ iOS / Android 应用里。页面在 `src/pages`，入口：H5 与原生应用是
 `android/app/src/main/AndroidManifest.xml` 与 `ios/App/App/Info.plist`。外壳里由 `main.ts` 换成插件版的宿主能力
 （`@zerodep-dev/vue-tsx-pro-mobile/capacitor`），并在顶上加带返回的导航栏。
 
+键盘弹起时页面变矮，输入框与底部固定的元素露在键盘上方：安卓由 Capacitor 8 的 SystemBars 自带，
+iOS 由 `@capacitor/keyboard` 的 `resize: native`（`capacitor.config.json`）。CI 的安卓模拟器里实测（`test/android-keyboard.sh`），
+iOS 模拟器在 CI 里弹不出软键盘，没有自动验证。
+
 图标与启动图是占位的：主色底上的白色标志（`assets/logo.svg`），换品牌素材时替换这个文件再跑 `pnpm cap:assets`。
 它用 npx 而不是 pnpm dlx：依赖的 sharp 0.32 要跑安装脚本下载原生库，pnpm 默认不跑。
 

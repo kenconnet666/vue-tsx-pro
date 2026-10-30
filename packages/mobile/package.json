@@ -57,6 +57,7 @@
     "@capacitor/core": "^8.0.0",
     "@capacitor/geolocation": "^8.0.0",
     "@capacitor/haptics": "^8.0.0",
+    "@capacitor/keyboard": "^8.0.0",
     "@capacitor/preferences": "^8.0.0",
     "@lucide/icons": "^1.59.0",
     "vue": "^3.5.0"
@@ -80,6 +81,9 @@
     "@capacitor/haptics": {
       "optional": true
     },
+    "@capacitor/keyboard": {
+      "optional": true
+    },
     "@capacitor/preferences": {
       "optional": true
     }
@@ -91,6 +95,7 @@
     "@capacitor/core": "catalog:",
     "@capacitor/geolocation": "catalog:",
     "@capacitor/haptics": "catalog:",
+    "@capacitor/keyboard": "catalog:",
     "@capacitor/preferences": "catalog:",
     "@lucide/icons": "catalog:",
     "@types/node": "catalog:",

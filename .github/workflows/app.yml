@@ -85,11 +85,15 @@ jobs:
           path: apps/mobile-demo/android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
-  # 在安卓模拟器里装上 APK、打开首页截图；页面里没被捕获的错误（WebView 控制台的 Uncaught）算失败
+  # 在安卓模拟器里装上 APK、打开首页截图；页面里没被捕获的错误（WebView 控制台的 Uncaught）算失败；
+  # 再验证键盘弹起时页面变矮（test/android-keyboard.sh）
   android-emulator:
     needs: android
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: apps/mobile-demo/test
       - uses: actions/download-artifact@v8
         with:
           name: android-apk
@@ -114,6 +118,7 @@ jobs:
             adb logcat -d -s Capacitor/Console:* Capacitor:* > android-logcat.txt
             # 只算没被捕获的错误：Capacitor 自己捕获后打出来的（如 Error injecting safe area CSS，时有时无）不算
             if grep "Uncaught" android-logcat.txt; then exit 1; fi
+            bash apps/mobile-demo/test/android-keyboard.sh
       - uses: actions/upload-artifact@v7
         if: always()
         with:

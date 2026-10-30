@@ -21,6 +21,7 @@
     "@capacitor/core": "catalog:",
     "@capacitor/geolocation": "catalog:",
     "@capacitor/haptics": "catalog:",
+    "@capacitor/keyboard": "catalog:",
     "@capacitor/ios": "catalog:",
     "@capacitor/preferences": "catalog:",
     "@lucide/icons": "catalog:",

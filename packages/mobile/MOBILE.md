@@ -69,6 +69,9 @@
   用 Button 的 `openType`。H5 没有的（平台登录）由应用经 ConfigProvider 的 `host` 补上。三端差异见文档站“能力与权限”页。
 - 原生应用（Capacitor 的 iOS / Android 外壳）是第五个宿主：平台是 `app`，DOM 照常用浏览器的，授权类能力换成插件版
   （子路径 `capacitor/`）。判断“有没有 DOM”用 `isMiniProgram(host)`，不要写 `platform === 'web'`。
+- 键盘弹起时组件不做处理，由外壳让页面变矮：安卓是 Capacitor 8 的 SystemBars（默认就把键盘高度垫在 WebView 下面），
+  iOS 是 Keyboard 插件的 `resize: native`；H5 在 viewport 里写 `interactive-widget=resizes-content`（安卓 Chrome 认，iOS Safari 不认）。
+  所以底部固定的元素照常写 `insetBlockEnd: 0`，不用自己量键盘高度。
 
 ## 6. 元素与浮层
 

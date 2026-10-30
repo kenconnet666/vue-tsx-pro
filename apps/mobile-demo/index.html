@@ -2,7 +2,11 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <!-- interactive-widget：安卓 Chrome 里键盘弹起时页面变矮（同原生外壳），底部固定的元素露在键盘上方；iOS Safari 不认 -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
     <title>vue-tsx-pro · 移动端</title>
     <style>
       body {

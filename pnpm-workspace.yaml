@@ -65,6 +65,7 @@ catalog:
   '@capacitor/clipboard': 8.0.1
   '@capacitor/geolocation': 8.2.4
   '@capacitor/haptics': 8.0.2
+  '@capacitor/keyboard': 8.0.6
   '@capacitor/preferences': 8.0.1
   # 表单校验（peer，使用方安装；scripts 里也用它校验数据）
   zod: 4.6.7

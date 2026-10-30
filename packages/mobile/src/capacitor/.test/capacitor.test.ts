@@ -10,6 +10,8 @@ const plugins = vi.hoisted(() => {
     backButton: undefined as undefined | ((event: { canGoBack: boolean }) => void),
     exitApp: vi.fn(),
     setStyle: vi.fn(async (_options: { style: string }) => {}),
+    keyboardStyle: vi.fn(async (_options: { style: string }) => {}),
+    platform: 'android',
   };
 });
 
@@ -47,8 +49,13 @@ vi.mock('@capacitor/haptics', () => ({
   ImpactStyle: { Light: 'LIGHT' },
 }));
 vi.mock('@capacitor/core', () => ({
+  Capacitor: { getPlatform: () => plugins.platform },
   SystemBars: { setStyle: plugins.setStyle },
   SystemBarsStyle: { Light: 'LIGHT', Dark: 'DARK', Default: 'DEFAULT' },
+}));
+vi.mock('@capacitor/keyboard', () => ({
+  Keyboard: { setStyle: plugins.keyboardStyle },
+  KeyboardStyle: { Light: 'LIGHT', Dark: 'DARK', Default: 'DEFAULT' },
 }));
 vi.mock('@capacitor/clipboard', () => ({ Clipboard: { write: vi.fn(async () => {}) } }));
 
@@ -101,6 +108,19 @@ describe('createCapacitorHost', () => {
     expect(plugins.setStyle.mock.calls.map(([options]) => options.style)).toEqual([
       'DARK',
       'DEFAULT',
+    ]);
+    // 安卓的键盘由输入法决定，不调
+    expect(plugins.keyboardStyle).not.toHaveBeenCalled();
+  });
+
+  it('iOS 上键盘的深浅色也跟着页面主题', async () => {
+    plugins.platform = 'ios';
+    const host = await createCapacitorHost();
+    host.themeChanged?.('dark');
+    host.themeChanged?.('light');
+    expect(plugins.keyboardStyle.mock.calls.map(([options]) => options.style)).toEqual([
+      'DARK',
+      'LIGHT',
     ]);
   });
 });

@@ -1,5 +1,10 @@
 {
   "appId": "dev.zerodep.vuetsxpro.demo",
   "appName": "vue-tsx-pro",
-  "webDir": "dist/h5"
+  "webDir": "dist/h5",
+  "plugins": {
+    "Keyboard": {
+      "resize": "native"
+    }
+  }
 }

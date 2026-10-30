@@ -760,7 +760,9 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] 21.3 CI（`.github/workflows/app.yml`）：安卓出调试 APK 并在模拟器里装上、打开、截图，WebView 控制台报错算失败；
       iOS 在 macOS 26 上出模拟器包，同样装上、打开、截图
 - [ ] 21.4 发布：安卓签名的 AAB、iOS 签名的 IPA（证书、描述文件、keystore 放进 CI 的密钥），上传到商店或测试渠道（流水线已就绪：每次构建 AAB——有正式密钥就签名上传、没有用临时密钥验证能签；iOS 每次做设备归档，有证书与描述文件时签名导出 IPA；标签 app-v* 定版本。要放的 secrets 见 apps/mobile-demo/README.md。安卓上传密钥已放进 secrets，CI 出的 AAB 证书指纹与本地密钥一致；差 iOS 证书（要 Apple 开发者账号）与商店上传）
-- [ ] 21.5 原生体验：状态栏跟随主题、键盘弹起时的布局、启动图与图标、打开系统设置页（社区插件）、App 里的微信 / 支付宝支付与登录（各自的 App SDK）（状态栏已跟随主题：宿主的 themeChanged，最外层 ConfigProvider 通知；演示在 App 里顶上加带返回的导航栏，iOS 没有返回键、内容不再顶进状态栏；占位图标与启动图（含暗色）由 assets/logo.svg 生成，pnpm cap:assets）
+- [ ] 21.5 原生体验：状态栏跟随主题、键盘弹起时的布局、启动图与图标、打开系统设置页（社区插件）、App 里的微信 / 支付宝支付与登录（各自的 App SDK）（状态栏已跟随主题：宿主的 themeChanged，最外层 ConfigProvider 通知；演示在 App 里顶上加带返回的导航栏，iOS 没有返回键、内容不再顶进状态栏；占位图标与启动图（含暗色）由 assets/logo.svg 生成，pnpm cap:assets；
+      键盘弹起时页面变矮：安卓靠 Capacitor 8 的 SystemBars、iOS 靠 Keyboard 插件 resize: native，H5 写 interactive-widget，
+      iOS 键盘的深浅色跟着主题，CI 的安卓模拟器里点输入框实测 WebView 变矮）
 
 ## 阶段 22：可插拔的前端存储与缓存（`@zerodep-dev/storage`）
 
