@@ -4,6 +4,10 @@ import { FeedbackPage } from './FeedbackPage.tsx';
 import { DisplayPage } from './DisplayPage.tsx';
 import { FormPage } from './FormPage.tsx';
 import { NavigationPage } from './NavigationPage.tsx';
+import { ShopPage } from './ShopPage.tsx';
+import { ProductPage } from './ProductPage.tsx';
+import { CheckoutPage } from './CheckoutPage.tsx';
+import { CitiesPage } from './CitiesPage.tsx';
 
 export const DEMO_PAGES = {
   index: BasicsPage,
@@ -11,6 +15,10 @@ export const DEMO_PAGES = {
   form: FormPage,
   display: DisplayPage,
   navigation: NavigationPage,
+  shop: ShopPage,
+  product: ProductPage,
+  checkout: CheckoutPage,
+  cities: CitiesPage,
 };
 
 /** 演示页的名字 */

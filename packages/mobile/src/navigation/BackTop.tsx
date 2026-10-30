@@ -9,7 +9,7 @@
 import { ArrowUp } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Teleport, onBeforeUnmount, type VNodeChild } from 'vue';
+import { Teleport, onBeforeUnmount, onMounted, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useConfig } from '../config/context';
 import { useHost } from '../utils/host';
@@ -68,7 +68,9 @@ export const BackTop = _component(
   ({ offset = 200, bottom = '6em', right = '1.25em', children, ...rest }: BackTopProps) => {
     const host = useHost();
     const config = useConfig();
-    let shown = _state(host.scrollTop() > offset);
+    let shown = _state(false);
+    // 挂上时按当前的位置判断一次（从别的页面返回时页面可能已经滚下去了）
+    onMounted(() => (shown = host.scrollTop() > offset));
     const stop = host.onScroll((top) => (shown = top > offset));
     onBeforeUnmount(stop);
     const presence = usePresence(() => shown, 240);

@@ -519,7 +519,7 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 - [x] 16.7.6 ClickHouse（`clickhouse/clickhouse-server` 25.8，驱动 `@clickhouse/client`）：只读分析为主，写入、事务按它的能力裁剪；带类型的 `{p1:Int64}` 参数（核心的 placeholder 收到绑定的值）
 - [x] 16.7.6b Apache Doris（官方没有，额外支持；MySQL 协议，`doris(pool)` 在 MySQL 包里）：主键模型建表、整行覆盖的 upsert、倒排索引；
       与 ClickHouse 共用主键由应用给值的分析型套件（`test/src/analytic.ts`），CI 单独一个 runner
-- [ ] 16.7.7 DB2（`icr.io/db2_community/db2`，驱动 `ibm_db`）
+- [x] 16.7.7 DB2（`icr.io/db2_community/db2` 12.1，驱动 `ibm_db`）：共用套件全绿（Linux；Windows 上 ibm_db 的 CLI 环境建不出来），CI 单独一个 runner
 - [ ] 16.7.8 TDengine 等时序库（官方 sql-tsdb）：先看官方支持到什么程度再定
 - [ ] 16.7.9 H2：JVM 内的库，Node 没有驱动——不适用，写进清单
 - [ ] 16.7.10 每种方言：共用实库套件全绿、方言专属函数入口（同 `MySQL.` / `Pg.` / `Hana.`）、建表类型映射、CI（大的放 nightly）
@@ -634,15 +634,15 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
       SwipeCell、PullRefresh、Skeleton（H5 与微信核对过；支付宝待下一轮截图）
 - [x] 17.4.3 表单：Field（输入框、多行、清除、字数）、Switch、Checkbox / CheckboxGroup、Radio / RadioGroup、Stepper、Rate、Slider、Search、
       Form（校验规则自己写，可接 zod）、Uploader（选择、预览、进度；小程序端经宿主约定）；另有 FormItem 放任意控件（H5 与微信核对过，支付宝离线编译通过）
-- [ ] 17.4.4 展示与导航：List（触底加载、错误重试）、Tabs（滑动切换、吸顶）、NavBar、TabBar、Grid、Collapse、Empty、Steps、NoticeBar、
-      Swiper、Sticky、IndexBar、BackTop
+- [x] 17.4.4 展示与导航：List（触底加载、错误重试）、Tabs（滑动切换、吸顶）、NavBar、TabBar、Grid、Collapse、Empty、Steps、NoticeBar、
+      Swiper、Sticky、IndexBar、BackTop（H5 与微信核对过；Swiper 的首尾相连是倒着滑回去，不复制首尾；Tabs 换标签时标题栏不自动滚到选中的那个）
 - [ ] 17.4.5 选择：Picker（滚轮、多列、联动）、DatePicker / TimePicker、Cascader、Calendar（单选、区间、多选）、DropdownMenu、
       Area（省市区数据单独一个子路径）
 
 ### 17.5 文档站与演示
 
 - [ ] 17.5.1 文档站加"移动端"分区：每个组件一页，H5 示例在手机外框里运行，旁边放微信、支付宝的截图（截图脚本生成）
-- [ ] 17.5.2 `apps/mini-demo` 改名 `apps/mobile-demo`：按组件分页面，加一个真实场景（列表 → 详情 → 表单提交），三端共用（改名已做）
+- [x] 17.5.2 `apps/mini-demo` 改名 `apps/mobile-demo`：按组件分页面，加一个真实场景（列表 → 详情 → 表单提交），三端共用（商城：触底加载与失败重试 → 详情选规格 → 确认订单校验提交；H5 按 hash 带参数，小程序按页面参数）
 
 ### 17.6 工程与发布
 

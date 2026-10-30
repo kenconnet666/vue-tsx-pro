@@ -35,6 +35,9 @@ export * from './display/NoticeBar';
 export * from './display/Grid';
 export * from './display/Collapse';
 export * from './display/Steps';
+export * from './display/List';
+export * from './display/Swiper';
+export * from './display/IndexBar';
 
 // 导航
 export * from './navigation/NavBar';

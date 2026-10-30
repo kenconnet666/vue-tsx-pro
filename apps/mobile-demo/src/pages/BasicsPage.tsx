@@ -46,6 +46,20 @@ export const BasicsPage = _component(() => {
           </RadioGroup>
         </div>
       </CellGroup>
+      <CellGroup title="真实场景">
+        <Cell
+          title="商城"
+          description="列表（触底加载、失败重试）→ 商品详情 → 确认订单提交"
+          arrow
+          onClick={() => go('shop')}
+        />
+        <Cell
+          title="城市列表"
+          description="索引栏：点字母或在字母栏上滑动"
+          arrow
+          onClick={() => go('cities')}
+        />
+      </CellGroup>
       <CellGroup title="更多演示">
         <Cell
           title="浮层与反馈"
