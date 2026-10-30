@@ -3,6 +3,8 @@
 *-audit.json
 node_modules
 **/dist/
+# 文档站预渲染用的服务端产物：正常构建完就删，构建中途失败时会留下
+**/dist-ssr/
 **/.output/
 *.tsbuildinfo
 coverage/
