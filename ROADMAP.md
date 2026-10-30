@@ -660,6 +660,35 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 已知的风险：微信新的 Skyline 渲染器先不支持（只做 WebView 渲染）；行内样式让 setData 变大，17.2.7 的基准不达标时退回"组件库自己的组合类构建时收集成静态样式"；
 原生输入框的层级与键盘顶起两端行为不同；微信模拟器收不到真实鼠标点击，交互验证用开发者工具的自动化。
 
+## 阶段 18：easy-query TS 用足 TS 的语言特性
+
+目标（用户 2026-10-30 定）：在对齐官方之后，用 TS 的类型系统把错误尽量提到编译期、把重复的定义收成一处；不引入代码生成。三批按顺序做，
+每项都要有类型测试（`expectTypeOf` / `@ts-expect-error`）、实库或 SQL 文本测试、文档站一节。
+
+### 18.1 第一批：动到 API 形状的（越早做越好）
+
+- [ ] 18.1.1 schema 组合：`mergeSchemas(a, b, 跨组关系)` 按模块各写各的再合成一份（实体、导航重名在类型上报错）；
+      `db.mount(schema)` 给已有的 Db 挂上另一组 schema，共用连接、拦截器、事务（事务里的 tx 也能 mount）
+- [ ] 18.1.2 方言能力进类型：adapter 带能力标记（写入、行锁、事务、returning、窗口、json 长度……），Db 与表达式的方法按能力有无；
+      TDengine 上 `update()`、ClickHouse 上 `lock()`、MySQL 上 `returning()` 在编辑器里就标红，运行时的报错留作兜底
+- [ ] 18.1.3 branded 主键与外键：`col.bigint().brand<'UserId'>()`，关系的 from / to 品牌对不上编译报错，`find(id)` 的参数跟着带品牌
+
+### 18.2 第二批：TS 特有、官方没有的能力
+
+- [ ] 18.2.1 多态实体：`entity.union('kind', { card: {…}, wechat: {…} })` 一张表存几种子类型，行是判别联合；按判别列过滤后结果类型收窄
+- [ ] 18.2.2 Standard Schema 互通：实体带插入 / 更新 / 整行的校验器（`~standard`，zod、valibot、arktype 直接用）；`col.json(schema)` 读写校验；
+      组件库的表单、框架的 action 共用这一份规则
+- [ ] 18.2.3 迁移历史：`eqts migrate generate` 由 planSync 生成带快照的迁移文件（改名、拆列可手改），`migrate up` 记历史表；生产环境用它代替 syncTables
+
+### 18.3 第三批：工程体验
+
+- [ ] 18.3.1 可复用的通用条件：泛型函数对所有带某些列的实体都能用（结构类型），例如按租户过滤
+- [ ] 18.3.2 预编译查询：参数带类型，SQL 只渲染一次就缓存
+- [ ] 18.3.3 只读 Db 与请求上下文：`db.readonly()`、从库在类型上没有写方法；AsyncLocalStorage 的类型化请求上下文交给拦截器
+- [ ] 18.3.4 可观测性：每条语句一个 OpenTelemetry span；开发环境报 N+1（同一请求里重复的同形语句）与慢查询
+- [ ] 18.3.5 Serverless 与嵌入式驱动：Cloudflare D1、libSQL / Turso、Bun 的 sqlite、Neon serverless、PGlite（WASM 版 PG，单测不用容器）
+- [ ] 18.3.6 构建期导出查询：借仓库的 Babel 编译器把查询链渲染成 SQL 快照，用于评审与回归对比
+
 ## 已知局限（有意的取舍，写在文档里）
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）
