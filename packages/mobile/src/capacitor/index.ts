@@ -13,6 +13,7 @@
  * granted、denied、prompt、prompt-with-rationale（相机的还有 limited）；Preferences 是异步的键值存储，启动时整个读进内存，之后同步读、写穿透。
  */
 import { App } from '@capacitor/app';
+import { SystemBars, SystemBarsStyle } from '@capacitor/core';
 import { Camera } from '@capacitor/camera';
 import { Clipboard } from '@capacitor/clipboard';
 import { Geolocation } from '@capacitor/geolocation';
@@ -30,6 +31,13 @@ type PluginState = 'granted' | 'denied' | 'prompt' | 'prompt-with-rationale' | '
 
 const stateOf = (state: PluginState | undefined): DevicePermissionState =>
   state === 'granted' || state === 'limited' ? 'granted' : state === 'denied' ? 'denied' : 'prompt';
+
+/** 页面主题 → 状态栏的样式：Dark 是深色底上的浅色文字，Default 跟着系统的深浅色 */
+const BAR_STYLES = {
+  light: SystemBarsStyle.Light,
+  dark: SystemBarsStyle.Dark,
+  system: SystemBarsStyle.Default,
+} as const;
 
 /** 设备权限 → 插件与它的权限名；麦克风没有官方插件，走 WebView 的 getUserMedia（外壳会转成系统授权） */
 async function status(name: DevicePermission): Promise<DevicePermissionState> {
@@ -108,7 +116,7 @@ let backButtonHooked = false;
 
 /**
  * 原生应用的宿主能力：在浏览器的实现上换掉设备权限、存储、震动、剪贴板、选图；
- * 顺带接上安卓的返回键（页面能后退就后退，到头了退出应用）。只在原生外壳里调用
+ * 顺带接上安卓的返回键（页面能后退就后退，到头了退出应用），状态栏的文字颜色跟着页面主题。只在原生外壳里调用
  */
 export async function createCapacitorHost(): Promise<Host> {
   if (!backButtonHooked) {
@@ -132,6 +140,9 @@ export async function createCapacitorHost(): Promise<Host> {
     storage: await preferencesStorage(),
     vibrate() {
       void Haptics.impact({ style: ImpactStyle.Light });
+    },
+    themeChanged(theme) {
+      void SystemBars.setStyle({ style: BAR_STYLES[theme] });
     },
     copy: (text) => Clipboard.write({ string: text }),
     async chooseImages({ count }) {

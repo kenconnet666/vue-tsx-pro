@@ -27,3 +27,18 @@ export const DEMO_PAGES = {
 
 /** 演示页的名字 */
 export type DemoPage = keyof typeof DEMO_PAGES;
+
+/** 页面标题：原生应用顶上的导航栏用（小程序的标题在 app.json，H5 在浏览器的标签上） */
+export const DEMO_TITLES: Record<DemoPage, string> = {
+  index: 'vue-tsx-pro',
+  feedback: '浮层与反馈',
+  form: '表单',
+  display: '展示',
+  navigation: '导航',
+  shop: '商城',
+  product: '商品详情',
+  checkout: '确认订单',
+  cities: '城市列表',
+  pickers: '选择',
+  capabilities: '能力与权限',
+};

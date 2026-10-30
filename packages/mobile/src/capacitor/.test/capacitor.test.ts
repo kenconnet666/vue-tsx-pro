@@ -1,4 +1,4 @@
-// 原生应用的宿主能力：插件的权限状态映射（含 limited、prompt-with-rationale）、Preferences 预读与写穿透、选图、返回键
+// 原生应用的宿主能力：插件的权限状态映射（含 limited、prompt-with-rationale）、Preferences 预读与写穿透、选图、返回键、状态栏
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const plugins = vi.hoisted(() => {
@@ -9,6 +9,7 @@ const plugins = vi.hoisted(() => {
     camera: { camera: 'prompt', photos: 'limited' },
     backButton: undefined as undefined | ((event: { canGoBack: boolean }) => void),
     exitApp: vi.fn(),
+    setStyle: vi.fn(async (_options: { style: string }) => {}),
   };
 });
 
@@ -44,6 +45,10 @@ vi.mock('@capacitor/app', () => ({
 vi.mock('@capacitor/haptics', () => ({
   Haptics: { impact: vi.fn() },
   ImpactStyle: { Light: 'LIGHT' },
+}));
+vi.mock('@capacitor/core', () => ({
+  SystemBars: { setStyle: plugins.setStyle },
+  SystemBarsStyle: { Light: 'LIGHT', Dark: 'DARK', Default: 'DEFAULT' },
 }));
 vi.mock('@capacitor/clipboard', () => ({ Clipboard: { write: vi.fn(async () => {}) } }));
 
@@ -87,5 +92,15 @@ describe('createCapacitorHost', () => {
     expect(image!.file?.name).toBe('photo-0.jpeg');
     plugins.backButton?.({ canGoBack: false });
     expect(plugins.exitApp).toHaveBeenCalled();
+  });
+
+  it('状态栏的文字颜色跟着页面主题：暗色用 DARK（深色底、浅色字），跟随系统用 DEFAULT', async () => {
+    const host = await createCapacitorHost();
+    host.themeChanged?.('dark');
+    host.themeChanged?.('system');
+    expect(plugins.setStyle.mock.calls.map(([options]) => options.style)).toEqual([
+      'DARK',
+      'DEFAULT',
+    ]);
   });
 });

@@ -1,7 +1,7 @@
 // 授权类能力：usePermission 的申请与拒绝后的引导、useStorage 写回、ConfigProvider 换掉宿主能力、
 // 开放能力按钮只在小程序里带属性、隐私协议弹窗的同意与拒绝
 import { describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { nextTick, reactive } from 'vue';
 import { Button } from '../../base/Button';
 import { ConfigProvider } from '../../config/ConfigProvider';
 import { useHost, webHost, type Host } from '../../utils/host';
@@ -85,6 +85,21 @@ describe('useStorage 与 ConfigProvider 的 host', () => {
     history.value = ['茶', ...history.value];
     await nextTick();
     expect(store.get('history')).toEqual(['茶', '咖啡']);
+  });
+
+  it('最外层 ConfigProvider 把主题告诉宿主，换主题时再告诉一次', async () => {
+    const themeChanged = vi.fn();
+    const settings = reactive({ theme: 'light' as 'light' | 'dark' });
+    mount(() => (
+      <WithHost host={{ themeChanged }}>
+        <ConfigProvider theme={settings.theme}>
+          <ConfigProvider theme="dark">内层</ConfigProvider>
+        </ConfigProvider>
+      </WithHost>
+    ));
+    settings.theme = 'dark';
+    await nextTick();
+    expect(themeChanged.mock.calls).toEqual([['light'], ['dark']]);
   });
 
   it('ConfigProvider 的 host 补上 H5 的登录，其余能力照旧', async () => {

@@ -15,7 +15,7 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { provide, type VNodeChild } from 'vue';
+import { provide, watch, type VNodeChild } from 'vue';
 import { FeedbackOutlet } from '../feedback/FeedbackOutlet';
 import { darkTheme, systemTheme } from '../theme/dark';
 import { HOST_KEY, useHost, type Host } from '../utils/host';
@@ -73,6 +73,15 @@ export const ConfigProvider = _component(
     if (override) provide(HOST_KEY, { ...useHost(), ...override });
     // 嵌套时只有最外层渲染出口，否则同一条提示会出现两次
     const outermost = ConfigContext.inject(null) === null;
+    // 最外层的主题告诉宿主（原生应用的状态栏跟着换）
+    if (outermost) {
+      const current = useHost();
+      watch(
+        () => theme,
+        (next) => current.themeChanged?.(next),
+        { immediate: true },
+      );
+    }
     ConfigContext.provide({
       get lang() {
         return lang;

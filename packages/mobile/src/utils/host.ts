@@ -92,6 +92,11 @@ export interface Host {
   onPrivacyRequest(listener: (reply: PrivacyReply) => void): () => void;
   /** 打开小程序的隐私协议页 */
   openPrivacyContract(): Promise<void>;
+  /**
+   * 页面的主题变了（最外层 ConfigProvider 通知）：原生应用里状态栏的文字颜色跟着换。
+   * H5 与小程序不用做什么（小程序的导航栏颜色写在 app.json），可以不实现
+   */
+  themeChanged?(theme: 'light' | 'dark' | 'system'): void;
 }
 
 /** 注入键：全局 Symbol，小程序运行时用同一个键 provide，不必导入这个模块 */
