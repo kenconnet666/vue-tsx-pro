@@ -120,6 +120,8 @@ export const NoticeBar = _component(
     let viewport: unknown = null;
     let content: unknown = null;
     const measure = async () => {
+      // 关闭后节点已经卸掉，不再量
+      if (closed) return;
       if (wrapable) return void (scroll = null);
       const [box, inner] = await Promise.all([host.measure(viewport), host.measure(content)]);
       // 滚动时文字左边加了可视宽度的内边距，量到的宽度要减掉
