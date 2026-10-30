@@ -31,6 +31,15 @@ await db.queryable(Order).apply(ofTenant, 7).toList();
 db.queryable(Company).apply(ofTenant, 7); // 类型错误：Company 没有 tenantId 列`,
     },
     {
+      id: 'prepare',
+      title: '预编译查询',
+      text: '`db.prepare` 只渲染一次 SQL，之后每次只换参数；参数照常经过列的编码，类型写在回调参数上。占位值只能当标量用，带 `toList()` 导航的查询不能预编译。',
+      code: `const byAge = db.prepare((p: { min: number; prefix: string }) =>
+  db.queryable(User).where((u) => [u.age.ge(p.min), u.name.startsWith(p.prefix)]).select((u) => u.name),
+);
+await byAge.toList({ min: 18, prefix: 'a' }); // string[]`,
+    },
+    {
       id: 'group',
       title: '分组、聚合、HAVING、ROLLUP',
       code: `db.queryable(Post)
