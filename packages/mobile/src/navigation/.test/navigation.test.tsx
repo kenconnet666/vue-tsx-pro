@@ -12,6 +12,13 @@ import { Tab, Tabs } from '../Tabs';
 const wait = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('NavBar / TabBar', () => {
+  it('NavBar：只有返回箭头时按钮有读屏名称（语言包的 back），带文字时用文字', () => {
+    const root = mount(() => <NavBar title="订单" leftArrow />);
+    expect(root.querySelector('button')!.getAttribute('aria-label')).toBe('返回');
+    const labelled = mount(() => <NavBar title="订单" leftArrow left="上一步" />);
+    expect(labelled.querySelector('button')!.hasAttribute('aria-label')).toBe(false);
+  });
+
   it('NavBar：左右的点击；fixed + placeholder 时多一个占位', () => {
     const onClickLeft = vi.fn();
     const onClickRight = vi.fn();

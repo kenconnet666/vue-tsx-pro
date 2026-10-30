@@ -11,6 +11,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
+import { useConfig } from '../config/context';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 
 /** 未声明的属性落到根元素（div）上 */
@@ -110,8 +111,9 @@ export const NavBar = _component(
     propsLeft,
     propsRight,
     ...rest
-  }: NavBarProps) =>
-    () => {
+  }: NavBarProps) => {
+    const config = useConfig();
+    return () => {
       const bar = (
         <div
           {...mergeAttrs<'div'>(
@@ -127,6 +129,8 @@ export const NavBar = _component(
                   propsLeft,
                   {
                     type: 'button',
+                    // 只有箭头时按钮没有文字，给读屏一个名称
+                    'aria-label': hasContent(left) ? undefined : config.lang.back,
                     onClick: (event: Event) => onClickLeft?.(event),
                   },
                 )}
@@ -160,5 +164,6 @@ export const NavBar = _component(
       return fixed && placeholder
         ? [<div {...mergeAttrs<'div'>({ sx: navBarStyles.placeholder })} />, bar]
         : bar;
-    },
+    };
+  },
 );

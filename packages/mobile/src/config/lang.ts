@@ -40,6 +40,8 @@ export interface MobileLang {
   monthTitle: (year: number, month: number) => string;
   /** 回到顶部按钮的读屏名称 */
   backTop: string;
+  /** 导航栏只有返回箭头时的读屏名称 */
+  back: string;
   /** 搜索框：占位文字、按钮 */
   search: string;
   /** 输入框：已输入字数 / 上限 */
@@ -79,6 +81,7 @@ export const zhCN: MobileLang = {
   fieldRequired: (label) => (label ? `请填写${label}` : '请填写'),
   search: '搜索',
   backTop: '回到顶部',
+  back: '返回',
   dateUnits: { year: '年', month: '月', day: '日', hour: '时', minute: '分' },
   firstDayOfWeek: 1,
   weekdays: ['日', '一', '二', '三', '四', '五', '六'],
@@ -130,6 +133,7 @@ export const enUS: MobileLang = {
   fieldRequired: (label) => (label ? `${label} is required` : 'Required'),
   search: 'Search',
   backTop: 'Back to top',
+  back: 'Back',
   dateUnits: { year: '', month: '', day: '', hour: '', minute: '' },
   firstDayOfWeek: 0,
   weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
