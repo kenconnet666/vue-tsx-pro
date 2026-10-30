@@ -41,5 +41,15 @@ await sdb.query(Order, (q) => q.orderBy((o) => o.createdAt.desc())).toPage(3, 20
       title: '读写分离',
       text: '`createDb({ replicas })`：读走从库（轮询），写和事务里的读走主库；`usePrimary()` 让一段读也走主库（刚写完就要读到）。',
     },
+    {
+      id: 'readonly',
+      title: '只读 Db 与请求上下文',
+      text: '`db.readonly()` 在类型上去掉写入、DDL、迁移与加锁，运行时写入也报错，适合只连从库的服务；`requestContext<T>()` 把请求里的租户、用户交给拦截器。',
+      code: `const request = requestContext<{ tenantId: number }>();
+const db = createDb({ schema, adapter, interceptors: [tenant('tenantId', () => request.get().tenantId)] });
+const reader = db.readonly();
+reader.insert(Order); // 类型错误：只读
+await request.run({ tenantId: 7 }, () => reader.queryable(Order).toList());`,
+    },
   ],
 });
