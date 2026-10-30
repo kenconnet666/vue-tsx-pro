@@ -717,7 +717,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
       SQLite `EXPLAIN QUERY PLAN`；`queryWatch({ explain })` 的慢读语句带上计划
 - [x] 19.9 MySQL 系的兼容库：`mariadb(pool)` / `mysql.detect` 自动认出 MariaDB——原生 UUID、单表 DELETE 不带别名、REGEXP、LOCK IN SHARE MODE、
       JSON 值用 JSON_EXTRACT、ANALYZE FORMAT=JSON、没有 GROUPING()；11.4 容器进 compose（mariadb profile）与 CI，共用套件全跑
-- [ ] 19.10 PG 的 advisory lock（`db.advisoryLock(key)`，事务级，跨进程的锁）与 `LISTEN / NOTIFY`（二级缓存的失效通知可以接它）
+- [x] 19.10 PG 的 advisory lock（`db.advisoryLock(key)`，事务级，跨进程的锁）与 `LISTEN / NOTIFY`（二级缓存的失效通知可以接它）
 
 ## 阶段 20：移动端的授权类能力（设备权限、存储、登录、支付、订阅消息、隐私协议）
 
