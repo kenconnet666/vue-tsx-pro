@@ -704,8 +704,9 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
       PG 驱动 `pg_cancel_backend`、MySQL 驱动 `KILL QUERY` 在服务端终止语句（连接保留），别的驱动仍是客户端不再等
 - [x] 19.4 JSON 的更新写法与展开：`jsonSet` / `jsonRemove` / `jsonMerge`（浅合并）/ `jsonAppend` 写进 set；`jsonSome(路径, 列, 条件)`
       按数组元素过滤（PG `jsonb_to_recordset`、MySQL `JSON_TABLE`、SQLite `json_each`）；PG 的 JSONPath `pathExists` / `pathMatch`
-- [ ] 19.5 批量写入：PG 用 `unnest($1::int[], …)` 一条语句插入大批行（不受 65535 个参数的限制）、`ON CONFLICT … DO UPDATE … WHERE`、
-      `MERGE`（15+）；MySQL 的 `UPDATE / DELETE … ORDER BY … LIMIT` 分批改大表、批量插入按 `max_allowed_packet` 自动切分
+- [x] 19.5 批量写入：PG 100 行起 `unnest` 一条语句插完（openGauss 除外）、`merge(列, { onlyIf })` 渲染 `ON CONFLICT … DO UPDATE … WHERE`
+      （PG、SQLite）、update / delete 的 `orderBy(…).limit(n)`（MySQL 原生，别的库改写成主键 IN 子查询）、MySQL 批量插入按 `max_allowed_packet` 切分；
+      PG 15 的 `MERGE` 暂不做（插入或更新已由 upsert 覆盖，多分支要一套新 API）
 - [ ] 19.6 查询写法：PG 的 `DISTINCT ON`、`LATERAL` 连接、`ILIKE`、正则 `~` / `~*`（MySQL `REGEXP_LIKE`）、`FOR SHARE` /
       `FOR NO KEY UPDATE` / `FOR UPDATE OF`；MySQL 的索引提示 `USE INDEX` / `FORCE INDEX` 与优化器提示、按查询的 `COLLATE`
 - [ ] 19.7 建表时的索引与列：PG 的 GIN 索引（jsonb、数组、全文）、部分索引（WHERE）、表达式索引、生成列；

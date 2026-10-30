@@ -34,6 +34,7 @@ await db.delete(Post).where((p) => p.createdAt.lt(cutoff)).execute(); // 没有�
       items: [
         '`changes(before, after)` 只更新变了的列；`batch` 按主键更新一批实体，按写入的列组合成少量语句。',
         '插入 / 更新的列策略（只写非 null 列等）、`insertOnly()` 列、插入与更新时的默认值都声明在列上。',
+        '大批量：`orderBy(…).limit(n)` 分批改删；PG 100 行起一条 unnest 插完，MySQL 按 max_allowed_packet 切语句；`merge(列, { onlyIf })` 只在条件为真时覆盖（PG、SQLite）。',
       ],
     },
     {
