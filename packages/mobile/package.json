@@ -1,7 +1,6 @@
 {
   "name": "@zerodep-dev/vue-tsx-pro-mobile",
-  "version": "0.1.0-dev",
-  "private": true,
+  "version": "0.4.0-dev",
   "description": "vue-tsx-pro 移动端组件库：H5 为主，同一套组件经 @zerodep-dev/vue-tsx-pro-mini 跑在微信、支付宝小程序",
   "license": "MIT",
   "type": "module",

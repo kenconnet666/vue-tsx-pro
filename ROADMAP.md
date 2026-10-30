@@ -648,7 +648,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 
 - [x] 17.6.1 CI：mobile、mini 的测试与浏览器测试，两端构建，`minidev build` 编译支付宝产物，`wcsc` 检查 WXSS（CI 里没有开发者工具，模拟器验证在本地做）（单测在 pnpm test、浏览器测试在 pnpm test:browser、小程序任务两端构建加 minidev；wcsc 只在 Windows / macOS 的开发者工具里有，WXSS 检查在本地做，app 样式表里 WXSS 不认的写法构建时提示）
 - [x] 17.6.2 使用方的命令：dev / build / 打开开发者工具，新项目模板（mini 的 `vtp-mini` 命令：build / dev / open / create，配置在 mini.config.ts（defineMiniConfig）；模板在 packages/mini/template，使用方测试就用它建项目、用命令构建）
-- [ ] 17.6.3 发布：mobile 与 mini 随 0.x 发布（RELEASE.md 加上这两个包）
+- [x] 17.6.3 发布：mobile 与 mini 随 0.x 发布（RELEASE.md 加上这两个包）（四个包版本一起走，mobile、mini 改成 0.4.0-dev、去掉 private，补上 README、LICENSE；发布本身照 RELEASE.md 由维护者在本机做）
 
 里程碑（每个做完都能停：三端可用、CI 绿、这里已勾）：
 
