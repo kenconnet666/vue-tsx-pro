@@ -667,7 +667,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 
 ### 18.1 第一批：动到 API 形状的（越早做越好）
 
-- [ ] 18.1.1 schema 组合：`mergeSchemas(a, b, 跨组关系)` 按模块各写各的再合成一份（实体、导航重名在类型上报错）；
+- [x] 18.1.1 schema 组合：`mergeSchemas(a, b, 跨组关系)` 按模块各写各的再合成一份（实体、导航重名在类型上报错）；
       `db.mount(schema)` 给已有的 Db 挂上另一组 schema，共用连接、拦截器、事务（事务里的 tx 也能 mount）
 - [ ] 18.1.2 方言能力进类型：adapter 带能力标记（写入、行锁、事务、returning、窗口、json 长度……），Db 与表达式的方法按能力有无；
       TDengine 上 `update()`、ClickHouse 上 `lock()`、MySQL 上 `returning()` 在编辑器里就标红，运行时的报错留作兜底

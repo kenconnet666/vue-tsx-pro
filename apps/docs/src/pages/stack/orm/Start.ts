@@ -41,6 +41,22 @@ export const schema = defineSchema(
       file: 'schema.ts',
     },
     {
+      id: 'modules',
+      title: '按模块组合 schema',
+      text: '大项目按模块各写一份 `defineSchema`，模块之间互不 import：`mergeSchemas` 在入口合成一份，跨模块的关系写在第二个参数里；`db.mount` 在运行时给已有的 Db 再挂一组，共用连接与事务。实体键或导航重名在调用处就报类型错误，错误里写出是哪个。',
+      code: `export const schema = mergeSchemas([accounts, content], {
+  Post: (r) => ({ author: r.one('User', { from: 'userId', to: 'id' }) }),
+  User: (r) => ({
+    posts: r.many('Post', { from: 'id', to: 'userId' }),
+    comments: r.path('Comment', ['posts', 'comments']), // 直达关系可以经过别的模块的导航
+  }),
+});
+
+// 插件、按需加载的模块：挂到已有的 Db 上，事务里的 tx 也能挂
+const all = db.mount(billing, { Invoice: (r) => ({ customer: r.one('User', { from: 'userId', to: 'id' }) }) });`,
+      file: 'app/db.ts',
+    },
+    {
       id: 'db',
       title: '建 Db：一套代码部署到不同版本',
       text: '`mysql.detect` / `mssql.detect` / `oracle.detect` 连上库读出服务器版本再建 adapter：同一份代码部署到 MySQL 8.0.18 还是 8.4、SQL Server 2012 还是 2022，都自动选对写法；只在旧写法被弃用、旧版本没有该能力（渲染时报出最低版本）、新旧语义差别大时才按版本分支。',
