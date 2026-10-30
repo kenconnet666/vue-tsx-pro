@@ -33,7 +33,7 @@ export default ormChapter({
         '日期：year … second、dayOfWeek / dayOfYear、format、加年月日时分秒、diffDays、duration、dateTrunc、now / utcNow。',
         '数学：abs、floor、ceil、round、truncate、mod、power、sqrt、exp、log、sign、三角函数，加减乘除。',
         '条件：orElse、nullIf、caseWhen、maxColumns / minColumns。',
-        'JSON：json、jsonText、jsonNumber、jsonBoolean、jsonHas、jsonLength（Db2 没有 jsonLength，渲染时报错）。',
+        'JSON：json、jsonText、jsonNumber、jsonBoolean、jsonHas、jsonLength（Db2 没有 jsonLength，渲染时报错）；更新写法 jsonSet、jsonRemove、jsonMerge、jsonAppend 与按元素过滤的 jsonSome（PG、MySQL、SQLite）。',
         '窗口：rowNumber、rank、denseRank、sum / avg / count over、lag / lead、firstValue / lastValue / nthValue。',
       ],
     },

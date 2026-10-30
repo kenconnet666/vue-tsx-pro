@@ -702,8 +702,8 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
   没有 N+1，性能随数据量是恒定的；JSON 聚合让结果变大、库里的聚合变重，换来的往返收益不值得维护两套写法
 - [x] 19.3 服务端真正超时与取消：`db.withTimeout(ms)` / createDb 的 `statementTimeout` 与 `withSignal` 合成每条语句的信号交给驱动；
       PG 驱动 `pg_cancel_backend`、MySQL 驱动 `KILL QUERY` 在服务端终止语句（连接保留），别的驱动仍是客户端不再等
-- [ ] 19.4 JSON 的更新写法与展开：PG `jsonb_set` / `||` / `-` / JSONPath（`jsonb_path_exists`），MySQL `JSON_SET` / `JSON_REMOVE` /
-      `JSON_ARRAY_APPEND` 与 `JSON_TABLE`（JSON 数组展开成行参与连接、过滤）
+- [x] 19.4 JSON 的更新写法与展开：`jsonSet` / `jsonRemove` / `jsonMerge`（浅合并）/ `jsonAppend` 写进 set；`jsonSome(路径, 列, 条件)`
+      按数组元素过滤（PG `jsonb_to_recordset`、MySQL `JSON_TABLE`、SQLite `json_each`）；PG 的 JSONPath `pathExists` / `pathMatch`
 - [ ] 19.5 批量写入：PG 用 `unnest($1::int[], …)` 一条语句插入大批行（不受 65535 个参数的限制）、`ON CONFLICT … DO UPDATE … WHERE`、
       `MERGE`（15+）；MySQL 的 `UPDATE / DELETE … ORDER BY … LIMIT` 分批改大表、批量插入按 `max_allowed_packet` 自动切分
 - [ ] 19.6 查询写法：PG 的 `DISTINCT ON`、`LATERAL` 连接、`ILIKE`、正则 `~` / `~*`（MySQL `REGEXP_LIKE`）、`FOR SHARE` /
