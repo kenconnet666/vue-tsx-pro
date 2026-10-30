@@ -1,5 +1,6 @@
-// 演示页面的截图：node screenshots.ts [h5|wx] [--out <目录>]，不给平台时两端都截，默认放到 dist/screenshots/<平台>/<页面>.png。
-//   - h5：起 Vite 开发服务器，Playwright 的 Chromium 按 iPhone 13 的视口与触摸屏打开每个页面
+// 演示页面的截图：node screenshots.ts [h5|wx] [--out <目录>] [--dark]，不给平台时两端都截，默认放到 dist/screenshots/<平台>/<页面>.png。
+//   - h5：起 Vite 开发服务器，Playwright 的 Chromium 按 iPhone 13 的视口与触摸屏打开每个页面；--dark 先在首页选暗色，
+//     之后只换 hash（同一个文档，演示的主题设置留着），截到 h5-dark
 //   - wx：先 node build.ts wx 出微信工程；用开发者工具自带的 wechatide CLI 逐页打开、截模拟器（要先在开发者工具里授权客户端 claude）
 // 支付宝的开发者工具没有命令行截图（minidev 只能编译、预览要扫码），截图在本地手动做。
 import { execFileSync } from 'node:child_process';
@@ -13,6 +14,7 @@ const outIndex = args.indexOf('--out');
 const out = resolve(import.meta.dirname, outIndex >= 0 ? args[outIndex + 1]! : 'dist/screenshots');
 const named = args.filter((arg) => arg === 'h5' || arg === 'wx');
 const platforms = named.length ? named : ['h5', 'wx'];
+const dark = args.includes('--dark');
 
 /** 演示页的名字：按 src/pages/index.ts 里 DEMO_PAGES 的键（Node 读不了 TSX，按文本取） */
 const pages = [
@@ -22,7 +24,7 @@ const pages = [
 ].map((match) => match[1]!);
 
 async function h5() {
-  const dir = join(out, 'h5');
+  const dir = join(out, dark ? 'h5-dark' : 'h5');
   mkdirSync(dir, { recursive: true });
   const server = await createServer({ root: import.meta.dirname, logLevel: 'warn' });
   await server.listen();
@@ -31,8 +33,12 @@ async function h5() {
   try {
     const context = await browser.newContext({ ...devices['iPhone 13'] });
     const page = await context.newPage();
+    if (dark) {
+      await page.goto(`${url}#index`, { waitUntil: 'networkidle' });
+      await page.getByRole('radio', { name: '暗色' }).tap();
+    }
     for (const name of pages) {
-      await page.goto(`${url}#${name}`, { waitUntil: 'networkidle' });
+      await page.goto(`${url}#${name}`, { waitUntil: dark ? 'load' : 'networkidle' });
       // 进场动画、图片的淡入播完
       await page.waitForTimeout(600);
       await page.screenshot({ path: join(dir, `${name}.png`) });

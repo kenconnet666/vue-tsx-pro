@@ -115,7 +115,8 @@ export default _component(() => () => (
     </Table>
     <List>
       <ListItem>
-        拒绝过的授权平台不会再弹窗，只能去设置页打开：`usePermission` 弹对话框问要不要去。
+        拒绝过的授权平台不会再弹窗，只能去设置页打开：<Code>usePermission</Code>{' '}
+        弹对话框问要不要去。
       </ListItem>
       <ListItem>
         支付宝没有提前申请的接口，授权在第一次调用对应能力时弹出，申请时返回 prompt。
