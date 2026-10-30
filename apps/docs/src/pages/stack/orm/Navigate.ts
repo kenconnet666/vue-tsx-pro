@@ -56,6 +56,16 @@ export default ormChapter({
       ],
     },
     {
+      id: 'union',
+      title: '多态实体',
+      text: '`entity.union` 让一张表存几种子类型：读出的行、插入的形状是按判别列区分的联合，`variant(\x27card\x27)` 只查这一种、结果类型也收窄。',
+      code: `const Payment = entity.union('t_payment', 'kind', {
+  base: { id: col.int().primaryKey().generated(), amount: col.decimal(12, 2) },
+  variants: { card: { cardNo: col.string(19) }, wechat: { openId: col.string() } },
+});
+const cards = await db.queryable(Payment).variant('card').toList(); // 每行都有 cardNo: string`,
+    },
+    {
       id: 'validators',
       title: '由实体生成校验器',
       text: '`validators(User)` 给出插入、更新、整行三个 Standard Schema 校验器：必填、可空、类型、长度、小数位、枚举、JSON 结构都来自列的声明，表单、接口直接用，不用再写一遍 zod。',
