@@ -10,7 +10,8 @@
     "screenshots": "node screenshots.ts",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
     "build:h5": "vite build --configLoader native",
-    "cap:sync": "pnpm build:h5 && cap sync"
+    "cap:sync": "pnpm build:h5 && cap sync",
+    "cap:assets": "npx -y @capacitor/assets@3.0.5 generate --android --ios --iconBackgroundColor \"#3e63dd\" --iconBackgroundColorDark \"#111111\" --splashBackgroundColor \"#3e63dd\" --splashBackgroundColorDark \"#111111\""
   },
   "dependencies": {
     "@capacitor/android": "catalog:",

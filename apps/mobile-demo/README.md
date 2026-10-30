@@ -12,6 +12,7 @@ iOS / Android 应用里。页面在 `src/pages`，入口：H5 与原生应用是
 | `pnpm dev:mini`     | 微信端的监听模式                                                           |
 | `pnpm build:h5`     | H5 构建到 `dist/h5`（原生应用的外壳从这里取）                              |
 | `pnpm cap:sync`     | H5 构建后同步进 `android/`、`ios/`；之后用 Android Studio / Xcode 打开运行 |
+| `pnpm cap:assets`   | 从 `assets/logo.svg` 生成两端的图标与启动图（含暗色），结果提交进仓库      |
 | `pnpm test:browser` | 真实浏览器里的测试（Chromium、WebKit，手机视口、触摸屏）                   |
 | `pnpm screenshots`  | 各页截图：`node screenshots.ts [h5\|wx] [--dark] [--out 目录]`             |
 
@@ -22,6 +23,9 @@ iOS / Android 应用里。页面在 `src/pages`，入口：H5 与原生应用是
 `android/`、`ios/` 是 `cap add` 生成的工程（iOS 用 Swift Package Manager），权限与用途说明写在
 `android/app/src/main/AndroidManifest.xml` 与 `ios/App/App/Info.plist`。外壳里由 `main.ts` 换成插件版的宿主能力
 （`@zerodep-dev/vue-tsx-pro-mobile/capacitor`），并在顶上加带返回的导航栏。
+
+图标与启动图是占位的：主色底上的白色标志（`assets/logo.svg`），换品牌素材时替换这个文件再跑 `pnpm cap:assets`。
+它用 npx 而不是 pnpm dlx：依赖的 sharp 0.32 要跑安装脚本下载原生库，pnpm 默认不跑。
 
 构建在 CI 里做（`.github/workflows/app.yml`，iOS 要 macOS，安卓要 Android SDK）：
 
