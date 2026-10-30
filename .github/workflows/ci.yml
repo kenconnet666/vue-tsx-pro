@@ -169,7 +169,8 @@ jobs:
 
   # Db2（镜像 6.7 GB、要 privileged、首次建库几分钟）单独一个 runner；ibm_db 的 CLI 驱动不随 pnpm install 下载，这里单独装
   db-db2:
-    runs-on: ubuntu-latest
+    # IBM CLI 驱动链接的是 libxml2.so.2：固定在还提供它的 24.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       - name: Start Db2
@@ -178,6 +179,8 @@ jobs:
           -e DBNAME=eqts -e ARCHIVE_LOGS=false -e AUTOCONFIG=false
           icr.io/db2_community/db2:12.1.2.0@sha256:9cc0d21df5d86cd9a5ce1c65c390dc10d56b1d38ab6e992c8a08eda677368781
       - uses: ./.github/actions/setup
+      # IBM CLI 驱动依赖 libxml2.so.2
+      - run: sudo apt-get install -y --no-install-recommends libxml2
       - run: pnpm --filter @zerodep-dev/easy-query-ts-db2 driver
       - name: Wait for Db2
         run: timeout 1200 bash -c 'until docker logs db2 2>&1 | grep -q "Setup has completed"; do sleep 10; done'
