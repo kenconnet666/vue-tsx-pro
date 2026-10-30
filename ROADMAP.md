@@ -740,6 +740,21 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [x] 20.8 演示页“能力”与文档站“能力与权限”页：三端差异表、后台要开通的项目（支付、手机号、模糊定位、隐私指引声明）（mobile-demo 的 capabilities 页；文档站 /mobile/capabilities；微信模拟器里位置授权弹窗带着 app.json 的用途说明弹出）
 
 ## 已知局限（有意的取舍，写在文档里）
+## 阶段 21：移动端打成原生应用（Capacitor，iOS / Android）
+
+H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿主能力换成插件版。iOS、安卓的构建都在 CI 里做
+（本机是 Windows、没装 Android SDK）。插件接口按 Capacitor 8 的官方文档（2026-10）。
+
+- [x] 21.1 宿主：mobile 的子路径 `capacitor`（`createCapacitorHost`），平台 `app`；设备权限走 Geolocation、Camera 插件
+      （limited 算同意、prompt-with-rationale 算还能问），麦克风走 WebView 的 getUserMedia，蓝牙没有官方插件；存储走 Preferences
+      （启动时读进内存，同步读、写穿透）；震动、剪贴板、选图走插件；安卓返回键先后退、到头退出。插件是可选的 peer 依赖
+- [x] 21.2 mobile-demo 成为 Capacitor 应用：H5 构建到 `dist/h5`，原生外壳里才动态加载插件版宿主；`android/`、`ios/`（SPM）工程进仓库，
+      AndroidManifest.xml 与 Info.plist 写好权限与用途说明
+- [x] 21.3 CI（`.github/workflows/app.yml`）：安卓出调试 APK 并在模拟器里装上、打开、截图，WebView 控制台报错算失败；
+      iOS 在 macOS 26 上出模拟器包，同样装上、打开、截图
+- [ ] 21.4 发布：安卓签名的 AAB、iOS 签名的 IPA（证书、描述文件、keystore 放进 CI 的密钥），上传到商店或测试渠道
+- [ ] 21.5 原生体验：状态栏跟随主题、键盘弹起时的布局、启动图与图标、打开系统设置页（社区插件）、App 里的微信 / 支付宝支付与登录（各自的 App SDK）
+
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）
 - Toolbar 里嵌套的 ToggleGroup 各有一个 Tab 位置，没有并入工具栏的方向键移动

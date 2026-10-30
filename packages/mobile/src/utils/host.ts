@@ -49,8 +49,8 @@ export interface ChosenImage {
 
 /** 平台能力 */
 export interface Host {
-  /** 平台：web 是浏览器，wx 是微信小程序，my 是支付宝小程序 */
-  readonly platform: 'web' | 'wx' | 'my';
+  /** 平台：web 是浏览器，app 是原生应用里的 WebView（Capacitor，见 capacitor/），wx 是微信小程序，my 是支付宝小程序 */
+  readonly platform: 'web' | 'app' | 'wx' | 'my';
   /** 量元素（模板 ref 拿到的节点）的位置大小；量不到时 null。小程序里只能异步取 */
   measure(element: unknown): Promise<HostRect | null>;
   /** 窗口的宽高 */
@@ -159,6 +159,10 @@ export const webHost: Host = {
   },
   ...webCapabilities,
 };
+
+/** 小程序（没有 DOM，节点画在模板里）；H5 与原生应用的 WebView 都是浏览器环境 */
+export const isMiniProgram = (host: Host): boolean =>
+  host.platform === 'wx' || host.platform === 'my';
 
 /** 当前应用的平台能力：小程序页面里是运行时 provide 的，其余是浏览器的实现 */
 export function useHost(): Host {

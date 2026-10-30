@@ -54,6 +54,17 @@ catalog:
   '@internationalized/date': 3.12.4
   decimal.js: 10.6.0
   tabbable: 6.5.0
+  # 移动端打成原生应用（mobile 的 capacitor 子路径、mobile-demo 的 iOS / Android 外壳）
+  '@capacitor/core': 8.5.3
+  '@capacitor/cli': 8.5.3
+  '@capacitor/android': 8.5.3
+  '@capacitor/ios': 8.5.3
+  '@capacitor/app': 8.1.2
+  '@capacitor/camera': 8.2.6
+  '@capacitor/clipboard': 8.0.1
+  '@capacitor/geolocation': 8.2.4
+  '@capacitor/haptics': 8.0.2
+  '@capacitor/preferences': 8.0.1
   # 表单校验（peer，使用方安装；scripts 里也用它校验数据）
   zod: 4.6.7
   # 动画引擎（MIT）：animate、timeline、spring、stagger、拖拽、布局动画、滚动观察

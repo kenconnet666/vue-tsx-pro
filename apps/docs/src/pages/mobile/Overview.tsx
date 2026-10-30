@@ -44,6 +44,14 @@ vtp-mini dev wx
 # 在微信开发者工具里打开；open my 经 minidev 在支付宝的工具里打开
 vtp-mini open wx`;
 
+const appEntry = `// 在原生外壳里才加载插件版的宿主能力，H5 的包里不带插件
+const app = createApp(App);
+if (window.Capacitor?.isNativePlatform()) {
+  const { createCapacitorHost } = await import('@zerodep-dev/vue-tsx-pro-mobile/capacitor');
+  app.provide(HOST_KEY, await createCapacitorHost());
+}
+app.mount('#app');`;
+
 const pageApi = `import { navigateTo, navigateBack, onPageShow, onReachBottom } from '@zerodep-dev/vue-tsx-pro-mini';
 
 onPageShow(() => refresh());            // 每次回到这一页
@@ -139,6 +147,35 @@ export default _component(() => () => (
       </ListItem>
       <ListItem>
         不要在同一个页面里同时用桌面组件库与移动端组件库：两套的主题 token 短写都是全局登记的。
+      </ListItem>
+    </List>
+
+    <H2 id="app" size="xl" anchor>
+      原生应用（iOS、Android）
+    </H2>
+    <Paragraph>
+      H5 的构建产物装进 Capacitor 的原生外壳，就是 iOS、Android
+      应用，页面与组件不用改。宿主能力换成插件版的：
+    </Paragraph>
+    <CodeBlock title="main.ts" code={appEntry} lang="ts" />
+    <List>
+      <ListItem>
+        <Code>@zerodep-dev/vue-tsx-pro-mobile/capacitor</Code>
+        {
+          '：设备权限走 Geolocation、Camera 插件（原生的授权弹窗），存储走 Preferences（不会被系统清掉），震动、剪贴板、选图走对应插件；安卓的返回键先后退、到头退出。插件是可选的 peer 依赖。'
+        }
+      </ListItem>
+      <ListItem>
+        {
+          '原生工程（android/、ios/）用 Capacitor 生成后放进仓库，权限的用途说明写在 AndroidManifest.xml 与 Info.plist；构建交给 CI：安卓出 APK、iOS 出模拟器包，并在模拟器里打开截图（'
+        }
+        <Code>.github/workflows/app.yml</Code>
+        {'）。'}
+      </ListItem>
+      <ListItem>
+        {
+          '商店上架要签名：安卓的 keystore、iOS 的证书与描述文件放进 CI 的密钥后再加发布任务。App 里的微信、支付宝支付与登录要各自的 App SDK（开放平台的移动应用），和小程序是两套接入。'
+        }
       </ListItem>
     </List>
 

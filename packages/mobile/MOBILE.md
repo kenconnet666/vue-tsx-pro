@@ -67,6 +67,8 @@
 - 授权类能力（`capability/`）也在宿主上：`permissions`（位置、相机、麦克风、相册、蓝牙）、`storage`、`login`、`phoneNumber`、`pay`、
   `subscribe`、`onPrivacyRequest`。组件里用 `usePermission`、`useStorage`；只能由用户点原生按钮触发的（手机号、头像、隐私协议同意）
   用 Button 的 `openType`。H5 没有的（平台登录）由应用经 ConfigProvider 的 `host` 补上。三端差异见文档站“能力与权限”页。
+- 原生应用（Capacitor 的 iOS / Android 外壳）是第五个宿主：平台是 `app`，DOM 照常用浏览器的，授权类能力换成插件版
+  （子路径 `capacitor/`）。判断“有没有 DOM”用 `isMiniProgram(host)`，不要写 `platform === 'web'`。
 
 ## 6. 元素与浮层
 

@@ -10,7 +10,7 @@
 import { shallowRef, type Ref } from 'vue';
 import { useConfig } from '../config/context';
 import { showConfirmDialog, showDialog } from '../feedback/Dialog';
-import { useHost } from '../utils/host';
+import { isMiniProgram, useHost } from '../utils/host';
 import type { DevicePermission, DevicePermissionState } from './types';
 
 export interface PermissionHandle {
@@ -29,11 +29,11 @@ export function usePermission(name: DevicePermission): PermissionHandle {
   const refresh = async () => (status.value = await host.permissions.status(name));
   void refresh();
 
-  /** 拒绝过：小程序里问要不要去设置页；H5 不能代开浏览器设置，只说明 */
+  /** 拒绝过：小程序里问要不要去设置页；H5 不能代开浏览器设置、原生应用的设置页要用户自己去，只说明 */
   const guide = async (): Promise<DevicePermissionState> => {
     const { title, message, openSettings } = config.lang.permissionDenied;
     const text = message(config.lang.permissions[name]);
-    if (host.platform === 'web') {
+    if (!isMiniProgram(host)) {
       await showDialog({ title, message: text });
       return 'denied';
     }

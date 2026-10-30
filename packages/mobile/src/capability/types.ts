@@ -51,7 +51,7 @@ export interface LoginOptions {
 
 /** 登录凭证：微信 wx.login 的 code，支付宝 my.getAuthCode 的 authCode，H5 是应用自己的实现给的 */
 export interface LoginResult {
-  platform: 'web' | 'wx' | 'my';
+  platform: 'web' | 'app' | 'wx' | 'my';
   code: string;
 }
 

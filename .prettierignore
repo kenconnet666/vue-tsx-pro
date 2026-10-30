@@ -11,3 +11,6 @@ patches/
 .claude/
 # 地图的地理数据：压缩成一行的 TopoJSON，格式化后会大几倍
 packages/ui/src/maps/*.json
+# 原生应用的外壳（Capacitor 生成的 Gradle、Xcode 工程与同步进去的网页产物）
+apps/mobile-demo/android/
+apps/mobile-demo/ios/

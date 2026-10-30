@@ -12,7 +12,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Loading, type LoadingProps } from '../feedback/Loading';
-import { useHost } from '../utils/host';
+import { isMiniProgram, useHost } from '../utils/host';
 import { dataAttrs, hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { MobileRadius, MobileSize, MobileTone } from '../utils/scales';
 import { Icon, type IconData, type IconProps } from './Icon';
@@ -411,7 +411,7 @@ export const Button = _component(
     ...rest
   }: ButtonProps) => {
     // 开放能力只在小程序里有
-    const mini = useHost().platform !== 'web';
+    const mini = isMiniProgram(useHost());
     return () => {
       const s = buttonRecipe({ variant, tone, size, radius, fullWidth });
       const busy = disabled || loading;

@@ -8,16 +8,28 @@
     "dev:mini": "node build.ts wx --watch",
     "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts",
     "screenshots": "node screenshots.ts",
-    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo"
+    "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
+    "build:h5": "vite build --configLoader native",
+    "cap:sync": "pnpm build:h5 && cap sync"
   },
   "dependencies": {
+    "@capacitor/android": "catalog:",
+    "@capacitor/app": "catalog:",
+    "@capacitor/camera": "catalog:",
+    "@capacitor/clipboard": "catalog:",
+    "@capacitor/core": "catalog:",
+    "@capacitor/geolocation": "catalog:",
+    "@capacitor/haptics": "catalog:",
+    "@capacitor/ios": "catalog:",
+    "@capacitor/preferences": "catalog:",
     "@lucide/icons": "catalog:",
-    "vue": "catalog:",
     "@zerodep-dev/vue-tsx-pro-mini": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-mobile": "workspace:^",
-    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^"
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
+    "vue": "catalog:"
   },
   "devDependencies": {
+    "@capacitor/cli": "catalog:",
     "@types/node": "catalog:",
     "@vitest/browser-playwright": "catalog:",
     "playwright": "catalog:",

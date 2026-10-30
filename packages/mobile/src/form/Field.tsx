@@ -15,7 +15,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, watch, type VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useConfig } from '../config/context';
-import { useHost } from '../utils/host';
+import { isMiniProgram, useHost } from '../utils/host';
 import { dataAttrs, hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { useFormItem, type FormRule } from './context';
 import { renderFormItem, type FormItemLayout } from './FormItem';
@@ -210,7 +210,7 @@ export const Field = _component(
 
     // H5 的多行自动高度：按内容的 scrollHeight 撑开（小程序的 textarea 有 auto-height）
     const resize = () => {
-      if (!autosize || host.platform !== 'web' || !input) return;
+      if (!autosize || isMiniProgram(host) || !input) return;
       input.style.height = 'auto';
       input.style.height = `${input.scrollHeight}px`;
     };
