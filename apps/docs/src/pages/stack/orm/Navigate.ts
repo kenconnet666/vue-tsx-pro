@@ -55,5 +55,12 @@ export default ormChapter({
         "`filterBy(input, { name: 'like', age: 'range' })` 与 `sortBy`：规则的键与值类型由实体推出；`table(request)` 接表格请求，只认 `filterable` / `sortable` 白名单（官方 dto-query）。",
       ],
     },
+    {
+      id: 'validators',
+      title: '由实体生成校验器',
+      text: '`validators(User)` 给出插入、更新、整行三个 Standard Schema 校验器：必填、可空、类型、长度、小数位、枚举、JSON 结构都来自列的声明，表单、接口直接用，不用再写一遍 zod。',
+      code: `const v = validators(User);
+const result = v.insert['~standard'].validate(form); // { value } 或 { issues: [{ message: 'required', path: ['name'] }] }`,
+    },
   ],
 });

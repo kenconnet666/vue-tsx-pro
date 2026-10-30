@@ -676,7 +676,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 ### 18.2 第二批：TS 特有、官方没有的能力
 
 - [ ] 18.2.1 多态实体：`entity.union('kind', { card: {…}, wechat: {…} })` 一张表存几种子类型，行是判别联合；按判别列过滤后结果类型收窄
-- [ ] 18.2.2 Standard Schema 互通：实体带插入 / 更新 / 整行的校验器（`~standard`，zod、valibot、arktype 直接用）；`col.json(schema)` 读写校验；
+- [x] 18.2.2 Standard Schema 互通：实体带插入 / 更新 / 整行的校验器（`~standard`，zod、valibot、arktype 直接用）；`col.json(schema)` 读写校验；
       组件库的表单、框架的 action 共用这一份规则
 - [ ] 18.2.3 迁移历史：`eqts migrate generate` 由 planSync 生成带快照的迁移文件（改名、拆列可手改），`migrate up` 记历史表；生产环境用它代替 syncTables
 
