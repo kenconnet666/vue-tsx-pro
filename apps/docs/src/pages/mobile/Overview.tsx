@@ -11,8 +11,11 @@ const meta = {
     '移动端组件库 @zerodep-dev/vue-tsx-pro-mobile 与小程序运行时 -mini：同一份 TSX 页面在 H5、微信小程序、支付宝小程序里运行，样式、主题、表单、浮层、手势三端一致。',
 };
 
-const install = `pnpm add @zerodep-dev/vue-tsx-pro-mobile @zerodep-dev/vue-tsx-pro-tsx vue
-# 要出小程序时再加
+const install = `# 新项目：从模板建，H5 与两端小程序共用页面
+npx @zerodep-dev/vue-tsx-pro-mini create my-app
+
+# 已有项目
+pnpm add @zerodep-dev/vue-tsx-pro-mobile @zerodep-dev/vue-tsx-pro-tsx vue
 pnpm add -D @zerodep-dev/vue-tsx-pro-mini`;
 
 const h5 = `// vite.config.ts
@@ -29,13 +32,17 @@ const mini = `// src/app.ts：声明页面（第一个是首页），页面组�
 import { definePages } from '@zerodep-dev/vue-tsx-pro-mini';
 export default definePages({ index: HomePage, detail: DetailPage });
 
-// build.ts：node build.ts 出微信工程；platform: 'my' 出支付宝工程
-import { buildMini, watchMini } from '@zerodep-dev/vue-tsx-pro-mini/build';
+// mini.config.ts：构建配置
+import { defineMiniConfig } from '@zerodep-dev/vue-tsx-pro-mini/build';
 import { vueTsxPro } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
+export default defineMiniConfig({ plugins: vueTsxPro(), appId: 'wx…', darkmode: true });`;
 
-const options = { root: import.meta.dirname, platform: 'wx', plugins: vueTsxPro(), appId: 'wx…', darkmode: true };
-if (process.argv.includes('--watch')) await watchMini({ ...options, development: true });
-else await buildMini(options);`;
+const commands = `# 两端都构建，产物在 dist/wx 与 dist/my；只要一端时写 wx 或 my
+vtp-mini build
+# 监听模式
+vtp-mini dev wx
+# 在微信开发者工具里打开；open my 经 minidev 在支付宝的工具里打开
+vtp-mini open wx`;
 
 const pageApi = `import { navigateTo, navigateBack, onPageShow, onReachBottom } from '@zerodep-dev/vue-tsx-pro-mini';
 
@@ -89,16 +96,21 @@ export default _component(() => () => (
     <H2 id="mini" size="xl" anchor>
       小程序
     </H2>
-    <CodeBlock title="app.ts 与 build.ts" code={mini} lang="ts" />
+    <CodeBlock title="app.ts 与 mini.config.ts" code={mini} lang="ts" />
+    <CodeBlock title="命令" code={commands} lang="shellscript" />
     <List>
       <ListItem>
         产物在 <Code>dist/wx</Code>（或 <Code>dist/my</Code>
         ），用微信开发者工具或支付宝小程序开发者工具打开。
       </ListItem>
       <ListItem>
-        监听模式（<Code>watchMini</Code>）：Vue、运行时、组件库单独打成 <Code>vtp-vendor.js</Code>
-        ，改了源码只重打应用自己的代码，约 0.3–0.5
-        秒，带源码映射；开发者工具看到产物变了会自己重新编译。
+        {'监听模式（'}
+        <Code>vtp-mini dev</Code>
+        {'）：Vue、运行时、组件库单独打成 '}
+        <Code>vtp-vendor.js</Code>
+        {
+          '，改了源码只重打应用自己的代码，约 0.3–0.5 秒，带源码映射；开发者工具看到产物变了会自己重新编译。'
+        }
       </ListItem>
       <ListItem>
         <Code>darkmode: true</Code> 时微信报告系统的深浅色，<Code>ConfigProvider</Code> 的{' '}

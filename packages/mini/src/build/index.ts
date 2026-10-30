@@ -37,6 +37,16 @@ export interface MiniBuildOptions {
   development?: boolean;
 }
 
+/** 应用目录里 mini.config.ts 的内容：vtp-mini 命令按它构建，root 是配置文件所在目录，平台与开发模式由命令决定 */
+export type MiniConfig = Omit<MiniBuildOptions, 'root' | 'platform' | 'development'>;
+
+/**
+ * 写 mini.config.ts 用，只为带上类型：
+ *
+ *   export default defineMiniConfig({ plugins: vueTsxPro(), appId: 'wx…' });
+ */
+export const defineMiniConfig = (config: MiniConfig): MiniConfig => config;
+
 /** 打好的包导出的东西（入口见 entrySource） */
 interface Bundle {
   names: readonly string[];

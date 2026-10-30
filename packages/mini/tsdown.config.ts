@@ -17,6 +17,8 @@ export default defineConfig({
     testing: 'src/testing.ts',
     // 构建工具跑在 Node 里
     build: 'src/build/index.ts',
+    // 命令行 vtp-mini（package.json 的 bin）
+    cli: 'src/cli.ts',
   },
   format: 'esm',
   platform: 'neutral',

@@ -17,21 +17,31 @@
 
 ## 用法
 
-```ts
-// src/app.ts：声明页面
-import { definePages } from '@zerodep-dev/vue-tsx-pro-mini';
-export default definePages({ index: IndexPage });
+新项目从模板建（`template/`：H5 与两端小程序共用页面）：
 
-// build.ts：构建微信（wx）或支付宝（my）工程
-import { buildMini } from '@zerodep-dev/vue-tsx-pro-mini/build';
-import { vueTsxPro } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
-await buildMini({ root: import.meta.dirname, platform: 'wx', plugins: vueTsxPro(), appId: 'wx…' });
+```sh
+npx @zerodep-dev/vue-tsx-pro-mini create my-app
 ```
+
+```ts
+// src/app.ts：声明页面，第一个是首页
+import { definePages } from '@zerodep-dev/vue-tsx-pro-mini';
+export default definePages({ index: HomePage });
+
+// mini.config.ts：构建配置（MiniBuildOptions 去掉 root、platform）
+import { defineMiniConfig } from '@zerodep-dev/vue-tsx-pro-mini/build';
+import { vueTsxPro } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
+export default defineMiniConfig({ plugins: vueTsxPro(), appId: 'wx…', darkmode: true });
+```
+
+命令（`vtp-mini`，在应用目录里运行）：`build [wx] [my]` 构建两端或指定的一端；`dev [wx|my]` 监听；
+`open [wx|my]` 在开发者工具里打开产物（微信按安装位置找命令行，装在别处时设 `WECHAT_DEVTOOLS_CLI`；支付宝用 `minidev ide`）；
+`create <目录>` 从模板建项目。也可以在脚本里直接调 `buildMini` / `watchMini`。
 
 页面组件收到 `query` 属性（跳转时带的参数，已解码）。页面级的回调与跳转：`onPageShow`、`onPageHide`、`onReachBottom`（在 H5 里调用什么也不做），
 `navigateTo('detail', { id: 42 })`、`redirectTo`、`reLaunch`、`navigateBack`（按 definePages 的页面名）。
 
-开发时用 `watchMini(options, onBuild)`：依赖（Vue、运行时、组件库）单独打成 `vtp-vendor.js`，只在依赖的列表变了时重打；
+监听模式（`vtp-mini dev`、`watchMini`）：依赖（Vue、运行时、组件库）单独打成 `vtp-vendor.js`，只在依赖的列表变了时重打；
 改了源码只重打应用自己的代码（约 0.3–0.5 s，带源码映射），开发者工具看到产物变了会自己重新编译。
 
 完整的例子是 `apps/mobile-demo`（`node build.ts` 两端都构建，`pnpm dev:mini` 监听微信端，`pnpm dev` 看 H5）。

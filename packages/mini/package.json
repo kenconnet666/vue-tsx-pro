@@ -5,8 +5,12 @@
   "description": "Render vue-tsx-pro components in WeChat and Alipay mini programs: a Vue renderer over setData with generic templates, runtime styles resolved inline",
   "license": "MIT",
   "type": "module",
+  "bin": {
+    "vtp-mini": "./dist/cli.js"
+  },
   "files": [
-    "dist"
+    "dist",
+    "template"
   ],
   "repository": {
     "type": "git",

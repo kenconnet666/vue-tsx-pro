@@ -2,7 +2,8 @@
  * 发布产物验证：用 pnpm pack 打出的包，在仓库之外的独立应用里安装、类型检查、构建，再在真实浏览器里运行，
  * 确认使用方只靠 npm 产物就能用。两个应用：
  *   - tests/consumer/app：桌面组件库（ui）
- *   - tests/consumer/mobile：移动端组件库（mobile）的 H5，加上 mini 构建出的微信、支付宝工程
+ *   - 移动端：用 mini 的 vtp-mini create 从新项目模板（packages/mini/template）建应用，
+ *     出 H5（mobile 组件库）与 vtp-mini build 出的微信、支付宝工程；模板里写的第三方依赖范围照原样装
  *
  * 重点是样式：组件库发布编译好的 JS，样式由运行时引擎在页面里生成；主题 tokens 要在使用方登记上，
  * 否则颜色、间距全部失效。
@@ -67,17 +68,15 @@ function pack(pkg) {
   return `file:../${file}`;
 }
 
-/** 把 tests/consumer 下的一个应用复制到临时目录，写上 package.json（依赖装的是打出的包）后安装 */
-function prepare(name, dir, dependencies, devDependencies) {
-  cpSync(join(root, 'tests/consumer', name), dir, { recursive: true });
-  writeFileSync(
-    join(dir, 'package.json'),
-    JSON.stringify(
-      { name: `consumer-${name}`, private: true, type: 'module', dependencies, devDependencies },
-      null,
-      2,
-    ),
-  );
+/** 应用目录的 package.json 换上这些依赖（打出的包、catalog 的版本）后安装；没有 package.json 时新建一个 */
+function install(dir, dependencies, devDependencies) {
+  const path = join(dir, 'package.json');
+  const manifest = existsSync(path)
+    ? JSON.parse(readFileSync(path, 'utf8'))
+    : { name: 'consumer', private: true, type: 'module' };
+  manifest.dependencies = { ...manifest.dependencies, ...dependencies };
+  manifest.devDependencies = { ...manifest.devDependencies, ...devDependencies };
+  writeFileSync(path, JSON.stringify(manifest, null, 2));
   run('npm', ['install', '--no-audit', '--no-fund'], dir);
 }
 
@@ -168,18 +167,17 @@ async function checkMobile() {
   await inBrowser(
     join(mobileApp, 'dist'),
     async (page, errors) => {
-      await page.waitForSelector('.count svg');
+      const button = page.getByRole('button', { name: '加一' });
+      await button.waitFor();
       const checks = {
         'H5：按钮取移动端的 accent（indigo 9）': [
-          await page.$eval('.count', (element) => getComputedStyle(element).backgroundColor),
+          await button.evaluate((element) => getComputedStyle(element).backgroundColor),
           'rgb(62, 99, 221)',
         ],
       };
-      await page.tap('.count');
-      checks['H5：点按后计数加一'] = [
-        (await page.textContent('.count-cell')).replace('计数', '').trim(),
-        '1',
-      ];
+      await button.tap();
+      // 计数那一行的标题与值挨着：页面文字里出现“计数1”
+      checks['H5：点按后计数加一'] = [(await page.textContent('body')).includes('计数1'), true];
       checks['H5：控制台没有错误'] = [errors.join('\n'), ''];
       report(checks);
     },
@@ -201,8 +199,8 @@ async function checkMobile() {
 run('pnpm', ['build'], root);
 const tsx = pack('tsx');
 
-prepare(
-  'app',
+cpSync(join(root, 'tests/consumer/app'), app, { recursive: true });
+install(
   app,
   {
     '@zerodep-dev/vue-tsx-pro-tsx': tsx,
@@ -215,23 +213,20 @@ run('npx', ['tsc', '-p', '.'], app);
 run('npx', ['vite', 'build'], app);
 await checkDesktop();
 
-prepare(
-  'mobile',
+// 模板与 create 用仓库里的（源码），装的是打出的包
+run('node', [join(root, 'packages/mini/src/cli.ts'), 'create', mobileApp], root);
+install(
   mobileApp,
   {
     '@zerodep-dev/vue-tsx-pro-tsx': tsx,
     '@zerodep-dev/vue-tsx-pro-mobile': pack('mobile'),
-    ...catalogVersions(['vue', '@lucide/icons']),
   },
-  {
-    '@zerodep-dev/vue-tsx-pro-mini': pack('mini'),
-    ...catalogVersions(['vite', 'typescript', '@types/node']),
-  },
+  { '@zerodep-dev/vue-tsx-pro-mini': pack('mini') },
 );
 run('npx', ['tsc', '-p', '.'], mobileApp);
 // 先出 H5（vite build 会清空 dist），再出两端小程序（dist/wx、dist/my）
-run('npx', ['vite', 'build'], mobileApp);
-run('node', ['build.ts'], mobileApp);
+run('npm', ['run', 'build'], mobileApp);
+run('npm', ['run', 'build:mini'], mobileApp);
 await checkMobile();
 
 console.log('\n发布产物验证通过');

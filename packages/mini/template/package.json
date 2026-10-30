@@ -1,0 +1,22 @@
+{
+  "name": "vtp-mobile-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "dev:wx": "vtp-mini dev wx",
+    "dev:my": "vtp-mini dev my",
+    "build:mini": "vtp-mini build",
+    "open:wx": "vtp-mini open wx",
+    "open:my": "vtp-mini open my",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@lucide/icons": "^1.59.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^7.0.2"
+  }
+}
