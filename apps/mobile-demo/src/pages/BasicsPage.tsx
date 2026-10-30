@@ -85,6 +85,12 @@ export const BasicsPage = _component(() => {
           arrow
           onClick={() => go('navigation')}
         />
+        <Cell
+          title="选择"
+          description="下拉菜单、滚轮、省市区、日期时间、级联、日历"
+          arrow
+          onClick={() => go('pickers')}
+        />
       </CellGroup>
       <CellGroup title="按钮">
         <div {...css.attrs(styles.section)}>

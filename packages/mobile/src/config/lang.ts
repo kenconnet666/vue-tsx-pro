@@ -29,6 +29,13 @@ export interface MobileLang {
   noMore: string;
   /** 表单：必填项没填时的消息 */
   fieldRequired: (label: string) => string;
+  /** 日期、时间选择器各列的单位（2026 年、10 月）；英文留空 */
+  dateUnits: { year: string; month: string; day: string; hour: string; minute: string };
+  /** 日历：一周的第一天是周几（0 周日、1 周一）与星期的简称（从周日起） */
+  firstDayOfWeek: number;
+  weekdays: [string, string, string, string, string, string, string];
+  /** 日历：年月的标题 */
+  monthTitle: (year: number, month: number) => string;
   /** 回到顶部按钮的读屏名称 */
   backTop: string;
   /** 搜索框：占位文字、按钮 */
@@ -64,6 +71,10 @@ export const zhCN: MobileLang = {
   fieldRequired: (label) => (label ? `请填写${label}` : '请填写'),
   search: '搜索',
   backTop: '回到顶部',
+  dateUnits: { year: '年', month: '月', day: '日', hour: '时', minute: '分' },
+  firstDayOfWeek: 1,
+  weekdays: ['日', '一', '二', '三', '四', '五', '六'],
+  monthTitle: (year, month) => `${year} 年 ${month} 月`,
   noMore: '没有更多了',
   wordLimit: (count, max) => `${count}/${max}`,
   increase: '增加',
@@ -91,6 +102,11 @@ export const enUS: MobileLang = {
   fieldRequired: (label) => (label ? `${label} is required` : 'Required'),
   search: 'Search',
   backTop: 'Back to top',
+  dateUnits: { year: '', month: '', day: '', hour: '', minute: '' },
+  firstDayOfWeek: 0,
+  weekdays: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  monthTitle: (year, month) =>
+    new Date(year, month - 1, 1).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }),
   noMore: 'No more',
   wordLimit: (count, max) => `${count}/${max}`,
   increase: 'Increase',

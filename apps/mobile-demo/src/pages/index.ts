@@ -8,6 +8,7 @@ import { ShopPage } from './ShopPage.tsx';
 import { ProductPage } from './ProductPage.tsx';
 import { CheckoutPage } from './CheckoutPage.tsx';
 import { CitiesPage } from './CitiesPage.tsx';
+import { PickersPage } from './PickersPage.tsx';
 
 export const DEMO_PAGES = {
   index: BasicsPage,
@@ -19,6 +20,7 @@ export const DEMO_PAGES = {
   product: ProductPage,
   checkout: CheckoutPage,
   cities: CitiesPage,
+  pickers: PickersPage,
 };
 
 /** 演示页的名字 */
