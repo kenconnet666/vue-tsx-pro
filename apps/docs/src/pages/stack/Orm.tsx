@@ -8,7 +8,7 @@ import { DocPage } from '../../site/DocPage';
 const meta = {
   title: 'ORM easy-query TS',
   description:
-    'easy-query 的 TS 版：实体与导航、lambda 里写条件、隐式 join 与子查询、对象树结果，结果类型全由 TS 推导；SQLite、MySQL、PostgreSQL、SAP HANA。',
+    'easy-query 的 TS 版：实体与导航、lambda 里写条件、隐式 join 与子查询、对象树结果，结果类型全由 TS 推导；官方支持的数据库都有方言包。',
 };
 
 const entities = `import { col, createDb, defineSchema, entity } from '@zerodep-dev/easy-query-ts';
@@ -167,11 +167,11 @@ export default _component(() => () => (
       方言
     </H2>
     <Paragraph>
-      <Code>@zerodep-dev/easy-query-ts-sqlite</Code>（node:sqlite）、<Code>-mysql</Code>（8.0.18
-      起）、<Code>-pg</Code>（12 起）、
-      <Code>-hana</Code>（HANA 2.0）。方言专属的函数用静态入口按列包装（
-      <Code>MySQL.json(u.attrs)</Code>），用错方言在写的时候就报错。与 Java 版的对照见仓库里的{' '}
-      <Code>packages/easy-query/docs/parity.md</Code>。
+      SQLite、MySQL（含 PolarDB、Doris）、PostgreSQL（含 openGauss、金仓）、SQL
+      Server、Oracle、达梦、Db2、DuckDB、ClickHouse、TDengine、SAP HANA，各一个方言包；连库时{' '}
+      <Code>detect</Code> 读出版本选写法。方言专属的函数用静态入口按列包装（
+      <Code>MySQL.json(u.attrs)</Code>），用错方言在渲染时就报错。各库的差异见"ORM 方言"一页，与
+      Java 版的逐条对照见仓库里的 <Code>packages/easy-query/docs/parity-docs.md</Code>。
     </Paragraph>
   </DocPage>
 ));
