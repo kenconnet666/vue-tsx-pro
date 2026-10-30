@@ -125,6 +125,7 @@ jobs:
           name: android-screenshots
           path: |
             android-*.png
+            android-*.xml
             android-logcat.txt
 
   ios:
