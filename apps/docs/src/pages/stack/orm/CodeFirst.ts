@@ -51,5 +51,16 @@ await db.syncTables();               // 执行 plan.statements（能放进事务
 });
 await db.migrate([m1, m2]); // 返回这次执行的 id`,
     },
+    {
+      id: 'snapshots',
+      title: 'SQL 快照',
+      text: '把关心的查询声明成快照，`eqts snapshot` 不连库按每个方言渲染成 `.sql` 文本提交进仓库，评审时看 SQL 的差异；CI 里加 `--check`，快照没更新就失败。方言不支持的写法写成一行 error，同样进差异。',
+      code: `export default defineSnapshots({
+  schema,
+  dialects: { pg: new PostgresDialect(), mysql80: new MySqlDialect({ version: '8.0.18' }) },
+  queries: { adults: (db) => db.queryable(User).where((u) => u.age.ge(18)) },
+});
+// eqts snapshot src/queries.snap.ts --out sql-snapshots [--check]`,
+    },
   ],
 });
