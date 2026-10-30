@@ -10,9 +10,11 @@ import type { NativeEventName, Platform } from './platforms.ts';
 export function baseTemplate(platform: Platform): string {
   const on = (names: readonly NativeEventName[]) =>
     names.map((name) => `${platform.event(name)}="eh"`).join(' ');
+  const bubbling = (names: readonly NativeEventName[]) =>
+    names.map((name) => `${platform.bubble(name)}="eh"`).join(' ');
   // 所有节点都收点击与按压（:active）；touchmove 只有 lock（catch，挡住滚动）、touch（bind，手势；横滑时换成 catch）两种收，
-  // 普通节点滚动时不往逻辑层发事件
-  const tapEvents = on(['tap', 'longpress', 'touchstart', 'touchend', 'touchcancel']);
+  // 普通节点滚动时不往逻辑层发事件。按下、松开用冒泡的写法（见 Platform.bubble）
+  const tapEvents = `${on(['tap', 'longpress'])} ${bubbling(['touchstart', 'touchend', 'touchcancel'])}`;
   const common = `id="{{i.id}}" class="{{i.c}}" style="{{sd[i.st]}}" data-s="{{i.s}}" ${platform.a11y}`;
   // 输入框与多行输入共有的：长度上限、禁用（含只读）、聚焦、键盘确认键的文字；输入、确认、聚焦、失焦
   const field = `maxlength="{{i.maxlength || -1}}" disabled="{{i.dis}}" focus="{{i.af}}" confirm-type="{{i.ct || 'done'}}"`;

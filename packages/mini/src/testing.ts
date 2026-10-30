@@ -97,15 +97,28 @@ export function mountPage(component: Component, query: Record<string, string> = 
   };
   const all = (nodes: PageNode[] = page.data.root.cn): PageNode[] =>
     nodes.flatMap((node) => [node, ...all(node.cn ?? [])]);
-  // 事件时间：touchmove 按它去掉冒泡带来的重复，每次派发都要不同
+  /** 从节点往上到根的每一层（含自己） */
+  const ancestors = (node: PageNode, nodes = page.data.root.cn ?? []): PageNode[] => {
+    for (const child of nodes) {
+      if (child === node) return [node];
+      const path = ancestors(node, child.cn ?? []);
+      if (path.length) return [...path, child];
+    }
+    return [];
+  };
+  // 事件时间：冒泡的触摸事件按它去掉重复，每次派发都要不同
   let timeStamp = 0;
   type Fired = Omit<Parameters<typeof options.eh>[0], 'timeStamp' | 'currentTarget'>;
   const fire = async (node: PageNode, event: Fired) => {
-    options.eh.call(page, {
-      ...event,
-      timeStamp: ++timeStamp,
-      currentTarget: { dataset: { s: node.s } },
-    });
+    const stamp = ++timeStamp;
+    // 同真机：触摸事件在模板上是 bind，从最内层往外每一层都收到一次
+    const targets = event.type.startsWith('touch') ? ancestors(node) : [node];
+    for (const target of targets)
+      options.eh.call(page, {
+        ...event,
+        timeStamp: stamp,
+        currentTarget: { dataset: { s: target.s } },
+      });
     await settle();
   };
   const dispatch = (node: PageNode, type: string, detail?: unknown) => fire(node, { type, detail });

@@ -77,6 +77,9 @@ const EVENT_TYPES: Readonly<Record<string, string>> = {
   getauthorize: 'opentype',
 };
 
+/** 模板上 bind 的事件（会冒泡到每一层祖先），见 build/platforms.ts 的 bubble */
+const BUBBLING_EVENTS = new Set(['touchstart', 'touchmove', 'touchend', 'touchcancel']);
+
 /**
  * 透传到模板上的元素属性：元素属性名 → 节点数据里的字段（模板里写 {{i.字段}}，见 build/templates.ts）；
  * 其余属性只参与样式条件
@@ -153,8 +156,8 @@ class PageHost implements NodeHost {
   readonly overlay = new MiniNode('div');
   /** 页面滚动位置（onPageScroll 记下），与滚动的监听 */
   scrollTop = 0;
-  /** 上一次处理的 touchmove 的时间（去掉冒泡带来的重复） */
-  private lastMove = -1;
+  /** 上一次处理的冒泡事件：类型@时间（去掉冒泡带来的重复） */
+  private lastBubbled = '';
   /** 递归组件里按下的节点与位置（合成点击用） */
   private pressStart: { node: MiniNode; x: number; y: number; time: number } | null = null;
   readonly scrollListeners = new Set<(top: number) => void>();
@@ -314,10 +317,12 @@ class PageHost implements NodeHost {
     if (!sid) return;
     const target = this.nodes.get(sid);
     const nativeType = native.type.toLowerCase();
-    // 手势节点的 touchmove 是 bind（为了不挡页面滚动），会冒泡到外层的手势节点：同一次移动只处理一次
-    if (nativeType === 'touchmove' && native.timeStamp !== undefined) {
-      if (native.timeStamp === this.lastMove) return;
-      this.lastMove = native.timeStamp;
+    // 触摸事件是 bind（按下、松开 catch 掉真机不再产生 tap；手势节点的 touchmove 不能挡页面滚动），
+    // 会冒泡到外层的节点：同一次触摸只处理最内层收到的那次
+    if (BUBBLING_EVENTS.has(nativeType) && native.timeStamp !== undefined) {
+      const key = `${nativeType}@${native.timeStamp}`;
+      if (key === this.lastBubbled) return;
+      this.lastBubbled = key;
     }
     const type = EVENT_TYPES[nativeType];
     if (!target || !type) return;

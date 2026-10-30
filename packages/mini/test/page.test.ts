@@ -1,6 +1,8 @@
 // 页面的增量 setData：按小程序的路径规则应用到数据上，结果要和整树重新序列化一致
 import { describe, expect, it } from 'vitest';
 import { defineComponent, h, ref, type Ref } from 'vue';
+import { PLATFORMS } from '../src/build/platforms.ts';
+import { baseTemplate } from '../src/build/templates.ts';
 import { onPageShow, onReachBottom, pageUrl } from '../src/lifecycle.ts';
 import { mountPage, type PageNode } from '../src/testing.ts';
 
@@ -81,6 +83,34 @@ describe('事件', () => {
     await page.tap(spans('可点'));
     await page.tap(spans('禁用'));
     expect(clicks).toEqual(['button', 'div']);
+  });
+
+  it('按下、松开在模板上是冒泡的（每层祖先都收到一次）：组件的监听各只触发一次', async () => {
+    const events: string[] = [];
+    const Demo = defineComponent(
+      () => () =>
+        h('div', { onTouchstart: () => events.push('outer start') }, [
+          h('div', [
+            h(
+              'button',
+              {
+                onTouchstart: () => events.push('start'),
+                onTouchend: () => events.push('end'),
+                onClick: () => events.push('click'),
+              },
+              '按住',
+            ),
+          ]),
+        ]),
+    );
+    const page = mountPage(Demo);
+    await page.settle();
+    await page.tap(page.find((node) => node.cn?.some((child) => child.v === '按住') ?? false)!);
+    expect(events).toEqual(['start', 'outer start', 'end', 'click']);
+    // 真机上按下、松开被 catch 掉之后不再产生 tap
+    expect(baseTemplate(PLATFORMS.wx)).toContain('bindtouchstart="eh"');
+    expect(baseTemplate(PLATFORMS.wx)).not.toContain('catchtouchend');
+    expect(baseTemplate(PLATFORMS.my)).toContain('onTouchStart="eh"');
   });
 
   it('超过模板层数的节点（递归组件里）：点击由按下、松开合成，原生的 tap 不再算；按下后移动了不算点击', async () => {

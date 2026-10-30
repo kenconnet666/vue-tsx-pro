@@ -11,6 +11,11 @@ export interface Platform {
    */
   event(name: NativeEventName): string;
   /**
+   * 冒泡的事件属性：bindtouchstart / onTouchStart。按下、松开不能 catch：真机上 catch 掉之后不再产生 tap
+   * （模拟器照常有），冒泡带来的重复由运行时按事件时间去掉
+   */
+  bubble(name: NativeEventName): string;
+  /**
    * 手势节点（模板 touch）的 touchmove：平时 bind（页面照常滚动），节点要 catch 时（横向滑动的过程中）换成 catch。
    * 微信的事件名可以是表达式；支付宝不行，只 bind
    */
@@ -62,6 +67,7 @@ export const PLATFORMS: Readonly<Record<Platform['name'], Platform>> = {
     style: 'wxss',
     directive: 'wx',
     event: (name) => `catch${name}`,
+    bubble: (name) => `bind${name}`,
     touchMove: `bindtouchmove="{{i.cm ? '' : 'eh'}}" catchtouchmove="{{i.cm ? 'eh' : ''}}"`,
     a11y: 'aria-role="{{i.ar}}" aria-label="{{i.al}}" aria-hidden="{{i.ahi}}" aria-checked="{{i.ack}}" aria-disabled="{{i.adi}}" aria-selected="{{i.ase}}" aria-expanded="{{i.aex}}"',
     openButton:
@@ -73,6 +79,7 @@ export const PLATFORMS: Readonly<Record<Platform['name'], Platform>> = {
     style: 'acss',
     directive: 'a',
     event: (name) => `catch${camel[name]}`,
+    bubble: (name) => `on${camel[name]}`,
     touchMove: 'onTouchMove="eh"',
     a11y: '',
     openButton: 'open-type="{{i.ot}}" scope="{{i.os}}" onGetAuthorize="eh" onError="eh"',
