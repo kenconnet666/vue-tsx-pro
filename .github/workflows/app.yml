@@ -50,7 +50,7 @@ jobs:
           path: apps/mobile-demo/android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
-  # 在安卓模拟器里装上 APK、打开首页截图；页面报错（WebView 控制台的 Uncaught）算失败
+  # 在安卓模拟器里装上 APK、打开首页截图；页面里没被捕获的错误（WebView 控制台的 Uncaught）算失败
   android-emulator:
     needs: android
     runs-on: ubuntu-latest
@@ -77,7 +77,8 @@ jobs:
             adb exec-out screencap -p > android-index.png
             # 只看 WebView 的控制台（Capacitor/Console），系统进程的日志里也会有 TypeError 字样
             adb logcat -d -s Capacitor/Console:* Capacitor:* > android-logcat.txt
-            if grep -E "Uncaught|TypeError|ReferenceError" android-logcat.txt; then exit 1; fi
+            # 只算没被捕获的错误：Capacitor 自己捕获后打出来的（如 Error injecting safe area CSS，时有时无）不算
+            if grep "Uncaught" android-logcat.txt; then exit 1; fi
       - uses: actions/upload-artifact@v7
         if: always()
         with:
