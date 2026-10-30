@@ -930,15 +930,9 @@ importers:
 
   packages/easy-query/sqlite:
     devDependencies:
-      '@libsql/client':
-        specifier: 'catalog:'
-        version: 0.18.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@zerodep-dev/easy-query-ts':
         specifier: workspace:*
         version: link:../core
-      '@zerodep-dev/easy-query-ts-test':
-        specifier: workspace:*
-        version: link:../test
 
   packages/easy-query/tdengine:
     devDependencies:
@@ -982,6 +976,9 @@ importers:
       '@internationalized/date':
         specifier: 'catalog:'
         version: 3.12.4
+      '@libsql/client':
+        specifier: 'catalog:'
+        version: 0.18.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.2
