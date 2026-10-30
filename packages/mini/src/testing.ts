@@ -21,7 +21,7 @@ export interface PageNode {
   v?: string;
   /** 类名 */
   c?: string;
-  /** 行内样式 */
+  /** 行内样式（页面数据里是样式字典 ss 的编号，测试工具换回样式串） */
   st?: string;
   /** 子节点 */
   cn?: PageNode[];
@@ -42,6 +42,16 @@ export function applySetData(target: Data, payload: Data) {
     });
     current[keys.at(-1)!] = structuredClone(value);
   }
+}
+
+/** 节点的 st 是样式字典的编号：换回样式串，断言照常写 node.st.includes(…) */
+function resolveStyles(data: Data) {
+  const dictionary = (data.ss ?? {}) as Record<string, string>;
+  const walk = (node: PageNode) => {
+    if (typeof node.st === 'string' && node.st in dictionary) node.st = dictionary[node.st];
+    node.cn?.forEach(walk);
+  };
+  walk(data.root as PageNode);
 }
 
 /** 挂上的页面 */
@@ -73,6 +83,7 @@ export function mountPage(component: Component, query: Record<string, string> = 
     data: structuredClone(options.data) as { root: { cn: PageNode[] } },
     setData(payload: Data, callback?: () => void) {
       applySetData(page.data as unknown as Data, payload);
+      resolveStyles(page.data as unknown as Data);
       callback?.();
     },
   };

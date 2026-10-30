@@ -112,14 +112,14 @@ function writeEntry(root: string, appEntry: string): string {
 }
 
 /**
- * 递归组件的脚本：节点数据从属性 i 传进来，事件交给运行时（页面栈顶的页面）。
+ * 递归组件的脚本：节点数据从属性 i、样式字典从 sd 传进来，事件交给运行时（页面栈顶的页面）。
  * 不渲染组件自己的节点（virtualHost），也用 app 的样式表（微信默认把组件的样式隔开）
  */
 function componentScript(platform: Platform): string {
   const options =
     platform.name === 'wx'
-      ? `{ options: { virtualHost: true, styleIsolation: 'apply-shared' }, properties: { i: { type: Object, value: {} } }, methods: { eh } }`
-      : `{ options: { virtualHost: true }, props: { i: {} }, methods: { eh } }`;
+      ? `{ options: { virtualHost: true, styleIsolation: 'apply-shared' }, properties: { i: { type: Object, value: {} }, sd: { type: Object, value: {} } }, methods: { eh } }`
+      : `{ options: { virtualHost: true }, props: { i: {}, sd: {} }, methods: { eh } }`;
   return `const { eh } = require('../../vtp.js');\nComponent(${options});\n`;
 }
 

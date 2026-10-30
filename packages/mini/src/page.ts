@@ -127,6 +127,13 @@ const VALUE_EVENTS = new Set(['input', 'focus', 'blur', 'confirm']);
 class PageHost implements NodeHost {
   private readonly nodes = new Map<string, MiniNode>();
   private readonly sent = new WeakMap<MiniNode, NodeData>();
+  /**
+   * 行内样式的字典：同一个样式串只发一次（页面数据的 ss），节点只带它的编号（st），模板里写 ss[i.st]。
+   * 列表里成百上千个节点的样式往往只有几种，首屏的 setData 因此小一个数量级
+   */
+  private readonly styleIds = new Map<string, string>();
+  /** 这一轮新登记、还没发出去的样式 */
+  private newStyles: Record<string, string> = {};
   private readonly touched = new Set<MiniNode>();
   private readonly restructured = new Set<MiniNode>();
   private scheduled = false;
@@ -156,6 +163,18 @@ class PageHost implements NodeHost {
       this.waiting.push(resolve);
       this.schedule();
     });
+  }
+
+  /** 样式串 → 字典里的编号（空样式不占编号） */
+  private styleId(style: string): string | undefined {
+    if (!style) return undefined;
+    let id = this.styleIds.get(style);
+    if (id === undefined) {
+      id = this.styleIds.size.toString(36);
+      this.styleIds.set(style, id);
+      this.newStyles[id] = style;
+    }
+    return id;
   }
 
   /** 所有节点重新展开样式（系统换了深浅色：跟随系统的主题类展开出的变量变了） */
@@ -203,6 +222,8 @@ class PageHost implements NodeHost {
       }
       this.sent.set(node, next);
     }
+    for (const [id, style] of Object.entries(this.newStyles)) payload[`ss.${id}`] = style;
+    this.newStyles = {};
     this.restructured.clear();
     this.touched.clear();
     const waiting = this.waiting;
@@ -252,9 +273,10 @@ class PageHost implements NodeHost {
     const data: NodeData = {
       s: node.sid,
       t: type,
-      c: className,
-      st: type === 'svg' ? `${svgMaskStyle(node)};${style}` : style,
+      st: this.styleId(type === 'svg' ? `${svgMaskStyle(node)};${style}` : style),
     };
+    // 空的类名不发（多数节点没有类名，全靠行内样式）
+    if (className) data.c = className;
     // 手势节点在横滑的过程中写 data-touch-move="catch"：模板换成 catch，页面不跟着滚
     if (type === 'touch' && node.attribute('data-touch-move') === 'catch') data.cm = 1;
     for (const [name, field] of passedAttrs()) {
@@ -427,7 +449,7 @@ function decodeQuery(query: Record<string, string> = {}): Record<string, string>
 /** 页面的选项：交给小程序的 Page() */
 export function pageOptions(component: Component, setup?: (app: App<MiniNode>) => void) {
   return {
-    data: { root: { cn: [] } },
+    data: { root: { cn: [] }, ss: {} },
     onLoad(this: PageInstance, query: Record<string, string>) {
       const current = platform();
       if (current) {

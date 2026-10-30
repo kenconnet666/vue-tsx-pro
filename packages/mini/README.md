@@ -44,4 +44,7 @@ await buildMini({ root: import.meta.dirname, platform: 'wx', plugins: vueTsxPro(
   补上了微信里裸写的 `requestAnimationFrame` 仍然取不到（报 not a function）：组件里要等视图层画完用宿主的 `nextFrame`（等 setData 生效）。
 - 模板层数（24）用完后，更深的节点交给递归的自定义组件 `vtp-comp`（模板从第 0 层重新开始）。它要在 app.json 的 usingComponents 里全局登记，`n 只在页面的 json 里登记时微信不实例化；组件里的原生 tap 不可靠（按下时整段子树重发给组件属性，tap 会丢），
   那一段的点击由运行时按 touchstart / touchend 合成（同一节点、移动不到 10px、不到 700ms）。
+- 行内样式走字典：页面数据的 `ss` 里每种样式串只发一次，节点只带编号（`st`），模板写 `sd[i.st]`。1000 行单元格的首屏
+  setData 从 1.9 MB 降到 320 KB（微信单次上限 1 MB）；基准在 `packages/mobile/src/.bench`。
+  传给模板时写成 `data="{{i: item, ss: ss}}"`（键与变量同名）微信的模板里取不到，换了名字（`sd: ss`）才行。
 - Taro 按使用方源码扫描裁剪模板，预编译库里动态创建的元素没有模板；这里的模板按元素全量生成，不扫描源码。
