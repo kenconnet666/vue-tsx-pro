@@ -62,8 +62,13 @@ await sleep(2000);
 
 // 页面里记下这个框（window.__field），之后再读它的位置
 const before = await evaluate(`(() => {
-  const field = [...document.querySelectorAll('input')].find(
-    (input) => !input.disabled && !input.readOnly && !['checkbox', 'radio', 'file'].includes(input.type),
+  // 最后一个输入框：页面够长才滚得到可视区底部（第一个在页面顶上，键盘本来就挡不到）
+  const field = [...document.querySelectorAll('input')].findLast(
+    (input) =>
+      !input.disabled &&
+      !input.readOnly &&
+      !['checkbox', 'radio', 'file', 'hidden'].includes(input.type) &&
+      input.getBoundingClientRect().width > 0,
   );
   if (!field) return null;
   window.__field = field;
@@ -98,5 +103,7 @@ if (!after.focused) fail('点下去之后焦点不在输入框上（坐标算错
 if (!adb('shell', 'dumpsys', 'input_method').includes('mInputShown=true'))
   fail('点了输入框，输入法没有弹出');
 if (after.innerHeight >= before.innerHeight) fail('键盘弹起后页面没有变矮：底部的内容会被键盘挡住');
+// 框原本就在键盘盖不到的地方时，下一条断言什么也没验证
+if (before.y <= after.innerHeight) fail('输入框原本不在键盘会盖住的位置：这次验证不算数');
 if (after.top < 0 || after.bottom > after.innerHeight) fail('键盘弹起后正在输入的框不在可视区里');
 process.exit(0);
