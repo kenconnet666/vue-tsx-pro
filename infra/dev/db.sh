@@ -63,6 +63,7 @@ add_db VTP_OPENGAUSS_PASSWORD 'EQTS_OPENGAUSS_URL=postgres://gaussdb:{p}@127.0.0
 add_db VTP_CLICKHOUSE_PASSWORD 'EQTS_CLICKHOUSE_URL=http://eqts:{p}@127.0.0.1:28123/eqts'
 # 连接串里有分号：值加单引号，source 时才不会拆开
 add_db VTP_DB2_PASSWORD "EQTS_DB2_URL='DATABASE=eqts;HOSTNAME=127.0.0.1;PORT=25000;PROTOCOL=TCPIP;UID=db2inst1;PWD={p}'"
+add_db VTP_MARIADB_PASSWORD 'EQTS_MARIADB_URL=mysql://root:{p}@127.0.0.1:23307/eqts'
 grep -q '^EQTS_DORIS_URL=' "$env_file" || echo 'EQTS_DORIS_URL=mysql://root@127.0.0.1:29030/eqts' >>"$env_file"
 grep -q '^EQTS_TDENGINE_URL=' "$env_file" || echo 'EQTS_TDENGINE_URL=ws://root:taosdata@127.0.0.1:26041/eqts' >>"$env_file"
 

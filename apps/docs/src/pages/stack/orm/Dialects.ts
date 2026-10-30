@@ -14,7 +14,7 @@ export default ormChapter({
       id: 'packages',
       title: '方言包',
       items: [
-        '`-mysql`：MySQL 8.0.18（PolarDB 基线）起、8.4；`mysql.detect` 读版本；`doris(pool)`：Apache Doris（MySQL 协议，官方没有）。',
+        '`-mysql`：MySQL 8.0.18（PolarDB 基线）起、8.4；`mysql.detect` 读版本；`doris(pool)`：Apache Doris（MySQL 协议，官方没有）；`mariadb(pool)`：MariaDB 11.4（原生 UUID、DELETE 不带别名等差异由方言吸收，`mysql.detect` 自动认出）。',
         '`-pg`：PostgreSQL 12 起；`opengauss(pool)`：openGauss / GaussDB；`kingbase(pool)`：人大金仓（PG 模式）；`-pg/pglite` 的 `pglite(db)`：WASM 版 PG，进程内运行；Neon 的 `Pool` 直接传给 `postgres()`。',
         '`-sqlite`：node:sqlite 与 bun:sqlite（同一个 `sqlite()`）、`d1(env.DB)`：Cloudflare D1（没有交互式事务）、`libsql(client)`：libSQL / Turso；`-duckdb`：@duckdb/node-api（嵌入式）。',
         '`-mssql`：SQL Server 2008 起（2012 以前 ROW_NUMBER 分页）；`-oracle`：11.2 起（12c 以前 ROWNUM 分页），Thin 模式不装客户端。',
