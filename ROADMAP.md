@@ -592,8 +592,8 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 
 ### 17.1 移动端底座（packages/mobile 起步）
 
-- [ ] 17.1.1 建包：目录、构建（Vite 库模式 + tsc 出声明，同 `-ui` 的做法）、exports、包依赖检查（mobile 不导入 ui、mini、kit 与服务端的包）；
-      发布产物验证：打包装进临时项目，H5 与小程序两种使用方都跑通（同 `pnpm test:consumer`）（建包、构建、包依赖检查已做，演示按 dist 引用；差临时项目验证）
+- [x] 17.1.1 建包：目录、构建（Vite 库模式 + tsc 出声明，同 `-ui` 的做法）、exports、包依赖检查（mobile 不导入 ui、mini、kit 与服务端的包）；
+      发布产物验证：打包装进临时项目，H5 与小程序两种使用方都跑通（同 `pnpm test:consumer`）（演示按 dist 引用；`pnpm test:consumer` 的 tests/consumer/mobile：打出的 tsx、mobile、mini 装进临时项目，H5 在手机视口里查 token 与点按，两端小程序工程查页面与 app 样式表里的主题变量。mini 也改成出 dist，Node 不剥 node_modules 里 .ts 的类型）
 - [x] 17.1.2 主题：token 自己定义（变量前缀 `--vtm-`；色值取同一套 Radix 色板；字号 12–18、间距 4 的倍数、触控目标 44 px、圆角、阴影、动效、层级），
       亮暗两套；主题覆盖与切换（ThemeProvider）（`theme/tokens.ts`、`theme/dark.ts`；切换是 ConfigProvider 的 `theme`：light / dark / system）
 - [ ] 17.1.3 组件写法的底子：部件属性 `propsXxx` 与 `sx` 的合并（mobile 自己的实现）、受控与非受控（`_bindable`）、

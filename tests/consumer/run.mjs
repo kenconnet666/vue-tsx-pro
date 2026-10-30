@@ -1,6 +1,8 @@
 /**
- * 发布产物验证：用 pnpm pack 打出的包，在仓库之外的独立应用（tests/consumer/app 的副本）里
- * 安装、类型检查、构建，再在真实浏览器里运行，确认使用方只靠 npm 产物就能用。
+ * 发布产物验证：用 pnpm pack 打出的包，在仓库之外的独立应用里安装、类型检查、构建，再在真实浏览器里运行，
+ * 确认使用方只靠 npm 产物就能用。两个应用：
+ *   - tests/consumer/app：桌面组件库（ui）
+ *   - tests/consumer/mobile：移动端组件库（mobile）的 H5，加上 mini 构建出的微信、支付宝工程
  *
  * 重点是样式：组件库发布编译好的 JS，样式由运行时引擎在页面里生成；主题 tokens 要在使用方登记上，
  * 否则颜色、间距全部失效。
@@ -26,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const work = mkdtempSync(join(tmpdir(), 'vue-tsx-pro-consumer-'));
 const app = join(work, 'app');
+const mobileApp = join(work, 'mobile');
 
 /**
  * 独立应用里的环境：仓库的 nodeOptions（pnpm-workspace.yaml）让 Node 按 @vue-tsx-pro/source 条件读各包源码，
@@ -64,6 +67,20 @@ function pack(pkg) {
   return `file:../${file}`;
 }
 
+/** 把 tests/consumer 下的一个应用复制到临时目录，写上 package.json（依赖装的是打出的包）后安装 */
+function prepare(name, dir, dependencies, devDependencies) {
+  cpSync(join(root, 'tests/consumer', name), dir, { recursive: true });
+  writeFileSync(
+    join(dir, 'package.json'),
+    JSON.stringify(
+      { name: `consumer-${name}`, private: true, type: 'module', dependencies, devDependencies },
+      null,
+      2,
+    ),
+  );
+  run('npm', ['install', '--no-audit', '--no-fund'], dir);
+}
+
 /**
  * 托管构建产物的静态服务器。不从临时应用里加载 vite：它的原生模块在 Windows 上会锁住文件，
  * 进程结束前临时目录就删不掉
@@ -80,19 +97,39 @@ async function serveStatic(dir) {
   return { server, url: `http://127.0.0.1:${server.address().port}/` };
 }
 
-async function checkInBrowser() {
-  const { server, url } = await serveStatic(join(app, 'dist'));
+/** 逐项打印检查结果（名字 → [得到的, 应为的]），有没通过的就抛错 */
+function report(checks) {
+  const failed = Object.entries(checks).filter(([, [actual, expected]]) => actual !== expected);
+  for (const [name, [actual, expected]] of Object.entries(checks)) {
+    console.log(
+      `${actual === expected ? '✓' : '✗'} ${name}${actual === expected ? '' : `：得到 ${JSON.stringify(actual)}，应为 ${JSON.stringify(expected)}`}`,
+    );
+  }
+  if (failed.length) throw new Error(`${failed.length} 项检查未通过`);
+}
+
+/** 在 Chromium 里打开 dir 下的构建产物交给 check；页面报的错收集在 errors 里 */
+async function inBrowser(dir, check, contextOptions = {}) {
+  const { server, url } = await serveStatic(dir);
   // 浏览器用仓库里已安装的 Playwright（宿主示例的开发依赖）
   const { chromium } = createRequire(join(root, 'apps/host-demo/package.json'))('playwright');
   const browser = await chromium.launch();
   try {
-    const page = await browser.newPage();
+    const page = await browser.newPage(contextOptions);
     const errors = [];
     page.on('pageerror', (error) => errors.push(error.message));
     page.on('console', (message) => message.type() === 'error' && errors.push(message.text()));
     await page.goto(url);
-    await page.waitForSelector('.count svg');
+    await check(page, errors);
+  } finally {
+    await browser.close();
+    await new Promise((resolve) => server.close(resolve));
+  }
+}
 
+async function checkDesktop() {
+  await inBrowser(join(app, 'dist'), async (page, errors) => {
+    await page.waitForSelector('.count svg');
     const style = (selector, property) =>
       page.$eval(selector, (element, name) => getComputedStyle(element)[name], property);
     const checks = {
@@ -122,44 +159,80 @@ async function checkInBrowser() {
     await page.click('.count');
     checks['符文状态可交互'] = [(await page.textContent('.count')).trim(), '1'];
     checks['控制台没有错误'] = [errors.join('\n'), ''];
+    report(checks);
+  });
+}
 
-    const failed = Object.entries(checks).filter(([, [actual, expected]]) => actual !== expected);
-    for (const [name, [actual, expected]] of Object.entries(checks)) {
-      console.log(
-        `${actual === expected ? '✓' : '✗'} ${name}${actual === expected ? '' : `：得到 ${JSON.stringify(actual)}，应为 ${JSON.stringify(expected)}`}`,
-      );
-    }
-    if (failed.length) throw new Error(`${failed.length} 项浏览器检查未通过`);
-  } finally {
-    await browser.close();
-    await new Promise((resolve) => server.close(resolve));
-  }
+/** 移动端：H5 在手机视口、触摸屏里看 token 与点按；小程序看两端工程的文件与 app 样式表里的主题变量 */
+async function checkMobile() {
+  await inBrowser(
+    join(mobileApp, 'dist'),
+    async (page, errors) => {
+      await page.waitForSelector('.count svg');
+      const checks = {
+        'H5：按钮取移动端的 accent（indigo 9）': [
+          await page.$eval('.count', (element) => getComputedStyle(element).backgroundColor),
+          'rgb(62, 99, 221)',
+        ],
+      };
+      await page.tap('.count');
+      checks['H5：点按后计数加一'] = [
+        (await page.textContent('.count-cell')).replace('计数', '').trim(),
+        '1',
+      ];
+      checks['H5：控制台没有错误'] = [errors.join('\n'), ''];
+      report(checks);
+    },
+    { viewport: { width: 375, height: 812 }, hasTouch: true, isMobile: true },
+  );
+  const read = (path) => readFileSync(join(mobileApp, 'dist', path), 'utf8');
+  report({
+    '微信：app.json 登记了页面': [
+      JSON.parse(read('wx/app.json')).pages.join(),
+      'pages/index/index',
+    ],
+    '微信：app.wxss 里有 page 上的主题变量': [/page\{--vtm-/.test(read('wx/app.wxss')), true],
+    '微信：页面模板': [existsSync(join(mobileApp, 'dist/wx/pages/index/index.wxml')), true],
+    '支付宝：app.acss 里有 page 上的主题变量': [/page\{--vtm-/.test(read('my/app.acss')), true],
+    '支付宝：页面模板': [existsSync(join(mobileApp, 'dist/my/pages/index/index.axml')), true],
+  });
 }
 
 run('pnpm', ['build'], root);
-cpSync(join(root, 'tests/consumer/app'), app, { recursive: true });
-writeFileSync(
-  join(app, 'package.json'),
-  JSON.stringify(
-    {
-      name: 'consumer',
-      private: true,
-      type: 'module',
-      dependencies: {
-        '@zerodep-dev/vue-tsx-pro-tsx': pack('tsx'),
-        '@zerodep-dev/vue-tsx-pro-ui': pack('ui'),
-        ...catalogVersions(['vue', '@lucide/icons', 'shiki', 'zod']),
-      },
-      devDependencies: catalogVersions(['vite', 'typescript']),
-    },
-    null,
-    2,
-  ),
+const tsx = pack('tsx');
+
+prepare(
+  'app',
+  app,
+  {
+    '@zerodep-dev/vue-tsx-pro-tsx': tsx,
+    '@zerodep-dev/vue-tsx-pro-ui': pack('ui'),
+    ...catalogVersions(['vue', '@lucide/icons', 'shiki', 'zod']),
+  },
+  catalogVersions(['vite', 'typescript']),
 );
-run('npm', ['install', '--no-audit', '--no-fund'], app);
 run('npx', ['tsc', '-p', '.'], app);
 run('npx', ['vite', 'build'], app);
-await checkInBrowser();
+await checkDesktop();
+
+prepare(
+  'mobile',
+  mobileApp,
+  {
+    '@zerodep-dev/vue-tsx-pro-tsx': tsx,
+    '@zerodep-dev/vue-tsx-pro-mobile': pack('mobile'),
+    ...catalogVersions(['vue', '@lucide/icons']),
+  },
+  {
+    '@zerodep-dev/vue-tsx-pro-mini': pack('mini'),
+    ...catalogVersions(['vite', 'typescript', '@types/node']),
+  },
+);
+run('npx', ['tsc', '-p', '.'], mobileApp);
+// 先出 H5（vite build 会清空 dist），再出两端小程序（dist/wx、dist/my）
+run('npx', ['vite', 'build'], mobileApp);
+run('node', ['build.ts'], mobileApp);
+await checkMobile();
 
 console.log('\n发布产物验证通过');
 try {
