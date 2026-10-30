@@ -6,10 +6,11 @@
 /**
  * 模板类型（数据里的 t 字段，也是模板名的一段）：v 是 view，x 是文本，n 是不渲染的注释；
  * lock 是 catch 掉 touchmove 的 view（遮罩，挡住页面滚动），touch 是收 touchmove 的 view（手势：滑动、拖动）。
- * 后两种按元素上的 data-scroll-lock、data-touch-move 选，普通 view 不绑 touchmove，滚动时不往逻辑层发事件
+ * 后两种按元素上的 data-scroll-lock、data-touch-move 选，普通 view 不绑 touchmove，滚动时不往逻辑层发事件。
+ * btn 是带 open-type 的 button（开放能力：手机号、头像、隐私协议同意……只能由原生按钮触发），其余 button 照常是 view
  */
 export type TemplateType =
-  'v' | 'x' | 'n' | 'svg' | 'image' | 'input' | 'textarea' | 'lock' | 'touch';
+  'v' | 'x' | 'n' | 'svg' | 'image' | 'input' | 'textarea' | 'lock' | 'touch' | 'btn';
 
 /** 通用模板展开的层数：更深的节点画在递归组件里（build/templates.ts） */
 export const TEMPLATE_DEPTH = 24;

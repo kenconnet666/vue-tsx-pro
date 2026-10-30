@@ -8,6 +8,18 @@
  *   const unlock = host.lockScroll();
  */
 import { inject, type InjectionKey } from 'vue';
+import type {
+  HostPermissions,
+  HostStorage,
+  LoginOptions,
+  LoginResult,
+  PaymentOrder,
+  PaymentResult,
+  PhoneNumberResult,
+  PrivacyReply,
+  SubscribeState,
+} from '../capability/types';
+import { webCapabilities } from '../capability/web';
 
 /** 元素的位置与大小（视口坐标，px） */
 export interface HostRect {
@@ -64,6 +76,22 @@ export interface Host {
   copy(text: string): Promise<void>;
   /** 选图片 */
   chooseImages(options: { count: number }): Promise<ChosenImage[]>;
+  /** 设备权限：位置、相机、麦克风、相册、蓝牙（组件里用 usePermission） */
+  readonly permissions: HostPermissions;
+  /** 本地存储（组件里用 useStorage） */
+  readonly storage: HostStorage;
+  /** 登录凭证，交给后端换会话；H5 没有平台登录，由应用经 ConfigProvider 的 host 给出实现 */
+  login(options?: LoginOptions): Promise<LoginResult>;
+  /** 调起收银台；参数是后端下单的结果 */
+  pay(order: PaymentOrder): Promise<PaymentResult>;
+  /** 订阅消息：一次最多 3 个模板，要在用户点按的回调里调用 */
+  subscribe(templateIds: string[]): Promise<Record<string, SubscribeState>>;
+  /** 手机号按钮（Button 的 openType）的结果换成交给后端的凭证 */
+  phoneNumber(detail: unknown): Promise<PhoneNumberResult>;
+  /** 平台要求用户先同意隐私协议时通知（只有微信），返回取消函数；回复后平台才继续执行被拦下的接口 */
+  onPrivacyRequest(listener: (reply: PrivacyReply) => void): () => void;
+  /** 打开小程序的隐私协议页 */
+  openPrivacyContract(): Promise<void>;
 }
 
 /** 注入键：全局 Symbol，小程序运行时用同一个键 provide，不必导入这个模块 */
@@ -129,6 +157,7 @@ export const webHost: Host = {
       input.click();
     });
   },
+  ...webCapabilities,
 };
 
 /** 当前应用的平台能力：小程序页面里是运行时 provide 的，其余是浏览器的实现 */

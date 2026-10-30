@@ -50,7 +50,7 @@ const toTouch = (touch: NativeTouch, index: number): MiniTouch => ({
 type NodeData = Record<string, unknown>;
 
 /** 有子节点的模板类型 */
-const CONTAINERS = new Set<TemplateType>(['v', 'lock', 'touch']);
+const CONTAINERS = new Set<TemplateType>(['v', 'lock', 'touch', 'btn']);
 
 /** 小程序事件 → 组件收到的事件名 */
 const EVENT_TYPES: Readonly<Record<string, string>> = {
@@ -70,6 +70,11 @@ const EVENT_TYPES: Readonly<Record<string, string>> = {
   load: 'load',
   error: 'error',
   scroll: 'scroll',
+  // 开放能力按钮的结果（微信：手机号、头像、隐私协议同意；支付宝：getAuthorize）：组件收到 opentype，detail 是平台给的
+  getphonenumber: 'opentype',
+  chooseavatar: 'opentype',
+  agreeprivacyauthorization: 'opentype',
+  getauthorize: 'opentype',
 };
 
 /**
@@ -118,6 +123,9 @@ function inputType(node: MiniNode): { type: string; pw?: 1 } {
   if (type === 'password') return { type: 'text', pw: 1 };
   if (type === 'number' || mode === 'decimal') return { type: 'digit' };
   if (type === 'tel' || mode === 'numeric' || mode === 'tel') return { type: 'number' };
+  // 微信的昵称输入框（键盘上方给出微信昵称）；支付宝不认，按文字处理
+  if (node.attribute('autocomplete') === 'nickname' && platform()?.name !== 'my')
+    return { type: 'nickname' };
   return { type: 'text' };
 }
 
@@ -265,7 +273,9 @@ class PageHost implements NodeHost {
     this.nodes.set(node.sid, node);
     let type = templateOf(node.tag);
     // 遮罩这类节点 catch 掉 touchmove，挡住下面页面的滚动（小程序没有别的办法锁滚动）；手势节点才收 touchmove
-    if (type === 'v' && node.attribute('data-scroll-lock') !== undefined) type = 'lock';
+    if (type === 'v' && node.tag === 'button' && node.attribute('open-type') !== undefined)
+      type = 'btn';
+    else if (type === 'v' && node.attribute('data-scroll-lock') !== undefined) type = 'lock';
     else if (type === 'v' && node.attribute('data-touch-move') !== undefined) type = 'touch';
     if (type === 'x') return { s: node.sid, t: type, v: node.text };
     if (type === 'n') return { s: node.sid, t: type };
@@ -275,8 +285,14 @@ class PageHost implements NodeHost {
       t: type,
       st: this.styleId(type === 'svg' ? `${svgMaskStyle(node)};${style}` : style),
     };
-    // 空的类名不发（多数节点没有类名，全靠行内样式）
-    if (className) data.c = className;
+    // 空的类名不发（多数节点没有类名，全靠行内样式）；原生按钮再加去掉默认外观的类（build/styles.ts）
+    if (type === 'btn') {
+      data.c = className ? `${className} vtp-btn` : 'vtp-btn';
+      data.ot = node.attribute('open-type');
+      // 支付宝 getAuthorize 的授权范围
+      const scope = node.attribute('scope');
+      if (scope !== undefined) data.os = scope;
+    } else if (className) data.c = className;
     // 手势节点在横滑的过程中写 data-touch-move="catch"：模板换成 catch，页面不跟着滚
     if (type === 'touch' && node.attribute('data-touch-move') === 'catch') data.cm = 1;
     for (const [name, field] of passedAttrs()) {

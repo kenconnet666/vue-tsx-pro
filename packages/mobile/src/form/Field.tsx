@@ -32,6 +32,8 @@ export interface FieldTypes {
   digit: unknown;
   /** 电话号码：拨号键盘 */
   tel: unknown;
+  /** 昵称：微信小程序里键盘上方给出微信昵称（type="nickname"），其余同文字 */
+  nickname: unknown;
 }
 
 /** 输入框的属性与事件由组件管理 */
@@ -147,6 +149,8 @@ const INPUT_ATTRS = {
   number: { type: 'text', inputmode: 'decimal' },
   digit: { type: 'text', inputmode: 'numeric' },
   tel: { type: 'tel' },
+  // autocomplete 的 nickname 是标准的自动填充值；小程序运行时按它换成昵称输入框
+  nickname: { type: 'text', autocomplete: 'nickname' },
 } as const;
 
 /** 输入框（div > 标题 + 输入框 + 消息） */

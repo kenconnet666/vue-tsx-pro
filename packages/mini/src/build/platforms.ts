@@ -20,6 +20,8 @@ export interface Platform {
    * 支付宝没有对应的属性，空着
    */
   a11y: string;
+  /** 开放能力按钮（模板 btn）的原生 button 上额外绑的属性与事件 */
+  openButton: string;
 }
 
 /** 模板上绑的原生事件 */
@@ -62,6 +64,8 @@ export const PLATFORMS: Readonly<Record<Platform['name'], Platform>> = {
     event: (name) => `catch${name}`,
     touchMove: `bindtouchmove="{{i.cm ? '' : 'eh'}}" catchtouchmove="{{i.cm ? 'eh' : ''}}"`,
     a11y: 'aria-role="{{i.ar}}" aria-label="{{i.al}}" aria-hidden="{{i.ahi}}" aria-checked="{{i.ack}}" aria-disabled="{{i.adi}}" aria-selected="{{i.ase}}" aria-expanded="{{i.aex}}"',
+    openButton:
+      'open-type="{{i.ot}}" hover-class="none" bindgetphonenumber="eh" bindchooseavatar="eh" bindagreeprivacyauthorization="eh" binderror="eh"',
   },
   my: {
     name: 'my',
@@ -71,5 +75,6 @@ export const PLATFORMS: Readonly<Record<Platform['name'], Platform>> = {
     event: (name) => `catch${camel[name]}`,
     touchMove: 'onTouchMove="eh"',
     a11y: '',
+    openButton: 'open-type="{{i.ot}}" scope="{{i.os}}" onGetAuthorize="eh" onError="eh"',
   },
 };

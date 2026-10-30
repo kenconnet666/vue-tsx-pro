@@ -2,6 +2,7 @@
  * 宿主约定的小程序实现：组件库（@zerodep-dev/vue-tsx-pro-mobile 的 useHost）要用的平台能力。
  * 每个页面一份，在页面的 Vue 应用上用全局 Symbol 键 provide，两边互不导入；接口的形状以组件库的 Host 为准。
  */
+import { createCapabilities, type CapabilityApi } from './capability.ts';
 import type { MiniNode } from './node.ts';
 
 /** 注入键：与组件库约定的同一个全局 Symbol */
@@ -23,8 +24,8 @@ interface Callbacks<T> {
   fail?: (error: unknown) => void;
 }
 
-/** 微信（wx）与支付宝（my）全局 API 里用到的部分 */
-export interface MiniApi {
+/** 微信（wx）与支付宝（my）全局 API 里用到的部分（授权类能力的见 capability.ts） */
+export interface MiniApi extends CapabilityApi {
   getWindowInfo?(): { windowWidth: number; windowHeight: number };
   /** 深浅色（微信要在 app.json 里开 darkmode 才会给 dark） */
   getAppBaseInfo?(): { theme?: 'light' | 'dark' };
@@ -146,5 +147,6 @@ export function createMiniHost(page: PageBridge) {
             fail: reject,
           });
       }),
+    ...createCapabilities(current),
   };
 }

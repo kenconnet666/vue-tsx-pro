@@ -29,6 +29,7 @@ export function baseTemplate(platform: Platform): string {
       view('v', tapEvents),
       view('lock', `${tapEvents} ${on(['touchmove'])}`),
       view('touch', `${tapEvents} ${platform.touchMove}`),
+      `<template name="vtp_btn_${level}"><button ${platform.openButton} ${common} ${tapEvents}>${children}</button></template>`,
       `<template name="vtp_x_${level}">{{i.v}}</template>`,
       `<template name="vtp_n_${level}"><block></block></template>`,
       `<template name="vtp_svg_${level}"><view ${common} ${tapEvents}/></template>`,

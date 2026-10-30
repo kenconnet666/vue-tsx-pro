@@ -9,6 +9,7 @@ import { copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from 'node
 import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
 import { build, type InlineConfig, type Plugin, type PluginOption } from 'vite';
+import { wechatAppFields, windowConfig } from './app.ts';
 import { PLATFORMS, type Platform } from './platforms.ts';
 import { appStyles } from './styles.ts';
 import { baseTemplate, componentTemplate, pageTemplate } from './templates.ts';
@@ -33,6 +34,16 @@ export interface MiniBuildOptions {
    * 导航栏的颜色在 window 里写死时不受影响
    */
   darkmode?: boolean;
+  /**
+   * 位置权限的用途说明，用户授权时看到（微信 app.json 的 permission；精确位置 location、模糊位置 fuzzyLocation）。
+   * 申请位置权限时必须写
+   */
+  permissions?: { location?: string; fuzzyLocation?: string };
+  /**
+   * 用到的地理位置接口（微信 app.json 的 requiredPrivateInfos，没声明的调用时报错）：如 getLocation、chooseLocation、
+   * getFuzzyLocation。模糊位置与精确位置的接口互斥，同时声明时构建报错
+   */
+  requiredPrivateInfos?: string[];
   /** 开发构建：不压缩，Vue 带开发期检查 */
   development?: boolean;
 }
@@ -293,12 +304,6 @@ function componentScript(platform: Platform): string {
   return `const { eh } = require('../../vtp.js');\nComponent(${options});\n`;
 }
 
-/** app.json 的 window 按微信的字段写；支付宝的标题字段叫 defaultTitle，补上 */
-function windowConfig(platform: Platform, window: Record<string, unknown> = {}) {
-  if (platform.name !== 'my' || window.navigationBarTitleText === undefined) return window;
-  return { ...window, defaultTitle: window.navigationBarTitleText };
-}
-
 function emit(outDir: string, platform: Platform, bundle: Bundle, options: MiniBuildOptions) {
   const write = (path: string, content: string) => {
     mkdirSync(join(outDir, path, '..'), { recursive: true });
@@ -315,7 +320,7 @@ function emit(outDir: string, platform: Platform, bundle: Bundle, options: MiniB
         pages,
         window: windowConfig(platform, options.window),
         usingComponents,
-        ...(options.darkmode && platform.name === 'wx' ? { darkmode: true } : {}),
+        ...(platform.name === 'wx' ? wechatAppFields(options) : {}),
       },
       null,
       2,

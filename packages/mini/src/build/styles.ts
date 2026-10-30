@@ -5,7 +5,13 @@
  */
 
 /** 元素的默认显示方式（运行时的 baseClassOf） */
-const BASE = '.vtp-inline{display:inline}\n.vtp-inline-block{display:inline-block}';
+const BASE = [
+  '.vtp-inline{display:inline}',
+  '.vtp-inline-block{display:inline-block}',
+  // 开放能力的原生 button（模板 btn）：去掉默认的边距、底色、圆角与 ::after 边框，外观全由组件的行内样式给
+  '.vtp-btn{margin:0;padding:0;border:0;border-radius:0;background:none;font-size:inherit;line-height:inherit;color:inherit;text-align:inherit;width:auto;overflow:visible}',
+  '.vtp-btn::after{display:none}',
+].join('\n');
 
 /** 引擎收集的规则原文 → app 样式表 */
 export function appStyles(styleText: string): string {

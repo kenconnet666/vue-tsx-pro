@@ -12,6 +12,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { Loading, type LoadingProps } from '../feedback/Loading';
+import { useHost } from '../utils/host';
 import { dataAttrs, hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { MobileRadius, MobileSize, MobileTone } from '../utils/scales';
 import { Icon, type IconData, type IconProps } from './Icon';
@@ -30,6 +31,20 @@ export interface ButtonVariants {
 
 /** 状态与语义属性由组件管理 */
 export type ButtonManaged = 'disabled' | 'aria-busy' | 'aria-disabled';
+
+/**
+ * 小程序按钮的开放能力（原生 button 的 open-type），H5 里不起作用：
+ * getPhoneNumber 手机号、chooseAvatar 选头像、agreePrivacyAuthorization 同意隐私协议、share 转发、contact 客服、
+ * openSetting 设置页（以上是微信）；getAuthorize 授权（支付宝，配合 authScope）
+ */
+export type ButtonOpenType =
+  | 'getPhoneNumber'
+  | 'chooseAvatar'
+  | 'agreePrivacyAuthorization'
+  | 'share'
+  | 'contact'
+  | 'openSetting'
+  | 'getAuthorize';
 
 /** 未声明的属性落到 button 上 */
 export interface ButtonProps extends PartProps<'button', ButtonManaged> {
@@ -65,6 +80,12 @@ export interface ButtonProps extends PartProps<'button', ButtonManaged> {
   icon?: IconData;
   /** 文字后的图标 */
   iconEnd?: IconData;
+  /** 小程序的开放能力：只能由用户点这个按钮触发的平台能力（手机号、头像、隐私协议同意……） */
+  openType?: ButtonOpenType;
+  /** 支付宝 getAuthorize 的授权范围：phoneNumber 手机号、userInfo 会员基础信息 */
+  authScope?: 'phoneNumber' | 'userInfo';
+  /** 开放能力的结果（平台事件的 detail）：手机号交给 useHost().phoneNumber 换凭证，头像的 detail.avatarUrl 是临时路径 */
+  onOpenType?: (detail: unknown) => void;
   /** 按钮文字 */
   children?: VNodeChild;
   /** 内容层（包着图标与文字的 span）的部件属性 */
@@ -347,6 +368,23 @@ export const buttonRecipe = css.recipe({
   defaults: { variant: 'solid', tone: 'accent', size: 'md', radius: 'md' },
 });
 
+/**
+ * 开放能力的属性：小程序运行时按 open-type 换成原生 button，平台事件统一成 opentype（mini 的 page.ts）。
+ * 这些不是 button 的 DOM 属性，H5 里不写
+ */
+function openTypeAttrs(
+  openType: ButtonOpenType | undefined,
+  scope: ButtonProps['authScope'],
+  onOpenType: ButtonProps['onOpenType'],
+): Record<string, unknown> {
+  if (!openType) return {};
+  return {
+    'open-type': openType,
+    scope,
+    onOpentype: onOpenType && ((event: { detail?: unknown }) => onOpenType(event.detail)),
+  };
+}
+
 /** 按钮（button > span 内容） */
 export const Button = _component(
   ({
@@ -366,10 +404,15 @@ export const Button = _component(
     propsIconEnd,
     propsLoading,
     onClick,
+    openType,
+    authScope,
+    onOpenType,
     type = 'button',
     ...rest
-  }: ButtonProps) =>
-    () => {
+  }: ButtonProps) => {
+    // 开放能力只在小程序里有
+    const mini = useHost().platform !== 'web';
+    return () => {
       const s = buttonRecipe({ variant, tone, size, radius, fullWidth });
       const busy = disabled || loading;
       return (
@@ -380,6 +423,7 @@ export const Button = _component(
             // 加载中不响应点击（使用方的回调也不调用），但不设 disabled：保持外观与焦点
             onClick: busy ? undefined : onClick,
             'aria-busy': loading || undefined,
+            ...(mini ? openTypeAttrs(openType, authScope, onOpenType) : {}),
             ...dataAttrs({
               'data-disabled': disabled || undefined,
               'data-loading': loading || undefined,
@@ -399,5 +443,6 @@ export const Button = _component(
           </span>
         </button>
       );
-    },
+    };
+  },
 );

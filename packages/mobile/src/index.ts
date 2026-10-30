@@ -14,6 +14,12 @@ export * from './config/ConfigProvider';
 // 工具：部件属性的合并、宿主约定、档位
 export * from './utils/props';
 export * from './utils/host';
+
+// 授权类能力：设备权限、存储、登录、支付、订阅消息、隐私协议
+export * from './capability/types';
+export * from './capability/usePermission';
+export * from './capability/useStorage';
+export * from './capability/PrivacyPrompt';
 export * from './utils/scales';
 
 // 基础

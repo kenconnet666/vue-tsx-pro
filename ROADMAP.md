@@ -714,6 +714,30 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [ ] 19.9 MySQL 系的兼容库：从 MySQL 方言继承出 MariaDB（10.5+ 有 RETURNING，没有 JSON_TABLE 的部分写法），容器进 compose 与 CI
 - [ ] 19.10 PG 的 advisory lock（`db.advisoryLock(key)`，事务级，跨进程的锁）与 `LISTEN / NOTIFY`（二级缓存的失效通知可以接它）
 
+## 阶段 20：移动端的授权类能力（设备权限、存储、登录、支付、订阅消息、隐私协议）
+
+同一套 API 在 H5、微信、支付宝里用：宿主约定（`useHost()`）加上授权类能力，H5 的实现在 mobile（`src/capability/web.ts`），
+小程序的在 mini（`src/capability.ts`），两边互不导入。接口按两端官方文档对照（2026-10），需要正式 AppID、商户号或真机点按的部分
+先按文档实现、单测覆盖映射，真机验证另做（20.7）。
+
+- [x] 20.1 设备权限：`permissions.status / request / openSettings`，状态统一成 granted、denied、prompt、unsupported；
+      位置（精确、模糊）、相机、麦克风、相册、蓝牙。微信按 scope 走 getSetting / authorize / openSetting；支付宝没有提前申请的接口，
+      授权在第一次调用能力时弹出；H5 用 Permissions API 查、调一次 geolocation / getUserMedia 申请。`usePermission` 拒绝后引导去设置页
+- [x] 20.2 存储：`storage.get / set / remove / keys`，三端都存 JSON 文本；`useStorage(key, 默认值)` 改了自动写回
+- [x] 20.3 开放能力按钮：Button 的 `openType`（手机号、头像、隐私协议同意、转发、客服、设置页；支付宝 getAuthorize 加 `authScope`），
+      小程序运行时换成原生 button 模板（去掉默认外观），平台事件统一成 `onOpenType`；Field 的 `type="nickname"`（微信昵称键盘）
+- [x] 20.4 隐私协议：微信拦下隐私接口时（onNeedPrivacyAuthorization）ConfigProvider 里的 `PrivacyPrompt` 从底部弹出，
+      同意按钮是 agreePrivacyAuthorization 的原生按钮，回复带按钮 id；没有弹窗接手时回复不同意，免得接口一直等
+- [x] 20.5 登录、手机号、支付、订阅消息：`login()`（微信 code、支付宝 authCode 按 base / user）；`phoneNumber(detail)`（微信 code、
+      支付宝 getPhoneNumber 的加密 response，都交给后端）；`pay(order)`（微信 requestPayment、支付宝 tradePay 的结果码、
+      微信内 H5 走 JSAPI、其它浏览器跳支付页），结果统一成 success / cancel / pending / fail，pending 要后端查单；
+      `subscribe(templateIds)`（微信 tmplIds、支付宝 entityIds）。H5 没有平台登录与订阅：由应用经 ConfigProvider 的 `host` 补上
+- [x] 20.6 构建声明：`mini.config.ts` 的 `permissions`（位置权限的用途说明，写进微信 app.json 的 permission）、
+      `requiredPrivateInfos`（原样写入，模糊与精确位置的接口同时声明时构建报错）
+- [ ] 20.7 真机与模拟器验证：两端的授权弹窗与设置页往返、隐私协议弹窗、手机号与头像按钮、支付（要商户号）、订阅消息；
+      支付宝的麦克风、蓝牙 authSetting 键名与订阅消息返回结构按实测修正
+- [ ] 20.8 演示页“能力”与文档站“能力与权限”页：三端差异表、后台要开通的项目（支付、手机号、模糊定位、隐私指引声明）
+
 ## 已知局限（有意的取舍，写在文档里）
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）

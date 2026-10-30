@@ -2,6 +2,8 @@
  * 语言包：组件里出现的文案（确认、取消、加载中、下拉刷新的各阶段……）。地区（locale）用于数字与日期的格式化。
  * 用 ConfigProvider 的 `lang` 换整套，或在默认的基础上改几条：`{ ...zhCN, confirm: '好的' }`
  */
+import type { DevicePermission } from '../capability/types';
+
 export interface MobileLang {
   /** 地区（BCP 47），数字、日期格式化用 */
   locale: string;
@@ -53,6 +55,12 @@ export interface MobileLang {
   /** 日历：开始、结束 */
   start: string;
   end: string;
+  /** 设备权限的名字（被拒后的引导里用） */
+  permissions: Record<DevicePermission, string>;
+  /** 权限被拒后引导去设置页：标题、说明、去设置的按钮 */
+  permissionDenied: { title: string; message: (name: string) => string; openSettings: string };
+  /** 隐私协议弹窗：标题、说明、协议链接、拒绝与同意 */
+  privacy: { title: string; message: string; contract: string; disagree: string; agree: string };
 }
 
 /** 简体中文 */
@@ -84,6 +92,26 @@ export const zhCN: MobileLang = {
   select: '请选择',
   start: '开始',
   end: '结束',
+  permissions: {
+    location: '位置',
+    fuzzyLocation: '位置',
+    camera: '相机',
+    microphone: '麦克风',
+    album: '相册',
+    bluetooth: '蓝牙',
+  },
+  permissionDenied: {
+    title: '需要权限',
+    message: (name) => `你之前拒绝了${name}权限，要用这项功能请在设置里打开`,
+    openSettings: '去设置',
+  },
+  privacy: {
+    title: '隐私保护提示',
+    message: '使用这项功能前，请阅读并同意隐私保护指引',
+    contract: '《隐私保护指引》',
+    disagree: '拒绝',
+    agree: '同意',
+  },
 };
 
 /** 英文 */
@@ -116,4 +144,25 @@ export const enUS: MobileLang = {
   select: 'Select',
   start: 'Start',
   end: 'End',
+  permissions: {
+    location: 'location',
+    fuzzyLocation: 'location',
+    camera: 'camera',
+    microphone: 'microphone',
+    album: 'photo album',
+    bluetooth: 'Bluetooth',
+  },
+  permissionDenied: {
+    title: 'Permission needed',
+    message: (name) =>
+      `You denied ${name} access earlier. Turn it on in Settings to use this feature.`,
+    openSettings: 'Open Settings',
+  },
+  privacy: {
+    title: 'Privacy notice',
+    message: 'Please read and agree to the privacy policy before using this feature.',
+    contract: 'Privacy Policy',
+    disagree: 'Decline',
+    agree: 'Agree',
+  },
 };
