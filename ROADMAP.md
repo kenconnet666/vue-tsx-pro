@@ -727,7 +727,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 
 - [x] 20.1 设备权限：`permissions.status / request / openSettings`，状态统一成 granted、denied、prompt、unsupported；
       位置（精确、模糊）、相机、麦克风、相册、蓝牙。微信按 scope 走 getSetting / authorize / openSetting；支付宝没有提前申请的接口，
-      授权在第一次调用能力时弹出；H5 用 Permissions API 查、调一次 geolocation / getUserMedia 申请。`usePermission` 拒绝后引导去设置页
+      授权在第一次调用能力时弹出（申请位置、蓝牙时调一次对应能力，相机等用到时再问）；H5 用 Permissions API 查、调一次 geolocation / getUserMedia 申请。`usePermission` 拒绝后引导去设置页
 - [x] 20.2 存储：`storage.get / set / remove / keys`，三端都存 JSON 文本；`useStorage(key, 默认值)` 改了自动写回
 - [x] 20.3 开放能力按钮：Button 的 `openType`（手机号、头像、隐私协议同意、转发、客服、设置页；支付宝 getAuthorize 加 `authScope`），
       小程序运行时换成原生 button 模板（去掉默认外观），平台事件统一成 `onOpenType`；Field 的 `type="nickname"`（微信昵称键盘）

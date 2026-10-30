@@ -5,7 +5,8 @@
  * 平台接口按官方文档对照（2026-10 核对）：
  * - 微信：getSetting / authorize / openSetting 的 scope；requestPayment；requestSubscribeMessage（tmplIds）；
  *   onNeedPrivacyAuthorization（resolve 的 event 为 agree / disagree，同意时带按钮 id）；手机号按钮的 detail.code
- * - 支付宝：getSetting 的 authSetting 键（location、camera、album）；没有提前申请的接口，授权在第一次调用能力时弹出；
+ * - 支付宝：getSetting 的 authSetting 键（location、camera、album，麦克风 audioRecord 只见于文档示例）；没有提前申请的接口，
+ *   授权在第一次调用能力时弹出——申请位置时调一次 getLocation、蓝牙时开关一次适配器，相机、相册、麦克风没有不打开界面的调用，用到时再问；
  *   tradePay 的 resultCode（9000 成功，8000 / 6004 结果未知，6001 取消）；requestSubscribeMessage（entityIds）；
  *   getAuthCode 的 scopes（auth_base / auth_user）；手机号要先点 getAuthorize 按钮再调 getPhoneNumber
  */
@@ -18,6 +19,9 @@ export interface CapabilityApi {
   getSetting?(options: Callback<Settings>): void;
   openSetting?(options: Callback<Settings>): void;
   authorize?(options: { scope: string } & Callback<unknown>): void;
+  getLocation?(options: Callback<unknown>): void;
+  openBluetoothAdapter?(options: Callback<unknown>): void;
+  closeBluetoothAdapter?(options: Callback<unknown>): void;
   getStorageSync?(key: unknown): unknown;
   setStorageSync?(key: unknown, data?: unknown): void;
   removeStorageSync?(key: unknown): void;
@@ -57,12 +61,23 @@ const WX_SCOPES: Record<PermissionName, string> = {
   bluetooth: 'scope.bluetooth',
 };
 
-/** 设备权限 → 支付宝 authSetting 的键；麦克风、蓝牙没有查到可靠的键名，按"用到时再问"处理 */
+/** 设备权限 → 支付宝 authSetting 的键；蓝牙没有小程序这一层的授权（只有系统的） */
 const MY_SCOPES: Partial<Record<PermissionName, string>> = {
   location: 'location',
   fuzzyLocation: 'location',
   camera: 'camera',
+  microphone: 'audioRecord',
   album: 'album',
+};
+
+/** 支付宝申请时调一次就会弹授权、又不打开界面的接口 */
+const MY_TRIGGERS: Partial<Record<PermissionName, (api: CapabilityApi) => Promise<unknown>>> = {
+  location: (api) => call(api, 'getLocation'),
+  fuzzyLocation: (api) => call(api, 'getLocation'),
+  bluetooth: async (api) => {
+    await call(api, 'openBluetoothAdapter');
+    await call(api, 'closeBluetoothAdapter').catch(() => {});
+  },
 };
 
 /** 回调式接口转 Promise；接口不存在时报出名字 */
@@ -155,11 +170,23 @@ export function createCapabilities(current: { name: 'wx' | 'my'; api: Capability
       status,
       async request(name: PermissionName): Promise<PermissionState> {
         const current = await status(name);
-        if (current !== 'prompt' || !isWx()) return current;
+        if (current !== 'prompt') return current;
+        if (isWx()) {
+          try {
+            await call(api(), 'authorize', { scope: WX_SCOPES[name] });
+            return 'granted';
+          } catch {
+            return status(name);
+          }
+        }
+        const trigger = MY_TRIGGERS[name];
+        if (!trigger) return 'prompt';
         try {
-          await call(api(), 'authorize', { scope: WX_SCOPES[name] });
+          await trigger(api());
           return 'granted';
-        } catch {
+        } catch (error) {
+          // 蓝牙的 14：没授权支付宝用蓝牙；没开蓝牙等其他错误与授权无关
+          if ((error as { error?: number }).error === 14) return 'denied';
           return status(name);
         }
       },

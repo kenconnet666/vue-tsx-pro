@@ -23,7 +23,8 @@ export interface HostPermissions {
   status(name: DevicePermission): Promise<DevicePermissionState>;
   /**
    * 申请：没问过时弹系统授权，返回之后的状态；拒绝过的直接返回 denied（引导去设置页由 usePermission 做）。
-   * 支付宝没有提前申请的接口，授权在第一次调用对应能力时弹出，这里返回 prompt
+   * 支付宝没有提前申请的接口：位置、蓝牙调一次对应能力弹出授权；相机、相册、麦克风没有不打开界面的调用，
+   * 返回 prompt，表示照常去用、用到时平台自己问
    */
   request(name: DevicePermission): Promise<DevicePermissionState>;
   /** 打开小程序的设置页，用户改完回来后返回该权限的新状态；H5 不能代开浏览器设置，返回当前状态 */

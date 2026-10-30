@@ -48,6 +48,17 @@ describe('usePermission', () => {
     expect(camera.status.value).toBe('granted');
   });
 
+  it('申请后仍是 prompt（平台用到时自己问，如支付宝的相机）：返回 true，照常去用', async () => {
+    const permissions: HostPermissions = {
+      status: async () => 'prompt',
+      request: async () => 'prompt',
+      openSettings: async () => 'prompt',
+    };
+    const camera = withHost({ platform: 'my', permissions }, () => usePermission('camera'));
+    expect(await camera.request()).toBe(true);
+    expect(dialog()).toBeNull();
+  });
+
   it('拒绝过：小程序里问要不要去设置页，确认后按设置页回来的状态', async () => {
     const openSettings = vi.fn(async () => 'granted' as const);
     const permissions: HostPermissions = {

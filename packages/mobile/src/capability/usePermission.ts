@@ -16,7 +16,10 @@ import type { DevicePermission, DevicePermissionState } from './types';
 export interface PermissionHandle {
   /** 当前状态；还没查到时 null */
   readonly status: Readonly<Ref<DevicePermissionState | null>>;
-  /** 申请：同意了返回 true。拒绝过的先引导去设置页，从设置页回来再看一次 */
+  /**
+   * 申请：可以接着用了返回 true——已同意，或平台在用到时自己问（申请后仍是 prompt，如支付宝的相机）。
+   * 拒绝过的先引导去设置页，从设置页回来再看一次
+   */
   request(): Promise<boolean>;
   /** 重新查状态（比如页面重新显示时） */
   refresh(): Promise<DevicePermissionState>;
@@ -48,7 +51,7 @@ export function usePermission(name: DevicePermission): PermissionHandle {
       let next = await host.permissions.request(name);
       if (next === 'denied') next = await guide();
       status.value = next;
-      return next === 'granted';
+      return next === 'granted' || next === 'prompt';
     },
   };
 }

@@ -69,10 +69,10 @@ const PERMISSIONS: [string, string, string, string][] = [
     'location',
     'geolocation',
   ],
-  ['camera', 'scope.camera', 'camera', 'getUserMedia（视频）'],
-  ['microphone', 'scope.record', '用到时由系统询问', 'getUserMedia（音频）'],
-  ['album', 'scope.writePhotosAlbum', 'album', '下载文件，不用授权'],
-  ['bluetooth', 'scope.bluetooth', '用到时由系统询问', 'Web Bluetooth（iOS 没有）'],
+  ['camera', 'scope.camera', 'camera（用到时询问）', 'getUserMedia（视频）'],
+  ['microphone', 'scope.record', 'audioRecord（用到时询问）', 'getUserMedia（音频）'],
+  ['album', 'scope.writePhotosAlbum', 'album（用到时询问）', '下载文件，不用授权'],
+  ['bluetooth', 'scope.bluetooth', '没有，开关一次适配器', 'Web Bluetooth（iOS 没有）'],
 ];
 
 const PAYMENTS: [string, string, string][] = [
@@ -119,7 +119,9 @@ export default _component(() => () => (
         弹对话框问要不要去。
       </ListItem>
       <ListItem>
-        支付宝没有提前申请的接口，授权在第一次调用对应能力时弹出，申请时返回 prompt。
+        {
+          '支付宝没有提前申请的接口：申请位置时调一次定位、申请蓝牙时开关一次适配器，让授权弹出来；相机、相册、麦克风没有不打开界面的调用，申请后仍是 prompt，request() 返回 true，照常去用，用到时由支付宝询问。'
+        }
       </ListItem>
       <ListItem>存储三端都是同步接口，值按 JSON 存取；H5 的隐私模式下写不进去时静默忽略。</ListItem>
     </List>

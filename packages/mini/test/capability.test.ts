@@ -46,13 +46,39 @@ describe('设备权限', () => {
     expect(await permissions.openSettings('microphone')).toBe('granted');
   });
 
-  it('支付宝：没有提前申请的接口，没问过的仍是 prompt；没有键名的权限当作用到时再问', async () => {
-    const { api, calls } = fakeApi({ getSetting: { authSetting: { location: true } } });
+  it('支付宝：位置、蓝牙申请时调一次能力弹授权；相机等用到时再问；麦克风的键是 audioRecord', async () => {
+    const { api, calls } = fakeApi({
+      getSetting: { authSetting: { audioRecord: false } },
+      getLocation: {},
+      openBluetoothAdapter: {},
+      closeBluetoothAdapter: {},
+    });
     const { permissions } = createCapabilities({ name: 'my', api });
-    expect(await permissions.status('location')).toBe('granted');
+    expect(await permissions.status('microphone')).toBe('denied');
+    expect(await permissions.request('location')).toBe('granted');
+    expect(await permissions.request('bluetooth')).toBe('granted');
     expect(await permissions.request('camera')).toBe('prompt');
-    expect(await permissions.status('bluetooth')).toBe('prompt');
+    expect(calls.map(([name]) => name)).toEqual(
+      expect.arrayContaining(['getLocation', 'openBluetoothAdapter', 'closeBluetoothAdapter']),
+    );
     expect(calls.some(([name]) => name === 'authorize')).toBe(false);
+  });
+
+  it('支付宝：拒绝了位置（authSetting 记下 false）是 denied；蓝牙的 14（没授权支付宝用蓝牙）是 denied', async () => {
+    let setting: Record<string, boolean> = {};
+    const { api } = fakeApi(
+      {
+        get getSetting() {
+          return { authSetting: setting };
+        },
+      },
+      { getLocation: { error: 11 }, openBluetoothAdapter: { error: 14 } },
+    );
+    const { permissions } = createCapabilities({ name: 'my', api });
+    const location = permissions.request('location');
+    setting = { location: false };
+    expect(await location).toBe('denied');
+    expect(await permissions.request('bluetooth')).toBe('denied');
   });
 });
 

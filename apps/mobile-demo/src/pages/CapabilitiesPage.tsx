@@ -52,7 +52,16 @@ const PermissionCell = _component(({ name, title }: { name: DevicePermission; ti
       title={title}
       value={permission.status.value ? STATUS_TEXT[permission.status.value] : '…'}
       arrow
-      onClick={() => void permission.request()}
+      onClick={() =>
+        void permission
+          .request()
+          .then(
+            (usable) =>
+              usable &&
+              permission.status.value === 'prompt' &&
+              showToast(`${title}：用到时由平台询问`),
+          )
+      }
     />
   );
 });
