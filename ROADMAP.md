@@ -695,9 +695,9 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 （本地 pg、mysql84 容器常开，PGlite 进程内；MySQL 8.0.18 基线交给 CI），文档站一节；别的方言没有的写法在渲染时报出、或在能力类型里标红。
 按顺序做：
 
-- [ ] 19.1 列类型（uuid、无符号、PG 数组已做）：PG 的 `col.uuid()`（默认 gen_random_uuid）、数组列 `col.array(col.string())`（读写、`has` / `overlaps` / `length`）、
-      原生枚举（`CREATE TYPE … AS ENUM`）、interval；MySQL 的无符号整数、uuid 存 `BINARY(16)`（`UUID_TO_BIN(…, 1)` 有序）；
-      其它方言按最接近的类型落地（uuid 存文字），建表、同步、pull 都认得
+- [x] 19.1 列类型：`col.uuid()`（PG / DuckDB / ClickHouse 存 UUID、SQL Server 存 UNIQUEIDENTIFIER、MySQL 存 BINARY(16)，客户端 `uuidv7` 按时间有序）、
+      PG 数组列 `col.array(元素列)`（`has` / `hasAll` / `hasAny` / `arrayLength`）、原生枚举 `col.enum(…).native(类型名)`（PG 建表前 CREATE TYPE、
+      同步时 ADD VALUE；MySQL 是 ENUM(…)）、PG 的 `col.interval()`、数值列的 `unsigned()`；建表、同步、pull 都认得
 - [ ] 19.2 一条 SQL 出对象树：`toList()` 导航在 PG 用 `jsonb_agg` / `jsonb_build_object`、MySQL 8 用 `JSON_ARRAYAGG` / `JSON_OBJECTAGG`
       聚合进父行，不再发第二条语句；结果与现在的两步写法逐行一致（共用套件里两种都跑），列的 codec 照常解码
 - [ ] 19.3 服务端真正超时与取消：`withSignal` / 新的 `timeout` 选项让库里的语句也停下——PG `SET LOCAL statement_timeout` 与

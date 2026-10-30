@@ -42,12 +42,13 @@ export const schema = defineSchema(
     },
     {
       id: 'column-types',
-      title: 'uuid、数组与无符号列',
-      text: '`col.uuid()` 在 PG 存 UUID、MySQL 存 BINARY(16)（绑定时换成 16 个字节）、SQL Server 存 UNIQUEIDENTIFIER，读出统一成小写文字；主键配 `uuidv7`（按时间有序，同一毫秒也单调）。`col.array(col.string())` 是 PG 的数组列，条件用 `has`、`hasAll`、`hasAny`、`arrayLength`；别的库建表时报不支持。`unsigned()` 在 MySQL 建成 INT UNSIGNED。',
+      title: 'uuid、数组、原生枚举与无符号列',
+      text: '`col.uuid()` 在 PG 存 UUID、MySQL 存 BINARY(16)（绑定时换成 16 个字节）、SQL Server 存 UNIQUEIDENTIFIER，读出统一成小写文字；主键配 `uuidv7`（按时间有序，同一毫秒也单调）。`col.array(col.string())` 是 PG 的数组列，条件用 `has`、`hasAll`、`hasAny`、`arrayLength`；别的库建表时报不支持。`col.enum([…]).native(类型名)` 用库里的原生枚举：MySQL 是 ENUM(…)，PG 建表前先建类型、同步时补新值。`unsigned()` 在 MySQL 建成 INT UNSIGNED。',
       code: `const Article = entity('t_article', {
   id: col.uuid().primaryKey().$default(uuidv7),
   tags: col.array(col.string(30)),
   views: col.bigint().unsigned(),
+  state: col.enum(['draft', 'published']).native('article_state'),
 });
 db.queryable(Article).where((a) => [a.tags.has('orm'), a.tags.arrayLength().gt(2)]);`,
     },
