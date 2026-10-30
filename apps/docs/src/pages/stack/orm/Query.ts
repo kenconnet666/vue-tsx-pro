@@ -40,6 +40,16 @@ db.queryable(Company).apply(ofTenant, 7); // 类型错误：Company 没有 tenan
 await byAge.toList({ min: 18, prefix: 'a' }); // string[]`,
     },
     {
+      id: 'match',
+      title: '忽略大小写、正则、DISTINCT ON 与锁',
+      text: 'like 家族都能 `{ ignoreCase: true }`（PG 是 ILIKE），`matches` 是正则（PG、MySQL、Oracle、DuckDB），`collate` 按指定排序规则比较；PG 的 `distinctOn` 每组留一行，`forShare` / `forNoKeyUpdate` 是更弱的行锁，`optimizerHint` 写进 SELECT 后的提示注释。',
+      code: `db.queryable(Post)
+  .distinctOn((p) => p.userId) // 每个用户最新的一篇（PG）
+  .orderBy((p) => p.id.desc())
+  .where((p) => [p.title.startsWith('orm', { ignoreCase: true }), p.title.matches('v[0-9]$')])
+  .toList();`,
+    },
+    {
       id: 'group',
       title: '分组、聚合、HAVING、ROLLUP',
       code: `db.queryable(Post)

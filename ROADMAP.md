@@ -707,8 +707,9 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [x] 19.5 批量写入：PG 100 行起 `unnest` 一条语句插完（openGauss 除外）、`merge(列, { onlyIf })` 渲染 `ON CONFLICT … DO UPDATE … WHERE`
       （PG、SQLite）、update / delete 的 `orderBy(…).limit(n)`（MySQL 原生，别的库改写成主键 IN 子查询）、MySQL 批量插入按 `max_allowed_packet` 切分；
       PG 15 的 `MERGE` 暂不做（插入或更新已由 upsert 覆盖，多分支要一套新 API）
-- [ ] 19.6 查询写法：PG 的 `DISTINCT ON`、`LATERAL` 连接、`ILIKE`、正则 `~` / `~*`（MySQL `REGEXP_LIKE`）、`FOR SHARE` /
-      `FOR NO KEY UPDATE` / `FOR UPDATE OF`；MySQL 的索引提示 `USE INDEX` / `FORCE INDEX` 与优化器提示、按查询的 `COLLATE`
+- [x] 19.6 查询写法：PG 的 `distinctOn`、like 家族的 `{ ignoreCase }`（PG 写 ILIKE）、正则 `matches`（PG、MySQL、Oracle、DuckDB）、
+      `forShare` / `forNoKeyUpdate`、`collate`、`optimizerHint`；MySQL 的索引提示用已有的 `tableHint`。`LATERAL` 与 `FOR UPDATE OF` 暂缓
+      （每父行前 n 条已由 toList 的 limit 用窗口函数做了，分组聚合有 groupJoin；多表锁定场景少）
 - [ ] 19.7 建表时的索引与列：PG 的 GIN 索引（jsonb、数组、全文）、部分索引（WHERE）、表达式索引、生成列；
       MySQL 的多值索引（`MEMBER OF` 要靠它走索引）、虚拟 / 存储生成列；planSync 能比较它们
 - [ ] 19.8 `q.explain()`：返回执行计划（PG `EXPLAIN (FORMAT JSON)`、MySQL `EXPLAIN FORMAT=JSON`），`queryWatch` 的慢查询可以自动带上计划
@@ -739,7 +740,6 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
       支付宝的麦克风、蓝牙 authSetting 键名与订阅消息返回结构按实测修正
 - [x] 20.8 演示页“能力”与文档站“能力与权限”页：三端差异表、后台要开通的项目（支付、手机号、模糊定位、隐私指引声明）（mobile-demo 的 capabilities 页；文档站 /mobile/capabilities；微信模拟器里位置授权弹窗带着 app.json 的用途说明弹出）
 
-## 已知局限（有意的取舍，写在文档里）
 ## 阶段 21：移动端打成原生应用（Capacitor，iOS / Android）
 
 H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿主能力换成插件版。iOS、安卓的构建都在 CI 里做
@@ -755,6 +755,7 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [ ] 21.4 发布：安卓签名的 AAB、iOS 签名的 IPA（证书、描述文件、keystore 放进 CI 的密钥），上传到商店或测试渠道
 - [ ] 21.5 原生体验：状态栏跟随主题、键盘弹起时的布局、启动图与图标、打开系统设置页（社区插件）、App 里的微信 / 支付宝支付与登录（各自的 App SDK）
 
+## 已知局限（有意的取舍，写在文档里）
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）
 - Toolbar 里嵌套的 ToggleGroup 各有一个 Tab 位置，没有并入工具栏的方向键移动
