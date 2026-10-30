@@ -46,7 +46,7 @@ await byAge.toList({ min: 18, prefix: 'a' }); // string[]`,
       code: `db.queryable(Post)
   .distinctOn((p) => p.userId) // 每个用户最新的一篇（PG）
   .orderBy((p) => p.id.desc())
-  .where((p) => [p.title.startsWith('orm', { ignoreCase: true }), p.title.matches('v[0-9]$')])
+  .where((p) => [p.title.startsWith('orm', { ignoreCase: true }), p.title.matches('^orm_v[0-9]')])
   .toList();`,
     },
     {
