@@ -106,7 +106,7 @@ export const db = createDb({
       items: [
         '条件写在 lambda 里，数组就是 AND；`undefined` 的条件被忽略（官方的条件短路）。',
         '`toList`、`single`、`find` / `findOrThrow`、`count`、`any`、`toPage`、`stream` 是终结方法。',
-        '与官方的逐条对照见仓库 `packages/easy-query/docs/parity-docs.md`（文档页）与 `parity-tests.md`（单元测试）。',
+        '与官方的逐条对照见 easy-query-ts 仓库的 `docs/parity-docs.md`（文档页）与 `parity-tests.md`（单元测试）。',
       ],
     },
   ],

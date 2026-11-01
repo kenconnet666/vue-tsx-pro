@@ -24,4 +24,3 @@ export {
   type CacheHit,
   type CacheOptions,
 } from './cache.ts';
-export { cacheStore, type FieldStore } from './cache-store.ts';

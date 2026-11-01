@@ -93,7 +93,7 @@ const guide: NavSection = {
   ],
 };
 
-/** 全栈：ORM、框架、流程引擎（不在组件库里，仓库里的另外几个包） */
+/** 全栈：ORM（独立仓库 easy-query-ts）、框架、流程引擎（仓库里的另外几个包）；都不在组件库里 */
 const stack: NavSection = {
   label: '全栈',
   pages: [

@@ -5,10 +5,9 @@
  */
 import { DatabaseSync } from 'node:sqlite';
 import { col, createDb, defineSchema, entity, tenant } from '@zerodep-dev/easy-query-ts';
-import { tableChanges } from '@zerodep-dev/easy-query-ts-cache';
 import { sqlite } from '@zerodep-dev/easy-query-ts-sqlite';
 import { useContext } from './context.ts';
-import { bus } from './invalidation.ts';
+import { tableChanges } from './invalidation.ts';
 
 /** 当前请求的租户；没登录的请求碰到按租户隔离的表时报错，而不是查出所有租户的数据 */
 function currentTenant(): string {
@@ -30,7 +29,7 @@ export const schema = defineSchema({ Todo });
 export const db = createDb({
   schema,
   adapter: sqlite(new DatabaseSync(':memory:')),
-  interceptors: [tenant('tenantId', () => currentTenant()), tableChanges(bus)],
+  interceptors: [tenant('tenantId', () => currentTenant()), tableChanges],
 });
 
 await db.createTables();

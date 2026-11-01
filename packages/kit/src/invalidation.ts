@@ -1,17 +1,21 @@
 /**
- * 失效推送（ROADMAP 22.9）：服务端知道哪些表改了（easy-query-ts-cache 的 tableChanges / onEvict），经 SSE 推给浏览器，
+ * 失效推送（ROADMAP 22.9）：服务端知道哪些表改了（应用用 easy-query 的拦截器报出来），经 SSE 推给浏览器，
  * 前端缓存（@zerodep-dev/storage 的 createCache）按表名标签失效，正显示着的 useRequest 跟着重新请求。
  *
- *   // 服务端
+ *   // 服务端（完整写法见 apps/fullstack-demo 的 server/invalidation.ts）
  *   const hub = createInvalidationHub();
- *   const db = createDb({ …, interceptors: [tableChanges((tables) => hub.publish(tables))] });
+ *   const tableChanges = {
+ *     name: 'tableChanges',
+ *     afterWrite: (event) => event.afterCommit(() => hub.publish([event.entity.table])),
+ *   };
+ *   const db = createDb({ …, interceptors: [tableChanges] });
  *   createRenderer({ …, invalidation: hub });   // GET /_invalidation
  *   // 浏览器
  *   listenInvalidation((tags) => (tags ? cache.invalidateTag(tags) : cache.invalidatePrefix('')));
  *
  * 推出去的只有标签（表名），不带数据；按标签失效对所有连着的浏览器都一样，多失效几条只是多请求一次。
  * 断线重连时浏览器带上最后收到的编号，这边补发错过的；隔得太久（超出保留的条数）或服务端重启过时发 reset，浏览器全部失效。
- * 多实例部署时每个实例只看得到自己的写入：tableChanges 里改发 db.notify，各实例 listen 到后各自 publish。
+ * 多实例部署时每个实例只看得到自己的写入：拦截器里改发进自己的消息通道（如 PG 的 db.notify），各实例收到后各自 publish。
  */
 
 /** 浏览器连接推送的地址 */

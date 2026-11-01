@@ -57,14 +57,14 @@
 
 ## 2. 文档地图
 
-| 文件                                            | 讲什么                                                                                                                       |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| [README.md](README.md)                          | 定位与决定、怎么在宿主项目里用、命令、语言服务（MCP）、配置要点                                                              |
-| [ROADMAP.md](ROADMAP.md)                        | 当前的全部目标与执行顺序，做完一块勾一块                                                                                     |
-| [FULLSTACK.md](FULLSTACK.md)                    | TS 全栈的规划草案（迁入 easy-query、SSR、Nitro 薄框架、纯 TS 流程引擎）与待拍板的事；定稿后拆进 ROADMAP 与 `docs/decisions/` |
-| [RUNES.md](packages/tsx/RUNES.md)               | 符文规范：`_state`、`_derived`、`_effect`、props、`_bindable` / `_bind`、`_untrack` 等                                       |
-| [STYLE-ENGINE.md](packages/tsx/STYLE-ENGINE.md) | 运行时样式引擎：设计、调研、实测与取舍                                                                                       |
-| [COMPONENTS.md](packages/ui/COMPONENTS.md)      | 组件库规范：API 约定、部件与透传、样式与 token、依赖与待办、每批组件的设计与取舍（§10）                                      |
+| 文件                                            | 讲什么                                                                                                                                                                                 |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [README.md](README.md)                          | 定位与决定、怎么在宿主项目里用、命令、语言服务（MCP）、配置要点                                                                                                                        |
+| [ROADMAP.md](ROADMAP.md)                        | 当前的全部目标与执行顺序，做完一块勾一块                                                                                                                                               |
+| [FULLSTACK.md](FULLSTACK.md)                    | TS 全栈的规划草案（SSR、Nitro 薄框架、纯 TS 流程引擎；ORM 已迁到 [easy-query-ts](https://github.com/kenconnet666/easy-query-ts)）与待拍板的事；定稿后拆进 ROADMAP 与 `docs/decisions/` |
+| [RUNES.md](packages/tsx/RUNES.md)               | 符文规范：`_state`、`_derived`、`_effect`、props、`_bindable` / `_bind`、`_untrack` 等                                                                                                 |
+| [STYLE-ENGINE.md](packages/tsx/STYLE-ENGINE.md) | 运行时样式引擎：设计、调研、实测与取舍                                                                                                                                                 |
+| [COMPONENTS.md](packages/ui/COMPONENTS.md)      | 组件库规范：API 约定、部件与透传、样式与 token、依赖与待办、每批组件的设计与取舍（§10）                                                                                                |
 
 文档的放法：给使用者的只在文档站（`apps/docs`）；仓库里的 Markdown 是给维护者的，全局的放根目录，模块的跟着包走（`packages/<包>/`）。
 代码注释里写文件名（`COMPONENTS.md §4`）即可，`pnpm refs:check` 检查文档与注释里提到的 `.md` 都找得到。
@@ -82,11 +82,10 @@ pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium firefox we
 pnpm dev:docs        # 文档站开发服务器，端口 5174（.claude/launch.json 里的 docs）
 ```
 
-实库测试用本仓库自己的数据库（WSL Debian 的 Docker，compose 项目 `vue-tsx-pro-dev`，端口与 easy-query 仓库的错开）：
+流程引擎的实库测试用本仓库自己的数据库（WSL Debian 的 Docker，compose 项目 `vue-tsx-pro-dev`）；ORM 各方言的容器在 easy-query-ts 仓库：
 
 ```bash
 wsl -d Debian -- bash -lc 'cd /mnt/c/Users/lionheart/IdeaProjects/vue-tsx-pro && bash infra/dev/db.sh up -d --wait'   # MySQL 8.4（23306）、PG 17（25432）；8.0.18 基线加 --profile polardb（23318），平时由 CI 跑
-wsl -d Debian -- bash -lc 'cd /mnt/c/Users/lionheart/IdeaProjects/vue-tsx-pro && bash infra/dev/db.sh --profile hana up -d'   # 按需加 HANA（29041，要 12 GB 内存）
 ```
 
 密码、连接说明与实库测试的环境变量（`EQTS_*`）在不提交的 `.local/db.env`、`.local/connections.md`，首次运行 `db.sh` 时生成。

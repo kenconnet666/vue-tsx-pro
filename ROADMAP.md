@@ -301,6 +301,8 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ## 阶段 11：迁入 easy-query TS
 
+2026-11-01：ORM 迁到独立仓库 [easy-query-ts](https://github.com/kenconnet666/easy-query-ts)，本文里 ORM 的阶段（11、11b、16、18、19、23）已复制过去并在那边继续，这里只留作记录；本仓库改用 npm 上的版本。
+
 把 `easy-query` 仓库的 `ts/`（8 个包、418 个用例）搬进 `packages/easy-query/`，工具链向本仓库看齐。完成标准：用例在本仓库全过，CI 跑实库，`easy-query` 仓库不再有 `ts/`。
 
 - [x] 11.0 本仓库自己的测试库（用户 2026-10-28：ORM 用 WSL 里的容器真实使用与测试，已有的容器不方便用，停掉、改成自己的）：
@@ -325,7 +327,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 做法同"ORM 在真实项目里长"：先出对照表，再按流程引擎、示例应用用得到的先做；和阶段 12、13、14 交替推进，不必一口气做完。
 完成标准：对照表里标"要做"的都打钩，每项带 SQLite 用例与 MySQL 8.0.18 / PG 实库用例，文档站 ORM 分区有对应的页。
 
-- [x] 11b.1 对照表 [packages/easy-query/docs/parity.md](packages/easy-query/docs/parity.md)：Java 版的方法清单（EntityQueryable、ClientQueryable）逐项对 TS 版。
+- [x] 11b.1 对照表 easy-query-ts 仓库的 docs/parity.md：Java 版的方法清单（EntityQueryable、ClientQueryable）逐项对 TS 版。
       结论：DTO 导航（selectAutoInclude）、VO 映射、对象树、对象树的 VO 在 TS 里都已有，写法是 `defineView` 与嵌套的 `toList`（不用 DTO 类与注解）；缺的是下面几项
 - [x] 11b.2 按主键查与查不到就抛错：`find(id)`（含复合主键）、`firstOrThrow(message)` / `singleOrThrow`
 - [x] 11b.3 列表页的动态筛选与排序（对应 `whereObject` / `orderByObject`）：对接组件库 `useTableQuery` 的筛选与 `-amount,name` 排序参数，只放行声明过的列（`parseTableRequest` + `Queryable.table(request)`）

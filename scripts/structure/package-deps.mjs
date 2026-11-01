@@ -2,12 +2,11 @@
  * 包之间的分层检查（ROADMAP 11.6）：各包 src 里的运行时导入不能越过包族的边界，只导入类型的不算。
  *
  *   - 组件库（tsx、ui）不导入 easy-query：组件库要能装进普通的 Vue 项目，不带服务端的依赖
- *   - easy-query 不导入 vue 与组件库：ORM 在服务端用，不依赖界面
  *   - 流程引擎的模型包两端通用，不导入 vue、组件库与 easy-query；引擎在服务端，不导入 vue 与组件库
  *   - 组件库不导入框架（kit），框架不导入 easy-query 与流程引擎
  *   - 小程序运行时（mini）不导入组件库、框架与服务端的包
  *   - 移动端组件库（mobile）只依赖 vue 与 tsx：不导入桌面组件库、小程序运行时、框架与服务端的包
- *   - 前端存储（storage）零依赖、不绑框架：组件库、easy-query 都按形状对接它，它也不导入它们
+ *   - 前端存储（storage）零依赖、不绑框架：组件库按形状对接它，它也不导入组件库
  *
  * 用法：node scripts/structure/package-deps.mjs（pnpm layers:check 里一起跑）
  */
@@ -53,7 +52,6 @@ const RULES = [
   },
   // 框架只管渲染、数据、action 与会话；ORM、流程引擎由应用接进来
   { dirs: ['packages/kit'], forbidden: ['@zerodep-dev/easy-query-ts', '@zerodep-dev/flow-ts-'] },
-  { dirs: familyDirs('packages/easy-query'), forbidden: ['vue', '@zerodep-dev/vue-tsx-pro-'] },
   {
     dirs: ['packages/flow/model'],
     forbidden: ['vue', '@zerodep-dev/vue-tsx-pro-', '@zerodep-dev/easy-query-ts'],
@@ -65,14 +63,6 @@ const RULES = [
     forbidden: ['@zerodep-dev/easy-query-ts', '@zerodep-dev/flow-ts-engine'],
   },
 ];
-
-function familyDirs(dir) {
-  return readdirSync(join(root, dir), { withFileTypes: true })
-    .filter(
-      (entry) => entry.isDirectory() && existsSync(join(root, dir, entry.name, 'package.json')),
-    )
-    .map((entry) => `${dir}/${entry.name}`);
-}
 
 function sources(dir) {
   if (!existsSync(dir)) return [];

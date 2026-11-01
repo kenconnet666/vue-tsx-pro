@@ -1,6 +1,4 @@
 *.log
-# @tdengine/websocket 的日志（winston 按天滚动，在运行目录下建 logs/）
-*-audit.json
 node_modules
 **/dist/
 # 文档站预渲染用的服务端产物：正常构建完就删，构建中途失败时会留下
@@ -24,6 +22,3 @@ vue-tsx-pro.iml
 
 # 本机的数据库密码与连接（infra/dev/db.sh 生成）
 /.local/
-# easy-query 的 SQLite 测试库文件
-packages/easy-query/**/*.db
-packages/easy-query/test/.generated/

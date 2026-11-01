@@ -14,8 +14,8 @@
   "dependencies": {
     "@floating-ui/dom": "catalog:",
     "@lucide/icons": "catalog:",
-    "@zerodep-dev/easy-query-ts": "workspace:^",
-    "@zerodep-dev/easy-query-ts-sqlite": "workspace:^",
+    "@zerodep-dev/easy-query-ts": "^0.2.0",
+    "@zerodep-dev/easy-query-ts-sqlite": "^0.2.0",
     "@zerodep-dev/flow-ts-engine": "workspace:^",
     "@zerodep-dev/flow-ts-model": "workspace:^",
     "@zerodep-dev/flow-ts-ui": "workspace:^",

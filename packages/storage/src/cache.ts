@@ -8,7 +8,7 @@
  *   await cache.invalidateTag(['t_city']);                          // 这张表改了：标了它的都失效
  *   await cache.invalidate('user:7'); await cache.invalidatePrefix('user:');
  *
- * 标签与后端对上：easy-query 的 createCache({ onEvict }) 给出改了的表名，kit 的失效推送把表名送到浏览器，
+ * 标签与后端对上：服务端的写入报出改了的表名，kit 的失效推送把表名送到浏览器，
  * 这里按表名（标签）失效。组件库的 useRequest 的 cache 选项按 read / set / watch 对接：失效了自动重新请求。
  */
 import { keyList, type StorageDriver } from './driver.ts';

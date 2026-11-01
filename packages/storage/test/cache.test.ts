@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'vitest';
-import { cacheStore, createCache, indexedDbDriver, memoryDriver } from '../src/index.ts';
+import { createCache, indexedDbDriver, memoryDriver } from '../src/index.ts';
 
 /** 手动拨的时钟 */
 function clock(start = 1_000_000) {
@@ -129,22 +129,5 @@ describe('标签与本页的失效通知', () => {
     stop();
     await cache.invalidate('b');
     assert.deepEqual(seen, [['a'], ['b'], ['user:1'], undefined]);
-  });
-});
-
-describe('cacheStore（easy-query 二级缓存的存储）', () => {
-  it('一个键下多个字段，各自过期，按键删除全部字段', async () => {
-    const time = clock();
-    const store = cacheStore(memoryDriver(), time.now);
-    await store.set('CACHE:user:1', 'id=1', '{"id":1}', 1000);
-    await store.set('CACHE:user:1', 'id=1&tenant=2', '{"id":1}', 5000);
-    await store.set('CACHE:user:10', 'id=10', '{"id":10}', 5000);
-    time.advance(1000);
-    assert.equal(await store.get('CACHE:user:1', 'id=1'), undefined);
-    assert.equal(await store.get('CACHE:user:1', 'id=1&tenant=2'), '{"id":1}');
-    await store.delete(['CACHE:user:1']);
-    assert.equal(await store.get('CACHE:user:1', 'id=1&tenant=2'), undefined);
-    // 前缀按分隔符截断：删 user:1 不会删到 user:10
-    assert.equal(await store.get('CACHE:user:10', 'id=10'), '{"id":10}');
   });
 });

@@ -45,14 +45,14 @@
     "prepack": "tsc -b tsconfig.build.json"
   },
   "dependencies": {
-    "@zerodep-dev/easy-query-ts": "workspace:^",
+    "@zerodep-dev/easy-query-ts": "^0.2.0",
     "@zerodep-dev/flow-ts-model": "workspace:^",
-    "@zerodep-dev/easy-query-ts-sqlite": "workspace:^"
+    "@zerodep-dev/easy-query-ts-sqlite": "^0.2.0"
   },
   "devDependencies": {
     "@types/pg": "catalog:",
-    "@zerodep-dev/easy-query-ts-mysql": "workspace:^",
-    "@zerodep-dev/easy-query-ts-pg": "workspace:^",
+    "@zerodep-dev/easy-query-ts-mysql": "^0.2.0",
+    "@zerodep-dev/easy-query-ts-pg": "^0.2.0",
     "mysql2": "catalog:",
     "pg": "catalog:"
   }

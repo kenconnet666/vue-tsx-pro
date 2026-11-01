@@ -44,16 +44,10 @@ await cache.invalidatePrefix('user:');
 组件库的 `useRequest` 的 `cache` 选项按 `read` / `set` / `watch` 对接：有缓存先显示，新鲜的不再请求，过期的后台刷新；
 `tags` 写回时标上，当前参数的键失效了自动再请求。
 
-## 与 easy-query 的二级缓存
+## 服务端写入后失效
 
-`cacheStore(driver)` 把任意驱动变成 easy-query-ts-cache 的 `CacheStore`（浏览器里跑 PGlite、SQLite WASM 时用）；
-反方向，服务端的写入经 easy-query-ts-cache 的 `tableChanges` 报出表名，kit 的失效推送（`createInvalidationHub`、SSE）送到浏览器：
+服务端的写入报出改了的表，kit 的失效推送（`createInvalidationHub`、SSE）送到浏览器，这里按表名标签失效（服务端的写法见 `apps/fullstack-demo` 的 `server/invalidation.ts`）：
 
 ```ts
-// 服务端
-const hub = createInvalidationHub();
-const db = createDb({ …, interceptors: [tableChanges((tables) => hub.publish(tables))] });
-createRenderer({ …, invalidation: hub });
-// 浏览器
 listenInvalidation((tags) => (tags ? cache.invalidateTag(tags) : cache.invalidatePrefix('')));
 ```

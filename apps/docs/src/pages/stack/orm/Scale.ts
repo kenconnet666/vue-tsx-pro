@@ -11,8 +11,8 @@ export default ormChapter({
     {
       id: 'cache',
       title: '二级缓存',
-      text: '`easy-query-ts-cache`：kv 模式按主键缓存单行，all 模式缓存整张小表；写入时由拦截器失效（按改之前的行算出要删的键），事务提交后再删一次（官方的延迟双删）；`onEvict` 收到删掉的键与表，转给别的实例；`tableChanges` 报出每次写入的表名，经 kit 的失效推送让前端缓存按表名失效。浏览器里跑时用前端存储包 `@zerodep-dev/storage` 的 `cacheStore(indexedDbDriver())` 当存储。',
-      code: `const cache = createCache({ entities: [User, Province], store: memoryStore() }); // 多实例部署见下一节
+      text: '`easy-query-ts-cache`：kv 模式按主键缓存单行，all 模式缓存整张小表；写入时由拦截器失效（按改之前的行算出要删的键），事务提交后再删一次（官方的延迟双删）。',
+      code: `const cache = createCache({ entities: [User, Province] }); // 默认本机缓存；多实例部署见下一节
 const db = createDb({ schema, adapter, interceptors: [cache.interceptor] });
 await cache.of(db).kv(User).find(1);
 await cache.of(db).all(Province).where((p) => p.name.startsWith('浙')).toPage(1, 20);`,
@@ -20,16 +20,15 @@ await cache.of(db).all(Province).where((p) => p.name.startsWith('浙')).toPage(1
     {
       id: 'distributed-cache',
       title: '多实例缓存与最终一致',
-      text: '浏览器 → 每个实例的本机内存 → Redis → 数据库四层：`tieredStore` 叠本机与 Redis；`createBus(transport)` 是失效的消息通道（PG 的 NOTIFY、Redis 发布订阅，或自己的 MQ 实现 send / listen 两个方法），别的实例收到后只删本机层，再经 kit 的失效推送送到浏览器。写回守卫挡住"读到旧值后写回"，`lateEvictMs` 再删一次，发件箱让消息和写入同一个事务、提交了就一定发出；消息丢了靠各层的过期时间兜底。',
-      code: `const bus = createBus(pgTransport(pool));
+      text: '多实例有两种部署：只用外部 Redis；本机 + 外部 Redis，再加失效通知。本库不带 Redis 与 MQ 的驱动，由使用方实现 `CacheStore`（get / set / delete）与 `CacheTransport`（send / listen）。`tieredStore` 叠本机与 Redis，别的实例收到通知后只删本机层。写回守卫挡住"读到旧值后写回"，`lateEvictMs` 再删一次；通知丢了靠本机层的过期时间兜底。',
+      code: `// redisStore、transport 是自己按客户端实现的，见 easy-query-ts 仓库的 packages/test/src/redis-cache.ts
 const cache = createCache({
   entities: [User],
   store: tieredStore({ local: memoryStore(), shared: redisStore(redis) }),
-  bus,
+  transport,
   lateEvictMs: 1000,
 });
-const db = createDb({ schema, adapter, interceptors: [cache.interceptor, tableChanges(bus)] });
-await bus.subscribe((message) => hub.publish(message.tables), () => hub.reset()); // kit 的失效推送`,
+const db = createDb({ schema, adapter, interceptors: [cache.interceptor] });`,
     },
     {
       id: 'sharding',

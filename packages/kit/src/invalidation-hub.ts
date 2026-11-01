@@ -1,9 +1,7 @@
 /**
  * 失效推送的服务端（见 invalidation.ts）：记下连着的浏览器，publish 的标签合并后以 SSE 事件推出去。
  * 事件编号是 `启动标记-序号`：浏览器重连时带上 Last-Event-ID，同一次启动、还在保留范围里的补发，否则发 reset。
- * 多实例部署时由消息通道驱动（easy-query-ts-cache 的 createBus），每个实例推给连着自己的浏览器：
- *
- *   await bus.subscribe((message) => hub.publish(message.tables), () => hub.reset());
+ * 多实例部署时由应用自己的消息通道驱动：每个实例收到后 hub.publish，推给连着自己的浏览器；通道断过时 hub.reset。
  */
 
 /** createInvalidationHub 的选项 */

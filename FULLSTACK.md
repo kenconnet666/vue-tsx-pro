@@ -5,6 +5,7 @@
   1. 把 easy-query 的 TS 版从 `easy-query` 仓库的 `ts/` 迁进来；
   2. 让组件库支持服务端渲染，用 Nitro 做底座，同一个应用里服务端渲染、客户端渲染都能用；
   3. 在这个底座上做一版纯 TS 的流程引擎，比 `flow` 的 Java 版更简洁、易用、灵活。
+- 2026-11-01 更新：ORM 又迁到独立仓库 [easy-query-ts](https://github.com/kenconnet666/easy-query-ts)，本文里 `packages/easy-query` 的部分是当时的规划。
 
 ## 1. 为什么值得做
 

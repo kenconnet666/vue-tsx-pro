@@ -171,7 +171,7 @@ export default _component(() => () => (
       Server、Oracle、达梦、Db2、DuckDB、ClickHouse、TDengine、SAP HANA，各一个方言包；连库时{' '}
       <Code>detect</Code> 读出版本选写法。方言专属的函数用静态入口按列包装（
       <Code>MySQL.json(u.attrs)</Code>），用错方言在渲染时就报错。各库的差异见"ORM 方言"一页，与
-      Java 版的逐条对照见仓库里的 <Code>packages/easy-query/docs/parity-docs.md</Code>。
+      Java 版的逐条对照见easy-query-ts 仓库的 <Code>docs/parity-docs.md</Code>。
     </Paragraph>
   </DocPage>
 ));
