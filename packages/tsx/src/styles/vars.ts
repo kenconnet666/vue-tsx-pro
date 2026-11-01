@@ -6,7 +6,7 @@
 import { cssValue, dashify, SELF, walk, type Leaf, type StyleValue } from './declarations';
 import { CLASS, type ClassStyle } from './fragment';
 import { registerInlineClass } from './inline';
-import { hash, insert, isInserted } from './sheet';
+import { hash, insert, insertNamed, isInserted } from './sheet';
 
 /** 变量组上的组名（不可枚举：遍历 token 时不出现） */
 export const VAR_GROUP = Symbol('style var group');
@@ -48,7 +48,7 @@ export function defineVars<const T extends Record<string, StyleValue>>(
     const rule = `:root{${list.join(';')}}`;
     return atRule ? `${atRule}{${rule}}` : rule;
   });
-  insert(`--${name}`, rules);
+  insertNamed(`--${name}`, rules);
   Object.defineProperty(group, VAR_GROUP, { value: name });
   return Object.freeze(group) as never;
 }

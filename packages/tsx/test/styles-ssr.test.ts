@@ -1,7 +1,14 @@
 // @vitest-environment node
 // 服务端渲染的样式：renderStyleTag 按 HTML 里用到的类名输出规则（含引用的关键帧与全部变量组），不带没用到的
 import { expect, it } from 'vitest';
-import { attrs, create, defineVars, keyframes, renderStyleTag } from '../src/styles/runtime';
+import {
+  attrs,
+  create,
+  createTheme,
+  defineVars,
+  keyframes,
+  renderStyleTag,
+} from '../src/styles/runtime';
 
 it('只输出 HTML 用到的规则，加上它们引用的关键帧与变量组；data-names 列出这些名字', () => {
   defineVars('ssrdemo', { gap: '4px' });
@@ -22,4 +29,14 @@ it('只输出 HTML 用到的规则，加上它们引用的关键帧与变量组�
   expect(names).toContain(used);
   expect(names).toContain(spin);
   expect(names).not.toContain(unused);
+});
+
+it('include 带上 HTML 里没出现的类（防闪烁脚本要换上的主题）；没插过的名字忽略', () => {
+  const group = defineVars('ssrinclude', { gap: '4px' });
+  const theme = attrs(createTheme(group, { gap: '8px' })).class!;
+  expect(renderStyleTag('<div></div>')).not.toContain(`.${theme}`);
+  const tag = renderStyleTag('<div></div>', { include: [theme, 'xnothing'] });
+  expect(tag).toContain(`.${theme}`);
+  expect(/data-names="([^"]*)"/.exec(tag)![1]!.split(' ')).toContain(theme);
+  expect(tag).not.toContain('xnothing');
 });

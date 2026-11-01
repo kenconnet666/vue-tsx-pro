@@ -8,7 +8,15 @@
  * 原文给 SSR 输出 <style>，也不依赖 CSSOM 的序列化（浏览器、测试用的 DOM 会丢掉不认识的声明）；
  * CSSOM 的规则留着，热更新时按类名换掉
  */
-const inserted = new Map<string, { texts: readonly string[]; rules: CSSRule[] }>();
+const inserted = new Map<
+  string,
+  {
+    texts: readonly string[];
+    rules: CSSRule[];
+    /** 从服务端输出的样式表接管来的：规则已在表里，只知道名字 */
+    adopted?: boolean;
+  }
+>();
 let sheet: CSSStyleSheet | null | undefined;
 
 /**
@@ -22,7 +30,7 @@ function styleSheet(): CSSStyleSheet | null {
   if (rendered?.sheet) {
     fromServer = true;
     for (const name of rendered.dataset.names?.split(' ') ?? []) {
-      if (name && !inserted.has(name)) inserted.set(name, { texts: [], rules: [] });
+      if (name && !inserted.has(name)) inserted.set(name, { texts: [], rules: [], adopted: true });
     }
     return (sheet = rendered.sheet);
   }
@@ -54,6 +62,16 @@ export function insert(name: string, texts: readonly string[]) {
   inserted.set(name, { texts, rules });
 }
 
+/**
+ * 按名字登记的规则（变量组）：模块执行时总会调用，同名再调用（热更新）换成新的取值。
+ * 服务端输出过的不重复插入，只记下原文；之后的热更新照常插入，排在后面、盖过接管来的那条
+ */
+export function insertNamed(name: string, texts: readonly string[]) {
+  if (sheet === undefined) styleSheet();
+  if (inserted.get(name)?.adopted) inserted.set(name, { texts, rules: [] });
+  else insert(name, texts);
+}
+
 /** 页面是服务端渲染出来的（接管了服务端输出的样式表） */
 let fromServer = false;
 
@@ -77,10 +95,14 @@ export function isInserted(name: string): boolean {
  * 服务端渲染：一段 HTML 用到的规则写成一个 `<style data-vue-tsx-pro data-names="…">`，放进 head 的最前面。
  * 包括 class 里出现的引擎类名（组合类、主题类、标记）、这些规则引用的关键帧，以及全部变量组（:root 上的默认值）。
  * 类名按内容哈希，同样的样式在所有请求里同名，所以不必按请求隔离：渲染完按 HTML 取用到的就行。
- * 客户端接管这张表，data-names 里的规则不再重复插入
+ * 客户端接管这张表，data-names 里的规则不再重复插入。
+ * `include`：HTML 里没出现也要带上的类名（防闪烁脚本会换到 <html> 上的主题类）
  */
-export function renderStyleTag(html: string): string {
-  const used = new Set<string>();
+export function renderStyleTag(
+  html: string,
+  options: { include?: readonly string[] } = {},
+): string {
+  const used = new Set(options.include?.filter((name) => inserted.has(name)));
   for (const match of html.matchAll(/\bclass="([^"]*)"/g)) {
     for (const name of match[1]!.split(/\s+/)) if (inserted.has(name)) used.add(name);
   }
