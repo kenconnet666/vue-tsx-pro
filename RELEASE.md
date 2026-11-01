@@ -16,8 +16,7 @@
 
 发布时把这一节搬进 GitHub Release 的说明，再清空。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- 新包 `@zerodep-dev/vue-tsx-pro-mobile`（移动端组件库）与 `@zerodep-dev/vue-tsx-pro-mini`（微信、支付宝小程序的运行时与构建），
-  第一次发布；`npx @zerodep-dev/vue-tsx-pro-mini create <目录>` 建一个 H5 加两端小程序的新项目。
+（暂无）
 
 ## 一次性准备
 
@@ -39,10 +38,10 @@
    pnpm test:consumer   # pnpm pack 的包在仓库外的独立应用里安装、类型检查、构建、真实浏览器里运行（桌面组件库，以及模板建的移动端项目）
    ```
 
-4. **发布**（`-r` 按依赖顺序先发 `tsx`，再发 `ui`、`mobile`、`mini`；`kit` 还是 private，不发）：
+4. **发布**（`-r` 按依赖顺序先发 `tsx`，再发 `ui`、`mobile`、`mini`；`kit` 还是 private，`storage` 不随这四个包发布）：
 
    ```bash
-   pnpm -r --filter "./packages/*" publish --access public --no-git-checks
+   pnpm -r --filter "./packages/tsx" --filter "./packages/ui" --filter "./packages/mobile" --filter "./packages/mini" publish --access public --no-git-checks
    ```
 
 5. **打标签**：`git tag -a v0.1.0 -m "0.1.0"`，`git push origin v0.1.0`；在 GitHub 上用这个标签建 Release。
