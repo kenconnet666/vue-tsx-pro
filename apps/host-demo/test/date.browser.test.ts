@@ -2,7 +2,7 @@
 import axe from 'axe-core';
 import { afterTransitions } from '@zerodep-dev/vue-tsx-pro-ui';
 import { userEvent } from 'vitest/browser';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { type App } from 'vue';
 import { createMemoryHistory } from 'vue-router';
 import { createHostApp } from '../src/app';
@@ -207,7 +207,10 @@ describe('DateRangePicker', () => {
     const thisMonth = [...openPanel()!.querySelectorAll('button')].find(
       (item) => item.textContent === '本月',
     )!;
+    // “本月”按当天算，演示页的 max 又是写死的：固定在 max 所在的月份，换月后结果才不变
+    vi.setSystemTime('2026-10-20T12:00:00');
     await userEvent.click(thisMonth);
+    vi.useRealTimers();
     expect(openPanel()).toBeNull();
     expect($('.picker-summary').textContent).toContain('区间：2026-10-01 至 2026-10-21');
     expect(document.activeElement).toBe(button);
