@@ -38,7 +38,7 @@
    pnpm test:consumer   # pnpm pack 的包在仓库外的独立应用里安装、类型检查、构建、真实浏览器里运行（桌面组件库，以及模板建的移动端项目）
    ```
 
-4. **发布**（`-r` 按依赖顺序先发 `tsx`，再发 `ui`、`mobile`、`mini`；`kit` 还是 private，`storage` 不随这四个包发布）：
+4. **发布**（`-r` 按依赖顺序先发 `tsx`，再发 `ui`、`mobile`、`mini`；各包的 `prepack` 会重新构建，不会把旧的 `dist` 发出去；`kit` 还是 private，`storage` 不随这四个包发布）：
 
    ```bash
    pnpm -r --filter "./packages/tsx" --filter "./packages/ui" --filter "./packages/mobile" --filter "./packages/mini" publish --access public --no-git-checks
