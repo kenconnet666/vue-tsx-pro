@@ -79,7 +79,9 @@ export default _component(() => () => (
       <Code>ThemeSwitcher</Code> 是顶栏里一个按钮的紧凑写法，设置页可以用{' '}
       <Code>ThemeThumbnail</Code> 与 <Code>builtinThemeLabel</Code>{' '}
       列出每套主题的缩略图与名字。页面首次加载不闪默认主题：把 <Code>themeBootScript</Code>{' '}
-      生成的脚本内联到 HTML 的 head 里。
+      生成的脚本内联到 HTML 的 head 里。服务端渲染的页面还要加上{' '}
+      <Code>ui.themeClassBoot(themes)</Code> 的脚本，并把它的 <Code>classes</Code> 交给{' '}
+      <Code>renderStyleTag</Code> 的 <Code>include</Code>，组件的颜色才在水合前就是用户的主题。
     </Example>
     <Example id="brand" title="自定义品牌色与圆角" demo={CustomBrand}>
       <Code>defineTheme</Code> 在已有主题上改 token，<Code>paletteColors</Code> 按 Radix

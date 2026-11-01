@@ -21,6 +21,8 @@ interface Rendered {
   title: string | undefined;
   attrs: { html: Record<string, string>; body: Record<string, string> };
   styles: string;
+  /** 换主题类的防闪烁脚本：要在模板里写底色的那段之后执行 */
+  themeBootScript: string;
 }
 interface ServerEntry {
   render(url: string): Promise<Rendered>;
@@ -44,12 +46,13 @@ const attributes = (record: Record<string, string>) =>
  * 把一页的渲染结果填进入口页的模板。替换一律用函数：页面内容里的 $'、$& 之类在字符串替换里是替换模式，
  * 会把模板的别处拼进页面（例如示例代码里的正则 'v[0-9]$'），服务端输出与客户端对不上
  */
-function page({ body, teleports, title, attrs, styles }: Rendered): string {
+function page({ body, teleports, title, attrs, styles, themeBootScript }: Rendered): string {
   const html = { lang: 'zh-CN', ...attrs.html };
   return (
     template
       .replace(/<html[^>]*>/, () => `<html${attributes(html)}>`)
       .replace('<head>', () => `<head>\n    ${styles}`)
+      .replace('</head>', () => `<script>${themeBootScript}</script>\n  </head>`)
       .replace(
         /<title>[^<]*<\/title>/,
         () => `<title>${escape(title ? `${title} · vue-tsx-pro` : 'vue-tsx-pro')}</title>`,
