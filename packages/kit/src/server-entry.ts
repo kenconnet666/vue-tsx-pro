@@ -7,6 +7,7 @@ export {
   type ClientAssets,
   type KitModule,
   type RendererOptions,
+  type ThemeBootOptions,
 } from './server.ts';
 export { currentContext, runInContext } from './context.ts';
 export {

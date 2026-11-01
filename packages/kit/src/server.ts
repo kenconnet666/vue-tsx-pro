@@ -9,7 +9,8 @@
  *   export default { fetch: createRenderer({ ...app, assets, loaders, actions, createContext, session }) };
  */
 import { renderStyleTag } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { builtinThemeBootColors, themeBootScript } from '@zerodep-dev/vue-tsx-pro-ui/theme-boot';
+import type { Theme } from '@zerodep-dev/vue-tsx-pro-ui';
+import { themeBootScript, type ThemeBootColors } from '@zerodep-dev/vue-tsx-pro-ui/theme-boot';
 import { createSSRApp, shallowRef } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { createMemoryHistory } from 'vue-router';
@@ -38,6 +39,20 @@ export interface ClientAssets {
   css: readonly Record<string, string>[];
 }
 
+/**
+ * 首屏按用户的主题偏好画（防闪烁）：和 createThemePreference 用同样的候选主题与存储键。
+ * 应用只有一套主题、不让用户选时不用给
+ */
+export interface ThemeBootOptions {
+  /** 候选主题：名字 → 主题 */
+  themes: Readonly<Record<string, Theme>>;
+  /** 各主题的底色、文字色与配色方案（内置主题用 builtinThemeBootColors） */
+  colors: Readonly<Record<string, ThemeBootColors>>;
+  system?: { light: string; dark: string };
+  storageKey?: string;
+  fallback?: string;
+}
+
 /** createRenderer 的选项：应用的定义加上浏览器入口的资源与服务端的部分 */
 export interface RendererOptions<C extends object> extends AppDefinition {
   assets: ClientAssets;
@@ -53,6 +68,8 @@ export interface RendererOptions<C extends object> extends AppDefinition {
   invalidation?: InvalidationHub;
   /** 模块：各自带来的 loader、action 并进来，start 在服务端第一次处理请求前执行一次（作业轮询这类常驻的事） */
   modules?: readonly KitModule[];
+  /** 用户能选主题时给：首屏就是他选的主题，不等水合 */
+  themeBoot?: ThemeBootOptions;
 }
 
 /**
@@ -209,9 +226,16 @@ export function createRenderer<C extends object>(
 
     const attrs = ui.documentAttrs();
     const htmlAttrs = { lang: 'zh-CN', ...attrs.html };
+    const themeBoot = options.themeBoot;
+    const classBoot = themeBoot && ui.themeClassBoot(themeBoot.themes);
     const styles = renderStyleTag(
       `<html${attributes(htmlAttrs)}><body${attributes(attrs.body)}>${teleports}${body}</body></html>`,
+      { include: classBoot?.classes },
     );
+    const bootScripts = themeBoot
+      ? `<script>${themeBootScript({ ...themeBoot, themes: themeBoot.colors })}</script>
+    <script>${classBoot!.script}</script>`
+      : '';
     const links = [
       ...options.assets.css.map((link) => `<link rel="stylesheet"${attributes(link)} />`),
       ...options.assets.js.map((link) => `<link rel="modulepreload"${attributes(link)} />`),
@@ -228,7 +252,7 @@ export function createRenderer<C extends object>(
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${escape(pageTitle(route.meta.title, options.siteName))}</title>
-    <script>${themeBootScript({ themes: builtinThemeBootColors })}</script>
+    ${bootScripts}
     ${styles}
     ${links.join('\n    ')}
     <script type="module" src="${escape(options.assets.entry ?? '')}"></script>
