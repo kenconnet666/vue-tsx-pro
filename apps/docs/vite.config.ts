@@ -64,7 +64,7 @@ export const optimizeDeps = {
   include: [
     // 示例里用到的（组件库源码不在运行时导入它）
     'decimal.js',
-    // 代码高亮的几种语言（main.ts 按需导入）：第一次出现代码块时才发现的话，会重新预构建并刷新页面
+    // 代码高亮的几种语言（src/site/ui.ts 按需导入）：第一次出现代码块时才发现的话，会重新预构建并刷新页面
     '@shikijs/langs/css',
     '@shikijs/langs/html',
     '@shikijs/langs/javascript',
