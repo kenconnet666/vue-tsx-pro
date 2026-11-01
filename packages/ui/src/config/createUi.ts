@@ -77,10 +77,21 @@ export const documentStyles = css.create({
 
 /** 服务端渲染时 `<html>` 与 `<body>` 要带的属性（createUi 在浏览器里写到页面根元素上的那些） */
 export interface DocumentAttrs {
-  /** `<html>` 的属性：主题的类、变量（style）、data-theme，传了 lang 时还有 lang、dir */
+  /**
+   * `<html>` 的属性：主题的类、变量（style）、data-theme，传了 lang 时还有 lang、dir。
+   * data-theme-classes 记下主题的类，防闪烁脚本和浏览器接管时据此换掉，不留下旧主题的类
+   */
   html: Record<string, string>;
   /** `<body>` 的属性：paintDocument 时去掉外边距的类 */
   body: Record<string, string>;
+}
+
+/** themeClassBoot 的结果 */
+export interface ThemeClassBoot {
+  /** 内联到 <head> 的脚本，放在 themeBootScript 之后 */
+  script: string;
+  /** 候选主题的类：交给 renderStyleTag 的 include，它们的规则才在首屏样式里 */
+  classes: readonly string[];
 }
 
 /** createUi 的结果：Vue 插件，另外能给出服务端渲染时页面根元素的属性 */
@@ -90,6 +101,15 @@ export interface UiPlugin extends ObjectPlugin {
    * 服务端不知道系统的明暗，跟随系统的主题按亮色给；`themeBootScript` 在页面加载前按用户的选择改过来
    */
   documentAttrs(): DocumentAttrs;
+  /**
+   * 服务端渲染的防闪烁：`themeBootScript` 只设底色和文字色，正文里的组件读的是主题变量，要把 <html> 上的主题类也换掉，
+   * 否则暗色系统上会先看到暗底配亮色主题的深色字，要等水合才对。主题按这里给的候选表选，规则随首屏样式一起输出：
+   *
+   *   const boot = ui.themeClassBoot(builtinThemes);
+   *   const styles = renderStyleTag(page, { include: boot.classes });
+   *   // <head>：<script>themeBootScript(…)</script> <script>boot.script</script> styles
+   */
+  themeClassBoot(themes: Readonly<Record<string, Theme>>): ThemeClassBoot;
 }
 
 /**
@@ -109,7 +129,7 @@ export function createUi(options: UiOptions = {}): UiPlugin {
       if (options.theme || options.paintDocument) {
         const theme = resolveTheme(toValue(options.theme) ?? defaultConfig.theme, false);
         const { classes, variables } = rootThemeAttrs(theme, options.paintDocument ?? false);
-        if (classes.length) html.class = classes.join(' ');
+        if (classes.length) html.class = html['data-theme-classes'] = classes.join(' ');
         const style = Object.entries(variables)
           .map(([name, value]) => `${name}:${value}`)
           .join(';');
@@ -118,6 +138,18 @@ export function createUi(options: UiOptions = {}): UiPlugin {
         if (options.paintDocument) body.class = css.attrs(documentStyles.body).class ?? '';
       }
       return { html, body };
+    },
+    themeClassBoot(themes) {
+      const table = Object.fromEntries(
+        Object.entries(themes).map(([name, theme]) => [
+          name,
+          rootThemeAttrs(theme, options.paintDocument ?? false),
+        ]),
+      );
+      return {
+        script: themeClassBootScript(table),
+        classes: [...new Set(Object.values(table).flatMap(({ classes }) => classes))],
+      };
     },
     install(app) {
       const scope = effectScope();
@@ -163,6 +195,10 @@ export function createUi(options: UiOptions = {}): UiPlugin {
           // themeBootScript 在应用加载前写的行内颜色：交给主题的 class
           if (options.paintDocument) root.style.removeProperty('background-color');
           if (options.paintDocument) root.style.removeProperty('color');
+          // 服务端或防闪烁脚本写的主题类交给 applyTheme：留着的话，旧主题的类和新主题的类同时生效，谁赢全看规则的先后
+          const rendered = root.dataset.themeClasses;
+          if (rendered) root.classList.remove(...rendered.split(' '));
+          delete root.dataset.themeClasses;
           watchEffect((onCleanup) =>
             onCleanup(applyTheme(root, theme.value, options.paintDocument ?? false)),
           );
@@ -186,6 +222,16 @@ function rootThemeAttrs(theme: Theme, paint: boolean) {
       .class?.split(' ')
       .filter(Boolean) ?? [];
   return { classes, variables: themeVariables(theme) };
+}
+
+/**
+ * 防闪烁脚本的第二段：themeBootScript 已按用户的偏好写好 data-theme，这里把服务端写的主题类换成那套主题的。
+ * data-theme 不在候选表里时不动（用户自己定制的主题，水合后才有）
+ */
+function themeClassBootScript(themes: Record<string, ReturnType<typeof rootThemeAttrs>>): string {
+  // 主题名来自调用方，写进内联脚本要防 </script>
+  const table = JSON.stringify(themes).replaceAll('<', '\\u003c');
+  return `(()=>{const c=${table};const r=document.documentElement;const t=c[r.dataset.theme];if(!t)return;const o=r.dataset.themeClasses;if(o)r.classList.remove(...o.split(' '));r.classList.add(...t.classes);r.dataset.themeClasses=t.classes.join(' ');for(const n in t.variables)r.style.setProperty(n,t.variables[n])})()`;
 }
 
 /** 把主题的 class、CSS 变量与 data-theme 写到元素上，返回撤销函数 */

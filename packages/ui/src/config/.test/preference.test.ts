@@ -19,6 +19,22 @@ afterEach(() => {
   delete root.dataset.theme;
 });
 
+describe('createUi 接管服务端写的主题类', () => {
+  it('换到别的主题时不留下服务端主题的类；页面根元素上别的类不动', () => {
+    const ui = createUi({ theme: darkTheme });
+    const server = createUi({ theme: lightTheme }).documentAttrs().html;
+    const root = document.documentElement;
+    root.className = `host ${server.class}`;
+    root.dataset.themeClasses = server['data-theme-classes']!;
+    createApp({ render: () => null }).use(ui);
+    expect(root.classList.contains('host')).toBe(true);
+    expect(root.dataset.themeClasses).toBeUndefined();
+    const { html } = ui.documentAttrs();
+    const expected = [...html.class!.split(' '), 'host'].sort();
+    expect([...root.classList].sort()).toEqual(expected);
+  });
+});
+
 describe('createThemePreference', () => {
   it('没记过时跟随系统；切换后记住，下次创建沿用', async () => {
     const first = createThemePreference({ themes, storageKey: KEY });

@@ -6,7 +6,8 @@
  *   app.use(createUi({ theme: () => preference.theme, paintDocument: true }));
  *   preference.set('paper', { origin: { x: event.clientX, y: event.clientY } });   // 从点击处圆形展开
  *
- * 页面加载时先闪一下默认主题：在 HTML 的 <head> 里内联 themeBootScript(…) 生成的脚本，应用加载前就把底色设对（见 boot.ts）。
+ * 页面加载时先闪一下默认主题：在 HTML 的 <head> 里内联 themeBootScript(…) 生成的脚本，应用加载前就把底色设对（见 boot.ts）；
+ * 服务端渲染的页面还要加上 ui.themeClassBoot(…) 的脚本（见 createUi.ts）。
  */
 import { computed, effectScope, shallowRef } from 'vue';
 import { revealTransition, type RevealOrigin } from '../../utils/motion/reveal';

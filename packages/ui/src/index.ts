@@ -1360,6 +1360,7 @@ export {
   createUi,
   documentStyles,
   type DocumentAttrs,
+  type ThemeClassBoot,
   type UiOptions,
   type UiPlugin,
 } from './config/createUi';
