@@ -3,7 +3,7 @@
  *
  *   <TableOfContents items={[{ id: 'install', label: '安装', level: 2 }, …]} />
  *
- * 目录项可以手写，也可以在页面渲染后用 collectHeadings(article) 从带 id 的标题收集。
+ * 目录项可以手写，也可以用 useHeadings(() => article) 从带 id 的标题收集、跟着页面变。
  * 链接是普通的页内锚点（#install）：标题的 scroll-margin 让开粘性顶栏（layoutVars.stickyOffset）。
  * 当前节的链接带 aria-current="location"。
  */

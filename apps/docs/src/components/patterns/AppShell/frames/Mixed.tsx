@@ -1,5 +1,4 @@
-// 混合布局：顶栏是一级导航（NavBar），侧栏是当前模块的二级导航（可以收起成图标栏），正文上面是打开过的页面（PageTabs），
-// 底部是页脚。示例不换路由：页签由本地状态维护，接路由时用 useRouteTabs
+// 混合布局：顶栏是一级导航（NavBar），侧栏是当前模块的二级导航（可以收起成图标栏），底部是页脚
 import {
   BarChart3,
   Box,
@@ -27,12 +26,7 @@ import {
   Stat,
   type NavBarItem,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import {
-  AppShell,
-  AppShellBrand,
-  PageTabs,
-  type PageTab,
-} from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+import { AppShell, AppShellBrand } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const sidePages = {
   po: { title: '采购单', icon: ReceiptText },
@@ -88,33 +82,7 @@ const modules: NavBarItem[] = [
 export default _component(() => {
   let current = _state('home');
   let collapsed = _state(false);
-  let tabs = _state<PageTab[]>([
-    { path: 'home', title: '工作台', pinned: true },
-    { path: 'po', title: '采购单' },
-  ]);
-
-  function open(path: SidePage) {
-    if (!tabs.some((tab) => tab.path === path))
-      tabs = [...tabs, { path, title: sidePages[path].title }];
-    current = path;
-  }
-
-  function close(paths: string[]) {
-    const order = tabs;
-    tabs = tabs.filter((tab) => tab.pinned || !paths.includes(tab.path));
-    if (!paths.includes(current)) return;
-    // 关掉了当前页：去后面还开着的一个，没有时前面的
-    const at = order.findIndex((tab) => tab.path === current);
-    const next =
-      order.slice(at + 1).find((tab) => !paths.includes(tab.path)) ??
-      order
-        .slice(0, at)
-        .reverse()
-        .find((tab) => tab.pinned || !paths.includes(tab.path));
-    current = next?.path ?? 'home';
-  }
-
-  const title = () => tabs.find((tab) => tab.path === current)?.title ?? '';
+  const title = () => (current === 'home' ? '工作台' : sidePages[current as SidePage].title);
 
   return () => (
     <AppShell
@@ -136,7 +104,7 @@ export default _component(() => {
               badge={page === 'quote' ? 2 : 0}
               onClick={(event: MouseEvent) => {
                 event.preventDefault();
-                open(page);
+                current = page;
               }}
             >
               {sidePages[page].title}
@@ -146,17 +114,6 @@ export default _component(() => {
       }
       sidebarCollapsible
       _sidebarCollapsed={collapsed}
-      tabs={
-        <PageTabs
-          pages={tabs}
-          current={current}
-          onNavigate={(path) => (current = path)}
-          onClose={close}
-          onReorder={(paths) =>
-            (tabs = paths.map((path) => tabs.find((tab) => tab.path === path)!))
-          }
-        />
-      }
       footer={
         <Flex justify="between" wrap gap="sm">
           <Small tone="muted">© 2026 采购协同平台</Small>
@@ -175,7 +132,7 @@ export default _component(() => {
         </Grid>
         <Card>
           <Paragraph>
-            点左边的二级导航打开页面，上面多出一个页签；页签可以关闭、拖动排序，右键有“关闭其他”“关闭右侧”；侧栏底部的按钮把侧栏收成图标栏，二级导航只剩图标，悬停看名称。
+            点左边的二级导航换页；侧栏底部的按钮把侧栏收成图标栏，二级导航只剩图标，悬停看名称；右上角的按钮进入全屏。
           </Paragraph>
         </Card>
       </Flex>

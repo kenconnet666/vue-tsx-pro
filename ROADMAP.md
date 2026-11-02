@@ -163,6 +163,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] Tabs 的溢出、可关闭、新增、拖动（路由页签）
 - [x] NavList 收起成图标栏（悬停弹出子项）、条目角标；横向导航（顶部菜单，放不下收进“更多”）：NavBar
 - [x] AppShell（patterns）：页脚、可收起侧栏、顶部与混合布局、页签区（PageTabs；路由用 useRouteTabs）
+- [x] AppShell 2026-11-02 精简（用户定）：去掉抽屉式侧栏（sidebarMode、sidebarSide）、用户自选布局（layout、LayoutSwitcher、createLayoutPreference）、页签区（tabs、PageTabs、useRouteTabs）；加全屏（fullscreenable、_fullscreen：隐藏顶栏和左侧栏）。窄屏的侧栏抽屉保留。旧实现在提交 15ac42f9
 - [x] PaginationBar：总数 + 每页条数 + 页码 + 跳转（三处页面在手写这一组）
 - [x] 命令式 `useDialog` / `useDrawer`；`onOpenChange(open, { reason })` 统一
 

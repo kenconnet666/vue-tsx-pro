@@ -37,7 +37,7 @@ const CORE = new Set([
   'table',
 ]);
 /** 扩展之间允许的依赖：扩展 → 它能导入的扩展 */
-const SUBPATH_DEPS = { 'docs-kit': ['patterns'] };
+const SUBPATH_DEPS = {};
 
 const SUBPATHS = new Set(
   uiEntries()

@@ -16,7 +16,7 @@
  *
  * 紧凑（compact）：侧栏窄到只放得下图标时，各项只显示图标（文字留给读屏，悬停、聚焦时用 Tooltip 显示），
  * 小节标题换成它的图标（不能点）；分组也只剩图标，悬停、聚焦时子项从右边弹出来（HoverCard，完整的文字，
- * Tab 进入），组里有当前页时图标高亮。AppShell 的抽屉式侧栏拖窄时自动进入（NavCompactContext），
+ * Tab 进入），组里有当前页时图标高亮。AppShell 的侧栏收成图标栏时自动进入（NavCompactContext），
  * 也可以直接写 <NavList compact>。
  *
  * NavItem 的 badge 是计数角标（待办、未读）：展开时在文字后面，紧凑时是图标右上角的小圆点（读屏照样念出数目）。
@@ -71,13 +71,11 @@ export const navListStyles = css.create({
   chevron: { transition: `transform ${t.durations.md} ${t.easings.standard}` },
   chevronOpen: { transform: 'rotate(90deg)' },
   // 小节之间留出间隔，第一节贴着顶部
-  // 多栏排版（AppShell 的上下抽屉）时一个小节不被拆到两栏
   section: {
     display: 'flex',
     flexDirection: 'column',
     gap: '_xs',
     marginBlockStart: { default: '_lg', ':first-child': 0 },
-    breakInside: 'avoid',
   },
   // 标题行的内边距、图标与间距和链接行同一套（随所在字号），图标与文字才和下面的项上下对齐；只有文字小一档、加粗
   sectionLabel: {

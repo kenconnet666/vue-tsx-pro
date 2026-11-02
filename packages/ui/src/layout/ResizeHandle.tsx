@@ -4,7 +4,7 @@
  * 双击回到 defaultWidth。宽度从父元素量起，所以要放在要调整的那个元素里（它需要 position: relative 或 fixed）。
  * orientation="horizontal" 时是一条横线，贴着父元素的下边（edge="start" 时是上边，如从底部升起的抽屉），
  * 拖动或用 ↑ / ↓ 调整的是**高度**：width、minWidth、maxWidth、defaultWidth、onWidthChange 这时都指高度。
- * AppShell 的抽屉式侧栏、DataTable 的列宽（ColumnResizer）都用它。
+ * DataTable 的列宽（ColumnResizer）用它。
  *
  *   <aside style="position: relative; width: …">…<ResizeHandle aria-label="调整侧栏宽度" width={width} onWidthChange={(px) => (width = px)} /></aside>
  */

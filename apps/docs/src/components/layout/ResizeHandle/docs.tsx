@@ -9,7 +9,7 @@ import Split from './demo/Split.tsx?demo';
 export const meta = {
   title: 'ResizeHandle 宽度调整手柄',
   description:
-    '贴着元素结束边的一条细线：拖动、聚焦后按方向键调整宽度，双击回到初始宽度。AppShell 的抽屉式侧栏与 DataTable 的列宽都用它。',
+    '贴着元素结束边的一条细线：拖动、聚焦后按方向键调整宽度，双击回到初始宽度。DataTable 的列宽就是它。',
   order: 6,
 };
 

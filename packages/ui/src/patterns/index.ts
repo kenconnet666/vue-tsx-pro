@@ -1,7 +1,7 @@
 /**
  * 页面组合（子路径 `@zerodep-dev/vue-tsx-pro-ui/patterns`）：用核心组件拼好的页面级部件，后台应用直接拿来搭页面：
- * 应用外壳 AppShell、页签区 PageTabs、查询表格 QueryTable、分步表单 StepsForm、数据导入 DataImport、吸底操作栏 ActionBar、筛选条 FilterBar、通知中心 NotificationCenter、
- * 留言 CommentThread、看板 KanbanBoard、时限标记 DeadlineBadge、主题切换 ThemeSwitcher、布局切换 LayoutSwitcher、认证页版式 AuthLayout、拼图滑块验证 SlideCaptcha、命令式的表单对话框 useFormDialog。
+ * 应用外壳 AppShell、查询表格 QueryTable、分步表单 StepsForm、数据导入 DataImport、吸底操作栏 ActionBar、筛选条 FilterBar、通知中心 NotificationCenter、
+ * 留言 CommentThread、看板 KanbanBoard、时限标记 DeadlineBadge、主题切换 ThemeSwitcher、认证页版式 AuthLayout、拼图滑块验证 SlideCaptcha、命令式的表单对话框 useFormDialog。
  *
  *   import { AppShell, FilterBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
  *
@@ -14,13 +14,11 @@ export {
   AppShellBrand,
   appShellBrandStyles,
   AppShellContext,
-  appShellDynamicStyles,
+  appShellFullscreenOffset,
   appShellOffset,
   appShellStyles,
   type AppShellBrandProps,
   type AppShellProps,
-  type AppShellSidebarModes,
-  type AppShellSidebarSides,
   type AppShellState,
 } from './AppShell';
 export { AuthLayout, authLayoutStyles, type AuthLayoutProps } from './AuthLayout';
@@ -53,7 +51,6 @@ export {
   type KanbanCardState,
   type KanbanColumn,
 } from './KanbanBoard';
-export { LayoutSwitcher, type LayoutSwitcherProps } from './LayoutSwitcher';
 export {
   NotificationCenter,
   notificationCenterStyles,
@@ -65,7 +62,6 @@ export {
   type NotificationListProps,
   type NotificationType,
 } from './NotificationCenter';
-export { PageTabs, type PageTab, type PageTabsProps, type PageTabsSource } from './PageTabs';
 export { QueryTable, queryTableStyles, type QueryTableProps } from './QueryTable';
 export {
   SlideCaptcha,

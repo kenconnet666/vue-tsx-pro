@@ -7,7 +7,7 @@
  * 见 layoutVars.stickyOffset），所以点目录跳过去之后，高亮的正好是跳到的那一节。
  * 滚到底时最后几节可能永远到不了阅读线：这时高亮视口里的最后一个。
  */
-import { onMounted, onScopeDispose, shallowRef, watch, type Ref } from 'vue';
+import { onMounted, onScopeDispose, shallowRef, watch, type Ref, type ShallowRef } from 'vue';
 import { useEventListener } from './event-listener';
 
 /** useScrollSpy 每次读取的选项 */
@@ -78,4 +78,55 @@ export function collectHeadings(
     label: heading.textContent?.trim() ?? '',
     level: Number(heading.tagName.slice(1)) || 2,
   }));
+}
+
+/**
+ * 正文里的标题，跟着正文变：配合 AppShell 的 aside 和 TableOfContents 做本页目录。
+ * 页面组件常是懒加载的，换页后正文还没渲染出来，所以观察增删，下一帧重新收集；结果没变就不更新。
+ * 只看增删的节点里有没有标题：正文里的动画、计数频繁改动 DOM 时不必每次都收集。
+ *
+ *   let content = _state.raw<HTMLElement | null>(null);
+ *   const headings = useHeadings(() => content);
+ *   <AppShell aside={<TableOfContents items={headings.value} />}><div ref={_toRef(content)}>…</div></AppShell>
+ */
+export function useHeadings(
+  root: () => HTMLElement | null | undefined,
+  selector = 'h2[id], h3[id]',
+): Readonly<ShallowRef<HeadingEntry[]>> {
+  const headings = shallowRef<HeadingEntry[]>([]);
+  const touchesHeadings = (nodes: NodeList) =>
+    [...nodes].some(
+      (node) =>
+        node instanceof Element && (node.matches('h2, h3') || !!node.querySelector('h2, h3')),
+    );
+  watch(
+    root,
+    (element, _previous, onCleanup) => {
+      if (!element) return;
+      let frame = 0;
+      const collect = () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => {
+          const next = collectHeadings(element, selector);
+          if (JSON.stringify(next) !== JSON.stringify(headings.value)) headings.value = next;
+        });
+      };
+      collect();
+      const observer = new MutationObserver((records) => {
+        if (
+          records.some(
+            (record) => touchesHeadings(record.addedNodes) || touchesHeadings(record.removedNodes),
+          )
+        )
+          collect();
+      });
+      observer.observe(element, { childList: true, subtree: true });
+      onCleanup(() => {
+        observer.disconnect();
+        cancelAnimationFrame(frame);
+      });
+    },
+    { immediate: true, flush: 'post' },
+  );
+  return headings;
 }

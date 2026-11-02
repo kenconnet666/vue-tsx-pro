@@ -26,14 +26,7 @@ export {
   type DocArticleProps,
   type DocSectionProps,
 } from './DocArticle';
-export {
-  DocsShell,
-  docsShellStyles,
-  GithubIcon,
-  type DocsPage,
-  type DocsSection,
-  type DocsShellProps,
-} from './DocsShell';
+export { GithubIcon } from './GithubIcon';
 export {
   PropsTable,
   propsTableStyles,

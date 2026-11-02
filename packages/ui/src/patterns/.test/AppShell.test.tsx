@@ -1,5 +1,5 @@
 // AppShell：品牌格在顶栏最前面、header 的内容在它之后；没有侧栏时品牌格不与侧栏对齐；
-// overlay 的抽屉：不占正文的列，品牌格里的“菜单”开关、Esc、宽度手柄；顶栏的导航、页签区、页脚、侧栏收起成图标栏
+// 顶栏的导航、页脚、侧栏收起成图标栏；全屏：不显示顶栏和左侧栏，右上角退出，Esc 也退出
 import { Plane } from '@lucide/icons';
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
@@ -28,61 +28,47 @@ describe('AppShell', () => {
     expect(hasStyles(brand, appShellStyles.brandRail)).toBe(false);
   });
 
-  it('overlay：侧栏不占正文的列；“菜单”固定在品牌格里，开关都是它；Esc 收起、焦点回到“菜单”', async () => {
-    let open = _state(false);
+  it('顶栏结束边有全屏按钮：进入后隐藏顶栏和左侧栏，写回 _fullscreen；退出按钮、Esc 都能退出', async () => {
+    let fullscreen = _state(false);
     const root = mount(() => (
       <AppShell
-        sidebarMode="overlay"
-        _sidebarOpen={open}
+        _fullscreen={fullscreen}
         brand={<span>品牌</span>}
-        header={<span>页签</span>}
-        sidebar={<a href="#a">导航项</a>}
+        header={<span>工具</span>}
+        sidebar={<nav aria-label="导航" />}
+        propsSidebar={{ class: 'sidebar' }}
       >
         正文
       </AppShell>
     ));
     const header = root.querySelector('header')!;
-    const panel = root.querySelector<HTMLElement>('[id$="-sidebar"]')!;
-    expect(root.querySelector('main')!.previousElementSibling).toBeNull();
-    expect(panel.inert).toBe(true);
-    const toggle = [...header.querySelectorAll('button')].find((b) => b.textContent === '菜单')!;
-    expect(toggle.previousElementSibling!.textContent).toBe('品牌');
-    expect(toggle.getAttribute('aria-controls')).toBe(panel.id);
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
+    const sidebar = root.querySelector('.sidebar')!;
+    const enter = header.querySelector<HTMLButtonElement>('button[aria-label="全屏"]')!;
+    expect(header.lastElementChild).toBe(enter);
+    expect(hasStyles(header, appShellStyles.hidden)).toBe(false);
 
-    toggle.click();
+    enter.click();
     await nextTick();
-    expect(open).toBe(true);
-    expect(panel.inert).toBe(false);
-    expect(toggle.getAttribute('aria-expanded')).toBe('true');
+    expect(fullscreen).toBe(true);
+    expect(hasStyles(header, appShellStyles.hidden)).toBe(true);
+    expect(hasStyles(sidebar, appShellStyles.hidden)).toBe(true);
+    const exit = root.querySelector<HTMLButtonElement>('button[aria-label="退出全屏"]')!;
+    exit.click();
+    await nextTick();
+    expect(fullscreen).toBe(false);
+    expect(hasStyles(header, appShellStyles.hidden)).toBe(false);
+    expect(root.querySelector('button[aria-label="退出全屏"]')).toBeNull();
 
-    toggle.focus();
-    panel.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    enter.click();
     await nextTick();
-    expect(open).toBe(false);
-    expect(document.activeElement).toBe(toggle);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await nextTick();
+    expect(fullscreen).toBe(false);
   });
 
-  it('overlay：抽屉的宽度手柄用 ← / → 调整、夹在 16–480 之间，写回 sidebarWidth；双击回到初始宽度', async () => {
-    let width = _state(256);
-    const root = mount(() => (
-      <AppShell sidebarMode="overlay" _sidebarOpen _sidebarWidth={width} sidebar={<nav />}>
-        正文
-      </AppShell>
-    ));
-    const handle = root.querySelector<HTMLElement>('[role="separator"]')!;
-    expect(handle.getAttribute('aria-label')).toBe('调整导航宽度');
-    handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-    await nextTick();
-    expect(width).toBe(272);
-    width = 470;
-    await nextTick();
-    handle.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }));
-    await nextTick();
-    expect(width).toBe(480);
-    handle.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
-    await nextTick();
-    expect(width).toBe(256);
+  it('fullscreenable 关掉：没有全屏按钮', () => {
+    const root = mount(() => <AppShell fullscreenable={false}>正文</AppShell>);
+    expect(root.querySelector('button[aria-label="全屏"]')).toBeNull();
   });
 });
 
@@ -119,14 +105,13 @@ describe('AppShellBrand', () => {
   });
 });
 
-describe('AppShell 的导航、页签区、页脚与收起', () => {
-  it('nav 在品牌之后、工具之前；tabs 在正文上面、footer 在正文下面', () => {
+describe('AppShell 的导航、页脚与收起', () => {
+  it('nav 在品牌之后、工具之前；footer 在正文下面', () => {
     const root = mount(() => (
       <AppShell
         brand={<span>品牌</span>}
         nav={<span>顶部导航</span>}
         header={<span>工具</span>}
-        tabs={<span>页签</span>}
         footer={<span>版权</span>}
       >
         正文
@@ -139,7 +124,6 @@ describe('AppShell 的导航、页签区、页脚与收起', () => {
       '工具',
     ]);
     const main = root.querySelector('main')!;
-    expect(main.previousElementSibling!.textContent).toBe('页签');
     expect(main.nextElementSibling!.tagName).toBe('FOOTER');
     expect(main.nextElementSibling!.textContent).toBe('版权');
   });

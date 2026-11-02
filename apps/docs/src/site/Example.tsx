@@ -120,6 +120,7 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
             src={framePath(demo.path)}
             title={title}
             loading="lazy"
+            allow="fullscreen"
             {...css.attrs(styles.frame, frameHeight.height(frame))}
           />
         ) : (
