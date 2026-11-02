@@ -267,6 +267,8 @@ export const appShellStyles = css.create({
   // 正文那一列：正文、页脚上下排，页脚在内容少时也贴着底部
   column: { display: 'flex', flexDirection: 'column', minWidth: 0 },
   mainGrow: { flexGrow: 1 },
+  // header 的内容占满剩下的宽度，全屏按钮在最后
+  headerMain: { display: 'flex', alignItems: 'center', gap: '_md', flexGrow: 1, minWidth: 0 },
   fullscreenButton: { flexShrink: 0 },
   // 全屏时不显示：留在 DOM 里，退出后侧栏的滚动位置、展开的分组都还在
   hidden: { display: 'none' },
@@ -451,22 +453,23 @@ export const AppShell = _component(
               propsHeaderContent,
             )}
           >
-            {header}
+            <div {...css.attrs(appShellStyles.headerMain)}>{header}</div>
+            {/* 放在内容格里：和顶栏的工具同一个间距，顶栏自己的列间距是给品牌格对齐用的 */}
+            {fullscreenable && (
+              <IconButton
+                {...mergePartProps<IconButtonProps>(
+                  {
+                    sx: appShellStyles.fullscreenButton,
+                    icon: Maximize,
+                    'aria-label': messages.fullscreenEnter,
+                    title: messages.fullscreenEnter,
+                  },
+                  propsFullscreenButton,
+                  { onClick: () => (fullscreen = true) },
+                )}
+              />
+            )}
           </div>
-          {fullscreenable && (
-            <IconButton
-              {...mergePartProps<IconButtonProps>(
-                {
-                  sx: appShellStyles.fullscreenButton,
-                  icon: Maximize,
-                  'aria-label': messages.fullscreenEnter,
-                  title: messages.fullscreenEnter,
-                },
-                propsFullscreenButton,
-                { onClick: () => (fullscreen = true) },
-              )}
-            />
-          )}
         </header>
         {fullscreen && (
           <IconButton

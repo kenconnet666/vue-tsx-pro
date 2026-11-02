@@ -44,7 +44,7 @@ describe('AppShell', () => {
     const header = root.querySelector('header')!;
     const sidebar = root.querySelector('.sidebar')!;
     const enter = header.querySelector<HTMLButtonElement>('button[aria-label="全屏"]')!;
-    expect(header.lastElementChild).toBe(enter);
+    expect(enter.parentElement!.lastElementChild).toBe(enter);
     expect(hasStyles(header, appShellStyles.hidden)).toBe(false);
 
     enter.click();
