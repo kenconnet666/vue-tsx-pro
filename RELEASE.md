@@ -16,12 +16,7 @@
 
 发布时把这一节搬进 GitHub Release 的说明，再清空。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- 新增：`DataTable` 的 `editTrigger="click"`（单击进入编辑）；`diffRows` 按 key 比较两份列表；`ValueChange`（原值 → 新值）；`CodeBlock` 的 `flush`；`CodeText`（文案里的行内代码）；`useHeadings`（本页目录跟着正文变）；`docs-kit` 的 `DocArticle`、`DocSection`、`TextTable`、`GithubIcon`；`AppShell` 的全屏（顶栏右上角默认有按钮，进入后不显示顶栏和左侧栏，`fullscreenable` 可以关掉，`_fullscreen` 可以绑定）。
-- 删除：`AppShell` 的抽屉式侧栏（`sidebarMode`、`sidebarSide`、`_sidebarWidth`、`_sidebarHeight`）、用户自选布局（`layout`、`LayoutSwitcher`、`createLayoutPreference`）、页签区（`tabs`、`PageTabs`、`useRouteTabs`）。窄屏时侧栏收进抽屉照旧。
-- `DataTable`：各列 `minWidth` 不一样时，放不下的表格按每列自己的最小宽度排，不再被平分得比 `minWidth` 窄（`minWidth` 写得比平分宽度大的列会变宽）。
-- `DataTable`：异步保存时点开了别的格，保存完不再把新打开的编辑器收掉。
-- `Splitter`：两栏改用浮层滚动条（`ScrollArea`），和整页、侧栏一致；`propsScroll` 是它的部件属性。
-- 文档站不再收 ORM 的页面，地址 `/stack/orm/*` 没有了。
+（暂无）
 
 ## 一次性准备
 
