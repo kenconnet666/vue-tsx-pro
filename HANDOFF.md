@@ -10,7 +10,7 @@
   - 阶段 14：纯 TS 流程引擎 `packages/flow`（model、engine、ui）：Java 版 37 个场景里 20 个跑通（SQLite、MySQL 8.0.18、8.4、PG 17），
     试运行、流程图、低代码设计器、流程自带的 TS；`apps/flow-demo` 是审批应用（端到端测试进 CI）。
   - 阶段 15：两个应用一样的接线抽成 `packages/kit`（`@zerodep-dev/vue-tsx-pro-kit`，还没发布），带模块（`KitModule`）。
-  - 文档站加了"全栈"分区（ORM、框架、流程引擎）。
+  - 文档站加了"全栈"分区（框架、流程引擎）；ORM 的分区 2026-11-02 删除，文档在 easy-query-ts 的文档站。
   - 没做的：11b.7（按需）、14.9 里会签、超时、子流程的页面；"待决"里一条（打成包的流程模块）。
 
 - **移动端**（ROADMAP 阶段 17，2026-10-29 起）：概念验证做完——`packages/mini`（小程序渲染运行时与 `./build`）让 `-ui` 发布的 Button
@@ -49,7 +49,7 @@
   - 图表（子路径 `@zerodep-dev/vue-tsx-pro-ui/charts`，自己画 SVG；地图数据在 `-ui/maps`）：BarChart、LineChart、AreaChart、ComboChart（柱 + 线、对齐的第二数值轴）、ScatterChart、DonutChart、SankeyChart、ChordChart、WaterfallChart、FunnelChart、GraphChart、TimelineChart（计划与实际、今天、里程碑）、RadarChart、TreemapChart、MapChart（TopoJSON 分区着色与地点）；缩放（zoom）、导出图片与数据（exportable）、目标线（targets）、标注（annotations）、区间（bands）、百分比堆叠（stacked="percent"）、下钻（onItemClick）
   - 3D（子路径 `@zerodep-dev/vue-tsx-pro-ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer
   - 卡片的装饰效果是 Card 的 `effect`（tilt 倾斜、spotlight 聚光、beam 流光边框，纯 CSS）；跑马灯 Marquee 在主入口（展示）。原 `@zerodep-dev/vue-tsx-pro-ui/effects` 子路径 2026-10-24 取消
-  - 主题定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`）：customizeTheme、对比度、设计令牌、ThemeCustomizer、ThemeThumbnail；文档站组件在 `@zerodep-dev/vue-tsx-pro-ui/docs-kit`（CodePreview、PropsTable、CodeGroup、ColorSwatch）
+  - 主题定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`）：customizeTheme、对比度、设计令牌、ThemeCustomizer、ThemeThumbnail；文档站组件在 `@zerodep-dev/vue-tsx-pro-ui/docs-kit`（CodePreview、PropsTable、CodeGroup、ColorSwatch、DocsShell、DocArticle / DocSection、TextTable）
 - **主题**：12 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher`（patterns）切换，`ThemeCustomizer` 定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
 - **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。文档站不收案例页。
 - **host-demo**（`apps/host-demo`）：模拟宿主项目，留着几个综合页面与组件行为的浏览器测试（`test/*.browser.test.tsx`）。
@@ -359,7 +359,7 @@ tests/consumer 发布产物验证
 ## 10. 换电脑
 
 `git clone` 后仓库里的东西就齐了（`.claude/` 下的启动配置、LSP 插件、调研报告都已提交）。三个仓库放在同一个目录下
-（原电脑是 `C:\Users\lionheart\IdeaProjects\`）：`vue-tsx-pro`、`query`（ORM）、`flow`（流程引擎，私有，交接文档在它的根目录 `HANDOFF.md`）。
+（原电脑是 `C:\Users\lionheart\IdeaProjects\`）：`vue-tsx-pro`、`easy-query-ts`（ORM）、`flow`（流程引擎，私有，交接文档在它的根目录 `HANDOFF.md`）。
 
 | 东西                                                    | 新电脑上怎么办                                                                                                                                                                                |
 | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

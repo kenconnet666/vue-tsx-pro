@@ -301,7 +301,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ## 阶段 11：迁入 easy-query TS
 
-2026-11-01：ORM 迁到独立仓库 [easy-query-ts](https://github.com/kenconnet666/easy-query-ts)，本文里 ORM 的阶段（11、11b、16、18、19、23）已复制过去并在那边继续，这里只留作记录；本仓库改用 npm 上的版本。
+2026-11-02：文档站的 ORM 分区（`/stack/orm/*`）也删了，文档在 easy-query-ts 的文档站。2026-11-01：ORM 迁到独立仓库 [easy-query-ts](https://github.com/kenconnet666/easy-query-ts)，本文里 ORM 的阶段（11、11b、16、18、19、23）已复制过去并在那边继续，这里只留作记录；本仓库改用 npm 上的版本。
 
 把 `easy-query` 仓库的 `ts/`（8 个包、418 个用例）搬进 `packages/easy-query/`，工具链向本仓库看齐。完成标准：用例在本仓库全过，CI 跑实库，`easy-query` 仓库不再有 `ts/`。
 

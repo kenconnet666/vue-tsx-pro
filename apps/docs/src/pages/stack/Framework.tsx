@@ -2,8 +2,11 @@
  * 全栈：框架（@zerodep-dev/vue-tsx-pro-kit）。Nitro 上按页面选渲染模式、loader、action、请求上下文、会话与权限
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Code, CodeBlock, H2, List, ListItem, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Code, CodeBlock, H2, Link, List, ListItem, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
 import { DocPage } from '../../site/DocPage';
+
+/** ORM 在独立的仓库，文档也在那边 */
+const EASY_QUERY = 'https://github.com/kenconnet666/easy-query-ts';
 
 const meta = {
   title: 'Framework 全栈框架',
@@ -91,7 +94,11 @@ export default _component(() => () => (
     <Paragraph>
       <Code>createContext(request)</Code> 的结果放进 AsyncLocalStorage，loader、action
       与它们调用的代码用 <Code>currentContext()</Code>
-      取——easy-query 的 <Code>tenant</Code> 拦截器读当前租户，一个 <Code>db</Code>{' '}
+      取——
+      <Link href={EASY_QUERY} external>
+        easy-query TS
+      </Link>{' '}
+      的 <Code>tenant</Code> 拦截器读当前租户，一个 <Code>db</Code>{' '}
       就按租户隔离。会话（当前用户与权限）写进页面，
       <Code>useSession().can('todo.write')</Code> 藏按钮、菜单按权限生成；页面与 action 写了{' '}
       <Code>permission</Code> 的，服务端回 403、不取数据，<Code>PageView</Code> 画“没有权限”。

@@ -93,64 +93,10 @@ const guide: NavSection = {
   ],
 };
 
-/** 全栈：ORM（独立仓库 easy-query-ts）、框架、流程引擎（仓库里的另外几个包）；都不在组件库里 */
+/** 全栈：框架、流程引擎（仓库里的另外几个包，不在组件库里）。ORM 在独立仓库 easy-query-ts，有自己的文档站 */
 const stack: NavSection = {
   label: '全栈',
   pages: [
-    {
-      path: '/stack/orm',
-      title: 'ORM easy-query TS',
-      description: '实体与导航、lambda 条件、隐式 join 与子查询、对象树结果，接表格、事务与锁',
-      component: () => import('../pages/stack/Orm'),
-    },
-    {
-      path: '/stack/orm/start',
-      title: 'ORM 快速开始',
-      description: '安装、实体与关系、建 Db、第一条查询；连库时自动读版本',
-      component: () => import('../pages/stack/orm/Start'),
-    },
-    {
-      path: '/stack/orm/query',
-      title: 'ORM 查询',
-      description: '条件、分页、分组、窗口、子查询、CTE、原生 SQL、深分页',
-      component: () => import('../pages/stack/orm/Query'),
-    },
-    {
-      path: '/stack/orm/navigate',
-      title: 'ORM 导航与 DTO',
-      description: '关系、隐式 join 与子查询、对象树、视图、筛选排序、计算属性',
-      component: () => import('../pages/stack/orm/Navigate'),
-    },
-    {
-      path: '/stack/orm/write',
-      title: 'ORM 写入与保存',
-      description: 'upsert、更新删除、批量、聚合保存、事务、拦截器',
-      component: () => import('../pages/stack/orm/Write'),
-    },
-    {
-      path: '/stack/orm/functions',
-      title: 'ORM 函数',
-      description: '字符串、日期、数学、JSON、窗口与方言专属函数',
-      component: () => import('../pages/stack/orm/Functions'),
-    },
-    {
-      path: '/stack/orm/code-first',
-      title: 'ORM 建表与同步',
-      description: '建表、planSync / syncTables、由表生成实体',
-      component: () => import('../pages/stack/orm/CodeFirst'),
-    },
-    {
-      path: '/stack/orm/scale',
-      title: 'ORM 缓存与分库分表',
-      description: '二级缓存、分表、分库归并、读写分离',
-      component: () => import('../pages/stack/orm/Scale'),
-    },
-    {
-      path: '/stack/orm/dialects',
-      title: 'ORM 方言',
-      description: '各数据库的方言包、按版本渲染的原则、差异与测试',
-      component: () => import('../pages/stack/orm/Dialects'),
-    },
     {
       path: '/stack/framework',
       title: 'Framework 全栈框架',
