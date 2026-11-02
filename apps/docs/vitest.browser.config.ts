@@ -17,6 +17,9 @@ export default defineConfig({
     // 每个浏览器里的测试文件依次跑：三个浏览器 × 几个文件同时向冷启动的服务器要组件库源码时，
     // WebKit 的模块导入会失败（Importing a module script failed）
     fileParallelism: false,
+    // 同 host-demo：CI 的 4 核机器上时序断言偶尔超时（Windows 的 WebKit 上 MapChart 等地图数据超时过），
+    // 失败的用例重跑，真的坏了重跑也过不了
+    retry: process.env.CI ? 2 : 0,
     browser: {
       enabled: true,
       headless: true,
