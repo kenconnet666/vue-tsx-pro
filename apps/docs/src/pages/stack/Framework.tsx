@@ -6,7 +6,7 @@ import { Code, CodeBlock, H2, Link, List, ListItem, Paragraph } from '@zerodep-d
 import { DocPage } from '../../site/DocPage';
 
 /** ORM 在独立的仓库，文档也在那边 */
-const EASY_QUERY = 'https://github.com/kenconnet666/easy-query-ts';
+const EASY_QUERY = 'https://easy-query-ts.zerodep.dpdns.org';
 
 const meta = {
   title: 'Framework 全栈框架',

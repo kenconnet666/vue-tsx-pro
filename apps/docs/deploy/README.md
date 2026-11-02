@@ -1,6 +1,6 @@
 # 文档站部署
 
-文档站是纯静态页面（路由用 history 模式），镜像里由 nginx 提供，没有后端。
+文档站是纯静态页面（路由用 history 模式），线上部署在 Cloudflare Workers 的静态资源（https://vue-tsx-pro.zerodep.dpdns.org，`apps/docs/wrangler.jsonc`，CI 的 `deploy-docs` 任务上传，要配 `CLOUDFLARE_API_TOKEN`；本机 `wrangler login` 后在 `apps/docs` 执行 `cp dist/spa.html dist/404.html && npx wrangler deploy` 也行）。下面的镜像由 nginx 提供，自己的服务器上用。
 
 | 文件                      | 作用                                                                                                                                             |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
