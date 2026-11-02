@@ -79,8 +79,8 @@ export default _component(() => {
     },
     {
       key: 'remove',
-      header: '',
-      width: 56,
+      header: '操作',
+      width: 72,
       cell: (row) =>
         row.change === 'deleted' ? null : (
           <IconButton

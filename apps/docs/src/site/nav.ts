@@ -155,7 +155,7 @@ const componentSections: NavSection[] = CATEGORIES.map(([category, label]) => ({
 })).filter((section) => section.pages.length > 0);
 
 /** 侧栏的各组 */
-export const sections: NavSection[] = [guide, stack, mobile, ...componentSections];
+export const sections: NavSection[] = [guide, ...componentSections, stack, mobile];
 
 /** 所有页面，按侧栏顺序：翻页与搜索用 */
 export const allPages: NavPage[] = sections.flatMap((section) => section.pages);
