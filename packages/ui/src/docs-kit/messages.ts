@@ -21,6 +21,10 @@ export interface DocsKitMessages {
   readonly required: string;
   /** PropsTable：能 _bind 双向绑定的 prop 的标记，默认“可绑定” */
   readonly bindable: string;
+  /** DocsShell：站点导航的名称，默认“文档” */
+  readonly navigation: string;
+  /** DocsShell：仓库链接的名称，默认“GitHub 仓库” */
+  readonly repository: string;
 }
 
 /** 文档站组件的文案表 */
@@ -35,6 +39,8 @@ export const docsKitMessages: MessageTable<DocsKitMessages> = {
     description: '说明',
     required: '必填',
     bindable: '可绑定',
+    navigation: '文档',
+    repository: 'GitHub 仓库',
   },
   'en-US': {
     preview: 'Preview',
@@ -46,5 +52,7 @@ export const docsKitMessages: MessageTable<DocsKitMessages> = {
     description: 'Description',
     required: 'Required',
     bindable: 'Bindable',
+    navigation: 'Docs',
+    repository: 'GitHub repository',
   },
 };

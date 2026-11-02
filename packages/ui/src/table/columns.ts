@@ -206,6 +206,14 @@ export interface SortState {
   direction: keyof SortDirections;
 }
 
+/** 怎样开始编辑一格（键盘的 Enter、F2、直接打字都能开始） */
+export interface EditTriggers {
+  /** 双击（默认）：单击只是选中这一格，适合以查看为主、偶尔改一下的表 */
+  doubleClick: unknown;
+  /** 单击：适合主要用来改数据的表 */
+  click: unknown;
+}
+
 /** 没写宽度的列，计算表格最小宽度与固定列偏移时按这么宽算（px） */
 export const COLUMN_FLEX_MIN_WIDTH = 120;
 
@@ -275,6 +283,26 @@ export function tableMinWidth<T>(
     (total, column) => total + (widthOf(column) ?? column.minWidth ?? COLUMN_FLEX_MIN_WIDTH),
     leading,
   );
+}
+
+/**
+ * 没写宽度的列放在 col 上的宽度。table-layout: fixed 里没写宽度的 col 一律平分，minWidth 只计入表格的最小宽度：
+ * 表格放不下时，写了较大 minWidth 的列也被平分得比它窄，表头被省略。所以各列的最小宽度不一样时，
+ * 写成“自己的最小宽度 + 平分多出来的部分”；100cqi 是表格外层（容器查询的容器）的宽度，多出来的是负数时 max 保住最小宽度。
+ * 都一样时平分就对，返回 undefined
+ */
+export function flexColumnWidth<T>(
+  column: DataTableColumn<T>,
+  columns: readonly DataTableColumn<T>[],
+  widthOf: ColumnWidthOf<T>,
+  leading: number,
+): string | undefined {
+  const flexible = columns.filter((item) => widthOf(item) == null);
+  const minOf = (item: DataTableColumn<T>) => item.minWidth ?? COLUMN_FLEX_MIN_WIDTH;
+  if (new Set(flexible.map(minOf)).size <= 1) return undefined;
+  const min = minOf(column);
+  const total = tableMinWidth(columns, widthOf, leading);
+  return `max(${min}px, calc(${min}px + (100cqi - ${total}px) / ${flexible.length}))`;
 }
 
 /** 列在这一行的值：value 函数，或 row[key] */

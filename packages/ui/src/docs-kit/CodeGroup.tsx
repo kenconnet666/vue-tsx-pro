@@ -13,7 +13,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
 import { Tab, TabList, TabPanel, Tabs, type TabListProps } from '../navigation/Tabs';
-import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { t } from '../config/theme/tokens';
 
 /** 一组代码里的一段 */
@@ -47,7 +47,6 @@ export const codeGroupStyles = css.create({
   },
   list: { paddingInline: '_sm', backgroundColor: '_surfaceMuted', fontSize: '_sm' },
   panel: { outlineOffset: `calc(-1 * ${t.borderWidths.sm})` },
-  block: { borderWidth: 0, borderRadius: 0 },
 });
 
 const keyOf = (item: CodeGroupItem) => item.value ?? item.label;
@@ -89,10 +88,7 @@ export const CodeGroup = _component(
               const { label: _label, value: _value, propsRoot, ...block } = item;
               return (
                 <TabPanel key={keyOf(item)} value={keyOf(item)} sx={codeGroupStyles.panel}>
-                  <CodeBlock
-                    {...block}
-                    propsRoot={mergeProps<'div'>({ sx: codeGroupStyles.block }, propsRoot)}
-                  />
+                  <CodeBlock {...block} flush propsRoot={propsRoot} />
                 </TabPanel>
               );
             })}

@@ -62,7 +62,9 @@ import {
   stickyOffsets,
   sortList,
   sumColumn,
+  flexColumnWidth,
   tableMinWidth,
+  type EditTriggers,
   type ColumnFilterOption,
   type ColumnTypes,
   type DataTableColumnGroup,
@@ -120,7 +122,12 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   renderEditor?: (row: T, column: DataTableColumn<T>) => VNodeChild;
   /** 各行的校验错误：列的 key → 原因（行校验，如“结束日期早于开始日期”），标在格上 */
   rowErrors?: (row: T) => Readonly<Record<string, string>> | null | undefined;
-  /** 在可编辑的格上按 Enter / F2、双击，或直接打字（text 是打的字，替换原值）：开始编辑 */
+  /**
+   * 鼠标怎样开始编辑一格；键盘的 Enter、F2、直接打字都能开始
+   * @default 'doubleClick'
+   */
+  editTrigger?: keyof EditTriggers;
+  /** 在可编辑的格上按 Enter / F2、单击或双击（见 editTrigger），或直接打字（text 是打的字，替换原值）：开始编辑 */
   onEditStart?: (cell: CellPosition, text?: string) => void;
   /** 编辑中的按键（Enter 提交、Tab 提交并到下一格、Esc 放弃），由外层处理 */
   onEditKeydown?: (event: KeyboardEvent, cell: CellPosition) => void;
@@ -287,9 +294,12 @@ export const dataTableRowToneStyles = css.create({
 });
 
 // 列宽、偏移、占位高度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
+/** 格里的控件：点在上面不算点这一格 */
+const CELL_CONTROLS = 'a, button, input, select, textarea, label';
+
 /** DataTable、TreeDataTable 的样式：width、minWidth、height、start、end、percent */
 export const dataTableDynamicStyles = css.create({
-  width: (px: number) => ({ width: px }),
+  width: (width: number | string) => ({ width }),
   minWidth: (px: number) => ({ minWidth: px }),
   height: (px: number) => ({ height: px }),
   start: (px: number) => ({ insetInlineStart: px }),
@@ -416,6 +426,8 @@ export interface DataTableRowProps<T> {
   renderEditor?: DataTableViewProps<T>['renderEditor'];
   /** 这一行的校验错误 */
   rowErrors?: DataTableViewProps<T>['rowErrors'];
+  /** 鼠标怎样开始编辑一格 */
+  editTrigger?: DataTableViewProps<T>['editTrigger'];
   /** 开始编辑一格 */
   onEditStart?: DataTableViewProps<T>['onEditStart'];
   /** 编辑中的按键 */
@@ -465,6 +477,7 @@ export const DataTableRow = _component(
     editingColumn,
     renderEditor,
     rowErrors,
+    editTrigger = 'doubleClick',
     onEditStart,
     onEditKeydown,
   }: DataTableRowProps<T>) => {
@@ -631,6 +644,7 @@ export const DataTableRow = _component(
                       !detailColumn &&
                       dataTableStateStyles.activeEdge,
                     cellNavigation && dataTableStateStyles.gridCell,
+                    editable && editTrigger === 'click' && dataTableStateStyles.clickToEdit,
                     editing && dataTableStateStyles.editingCell,
                     !!error && dataTableStateStyles.invalidCell,
                   ],
@@ -644,9 +658,18 @@ export const DataTableRow = _component(
                       title: error,
                       'aria-description': error,
                       onKeydown: (event: KeyboardEvent) => onCellKeydown(event, column),
-                      onDblclick: editable
-                        ? () => onEditStart?.({ row: row.key, column: column.key })
-                        : undefined,
+                      onDblclick:
+                        editable && editTrigger === 'doubleClick'
+                          ? () => onEditStart?.({ row: row.key, column: column.key })
+                          : undefined,
+                      onClick:
+                        editable && editTrigger === 'click'
+                          ? (event: MouseEvent) => {
+                              // 点在编辑器、格里的控件上：交给控件自己
+                              if ((event.target as Element).closest(CELL_CONTROLS)) return;
+                              onEditStart?.({ row: row.key, column: column.key });
+                            }
+                          : undefined,
                     } as PartProps<'td'>)
                   : {},
               )}
@@ -773,6 +796,7 @@ export const DataTableView = _component(
     editing,
     renderEditor,
     rowErrors,
+    editTrigger,
     onEditStart,
     onEditKeydown,
     selectionMode,
@@ -1300,7 +1324,8 @@ export const DataTableView = _component(
               {selectionMode && <col {...css.attrs(dataTableDynamicStyles.width(SELECT_WIDTH))} />}
               {renderDetail && <col {...css.attrs(dataTableDynamicStyles.width(DETAIL_WIDTH))} />}
               {shown.map((column) => {
-                const width = widthOf(column);
+                const width =
+                  widthOf(column) ?? flexColumnWidth(column, shown, widthOf, leadingWidth());
                 return (
                   <col
                     key={column.key}
@@ -1458,6 +1483,7 @@ export const DataTableView = _component(
                     editingColumn={editing?.row === row.key ? editing.column : undefined}
                     renderEditor={renderEditor}
                     rowErrors={rowErrors}
+                    editTrigger={editTrigger}
                     onEditStart={onEditStart}
                     onEditKeydown={onEditKeydown}
                   />

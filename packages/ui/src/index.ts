@@ -28,6 +28,7 @@ export {
   type CodeBlockProps,
   type LineSpec,
 } from './base/CodeBlock';
+export { CodeText, type CodeTextProps } from './base/CodeText';
 export {
   CopyButton,
   copyButtonStyles,
@@ -396,6 +397,7 @@ export {
   type TreeMove,
   type TreeProps,
 } from './display/Tree';
+export { ValueChange, valueChangeStyles, type ValueChangeProps } from './display/ValueChange';
 export {
   VirtualList,
   virtualListSizeStyles,
@@ -1278,6 +1280,7 @@ export {
   columnValue,
   filterOptions,
   filterRows,
+  flexColumnWidth,
   formatCell,
   formatSorts,
   headerLayout,
@@ -1300,6 +1303,7 @@ export {
   type ColumnWidthOf,
   type DataTableColumn,
   type DataTableColumnGroup,
+  type EditTriggers,
   type HeaderLayoutCell,
   type SortDirections,
   type SortState,
@@ -1762,7 +1766,13 @@ export {
   type WeekdayFormats,
   type WeekOptions,
 } from './utils/data/date';
-export { diffFields, type FieldDiff } from './utils/data/diff';
+export {
+  diffFields,
+  diffRows,
+  type FieldDiff,
+  type RowChanges,
+  type RowDiff,
+} from './utils/data/diff';
 export { sameValue } from './utils/data/equality';
 export {
   createHistory,

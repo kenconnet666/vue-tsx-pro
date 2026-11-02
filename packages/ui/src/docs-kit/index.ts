@@ -20,6 +20,21 @@ export {
   type ColorSwatchProps,
 } from './ColorSwatch';
 export {
+  DocArticle,
+  docArticleStyles,
+  DocSection,
+  type DocArticleProps,
+  type DocSectionProps,
+} from './DocArticle';
+export {
+  DocsShell,
+  docsShellStyles,
+  GithubIcon,
+  type DocsPage,
+  type DocsSection,
+  type DocsShellProps,
+} from './DocsShell';
+export {
   PropsTable,
   propsTableStyles,
   type ApiProp,
@@ -28,4 +43,5 @@ export {
   type ComponentApi,
   type PropsTableProps,
 } from './PropsTable';
+export { TextTable, textTableStyles, type TextTableProps } from './TextTable';
 export { docsKitMessages, type DocsKitMessages } from './messages';

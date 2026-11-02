@@ -27,8 +27,8 @@ export default _component(() => () => (
       （利润率、产量）时按好坏着色。比较建在 <Code>diffFields</Code> 上，要自己排版时直接用它。
     </Example>
     <Example id="changes" title="编辑前后：列表" demo={Changes}>
-      <Code>layout="list"</Code>{' '}
-      一行一个字段：原值划掉、箭头、新值，默认只列改了的，放在保存前的确认、审批意见、时间线的一项里（见
+      <Code>layout="list"</Code> 一行一个字段：原值划掉、箭头、新值（<Code>ValueChange</Code>
+      ，要自己排版时单独用），默认只列改了的，放在保存前的确认、审批意见、时间线的一项里（见
       Timeline 的操作记录）。原值是 del、新值是 ins，中间有给读屏的“改为”；
       <Code>before</Code> 为空（新建）时只列新值，什么都没改时显示“没有改动”（语言包可改）。
     </Example>

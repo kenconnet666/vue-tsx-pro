@@ -31,7 +31,10 @@ const key = (element: Element, name: string, init: KeyboardEventInit = {}) =>
   );
 
 function setup(
-  options: { onCellChange?: (row: Line, key: string, value: unknown) => unknown } = {},
+  options: {
+    onCellChange?: (row: Line, key: string, value: unknown) => unknown;
+    editTrigger?: 'click' | 'doubleClick';
+  } = {},
 ) {
   let lines = _state<Line[]>([
     { id: 'a', part: '支架', quantity: 10, start: '2026-10-01', end: '2026-10-20' },
@@ -61,6 +64,7 @@ function setup(
       columns={columns}
       getKey={(line) => line.id}
       onCellChange={onCellChange}
+      editTrigger={options.editTrigger}
       validateRow={(line) => (line.end < line.start ? { end: '交期早于开工' } : null)}
       aria-label="明细"
     />
@@ -137,6 +141,57 @@ describe('DataTable 的单元格编辑', () => {
     expect(onCellChange).toHaveBeenCalledWith(expect.anything(), 'quantity', 12);
     // 下一个可编辑的是交期：直接进入编辑
     expect(cell('a', 'end').querySelector('input')).not.toBeNull();
+  });
+
+  it('editTrigger="click"：单击进入编辑，双击不再单独开始；点在编辑器里不重新开始', async () => {
+    const { cell } = setup({ editTrigger: 'click' });
+    await flush();
+    cell('a', 'part').click();
+    await flush();
+    const input = cell('a', 'part').querySelector('input')!;
+    expect(input).not.toBeNull();
+    input.value = '改了';
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+    await flush();
+    input.click();
+    await flush();
+    // 草稿还在：点在编辑器里没有重新开始
+    expect(cell('a', 'part').querySelector('input')!.value).toBe('改了');
+    // 不可编辑的格单击没有反应
+    cell('a', 'id').click();
+    await flush();
+    expect(cell('a', 'id').querySelector('input')).toBeNull();
+  });
+
+  it('默认双击才进入编辑，单击不开始', async () => {
+    const { cell } = setup();
+    await flush();
+    cell('a', 'part').click();
+    await flush();
+    expect(cell('a', 'part').querySelector('input')).toBeNull();
+    cell('a', 'part').dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    await flush();
+    expect(cell('a', 'part').querySelector('input')).not.toBeNull();
+  });
+
+  it('保存的时候点开了别的格：保存完不把新打开的编辑器收掉', async () => {
+    let finish: () => void = () => undefined;
+    const { cell, onCellChange } = setup({
+      editTrigger: 'click',
+      onCellChange: () => new Promise<void>((resolve) => (finish = resolve)),
+    });
+    await flush();
+    cell('a', 'part').click();
+    await flush();
+    key(cell('a', 'part').querySelector('input')!, 'Enter');
+    await flush();
+    expect(onCellChange).toHaveBeenCalledTimes(1);
+    cell('b', 'part').click();
+    await flush();
+    expect(cell('b', 'part').querySelector('input')).not.toBeNull();
+    finish();
+    await flush();
+    expect(cell('b', 'part').querySelector('input')).not.toBeNull();
   });
 
   it('onCellChange 返回原因：编辑器留着并显示它', async () => {

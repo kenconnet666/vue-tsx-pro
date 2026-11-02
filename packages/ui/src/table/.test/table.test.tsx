@@ -12,6 +12,7 @@ import {
   nextSort,
   sortRows,
   sumColumn,
+  flexColumnWidth,
   tableMinWidth,
   type SortState,
   type DataTableColumn,
@@ -579,6 +580,33 @@ describe('DataTable 的详情行', () => {
     expanded = [];
     await flush();
     expect(root.querySelector('.detail')).toBeNull();
+  });
+});
+
+describe('flexColumnWidth', () => {
+  const widthOf = (column: DataTableColumn<unknown>) => column.width;
+
+  it('没写宽度的列最小宽度都一样：平分就对，不写宽度', () => {
+    const list: DataTableColumn<unknown>[] = [
+      { key: 'a', header: 'A' },
+      { key: 'b', header: 'B' },
+      { key: 'c', header: 'C', width: 80 },
+    ];
+    expect(flexColumnWidth(list[0]!, list, widthOf, 0)).toBeUndefined();
+  });
+
+  it('最小宽度不一样：自己的最小宽度加上平分多出来的部分，放不下时保住最小宽度', () => {
+    const list: DataTableColumn<unknown>[] = [
+      { key: 'a', header: 'A', minWidth: 200 },
+      { key: 'b', header: 'B' },
+      { key: 'c', header: 'C', width: 80 },
+    ];
+    expect(flexColumnWidth(list[0]!, list, widthOf, 40)).toBe(
+      'max(200px, calc(200px + (100cqi - 440px) / 2))',
+    );
+    expect(flexColumnWidth(list[1]!, list, widthOf, 40)).toBe(
+      'max(120px, calc(120px + (100cqi - 440px) / 2))',
+    );
   });
 });
 

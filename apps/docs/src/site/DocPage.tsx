@@ -8,21 +8,10 @@
  *   ));
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { CodeBlock, Container, createFlex, Flex, H1, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { CodeBlock, Container } from '@zerodep-dev/vue-tsx-pro-ui';
+import { DocArticle } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import type { VNodeChild } from 'vue';
 import type { PageMeta } from './types';
-
-const styles = css.create({
-  // 长文阅读：比界面文字（14px）大一号、行距宽松；间距以 em 计，随之放大。示例的效果区会改回界面字号
-  article: { gap: '3rem', fontSize: '15px', lineHeight: '_relaxed' },
-  header: { gap: '_lg' },
-  // 简介保持适合阅读的行宽，宽版面时也不拉满
-  lead: { maxWidth: '48rem', lineHeight: '_relaxed' },
-});
-
-/** 页面正文是一篇文章（article） */
-const Article = createFlex('article', 'DocArticle');
 
 /** DocPage 的属性 */
 export interface DocPageProps {
@@ -40,16 +29,13 @@ export const DocPage = _component(
   ({ meta, imports, wide = false, children }: DocPageProps) =>
     () => (
       <Container size={wide ? 'xl' : 'md'} padding="none">
-        <Article direction="column" sx={styles.article}>
-          <Flex direction="column" sx={styles.header}>
-            <H1>{meta.title}</H1>
-            <Paragraph size="lg" tone="muted" sx={styles.lead}>
-              {meta.description}
-            </Paragraph>
-            {imports && <CodeBlock code={imports} lang="ts" />}
-          </Flex>
+        <DocArticle
+          title={meta.title}
+          description={meta.description}
+          lead={imports && <CodeBlock code={imports} lang="ts" />}
+        >
           {children}
-        </Article>
+        </DocArticle>
       </Container>
     ),
 );

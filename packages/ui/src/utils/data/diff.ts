@@ -58,6 +58,62 @@ export function diffFields<T extends object, K extends keyof T = keyof T>(
   });
 }
 
+/** 一行和之前比怎么了 */
+export interface RowChanges {
+  /** 之前没有 */
+  inserted: unknown;
+  /** 有字段变了 */
+  updated: unknown;
+  /** 现在没有了 */
+  deleted: unknown;
+}
+
+/** 一行的比较结果 */
+export interface RowDiff<T> {
+  /** 行的 key */
+  key: string;
+  /** 现在的行；删除了的行是之前的样子 */
+  row: T;
+  /** 没变时 undefined */
+  change?: keyof RowChanges;
+  /** 修改了的行之前的样子 */
+  before?: T;
+  /** 修改了的行里变了的字段 */
+  changedFields?: (keyof T)[];
+}
+
+/**
+ * 两份列表按 key 比较（执行前后、编辑前后、两次导入）：哪些行是新增、修改、删除的。
+ *
+ *   diffRows(before, after, (row) => String(row.id))
+ *   // → [{ key: '1', row, change: 'updated', before: old, changedFields: ['views'] }, { key: '2', row }, …]
+ *
+ * 顺序是现在的行，删除了的排在最后。字段是否变了同 diffFields（结构相等）。
+ */
+export function diffRows<T extends object>(
+  before: readonly T[],
+  after: readonly T[],
+  getKey: (row: T) => string,
+): RowDiff<T>[] {
+  const remaining = new Map(before.map((row) => [getKey(row), row]));
+  const rows = after.map((row): RowDiff<T> => {
+    const key = getKey(row);
+    const previous = remaining.get(key);
+    remaining.delete(key);
+    if (!previous) return { key, row, change: 'inserted' };
+    const changedFields = diffFields(previous, row)
+      .filter((field) => field.changed)
+      .map((field) => field.key);
+    return changedFields.length > 0
+      ? { key, row, change: 'updated', before: previous, changedFields }
+      : { key, row };
+  });
+  return [
+    ...rows,
+    ...[...remaining].map(([key, row]): RowDiff<T> => ({ key, row, change: 'deleted' })),
+  ];
+}
+
 /** a − b：有一边是 Decimal 时按它的构造函数算，都是 bigint 时按整数，否则按 number */
 function subtract(a: NumericValue, b: NumericValue): NumericValue {
   const kind = isDecimal(a)

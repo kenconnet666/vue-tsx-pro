@@ -320,6 +320,8 @@ export const dataTableStateStyles = css.create({
       ':focus-visible': `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.focusRing}`,
     },
   },
+  // 单击就能编辑的格
+  clickToEdit: { cursor: 'text' },
   // 编辑中的格：编辑器贴满格子，上下内边距收小
   editingCell: { paddingBlock: '_none', overflow: 'visible' },
   // 校验没过的格：红色内描边；聚焦时仍是焦点环

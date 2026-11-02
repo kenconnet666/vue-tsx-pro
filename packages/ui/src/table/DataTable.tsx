@@ -272,6 +272,8 @@ export const DataTable = _component(
         editing = { ...current, error: result, saving: false };
         return;
       }
+      // 保存的时候已经点开了别的格（点别处提交时常这样）：不动它
+      if (editing && (editing.row !== current.row || editing.column !== current.column)) return;
       editing = null;
       const next = step === 0 ? undefined : neighbourEditable(current, step);
       if (next) startEdit(next);

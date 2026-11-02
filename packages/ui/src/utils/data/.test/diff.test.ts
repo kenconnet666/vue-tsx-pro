@@ -1,7 +1,7 @@
 // diffFields：按字段比较，变了没有按结构相等；数值字段给出精确的差与变化率；字段与顺序由 keys 决定
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
-import { diffFields } from '../diff';
+import { diffFields, diffRows } from '../diff';
 
 interface Estimate {
   amount: Decimal;
@@ -51,5 +51,34 @@ describe('diffFields', () => {
       ['amount', undefined, true],
       ['reason', undefined, true],
     ]);
+  });
+});
+
+describe('diffRows', () => {
+  const key = (row: { id: number }) => String(row.id);
+
+  it('按 key 比较：新增、修改、删除，没变的没有 change；删除的排在最后', () => {
+    const before = [
+      { id: 1, views: 10, tags: ['a'] },
+      { id: 2, views: 20, tags: [] },
+      { id: 3, views: 30, tags: [] },
+    ];
+    const after = [
+      { id: 4, views: 0, tags: [] },
+      { id: 1, views: 11, tags: ['a'] },
+      { id: 2, views: 20, tags: [] },
+    ];
+    expect(diffRows(before, after, key)).toEqual([
+      { key: '4', row: after[0], change: 'inserted' },
+      { key: '1', row: after[1], change: 'updated', before: before[0], changedFields: ['views'] },
+      { key: '2', row: after[2] },
+      { key: '3', row: before[2], change: 'deleted' },
+    ]);
+  });
+
+  it('字段按结构相等比较：内容一样的数组不算变了', () => {
+    expect(
+      diffRows([{ id: 1, tags: ['a'] }], [{ id: 1, tags: ['a'] }], key)[0]!.change,
+    ).toBeUndefined();
   });
 });

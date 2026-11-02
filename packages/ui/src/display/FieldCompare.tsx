@@ -12,12 +12,9 @@
  * 读屏：列表里原值是 del、新值是 ins，两者之间有“改为”（画面上是箭头）。
  * 部件：Root（div）、Table（ColumnTable，表格时）、List（dl，列表时）、Item（div）、Label（dt）、Value（dd）。
  */
-import { ArrowRight } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
-import { Icon } from '../base/Icon';
-import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { diffFields, type FieldDiff } from '../utils/data/diff';
@@ -25,6 +22,7 @@ import { toNumber } from '../utils/data/numeric';
 import type { SortValue } from '../utils/data/collation';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { toneStyles } from '../utils/style/typography';
+import { ValueChange } from './ValueChange';
 import { useColumnDisplay } from '../table/column-display';
 import { ColumnTable, type ColumnTableProps } from '../table/ColumnTable';
 import {
@@ -98,9 +96,6 @@ export const fieldCompareStyles = css.create({
     minWidth: 0,
     overflowWrap: 'anywhere',
   },
-  before: { color: '_textMuted', textDecorationLine: 'line-through' },
-  after: { textDecorationLine: 'none', color: '_text', fontWeight: '_medium' },
-  arrow: { alignSelf: 'center', color: '_textMuted', flexShrink: 0 },
   change: { fontSize: '_sm', fontVariantNumeric: 'tabular-nums' },
   // 表格里没改的字段淡显，改了的新值加粗
   unchanged: { color: '_textMuted' },
@@ -251,14 +246,10 @@ export const FieldCompare = _component(
               {row.field.header}
             </dt>
             <dd {...mergeAttrs<'dd'>({ sx: fieldCompareStyles.value }, propsValue)}>
-              {before != null && (
-                <>
-                  <del {...css.attrs(fieldCompareStyles.before)}>{shown(row, 0)}</del>
-                  <Icon icon={ArrowRight} sx={fieldCompareStyles.arrow} />
-                  <VisuallyHidden>{lang.fieldCompareTo}</VisuallyHidden>
-                </>
-              )}
-              <ins {...css.attrs(fieldCompareStyles.after)}>{shown(row, 1)}</ins>
+              <ValueChange
+                before={before != null ? shown(row, 0) : undefined}
+                after={shown(row, 1)}
+              />
               {change(row)}
             </dd>
           </div>

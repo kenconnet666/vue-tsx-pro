@@ -16,7 +16,10 @@
 
 发布时把这一节搬进 GitHub Release 的说明，再清空。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- 新增：`DataTable` 的 `editTrigger="click"`（单击进入编辑）；`diffRows` 按 key 比较两份列表；`ValueChange`（原值 → 新值）；`CodeBlock` 的 `flush`；`CodeText`（文案里的行内代码）；`docs-kit` 的 `DocsShell`、`DocArticle`、`DocSection`、`TextTable`、`GithubIcon`。
+- `DataTable`：各列 `minWidth` 不一样时，放不下的表格按每列自己的最小宽度排，不再被平分得比 `minWidth` 窄（`minWidth` 写得比平分宽度大的列会变宽）。
+- `DataTable`：异步保存时点开了别的格，保存完不再把新打开的编辑器收掉。
+- 文档站不再收 ORM 的页面，地址 `/stack/orm/*` 没有了。
 
 ## 一次性准备
 

@@ -56,6 +56,8 @@ export interface CodeBlockProps extends PartProps<'pre', 'title'> {
   removedLines?: LineSpec;
   /** 超过这么多行时折叠，底部的按钮展开；不写时不折叠 */
   maxLines?: number;
+  /** 嵌在卡片、标签页这类已经有外框的容器里：去掉自己的边框、圆角和底色 */
+  flush?: boolean;
   /** 内层 code 元素的部件属性 */
   propsCode?: PartProps<'code'>;
   /** 外层（包着标题栏、pre 与复制按钮的 div）的部件属性 */
@@ -105,6 +107,7 @@ export const codeBlockStyles = css.create({
     backgroundColor: '_surface',
     overflow: 'hidden',
   },
+  flush: { borderWidth: 0, borderRadius: 0, backgroundColor: 'transparent' },
   header: {
     display: 'flex',
     alignItems: 'center',
@@ -211,6 +214,7 @@ export const CodeBlock = _component(
     title,
     wrap = false,
     copyable = true,
+    flush = false,
     lineNumbers = false,
     highlightLines,
     addedLines,
@@ -313,7 +317,12 @@ export const CodeBlock = _component(
         />
       );
       return (
-        <div {...mergeAttrs<'div'>({ sx: codeBlockStyles.wrapper }, propsRoot)}>
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: [codeBlockStyles.wrapper, flush && codeBlockStyles.flush] },
+            propsRoot,
+          )}
+        >
           {hasContent(title) && (
             <div {...mergeAttrs<'div'>({ sx: codeBlockStyles.header }, propsHeader)}>
               <span {...mergeAttrs<'span'>({ sx: codeBlockStyles.title }, propsTitle)}>
