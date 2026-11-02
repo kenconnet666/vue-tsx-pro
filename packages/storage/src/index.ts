@@ -22,5 +22,6 @@ export {
   createCache,
   type CacheEntryOptions,
   type CacheHit,
+  type CacheListener,
   type CacheOptions,
 } from './cache.ts';

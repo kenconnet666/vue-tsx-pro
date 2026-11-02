@@ -250,6 +250,54 @@ describe('useRequest 的 cache', () => {
     expect(listeners.size).toBe(0);
   });
 
+  it('标签失效：键还没写进缓存也重新请求，丢掉进行中的旧结果；缓存里是新鲜的也照样请求；别的标签不管', async () => {
+    const entries: Record<string, { value: unknown; fresh: boolean }> = {};
+    const listeners = new Set<NonNullable<Parameters<NonNullable<RequestCache['watch']>>[0]>>();
+    const store: RequestCache = {
+      read: (key) => Promise.resolve(entries[key]),
+      // 写回还没落盘：结果已经显示了，缓存里还没有这个键
+      set: () => Promise.resolve(),
+      watch: (listener) => {
+        listeners.add(listener);
+        return () => listeners.delete(listener);
+      },
+    };
+    const emit = (keys: readonly string[], tags: readonly string[]) =>
+      listeners.forEach((listener) => listener(keys, tags));
+    const { fetcher, calls } = deferredFetcher<string, undefined>();
+    const { state, stop } = run(fetcher, {
+      cache: { store, key: () => 'stats', tags: () => ['t_todo'] },
+    });
+    await flush();
+    calls[0]!.resolve('3/1');
+    await flush();
+    expect(state.data).toBe('3/1');
+
+    emit([], ['t_other']);
+    await flush();
+    expect(calls).toHaveLength(1);
+
+    emit([], ['t_todo']);
+    await flush();
+    expect(calls).toHaveLength(2);
+
+    // 这次请求可能是改动之前发的：又失效时取消它，它的结果不算
+    emit([], ['t_todo']);
+    await flush();
+    expect([calls.length, calls[1]!.signal.aborted]).toEqual([3, true]);
+    calls[1]!.resolve('3/1');
+    calls[2]!.resolve('3/2');
+    await flush();
+    expect(state.data).toBe('3/2');
+
+    // 失效前发出的请求刚写回，缓存里看起来是新鲜的：不能信它
+    entries.stats = { value: '3/2', fresh: true };
+    emit(['stats'], ['t_todo']);
+    await flush();
+    expect(calls).toHaveLength(4);
+    stop();
+  });
+
   it('还没请求过（immediate: false）时失效不触发请求', async () => {
     const listeners = new Set<(keys: readonly string[] | undefined) => void>();
     const store: RequestCache = {

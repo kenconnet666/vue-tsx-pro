@@ -130,4 +130,44 @@ describe('标签与本页的失效通知', () => {
     await cache.invalidate('b');
     assert.deepEqual(seen, [['a'], ['b'], ['user:1'], undefined]);
   });
+
+  it('invalidateTag：这个标签下还没有键（结果还没写进来）也通知，带上标签', async () => {
+    const cache = createCache(memoryDriver());
+    const seen: unknown[] = [];
+    const stop = cache.watch((keys, tags) => seen.push([keys, tags]));
+    await cache.invalidateTag('t');
+    await cache.set('a', 1, { tags: ['t'] });
+    await cache.invalidateTag(['t', 'u']);
+    stop();
+    assert.deepEqual(seen, [
+      [[], ['t']],
+      [['a'], ['t', 'u']],
+    ]);
+  });
+
+  it('写入还没落盘时失效：等写完再删，失效之后不会留下旧值', async () => {
+    const memory = memoryDriver();
+    let finishWrite = () => {};
+    const gate = new Promise<void>((resolve) => (finishWrite = resolve));
+    // 写值这一步卡住，像 IndexedDB 还没提交；其余照常
+    const driver = Object.assign(Object.create(memory) as typeof memory, {
+      set: async (key: string, value: unknown) => {
+        if (key === 'cache:k') await gate;
+        return memory.set(key, value);
+      },
+    });
+    const cache = createCache(driver);
+    for (const invalidate of [
+      () => cache.invalidateTag('t'),
+      () => cache.invalidate('k'),
+      () => cache.invalidatePrefix('k'),
+    ]) {
+      const writing = cache.set('k', 'old', { tags: ['t'] });
+      const invalidating = invalidate();
+      finishWrite();
+      await Promise.all([writing, invalidating]);
+      assert.equal(await cache.read('k'), undefined);
+      assert.equal(await memory.get('cache:k'), undefined);
+    }
+  });
 });

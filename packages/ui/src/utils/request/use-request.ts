@@ -31,8 +31,13 @@ export interface RequestCache {
   read(key: string): Promise<{ value: unknown; fresh: boolean } | undefined>;
   /** 写回请求的结果；tags 是这条依赖的东西（后端的表名），按它失效 */
   set(key: string, value: unknown, options?: { tags?: readonly string[] }): Promise<void>;
-  /** 缓存的键失效或被别处改了时回调（keys 为 undefined 表示全清了）；返回取消收听 */
-  watch?(listener: (keys: readonly string[] | undefined) => void): () => void;
+  /**
+   * 缓存的键失效或被别处改了时回调（keys 为 undefined 表示全清了）；返回取消收听。
+   * 按标签失效时 tags 是这些标签，keys 可能是空的（结果已经显示、还没写进缓存）
+   */
+  watch?(
+    listener: (keys: readonly string[] | undefined, tags?: readonly string[]) => void,
+  ): () => void;
 }
 
 /** useRequest 的选项 */
@@ -53,7 +58,8 @@ export interface RequestOptions<P, T> {
   /**
    * 结果的缓存（先显示旧值、后台刷新）：有缓存先显示；新鲜的不再请求（refresh 照样请求），过期的接着请求、到了替换并写回。
    * key 由参数算出，不同参数各存各的；tags 是写回时标上的标签（依赖的表）。缓存读写出错时当作没有缓存，命中新鲜缓存时不调 onSuccess。
-   * 当前参数的键失效了（本页或别的标签页）自动再请求一次；别的标签页写进了新值时直接用它，不再请求
+   * 当前参数的键失效了（本页或别的标签页）自动再请求一次；别的标签页写进了新值时直接用它，不再请求。
+   * 依赖的标签失效时总是重新请求，取消进行中的（那次可能是改动之前发的）
    */
   cache?: {
     store: RequestCache;
@@ -168,10 +174,13 @@ export function useRequest<T, P = undefined>(
   }
   if (cache?.store.watch && typeof window !== 'undefined') {
     // 不强制：失效了缓存里没有、照常请求；别的标签页刚写进新值时直接读到它。还没请求过（immediate: false）的不管
-    const stop = cache.store.watch((keys) => {
+    const stop = cache.store.watch((keys, tags) => {
       if (latest === 0 || options.enabled?.() === false) return;
       const current = readParams();
-      if (!keys || keys.includes(cache.key(current))) void run(current);
+      // 依赖的标签失效了：数据确实变了，必须重新请求。这时缓存里还是新鲜的，是失效前发出的请求刚写回的，不能信
+      const own = cache.tags?.(current);
+      if (tags?.some((tag) => own?.includes(tag))) void run(current, true);
+      else if (!keys || keys.includes(cache.key(current))) void run(current);
     });
     onScopeDispose(stop);
   }

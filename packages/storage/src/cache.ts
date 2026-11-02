@@ -33,6 +33,12 @@ export interface CacheEntryOptions {
   tags?: readonly string[];
 }
 
+/**
+ * watch 的回调：keys 是失效或改了的缓存键（不带前缀），undefined 表示整个缓存清空了。
+ * 按标签失效时 tags 是这些标签，keys 可能是空的：结果已经显示、还没写进缓存的也算依赖这些标签，要看 tags 判断
+ */
+export type CacheListener = (keys: readonly string[] | undefined, tags?: readonly string[]) => void;
+
 /** read 的结果：fresh 为 false 时是过期但还能先用的旧值 */
 export interface CacheHit<T> {
   value: T;
@@ -69,7 +75,9 @@ export class Cache {
   /** 正在 load 的键：同一个键并发 load 只调一次 loader */
   private readonly loading = new Map<string, Promise<unknown>>();
   /** 本页的 watch：失效时通知（别的标签页的由驱动的 watch 通知） */
-  private readonly listeners = new Set<(keys: readonly string[] | undefined) => void>();
+  private readonly listeners = new Set<CacheListener>();
+  /** 还没写完的 set：失效要等它们，否则失效之后才落盘的旧值会一直留着 */
+  private readonly writes = new Set<Promise<unknown>>();
 
   constructor(driver: StorageDriver, options: CacheOptions = {}) {
     this.driver = driver;
@@ -113,8 +121,15 @@ export class Cache {
     const entry: Entry = { value, expires, until: Math.min(expires + stale, FOREVER) };
     if (tags.length > 0) entry.tags = tags;
     // 先写索引再写值：中途失败时最多多一条用不上的索引，不会有失效不掉的值
-    await Promise.all(tags.map((tag) => this.driver.set(this.tagKey(tag, key), 1)));
-    await this.driver.set(this.prefix + key, entry);
+    const writing = Promise.all(tags.map((tag) => this.driver.set(this.tagKey(tag, key), 1))).then(
+      () => this.driver.set(this.prefix + key, entry),
+    );
+    this.writes.add(writing);
+    try {
+      await writing;
+    } finally {
+      this.writes.delete(writing);
+    }
   }
 
   /** 新鲜的直接给；否则调 loader 并写回。同一个键同时 load 只调一次 loader，loader 失败不写 */
@@ -134,16 +149,18 @@ export class Cache {
 
   /** 让这几个键失效（连同它们的标签索引） */
   async invalidate(keys: string | readonly string[]): Promise<void> {
+    await Promise.allSettled(this.writes);
     const list = keyList(keys);
-    const entries = await Promise.all(list.map((key) => this.entry(key)));
-    await this.driver.delete(list.flatMap((key, i) => this.entryKeys(key, entries[i])));
+    await this.remove(list);
     this.emit(list);
   }
 
-  /** 标了这些标签（任何一个）的全部失效 */
+  /** 标了这些标签（任何一个）的全部失效；哪怕一条都没有也通知：结果可能已经显示，只是还没写进来 */
   async invalidateTag(tags: string | readonly string[]): Promise<void> {
+    await Promise.allSettled(this.writes);
+    const tagList = keyList(tags);
     const index = await Promise.all(
-      keyList(tags).map(async (tag) => {
+      tagList.map(async (tag) => {
         const start = this.prefix + TAG + tag + TAG;
         return (await this.driver.keys(start)).map((indexKey) => ({
           indexKey,
@@ -152,14 +169,17 @@ export class Cache {
       }),
     );
     const keys = [...new Set(index.flat().map((item) => item.key))];
-    if (keys.length === 0) return;
-    await this.invalidate(keys);
-    // 键的别的标签的索引已经随 invalidate 删了；这里是值已经不在（过期删掉）只剩索引的
-    await this.driver.delete(index.flat().map((item) => item.indexKey));
+    if (keys.length > 0) {
+      await this.remove(keys);
+      // 键的别的标签的索引已经随 remove 删了；这里是值已经不在（过期删掉）只剩索引的
+      await this.driver.delete(index.flat().map((item) => item.indexKey));
+    }
+    this.emit(keys, tagList);
   }
 
   /** 让以 prefix 开头的键全部失效；给 '' 清空整个缓存（连同标签索引） */
   async invalidatePrefix(prefix: string): Promise<void> {
+    await Promise.allSettled(this.writes);
     const keys = await this.driver.keys(this.prefix + prefix);
     await this.driver.delete(keys);
     const own = keys
@@ -172,9 +192,9 @@ export class Cache {
   /**
    * 缓存的键改了或失效时回调：keys 是缓存的键（不带前缀），undefined 表示整个缓存清空了。
    * 本页的失效（invalidate、invalidateTag、invalidatePrefix）都通知；别的标签页的写入与失效经驱动的 watch 通知
-   * （驱动不支持跨标签页时只有本页的）。本页的 set 不通知
+   * （驱动不支持跨标签页时只有本页的）。本页的 set 不通知。invalidateTag 另外带上标签（见 CacheListener）
    */
-  watch(listener: (keys: readonly string[] | undefined) => void): () => void {
+  watch(listener: CacheListener): () => void {
     this.listeners.add(listener);
     const stopDriver = this.driver.watch?.((keys) => {
       if (!keys) return listener(undefined);
@@ -187,6 +207,12 @@ export class Cache {
       this.listeners.delete(listener);
       stopDriver?.();
     };
+  }
+
+  /** 删掉这几个键（连同它们的标签索引），不通知 */
+  private async remove(keys: readonly string[]): Promise<void> {
+    const entries = await Promise.all(keys.map((key) => this.entry(key)));
+    await this.driver.delete(keys.flatMap((key, i) => this.entryKeys(key, entries[i])));
   }
 
   private async entry(key: string): Promise<Entry | undefined> {
@@ -207,9 +233,9 @@ export class Cache {
     return key.startsWith(this.prefix + TAG);
   }
 
-  private emit(keys: readonly string[] | undefined) {
-    if (keys?.length === 0) return;
-    for (const listener of this.listeners) listener(keys);
+  private emit(keys: readonly string[] | undefined, tags?: readonly string[]) {
+    if (keys?.length === 0 && !tags) return;
+    for (const listener of this.listeners) listener(keys, tags);
   }
 }
 

@@ -39,10 +39,11 @@ await cache.invalidatePrefix('user:');
 - `load(键, loader)` 新鲜的直接给，否则调 loader 写回；同一个键并发只调一次，失败不写
 - `set(键, 值, { tags })` 标上依赖的东西（通常是后端的表名），`invalidateTag(标签)` 让标了它的全部失效；标签索引也是驱动里的键，
   不用读改写一份列表，几个标签页同时写不会丢
-- `invalidate(键)` / `invalidatePrefix(前缀)`；`watch` 收到本页的失效与别的标签页的写入、失效
+- `invalidate(键)` / `invalidatePrefix(前缀)`；`watch` 收到本页的失效与别的标签页的写入、失效。
+  失效会等还没写完的 `set`，失效之后不会留下旧值；`invalidateTag` 另外把标签传给 `watch`，这个标签下一条都没有时也通知
 
 组件库的 `useRequest` 的 `cache` 选项按 `read` / `set` / `watch` 对接：有缓存先显示，新鲜的不再请求，过期的后台刷新；
-`tags` 写回时标上，当前参数的键失效了自动再请求。
+`tags` 写回时标上，当前参数的键失效了自动再请求，依赖的标签失效时总是重新请求并取消进行中的。
 
 ## 服务端写入后失效
 

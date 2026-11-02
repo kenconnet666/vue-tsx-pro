@@ -18,6 +18,8 @@
 
 新增四套内置主题：大屏（`big-screen`，数据大屏用的深蓝与青蓝）、薰衣草（`lavender`）、余烬（`ember`）、墨白（`mono`）。`createThemePreference({ themes: builtinThemes })` 的 ThemeSwitcher 菜单会多四项；按名字列出主题的项目不受影响。
 
+修复 `useRequest` 的缓存漏掉失效通知：结果已经显示、还没写进缓存时收到按标签的失效，页面会一直停在旧数据上。现在 `RequestCache.watch` 的回调多一个 `tags` 参数；依赖的标签失效时总是重新请求，并取消进行中的请求。自己实现 `RequestCache` 的项目不用改，不传 `tags` 时行为和之前一样。
+
 ## 一次性准备
 
 1. npm 账号开启 2FA，建一个范围是 `@zerodep-dev`、勾选 Bypass 2FA 的 Granular Access Token，放进用户级环境变量 `NPM_TOKEN`。
