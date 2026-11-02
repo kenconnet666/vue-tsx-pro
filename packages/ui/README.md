@@ -1,6 +1,6 @@
 # @zerodep-dev/vue-tsx-pro-ui
 
-用 `@zerodep-dev/vue-tsx-pro-tsx` 写的 Vue 3 组件库：按无障碍规范实现的基础、表单、浮层、数据展示、表格、图表与业务模式组件，十二套内置主题，运行时样式（使用方不用再编译组件库）。
+用 `@zerodep-dev/vue-tsx-pro-tsx` 写的 Vue 3 组件库：按无障碍规范实现的基础、表单、浮层、数据展示、表格、图表与业务模式组件，十六套内置主题，运行时样式（使用方不用再编译组件库）。
 
 ```bash
 pnpm add @zerodep-dev/vue-tsx-pro-tsx @zerodep-dev/vue-tsx-pro-ui @lucide/icons zod

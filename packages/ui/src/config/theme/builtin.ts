@@ -7,15 +7,19 @@
  * 加一套内置主题：在这里登记，再补上语言包里的名字（builtinThemeLabel）、boot.ts 的底色、ThemeSwitcher 的图标——
  * 后三处按 BuiltinThemeName 写成完整的表，漏了类型检查会报错；pnpm themes:check 从这里读出主题文件核对颜色。
  */
+import { bigScreenTheme } from './big-screen';
 import { coffeeTheme } from './coffee';
 import { cyberpunkTheme } from './cyberpunk';
 import { darkTheme } from './dark';
+import { emberTheme } from './ember';
 import { festiveTheme } from './festive';
 import { forestTheme } from './forest';
 import { highContrastTheme } from './high-contrast';
+import { lavenderTheme } from './lavender';
 import { lemonTheme } from './lemon';
 import { lightTheme } from './light';
 import { midnightTheme } from './midnight';
+import { monoTheme } from './mono';
 import { oceanTheme } from './ocean';
 import { paperTheme } from './paper';
 import { sakuraTheme } from './sakura';
@@ -36,6 +40,10 @@ export const builtinThemes = {
   festive: festiveTheme,
   cyberpunk: cyberpunkTheme,
   coffee: coffeeTheme,
+  'big-screen': bigScreenTheme,
+  lavender: lavenderTheme,
+  ember: emberTheme,
+  mono: monoTheme,
 } as const satisfies Record<string, Theme>;
 
 /** 内置主题的名字 */
@@ -56,6 +64,10 @@ export function builtinThemeLabel(lang: Lang, name: BuiltinThemeName): string {
     festive: lang.themeFestive,
     cyberpunk: lang.themeCyberpunk,
     coffee: lang.themeCoffee,
+    'big-screen': lang.themeBigScreen,
+    lavender: lang.themeLavender,
+    ember: lang.themeEmber,
+    mono: lang.themeMono,
   };
   return labels[name];
 }

@@ -8,9 +8,13 @@
  * 按钮的图标表示当前的选择；内置主题（builtinThemes）与跟随系统有默认的文字和图标，其他主题用 labels、icons 补上。
  */
 import {
+  ChartNoAxesCombined,
   Citrus,
   Coffee,
   Contrast,
+  Feather,
+  Flame,
+  Flower,
   Flower2,
   Monitor,
   Moon,
@@ -68,6 +72,10 @@ const DEFAULT_ICONS: Record<BuiltinThemeName | typeof SYSTEM_THEME, IconData> = 
   festive: PartyPopper,
   cyberpunk: Zap,
   coffee: Coffee,
+  'big-screen': ChartNoAxesCombined,
+  lavender: Flower,
+  ember: Flame,
+  mono: Feather,
 };
 
 /** 主题切换（图标按钮 + 单选菜单）：选中后从按钮处圆形展开新主题 */

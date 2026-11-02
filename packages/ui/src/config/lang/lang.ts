@@ -662,6 +662,14 @@ export interface Lang {
   readonly themeCyberpunk: string;
   /** 主题：咖啡，默认“咖啡” */
   readonly themeCoffee: string;
+  /** 主题：大屏，默认“大屏” */
+  readonly themeBigScreen: string;
+  /** 主题：薰衣草，默认“薰衣草” */
+  readonly themeLavender: string;
+  /** 主题：余烬，默认“余烬” */
+  readonly themeEmber: string;
+  /** 主题：墨白，默认“墨白” */
+  readonly themeMono: string;
   /** ColorField 色块（原生取色器）的名称，默认“选择颜色” */
   readonly colorPick: string;
   /** 翻页导航（上一篇、下一篇）的名称，默认“翻页” */

@@ -60,7 +60,7 @@ export const skeletonStyles = css.create({
     display: 'inline-block',
     borderRadius: '_sm',
     // 底色与光带都是半透明的正文色：叠在任何表面（页面、卡片、浮层）上都比表面深一档（暗色主题里浅一档），
-    // 十二套主题不必各调一遍；光带叠在底色上，再深一档
+    // 十六套主题不必各调一遍；光带叠在底色上，再深一档
     [shimmerVars.highlight]: `color-mix(in oklab, ${t.colors.text} 9%, transparent)`,
     pointerEvents: 'none',
     userSelect: 'none',

@@ -50,7 +50,7 @@
   - 3D（子路径 `@zerodep-dev/vue-tsx-pro-ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer
   - 卡片的装饰效果是 Card 的 `effect`（tilt 倾斜、spotlight 聚光、beam 流光边框，纯 CSS）；跑马灯 Marquee 在主入口（展示）。原 `@zerodep-dev/vue-tsx-pro-ui/effects` 子路径 2026-10-24 取消
   - 主题定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`）：customizeTheme、对比度、设计令牌、ThemeCustomizer、ThemeThumbnail；文档站组件在 `@zerodep-dev/vue-tsx-pro-ui/docs-kit`（CodePreview、PropsTable、CodeGroup、ColorSwatch、DocArticle / DocSection、TextTable、GithubIcon）
-- **主题**：12 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher`（patterns）切换，`ThemeCustomizer` 定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
+- **主题**：16 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher`（patterns）切换，`ThemeCustomizer` 定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
 - **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。文档站不收案例页。
 - **host-demo**（`apps/host-demo`）：模拟宿主项目，留着几个综合页面与组件行为的浏览器测试（`test/*.browser.test.tsx`）。
 - **CI**：GitHub Actions 五个并行任务：check（静态检查）、test（Ubuntu 与 Windows）、browser（三种浏览器的浏览器测试，每个系统分三片并行与文档站的 axe）、build、consumer（发布产物验证）。
