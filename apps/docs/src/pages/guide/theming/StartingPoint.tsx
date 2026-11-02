@@ -18,7 +18,9 @@ const styles = css.create({
   header: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   options: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(6.5em, 1fr))',
+    // ToggleGroup 默认按内容收缩，不撑满时 auto-fill 只排得下一列
+    width: '100%',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(5em, 1fr))',
     gap: '_xs',
   },
   // 一项是一张小卡片：缩略图在上、名字在下（排列写在按钮的内容部件上）
