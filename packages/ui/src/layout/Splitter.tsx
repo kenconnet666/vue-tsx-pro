@@ -9,7 +9,7 @@
  * 分隔条按 WAI-ARIA 的 Window Splitter 模式：role="separator"、可聚焦，←/→（上下排列时 ↑/↓）每次调 5%，
  * Home / End 到最小 / 最大，Enter 收起或展开可收起的那一侧；从右到左排版下左右键自动镜像。
  * 写了 collapsible 时分隔条中间有收起、展开的小按钮；收起的一栏不显示（hidden），另一栏占满。
- * 两栏各自滚动：内容放在里面自己的滚动容器里（或直接用 ScrollArea）。
+ * 两栏各自滚动，用浮层滚动条（ScrollArea，和整页、侧栏一样）；内容的高度可以写 100% 铺满一栏。
  */
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -21,6 +21,7 @@ import { clamp } from '../utils/data/number';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { ScrollArea, type ScrollAreaProps } from './ScrollArea';
 import { focusRingStyles } from '../utils/style/styles';
 
 /** 两栏的排法 */
@@ -69,6 +70,8 @@ export interface SplitterProps extends PartProps<'div'> {
   propsStart?: PartProps<'div'>;
   /** 结束一栏（div）的部件属性 */
   propsEnd?: PartProps<'div'>;
+  /** 两栏里滚动区域（ScrollArea）的部件属性 */
+  propsScroll?: Partial<ScrollAreaProps>;
   /** 分隔条（div，role="separator"）的部件属性 */
   propsHandle?: PartProps<'div'>;
   /** 收起、展开按钮的部件属性 */
@@ -89,7 +92,10 @@ export const splitterStyles = css.create({
     backgroundColor: '_surface',
     overflow: 'hidden',
   },
-  pane: { minWidth: 0, minHeight: 0, overflow: 'auto' },
+  pane: { minWidth: 0, minHeight: 0, overflow: 'hidden' },
+  paneScroll: { height: '_full' },
+  // 内容层和这一栏一样高：里面的表格、空状态写 100% 才有依据
+  paneContent: { height: '_full' },
   // 分隔条：看得见的是中间一条细线，能拖的范围更宽；悬停、拖动时变成强调色
   // 分隔条所在的格：分隔条铺满它，收起按钮叠在中间（不放进可聚焦的分隔条里：交互元素不能嵌套）
   track: { position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' },
@@ -130,6 +136,7 @@ export const Splitter = _component(
     bordered = false,
     propsStart,
     propsEnd,
+    propsScroll,
     propsHandle,
     propsToggle,
     ...rest
@@ -190,6 +197,22 @@ export const Splitter = _component(
       return towardStart ? ChevronUp : ChevronDown;
     };
 
+    /** 一栏的内容：放进浮层滚动条的滚动区域 */
+    const pane = (content: VNodeChild) => (
+      <ScrollArea
+        {...mergePartProps<ScrollAreaProps>(
+          {
+            axis: 'both',
+            sx: splitterStyles.paneScroll,
+            propsContent: { sx: splitterStyles.paneContent },
+          },
+          propsScroll,
+        )}
+      >
+        {content}
+      </ScrollArea>
+    );
+
     return () => {
       const hideStart = collapsed && collapsible === 'start';
       const hideEnd = collapsed && collapsible === 'end';
@@ -222,7 +245,7 @@ export const Splitter = _component(
               hidden: hideStart || undefined,
             })}
           >
-            {start}
+            {pane(start)}
           </div>
           <div
             {...css.attrs(
@@ -291,7 +314,7 @@ export const Splitter = _component(
               hidden: hideEnd || undefined,
             })}
           >
-            {end}
+            {pane(end)}
           </div>
         </div>
       );
