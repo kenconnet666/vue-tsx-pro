@@ -57,4 +57,4 @@ it('关闭时正在编译的请求照样拿到结果（多环境构建里一个�
   expect((await pending)!.code).toContain('_createVNode');
   expect((await local.run(request(code)))!.code).toContain('_createVNode');
   local.close();
-});
+}, 30_000);

@@ -123,6 +123,7 @@ export const PRESETS: Record<string, Preset> = {
   Tag: { children: '标签' },
   Kbd: { children: 'Ctrl' },
   Code: { children: 'pnpm dev' },
+  CodeText: { initial: { text: '开发时运行 `pnpm dev`，提交前运行 `pnpm check`。' } },
   Mark: { children: '高亮的文字' },
   Text: { children: '一段文字' },
   Blockquote: { children: paragraph },
