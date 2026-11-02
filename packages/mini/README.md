@@ -60,7 +60,7 @@ export default defineMiniConfig({ plugins: vueTsxPro(), appId: 'wx…', darkmode
 - WXSS 不认 `:root`，和 `page` 写在同一个选择器列表里会让整条规则失效；`:not(a,b)` 这种选择器列表编不过。
 - 支付宝的逻辑层跑在 Worker 里，旧环境没有 `globalThis`；编译器要看产物根目录的 `.browserslistrc` 才按新语法解析；
   Vue 选项式 API 里 `computed` 那段（`set:e=>i.value=e`）它解析不了，构建时关掉选项式 API。
-- 依赖（animejs）在模块顶层取 `setImmediate` / `requestAnimationFrame`，逻辑层没有：`./globals` 补上，排在打包入口最前面。
+- 有的第三方依赖在模块顶层取 `setImmediate` / `requestAnimationFrame`，逻辑层没有：`./globals` 补上，排在打包入口最前面。
   补上了微信里裸写的 `requestAnimationFrame` 仍然取不到（报 not a function）：组件里要等视图层画完用宿主的 `nextFrame`（等 setData 生效）。
 - 模板层数（24）用完后，更深的节点交给递归的自定义组件 `vtp-comp`（模板从第 0 层重新开始）。它要在 app.json 的 usingComponents 里全局登记，`n 只在页面的 json 里登记时微信不实例化；组件里的原生 tap 不可靠（按下时整段子树重发给组件属性，tap 会丢），
   那一段的点击由运行时按 touchstart / touchend 合成（同一节点、移动不到 10px、不到 700ms）。

@@ -9,11 +9,10 @@
  * 挂载时与尺寸变化（字体加载、容器变宽）时直接对齐；axis 变了先清掉旧的内联样式。
  * 指示条按当前项的 offsetLeft / offsetTop 定位，容器要是它的定位容器（position: relative）。
  */
-import { utils, type AnimationParams } from 'animejs';
 import { onMounted, onScopeDispose, watch } from 'vue';
 import { batchLayout } from '../dom/layout-batch';
 import { useResizeObserver } from '../dom/resize';
-import { useAnimate } from './animation';
+import { setValues, useAnimate, type ElementValues } from './animation';
 
 /** 指示条沿哪个方向跟随 */
 export interface IndicatorAxes {
@@ -51,12 +50,12 @@ export function useActiveIndicator(read: () => ActiveIndicatorOptions): void {
       if (!indicator || !item) return;
       const x = axis === 'vertical' ? 0 : item.offsetLeft;
       const y = axis === 'horizontal' ? 0 : item.offsetTop;
-      const target: AnimationParams = { x, y };
+      const target: ElementValues = { x, y };
       if (axis !== 'vertical') target.width = item.offsetWidth;
       if (axis !== 'horizontal') target.height = item.offsetHeight;
       return () => {
         if (animated) void animate(indicator, target);
-        else void utils.set(indicator, target);
+        else setValues(indicator, target);
       };
     });
   }

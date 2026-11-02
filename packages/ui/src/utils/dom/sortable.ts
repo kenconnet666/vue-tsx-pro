@@ -20,12 +20,11 @@
  *   分组时 ← / → 换组（落点在目标组里同样用 ↑↓ 调整），空格 / Enter 放下，Esc 取消；每一步都由 announcement 交给读屏播报。
  * - 减少动态效果时布局动画与滑回都直接到位。
  */
-import { set } from 'animejs';
 import { nextTick, onScopeDispose, shallowRef, useId } from 'vue';
 import { useLang } from '../../config/context';
 import { clamp } from '../data/number';
 import { inlineArrows, isRtl } from './direction';
-import { useAnimate } from '../motion/animation';
+import { setValues, useAnimate } from '../motion/animation';
 import { useLayoutAnimation } from '../motion/layout';
 import { startMove } from './move';
 
@@ -381,7 +380,7 @@ export function useSortable<T>(options: SortableOptions<T>): SortableState {
       if (!current) return;
       const natural = startOf(current.getBoundingClientRect()) - offset;
       offset = originStart + delta - natural;
-      void set(current, axis() === 'x' ? { x: offset } : { y: offset });
+      setValues(current, axis() === 'x' ? { x: offset } : { y: offset });
     };
 
     /** 指针下的组；不分组时总是自己的（空字符串） */
@@ -455,6 +454,8 @@ export function useSortable<T>(options: SortableOptions<T>): SortableState {
         return;
       }
       const done = () => {
+        // 去掉滑回后留下的 0 位移：留着的话之后的布局动画会当它正被别处拖着
+        current?.style.removeProperty('transform');
         clear();
         announce(lang.sortableDropped(labelOf(key), position(key), total(key)));
       };

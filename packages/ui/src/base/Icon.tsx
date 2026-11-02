@@ -9,9 +9,8 @@
 import type { LucideIconData } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { createDrawable, utils } from 'animejs';
 import { onMounted, watch } from 'vue';
-import { useAnimate } from '../utils/motion/animation';
+import { setValues, useAnimate } from '../utils/motion/animation';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, toneStyles, type TextSize, type Tone } from '../utils/style/typography';
 
@@ -42,7 +41,7 @@ export interface IconProps extends PartProps<'svg', IconManaged> {
   /** 从右到左排版时水平翻转：箭头、chevron 这类有方向的图标 */
   flipInRtl?: boolean;
   /**
-   * 描线动画（一笔画出）：挂载时为 true 就在挂载时播，之后每次由 false 变为 true 再播（Anime.js 的 createDrawable，
+   * 描线动画（一笔画出）：挂载时为 true 就在挂载时播，之后每次由 false 变为 true 再播（
    * 时长取主题，减少动态效果时直接画好）。要在挂载时就给出（true / false），不给的图标不建动画
    */
   draw?: boolean;
@@ -111,13 +110,34 @@ export const Icon = _component(
 /** 描线：draw 变为 true（含挂载时）就从无到有画出每一笔 */
 function useDraw(element: () => SVGSVGElement | null, draw: () => boolean) {
   const animate = useAnimate();
+  const pen = { progress: 0 };
   const play = () => {
     const svg = element();
     if (!svg || !draw()) return;
-    const strokes = createDrawable([...svg.children] as SVGGeometryElement[]);
+    const strokes = [...svg.children] as SVGGeometryElement[];
+    // 路径长度统一成 1：虚线直接写比例，不用量每一笔有多长
+    for (const stroke of strokes) stroke.setAttribute('pathLength', '1');
+    const paint = () => {
+      for (const stroke of strokes) {
+        stroke.style.strokeDasharray = `${pen.progress} 1`;
+        // 圆头的线长度为 0 时还会画出一个点
+        stroke.style.strokeLinecap = pen.progress > 0 ? '' : 'butt';
+      }
+    };
     // 先擦掉再画：挂载时在浏览器绘制前就擦掉，不会先闪一下完整的图标
-    void utils.set(strokes, { draw: '0 0' });
-    void animate(strokes, { draw: '0 1' }, { duration: 'xl', ease: 'enter', scope: svg });
+    setValues(pen, { progress: 0 });
+    paint();
+    void animate(
+      pen,
+      { progress: 1, onUpdate: paint },
+      { duration: 'xl', ease: 'enter', scope: svg },
+    ).then(() => {
+      for (const stroke of strokes) {
+        stroke.removeAttribute('pathLength');
+        stroke.style.removeProperty('stroke-dasharray');
+        stroke.style.removeProperty('stroke-linecap');
+      }
+    });
   };
   onMounted(play);
   watch(draw, play, { flush: 'post' });

@@ -1,8 +1,12 @@
 // 基础组件演示页在真实浏览器里的行为与无障碍检查；每加一批组件就在这里补对应的检查
 import axe from 'axe-core';
-import { afterTransitions, themeTransition } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  afterTransitions,
+  animate,
+  cubicBezier,
+  themeTransition,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { durations } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
-import { animate, cubicBezier } from 'animejs';
 import { userEvent } from 'vitest/browser';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { type App } from 'vue';
@@ -126,11 +130,17 @@ it('无障碍：演示页 axe-core 没有违规（亮色、暗色、纸张）', 
   }
 });
 
-describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
+/** 描线的进度（0–1）：画的过程写在虚线上，画完就去掉 */
+function drawn(stroke: Element) {
+  const dash = (stroke as SVGGeometryElement).style.strokeDasharray;
+  return dash ? Number.parseFloat(dash) : 1;
+}
+
+describe('动效：JS 动画取主题 tokens', () => {
   it('选项读的是真实主题的取值（主题的 CSS 变量）', () => {
     const { duration, ease } = themeTransition($('.ball'));
     expect(duration).toBe(200);
-    expect((ease as (t: number) => number)(0.4)).toBeCloseTo(cubicBezier(0.2, 0, 0, 1)(0.4));
+    expect(ease!(0.4)).toBeCloseTo(cubicBezier(0.2, 0, 0, 1)(0.4));
   });
 
   it('点击后小球按弹簧动画移动到位', async () => {
@@ -164,22 +174,19 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
     $('.result-replay').click();
     await nextFrame();
     const stroke = () => $('.result-demo svg').firstElementChild as SVGGeometryElement;
-    // Anime.js 把进度写在 draw 属性上：'起点 终点'（0–1）
-    const end = () => Number(stroke().getAttribute('draw')?.split(' ')[1]);
-    expect(end()).toBeLessThan(1);
-    await expect.poll(end, { timeout: 5000 }).toBe(1);
+    expect(drawn(stroke())).toBeLessThan(1);
+    await expect.poll(() => drawn(stroke()), { timeout: 5000 }).toBe(1);
   });
 
   it('Checkbox：初次渲染不描线，用户勾上时对勾一笔画出', async () => {
     const input = $<HTMLInputElement>('.agree-demo');
     const stroke = () => input.parentElement!.querySelector('svg')!.firstElementChild!;
-    expect(stroke().hasAttribute('draw')).toBe(false);
+    expect(stroke().hasAttribute('pathLength')).toBe(false);
     slowDown(input.closest('label')!, durations.xl);
     input.click();
     await nextFrame();
-    const end = () => Number(stroke().getAttribute('draw')?.split(' ')[1]);
-    expect(end()).toBeLessThan(1);
-    await expect.poll(end, { timeout: 5000 }).toBe(1);
+    expect(drawn(stroke())).toBeLessThan(1);
+    await expect.poll(() => drawn(stroke()), { timeout: 5000 }).toBe(1);
   });
 
   it('AnimatedNumber：数值变化时滚动，读屏文字直接是终值，滚完两者一致', async () => {
@@ -210,6 +217,25 @@ describe('动效：Anime.js 的 JS 动画取主题 tokens', () => {
     await expect.poll(() => Math.abs(offset())).toBeGreaterThan(2);
     await expect.poll(() => Math.abs(offset()), { timeout: 5000 }).toBeLessThan(1);
     expect(list.firstElementChild!.textContent).toBe('7');
+  });
+
+  it('布局动画：播到一半又变时从眼前的位置接着走，不跳回旧位置；结束后不留内联样式', async () => {
+    const list = $('.layout-demo');
+    const chip = [...list.children].find((element) => element.textContent === '1') as HTMLElement;
+    const left = () => chip.getBoundingClientRect().left;
+    const offset = () =>
+      left() - list.getBoundingClientRect().left - (chip.offsetLeft - list.offsetLeft);
+    slowDown(list, durations.md);
+    $('.layout-add').click();
+    await expect.poll(() => Math.abs(offset())).toBeGreaterThan(2);
+    const midway = left();
+    $('.layout-add').click();
+    await nextFrame();
+    // 接着走：与打断前的位置相差不超过几帧的位移，不会跳到第一轮的起点或终点
+    expect(Math.abs(left() - midway)).toBeLessThan(chip.offsetWidth);
+    await expect.poll(() => Math.abs(offset()), { timeout: 5000 }).toBeLessThan(1);
+    await expect.poll(() => chip.getAnimations().length, { timeout: 5000 }).toBe(0);
+    expect(chip.getAttribute('style') ?? '').not.toMatch(/transform|opacity/);
   });
 });
 

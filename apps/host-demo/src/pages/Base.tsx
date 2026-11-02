@@ -1303,7 +1303,7 @@ export const Base = _component(() => {
 
         <Section title="跑马灯 Marquee">
           <Marquee class="marquee-demo" fade paused={marqueePaused} aria-label="技术栈">
-            {['Vue', 'Vite', 'Anime.js', 'Lucide', 'Zod', 'Vitest', 'Playwright'].map((name) => (
+            {['Vue', 'Vite', 'Lucide', 'Zod', 'Vitest', 'Playwright'].map((name) => (
               <Badge key={name}>{name}</Badge>
             ))}
           </Marquee>
@@ -1353,7 +1353,7 @@ export const Base = _component(() => {
           </Accordion>
         </Section>
 
-        <Section title="动效 Anime.js">
+        <Section title="动效">
           <MotionDemo />
         </Section>
       </main>

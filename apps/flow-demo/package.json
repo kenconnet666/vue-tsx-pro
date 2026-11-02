@@ -22,7 +22,6 @@
     "@zerodep-dev/vue-tsx-pro-kit": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
-    "animejs": "catalog:",
     "nitro": "catalog:",
     "tabbable": "catalog:",
     "vue": "catalog:",

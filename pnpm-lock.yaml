@@ -281,9 +281,6 @@ catalogs:
     '@zerodep-dev/json-wire':
       specifier: 0.1.0
       version: 0.1.0
-    animejs:
-      specifier: 4.5.0
-      version: 4.5.0
     axe-core:
       specifier: 4.14.0
       version: 4.14.0
@@ -472,9 +469,6 @@ importers:
       '@zerodep-dev/vue-tsx-pro-ui':
         specifier: workspace:^
         version: link:../../packages/ui
-      animejs:
-        specifier: 'catalog:'
-        version: 4.5.0(@types/three@0.186.0)(three@0.186.1)
       decimal.js:
         specifier: 'catalog:'
         version: 10.6.0
@@ -563,9 +557,6 @@ importers:
       '@zerodep-dev/vue-tsx-pro-ui':
         specifier: workspace:^
         version: link:../../packages/ui
-      animejs:
-        specifier: 'catalog:'
-        version: 4.5.0(@types/three@0.186.0)(three@0.186.1)
       nitro:
         specifier: 'catalog:'
         version: 3.0.260903-beta
@@ -621,9 +612,6 @@ importers:
       '@zerodep-dev/vue-tsx-pro-ui':
         specifier: workspace:^
         version: link:../../packages/ui
-      animejs:
-        specifier: 'catalog:'
-        version: 4.5.0(@types/three@0.186.0)(three@0.186.1)
       nitro:
         specifier: 'catalog:'
         version: 3.0.260903-beta
@@ -673,9 +661,6 @@ importers:
       '@zerodep-dev/vue-tsx-pro-ui':
         specifier: workspace:^
         version: link:../../packages/ui
-      animejs:
-        specifier: 'catalog:'
-        version: 4.5.0(@types/three@0.186.0)(three@0.186.1)
       pinia:
         specifier: 'catalog:'
         version: 4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-beta)(vue@3.5.44(typescript@7.1.0-beta))
@@ -1034,9 +1019,6 @@ importers:
       '@zerodep-dev/vue-tsx-pro-tsx':
         specifier: workspace:^
         version: link:../tsx
-      animejs:
-        specifier: 'catalog:'
-        version: 4.5.0(@types/three@0.186.0)(three@0.186.1)
       culori:
         specifier: 'catalog:'
         version: 4.0.2
@@ -2433,17 +2415,6 @@ packages:
 
   ajv@8.20.0:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
-
-  animejs@4.5.0:
-    resolution: {integrity: sha512-NQimYX+lz8WaXonGS9zVVoviCIAjONeJayxacUditaivYLqyXgGjFKjuyl0aUUhFKm5MriX9ty1TGovNzoJQWA==}
-    peerDependencies:
-      '@types/three': '>=0.150.0'
-      three: '>=0.150.0'
-    peerDependenciesMeta:
-      '@types/three':
-        optional: true
-      three:
-        optional: true
 
   ansi-regex@5.0.1:
     resolution: {integrity: sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ==}
@@ -6147,11 +6118,6 @@ snapshots:
       fast-uri: 3.1.8
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
-
-  animejs@4.5.0(@types/three@0.186.0)(three@0.186.1):
-    optionalDependencies:
-      '@types/three': 0.186.0
-      three: 0.186.1
 
   ansi-regex@5.0.1: {}
 

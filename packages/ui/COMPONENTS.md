@@ -125,7 +125,7 @@
   - `_` 前缀用来和 CSS 关键字区分：`fontWeight: 'bold'` 是 CSS 值，`'_bold'` 才是 token。
 - 使用方的覆盖只走 `sx`（组件级）与 `propsXxx.sx`（部件级）。一次性的覆盖可以直接写对象：`sx={{ marginTop: '_md' }}`（属性与取值照样有类型检查，按内容缓存）；值一直在变的（宽度、进度）别写成对象，每个新值会多一条规则，用 `create` 里的动态样式。
 - 尊重 `prefers-reduced-motion`；焦点样式用 `:focus-visible`；方向相关的属性一律用逻辑属性（`paddingInline`、`marginBlockStart`），支持从右到左排版。
-- 动画：能用 CSS 过渡的用 CSS（进出场、展开收起；原生 popover / dialog 被 Esc、点击外部关闭时 JS 来不及介入）。需要 JS 的（弹簧、时间线、拖拽、布局动画、动画 canvas / 3D 场景里的数值）用 Anime.js：组件里用 `useAnimate()`（时长、缓动、弹簧取主题 tokens，卸载时取消），组件外用 `themeTransition(元素, { duration, ease, bounce })`；主题覆盖与“减少动态效果”都会生效（Anime.js 自己不处理）。已用在 Toast 的滑动、SlideVerify 的弹回与失败晃动。常见场景有现成的组合式函数（`utils/motion/`）：跟随数值用 `useTween` / `useSpring`，关闭后等离场再卸载用 `usePresence`，增删、换位置的平移用 `useLayoutAnimation`，跟着当前项走的指示条用 `useActiveIndicator`，加载指示防闪烁用 `useDelayedLoading`，装饰性动画看 `useReducedMotion`。canvas 图表、3D 场景要用主题颜色时用 `readToken(元素, colors.accent)` 取当前值。
+- 动画：能用 CSS 过渡的用 CSS（进出场、展开收起；原生 popover / dialog 被 Esc、点击外部关闭时 JS 来不及介入）。需要 JS 的（弹簧、布局动画、动画 canvas / 3D 场景里的数值）用 `utils/motion/animation`：组件里用 `useAnimate()`（时长、缓动、弹簧取主题 tokens，卸载时取消），组件外用 `animate(元素, { x: 0, ...themeTransition(元素, { duration, ease, bounce }) })`；主题覆盖与“减少动态效果”都会生效。已用在 Toast 的滑动、拖动排序的滑回。常见场景有现成的组合式函数（`utils/motion/`）：跟随数值用 `useTween` / `useSpring`，关闭后等离场再卸载用 `usePresence`，增删、换位置的平移用 `useLayoutAnimation`，跟着当前项走的指示条用 `useActiveIndicator`，加载指示防闪烁用 `useDelayedLoading`，装饰性动画看 `useReducedMotion`。canvas 图表、3D 场景要用主题颜色时用 `readToken(元素, colors.accent)` 取当前值。
 - 含动态样式函数的 `css.create` 单独写一个：它走另一个类型签名，组内属性没有中文悬停提示。
 - 动态样式：一直没变过的属性写进类里，值变过的属性转成元素上的 CSS 变量，之后值怎么变类都不变。JSX 里调用本文件顶层 `create` 的动态样式时，编译器自动改写成响应式绑定（`css.bind`）：参数变化只改元素上的变量，组件不重新渲染；参数只读 props、组件函数体里的状态、模块常量时最省（编译器标成稳定，组件因别的原因重渲染时不重新收集依赖）。从别的文件导入的动态样式要绑定时手写 `css.bind(styles.x, () => [参数])`。
 - 按状态选样式：交给 attrs、sx 的 `条件 && styles.x`、`条件 ? styles.a : styles.b`、`styles[键]`（本文件顶层 `create` 的样式），条件读到的状态在渲染里没有别处用到时，编译器改写成 `css.select`：状态变化由元素上的 effect 就地换类，组件不重新渲染。组件自己的 prop 整个值、普通常量不改（prop 变了 Vue 照样重新渲染子组件）；导入的样式表要这样做时手写 `css.select(() => 条件 && styles.x)`。
@@ -324,7 +324,7 @@ interface Lang {
 | 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                                                                         |
 | 焦点     | `tabbable`                          | 找出可聚焦元素；焦点陷阱自己写，配合原生 `inert`                                                                                                       |
 | 校验     | `zod`（peer，使用方安装）           | `useForm` 的 schema；从 `zod/v4/core` 导入，zod 与 zod/mini 都能用；字段约束经 `toJSONSchema` 推出（`form/form-constraints.ts`）                       |
-| 动画     | `animejs`（MIT）                    | animate、时间线、弹簧、stagger、拖拽、布局动画；主题接入见 `utils/motion/animation`                                                                    |
+| 动画     | 自己实现                            | `animate`、`cubicBezier`、`spring`、布局动画（`utils/motion/`）；时间线这类编排不提供，需要时使用方自己装动画库                                        |
 | 图表     | 自己画 SVG（无第三方依赖）          | 子路径 `@zerodep-dev/vue-tsx-pro-ui/charts`（Bar、Line、Area、Scatter、Donut、Sankey、Chord，§10.21）；SVG 的颜色、字号直接用 tokens，明暗切换不用重画 |
 | 3D       | `three`（可选 peer）                | 子路径 `@zerodep-dev/vue-tsx-pro-ui/three`（ThreeCanvas、useThree、主题色、效果，§10.22）；实例放普通变量或 `_state.raw`，不进深层响应式               |
 | 代码高亮 | `shiki`（可选 peer）                | 子路径 `@zerodep-dev/vue-tsx-pro-ui/shiki`，经 `highlighter` 配置交给 CodeBlock（§10.4）                                                               |
@@ -333,7 +333,7 @@ interface Lang {
 | 色板     | `@radix-ui/colors`                  | 主题定制按色阶换品牌色、中性色（palette.ts，子路径 theme-customize）；测试里也用它校验 tokens 取值                                                     |
 | 虚拟滚动 | 自己实现                            | 参考 `@tanstack/virtual-core` 的算法                                                                                                                   |
 | 拖拽排序 | 自己实现                            | `utils/dom/sortable`（Sortable、DataTable 的行拖动）；键盘拿起放下与读屏播报参考 dnd-kit                                                               |
-| 手势     | 自己实现                            | 基于 Pointer Events；带物理效果的自由拖动用 Anime.js 的 `createDraggable`                                                                              |
+| 手势     | 自己实现                            | 基于 Pointer Events                                                                                                                                    |
 
 **待办**都在 [ROADMAP.md](../../ROADMAP.md)。双指缩放、旋转等手势等图片预览组件出现时在 `utils/dom/move.ts` 旁边加。
 
@@ -397,7 +397,7 @@ CSS 类型表（取自 StyleX 的 `CSSProperties`）是类型别名，不能用�
 | 减少动态效果 | `config/theme/tokens.ts`     | `durations` 用条件取值，`prefers-reduced-motion: reduce` 时自动为 0；组件不再各写媒体查询                                                                                                                    |
 | 一元素一组件 | `base/Text.tsx`、`layout/*`  | 工厂生成各元素的组件：实现按几种标签共有的属性写，对外类型是 `TsxComponent<PartProps<Tag> & 选项>`；布局工厂 `createFlex` / `createGrid` / `createContainer` 导出，标签限于 `LayoutTag`                      |
 | 过渡预设     | `utils/style/transitions.ts` | `fade`、`scale`、`backdrop` 三套样式：进场用 `@starting-style`，离场用 `transition` 的 `allow-discrete`，纯 CSS；`await afterTransitions(元素)` 等元素与子元素的过渡结束（没有过渡、减少动态效果时立即完成） |
-| JS 动画      | `utils/motion/animation.ts`  | Anime.js + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                                                  |
+| JS 动画      | `utils/motion/animation.ts`  | `animate` + `themeTransition`：时长、缓动、弹簧取主题 tokens                                                                                                                                                 |
 | 演示页       | `apps/host-demo` 的 `/base`  | 文档站暂缓，按分类演示这批组件；页面带 axe 检查                                                                                                                                                              |
 
 ### 10.2 组件
@@ -434,7 +434,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 ### 10.3 取舍依据
 
 - `Collapsible` 不用原生 `<details>`：`<summary>` 必须是第一个子元素，触发器不能放在别处；动画要 `::details-content`（2025 年起才各浏览器可用）。
-- 进场、离场动画用 CSS（`@starting-style`、`allow-discrete`，2024 年起三大浏览器都支持），不依赖 Vue 的 `<Transition>`；列表增删时其余项的位移用 `useLayoutAnimation`（FLIP，Anime.js 的 createLayout；Tag、TagsInput、Toast 在用），离场交给 `usePresence`。
+- 进场、离场动画用 CSS（`@starting-style`、`allow-discrete`，2024 年起三大浏览器都支持），不依赖 Vue 的 `<Transition>`；列表增删时其余项的位移用 `useLayoutAnimation`（FLIP；Tag、TagsInput、Toast 在用），离场交给 `usePresence`。
 - 不用 `text-box` 裁掉文字的上下行距（Firefox 不支持）；多行截断用带 `-webkit-` 前缀的 `line-clamp`（标准写法尚无浏览器支持）。
 
 ### 10.4 代码高亮：Shiki 作为可选依赖（已完成）
@@ -658,15 +658,15 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 三个阶段一起做，加上与用户讨论后确定的已有组件整理（A–E），每块单独提交：
 
-| 项       | 改动                                                                                                                                                                                                                                                                                      |
-| -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 动效基础 | `useTween` / `useSpring`、`usePresence`（Toast、Tag、Alert 的离场）、`useLayoutAnimation`（Anime.js createLayout）、`useActiveIndicator`（Tabs、ToggleGroup）、`useReducedMotion`、`useDelayedLoading`（Button、DataTable、ListboxView、VirtualList）；取主题时长，减少动态效果时直接到位 |
-| 交互基础 | `useHotkeys`（Menu 的快捷键真正触发）、`useClipboard`（CopyButton、CodeBlock）、`useSortable`（指针拖动实时重排、边缘自动滚动、键盘拿起 / 移动 / 放下 / 取消与读屏播报）、`useLeaveConfirmation`；`utils/data/tree.ts`（展开成行、勾选联动与半选、懒加载，Tree 与 TreeDataTable 共用）    |
-| 新组件   | AnimatedNumber、LoadingOverlay、CopyButton、Result、Icon 的 `draw`、HoverCard、Accordion、ContextMenu、MenuSub、TagsInput、PageSizeSelect / PageJump、AvatarGroup、Indicator、Descriptions、Timeline、Tree、FileDrop / Upload、Sortable、Marquee、Tour                                    |
-| 组件增强 | Toast 的 `stack` 与剩余时间、ToggleGroup 滑块、Tag 移除动画、Progress 数值过渡、Checkbox 描线；TextField / Textarea 前后缀与计数、Switch 的 loading 与内部文字、Slider 范围与刻度、Popover / Tooltip 箭头                                                                                 |
-| 表单     | `form.array`（稳定 key、错误随下标移动）、`form.dirty` / `isDirty`、`fields` 单字段异步校验（防抖、只采用最后一次、提交时等待、`validating`）                                                                                                                                             |
-| 整理     | DataTable / TreeDataTable 的 `size` 改名 `density`（compact / standard / comfortable）；variant 词表写进 §1，输入框的 `outline` 改名 `surface`；`useFormat` 加 `fileSize`；`anchorFloating` 加 `crossAxisFallback`                                                                        |
-| 顺手修的 | 虚拟滚动只在元素第一次出现时同步测量（浮层进场的 scale 让每次渲染量出不同的值，WebKit 下 ListboxView 递归更新）；Menu 的 Esc 显式关闭（Firefox 偶尔不关）；几个浏览器测试开始前把指针移开（指针停在原处时 hover 不产生移动）                                                              |
+| 项       | 改动                                                                                                                                                                                                                                                                                   |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 动效基础 | `useTween` / `useSpring`、`usePresence`（Toast、Tag、Alert 的离场）、`useLayoutAnimation`（FLIP）、`useActiveIndicator`（Tabs、ToggleGroup）、`useReducedMotion`、`useDelayedLoading`（Button、DataTable、ListboxView、VirtualList）；取主题时长，减少动态效果时直接到位               |
+| 交互基础 | `useHotkeys`（Menu 的快捷键真正触发）、`useClipboard`（CopyButton、CodeBlock）、`useSortable`（指针拖动实时重排、边缘自动滚动、键盘拿起 / 移动 / 放下 / 取消与读屏播报）、`useLeaveConfirmation`；`utils/data/tree.ts`（展开成行、勾选联动与半选、懒加载，Tree 与 TreeDataTable 共用） |
+| 新组件   | AnimatedNumber、LoadingOverlay、CopyButton、Result、Icon 的 `draw`、HoverCard、Accordion、ContextMenu、MenuSub、TagsInput、PageSizeSelect / PageJump、AvatarGroup、Indicator、Descriptions、Timeline、Tree、FileDrop / Upload、Sortable、Marquee、Tour                                 |
+| 组件增强 | Toast 的 `stack` 与剩余时间、ToggleGroup 滑块、Tag 移除动画、Progress 数值过渡、Checkbox 描线；TextField / Textarea 前后缀与计数、Switch 的 loading 与内部文字、Slider 范围与刻度、Popover / Tooltip 箭头                                                                              |
+| 表单     | `form.array`（稳定 key、错误随下标移动）、`form.dirty` / `isDirty`、`fields` 单字段异步校验（防抖、只采用最后一次、提交时等待、`validating`）                                                                                                                                          |
+| 整理     | DataTable / TreeDataTable 的 `size` 改名 `density`（compact / standard / comfortable）；variant 词表写进 §1，输入框的 `outline` 改名 `surface`；`useFormat` 加 `fileSize`；`anchorFloating` 加 `crossAxisFallback`                                                                     |
+| 顺手修的 | 虚拟滚动只在元素第一次出现时同步测量（浮层进场的 scale 让每次渲染量出不同的值，WebKit 下 ListboxView 递归更新）；Menu 的 Esc 显式关闭（Firefox 偶尔不关）；几个浏览器测试开始前把指针移开（指针停在原处时 hover 不产生移动）                                                           |
 
 **没有按原方案做的**：Sortable 没接上 DataTable 的列顺序（API 已能接：把手放在表头里用 `useSortable`），留作下一步；Tree 的焦点用 aria-activedescendant（与 Listbox 一致，虚拟滚动下不用移动 DOM 焦点）而不是逐项 tabindex；Tour 的目标在模态打开期间不可交互（整页 inert），只做展示与说明；Marquee 的速度按 px/s 换算，内容变化时由 ResizeObserver 重新量。
 

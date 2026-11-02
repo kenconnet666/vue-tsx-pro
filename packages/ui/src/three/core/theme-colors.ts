@@ -17,7 +17,6 @@
  * 颜色可以是 token（`colors.accent`）或任意 CSS 颜色（`'#e5484d'`、`'color-mix(…)'`）：
  * 交给一个隐藏的探针元素，由浏览器解析出最终的颜色，light-dark()、color-mix()、主题覆盖都能用。透明度不保留。
  */
-import { animate, type JSAnimation } from 'animejs';
 import {
   converter,
   modeLab,
@@ -34,7 +33,7 @@ import { Color, SRGBColorSpace } from 'three';
 import { onScopeDispose, watch } from 'vue';
 import { useConfig } from '../../config/context';
 import { clamp } from '../../utils/data/number';
-import { themeTransitionOrInstant } from '../../utils/motion/animation';
+import { animate, themeTransitionOrInstant, type JSAnimation } from '../../utils/motion/animation';
 
 // 浏览器给出的计算值可能是 rgb()、color(srgb …)、color(display-p3 …)、oklch()、lab() 等
 useMode(modeRgb);
@@ -92,7 +91,7 @@ export function createThemeColorSet<Sources extends ThemeColorSources>(
   return {
     colors: colors as ThemeColors<Sources>,
     refresh(scope, sources, transition) {
-      void running?.cancel();
+      running?.cancel();
       const from: Record<string, Color> = {};
       const to: Record<string, Color> = {};
       for (const [name, value] of Object.entries(sources)) {
@@ -106,13 +105,15 @@ export function createThemeColorSet<Sources extends ThemeColorSources>(
           colors[name]!.lerpColors(from[name]!, to[name]!, progress);
         onChange?.();
       };
-      const timing = transition ? themeTransitionOrInstant(scope, { duration: 'lg' }) : {};
+      const timing = transition
+        ? themeTransitionOrInstant(scope, { duration: 'lg' })
+        : { duration: 0 };
       if (!timing.duration) return apply(1);
       const state = { progress: 0 };
       running = animate(state, { progress: 1, ...timing, onUpdate: () => apply(state.progress) });
     },
     stop() {
-      void running?.cancel();
+      running?.cancel();
     },
   };
 }

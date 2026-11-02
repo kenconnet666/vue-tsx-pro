@@ -15,7 +15,7 @@
  * activation="automatic"（默认）时焦点移到哪个标签就切换到哪个，"manual" 时按 Enter / 空格才切换。
  *
  * line 样式的下划线是 TabList 里的一个指示条（Indicator）：跟着当前标签走（useActiveIndicator：
- * 切换时用 Anime.js 滑过去，时长取主题，减少动态效果时直接到位；尺寸变化时直接对齐）。
+ * 切换时滑过去，时长取主题，减少动态效果时直接到位；尺寸变化时直接对齐）。
  */
 import { ChevronDown, ChevronLeft, ChevronRight, Plus, X } from '@lucide/icons';
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';

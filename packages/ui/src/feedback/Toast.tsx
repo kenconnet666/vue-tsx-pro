@@ -25,7 +25,6 @@
  * - 动画：进场淡入并从边缘移入（@starting-style），离场时高度收起（复用 Collapse）后从列表移除。
  * - 横向滑动（触摸、鼠标拖动）超过宽度的 35% 就关闭，否则弹回（startMove；同 Sonner、Radix Toast 的滑动关闭）。
  */
-import { utils } from 'animejs';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
@@ -41,7 +40,7 @@ import type { IconData } from '../base/Icon';
 import { useLang } from '../config/context';
 import { ConfigScope } from '../config/Provider';
 import { Collapse, type CollapseProps } from '../display/Collapse';
-import { useAnimate } from '../utils/motion/animation';
+import { setValues, useAnimate } from '../utils/motion/animation';
 import { useLayoutAnimation } from '../utils/motion/layout';
 import { usePresence } from '../utils/motion/presence';
 import { startMove } from '../utils/dom/move';
@@ -517,7 +516,7 @@ export const ToastItem = _component(
     }
 
     // 横向滑动关闭：拖动中直接写元素的样式（不触发渲染）。松开时过了阈值就沿滑动方向滑出再关闭，
-    // 不够就用弹簧弹回（Anime.js，时长取主题；减少动态效果时立即到位）。不能关闭的通知（promise 的加载中）不跟手
+    // 不够就用弹簧弹回（时长取主题；减少动态效果时立即到位）。不能关闭的通知（promise 的加载中）不跟手
     function onPointerdown(event: PointerEvent) {
       const element = item;
       if (!element || toast.closing || toast.closable === false) return;
@@ -528,7 +527,7 @@ export const ToastItem = _component(
         onMove: ({ deltaX }) => {
           // 拖动中跟手：去掉进出场的 CSS 过渡，不然每一帧都在追赶
           element.style.transition = 'none';
-          void utils.set(element, {
+          setValues(element, {
             x: deltaX,
             opacity: Math.max(0, 1 - Math.abs(deltaX) / width),
           });

@@ -43,7 +43,8 @@ describe('Badge · Tag · Alert', () => {
 
     removeButton(3).focus();
     removeButton(3).click();
-    await expect.poll(() => tags().length).toBe(3);
+    // 三个浏览器同时跑时，WebKit 的主线程会在 /base 这个大页面上卡住一秒多，默认的 1 秒等不到
+    await expect.poll(() => tags().length, { timeout: 5000 }).toBe(3);
     await expect.poll(() => document.activeElement).toBe(removeButton(2));
   });
 

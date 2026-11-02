@@ -1,11 +1,19 @@
 // JS 动画参数取主题 tokens 的当前值；useAnimate 取主题并在卸载时取消（真实浏览器里的效果见 apps/host-demo/test）
-import { cubicBezier, type JSAnimation } from 'animejs';
 import { createApp } from 'vue';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { afterEach, describe, expect, it } from 'vitest';
 import { readToken } from '../../../config/theme/theme';
 import { durations, easings } from '../../../config/theme/tokens';
-import { themeTransition, themeTransitionOrInstant, useAnimate } from '../animation';
+import {
+  animate,
+  cubicBezier,
+  setValues,
+  spring,
+  themeTransition,
+  themeTransitionOrInstant,
+  useAnimate,
+  type JSAnimation,
+} from '../animation';
 
 const variable = (token: unknown) => /^var\((--[\w-]+)\)$/.exec(String(token))![1]!;
 
@@ -26,14 +34,13 @@ describe('themeTransition', () => {
     ]);
     const { duration, ease } = themeTransition(el, { duration: 'lg', ease: 'enter' });
     expect(duration).toBe(300);
-    const expected = cubicBezier(0.05, 0.7, 0.1, 1);
-    expect((ease as (t: number) => number)(0.4)).toBeCloseTo(expected(0.4));
+    expect(ease!(0.4)).toBeCloseTo(cubicBezier(0.05, 0.7, 0.1, 1)(0.4));
   });
 
-  it('给了 bounce 用弹簧：时长交给弹簧决定', () => {
+  it('给了 bounce 用弹簧：时长是弹簧停稳的时间，比感知时长长', () => {
     const el = element([[durations.md, '200ms']]);
     const params = themeTransition(el, { bounce: 0.3 });
-    expect(params.duration).toBeUndefined();
+    expect(params.duration).toBeGreaterThan(200);
     expect(params.ease).toBeDefined();
   });
 
@@ -96,10 +103,92 @@ describe('useAnimate', () => {
       }),
     );
     app.mount(document.createElement('div'));
-    // Anime.js 把 0 当作一个极小的正数；时长为 0 的动画当场完成
-    expect(animation!.duration).toBeLessThan(1);
+    expect(animation!.duration).toBe(0);
     expect(animation!.completed).toBe(true);
     expect(target.value).toBe(1);
     app.unmount();
+  });
+});
+
+describe('animate', () => {
+  it('JS 对象：逐帧写值并回调，播完到终值、可以 await', async () => {
+    const target = { value: 0 };
+    const seen: number[] = [];
+    const animation = animate(target, {
+      value: 100,
+      duration: 40,
+      onUpdate: () => seen.push(target.value),
+    });
+    expect(animation.completed).toBe(false);
+    await animation;
+    expect(animation.completed).toBe(true);
+    expect(target.value).toBe(100);
+    expect(seen.at(-1)).toBe(100);
+  });
+
+  it('元素：x、y、scale 写进 transform 并保留其它函数，从当前值接着动；opacity、宽度写内联样式', () => {
+    const el = element([]);
+    el.style.transform = 'rotate(5deg) translateX(10px)';
+    setValues(el, { y: 3, scale: 2, opacity: 0.5, width: 40 });
+    expect(el.style.transform).toBe('rotate(5deg) translateX(10px) translateY(3px) scale(2)');
+    expect(el.style.opacity).toBe('0.5');
+    expect(el.style.width).toBe('40px');
+    void animate(el, { x: 30, duration: 0 });
+    expect(el.style.transform).toBe('rotate(5deg) translateX(30px) translateY(3px) scale(2)');
+  });
+
+  it('同一属性上的新动画替换旧的：旧的算取消，不再改值也不会完成；别的属性继续跑', async () => {
+    const target = { a: 0, b: 0 };
+    let oldFinished = false;
+    const old = animate(target, { a: 100, duration: 10_000 });
+    void old.then(() => (oldFinished = true));
+    const both = animate(target, { a: 1, b: 1, duration: 20 });
+    expect(old.cancelled).toBe(true);
+    const partly = animate(target, { b: 5, duration: 20 });
+    expect(both.cancelled).toBe(false);
+    await both;
+    await partly;
+    expect(target).toEqual({ a: 1, b: 5 });
+    expect(oldFinished).toBe(false);
+  });
+
+  it('cancel 停在当前值；set 停掉同一属性上的动画', async () => {
+    const target = { value: 0 };
+    const animation = animate(target, { value: 100, duration: 10_000 });
+    animation.cancel();
+    expect(animation.cancelled).toBe(true);
+    const next = animate(target, { value: 100, duration: 10_000 });
+    setValues(target, { value: 7 });
+    expect(next.cancelled).toBe(true);
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    expect(target.value).toBe(7);
+  });
+});
+
+it('cubicBezier：端点固定；直线曲线等于进度；曲线上的取值与手算一致', () => {
+  const ease = cubicBezier(0, 0, 0.58, 1);
+  expect([ease(0), ease(1)]).toEqual([0, 1]);
+  expect(cubicBezier(0.25, 0.25, 0.75, 0.75)(0.3)).toBeCloseTo(0.3);
+  // x(t) = 0.5 时 t ≈ 0.6258，y = 3t² − 2t³
+  expect(ease(0.5)).toBeCloseTo(0.6846, 3);
+});
+
+describe('spring', () => {
+  const samples = (ease: (progress: number) => number) =>
+    Array.from({ length: 200 }, (_, index) => ease((index + 1) / 200));
+
+  it('bounce 为 0 不越过终点；有回弹时越过终点；都停在终点附近', () => {
+    const still = spring({ bounce: 0, duration: 300 });
+    const bouncy = spring({ bounce: 0.4, duration: 300 });
+    expect(Math.max(...samples(still.ease))).toBeLessThanOrEqual(1);
+    expect(Math.max(...samples(bouncy.ease))).toBeGreaterThan(1);
+    expect(still.ease(1)).toBeCloseTo(1, 2);
+    expect(bouncy.ease(1)).toBeCloseTo(1, 2);
+  });
+
+  it('回弹越大，停稳越久', () => {
+    expect(spring({ bounce: 0.4, duration: 300 }).duration).toBeGreaterThan(
+      spring({ bounce: 0, duration: 300 }).duration,
+    );
   });
 });

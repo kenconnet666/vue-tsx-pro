@@ -64,7 +64,6 @@ catalog:
   # 表单校验（peer，使用方安装；scripts 里也用它校验数据）
   zod: 4.6.7
   # 动画引擎（MIT）：animate、timeline、spring、stagger、拖拽、布局动画、滚动观察
-  animejs: 4.5.0
   # 地图的简化（ISC，topojson 作者）：MapChart 按绘图区的像素去掉看不出的细节，绘制快一个数量级
   topojson-simplify: 3.0.3
   '@types/topojson-simplify': 3.0.3

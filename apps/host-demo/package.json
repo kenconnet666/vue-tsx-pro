@@ -11,7 +11,6 @@
     "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts"
   },
   "dependencies": {
-    "animejs": "catalog:",
     "@floating-ui/dom": "catalog:",
     "@lucide/icons": "catalog:",
     "pinia": "catalog:",

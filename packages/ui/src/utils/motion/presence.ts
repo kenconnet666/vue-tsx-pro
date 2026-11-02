@@ -1,5 +1,5 @@
 /**
- * 离场动画的统一流程：关闭后先保持挂载、写 data-state="closed"，等离场（CSS 过渡或 Anime.js）结束再卸载。
+ * 离场动画的统一流程：关闭后先保持挂载、写 data-state="closed"，等离场（CSS 过渡或 JS 动画）结束再卸载。
  *
  *   const presence = usePresence(() => open, { onExited: () => emit('removed') });
  *   return () => presence.mounted && <div ref={presence.ref} data-state={presence.state} … />;
@@ -26,7 +26,7 @@ export interface Presence {
 export interface PresenceOptions {
   /** 离场结束、mounted 变为 false 之后调用 */
   onExited?: () => void;
-  /** JS 离场动画（如 Anime.js）：关闭状态渲染后调用，等它结束；CSS 过渡不用写，会自动等 */
+  /** JS 离场动画（如 useAnimate）：关闭状态渲染后调用，等它结束；CSS 过渡不用写，会自动等 */
   exit?: (element: HTMLElement) => PromiseLike<unknown> | void;
 }
 

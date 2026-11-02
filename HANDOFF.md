@@ -257,7 +257,7 @@ tests/consumer 发布产物验证
 8. **目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`，测试在同级 `.test/`；文档与示例在 `apps/docs`。
 9. **对比度**：所有内置主题满足 WCAG AA 4.5:1；文档站的 axe 测试跑亮色与暗色。
 10. **工具全部导出**：名字全局唯一（`<组件>Styles`、`<组件>Managed`）；入口由 `pnpm exports` 生成。
-11. **依赖用起来**：表单校验用 zod，JS 动画用 Anime.js（`useAnimate`），日期用 `@internationalized/date`；先看已有依赖能不能做，再自己写。
+11. **依赖用起来**：表单校验用 zod，JS 动画用 `useAnimate`，日期用 `@internationalized/date`；先看已有依赖能不能做，再自己写。
 12. **上层组件用好基础组件与工具**：ButtonBase、ListPopover、ChartFrame、controlIcon、Field……重复的逻辑出现第三次就抽出来。
 13. **`_` 前缀保留给符文**：项目代码里普通函数和变量不用 `_` 开头。
 14. **只有 Node 直接加载的** `packages/tsx/src/compiler` 与 `src/vite` 在相对导入里写 `.ts` 扩展名。

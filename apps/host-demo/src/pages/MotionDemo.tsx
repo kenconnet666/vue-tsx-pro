@@ -1,8 +1,9 @@
-// /base 页上的动效演示：Anime.js 取主题时长的弹簧、数字滚动（AnimatedNumber）、描线（Result）、布局动画（useLayoutAnimation）
+// /base 页上的动效演示：取主题时长的弹簧、数字滚动（AnimatedNumber）、描线（Result）、布局动画（useLayoutAnimation）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   AnimatedNumber,
+  animate,
   Button,
   Flex,
   Result,
@@ -11,7 +12,6 @@ import {
   useLayoutAnimation,
   t,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import { animate } from 'animejs';
 
 const styles = css.create({
   section: { display: 'grid', gap: '_md' },
@@ -53,7 +53,7 @@ export const MotionDemo = _component(() => {
   let change = _state(0.042);
   const layout = useLayoutAnimation(() => chipList, { children: '[data-chip]' });
 
-  // JS 动画：Anime.js 的 animate 加上主题的弹簧时长；减少动态效果时立即到位
+  // JS 动画：animate 加上主题的弹簧时长；减少动态效果时立即到位
   function move() {
     moved = !moved;
     void animate(ball!, {

@@ -4,7 +4,7 @@
  *   const shown = useTween(() => value, { duration: 'lg' });   // 渲染里读 shown.current
  *   const scale = useSpring(() => (pressed ? 0.95 : 1));
  *
- * 用 Anime.js 驱动一个普通对象，逐帧写进 shallowRef；时长、缓动、弹簧取主题（useAnimate），
+ * 动画一个普通对象，逐帧写进 shallowRef；时长、缓动、弹簧取主题（useAnimate），
  * 减少动态效果时当场到位。过渡中目标又变了，从当时的值接着过渡到新目标。
  */
 import { computed, shallowRef, watch } from 'vue';
@@ -66,7 +66,7 @@ function useTweened(
 ): Tweened {
   const animate = useAnimate();
   const target = computed(read);
-  // Anime.js 改的是这个普通对象，每帧再同步给响应式的 current
+  // 动画改的是这个普通对象，每帧再同步给响应式的 current
   const state = { value: from ?? target.value };
   const current = shallowRef(state.value);
   watch(
