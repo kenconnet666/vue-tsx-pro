@@ -8,6 +8,7 @@
  * 只剩一列可见时不能再隐藏。部件：Trigger（IconButton）、Panel（Popover 的弹出层）、List（Sortable）、Reset（Button）。
  */
 import { Columns3 } from '@lucide/icons';
+import { ScrollArea } from '../layout/ScrollArea';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Button, type ButtonProps } from '../base/Button';
@@ -43,7 +44,7 @@ export interface ColumnSettingsProps<T> {
 /** ColumnSettings 的样式：panel、list、header */
 export const columnSettingsStyles = css.create({
   panel: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: '14rem' },
-  list: { maxHeight: '20rem', overflowY: 'auto' },
+  list: { maxHeight: '20rem' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_md' },
   title: { fontWeight: '_semibold', fontSize: '_sm' },
 });
@@ -109,32 +110,34 @@ export const ColumnSettings = _component(
               {lang.tableColumnSettingsReset}
             </Button>
           </div>
-          <Sortable
-            {...mergePartProps<Partial<SortableProps<DataTableColumn<T>>>>(
-              { sx: columnSettingsStyles.list, 'aria-label': lang.tableColumnSettings },
-              propsList,
-            )}
-            _items={arranged()}
-            onUpdate:_items={(next: DataTableColumn<T>[]) =>
-              (order = next.map((column) => column.key))
-            }
-            getKey={(column) => column.key}
-            getLabel={labelOf}
-          >
-            {(column) => {
-              const visible = !hidden.includes(column.key);
-              return (
-                <Checkbox
-                  _checked={visible}
-                  // 只剩这一列可见时不能再隐藏
-                  disabled={visible && visibleCount() <= 1}
-                  onUpdate:_checked={(checked: boolean) => toggle(column.key, checked)}
-                >
-                  {labelOf(column)}
-                </Checkbox>
-              );
-            }}
-          </Sortable>
+          <ScrollArea sx={columnSettingsStyles.list}>
+            <Sortable
+              {...mergePartProps<Partial<SortableProps<DataTableColumn<T>>>>(
+                { 'aria-label': lang.tableColumnSettings },
+                propsList,
+              )}
+              _items={arranged()}
+              onUpdate:_items={(next: DataTableColumn<T>[]) =>
+                (order = next.map((column) => column.key))
+              }
+              getKey={(column) => column.key}
+              getLabel={labelOf}
+            >
+              {(column) => {
+                const visible = !hidden.includes(column.key);
+                return (
+                  <Checkbox
+                    _checked={visible}
+                    // 只剩这一列可见时不能再隐藏
+                    disabled={visible && visibleCount() <= 1}
+                    onUpdate:_checked={(checked: boolean) => toggle(column.key, checked)}
+                  >
+                    {labelOf(column)}
+                  </Checkbox>
+                );
+              }}
+            </Sortable>
+          </ScrollArea>
         </div>
       </Popover>
     );

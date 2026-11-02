@@ -96,7 +96,7 @@ export default _component(() => () => (
       与它们调用的代码用 <Code>currentContext()</Code>
       取——
       <Link href={EASY_QUERY} external>
-        easy-query TS
+        easy-query-ts
       </Link>{' '}
       的 <Code>tenant</Code> 拦截器读当前租户，一个 <Code>db</Code>{' '}
       就按租户隔离。会话（当前用户与权限）写进页面，

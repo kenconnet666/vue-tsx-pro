@@ -1,6 +1,7 @@
 /**
  * 预渲染页面的水合检查（ROADMAP 12.1、12.4）：逐页打开文档站构建出来的 dist（预渲染过的 .html），
- * 收集 Vue 的水合不一致警告与报错，列出有问题的页面。
+ * 收集 Vue 的水合不一致警告与报错，列出有问题的页面。顺带查系统滚动条：组件库的滚动区域都是浮层滚动条（ScrollArea），
+ * 页面上出现系统滚动条就是漏了（多行输入框除外，它没法换）。
  *
  * 要看到具体哪里不一致，构建时带上 VTP_HYDRATION_DETAILS=1（打开 __VUE_PROD_HYDRATION_MISMATCH_DETAILS__）：
  *   VTP_HYDRATION_DETAILS=1 pnpm build:docs && node scripts/docs/hydration.mjs
@@ -68,6 +69,31 @@ async function describe(message) {
     .join(' ');
 }
 
+/** 页面上显示系统滚动条的元素：先滚到底，懒加载的示例才渲染出来 */
+async function nativeScrollbars(page) {
+  return page.evaluate(async () => {
+    window.scrollTo(0, document.documentElement.scrollHeight);
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    const describe = (element) => {
+      const part = element.getAttribute('data-part');
+      const text = (element.textContent ?? '').trim().slice(0, 24);
+      return `${element.tagName.toLowerCase()}${part ? `[${part}]` : ''} “${text}”`;
+    };
+    return [...document.querySelectorAll('body *')]
+      .filter((element) => {
+        if (element.tagName === 'TEXTAREA') return false;
+        const style = getComputedStyle(element);
+        if (style.scrollbarWidth === 'none') return false;
+        const scrollsY =
+          /auto|scroll/.test(style.overflowY) && element.scrollHeight > element.clientHeight + 1;
+        const scrollsX =
+          /auto|scroll/.test(style.overflowX) && element.scrollWidth > element.clientWidth + 1;
+        return scrollsX || scrollsY;
+      })
+      .map((element) => `系统滚动条：${describe(element)}`);
+  });
+}
+
 const browser = await chromium.launch();
 const problems = [];
 try {
@@ -80,7 +106,7 @@ try {
     const messages = [];
     page.on('pageerror', (error) => messages.push(`页面报错：${error.message}`));
     await page.goto(`http://localhost:${port}${path}`, { waitUntil: 'networkidle' });
-    messages.push(...(await Promise.all(pending)));
+    messages.push(...(await Promise.all(pending)), ...(await nativeScrollbars(page)));
     if (messages.length) problems.push({ path, messages });
     await page.close();
   }

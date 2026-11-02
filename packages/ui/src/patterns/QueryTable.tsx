@@ -107,7 +107,7 @@ export const queryTableStyles = css.create({
     backgroundColor: '_surface',
   },
   // 全屏时铺满屏幕、四周留白，表格占满剩下的高度
-  panelFullscreen: { padding: '_lg', overflow: 'auto' },
+  panelFullscreen: { padding: '_lg', overflow: 'hidden' },
   // fill 时外面的高度定了，整块与区域可以压矮，压不下的在表格里滚动
   rootFill: { flexGrow: 1, minHeight: 0 },
   panelFill: { minHeight: 0 },

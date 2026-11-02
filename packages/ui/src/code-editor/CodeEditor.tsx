@@ -12,6 +12,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { Extension } from '@codemirror/state';
 import { useConfig } from '../config/context';
 import { inputRecipe } from '../input/control';
+import { OverlayScrollbar } from '../layout/ScrollArea';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { onBeforeUnmount, onMounted, watch } from 'vue';
 import { createEditor, type CodeEditorHandle } from './editor';
@@ -19,11 +20,13 @@ import { createEditor, type CodeEditorHandle } from './editor';
 const styles = css.create({
   // 输入框外壳是一行的 inline-flex：改成整块，内边距交给 CodeMirror
   root: {
+    position: 'relative',
     display: 'block',
     height: '20rem',
     paddingInline: 0,
     overflow: 'hidden',
   },
+  host: { height: '_full' },
 });
 
 /** CodeEditor 的属性 */
@@ -51,7 +54,10 @@ export const CodeEditor = _component(
     ...rest
   }: CodeEditorProps) => {
     const config = useConfig();
+    let root = _state.raw<HTMLElement | null>(null);
     let host = _state.raw<HTMLElement | null>(null);
+    let scroller = _state.raw<HTMLElement | null>(null);
+    let content = _state.raw<HTMLElement | null>(null);
     let editor: CodeEditorHandle | undefined;
     const isDark = () => config.theme.colorScheme === 'dark';
 
@@ -64,6 +70,8 @@ export const CodeEditor = _component(
         readonly,
         onChange: (code) => (value = code),
       });
+      scroller = editor.view.scrollDOM;
+      content = editor.view.contentDOM;
       onReady?.(editor);
     });
     onBeforeUnmount(() => editor?.destroy());
@@ -76,9 +84,25 @@ export const CodeEditor = _component(
     return () => (
       <div
         {...mergeAttrs<'div'>({ sx: [inputRecipe().root, styles.root] }, rest, {
-          ref: _toRef(host),
+          ref: _toRef(root),
         })}
-      />
+      >
+        <div ref={_toRef(host)} {...css.attrs(styles.host)} />
+        <OverlayScrollbar
+          axis="y"
+          corner
+          viewport={scroller}
+          content={content}
+          hoverTarget={root}
+        />
+        <OverlayScrollbar
+          axis="x"
+          corner
+          viewport={scroller}
+          content={content}
+          hoverTarget={root}
+        />
+      </div>
     );
   },
 );

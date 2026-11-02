@@ -8,6 +8,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
+  ScrollArea,
   Alert,
   Button,
   Card,
@@ -53,7 +54,6 @@ export const processDesignerStyles = css.create({
     alignItems: 'start',
   },
   canvas: {
-    overflow: 'auto',
     borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: '_border',
@@ -392,13 +392,13 @@ export const ProcessDesigner = _component(
             </Flex>
           ) : (
             <div {...css.attrs(processDesignerStyles.layout)}>
-              <div {...css.attrs(processDesignerStyles.canvas)}>
+              <ScrollArea axis="both" sx={processDesignerStyles.canvas}>
                 <ProcessDiagram
                   definition={definition}
                   selected={selected}
                   onSelect={(id) => (selected = id)}
                 />
-              </div>
+              </ScrollArea>
               <div aria-label="环节设置">{renderPanel()}</div>
             </div>
           )}

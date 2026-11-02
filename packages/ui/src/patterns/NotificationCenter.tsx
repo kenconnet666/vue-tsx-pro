@@ -19,6 +19,7 @@
  * UnreadOnly（Switch）、List（ul）、Item（a，可以按条计算）、Empty（div）、Footer（div）。
  */
 import { Bell } from '@lucide/icons';
+import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
@@ -102,6 +103,8 @@ export interface NotificationListProps extends PartProps<'div', 'title'>, Notifi
   propsUnreadOnly?: Partial<SwitchProps>;
   /** 列表（ul）的部件属性 */
   propsList?: PartProps<'ul'>;
+  /** 列表外面的滚动区域（ScrollArea）的部件属性：最大高度给它 */
+  propsScroll?: Partial<ScrollAreaProps>;
   /** 每一条（a）的部件属性，可以按条计算 */
   propsItem?: PartProps<'a'> | ((item: NotificationItem) => PartProps<'a'>);
   /** 列表为空时那一块的部件属性 */
@@ -136,7 +139,7 @@ export const notificationListStyles = css.create({
   },
   types: { flexWrap: 'wrap' },
   end: { marginInlineStart: 'auto' },
-  list: { listStyle: 'none', margin: 0, padding: 0, overflowY: 'auto' },
+  list: { listStyle: 'none', margin: 0, padding: 0 },
   item: {
     display: 'grid',
     gridTemplateColumns: '0.5rem minmax(0, 1fr) auto',
@@ -187,6 +190,7 @@ export const NotificationList = _component(
     propsTypes,
     propsUnreadOnly,
     propsList,
+    propsScroll,
     propsItem,
     propsEmpty,
     propsFooter,
@@ -273,58 +277,62 @@ export const NotificationList = _component(
               {empty ?? <Empty size="sm" title={messages.notificationsEmpty} />}
             </div>
           ) : (
-            <ul {...mergeAttrs<'ul'>({ sx: notificationListStyles.list }, propsList)}>
-              {shown.map((item) => (
-                <li key={item.id}>
-                  <a
-                    {...mergeAttrs<'a'>(
-                      { sx: [notificationListStyles.item, focusRingStyles.visible] },
-                      typeof propsItem === 'function' ? propsItem(item) : propsItem,
-                      {
-                        href: item.href ? router.href(item.href) : undefined,
-                        role: item.href ? undefined : 'button',
-                        tabindex: 0,
-                        onClick: (event: MouseEvent) => select(item, event),
-                        onKeydown: (event: KeyboardEvent) => {
-                          if (!item.href && (event.key === 'Enter' || event.key === ' ')) {
-                            event.preventDefault();
-                            select(item, event as unknown as MouseEvent);
-                          }
+            <ScrollArea {...propsScroll}>
+              <ul {...mergeAttrs<'ul'>({ sx: notificationListStyles.list }, propsList)}>
+                {shown.map((item) => (
+                  <li key={item.id}>
+                    <a
+                      {...mergeAttrs<'a'>(
+                        { sx: [notificationListStyles.item, focusRingStyles.visible] },
+                        typeof propsItem === 'function' ? propsItem(item) : propsItem,
+                        {
+                          href: item.href ? router.href(item.href) : undefined,
+                          role: item.href ? undefined : 'button',
+                          tabindex: 0,
+                          onClick: (event: MouseEvent) => select(item, event),
+                          onKeydown: (event: KeyboardEvent) => {
+                            if (!item.href && (event.key === 'Enter' || event.key === ' ')) {
+                              event.preventDefault();
+                              select(item, event as unknown as MouseEvent);
+                            }
+                          },
                         },
-                      },
-                    )}
-                    data-state={item.read ? 'read' : 'unread'}
-                  >
-                    <span {...css.attrs(notificationListStyles.dot)}>
-                      {!item.read && <StatusDot tone={item.tone ?? 'accent'} />}
-                    </span>
-                    <span {...css.attrs(notificationListStyles.body)}>
-                      <span
-                        {...css.attrs(
-                          notificationListStyles.itemTitle,
-                          !item.read && notificationListStyles.itemTitleUnread,
-                        )}
-                      >
-                        {!item.read && (
-                          <VisuallyHidden>{messages.notificationUnreadMark} </VisuallyHidden>
-                        )}
-                        {item.title}
-                      </span>
-                      {item.description && (
-                        <span {...css.attrs(notificationListStyles.muted)}>{item.description}</span>
                       )}
-                    </span>
-                    <time
-                      datetime={item.time}
-                      title={format.date(item.time, { dateStyle: 'medium', timeStyle: 'short' })}
-                      {...css.attrs(notificationListStyles.time)}
+                      data-state={item.read ? 'read' : 'unread'}
                     >
-                      {format.relative(item.time, { now })}
-                    </time>
-                  </a>
-                </li>
-              ))}
-            </ul>
+                      <span {...css.attrs(notificationListStyles.dot)}>
+                        {!item.read && <StatusDot tone={item.tone ?? 'accent'} />}
+                      </span>
+                      <span {...css.attrs(notificationListStyles.body)}>
+                        <span
+                          {...css.attrs(
+                            notificationListStyles.itemTitle,
+                            !item.read && notificationListStyles.itemTitleUnread,
+                          )}
+                        >
+                          {!item.read && (
+                            <VisuallyHidden>{messages.notificationUnreadMark} </VisuallyHidden>
+                          )}
+                          {item.title}
+                        </span>
+                        {item.description && (
+                          <span {...css.attrs(notificationListStyles.muted)}>
+                            {item.description}
+                          </span>
+                        )}
+                      </span>
+                      <time
+                        datetime={item.time}
+                        title={format.date(item.time, { dateStyle: 'medium', timeStyle: 'short' })}
+                        {...css.attrs(notificationListStyles.time)}
+                      >
+                        {format.relative(item.time, { now })}
+                      </time>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </ScrollArea>
           )}
           {hasContent(footer) && (
             <div {...mergeAttrs<'div'>({ sx: notificationListStyles.foot }, propsFooter)}>
@@ -390,7 +398,7 @@ export const NotificationCenter = _component(
       >
         <NotificationList
           {...mergePartProps<NotificationListProps>(
-            { items, propsList: { sx: notificationCenterStyles.list } },
+            { items, propsScroll: { sx: notificationCenterStyles.list } },
             propsNotificationList,
             {
               types,

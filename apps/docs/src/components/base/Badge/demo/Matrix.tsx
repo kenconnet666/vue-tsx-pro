@@ -1,6 +1,12 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Badge, Text, type StatusTone, type StatusVariant } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  Badge,
+  Text,
+  type StatusTone,
+  type StatusVariant,
+  ScrollArea,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const variants: StatusVariant[] = ['solid', 'soft', 'surface', 'outline'];
 const tones: [StatusTone, string][] = [
@@ -21,21 +27,22 @@ const styles = css.create({
     alignItems: 'center',
     gap: '_sm',
     columnGap: '_md',
-    overflowX: 'auto',
   },
 });
 
 export default _component(() => () => (
-  <div {...css.attrs(styles.grid)}>
-    {variants.map((variant) => [
-      <Text key={variant} size="xs" tone="muted">
-        {variant}
-      </Text>,
-      ...tones.map(([tone, label]) => (
-        <Badge key={`${variant}-${tone}`} variant={variant} tone={tone}>
-          {label}
-        </Badge>
-      )),
-    ])}
-  </div>
+  <ScrollArea axis="x">
+    <div {...css.attrs(styles.grid)}>
+      {variants.map((variant) => [
+        <Text key={variant} size="xs" tone="muted">
+          {variant}
+        </Text>,
+        ...tones.map(([tone, label]) => (
+          <Badge key={`${variant}-${tone}`} variant={variant} tone={tone}>
+            {label}
+          </Badge>
+        )),
+      ])}
+    </div>
+  </ScrollArea>
 ));

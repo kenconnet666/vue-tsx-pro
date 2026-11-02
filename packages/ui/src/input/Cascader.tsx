@@ -18,6 +18,7 @@
  * 部件：Root（外壳）、Trigger（button，主元素）、Value、Clear、Chevron、Popover、Search（TextField）、Column（每一列）、Option。
  */
 import { Check, ChevronDown, ChevronRight, Search } from '@lucide/icons';
+import { OverlayScrollbar, ScrollArea } from '../layout/ScrollArea';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId, type VNodeChild } from 'vue';
@@ -37,7 +38,7 @@ import {
   type FloatingPlacement,
 } from '../utils/dom/floating';
 import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps, mergeProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { t } from '../config/theme/tokens';
 import { disclosureStyles } from '../utils/style/transitions';
@@ -123,15 +124,23 @@ export interface CascaderProps<T>
 /** Cascader 的样式：columns、column、option、onPath、focused、chevron、results */
 export const cascaderStyles = css.create({
   // 各列横排；列多了在弹出层里横向滚动
-  columns: { display: 'flex', minHeight: 0, flexGrow: 1, overflowX: 'auto' },
+  columnsFrame: { position: 'relative', display: 'flex', minHeight: 0, minWidth: 0, flexGrow: 1 },
+  columns: {
+    display: 'flex',
+    minHeight: 0,
+    minWidth: 0,
+    flexGrow: 1,
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    scrollbarWidth: 'none',
+    '::-webkit-scrollbar': { display: 'none' },
+  },
+  columnViewport: { padding: '_xs', outlineStyle: 'none' },
   column: {
     boxSizing: 'border-box',
     flexShrink: 0,
     minWidth: '10em',
     maxWidth: '16em',
-    overflowY: 'auto',
-    padding: '_xs',
-    outlineStyle: 'none',
     borderInlineEndWidth: { default: '_xs', ':last-child': 0 },
     borderInlineEndStyle: 'solid',
     borderInlineEndColor: '_borderMuted',
@@ -202,6 +211,8 @@ export const Cascader = _component(
     propsColumn,
     ...rest
   }: CascaderProps<T>) => {
+    let columnsFrame = _state.raw<HTMLElement | null>(null);
+    let columnsScroller = _state.raw<HTMLElement | null>(null);
     const lang = useLang();
     const textMatcher = useTextMatcher();
     const baseId = useId();
@@ -491,9 +502,11 @@ export const Cascader = _component(
       // 这一列在已选路径上：前面各级都与已选的一致
       const onChosenPath = path.slice(0, level).every((key, index) => chosen[index] === key);
       return (
-        <div
+        <ScrollArea
           key={level}
-          {...mergeAttrs<'div'>({ sx: cascaderStyles.column }, propsColumn, {
+          focusable={false}
+          sx={cascaderStyles.column}
+          propsViewport={mergeProps<'div'>({ sx: cascaderStyles.columnViewport }, propsColumn, {
             id: columnId(level),
             role: 'listbox',
             tabindex: -1,
@@ -556,7 +569,7 @@ export const Cascader = _component(
               </div>
             );
           })}
-        </div>
+        </ScrollArea>
       );
     }
 
@@ -564,17 +577,15 @@ export const Cascader = _component(
     function renderHits(list: readonly PathHit<T>[]) {
       const chosen = (value ?? []).join('\u0000');
       return (
-        <div
-          {...mergeAttrs<'div'>(
-            { sx: [cascaderStyles.column, cascaderStyles.results] },
-            propsColumn,
-            {
-              id: columnId(0),
-              role: 'listbox',
-              tabindex: -1,
-              'aria-label': lang.selectSearch,
-            },
-          )}
+        <ScrollArea
+          focusable={false}
+          sx={[cascaderStyles.column, cascaderStyles.results]}
+          propsViewport={mergeProps<'div'>({ sx: cascaderStyles.columnViewport }, propsColumn, {
+            id: columnId(0),
+            role: 'listbox',
+            tabindex: -1,
+            'aria-label': lang.selectSearch,
+          })}
         >
           {list.length === 0 && (
             <div {...css.attrs(cascaderStyles.empty)}>{lang.selectNoMatch}</div>
@@ -606,7 +617,7 @@ export const Cascader = _component(
               </div>
             );
           })}
-        </div>
+        </ScrollArea>
       );
     }
 
@@ -732,14 +743,22 @@ export const Cascader = _component(
               </div>
             )}
             {open && (
-              <div {...css.attrs(cascaderStyles.columns)}>
-                {list
-                  ? renderHits(list)
-                  : columns.map((column, level) =>
-                      renderColumn(level, column.parent, column.items, () =>
-                        column.parent ? { 'aria-label': getLabel(column.parent) } : firstLabel(),
-                      ),
-                    )}
+              <div ref={_toRef(columnsFrame)} {...css.attrs(cascaderStyles.columnsFrame)}>
+                <div ref={_toRef(columnsScroller)} {...css.attrs(cascaderStyles.columns)}>
+                  {list
+                    ? renderHits(list)
+                    : columns.map((column, level) =>
+                        renderColumn(level, column.parent, column.items, () =>
+                          column.parent ? { 'aria-label': getLabel(column.parent) } : firstLabel(),
+                        ),
+                      )}
+                </div>
+                <OverlayScrollbar
+                  axis="x"
+                  viewport={columnsScroller}
+                  content={columnsScroller}
+                  hoverTarget={columnsFrame}
+                />
               </div>
             )}
           </div>

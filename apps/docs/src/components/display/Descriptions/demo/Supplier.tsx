@@ -32,7 +32,7 @@ const styles = css.create({
   // 可以拖宽窄的区域：原生的 resize 手柄
   resizable: {
     resize: 'horizontal',
-    overflow: 'auto',
+    overflow: 'hidden',
     minWidth: '16rem',
     maxWidth: '100%',
     width: '40rem',

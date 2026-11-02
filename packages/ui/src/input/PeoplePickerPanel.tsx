@@ -13,6 +13,7 @@
  * 部件：Root（div）、Browse（左边）、Selected（右边）。
  */
 import { Building, BriefcaseBusiness, ChevronRight, Search, X } from '@lucide/icons';
+import { ScrollArea } from '../layout/ScrollArea';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, ref, watch, type Ref, type VNodeChild } from 'vue';
@@ -98,7 +99,8 @@ export const peoplePickerPanelStyles = css.create({
     gap: '_sm',
     minHeight: '2em',
   },
-  list: { overflowY: 'auto', outlineStyle: 'none', minWidth: 0 },
+  list: { minWidth: 0 },
+  listViewport: { outlineStyle: 'none' },
   start: { display: 'flex', alignItems: 'center', gap: '_sm' },
   status: { display: 'flex', justifyContent: 'center', paddingBlock: '_lg', color: '_textMuted' },
 });
@@ -346,10 +348,14 @@ export const PeoplePickerPanel = _component(
               {lang.peopleSelectAll}
             </Checkbox>
           )}
-          <div
-            {...css.attrs(peoplePickerPanelStyles.list, height)}
-            ref={(element: unknown) => (list = element as HTMLElement | null)}
-            tabindex={-1}
+          <ScrollArea
+            focusable={false}
+            sx={[peoplePickerPanelStyles.list, height]}
+            propsViewport={{
+              sx: peoplePickerPanelStyles.listViewport,
+              ref: (element: unknown) => (list = element as HTMLElement | null),
+              tabindex: -1,
+            }}
           >
             {loading ? (
               <div {...css.attrs(peoplePickerPanelStyles.status)}>
@@ -368,7 +374,7 @@ export const PeoplePickerPanel = _component(
                 {items.map(renderRow)}
               </ItemList>
             )}
-          </div>
+          </ScrollArea>
         </div>
       );
     }
@@ -384,11 +390,8 @@ export const PeoplePickerPanel = _component(
               </Button>
             )}
           </div>
-          <div
-            {...css.attrs(
-              peoplePickerPanelStyles.list,
-              peoplePickerPanelDynamicStyles.height(listHeight),
-            )}
+          <ScrollArea
+            sx={[peoplePickerPanelStyles.list, peoplePickerPanelDynamicStyles.height(listHeight)]}
           >
             {value.length === 0 ? (
               <Small sx={peoplePickerPanelStyles.status}>{lang.peopleNothingSelected}</Small>
@@ -413,7 +416,7 @@ export const PeoplePickerPanel = _component(
                 ))}
               </ItemList>
             )}
-          </div>
+          </ScrollArea>
         </div>
       );
     }

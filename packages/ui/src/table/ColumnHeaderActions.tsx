@@ -3,6 +3,7 @@
  * DataTableView 在列定义写了 filter、或表格开了 columnMenu 时放进列标题；状态都在外层（DataTable），这里只管画与报告。
  */
 import { EllipsisVertical, Funnel } from '@lucide/icons';
+import { ScrollArea } from '../layout/ScrollArea';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
@@ -27,12 +28,11 @@ export const columnHeaderActionStyles = css.create({
   trigger: { flexShrink: 0, marginBlock: '-0.25em' },
   active: { color: '_accentText' },
   panel: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: '12rem' },
+  optionsScroll: { maxHeight: '16rem' },
   options: {
     display: 'flex',
     flexDirection: 'column',
     gap: '_xs',
-    maxHeight: '16rem',
-    overflowY: 'auto',
     fontWeight: '_normal',
     color: '_text',
   },
@@ -95,7 +95,11 @@ export const ColumnFilterButton = _component(
               size="sm"
             />
           )}
-          <div {...css.attrs(columnHeaderActionStyles.options)} role="group" aria-label={label}>
+          <ScrollArea
+            sx={columnHeaderActionStyles.optionsScroll}
+            propsViewport={{ role: 'group', 'aria-label': label }}
+            propsContent={{ sx: columnHeaderActionStyles.options }}
+          >
             {shown().map((option) => (
               <Checkbox
                 key={option.value}
@@ -105,7 +109,7 @@ export const ColumnFilterButton = _component(
                 {option.label ?? option.value}
               </Checkbox>
             ))}
-          </div>
+          </ScrollArea>
         </>
       );
     }

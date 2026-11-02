@@ -1,6 +1,6 @@
 # 流程引擎 TS 版（@zerodep-dev/flow-ts-*）
 
-审批流程引擎：图（节点 + 连线）是数据，设计器与代码读写同一份定义；持久层是本仓库的 easy-query TS，界面用本仓库的组件库。
+审批流程引擎：图（节点 + 连线）是数据，设计器与代码读写同一份定义；持久层是本仓库的 easy-query-ts，界面用本仓库的组件库。
 比 `flow` 仓库的 Java 版简洁：只有一个后端、一个命令入口、一个扩展选项对象。设计与取舍见 [docs/decisions/0001-design.md](docs/decisions/0001-design.md)。
 
 | 包                            | 内容                                                                                                       |

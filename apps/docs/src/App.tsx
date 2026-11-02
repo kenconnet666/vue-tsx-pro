@@ -9,6 +9,7 @@ import {
   CommandPalette,
   Container,
   IconLinkButton,
+  LinkButton,
   LoadingBar,
   NavItem,
   NavList,
@@ -92,20 +93,31 @@ export const App = _component(() => {
             </AppShellBrand>
           }
           header={
-            <div {...css.attrs(styles.tools)}>
-              <CommandPalette
-                items={searchItems}
-                onAction={(item) => void router.push(item.value)}
-              />
-              <PropsPlaygroundButton />
-              <ThemeSwitcher preference={preference} />
-              <IconLinkButton
-                href="https://github.com/kenconnet666/vue-tsx-pro"
+            <>
+              <LinkButton
+                href="https://easy-query-ts.zerodep.dpdns.org"
                 external
-                icon={GithubIcon}
-                aria-label="GitHub 仓库"
-              />
-            </div>
+                size="sm"
+                variant="ghost"
+                tone="neutral"
+              >
+                easy-query-ts
+              </LinkButton>
+              <div {...css.attrs(styles.tools)}>
+                <CommandPalette
+                  items={searchItems}
+                  onAction={(item) => void router.push(item.value)}
+                />
+                <PropsPlaygroundButton />
+                <ThemeSwitcher preference={preference} />
+                <IconLinkButton
+                  href="https://github.com/kenconnet666/vue-tsx-pro"
+                  external
+                  icon={GithubIcon}
+                  aria-label="GitHub 仓库"
+                />
+              </div>
+            </>
           }
           sidebar={
             <NavList aria-label="文档">

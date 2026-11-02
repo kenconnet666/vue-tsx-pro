@@ -10,6 +10,7 @@ import {
   Flex,
   Small,
   Text,
+  ScrollArea,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const tasks = Array.from({ length: 30 }, (_, index) => ({
@@ -26,9 +27,9 @@ export default _component(() => {
   return () => (
     <Card padding="none">
       {/* 示例自己的滚动面板：sticky 相对它贴住，所以把它作为 target */}
-      <div
-        ref={(element: unknown) => (panel = element as HTMLElement | null)}
-        style={{ height: '20rem', overflowY: 'auto', position: 'relative' }}
+      <ScrollArea
+        style={{ height: '20rem' }}
+        propsViewport={{ ref: (element: unknown) => (panel = element as HTMLElement | null) }}
       >
         <Flex direction="column" gap="xs" style={{ padding: '0 0.75em 0.75em' }}>
           <Small tone="muted" style={{ paddingBlock: '0.75em' }}>
@@ -69,7 +70,7 @@ export default _component(() => {
         </Flex>
         {/* 面板滚下去之后视口右下角出现，点了把面板滚回顶部 */}
         <BackTop target={() => panel} threshold={200} />
-      </div>
+      </ScrollArea>
     </Card>
   );
 });

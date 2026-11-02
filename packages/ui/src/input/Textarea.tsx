@@ -8,6 +8,7 @@
  *
  * 未声明的属性落到 textarea（主元素）上，外壳用 propsRoot。部件：Root（外壳）、Textarea。
  */
+import { t } from '../config/theme/tokens';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId } from 'vue';
@@ -54,7 +55,14 @@ export interface TextareaProps extends PartProps<'textarea', TextareaManaged>, C
 /** Textarea 的样式：textarea、fixed、count、clear */
 export const textareaStyles = css.create({
   // 随外壳拉伸：外壳给了高度（propsRoot 的 height）时文字区占满，不停在基线上
-  textarea: { alignSelf: 'stretch', resize: 'none', overflowY: 'auto' },
+  // 原生控件换不了浮层滚动条：改细，滑块取浮层滚动条（scrollAreaBarStyles.thumb）的颜色
+  textarea: {
+    alignSelf: 'stretch',
+    resize: 'none',
+    overflowY: 'auto',
+    scrollbarWidth: 'thin',
+    scrollbarColor: `color-mix(in srgb, ${t.colors.textMuted} 50%, transparent) transparent`,
+  },
   fixed: { resize: 'vertical' },
   // 计数贴在右下角
   count: { alignSelf: 'flex-end', paddingBlockEnd: '_xs' },

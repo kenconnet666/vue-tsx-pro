@@ -130,7 +130,6 @@ export const kanbanBoardStyles = css.create({
     paddingInline: '_sm',
     paddingBlockEnd: '_sm',
     listStyle: 'none',
-    overflowY: 'auto',
     minHeight: '3rem',
   },
   card: {
@@ -282,48 +281,45 @@ export const KanbanBoard = _component(
                       </Badge>
                     </div>
                     {reason && <div {...css.attrs(kanbanBoardStyles.reason)}>{reason}</div>}
-                    <ul
-                      {...css.attrs(
-                        kanbanBoardStyles.list,
-                        kanbanBoardDynamicStyles.height(columnHeight),
-                      )}
-                    >
-                      {cards.length === 0 && !over && (
-                        <li {...css.attrs(kanbanBoardStyles.empty)}>
-                          {empty ?? messages.kanbanEmpty}
-                        </li>
-                      )}
-                      {cards.flatMap((item, index) => {
-                        const key = getKey(item);
-                        const active = dragging === key;
-                        const { onPointerdown: _, ...handle } = sortable.handleProps(key);
-                        const card = (
-                          <li
-                            key={key}
-                            {...sortable.itemProps(key)}
-                            {...css.attrs(
-                              kanbanBoardStyles.card,
-                              active && ghost && kanbanBoardStyles.placeholder,
-                              active && !ghost && kanbanBoardStyles.lifted,
-                            )}
-                            data-state={active ? 'dragging' : undefined}
-                            onPointerdown={(event: PointerEvent) => onPointerdown(event, key)}
-                          >
-                            <div>{children(item, { dragging: active })}</div>
-                            <ButtonBase
-                              {...handle}
-                              data-handle=""
-                              sx={kanbanBoardStyles.handle}
-                              aria-label={lang.sortableHandle(labelOf(item))}
-                            >
-                              <Icon icon={GripVertical} />
-                            </ButtonBase>
+                    <ScrollArea sx={kanbanBoardDynamicStyles.height(columnHeight)}>
+                      <ul {...css.attrs(kanbanBoardStyles.list)}>
+                        {cards.length === 0 && !over && (
+                          <li {...css.attrs(kanbanBoardStyles.empty)}>
+                            {empty ?? messages.kanbanEmpty}
                           </li>
-                        );
-                        return over && drop.index === index ? [indicator, card] : [card];
-                      })}
-                      {over && drop.index >= cards.length && indicator}
-                    </ul>
+                        )}
+                        {cards.flatMap((item, index) => {
+                          const key = getKey(item);
+                          const active = dragging === key;
+                          const { onPointerdown: _, ...handle } = sortable.handleProps(key);
+                          const card = (
+                            <li
+                              key={key}
+                              {...sortable.itemProps(key)}
+                              {...css.attrs(
+                                kanbanBoardStyles.card,
+                                active && ghost && kanbanBoardStyles.placeholder,
+                                active && !ghost && kanbanBoardStyles.lifted,
+                              )}
+                              data-state={active ? 'dragging' : undefined}
+                              onPointerdown={(event: PointerEvent) => onPointerdown(event, key)}
+                            >
+                              <div>{children(item, { dragging: active })}</div>
+                              <ButtonBase
+                                {...handle}
+                                data-handle=""
+                                sx={kanbanBoardStyles.handle}
+                                aria-label={lang.sortableHandle(labelOf(item))}
+                              >
+                                <Icon icon={GripVertical} />
+                              </ButtonBase>
+                            </li>
+                          );
+                          return over && drop.index === index ? [indicator, card] : [card];
+                        })}
+                        {over && drop.index >= cards.length && indicator}
+                      </ul>
+                    </ScrollArea>
                   </section>
                 );
               })}
