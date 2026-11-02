@@ -25,8 +25,9 @@ export const codeStyles = css.create({
     fontVariantLigatures: 'none',
     // 相对周围文字略小：等宽字体的字面显得大；是比例不是字号档位
     fontSize: '0.9em',
-    // 长命令、长路径可以在任意位置换行，不撑破容器
-    overflowWrap: 'anywhere',
+    // 长命令、长路径放不下时可以在任意位置换行，不撑破容器。不用 anywhere：它会算进最小宽度，
+    // 表格列被压得很窄、代码逐字断开，而不是让表格横向滚动
+    overflowWrap: 'break-word',
   },
 });
 

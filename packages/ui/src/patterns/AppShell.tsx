@@ -28,7 +28,7 @@
  * - sidebarCollapsible：docked 侧栏底部有“收起侧栏”，收起后只剩图标栏（宽屏时；导航变紧凑、分组悬停弹出，
  *   品牌格只剩标志），父级写 _sidebarCollapsed={x} 记住。
  *
- * 全屏：顶栏结束边有全屏按钮（fullscreenable，默认开），进入后不显示顶栏和左侧栏，正文占满窗口，同时请求浏览器全屏；
+ * 全屏：顶栏结束边有全屏按钮（fullscreenable，默认开，手机宽度不显示），进入后不显示顶栏和左侧栏，正文占满窗口，同时请求浏览器全屏；
  * 右上角留一个退出按钮，Esc 也退出。_fullscreen 可以双向绑定。浏览器不让全屏时（如 iframe 没有 allow="fullscreen"）照样隐藏这两块。
  *
  * 自带 SkipLink（跳到正文）；顶栏的高度经 layoutVars.stickyOffset 交给里面的标题，锚点跳转后不被顶栏挡住。
@@ -36,7 +36,7 @@
 import { Maximize, Menu as MenuIcon, Minimize, PanelLeftClose, PanelLeftOpen } from '@lucide/icons';
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
+import { cloneVNode, isVNode, onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
 import { useMessages } from '../config/lang/messages';
 import { patternsMessages } from './messages';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
@@ -63,6 +63,21 @@ const SIDEBAR_WIDTH = '16rem';
 const RAIL_WIDTH = '3.5rem';
 // 运行时判断侧栏是否常驻（useMediaQuery 要的是不带 @media 的查询）
 const WIDE_QUERY = breakpoints.lg.replace('@media ', '');
+
+/**
+ * 侧栏内容要同时放进左侧栏和抽屉，第二处用这份不带 el 的副本。
+ * Vue 克隆挂载过的 VNode 时会保留 el，水合渲染器（createSSRApp）把带 el 的组件当成“已有 DOM、接管即可”：
+ * 它会去接管左侧栏里的 DOM，抽屉里什么也挂不上。
+ */
+function freshCopy(node: VNodeChild): VNodeChild {
+  if (Array.isArray(node)) return node.map(freshCopy);
+  if (!isVNode(node)) return node;
+  const copy = cloneVNode(node);
+  copy.el = null;
+  if (Array.isArray(copy.children))
+    copy.children = copy.children.map(freshCopy) as typeof copy.children;
+  return copy;
+}
 
 /** 未声明的属性落到外层 div 上 */
 export interface AppShellProps extends PartProps<'div'> {
@@ -269,7 +284,11 @@ export const appShellStyles = css.create({
   mainGrow: { flexGrow: 1 },
   // header 的内容占满剩下的宽度，全屏按钮在最后
   headerMain: { display: 'flex', alignItems: 'center', gap: '_md', flexGrow: 1, minWidth: 0 },
-  fullscreenButton: { flexShrink: 0 },
+  // 手机上不显示：顶栏放不下，iOS Safari 也不支持页面全屏
+  fullscreenButton: {
+    display: { default: 'none', [breakpoints.md]: 'inline-flex' },
+    flexShrink: 0,
+  },
   // 全屏时不显示：留在 DOM 里，退出后侧栏的滚动位置、展开的分组都还在
   hidden: { display: 'none' },
   // 全屏时的退出按钮：贴着窗口右上角（从右到左排版时是左上角），不用时淡一点，不抢正文
@@ -616,7 +635,7 @@ export const AppShell = _component(
             )}
             _open={sidebarOpen}
           >
-            {sidebar}
+            {freshCopy(sidebar)}
           </Drawer>
         )}
       </div>

@@ -135,7 +135,13 @@ export const codeBlockStyles = css.create({
   withCopy: {
     paddingInlineEnd: `calc(${t.space.md} + max(${t.sizes.control}, ${t.sizes.minTarget}))`,
   },
-  copy: { position: 'absolute', top: '_space.xs', insetInlineEnd: '_space.xs' },
+  // 不透明的底色：横向滚动的长行从按钮下面经过时，字不和图标叠在一起
+  copy: {
+    position: 'absolute',
+    top: '_space.xs',
+    insetInlineEnd: '_space.xs',
+    backgroundColor: { default: '_surface', ':hover': '_fill' },
+  },
   root: {
     boxSizing: 'border-box',
     margin: 0,

@@ -94,6 +94,20 @@ async function nativeScrollbars(page) {
   });
 }
 
+/** 手机宽度：页面不能横向滚动（调用后视口留在手机宽度） */
+async function phoneOverflow(page) {
+  await page.setViewportSize({ width: 375, height: 812 });
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  return width > 375 ? [`手机宽度下页面宽 ${width}px`] : [];
+}
+
+/** 手机宽度：水合后的页面点菜单按钮，抽屉里要有导航链接 */
+async function phoneDrawerLinks(page) {
+  await page.locator('button[aria-label="打开导航"]').click();
+  await page.locator('dialog[open]').waitFor();
+  return page.locator('dialog[open] a[href]').count();
+}
+
 const browser = await chromium.launch();
 const problems = [];
 try {
@@ -106,7 +120,13 @@ try {
     const messages = [];
     page.on('pageerror', (error) => messages.push(`页面报错：${error.message}`));
     await page.goto(`http://localhost:${port}${path}`, { waitUntil: 'networkidle' });
-    messages.push(...(await Promise.all(pending)), ...(await nativeScrollbars(page)));
+    messages.push(
+      ...(await Promise.all(pending)),
+      ...(await nativeScrollbars(page)),
+      ...(await phoneOverflow(page)),
+    );
+    if (path === pages[0] && !(await phoneDrawerLinks(page)))
+      messages.push('手机宽度下抽屉里没有导航链接');
     if (messages.length) problems.push({ path, messages });
     await page.close();
   }

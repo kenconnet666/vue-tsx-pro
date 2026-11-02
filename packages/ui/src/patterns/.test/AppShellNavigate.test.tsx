@@ -1,6 +1,7 @@
 // 窄屏的抽屉里点了导航项：抽屉自己关上（docked 的窄屏抽屉，不用再按 Esc 或点外面）
 import { beforeAll, describe, expect, it } from 'vitest';
-import { nextTick } from 'vue';
+import { createSSRApp, nextTick } from 'vue';
+import { renderToString } from 'vue/server-renderer';
 import { mount } from '../../utils/.test/mount';
 import { NavItem, NavList } from '../../navigation/NavList';
 import { AppShell } from '../AppShell';
@@ -63,5 +64,28 @@ describe('AppShell 窄屏的侧栏抽屉', () => {
     await nextTick();
     await nextTick();
     expect(dialog().hasAttribute('open')).toBe(false);
+  });
+
+  it('水合后的页面：抽屉第一次打开时也有导航内容', async () => {
+    const shell = () => (
+      <AppShell
+        sidebar={
+          <NavList aria-label="站点">
+            <NavItem href="/orders">订单</NavItem>
+          </NavList>
+        }
+      >
+        正文
+      </AppShell>
+    );
+    const root = document.createElement('div');
+    document.body.append(root);
+    root.innerHTML = await renderToString(createSSRApp(shell));
+    createSSRApp(shell).mount(root);
+    await nextTick();
+    root.querySelector<HTMLElement>('button[aria-label="打开导航"]')!.click();
+    await nextTick();
+    await nextTick();
+    expect(root.querySelector('dialog a[href]')).not.toBeNull();
   });
 });

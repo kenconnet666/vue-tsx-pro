@@ -21,6 +21,7 @@ import { Button, type ButtonProps } from '../base/Button';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
 import { CopyButton, type CopyButtonProps } from '../base/CopyButton';
 import { useMessages } from '../config/lang/messages';
+import { breakpoints } from '../config/theme/tokens';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { Card, type CardProps } from '../display/Card';
@@ -79,7 +80,8 @@ export const codePreviewStyles = css.create({
     display: 'grid',
     alignItems: 'center',
     gap: '_md',
-    padding: '_xl',
+    // 手机宽度留给示例本身
+    padding: { default: '_md', [breakpoints.sm]: '_xl' },
   },
   center: { justifyItems: 'center' },
   // Card 的页脚默认是一行靠右的按钮：这里是工具栏加源码，上下排

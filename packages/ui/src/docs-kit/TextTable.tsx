@@ -4,7 +4,7 @@
  *
  *   <TextTable head={['方法', '含义']} rows={[['`has(值)`', '含有这个值']]} />
  *
- * 第一列通常是名字，默认不折行。外观属性同 Table。
+ * 第一列通常是名字，默认不折行。手机宽度放不下时横向滚动，不把列压得只剩几个字。外观属性同 Table。
  * 部件：Table（外层）；每格是 TableCell。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -38,11 +38,14 @@ export const textTableStyles = css.create({
   nowrap: { whiteSpace: 'nowrap' },
 });
 
+/** 每列至少留多宽（rem）：表格的最小宽度按列数算 */
+const COLUMN_MIN_REM = 8;
+
 /** 文字表格 */
 export const TextTable = _component(
   ({ head, rows, nowrapFirst = true, ...rest }: TextTableProps) =>
     () => (
-      <Table {...rest}>
+      <Table style={{ minWidth: `${head.length * COLUMN_MIN_REM}rem` }} {...rest}>
         <TableHead>
           <TableRow>
             {head.map((cell) => (
