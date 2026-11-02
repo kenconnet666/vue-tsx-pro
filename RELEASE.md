@@ -16,9 +16,7 @@
 
 发布时把这一节搬进 GitHub Release 的说明，再清空。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-新增四套内置主题：大屏（`big-screen`，数据大屏用的深蓝与青蓝）、薰衣草（`lavender`）、余烬（`ember`）、墨白（`mono`）。`createThemePreference({ themes: builtinThemes })` 的 ThemeSwitcher 菜单会多四项；按名字列出主题的项目不受影响。
-
-修复 `useRequest` 的缓存漏掉失效通知：结果已经显示、还没写进缓存时收到按标签的失效，页面会一直停在旧数据上。现在 `RequestCache.watch` 的回调多一个 `tags` 参数；依赖的标签失效时总是重新请求，并取消进行中的请求。自己实现 `RequestCache` 的项目不用改，不传 `tags` 时行为和之前一样。
+（暂无）
 
 ## 一次性准备
 
