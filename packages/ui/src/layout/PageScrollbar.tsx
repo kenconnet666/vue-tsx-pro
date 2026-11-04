@@ -5,11 +5,11 @@
  *
  *   <PageScrollbar />            放在应用里任意位置，挂载期间生效
  *
+ * 隐藏原生滚动条的样式是组件渲染出的一个 <style>：服务端渲染、预渲染的 HTML 里就有，水合前后宽度不变，卸载时随之移除。
  * 模态框打开时页面滚动被锁住（overflow: hidden），滚动条随之隐藏。从右到左排版时在左侧（插入边的逻辑属性）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { onBeforeUnmount, onMounted } from 'vue';
+import { onMounted } from 'vue';
 import type { PartProps } from '../utils/props';
 import { OverlayScrollbar, type ScrollbarTypes } from './ScrollArea';
 
@@ -25,28 +25,21 @@ export interface PageScrollbarProps {
   propsThumb?: PartProps<'div'>;
 }
 
-/** PageScrollbar 的样式：document（写在页面根元素上，隐藏原生滚动条） */
-export const pageScrollbarStyles = css.create({
-  document: { scrollbarWidth: 'none', '::-webkit-scrollbar': { display: 'none' } },
-});
+// 写成 <style> 而不是挂载后给 <html> 加 class：首屏就隐藏，原生滚动条占的宽度不会在水合时消失、让内容跳一下
+const HIDE_NATIVE_SCROLLBAR = 'html{scrollbar-width:none}html::-webkit-scrollbar{display:none}';
 
 /** 整页的浮层滚动条：挂载期间隐藏页面的原生滚动条 */
 export const PageScrollbar = _component(
   ({ type = 'scroll', hideDelay = 800, propsScrollbar, propsThumb }: PageScrollbarProps) => {
     let viewport = _state.raw<HTMLElement | null>(null);
     let content = _state.raw<HTMLElement | null>(null);
-    const classes = (css.attrs(pageScrollbarStyles.document).class ?? '')
-      .split(' ')
-      .filter(Boolean);
-
     onMounted(() => {
       viewport = document.scrollingElement as HTMLElement;
       content = document.body;
-      document.documentElement.classList.add(...classes);
     });
-    onBeforeUnmount(() => document.documentElement.classList.remove(...classes));
 
-    return () => (
+    return () => [
+      <style>{HIDE_NATIVE_SCROLLBAR}</style>,
       <OverlayScrollbar
         axis="y"
         viewport={viewport}
@@ -56,7 +49,7 @@ export const PageScrollbar = _component(
         fixed
         propsScrollbar={propsScrollbar}
         propsThumb={propsThumb}
-      />
-    );
+      />,
+    ];
   },
 );

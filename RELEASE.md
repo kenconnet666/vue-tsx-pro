@@ -18,6 +18,7 @@
 
 - 新增内置主题青瓷（`celadon`）：青白釉的淡青底、青瓷绿品牌色、衬线标题。
 - 移除咖啡主题（`coffee`）：暖色暗色主题由余烬（`ember`）提供。不再导出 `coffeeTheme`、`coffeeColors`、`coffeeShadows`、`coffeeRadii`，语言包去掉 `themeCoffee`、新增 `themeCeladon`；之前选了咖啡的用户下次打开会回到“跟随系统”。
+- 修复刷新时布局跳一下：PageScrollbar（AppShell 默认带着）隐藏原生滚动条的样式改成随组件渲染出的 <style>，服务端渲染、预渲染的页面首屏就隐藏，不再等水合后才隐藏。不再导出 `pageScrollbarStyles`。
 - 喜庆主题换了配色：朱红主色（按钮与链接同一色系）、赤金的焦点环与选中色，图表色改成朱红配黛青开头、赤金第三，两个系列时不再红配土黄，多个系列也更好分辨。
 
 ## 一次性准备

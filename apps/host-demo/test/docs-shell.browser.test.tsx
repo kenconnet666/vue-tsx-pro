@@ -206,10 +206,8 @@ it('色块：token 的取值按当前主题读出，换主题时跟着变', asyn
 it('整页浮层滚动条：隐藏原生滚动条，滚动时出现、滑块跟着位置走，拖动能滚动页面；卸载后恢复', async () => {
   await page.viewport(1280, 800);
   const html = document.documentElement;
-  const classesBefore = html.className;
+  const widthBefore = getComputedStyle(html).scrollbarWidth;
   render(docsPage(() => []));
-  // 隐藏原生滚动条的样式写在页面根元素的 class 上
-  expect(html.className).not.toBe(classesBefore);
   expect(getComputedStyle(html).scrollbarWidth).toBe('none');
   const track = () =>
     [...document.body.querySelectorAll<HTMLElement>('[data-axis="y"]')].find(
@@ -247,5 +245,5 @@ it('整页浮层滚动条：隐藏原生滚动条，滚动时出现、滑块跟�
 
   app!.unmount();
   app = undefined;
-  expect(html.className).toBe(classesBefore);
+  expect(getComputedStyle(html).scrollbarWidth).toBe(widthBefore);
 });

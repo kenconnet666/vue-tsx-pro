@@ -203,11 +203,7 @@ export {
   type GridOptions,
   type GridProps,
 } from './layout/Grid';
-export {
-  PageScrollbar,
-  pageScrollbarStyles,
-  type PageScrollbarProps,
-} from './layout/PageScrollbar';
+export { PageScrollbar, type PageScrollbarProps } from './layout/PageScrollbar';
 export { Prose, proseStyles, type ProseProps } from './layout/Prose';
 export {
   ResizeHandle,
