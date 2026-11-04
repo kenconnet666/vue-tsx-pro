@@ -231,8 +231,10 @@ describe('动效：JS 动画取主题 tokens', () => {
     const midway = left();
     $('.layout-add').click();
     await nextFrame();
-    // 接着走：与打断前的位置相差不超过几帧的位移，不会跳到第一轮的起点或终点
-    expect(Math.abs(left() - midway)).toBeLessThan(chip.offsetWidth);
+    // 接着走：离新的终点只会更近，不会跳回第一轮的起点。不按“一帧走多远”判断：
+    // CI 上 WebKit 的主线程会卡住一秒多，动画可能已经走完一大段
+    const target = list.getBoundingClientRect().left + (chip.offsetLeft - list.offsetLeft);
+    expect(Math.abs(left() - target)).toBeLessThanOrEqual(Math.abs(midway - target) + 1);
     await expect.poll(() => Math.abs(offset()), { timeout: 5000 }).toBeLessThan(1);
     await expect.poll(() => chip.getAnimations().length, { timeout: 5000 }).toBe(0);
     expect(chip.getAttribute('style') ?? '').not.toMatch(/transform|opacity/);
