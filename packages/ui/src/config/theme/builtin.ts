@@ -8,7 +8,7 @@
  * 后三处按 BuiltinThemeName 写成完整的表，漏了类型检查会报错；pnpm themes:check 从这里读出主题文件核对颜色。
  */
 import { bigScreenTheme } from './big-screen';
-import { coffeeTheme } from './coffee';
+import { celadonTheme } from './celadon';
 import { cyberpunkTheme } from './cyberpunk';
 import { darkTheme } from './dark';
 import { emberTheme } from './ember';
@@ -39,11 +39,11 @@ export const builtinThemes = {
   sakura: sakuraTheme,
   festive: festiveTheme,
   cyberpunk: cyberpunkTheme,
-  coffee: coffeeTheme,
   'big-screen': bigScreenTheme,
   lavender: lavenderTheme,
   ember: emberTheme,
   mono: monoTheme,
+  celadon: celadonTheme,
 } as const satisfies Record<string, Theme>;
 
 /** 内置主题的名字 */
@@ -63,11 +63,11 @@ export function builtinThemeLabel(lang: Lang, name: BuiltinThemeName): string {
     sakura: lang.themeSakura,
     festive: lang.themeFestive,
     cyberpunk: lang.themeCyberpunk,
-    coffee: lang.themeCoffee,
     'big-screen': lang.themeBigScreen,
     lavender: lang.themeLavender,
     ember: lang.themeEmber,
     mono: lang.themeMono,
+    celadon: lang.themeCeladon,
   };
   return labels[name];
 }

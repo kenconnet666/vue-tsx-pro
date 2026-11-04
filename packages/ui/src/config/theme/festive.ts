@@ -5,7 +5,9 @@ import type { Theme } from './theme';
 import { colors, shadows } from './tokens';
 
 /**
- * 喜庆主题的颜色：暖白宣纸色的页面、中国红的品牌色 `#c8102e`、金色点缀（高亮、图表）。中性色按 slate 各级亮度换成暖色相（oklch 45°），品牌色取 Radix red 色阶；危险色换成 ruby，和品牌色区分开。
+ * 喜庆主题的颜色：暖白宣纸色的页面、朱红的品牌色 `#c42b1c`（按钮、链接同一色系）、赤金点缀（焦点环、选中、高亮）。
+ * 中性色按 slate 各级亮度换成暖色相（oklch 45°）；危险色用 ruby，和品牌色区分开。
+ * 图表色按传统色排：朱红配黛青（石青）开头，赤金放第三：浅底上金色要到 3:1 只能压暗，紧挨着红色会显得发土。
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
 export const festiveColors = css.createTheme(colors, {
@@ -23,13 +25,13 @@ export const festiveColors = css.createTheme(colors, {
   borderMuted: '#e6d6cf',
   border: '#dbcbc4',
   borderStrong: '#c7b8b1',
-  accent: '#c8102e',
-  accentHover: '#a80c25',
+  accent: '#c42b1c',
+  accentHover: '#a32216',
   accentContrast: '#ffffff',
-  accentText: '#c31e28',
-  accentSoft: '#feebec',
-  accentSoftHover: '#ffdbdc',
-  accentBorder: '#f4a9aa',
+  accentText: '#b3261a',
+  accentSoft: '#fdede9',
+  accentSoftHover: '#fbdcd5',
+  accentBorder: '#eeaa9c',
   danger: '#d8375a',
   dangerHover: '#b62d4b',
   dangerContrast: '#ffffff',
@@ -60,12 +62,12 @@ export const festiveColors = css.createTheme(colors, {
   infoSoftHover: '#d5efff',
   inverseSurface: '#2c1b13',
   inverseText: '#fffaf6',
-  focusRing: '#c8102e',
+  focusRing: '#a8760c',
   overlay: 'rgba(44, 27, 19, 0.4)',
-  selection: '#ffcdce',
-  highlight: '#fff394',
+  selection: '#f8e0a8',
+  highlight: '#fbe6a2',
   surfaceTranslucent: 'rgba(255, 250, 246, 0.8)',
-  codeKeyword: '#c31e28',
+  codeKeyword: '#b3261a',
   codeString: '#147a51',
   codeNumber: '#bf4100',
   codeFunction: '#6550b9',
@@ -75,14 +77,14 @@ export const festiveColors = css.createTheme(colors, {
   codeAttribute: '#815e46',
   codeInserted: '#e6f6eb',
   codeDeleted: '#feebec',
-  chart1: '#c8102e',
-  chart2: '#b8860b',
-  chart3: '#ef5f00',
-  chart4: '#df3478',
-  chart5: '#c48200',
-  chart6: '#a07553',
-  chart7: '#dd4425',
-  chart8: '#8c7a5e',
+  chart1: '#c42b1c',
+  chart2: '#1f6f6b',
+  chart3: '#a8760c',
+  chart4: '#2c4f8f',
+  chart5: '#3c8a5a',
+  chart6: '#8e3b6b',
+  chart7: '#d9661a',
+  chart8: '#9a7656',
 });
 
 /** 喜庆主题的阴影：带主色调的投影 */
@@ -95,7 +97,7 @@ export const festiveShadows = css.createTheme(shadows, {
   xl: '0 12px 60px rgba(110, 20, 10, 0.15), 0 16px 64px rgba(110, 20, 10, 0.04), 0 16px 36px -20px rgba(110, 20, 10, 0.2)',
 });
 
-/** 喜庆主题：暖白底、中国红品牌色、金色点缀、衬线标题（庄重）；浏览器配色按亮色 */
+/** 喜庆主题：暖白底、朱红品牌色、赤金点缀、衬线标题（庄重）；浏览器配色按亮色 */
 export const festiveTheme: Theme = {
   name: 'festive',
   colorScheme: 'light',

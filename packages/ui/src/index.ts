@@ -1406,7 +1406,7 @@ export {
   type ThemeBootColors,
 } from './config/theme/boot';
 export { builtinThemeLabel, builtinThemes, type BuiltinThemeName } from './config/theme/builtin';
-export { coffeeColors, coffeeTheme } from './config/theme/coffee';
+export { celadonColors, celadonShadows, celadonTheme } from './config/theme/celadon';
 export {
   cyberpunkColors,
   cyberpunkFonts,

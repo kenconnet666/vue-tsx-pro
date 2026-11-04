@@ -64,9 +64,9 @@ export const builtinThemeBootColors = {
   sakura: { background: '#fffafc', text: '#281b20', colorScheme: 'light' },
   festive: { background: '#fffaf6', text: '#2c1b13', colorScheme: 'light' },
   cyberpunk: { background: '#110e20', text: '#ede9ff', colorScheme: 'dark' },
-  coffee: { background: '#180f0a', text: '#ffe9dc', colorScheme: 'dark' },
   'big-screen': { background: '#061332', text: '#f0f6ff', colorScheme: 'dark' },
   lavender: { background: '#fbf9ff', text: '#211b30', colorScheme: 'light' },
   ember: { background: '#171310', text: '#f5ede4', colorScheme: 'dark' },
   mono: { background: '#ffffff', text: '#171717', colorScheme: 'light' },
+  celadon: { background: '#f5f9f7', text: '#16302a', colorScheme: 'light' },
 } as const satisfies Record<BuiltinThemeName, ThemeBootColors>;
