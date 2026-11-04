@@ -4,7 +4,7 @@
  *
  * 用法：pnpm docs:check。生成的文件、测试与只在类型里出现的 children 不检查。
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import {
@@ -33,9 +33,17 @@ const INCLUDE = [
 /** 生成的文件（注释由生成器负责）与测试 */
 const EXCLUDE = [/\/\.test\//, /\/test\//, /styles\/documented\.ts$/, /token-names\.ts$/];
 
-const files = execFileSync('git', ['ls-files', ...INCLUDE], { cwd: root, encoding: 'utf8' })
+// 连同还没 git add 的新文件；删掉但还没暂存的跳过
+const files = execFileSync(
+  'git',
+  ['ls-files', '--cached', '--others', '--exclude-standard', ...INCLUDE],
+  { cwd: root, encoding: 'utf8' },
+)
   .split('\n')
-  .filter((file) => file && !EXCLUDE.some((pattern) => pattern.test(file)));
+  .filter(
+    (file) =>
+      file && !EXCLUDE.some((pattern) => pattern.test(file)) && existsSync(join(root, file)),
+  );
 
 const isExported = (node) =>
   node.modifiers?.some((modifier) => modifier.kind === SyntaxKind.ExportKeyword) ?? false;
