@@ -16,8 +16,7 @@
 
 发布时把这一节搬进 GitHub Release 的说明，再清空。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- 不可用的 Select、TreeSelect、Cascader、PeoplePicker 指针改成 `not-allowed`（与其他输入框一致），之前外壳仍是手形；只读时是普通箭头。外壳上新增 `data-readonly`。ColorField 不可用、只读时色块也不再是手形。
-- 细线、描边圈与焦点环偏移都跟随主题的 `borderWidths` token：主题把 `borderWidths` 改粗时，代码编辑器的边框、分栏（Splitter）的分隔线、OtpField 的光标与分隔、看板列与拖动验证滑块的焦点偏移、画布节点的选中描边与连接点、迷你图末点的圈、色块的内描边，以及移动端 Badge 的白边一起变。默认主题下外观不变。
+（暂无）
 
 ## 一次性准备
 
