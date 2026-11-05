@@ -109,8 +109,9 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
         code={demo.source}
         align={align}
         actions={<EditInPlayground code={demo.source} />}
+        propsLayout={frame != null ? { sx: styles.framed } : undefined}
         propsPreview={{
-          sx: [canvasStyles.canvas, styles.canvas, frame != null && styles.framed],
+          sx: [canvasStyles.canvas, styles.canvas],
           // 示例里的标题不进本页目录（App 收集目录时跳过 data-demo 里的标题）
           ...dataAttrs({ 'data-demo': '' }),
         }}

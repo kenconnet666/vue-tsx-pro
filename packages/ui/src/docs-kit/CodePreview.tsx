@@ -58,6 +58,8 @@ export interface CodePreviewProps extends PartProps<'div'> {
   propsPreview?: PartProps<'div'>;
   /** 效果区里横向滚动的 ScrollArea 的部件属性 */
   propsPreviewScroll?: Partial<ScrollAreaProps>;
+  /** 效果的排布格（div，带内边距的网格）的部件属性 */
+  propsLayout?: PartProps<'div'>;
   /** 工具栏的部件属性 */
   propsToolbar?: PartProps<'div'>;
   /** “显示代码”按钮的部件属性 */
@@ -108,6 +110,7 @@ export const CodePreview = _component(
     propsCard,
     propsPreview,
     propsPreviewScroll,
+    propsLayout,
     propsToolbar,
     propsToggle,
     propsCopy,
@@ -217,9 +220,10 @@ export const CodePreview = _component(
         >
           <ScrollArea {...mergePartProps<ScrollAreaProps>({ axis: 'x' }, propsPreviewScroll)}>
             <div
-              {...mergeAttrs<'div'>({
-                sx: [codePreviewStyles.layout, align === 'center' && codePreviewStyles.center],
-              })}
+              {...mergeAttrs<'div'>(
+                { sx: [codePreviewStyles.layout, align === 'center' && codePreviewStyles.center] },
+                propsLayout,
+              )}
             >
               {children}
             </div>
