@@ -73,7 +73,7 @@ export const sparklineStyles = css.create({
     borderRadius: '_full',
     backgroundColor: 'var(--tone-fill)',
     // 一圈表面色把点与线分开
-    boxShadow: `0 0 0 2px ${t.colors.surface}`,
+    boxShadow: `0 0 0 ${t.borderWidths.sm} ${t.colors.surface}`,
     transform: 'translate(-50%, -50%)',
     pointerEvents: 'none',
   },

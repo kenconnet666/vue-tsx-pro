@@ -143,6 +143,7 @@ export const PeoplePicker = _component(
             })}
             data-invalid={state.invalid || undefined}
             data-disabled={state.disabled || undefined}
+            data-readonly={state.readonly || undefined}
           >
             {tagged && (
               <SelectedTags

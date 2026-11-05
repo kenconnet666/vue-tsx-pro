@@ -17,6 +17,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
+import { t } from '../config/theme/tokens';
 import { clamp } from '../utils/data/number';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { startMove } from '../utils/dom/move';
@@ -109,8 +110,17 @@ export const splitterStyles = css.create({
   handleHorizontal: { width: '_space.md', cursor: 'col-resize' },
   handleVertical: { height: '_space.md', cursor: 'row-resize' },
   line: { position: 'absolute', backgroundColor: 'currentColor', pointerEvents: 'none' },
-  lineHorizontal: { insetBlock: 0, insetInlineStart: 'calc(50% - 0.5px)', width: '1px' },
-  lineVertical: { insetInline: 0, top: 'calc(50% - 0.5px)', height: '1px' },
+  // 细线宽取主题的边框宽度，减去一半居中
+  lineHorizontal: {
+    insetBlock: 0,
+    insetInlineStart: `calc(50% - ${t.borderWidths.xs} / 2)`,
+    width: '_borderWidths.xs',
+  },
+  lineVertical: {
+    insetInline: 0,
+    top: `calc(50% - ${t.borderWidths.xs} / 2)`,
+    height: '_borderWidths.xs',
+  },
   // 收起、展开的小按钮压在线上：背景盖住线
   toggle: { position: 'relative', zIndex: 1, backgroundColor: '_surface', cursor: 'pointer' },
 });

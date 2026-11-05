@@ -55,7 +55,7 @@ export const badgeStyles = css.create({
     fontVariantNumeric: 'tabular-nums',
     whiteSpace: 'nowrap',
     // 白边把徽标从下面的图标、头像上分出来
-    boxShadow: `0 0 0 1px ${t.colors.surface}`,
+    boxShadow: `0 0 0 ${t.borderWidths.xs} ${t.colors.surface}`,
   },
   corner: {
     position: 'absolute',

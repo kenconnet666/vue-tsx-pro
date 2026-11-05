@@ -420,6 +420,7 @@ export const TreeSelect = _component(
             data-state={open ? 'open' : 'closed'}
             data-invalid={state.invalid || undefined}
             data-disabled={off || undefined}
+            data-readonly={state.readonly || undefined}
           >
             {controlIcon(s, icon, propsIcon)}
             {tagged && (

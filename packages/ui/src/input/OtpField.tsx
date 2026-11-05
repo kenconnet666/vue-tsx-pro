@@ -121,7 +121,7 @@ export const otpFieldStyles = css.create({
   disabled: { opacity: '_disabled' },
   // 空的当前格里闪烁的光标；减少动态效果时常亮
   caret: {
-    width: '1px',
+    width: '_borderWidths.xs',
     height: '1.1em',
     backgroundColor: '_text',
     animationName: { default: blink, '@media (prefers-reduced-motion: reduce)': 'none' },
@@ -129,7 +129,7 @@ export const otpFieldStyles = css.create({
     animationIterationCount: 'infinite',
     animationTimingFunction: 'steps(1)',
   },
-  separator: { width: '0.6em', height: '2px', backgroundColor: '_borderStrong' },
+  separator: { width: '0.6em', height: '_borderWidths.sm', backgroundColor: '_borderStrong' },
 });
 
 const SANITIZE = {

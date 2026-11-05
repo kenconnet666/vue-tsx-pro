@@ -12,5 +12,7 @@ export const swatchStyles = css.create({
     backgroundImage: `repeating-conic-gradient(${t.colors.fill} 0 25%, ${t.colors.surface} 0 50%)`,
     backgroundSize: '0.5em 0.5em',
   },
-  ring: { boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${t.colors.text} 14%, transparent)` },
+  ring: {
+    boxShadow: `inset 0 0 0 ${t.borderWidths.xs} color-mix(in oklab, ${t.colors.text} 14%, transparent)`,
+  },
 });

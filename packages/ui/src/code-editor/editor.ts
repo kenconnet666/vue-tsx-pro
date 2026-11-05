@@ -48,7 +48,7 @@ import {
   lineNumbers,
 } from '@codemirror/view';
 import { tags } from '@lezer/highlight';
-import { colors, fonts, fontSizes, radii } from '../config/theme/tokens';
+import { borderWidths, colors, fonts, fontSizes, radii } from '../config/theme/tokens';
 
 // token 在运行时是 var(--哈希) 字符串
 const c = (token: unknown) => String(token);
@@ -105,13 +105,13 @@ const theme = EditorView.theme({
   '.cm-activeLineGutter': { color: c(colors.text), backgroundColor: c(colors.surfaceMuted) },
   '&.cm-focused .cm-matchingBracket': {
     backgroundColor: c(colors.accentSoft),
-    outline: `1px solid ${c(colors.accentBorder)}`,
+    outline: `${c(borderWidths.xs)} solid ${c(colors.accentBorder)}`,
   },
   '.cm-selectionMatch, .cm-searchMatch': { backgroundColor: c(colors.highlight) },
   '.cm-tooltip': {
     color: c(colors.text),
     backgroundColor: c(colors.surfaceRaised),
-    border: `1px solid ${c(colors.border)}`,
+    border: `${c(borderWidths.xs)} solid ${c(colors.border)}`,
     borderRadius: c(radii.md),
     overflow: 'hidden',
   },
@@ -121,7 +121,7 @@ const theme = EditorView.theme({
     backgroundColor: c(colors.accentSoft),
   },
   '.cm-panels': { color: c(colors.text), backgroundColor: c(colors.surfaceMuted) },
-  '.cm-panels-bottom': { borderTop: `1px solid ${c(colors.border)}` },
+  '.cm-panels-bottom': { borderTop: `${c(borderWidths.xs)} solid ${c(colors.border)}` },
 });
 
 /** 一处修改：把 [from, to) 换成 insert */

@@ -60,7 +60,8 @@ export const colorFieldStyles = css.create({
     height: '1.25em',
     borderRadius: '_sm',
     overflow: 'hidden',
-    cursor: 'pointer',
+    // 取色器可用时才是手形；不可用、只读时随外壳（not-allowed / 文字光标）
+    cursor: { default: 'inherit', ':has(> input:enabled)': 'pointer' },
   },
   fill: { position: 'absolute', inset: 0 },
   // 原生取色器盖满色块、完全透明：点色块就是点它，键盘也能聚焦它

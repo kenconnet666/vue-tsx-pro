@@ -106,7 +106,7 @@ export const kanbanBoardStyles = css.create({
     outlineWidth: '_borderWidths.sm',
     outlineStyle: 'solid',
     outlineColor: 'transparent',
-    outlineOffset: '-2px',
+    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
     transition: `outline-color ${t.durations.sm} ${t.easings.standard}`,
   },
   allowed: { outlineColor: '_accent' },
