@@ -13,7 +13,7 @@
     "typecheck": "tsc -p ."
   },
   "dependencies": {
-    "@lucide/icons": "^1.59.0"
+    "@lucide/icons": "^1.69.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

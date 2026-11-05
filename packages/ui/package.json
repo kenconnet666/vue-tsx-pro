@@ -130,7 +130,7 @@
     "topojson-simplify": "catalog:"
   },
   "peerDependencies": {
-    "@lucide/icons": "^1.59.0",
+    "@lucide/icons": "^1.69.0",
     "pinia": "^4.0.0",
     "shiki": "^4.0.0",
     "three": ">=0.170.0",

@@ -45,7 +45,7 @@ catalog:
   pinia: 4.1.0
   # 组件库工具：算法与数据，组件本身自己写
   '@floating-ui/dom': 1.8.0
-  '@lucide/icons': 1.59.0
+  '@lucide/icons': 1.69.0
   '@internationalized/date': 3.12.4
   decimal.js: 10.6.0
   tabbable: 6.5.0
@@ -119,7 +119,7 @@ catalog:
   '@prettier/plugin-oxc': 0.2.3
 
 minimumReleaseAgeExclude:
-  - '@lucide/icons@1.59.0'
+  - '@lucide/icons@1.69.0'
   # 自己的包（json-wire 仓库），发布即用
   - '@zerodep-dev/json-wire@0.1.0'
   # 自己的包（easy-query-ts 仓库），发布即用

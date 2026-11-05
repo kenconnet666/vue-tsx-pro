@@ -237,8 +237,8 @@ catalogs:
       specifier: 1.2.5
       version: 1.2.5
     '@lucide/icons':
-      specifier: 1.59.0
-      version: 1.59.0
+      specifier: 1.69.0
+      version: 1.69.0
     '@modelcontextprotocol/sdk':
       specifier: 1.32.1
       version: 1.32.1
@@ -453,7 +453,7 @@ importers:
         version: 1.2.5
       '@lucide/icons':
         specifier: 'catalog:'
-        version: 1.59.0
+        version: 1.69.0
       '@shikijs/langs':
         specifier: 'catalog:'
         version: 4.5.0
@@ -532,7 +532,7 @@ importers:
         version: 1.8.0
       '@lucide/icons':
         specifier: 'catalog:'
-        version: 1.59.0
+        version: 1.69.0
       '@zerodep-dev/easy-query-ts':
         specifier: ^0.2.0
         version: 0.2.0
@@ -593,7 +593,7 @@ importers:
         version: 1.8.0
       '@lucide/icons':
         specifier: 'catalog:'
-        version: 1.59.0
+        version: 1.69.0
       '@zerodep-dev/easy-query-ts':
         specifier: ^0.2.0
         version: 0.2.0
@@ -651,7 +651,7 @@ importers:
         version: 1.8.0
       '@lucide/icons':
         specifier: 'catalog:'
-        version: 1.59.0
+        version: 1.69.0
       '@shikijs/langs':
         specifier: 'catalog:'
         version: 4.5.0
@@ -745,7 +745,7 @@ importers:
         version: 8.0.1(@capacitor/core@8.5.3)
       '@lucide/icons':
         specifier: 'catalog:'
-        version: 1.59.0
+        version: 1.69.0
       '@zerodep-dev/vue-tsx-pro-mini':
         specifier: workspace:^
         version: link:../../packages/mini
@@ -933,7 +933,7 @@ importers:
         version: 8.0.1(@capacitor/core@8.5.3)
       '@lucide/icons':
         specifier: 'catalog:'
-        version: 1.59.0
+        version: 1.69.0
       '@types/node':
         specifier: 'catalog:'
         version: 24.19.2
@@ -1058,7 +1058,7 @@ importers:
         version: 1.2.5
       '@lucide/icons':
         specifier: 'catalog:'
-        version: 1.59.0
+        version: 1.69.0
       '@types/culori':
         specifier: 'catalog:'
         version: 4.0.1
@@ -1519,8 +1519,8 @@ packages:
   '@lezer/lr@1.4.11':
     resolution: {integrity: sha512-UwgZcl1R66H2hDzBrA7kWyYmX6s8p5TQ+e/t7CuvgCtBEPxbEPaHYHu+pJBvTvDotEJpuQkJjbXuHiw5Cixxgw==}
 
-  '@lucide/icons@1.59.0':
-    resolution: {integrity: sha512-olGAqAKEtttGTAyjz+pmKEppYLu7X0jUtpLwt6JBvl9TMZaHnG7q6ECWVXh7rvt1ZLAsRASsuvtE4JtWU0Q2Ow==}
+  '@lucide/icons@1.69.0':
+    resolution: {integrity: sha512-FbDhrsT8fBQaCiFrKVmv9mL1bzG5GUJENLt3OEtNg91/IBG/lOcCAz3JYdHNMsLDVjWxYYUNduP2XNB5e+xFYg==}
 
   '@marijn/find-cluster-break@1.0.4':
     resolution: {integrity: sha512-Wy0V7+SGUjnF9/TkiM1hKVDPj7jKXduPNboMVtHTA8dySMURWqfg/JZ9E2Sq8JgSJmkl7k7Qe9FLeMSrSraWmQ==}
@@ -5413,7 +5413,7 @@ snapshots:
     dependencies:
       '@lezer/common': 1.5.3
 
-  '@lucide/icons@1.59.0': {}
+  '@lucide/icons@1.69.0': {}
 
   '@marijn/find-cluster-break@1.0.4': {}
 
