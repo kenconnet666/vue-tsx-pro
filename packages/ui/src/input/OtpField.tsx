@@ -239,9 +239,10 @@ export const OtpField = _component(
                 id: state.id,
                 value,
                 type: mask ? 'password' : 'text',
+                // 不写 maxlength：它按原始文字截断，粘贴“123-456”这种带分隔的码会先被截成“123-45”再过滤，丢一位；
+                // 长度由 onInput 过滤后截取（maxlength 仍在 OtpFieldManaged 里，使用方也不要加）
                 inputmode: type === 'numeric' ? 'numeric' : 'text',
                 pattern: type === 'numeric' ? `\\d{${length}}` : `[0-9A-Za-z]{${length}}`,
-                maxlength: length,
                 disabled: state.disabled,
                 readonly: state.readonly,
                 required: state.required,

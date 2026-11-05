@@ -6,7 +6,7 @@ import { mount } from '../../utils/.test/mount';
 import { OtpField } from '../OtpField';
 
 describe('OtpField', () => {
-  it('一个原生 input：one-time-code、数字键盘、最多 length 位；在 Field 里由标签命名', () => {
+  it('一个原生 input：one-time-code、数字键盘、不写 maxlength；在 Field 里由标签命名', () => {
     const root = mount(() => (
       <Field label="短信验证码">
         <OtpField />
@@ -17,7 +17,8 @@ describe('OtpField', () => {
     const input = inputs[0]!;
     expect(input.getAttribute('autocomplete')).toBe('one-time-code');
     expect(input.getAttribute('inputmode')).toBe('numeric');
-    expect(input.getAttribute('maxlength')).toBe('6');
+    // maxlength 按原始文字截断：粘贴“123-456”会先被截成“123-45”，长度改由过滤后截取
+    expect(input.hasAttribute('maxlength')).toBe(false);
     expect(root.querySelector('label')!.htmlFor).toBe(input.id);
     expect(root.querySelectorAll('[data-state="empty"]')).toHaveLength(6);
   });
