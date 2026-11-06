@@ -26,10 +26,17 @@
 import type { DocumentedStyles } from './documented';
 import { HOT, hotUpdate } from './hot';
 import type { CompiledStyles } from './index';
+import { CLASS, FRAGMENT } from './fragment';
 import { create, layers } from './runtime';
 
 /** 每个部件的样式（可以只写其中几个；同 css.create 的一组，属性带说明） */
-export type PartStyles<P extends string> = Partial<Record<P, DocumentedStyles>>;
+export type PartStyles<P extends string> = Partial<Record<P, PartStyle>>;
+
+/**
+ * 一个部件的样式：样式对象，或数组——数组里可以直接放已经编译好的共用样式（焦点环、过渡、字号档位），
+ * 与样式对象按顺序合并，组件不必再在渲染时自己拼（基础层的样式在配方里复用）
+ */
+export type PartStyle = DocumentedStyles | readonly (CompiledStyles | DocumentedStyles)[];
 /** 档位：档位名 → 取值 → 各部件的样式 */
 type Variants<P extends string> = Record<string, Record<string, PartStyles<P>>>;
 
@@ -41,11 +48,7 @@ export type VariantSelection<V> = {
 };
 
 /** 配方的定义 */
-export interface RecipeConfig<
-  P extends string,
-  V extends Variants<P>,
-  N extends string = string,
-> {
+export interface RecipeConfig<P extends string, V extends Variants<P>, N extends string = string> {
   /** 组件名（`'Button'`）：部件的 data-scope 用它，组件库按它找 createUi / Provider 里的主题定制 */
   name?: N;
   /** 部件名 */
@@ -97,9 +100,7 @@ export function recipe<
   const P extends string,
   const V extends Variants<P> = {},
   const N extends string = string,
->(
-  config: RecipeConfig<P, V, N>,
-): Recipe<P, V, N> {
+>(config: RecipeConfig<P, V, N>): Recipe<P, V, N> {
   let state = build(config);
   let cache: CacheNode<P> = { results: new Map() };
 
@@ -212,8 +213,32 @@ interface ExtensionState<P extends string> {
   segments: Map<string, Record<P, Compiled>>;
 }
 
-const compile = <P extends string>(styles: object) =>
-  create(styles as Record<string, Record<string, unknown>>) as unknown as Record<P, Compiled>;
+/**
+ * 一段样式（各部件）→ 片段：样式对象各 create 一次（惰性，第一次用到时才展开）；
+ * 写成数组的部件里，已编译的样式原样放进去，样式对象各成一个片段
+ */
+function compile<P extends string>(styles: object): Record<P, Compiled> {
+  const plain: Record<string, unknown> = {};
+  const listed: [part: string, items: readonly unknown[]][] = [];
+  for (const [part, value] of Object.entries(styles)) {
+    if (Array.isArray(value)) listed.push([part, value]);
+    else plain[part] = value;
+  }
+  const result = create(plain as Record<string, Record<string, unknown>>) as Record<
+    string,
+    unknown
+  >;
+  for (const [part, items] of listed) {
+    const value = items.map((item) =>
+      isCompiled(item) ? item : (create({ item: item as Record<string, unknown> }).item as unknown),
+    );
+    Object.defineProperty(result, part, { value, enumerable: true, configurable: true });
+  }
+  return result as unknown as Record<P, Compiled>;
+}
+
+const isCompiled = (value: unknown) =>
+  typeof value === 'object' && value !== null && (FRAGMENT in value || CLASS in value);
 
 /** 档位的每个取值各 create 一次（惰性：第一次用到时才展开） */
 function variantSegments<P extends string>(

@@ -14,6 +14,7 @@ import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick } from 'vue';
 import { useDefaults } from '../config/defaults';
 import { useRecipe, type PartLayer, type RecipeLayers } from '../config/styles';
+import { variantOf } from '../utils/style/styles';
 import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
@@ -86,7 +87,11 @@ export const choiceRecipe = css.recipe({
         group: { display: 'flex', flexWrap: 'wrap', columnGap: '_lg', rowGap: '_xs' },
       },
     },
+    // 色调经变量传给方框、圆点、轨道（toneFillStyles）；字号不写时继承
+    tone: variantOf(toneFillStyles, 'root'),
+    size: variantOf(fontSizeStyles, 'root'),
   },
+  defaults: { tone: 'accent' },
 });
 
 /** 勾选类控件的部件（createUi / Provider 的 styles.Choice 按它定制） */
@@ -121,22 +126,12 @@ export type ChoiceParts = {
   readonly [Part in ChoicePart]: Omit<PartLayer, 'sx'> & { readonly sx: SxStyles };
 };
 
-/**
- * 外观与状态 → 各部件的默认层。外层 label 在配方之后叠上色调（经 toneFillStyles 的变量传给方框、圆点、轨道）
- * 与字号
- */
+/** 外观与状态 → 各部件的默认层（配方里有色调、字号与状态） */
 export function choiceParts(
   { size, tone, recipe }: ChoiceAppearance,
   { disabled, readonly }: { disabled: boolean; readonly: boolean },
 ): ChoiceParts {
-  const parts = recipe({ readonly, disabled });
-  return {
-    ...parts,
-    root: {
-      ...parts.root,
-      sx: [parts.root.sx, toneFillStyles[tone], size && fontSizeStyles[size]],
-    },
-  };
+  return recipe({ readonly, disabled, tone, size });
 }
 
 const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);

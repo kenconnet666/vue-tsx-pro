@@ -14,7 +14,7 @@ import { useDefaults } from '../config/defaults';
 import { partAttrs, useRecipe, type RecipeLayers } from '../config/styles';
 import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/ripple';
 import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
-import { focusRingStyles, radiusStyles, type Radius } from '../utils/style/styles';
+import { focusRingStyles, radiusStyles, variantOf, type Radius } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import {
   AttachedContext,
@@ -151,12 +151,21 @@ export const buttonStyles = css.create({
 const HOVER = ':hover:not(:disabled,[aria-disabled="true"])';
 
 /**
- * 按钮的样式（配方）：样式 × 色调逐项写主题 token（组合档位）。中性色没有专门的实底色，用反色表面。
- * 实底悬停用各色调的 Hover token：主题检查保证它与 Contrast 字色到 4.5:1
+ * 按钮的样式（配方）：基础是与 ButtonBase 共用的去默认外观、颜色过渡、焦点环、波纹；样式 × 色调逐项写主题 token（组合档位），
+ * 中性色没有专门的实底色，用反色表面；字号、圆角用共用的档位。实底悬停用各色调的 Hover token：主题检查保证它与 Contrast 字色到 4.5:1
  */
 export const buttonRecipe = css.recipe({
   name: 'Button',
   parts: ['root'],
+  base: {
+    root: [
+      buttonBaseStyles.root,
+      interactionTransitions.colors,
+      buttonStyles.root,
+      focusRingStyles.visible,
+      rippleHostStyles.host,
+    ],
+  },
   variants: {
     variant: {
       solid: {},
@@ -175,6 +184,8 @@ export const buttonRecipe = css.recipe({
       },
     },
     tone: { neutral: {}, accent: {}, info: {}, success: {}, warning: {}, danger: {} },
+    size: variantOf(fontSizeStyles, 'root'),
+    radius: variantOf(radiusStyles, 'root'),
   },
   compound: [
     {
@@ -459,21 +470,17 @@ export function useButtonAppearance(
   );
 }
 
-/** 外观（已合并默认值）与状态 → 按钮根元素的样式 */
+/**
+ * 外观（已合并默认值）与状态 → 按钮根元素的样式：配方（基础、样式、色调、字号、圆角与主题定制）之后是状态——
+ * 在按钮组里相连、只有图标、占满宽度、不可用
+ */
 export function buttonSx(
-  { variant, tone, size, radius, attached, recipe }: ButtonAppearance,
+  { attached, recipe, ...selection }: ButtonAppearance,
   state: { disabled: boolean; square?: boolean; fullWidth?: boolean },
 ): SxStyles {
   return [
-    buttonBaseStyles.root,
-    interactionTransitions.colors,
-    buttonStyles.root,
-    focusRingStyles.visible,
-    rippleHostStyles.host,
-    recipe({ variant, tone }).root.sx,
-    radiusStyles[radius],
+    recipe(selection).root.sx,
     attached && attachedStyles[attached],
-    size && fontSizeStyles[size],
     state.square && buttonStyles.square,
     state.fullWidth && buttonStyles.fullWidth,
     state.disabled && buttonStyles.disabled,

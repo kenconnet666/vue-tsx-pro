@@ -4,7 +4,7 @@
  * 样式表只放被多个组件复用的；只有一个组件用的写在组件里。
  */
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { CompiledStyles, SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from '../../config/theme/tokens';
 
 /*
@@ -32,6 +32,20 @@ export interface RadiusScale {
 
 /** 圆角档位 */
 export type Radius = keyof RadiusScale;
+
+/**
+ * 共用样式表 → 配方的一个档位：每个取值放这张表里的那一项，在给定的部件上（`size: variantOf(fontSizeStyles, 'root')`）。
+ * 配方直接引用共用的片段：各组件同样的档位合成同样的类，主题定制也能按档位改（`components.Xxx.variants.radius`），
+ * 不必在渲染时把字号、圆角排在配方之后（那样定制盖不住它们）
+ */
+export function variantOf<Key extends string, Part extends string>(
+  table: Readonly<Record<Key, CompiledStyles>>,
+  part: Part,
+): { readonly [K in Key]: { readonly [P in Part]: readonly [CompiledStyles] } } {
+  const variant: Record<string, Record<string, readonly [CompiledStyles]>> = {};
+  for (const key of Object.keys(table) as Key[]) variant[key] = { [part]: [table[key]] };
+  return variant as never;
+}
 
 /** 圆角档位的样式：none、xs、sm、md、lg、xl、full */
 export const radiusStyles = css.create({

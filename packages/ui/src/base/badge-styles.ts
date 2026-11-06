@@ -2,9 +2,8 @@
  * Badge 与 Tag 共用的外观（配方）：样式 × 色调逐项写主题 token（组合档位）；字号、圆角另外叠加。
  */
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { PartLayer } from '../config/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import { radiusStyles, type Radius } from '../utils/style/styles';
+import { radiusStyles, variantOf, type Radius } from '../utils/style/styles';
 import type { StatusTone, StatusVariant } from '../utils/style/tone-styles';
 
 /** Badge、Tag 的外观选项 */
@@ -52,6 +51,8 @@ export const badgeRecipe = css.recipe({
   variants: {
     variant: { solid: {}, soft: {}, surface: {}, outline: {} },
     tone: { neutral: {}, accent: {}, info: {}, success: {}, warning: {}, danger: {} },
+    size: variantOf(fontSizeStyles, 'root'),
+    radius: variantOf(radiusStyles, 'root'),
   },
   // 样式 × 色调逐项写主题 token；中性色的实底是反色表面
   compound: [
@@ -160,29 +161,8 @@ export const badgeRecipe = css.recipe({
       root: { color: '_dangerText', borderColor: '_dangerBorder' },
     },
   ],
-  defaults: { variant: 'soft', tone: 'neutral' },
+  defaults: { variant: 'soft', tone: 'neutral', size: 'xs', radius: 'sm' },
 });
 
 /** 标记的部件（createUi / Provider 的 styles.Badge 按它定制） */
 export type BadgePart = (typeof badgeRecipe.parts)[number];
-
-/**
- * 标记的各部件：配方（样式 × 色调）+ 字号 + 圆角，带部件标记。recipe 是 useRecipe(badgeRecipe) 的结果（带上主题定制），
- * 结果直接作部件属性的默认层：`mergeAttrs<'span'>(styles.root, rest)`
- */
-export function badgeParts(
-  { variant = 'soft', tone = 'neutral', size = 'xs', radius = 'sm' }: BadgeOptions,
-  recipe: (selection: {
-    variant: StatusVariant;
-    tone: StatusTone;
-  }) => Readonly<Record<BadgePart, PartLayer>>,
-) {
-  const parts = recipe({ variant, tone });
-  return {
-    root: {
-      ...parts.root,
-      sx: [parts.root.sx, fontSizeStyles[size], radiusStyles[radius]] as css.SxStyles,
-    },
-    dot: parts.dot,
-  } as const;
-}

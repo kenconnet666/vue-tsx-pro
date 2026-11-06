@@ -120,7 +120,7 @@ export {
   visuallyHiddenStyles,
   type VisuallyHiddenProps,
 } from './base/VisuallyHidden';
-export { badgeParts, badgeRecipe, type BadgeOptions, type BadgePart } from './base/badge-styles';
+export { badgeRecipe, type BadgeOptions, type BadgePart } from './base/badge-styles';
 export {
   buttonBaseStyles,
   buttonContent,
@@ -1510,6 +1510,7 @@ export {
   paddingInlineStyles,
   radiusStyles,
   rowGapStyles,
+  variantOf,
   type LayoutTag,
   type Radius,
   type RadiusScale,

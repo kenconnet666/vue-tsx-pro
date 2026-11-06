@@ -17,7 +17,7 @@ import {
   attachedStyles,
   type AttachedOrientations,
 } from '../utils/style/attached';
-import { focusRingStyles, radiusStyles, type Radius } from '../utils/style/styles';
+import { focusRingStyles, radiusStyles, variantOf, type Radius } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
 
@@ -67,24 +67,28 @@ export const inputRecipe = css.recipe({
   name: 'Input',
   parts: ['root', 'input', 'icon', 'affix', 'button'],
   base: {
-    root: {
-      boxSizing: 'border-box',
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: '_sm',
-      minWidth: 0,
-      minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
-      paddingInline: '_md',
-      borderWidth: '_xs',
-      borderStyle: 'solid',
-      borderColor: { default: '_border', ':hover': '_borderStrong' },
-      borderRadius: '_md',
-      backgroundColor: '_surface',
-      color: '_text',
-      lineHeight: '_normal',
-      cursor: 'text',
-      transition: `border-color ${t.durations.sm} ${t.easings.standard}`,
-    },
+    // 焦点在框里任何地方（输入框、框里的按钮）时外壳显示焦点环
+    root: [
+      focusRingStyles.within,
+      {
+        boxSizing: 'border-box',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '_sm',
+        minWidth: 0,
+        minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
+        paddingInline: '_md',
+        borderWidth: '_xs',
+        borderStyle: 'solid',
+        borderColor: { default: '_border', ':hover': '_borderStrong' },
+        borderRadius: '_md',
+        backgroundColor: '_surface',
+        color: '_text',
+        lineHeight: '_normal',
+        cursor: 'text',
+        transition: `border-color ${t.durations.sm} ${t.easings.standard}`,
+      },
+    ],
     // 原生 input / textarea：透明、无边框，占满剩余宽度，字体继承外壳。
     // 参与基线对齐、高度撑满外壳：外壳（flex）的基线取输入框文字的基线，而不是排在前面的图标的底边，
     // 左标签（按基线对齐）才与输入的文字在同一条线上；原生输入框自己把文字竖直居中
@@ -150,6 +154,8 @@ export const inputRecipe = css.recipe({
     disabled: { true: { root: { opacity: '_disabled', cursor: 'not-allowed' } } },
     // 多行（Textarea）：内容从顶部开始，上下也留内边距
     multiline: { true: { root: { alignItems: 'stretch', paddingBlock: '_xs' } } },
+    size: variantOf(fontSizeStyles, 'root'),
+    radius: variantOf(radiusStyles, 'root'),
   },
 });
 
@@ -231,20 +237,10 @@ export function controlParts(
   { invalid, disabled, readonly }: ControlState,
   multiline = false,
 ): ControlParts {
-  const parts = recipe({ variant, attached, readonly, invalid, disabled, multiline });
-  return {
-    ...parts,
-    root: {
-      ...parts.root,
-      sx: [
-        focusRingStyles.within,
-        parts.root.sx,
-        radiusStyles[radius],
-        attached && attachedStyles[attached],
-        size && fontSizeStyles[size],
-      ],
-    },
-  };
+  const parts = recipe({ variant, attached, readonly, invalid, disabled, multiline, size, radius });
+  // 在按钮组、ControlGroup 里相连时去掉相接一侧的圆角：排在配方的圆角之后
+  if (!attached) return parts;
+  return { ...parts, root: { ...parts.root, sx: [parts.root.sx, attachedStyles[attached]] } };
 }
 
 /** 点在外壳的空白处（内边距、图标、标签上）：不是主元素本身，也不是框里的按钮 */

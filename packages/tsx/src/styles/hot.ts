@@ -31,8 +31,24 @@ export function hotUpdate(previous: Record<string, unknown>, next: Record<string
     const current = Object.getOwnPropertyDescriptor(previous, name);
     if (current && !current.get && isFragment(current.value) && isFragment(value)) {
       replaceFragment(current.value, value[FRAGMENT]);
+    } else if (sameShape(current?.value, value)) {
+      // 配方里写成数组的部件（共用样式 + 样式对象）：逐项把新声明写进旧片段，数组本身不换
+      (value as readonly unknown[]).forEach((item, index) => {
+        const old = (current!.value as readonly unknown[])[index];
+        if (old !== item && isFragment(old) && isFragment(item))
+          replaceFragment(old, item[FRAGMENT]);
+      });
     } else {
       Object.defineProperty(previous, name, { value, enumerable: true, configurable: true });
     }
   }
+}
+
+/** 两个都是数组、长度相同、同一位置都是片段或都是同一个对象：可以逐项原地更新 */
+function sameShape(previous: unknown, next: unknown): boolean {
+  if (!Array.isArray(previous) || !Array.isArray(next) || previous.length !== next.length)
+    return false;
+  return next.every(
+    (item, index) => item === previous[index] || (isFragment(item) && isFragment(previous[index])),
+  );
 }
