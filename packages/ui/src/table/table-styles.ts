@@ -35,6 +35,93 @@ export interface DataTableOptions {
 }
 
 /**
+ * 静态 Table 与 DataTable 共用的部件样式：表格、列标题、单元格。两个配方直接引用，两种表格的样子只写在一处；
+ * 表格的布局（auto / fixed）、外层、斑马纹各自的配方里给
+ */
+export const tablePartStyles = css.create({
+  table: {
+    width: '_full',
+    borderCollapse: 'separate',
+    borderSpacing: 0,
+    color: '_text',
+    lineHeight: '_normal',
+  },
+  headerCell: {
+    position: 'relative',
+    boxSizing: 'border-box',
+    paddingInline: '_md',
+    borderBottomWidth: '_xs',
+    borderBottomStyle: 'solid',
+    borderBottomColor: '_border',
+    backgroundColor: '_fill',
+    color: '_textMuted',
+    fontSize: '_sm',
+    fontWeight: '_semibold',
+    textAlign: 'start',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  // 数字等宽：金额、数量、日期上下对齐（文字不受影响）
+  cell: {
+    boxSizing: 'border-box',
+    fontVariantNumeric: 'tabular-nums',
+    paddingInline: '_md',
+    borderBottomWidth: '_xs',
+    borderBottomStyle: 'solid',
+    borderBottomColor: '_borderMuted',
+    backgroundColor: 'inherit',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    verticalAlign: 'middle',
+  },
+});
+
+const densityStyles = css.create({
+  compactTable: { fontSize: '_sm' },
+  compact: { paddingBlock: '_xs' },
+  standard: { paddingBlock: '_sm' },
+  comfortable: { paddingBlock: '_md' },
+});
+
+/**
+ * 密度档位（两个配方共用）：单元格的上下内边距；紧凑时字号也小一档
+ * @internal
+ */
+export const tableDensityVariant = {
+  compact: {
+    table: [densityStyles.compactTable],
+    headerCell: [densityStyles.compact],
+    cell: [densityStyles.compact],
+  },
+  standard: { headerCell: [densityStyles.standard], cell: [densityStyles.standard] },
+  comfortable: { headerCell: [densityStyles.comfortable], cell: [densityStyles.comfortable] },
+} as const;
+
+const variantStyles = css.create({
+  surfaceRoot: {
+    borderWidth: '_xs',
+    borderStyle: 'solid',
+    borderColor: '_border',
+    borderRadius: '_lg',
+    backgroundColor: '_surface',
+  },
+  surfaceRow: { backgroundColor: { default: '_surface', _hover: '_fillHover' } },
+  ghostRoot: { backgroundColor: '_background' },
+  ghostRow: { backgroundColor: { default: '_background', _hover: '_fillHover' } },
+});
+
+/**
+ * 样式档位（两个配方共用）。行的底色：固定列的单元格继承它（backgroundColor: inherit），所以必须是不透明的颜色
+ * @internal
+ */
+export const tableVariantVariant = {
+  surface: { root: [variantStyles.surfaceRoot], row: [variantStyles.surfaceRow] },
+  ghost: { root: [variantStyles.ghostRoot], row: [variantStyles.ghostRow] },
+} as const;
+
+/**
  * DataTable、TreeDataTable 的配方：部件对应渲染出来的元素，密度、样式、斑马纹是档位。
  * 同类的格叠在一起用：勾选列、合计行、详情、空状态的格是 `[s.cell.sx, s.selectCell.sx]`，
  * 分组标题、表头的勾选列是 `[s.headerCell.sx, s.groupHeaderCell.sx]`；对齐、固定列、已选这些按列、按状态的
@@ -87,31 +174,9 @@ export const dataTableRecipe = css.recipe({
     // 宽度只由所在的容器决定，放不下的部分在表格里横向滚动
     // 也是容器查询的容器：详情的内容用 100cqi 限宽到视口，横向滚动时贴着起始边
     root: { maxHeight: '32em', minWidth: 0, containerType: 'inline-size' },
-    table: {
-      width: '_full',
-      tableLayout: 'fixed',
-      borderCollapse: 'separate',
-      borderSpacing: 0,
-      color: '_text',
-      lineHeight: '_normal',
-    },
+    table: [tablePartStyles.table, { tableLayout: 'fixed' }],
     head: { position: 'sticky', top: 0, zIndex: 2 },
-    headerCell: {
-      position: 'relative',
-      boxSizing: 'border-box',
-      paddingInline: '_md',
-      borderBottomWidth: '_xs',
-      borderBottomStyle: 'solid',
-      borderBottomColor: '_border',
-      backgroundColor: '_fill',
-      color: '_textMuted',
-      fontSize: '_sm',
-      fontWeight: '_semibold',
-      textAlign: 'start',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    },
+    headerCell: [tablePartStyles.headerCell],
     // 分组标题居中，下边线淡一些：与下面一行的列标题仍是一个表头
     groupHeaderCell: { textAlign: 'center', borderBottomColor: '_borderMuted' },
     // 勾选列、详情列的格（表头与各行）：控件居中，没有左右内边距
@@ -135,20 +200,7 @@ export const dataTableRecipe = css.recipe({
     // 单元格里 24px 的控件（勾选框、单选框、展开按钮）：上下的负外边距抵掉比一行文字高出的部分，
     // 有控件的行与纯文字的行一样高，点击区域仍是 24px。操作列放文字按钮时用 variant="link"
     selectAll: { marginBlock: '-0.1875rem' },
-    // 数字等宽：金额、数量、日期上下对齐（文字不受影响）
-    cell: {
-      boxSizing: 'border-box',
-      fontVariantNumeric: 'tabular-nums',
-      paddingInline: '_md',
-      borderBottomWidth: '_xs',
-      borderBottomStyle: 'solid',
-      borderBottomColor: '_borderMuted',
-      backgroundColor: 'inherit',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      verticalAlign: 'middle',
-    },
+    cell: [tablePartStyles.cell],
     selectCell: { paddingInline: 0, textAlign: 'center', textOverflow: 'clip' },
     selectCheckbox: { marginBlock: '-0.1875rem' },
     selectRadio: { marginBlock: '-0.1875rem' },
@@ -228,33 +280,8 @@ export const dataTableRecipe = css.recipe({
     },
   },
   variants: {
-    // 单元格的上下内边距；紧凑时字号也小一档
-    density: {
-      compact: {
-        table: { fontSize: '_sm' },
-        headerCell: { paddingBlock: '_xs' },
-        cell: { paddingBlock: '_xs' },
-      },
-      standard: { headerCell: { paddingBlock: '_sm' }, cell: { paddingBlock: '_sm' } },
-      comfortable: { headerCell: { paddingBlock: '_md' }, cell: { paddingBlock: '_md' } },
-    },
-    // 行的底色：固定列的单元格继承它（backgroundColor: inherit），所以必须是不透明的颜色
-    variant: {
-      surface: {
-        root: {
-          borderWidth: '_xs',
-          borderStyle: 'solid',
-          borderColor: '_border',
-          borderRadius: '_lg',
-          backgroundColor: '_surface',
-        },
-        row: { backgroundColor: { default: '_surface', _hover: '_fillHover' } },
-      },
-      ghost: {
-        root: { backgroundColor: '_background' },
-        row: { backgroundColor: { default: '_background', _hover: '_fillHover' } },
-      },
-    },
+    density: tableDensityVariant,
+    variant: tableVariantVariant,
     striped: {
       true: { row: { backgroundColor: { default: '_fill', _hover: '_fillHover' } } },
     },

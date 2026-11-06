@@ -24,6 +24,9 @@ import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   dataTableStateStyles,
+  tableDensityVariant,
+  tablePartStyles,
+  tableVariantVariant,
   type DataTableDensities,
   type DataTableOptions,
   type DataTableVariants,
@@ -85,14 +88,7 @@ export const tableRecipe = css.recipe({
     // contain: inline-size：宽表格不撑宽外层的 grid / flex 容器，放不下的在这里横向滚动
     root: { minWidth: 0, contain: 'inline-size' },
     // 列宽按内容分配：DataTable 为虚拟滚动与列宽拖动用固定布局，静态表格不需要
-    table: {
-      width: '_full',
-      tableLayout: 'auto',
-      borderCollapse: 'separate',
-      borderSpacing: 0,
-      color: '_text',
-      lineHeight: '_normal',
-    },
+    table: [tablePartStyles.table, { tableLayout: 'auto' }],
     caption: {
       captionSide: 'top',
       paddingBlock: '_sm',
@@ -101,38 +97,10 @@ export const tableRecipe = css.recipe({
       fontSize: '_sm',
       textAlign: 'start',
     },
-    headerCell: {
-      position: 'relative',
-      boxSizing: 'border-box',
-      paddingInline: '_md',
-      borderBottomWidth: '_xs',
-      borderBottomStyle: 'solid',
-      borderBottomColor: '_border',
-      backgroundColor: '_fill',
-      color: '_textMuted',
-      fontSize: '_sm',
-      fontWeight: '_semibold',
-      textAlign: 'start',
-      whiteSpace: 'nowrap',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    },
+    headerCell: [tablePartStyles.headerCell],
     // 表体、表尾里的行标题（scope=row）：和普通单元格一样的底色与字号，只是字重高一点
     rowHeader: { fontWeight: '_medium', textAlign: 'start' },
-    // 数字等宽：金额、数量、日期上下对齐（文字不受影响）
-    cell: {
-      boxSizing: 'border-box',
-      fontVariantNumeric: 'tabular-nums',
-      paddingInline: '_md',
-      borderBottomWidth: '_xs',
-      borderBottomStyle: 'solid',
-      borderBottomColor: '_borderMuted',
-      backgroundColor: 'inherit',
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      verticalAlign: 'middle',
-    },
+    cell: [tablePartStyles.cell],
     // 表尾（合计行）：上面一条分隔线，文字加粗，th 与 td 一致
     footCell: {
       fontWeight: '_semibold',
@@ -143,32 +111,8 @@ export const tableRecipe = css.recipe({
     },
   },
   variants: {
-    // 单元格的上下内边距；紧凑时字号也小一档
-    density: {
-      compact: {
-        table: { fontSize: '_sm' },
-        headerCell: { paddingBlock: '_xs' },
-        cell: { paddingBlock: '_xs' },
-      },
-      standard: { headerCell: { paddingBlock: '_sm' }, cell: { paddingBlock: '_sm' } },
-      comfortable: { headerCell: { paddingBlock: '_md' }, cell: { paddingBlock: '_md' } },
-    },
-    variant: {
-      surface: {
-        root: {
-          borderWidth: '_xs',
-          borderStyle: 'solid',
-          borderColor: '_border',
-          borderRadius: '_lg',
-          backgroundColor: '_surface',
-        },
-        row: { backgroundColor: { default: '_surface', _hover: '_fillHover' } },
-      },
-      ghost: {
-        root: { backgroundColor: '_background' },
-        row: { backgroundColor: { default: '_background', _hover: '_fillHover' } },
-      },
-    },
+    density: tableDensityVariant,
+    variant: tableVariantVariant,
     striped: {
       true: { row: { backgroundColor: { default: null, ':nth-child(even)': '_fill' } } },
     },

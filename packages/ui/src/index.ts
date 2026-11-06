@@ -1322,6 +1322,7 @@ export {
 export {
   dataTableRecipe,
   dataTableStateStyles,
+  tablePartStyles,
   type DataTableDensities,
   type DataTableOptions,
   type DataTablePart,
