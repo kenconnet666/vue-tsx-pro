@@ -151,7 +151,7 @@ export const timelineStyles = css.create({
     gridRow: '1',
     textAlign: { default: 'end', '@container (max-width: 32em)': 'start' },
   },
-  title: { fontWeight: '_semibold', color: '_text' },
+  title: { fontWeight: '_medium', color: '_text' },
   // 操作人与时间：一行，放不下时换行
   meta: {
     display: 'flex',

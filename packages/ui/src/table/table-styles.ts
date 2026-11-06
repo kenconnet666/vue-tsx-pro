@@ -56,7 +56,7 @@ export const tablePartStyles = css.create({
     backgroundColor: '_fill',
     color: '_textMuted',
     fontSize: '_sm',
-    fontWeight: '_semibold',
+    fontWeight: '_medium',
     textAlign: 'start',
     whiteSpace: 'nowrap',
     overflow: 'hidden',

@@ -72,7 +72,7 @@ export const treemapChartStyles = css.create({
   tileActive: { stroke: '_text', strokeWidth: 1.5 },
   name: { fill: '_text', fontSize: '_xs', fontWeight: '_medium' },
   value: { fill: '_text', fontSize: '_xs', opacity: 0.75 },
-  groupName: { fill: '_textMuted', fontSize: '_xs', fontWeight: '_semibold' },
+  groupName: { fill: '_textMuted', fontSize: '_xs', fontWeight: '_medium' },
 });
 
 /** 块与块之间、分组四周的空（px）；写分组名时分组顶边留的空 */

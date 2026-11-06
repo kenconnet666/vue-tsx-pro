@@ -127,7 +127,7 @@ export const notificationListStyles = css.create({
     borderBlockEndStyle: 'solid',
     borderBlockEndColor: '_border',
   },
-  title: { fontWeight: '_semibold' },
+  title: { fontWeight: '_medium' },
   // 类型多时筛选按钮换行；“只看未读”总在最后、靠结束边
   filters: {
     display: 'flex',

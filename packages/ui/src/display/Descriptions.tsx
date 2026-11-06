@@ -92,7 +92,7 @@ export interface DescriptionsProps extends PartProps<'div', 'title'> {
 export const descriptionsStyles = css.create({
   // 容器查询的容器：dl 按它的宽度决定要不要排成一列
   root: { containerType: 'inline-size', display: 'grid', gap: '_md' },
-  title: { fontWeight: '_semibold', fontSize: '_md' },
+  title: { fontWeight: '_medium', fontSize: '_md' },
   list: {
     display: 'grid',
     columnGap: '_xl',

@@ -128,7 +128,7 @@ export const calendarStyles = css.create({
     minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     paddingInline: '_sm',
     borderRadius: '_md',
-    fontWeight: '_semibold',
+    fontWeight: '_medium',
     backgroundColor: { default: 'transparent', _hover: '_fillHover' },
   },
   headingStatic: {

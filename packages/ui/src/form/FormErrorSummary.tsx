@@ -52,7 +52,7 @@ export const formErrorSummaryStyles = css.create({
     display: 'flex',
     alignItems: 'center',
     gap: '_xs',
-    fontWeight: '_semibold',
+    fontWeight: '_medium',
     color: '_dangerText',
   },
   list: { margin: 0, paddingInlineStart: '1.5em', display: 'grid', gap: '_xs' },

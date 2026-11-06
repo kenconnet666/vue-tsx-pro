@@ -46,7 +46,7 @@ export const columnSettingsStyles = css.create({
   panel: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: '14rem' },
   list: { maxHeight: '20rem' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_md' },
-  title: { fontWeight: '_semibold', fontSize: '_sm' },
+  title: { fontWeight: '_medium', fontSize: '_sm' },
 });
 
 /** 列设置：勾选显示、拖动排序、重置 */

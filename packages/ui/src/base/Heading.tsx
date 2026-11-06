@@ -40,9 +40,11 @@ export type HeadingTag = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
 /** 未声明的属性落到 h1–h6 元素上 */
 export interface HeadingProps extends PartProps<HeadingTag> {
-  /** 字号档位，不写时按级别：H1 xxxl、H2 xxl、H3 xl、H4 lg、H5–H6 md */
+  /** 字号档位，不写时按级别：H1 xxxl、H2 xxl、H3 xl、H4 lg、H5 md、H6 sm */
   size?: FontSize;
-  /** 字重，默认 semibold */
+  /**
+   * 字重，默认 semibold（各级都是：中文常用的微软雅黑只有常规与粗体，500 落成常规，标题就与正文分不出）
+   */
   weight?: FontWeight;
   /** 色调，不写时继承 */
   tone?: TextTone;
@@ -156,5 +158,5 @@ export const H3 = createHeading('h3', 'xl');
 export const H4 = createHeading('h4', 'lg');
 /** 五级标题；默认字号 md（14px） */
 export const H5 = createHeading('h5', 'md');
-/** 六级标题；默认字号 md（14px） */
-export const H6 = createHeading('h6', 'md');
+/** 六级标题；默认字号 sm（13px），与 H5 分开 */
+export const H6 = createHeading('h6', 'sm');

@@ -125,7 +125,7 @@ export const buttonStyles = css.create({
     borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: 'transparent',
-    fontWeight: '_semibold',
+    fontWeight: '_medium',
     lineHeight: '_tight',
     whiteSpace: 'nowrap',
   },

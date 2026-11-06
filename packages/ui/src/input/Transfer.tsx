@@ -116,7 +116,7 @@ export const transferStyles = css.create({
     borderBlockEndStyle: 'solid',
     borderBlockEndColor: '_borderMuted',
   },
-  title: { flexGrow: 1, minWidth: 0, fontWeight: '_semibold' },
+  title: { flexGrow: 1, minWidth: 0, fontWeight: '_medium' },
   search: { padding: '_xs', flexShrink: 0 },
   searchField: { width: '_full' },
   // 列表占满剩下的高度，自己滚动（虚拟滚动要有确定的高度）

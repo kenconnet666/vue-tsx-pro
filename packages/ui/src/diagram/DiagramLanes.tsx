@@ -83,7 +83,7 @@ export const diagramLanesStyles = css.create({
     boxSizing: 'border-box',
     paddingInline: '_space.xs',
     textAlign: 'center',
-    fontWeight: '_semibold',
+    fontWeight: '_medium',
     color: '_textMuted',
     borderInlineEndWidth: '_xs',
     borderInlineEndStyle: 'dashed',

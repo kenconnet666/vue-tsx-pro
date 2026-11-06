@@ -118,7 +118,7 @@ export const chartStyles = css.create({
   plotHeight: (height: string) => ({ height }),
   center: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' },
   tooltip: { display: 'flex', flexDirection: 'column', gap: '_xs', fontSize: '_xs' },
-  tooltipTitle: { fontWeight: '_semibold' },
+  tooltipTitle: { fontWeight: '_medium' },
   tooltipRow: { display: 'flex', alignItems: 'center', gap: '_sm' },
   tooltipLabel: { color: '_textMuted', flexGrow: 1 },
   tooltipValue: {

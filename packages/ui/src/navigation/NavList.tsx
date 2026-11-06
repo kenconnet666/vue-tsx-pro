@@ -84,7 +84,7 @@ export const navListStyles = css.create({
     paddingInline: '_md',
     color: '_text',
   },
-  sectionText: { fontSize: '_sm', fontWeight: '_semibold', letterSpacing: '_wide' },
+  sectionText: { fontSize: '_sm', fontWeight: '_medium', letterSpacing: '_wide' },
   // 小节标题的图标只是标记，比链接的图标淡
   sectionIcon: { color: '_textMuted', flexShrink: 0 },
   // 紧凑：图标居中；小节标题只剩图标，上面一条细线与上一节隔开

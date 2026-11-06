@@ -122,7 +122,7 @@ export const alertRecipe = css.recipe({
     // 图标与第一行文字对齐：行高 1.5em 里居中 1em 的图标
     icon: { flexShrink: 0, marginBlock: '0.25em' },
     body: { flexGrow: 1, minWidth: 0, display: 'grid', gap: '_xs' },
-    title: { fontWeight: '_semibold' },
+    title: { fontWeight: '_medium' },
     description: { color: '_text' },
     content: { minWidth: 0 },
     action: { flexShrink: 0, alignSelf: 'center' },

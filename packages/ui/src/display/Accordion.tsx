@@ -77,7 +77,7 @@ export const accordionStyles = css.create({
     borderRadius: '_sm',
     backgroundColor: { default: 'transparent', _hover: '_fill' },
     color: '_text',
-    fontWeight: '_semibold',
+    fontWeight: '_medium',
     textAlign: 'start',
   },
   triggerDisabled: { opacity: '_disabled' },

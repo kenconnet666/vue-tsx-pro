@@ -90,7 +90,7 @@ export const bannerStyles = css.create({
   balanced: { paddingInlineEnd: '_lg' },
   icon: { flexShrink: 0 },
   content: { minWidth: 0 },
-  title: { fontWeight: '_semibold', marginInlineEnd: '_sm' },
+  title: { fontWeight: '_medium', marginInlineEnd: '_sm' },
   action: { flexShrink: 0, fontWeight: '_medium' },
   close: {
     position: 'absolute',

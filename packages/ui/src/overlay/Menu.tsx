@@ -149,7 +149,7 @@ export const menuStyles = css.create({
     display: 'block',
     paddingBlock: '_xs',
     paddingInline: '_sm',
-    fontWeight: '_semibold',
+    fontWeight: '_medium',
   },
 });
 

@@ -124,7 +124,7 @@ export const listboxStyles = css.create({
     paddingTop: '_sm',
     paddingBottom: '_xs',
     paddingInline: '_sm',
-    fontWeight: '_semibold',
+    fontWeight: '_medium',
   },
   content: { display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 },
   description: { color: '_textMuted' },

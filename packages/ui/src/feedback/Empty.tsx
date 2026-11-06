@@ -62,7 +62,7 @@ export const emptyRecipe = css.recipe({
       color: '_text',
     },
     icon: { width: '2.5em', height: '2.5em', color: '_textMuted', strokeWidth: '_sm' },
-    title: { fontWeight: '_semibold' },
+    title: { fontWeight: '_medium' },
     description: { maxWidth: '32em', color: '_textMuted' },
     action: { marginBlockStart: '_sm' },
   },

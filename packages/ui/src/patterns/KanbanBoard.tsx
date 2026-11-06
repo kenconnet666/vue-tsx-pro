@@ -118,7 +118,7 @@ export const kanbanBoardStyles = css.create({
     gap: '_sm',
     paddingBlock: '_sm',
     paddingInline: '_md',
-    fontWeight: '_semibold',
+    fontWeight: '_medium',
     fontSize: '_sm',
   },
   reason: { paddingInline: '_md', paddingBlockEnd: '_xs', color: '_dangerText', fontSize: '_xs' },

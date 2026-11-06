@@ -70,7 +70,7 @@ export const popconfirmStyles = css.create({
     maxWidth: '20rem',
   },
   icon: { gridRow: 'span 2', marginBlockStart: '0.15em' },
-  title: { gridColumn: '2', fontWeight: '_semibold', lineHeight: '_tight' },
+  title: { gridColumn: '2', fontWeight: '_medium', lineHeight: '_tight' },
   description: { gridColumn: '2', color: '_textMuted', fontSize: '_sm' },
   footer: { gridColumn: '1 / -1', marginBlockStart: '_sm' },
 });

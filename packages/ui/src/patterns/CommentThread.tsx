@@ -123,7 +123,7 @@ export const commentStyles = css.create({
     columnGap: '_sm',
     rowGap: '_xs',
   },
-  author: { fontWeight: '_semibold', color: '_text' },
+  author: { fontWeight: '_medium', color: '_text' },
   meta: { fontSize: '_sm', color: '_textMuted' },
   content: { color: '_text' },
   attachments: {

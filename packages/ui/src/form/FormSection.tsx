@@ -98,7 +98,7 @@ export const formSectionStyles = css.create({
   heading: {
     margin: 0,
     fontSize: '_md',
-    fontWeight: '_semibold',
+    fontWeight: '_medium',
     lineHeight: '_tight',
     color: '_text',
   },
