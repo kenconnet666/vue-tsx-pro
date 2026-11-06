@@ -16,6 +16,7 @@
  *
  * 写死而不自动平衡：首屏之外的示例推迟渲染（见 Example），高度要等渲染完才知道，按高度平衡会让已经看到的示例换列。
  * 两列各自往下排，不按行对齐：展开代码、示例自己变高，只把同一列下面的示例往下推。
+ * 分得齐不齐由 `pnpm docs:review` 检查（量两列的底边，建议把哪个示例挪到短的那一列），列上的 data 属性供它定位。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
@@ -46,7 +47,9 @@ const styles = css.create({
 /** 一组示例：两个 ExampleColumn，宽屏时并排 */
 export const Examples = _component(({ children }: { children?: VNodeChild }) => () => (
   <div {...css.attrs(styles.root)}>
-    <div {...css.attrs(styles.grid)}>{children}</div>
+    <div {...css.attrs(styles.grid)} data-example-columns>
+      {children}
+    </div>
   </div>
 ));
 
@@ -55,6 +58,13 @@ export const ExampleColumn = _component(
   ({ wide = false, children }: { wide?: boolean; children?: VNodeChild }) => {
     let count = 0;
     ExampleColumnContext.provide({ next: () => count++ });
-    return () => <div {...css.attrs(styles.column, wide && styles.wide)}>{children}</div>;
+    return () => (
+      <div
+        {...css.attrs(styles.column, wide && styles.wide)}
+        data-example-column={wide ? 'wide' : ''}
+      >
+        {children}
+      </div>
+    );
   },
 );

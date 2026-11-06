@@ -29,7 +29,8 @@ const clicks = new Map(
     .map((arg) => arg.slice(8).split(':'))
     .map(([id, ...text]) => [id, text.join(':')]),
 );
-const dir = join(root, 'node_modules/.cache/docs-shots');
+// --out=<目录>：存到别处（shots-batch.mjs 并发截多页时各页直接写进同一批的目录）
+const dir = option('out', join(root, 'node_modules/.cache/docs-shots'));
 mkdirSync(dir, { recursive: true });
 const name = path.replaceAll('/', '_').replace(/^_/, '');
 

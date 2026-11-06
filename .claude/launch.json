@@ -25,6 +25,22 @@
       "port": 5174
     },
     {
+      "name": "docs-shots",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": [
+        "-C",
+        "../vue-tsx-pro-shots/apps/docs",
+        "exec",
+        "vite",
+        "--configLoader",
+        "native",
+        "--port",
+        "5175",
+        "--strictPort"
+      ],
+      "port": 5175
+    },
+    {
       "name": "docs-preview",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": [

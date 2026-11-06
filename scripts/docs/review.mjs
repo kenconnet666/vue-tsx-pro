@@ -6,6 +6,8 @@
 //   pnpm docs:review --themes=light,dark --no-shots
 //
 // 溢出：示例区（[data-demo]）的内容比它宽（scrollWidth > clientWidth），或整页出现横向滚动条；手机宽度是 390px。
+// 两列不齐：1920 宽时并排的两列示例（apps/docs/src/site/Examples.tsx），底边差超过 COLUMN_SLACK，
+// 而把长的那列最后一个示例挪到短的那列末尾能让两列更齐时，报出该挪哪个（每页在代码里写定左右列，不自动平衡）。
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -57,17 +59,26 @@ async function open(context, path) {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => message.type() === 'error' && errors.push(message.text()));
-  await page.goto(`${origin}${path}`);
-  await page.waitForFunction(() => document.querySelector('main h1'), null, { timeout: 120_000 });
-  await page.evaluate(async () => {
-    for (let y = 0; y < document.body.scrollHeight; y += 600) {
-      window.scrollTo(0, y);
-      await new Promise((resolve) => setTimeout(resolve, 50));
+  // 开发服务器热更新会整页刷新（边改代码边巡检时）：滚到一半页面没了就重来，最多三次
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await page.goto(`${origin}${path}`);
+      await page.waitForFunction(() => document.querySelector('main h1'), null, {
+        timeout: 120_000,
+      });
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.body.scrollHeight; y += 600) {
+          window.scrollTo(0, y);
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+        window.scrollTo(0, 0);
+      });
+      await page.waitForTimeout(600);
+      return { page, errors };
+    } catch (error) {
+      if (attempt >= 3 || !/context was destroyed|navigat/i.test(String(error))) throw error;
     }
-    window.scrollTo(0, 0);
-  });
-  await page.waitForTimeout(600);
-  return { page, errors };
+  }
 }
 
 /** 横向溢出的示例（id）与整页是否横向滚动 */
@@ -78,6 +89,45 @@ const overflow = (page) =>
       .filter((demo) => demo.scrollWidth > demo.clientWidth + 1)
       .map((demo) => demo.closest('section')?.querySelector('h2[id]')?.id ?? '?'),
   }));
+
+/** 两列底边差多少以内算齐（px，约一个小示例的高度） */
+const COLUMN_SLACK = 160;
+
+/** 并排的两列示例里不齐的：各列高度与建议挪动的示例 */
+const columns = (page) =>
+  page.evaluate((slack) => {
+    const found = [];
+    for (const grid of document.querySelectorAll('[data-example-columns]')) {
+      const narrow = [...grid.children].filter(
+        (child) => child.getAttribute('data-example-column') === '',
+      );
+      // 同一行的两列（中间可能隔着占满整行的宽示例）；窄屏时上下排，不看
+      for (let index = 0; index + 1 < narrow.length; index += 2) {
+        const [left, right] = [narrow[index], narrow[index + 1]];
+        if (Math.abs(left.getBoundingClientRect().top - right.getBoundingClientRect().top) > 1)
+          continue;
+        const height = (element) => element.getBoundingClientRect().height;
+        const [tall, short] = height(left) >= height(right) ? [left, right] : [right, left];
+        const difference = height(tall) - height(short);
+        if (difference <= slack) continue;
+        const items = [...tall.children];
+        const last = items.at(-1);
+        const gap =
+          items.length > 1
+            ? last.getBoundingClientRect().top - items.at(-2).getBoundingClientRect().bottom
+            : 0;
+        const moved = Math.abs(difference - 2 * (height(last) + gap));
+        found.push({
+          left: Math.round(height(left)),
+          right: Math.round(height(right)),
+          move: moved < difference ? (last.querySelector('h2[id]')?.id ?? '?') : null,
+          from: tall === left ? '左' : '右',
+          after: Math.round(moved),
+        });
+      }
+    }
+    return found;
+  }, COLUMN_SLACK);
 
 const results = [];
 const paths = await pagePaths();
@@ -113,6 +163,10 @@ for (const [index, path] of paths.entries()) {
     result.errors.push(...errors.map((error) => `${theme}: ${error}`));
     await context.close();
   }
+  // 两列只在宽屏并排（内容区至少 54rem，去掉侧栏与本页目录）：按 1920 宽量
+  const wide = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+  result.columns = await columns((await open(wide, path)).page);
+  await wide.close();
   // 手机宽度只量溢出，不截图
   const mobile = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -127,6 +181,7 @@ for (const [index, path] of paths.entries()) {
   const flags = [
     result.errors.length && `${result.errors.length} 个错误`,
     result.desktop?.examples.length && `桌面溢出 ${result.desktop.examples.join(',')}`,
+    result.columns?.length && `两列不齐 ${result.columns.length} 处`,
     result.mobile?.page && '手机整页横滚',
     result.mobile?.examples.length && `手机溢出 ${result.mobile.examples.join(',')}`,
   ].filter(Boolean);
@@ -142,6 +197,11 @@ for (const r of results) {
     ...r.errors.map((error) => `- 错误：${error.slice(0, 300)}`),
     ...(r.desktop?.page ? ['- 桌面：整页横向滚动'] : []),
     ...(r.desktop?.examples ?? []).map((id) => `- 桌面：示例 ${id} 横向溢出`),
+    ...(r.columns ?? []).map(
+      ({ left, right, move, from, after }) =>
+        `- 两列不齐：左 ${left} / 右 ${right} px` +
+        (move ? `；把 ${move}（${from}列最后一个）挪到另一列末尾后差 ${after} px` : ''),
+    ),
     ...(r.mobile?.page ? ['- 手机：整页横向滚动'] : []),
     ...(r.mobile?.examples ?? []).map((id) => `- 手机：示例 ${id} 横向溢出`),
   ];
