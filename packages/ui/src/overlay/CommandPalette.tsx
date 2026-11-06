@@ -93,7 +93,7 @@ export interface CommandPaletteBaseProps<T> extends Omit<
 export type CommandPaletteProps<T = ListboxOption> = CommandPaletteBaseProps<T> & OptionMapping<T>;
 
 /** CommandPalette 的样式：dialog、search、input、listbox、trigger、triggerText、triggerLabel */
-export const commandPaletteStyles = css.create({
+const commandPaletteStyles = css.create({
   // 停在视口上部而不是正中：结果变多变少时输入框不跳
   dialog: { marginBlockStart: '12dvh' },
   search: {

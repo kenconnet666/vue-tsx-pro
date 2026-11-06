@@ -84,7 +84,7 @@ export interface WaterfallChartProps extends Omit<
 }
 
 /** WaterfallChart 的样式 */
-export const waterfallChartStyles = css.create({
+const waterfallChartStyles = css.create({
   connector: {
     stroke: '_borderStrong',
     strokeWidth: 1,

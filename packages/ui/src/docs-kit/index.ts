@@ -6,35 +6,18 @@
  * 文案自带中英文（messages.ts），别的语言在 Lang.messages.docsKit 里补。
  * 代码块 CodeBlock、标题锚点、页内目录 TableOfContents、翻页 Pager 在主入口：帮助中心、文章页也用得上。
  */
-export { CodeGroup, codeGroupStyles, type CodeGroupItem, type CodeGroupProps } from './CodeGroup';
-export {
-  CodePreview,
-  codePreviewStyles,
-  type CodePreviewAligns,
-  type CodePreviewProps,
-} from './CodePreview';
-export {
-  ColorSwatch,
-  colorSwatchDynamicStyles,
-  colorSwatchStyles,
-  type ColorSwatchProps,
-} from './ColorSwatch';
-export {
-  DocArticle,
-  docArticleStyles,
-  DocSection,
-  type DocArticleProps,
-  type DocSectionProps,
-} from './DocArticle';
+export { CodeGroup, type CodeGroupItem, type CodeGroupProps } from './CodeGroup';
+export { CodePreview, type CodePreviewAligns, type CodePreviewProps } from './CodePreview';
+export { ColorSwatch, type ColorSwatchProps } from './ColorSwatch';
+export { DocArticle, DocSection, type DocArticleProps, type DocSectionProps } from './DocArticle';
 export { GithubIcon } from './GithubIcon';
 export {
   PropsTable,
-  propsTableStyles,
   type ApiProp,
   type ApiPropKinds,
   type ApiValue,
   type ComponentApi,
   type PropsTableProps,
 } from './PropsTable';
-export { TextTable, textTableStyles, type TextTableProps } from './TextTable';
+export { TextTable, type TextTableProps } from './TextTable';
 export { docsKitMessages, type DocsKitMessages } from './messages';

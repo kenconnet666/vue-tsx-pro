@@ -65,7 +65,7 @@ const scrollY = css.keyframes({
 });
 
 /** Marquee 的样式：root、vertical、fade、track、trackVertical、reverse、pausable、paused、group */
-export const marqueeStyles = css.create({
+const marqueeStyles = css.create({
   root: {
     display: 'flex',
     overflow: { default: 'hidden', _reducedMotion: 'auto' },
@@ -125,7 +125,7 @@ export const marqueeTrailStyles: Readonly<Record<'inline' | 'block', StyleTable<
 
 // 时长是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Marquee 的样式：duration（一圈的时长） */
-export const marqueeDynamicStyles = css.create({
+const marqueeDynamicStyles = css.create({
   duration: (seconds: number) => ({ animationDuration: `${seconds}s` }),
 });
 

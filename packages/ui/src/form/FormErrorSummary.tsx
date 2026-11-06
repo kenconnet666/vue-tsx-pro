@@ -35,7 +35,7 @@ export interface FormErrorSummaryProps extends PartProps<'div', 'title'> {
 }
 
 /** FormErrorSummary 的样式：root、title、list、link */
-export const formErrorSummaryStyles = css.create({
+const formErrorSummaryStyles = css.create({
   root: {
     display: 'flex',
     flexDirection: 'column',

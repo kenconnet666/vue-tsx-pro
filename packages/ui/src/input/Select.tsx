@@ -161,7 +161,7 @@ export interface SelectBaseProps<T>
 /** 单选或多选；items 不是 ListboxOption 或字符串时要给 toOption */
 export type SelectProps<T = ListboxOption> = SelectBaseProps<T> & SelectionProps & OptionMapping<T>;
 
-/** Select 的样式：root、trigger、value、placeholder 等 */
+/** Select 的样式：root、trigger、value、placeholder 等（组件之间共用，不进入口） @internal */
 export const selectStyles = css.create({
   // 在 ControlGroup 里也按内容宽（输入框才分剩余宽度）。
   // 指针跟着外壳上的 data 属性走：这里的 cursor 排在配方之后，会盖过配方 disabled 档的 not-allowed

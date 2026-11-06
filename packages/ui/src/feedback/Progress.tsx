@@ -271,13 +271,13 @@ export const progressRecipe = css.recipe({
 export type ProgressPart = (typeof progressRecipe.parts)[number];
 
 /** 条形进度目标线的位置 */
-export const progressTargetPositionStyles = css.create({
+const progressTargetPositionStyles = css.create({
   at: (percent: string) => ({ insetInlineStart: percent }),
 });
 
 // 宽度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Progress 的样式：percent */
-export const progressWidthStyles = css.create({
+const progressWidthStyles = css.create({
   percent: (percent: string) => ({ width: percent }),
 });
 

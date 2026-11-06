@@ -58,7 +58,7 @@ export interface SparklineProps extends PartProps<'span', SparklineManaged> {
 }
 
 /** Sparkline 的样式 */
-export const sparklineStyles = css.create({
+const sparklineStyles = css.create({
   root: { position: 'relative', display: 'block', width: '100%' },
   svg: { display: 'block', width: '100%', height: '100%', overflow: 'visible' },
   line: {

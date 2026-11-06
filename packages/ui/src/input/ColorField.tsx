@@ -51,7 +51,7 @@ export interface ColorFieldProps extends PartProps<'input', ColorFieldManaged>, 
 }
 
 /** ColorField 的样式：swatch、fill、picker、input */
-export const colorFieldStyles = css.create({
+const colorFieldStyles = css.create({
   // 色块：棋盘格垫底（swatchStyles），颜色铺在上面一层
   swatch: {
     position: 'relative',
@@ -82,7 +82,7 @@ export const colorFieldStyles = css.create({
 
 // 颜色是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** ColorField 的动态样式：色块里的颜色 */
-export const colorFieldDynamicStyles = css.create({
+const colorFieldDynamicStyles = css.create({
   fill: (color: string) => ({ backgroundColor: color }),
 });
 

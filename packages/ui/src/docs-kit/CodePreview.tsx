@@ -73,7 +73,7 @@ export interface CodePreviewProps extends PartProps<'div'> {
 }
 
 /** CodePreview 的样式：preview、center、footer、toolbar、code */
-export const codePreviewStyles = css.create({
+const codePreviewStyles = css.create({
   // 效果区：给了最小高度时，效果在里面上下居中
   preview: { display: 'flex', flexDirection: 'column', justifyContent: 'center' },
   // 效果的排布：靠起始边时示例占满宽度（里面的网格、卡片按整块宽度排），居中时按内容宽度居中；

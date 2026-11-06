@@ -66,7 +66,7 @@ export interface UiOptions {
 }
 
 /** paintDocument 时页面根元素的样式 */
-export const documentStyles = css.create({
+const documentStyles = css.create({
   // 字号不设：根元素的字号是 rem 的基准，留给浏览器（用户的字号设置）
   page: {
     backgroundColor: '_background',

@@ -83,7 +83,7 @@ export interface DatePickerProps<V extends DateInput = string>
 }
 
 /** DatePicker 的样式：popover、main（日历与“今天”）、footer（快捷选项的样式见 pickerPresetStyles） */
-export const datePickerStyles = css.create({
+const datePickerStyles = css.create({
   popover: { display: 'flex', alignItems: 'flex-start', gap: '_sm', padding: '_sm' },
   main: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   // 选周时已选那一周的另外六天

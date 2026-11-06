@@ -25,7 +25,7 @@ import type { XYChartContext } from './XYChart';
 
 const enter = `${t.durations.lg} ${t.easings.standard}`;
 
-/** 图形的样式 */
+/** 图形的样式（组件之间共用，不进入口） @internal */
 export const chartMarkStyles = css.create({
   // 柱：从基线那一端长出来
   bar: {

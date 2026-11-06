@@ -87,7 +87,9 @@
 
 ### 2.5 导出
 
-工具都对外导出，方便使用方定制：组件、样式表与样式函数、上下文与状态类型、工厂、组合式函数都导出；模块内部状态（计数器、缓存、注册表）与一两行的私有帮助函数不导出。入口 `packages/ui/src/index.ts` 由 `pnpm exports` 生成，模块里写了 `export` 的就进入口；名字要全局唯一（规则见 §4），重名时生成脚本报错。
+使用方定制要用的都对外导出：组件、配方与部件类型、共用的样式件（`utils/style`）与样式函数、上下文与状态类型、工厂、组合式函数。组件内部的样式表不导出：外观的定制走 `createUi` / `Provider` 的 `components.Xxx`（配方的 `styles`、`variants`）与部件的 `propsXxx.sx`，不靠拼组件的样式表。模块内部状态（计数器、缓存、注册表）与一两行的私有帮助函数同样不导出。
+
+入口 `packages/ui/src/index.ts` 由 `pnpm exports` 生成，模块里写了 `export` 的就进入口；只在模块之间（或测试里）要用、不给使用方的，在文档注释里写 `@internal`，照样 `export` 但不进入口。名字要全局唯一（规则见 §4），重名时生成脚本报错。
 
 ### 2.6 渲染性能
 
@@ -116,7 +118,7 @@
 - 样式由运行时引擎生成（`packages/tsx/src/styles/`，设计与实测见 STYLE-ENGINE.md）：写法像 StyleX，从 `@zerodep-dev/vue-tsx-pro-tsx/styles` 导入（`import { css }`，不写 `import * as css`：命名空间导入的名字编辑器推不出来，不能自动导入），一个元素一次 `css.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。变量组（`css.defineVars('vtp-名字', 取值)`）、主题（`createTheme`）、标记（`defineMarker(名字)`）也在运行时生成，不依赖 StyleX。
 - 有部件或外观档位的组件写一个命名配方 `css.recipe({ name, parts, base, variants, compound })`（`name` 用组件名，同 `useDefaults` 的名字）：setup 里 `const ui = useComponent(xxxRecipe, () => ({ variant, size }), { variant: 'solid' })`（档位的默认值与配方一次合上，名字取自配方），渲染时 `const { options, parts } = ui({ 这次渲染的状态 })` 得到合并后的档位与每个部件的默认层（样式 + `data-scope` / `data-part`），直接交给部件的合并 `mergeAttrs<'div'>(parts.title, propsTitle)`；默认值另有用处（交给上下文、子组件）时仍可分开用 `useDefaults` 与 `useRecipe`。字号、圆角、色调这类共用档位用 `variantOf(fontSizeStyles, 'root')` 写进配方，不在渲染时排在配方之后（那样主题定制盖不住它们）；这样组件能被 `createUi` / `Provider` 的 `components.Xxx`（`defaults`、`styles`、`variants`）定制：在 `config/components.ts` 的 `UiComponents` 里登记一行 `Xxx: ComponentConfig<XxxPart, XxxOptions>`，`useRecipe` 只收登记过名字的配方（写错名字类型检查报错）。只有一两个元素、没有档位的组件照旧一个 `css.create`。状态色调（样式 × 色调）用共用的色表：`compound: statusToneCompound(['root'])`（Badge、Alert），各组件同样的组合合成同样的类；色表之外的组合（按钮的悬停色）在组合档位里逐项写主题 token（`{ match: { variant: 'soft', tone: 'danger' }, root: { color: '_dangerText', … } }`）。还没有配方的组件用 `statusToneSx`。
 - 样式值以字面量为主，直接写主题 token（`'_accentText'`、`'_full'`）：不加“色调变量”这类中间变量层，也不在样式里引用 JS 变量，读样式时就看得到用的是哪个 token，悬停能看到取值。只有值里夹着 token（`calc`、`color-mix`、多值）才用模板字符串里的 `t.组.名`。
-- 配方导出 `<组件>Recipe`（`alertRecipe`）与部件类型 `<组件>Part`；样式表导出，名字全局唯一：`<组件>Styles`，按部件或档位拆开的叫 `<组件><部件>Styles`（`tabListStyles`）；`css.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
+- 配方导出 `<组件>Recipe`（`alertRecipe`）与部件类型 `<组件>Part`；组件的样式表只在本文件用、不导出（§2.5），几个组件共用的导出并标 `@internal`，移动端等兄弟包复用的（`navBarStyles`、`fieldStyles`…）照常导出。名字仍全局唯一：`<组件>Styles`，按部件或档位拆开的叫 `<组件><部件>Styles`（`tabListStyles`）；`css.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
 - tokens 有两种写法：值整个就是一个 token 时在 `css.create`、`css.keyframes` 里写字符串，引擎展开样式时换成 token 变量；值里夹着 token 时写模板字符串加 `t`：
   - 短写 `fontSize: '_xs'`：属性在对照表（`packages/tsx/src/styles/token-map.ts`）里时按表找组，补全只列这一组的 token，悬停、跳转到 token 的注释；

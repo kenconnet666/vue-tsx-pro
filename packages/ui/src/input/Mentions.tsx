@@ -127,7 +127,7 @@ export function mentionedValues(
   return [...new Set(values)];
 }
 
-/** MentionText 与 Mentions 的样式：mention、text、panel */
+/** MentionText 与 Mentions 的样式：mention、text、panel（测试要用，不进入口） @internal */
 export const mentionStyles = css.create({
   // 提及：强调色的文字，浅底
   mention: {

@@ -51,7 +51,7 @@ export interface ProviderProps {
 }
 
 /** Provider 的样式：root、themed */
-export const providerStyles = css.create({
+const providerStyles = css.create({
   // 不产生盒子，不影响布局；主题变量与文字样式照常由子元素继承
   root: { display: 'contents' },
   themed: {

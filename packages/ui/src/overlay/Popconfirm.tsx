@@ -61,7 +61,7 @@ export interface PopconfirmProps extends Omit<PopoverProps, 'role' | 'children' 
 }
 
 /** Popconfirm 的样式：body、icon、title、description、footer */
-export const popconfirmStyles = css.create({
+const popconfirmStyles = css.create({
   body: {
     display: 'grid',
     gridTemplateColumns: 'auto minmax(0, 1fr)',

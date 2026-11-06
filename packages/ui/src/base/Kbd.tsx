@@ -14,7 +14,7 @@ export interface KbdProps extends PartProps<'kbd'> {
 }
 
 /** Kbd 的样式：root */
-export const kbdStyles = css.create({
+const kbdStyles = css.create({
   root: {
     display: 'inline-block',
     // 单个字母的键也接近方形

@@ -66,7 +66,7 @@ export interface StepsFormProps extends Omit<FormProps, 'controller' | 'children
 }
 
 /** StepsForm 的样式：root、panel */
-export const stepsFormStyles = css.create({
+const stepsFormStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_lg' },
   // 换步后焦点在这里：不画焦点环（内容本身不是控件），读屏念出它的名称
   panel: { display: 'flex', flexDirection: 'column', gap: '_md', outline: 'none' },

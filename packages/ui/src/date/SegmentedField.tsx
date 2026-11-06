@@ -128,7 +128,7 @@ export const firstSegmentOf = (group: Element | null | undefined) =>
   group?.querySelector<HTMLElement>('[role="spinbutton"]') ??
   null;
 
-/** SegmentedField 的样式：input */
+/** SegmentedField 的样式：input（组件之间共用，不进入口） @internal */
 export const segmentedFieldStyles = css.create({
   // 分段占满剩下的宽度：清空按钮、尾部内容贴着外壳的结束边
   input: { flexGrow: 1 },

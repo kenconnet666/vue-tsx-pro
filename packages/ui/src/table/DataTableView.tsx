@@ -286,7 +286,7 @@ const ROW_HEIGHT: Record<keyof DataTableDensities, number> = {
 };
 
 /** DataTable、TreeDataTable 的样式：行的色调（不透明的浅色底，悬停加深） */
-export const dataTableRowToneStyles = css.create({
+const dataTableRowToneStyles = css.create({
   info: { backgroundColor: { default: '_infoSoft', _hover: '_infoSoftHover' } },
   success: { backgroundColor: { default: '_successSoft', _hover: '_successSoftHover' } },
   warning: { backgroundColor: { default: '_warningSoft', _hover: '_warningSoftHover' } },
@@ -297,7 +297,7 @@ export const dataTableRowToneStyles = css.create({
 /** 格里的控件：点在上面不算点这一格 */
 const CELL_CONTROLS = 'a, button, input, select, textarea, label';
 
-/** DataTable、TreeDataTable 的样式：width、minWidth、height、start、end、percent */
+/** DataTable、TreeDataTable 的样式：width、minWidth、height、start、end、percent（测试要用，不进入口） @internal */
 export const dataTableDynamicStyles = css.create({
   width: (width: number | string) => ({ width }),
   minWidth: (px: number) => ({ minWidth: px }),

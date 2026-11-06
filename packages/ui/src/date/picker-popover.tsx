@@ -153,7 +153,7 @@ export interface PickerPreset {
   onPick: () => void;
 }
 
-/** 快捷选项的样式：presets（一列，靠日历那边有分隔线）、preset（按钮文字靠左） */
+/** 快捷选项的样式：presets（一列，靠日历那边有分隔线）、preset（按钮文字靠左）（组件之间共用，不进入口） @internal */
 export const pickerPresetStyles = css.create({
   presets: {
     display: 'flex',

@@ -266,7 +266,7 @@ export interface TabListProps extends PartProps<'div', TabListManaged> {
 }
 
 /** TabList 的样式：bar、barLine、root、scrollable、line、lineVertical、soft、softVertical、indicator、indicatorVertical */
-export const tabListStyles = css.create({
+const tabListStyles = css.create({
   // 横排时包着标签列表与右边的按钮（滚动、全部标签页、新建）：列表按内容宽，放不下时收缩并滚动
   bar: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
   // 横排 line 的分隔线画在整行上：标签少时也铺满（页签区、页面顶部的标签）
@@ -766,7 +766,7 @@ export interface TabPanelProps extends PartProps<'div', TabPanelManaged> {
 }
 
 /** Tabs 的样式：root */
-export const tabPanelStyles = css.create({
+const tabPanelStyles = css.create({
   root: { flexGrow: 1, minWidth: 0, borderRadius: '_sm' },
 });
 

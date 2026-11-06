@@ -123,7 +123,7 @@ export const tableRecipe = css.recipe({
 export type TablePart = (typeof tableRecipe.parts)[number];
 
 /** 静态表格的动态样式：列宽 */
-export const tableDynamicStyles = css.create({
+const tableDynamicStyles = css.create({
   width: (width: string) => ({ width }),
 });
 

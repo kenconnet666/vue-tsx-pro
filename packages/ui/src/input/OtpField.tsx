@@ -68,7 +68,7 @@ export interface OtpFieldProps
 const blink = css.keyframes({ '50%': { opacity: 0 } });
 
 /** OtpField 的样式：root、input、slot、active、caret、separator（格子的外观来自输入框的配方） */
-export const otpFieldStyles = css.create({
+const otpFieldStyles = css.create({
   root: {
     position: 'relative',
     display: 'inline-flex',

@@ -34,7 +34,7 @@ export interface TextTableProps extends TableProps {
 }
 
 /** TextTable 的样式：nowrap */
-export const textTableStyles = css.create({
+const textTableStyles = css.create({
   nowrap: { whiteSpace: 'nowrap' },
 });
 

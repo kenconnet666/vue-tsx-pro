@@ -70,7 +70,7 @@ export interface SankeyChartProps extends PartProps<'div', 'role' | 'aria-busy'>
 }
 
 /** SankeyChart 的样式：节点、带子、名字、骨架 */
-export const sankeyChartStyles = css.create({
+const sankeyChartStyles = css.create({
   skeleton: { display: 'block', width: '100%', height: '100%' },
   node: { stroke: '_surface', strokeWidth: 1 },
   link: {

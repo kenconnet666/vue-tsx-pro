@@ -38,7 +38,7 @@ export interface LoadingOverlayProps extends PartProps<'div', LoadingOverlayMana
 }
 
 /** LoadingOverlay 的样式：root、overlay、blur、spinner */
-export const loadingOverlayStyles = css.create({
+const loadingOverlayStyles = css.create({
   // 遮罩按外层定位
   root: { position: 'relative' },
   overlay: {

@@ -32,7 +32,7 @@ export interface PageJumpProps extends PartProps<'div'> {
 }
 
 /** PageJump 的样式：root、input、text */
-export const pageJumpStyles = css.create({
+const pageJumpStyles = css.create({
   root: { display: 'inline-flex', alignItems: 'center', gap: '_sm' },
   input: { width: '4.5em' },
   text: { color: '_textMuted', whiteSpace: 'nowrap' },

@@ -38,12 +38,12 @@ export interface ContainerOptions {
 export type ContainerProps<Tag extends LayoutTag = 'div'> = PartProps<Tag> & ContainerOptions;
 
 /** Container 的样式：root */
-export const containerStyles = css.create({
+const containerStyles = css.create({
   root: { boxSizing: 'border-box', width: '_full', marginInline: 'auto' },
 });
 
 /** Container 的样式：xs、sm、md、lg、xl */
-export const containerSizeStyles = css.create({
+const containerSizeStyles = css.create({
   xs: { maxWidth: '_xs' },
   sm: { maxWidth: '_sm' },
   md: { maxWidth: '_md' },
@@ -52,7 +52,7 @@ export const containerSizeStyles = css.create({
 });
 
 /** Container 的样式：none、xs、sm、md、lg、xl */
-export const containerPaddingStyles = css.create({
+const containerPaddingStyles = css.create({
   none: { paddingInline: '_none' },
   xs: { paddingInline: '_xs' },
   sm: { paddingInline: '_sm' },

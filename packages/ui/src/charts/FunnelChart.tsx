@@ -62,7 +62,7 @@ export interface FunnelChartProps extends PartProps<'div', 'role' | 'aria-busy'>
 }
 
 /** FunnelChart 的样式：list、row、label、track、bar、value、rate… */
-export const funnelChartStyles = css.create({
+const funnelChartStyles = css.create({
   // 名称 | 居中的横条 | 数值：三列由整个列表定宽，各行用 subgrid 对齐
   list: {
     display: 'grid',
@@ -107,7 +107,7 @@ export const funnelChartStyles = css.create({
 
 // 横条的宽度与颜色随数据变：单独一个 create（见 COMPONENTS.md §4）
 /** FunnelChart 的样式：barSize、skeletonWidth */
-export const funnelChartDynamicStyles = css.create({
+const funnelChartDynamicStyles = css.create({
   barSize: (width: string, color: string) => ({ width, backgroundColor: color }),
   skeletonWidth: (width: string) => ({ width }),
 });

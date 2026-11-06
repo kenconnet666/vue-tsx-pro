@@ -40,7 +40,7 @@ export interface DiagramControlsProps extends Partial<ToolbarProps> {
 }
 
 /** DiagramControls 的样式 */
-export const diagramControlsStyles = css.create({
+const diagramControlsStyles = css.create({
   root: {
     position: 'absolute',
     pointerEvents: 'auto',

@@ -102,7 +102,7 @@ export interface TimelineProps extends PartProps<'ol'> {
 }
 
 /** Timeline 的样式：root、item、marker、line、content、title、time、description 等 */
-export const timelineStyles = css.create({
+const timelineStyles = css.create({
   // 竖排、去掉编号由 FlexOrderedList 给；交替排布按容器宽度切换
   root: { containerType: 'inline-size' },
   // 节点一列、内容一列；交替时三列：左内容、节点、右内容。
@@ -187,7 +187,7 @@ export const timelineStyles = css.create({
 });
 
 /** Timeline 的样式：节点的色调 */
-export const timelineToneStyles = css.create({
+const timelineToneStyles = css.create({
   neutral: { color: '_borderStrong' },
   accent: { color: '_accent' },
   info: { color: '_infoText' },

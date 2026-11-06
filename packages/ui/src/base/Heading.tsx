@@ -64,7 +64,7 @@ export interface HeadingProps extends PartProps<HeadingTag> {
 }
 
 /** H1–H6 的样式：root、xxl、xxxl */
-export const headingStyles = css.create({
+const headingStyles = css.create({
   // 字体取 fonts.heading：默认同正文，纸张主题换成衬线
   root: {
     margin: 0,

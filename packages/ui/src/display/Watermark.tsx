@@ -40,7 +40,7 @@ export interface WatermarkProps extends PartProps<'div'> {
   children?: VNodeChild;
 }
 
-/** Watermark 的样式：root、layer、fullscreen */
+/** Watermark 的样式：root、layer、fullscreen（测试要用，不进入口） @internal */
 export const watermarkStyles = css.create({
   root: { position: 'relative' },
   layer: {
@@ -56,7 +56,7 @@ export const watermarkStyles = css.create({
 });
 
 /** 水印那一层的背景（data URL 与一格的大小） */
-export const watermarkTileStyles = css.create({
+const watermarkTileStyles = css.create({
   tile: (url: string, size: string) => ({ backgroundImage: url, backgroundSize: size }),
 });
 

@@ -187,7 +187,7 @@ export const sliderStyles = css.create({
 
 // 位置是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
 /** Slider 的样式：inline（横向的起点）、size（横向的长度）、bottom、height（纵向） */
-export const sliderPositionStyles = css.create({
+const sliderPositionStyles = css.create({
   inline: (percent: string) => ({ insetInlineStart: percent }),
   width: (percent: string) => ({ width: percent }),
   bottom: (percent: string) => ({ bottom: percent }),

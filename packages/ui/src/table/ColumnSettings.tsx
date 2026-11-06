@@ -42,7 +42,7 @@ export interface ColumnSettingsProps<T> {
 }
 
 /** ColumnSettings 的样式：panel、list、header */
-export const columnSettingsStyles = css.create({
+const columnSettingsStyles = css.create({
   panel: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: '14rem' },
   list: { maxHeight: '20rem' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '_md' },

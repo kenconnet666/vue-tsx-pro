@@ -55,7 +55,7 @@ export interface SortableProps<T> extends PartProps<'ul'> {
 }
 
 /** Sortable 的样式：item、active、handle、content */
-export const sortableStyles = css.create({
+const sortableStyles = css.create({
   // 方向、间距、去掉圆点由 FlexList 给
   item: {
     position: 'relative',

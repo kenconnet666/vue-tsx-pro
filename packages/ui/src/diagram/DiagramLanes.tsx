@@ -56,7 +56,7 @@ export function lanesExtent(
 }
 
 /** DiagramLanes 的样式：root、lane、header */
-export const diagramLanesStyles = css.create({
+const diagramLanesStyles = css.create({
   // 虚线、不着底色：画布的点阵透过来，泳道只是分区，不像一张压在画布上的表
   root: {
     position: 'absolute',
@@ -92,7 +92,7 @@ export const diagramLanesStyles = css.create({
 });
 
 /** 随数据变的样式：位置与大小 */
-export const diagramLanesDynamicStyles = css.create({
+const diagramLanesDynamicStyles = css.create({
   at: (x: number, y: number) => ({ transform: `translate(${x}px, ${y}px)` }),
   width: (width: number) => ({ width }),
   height: (height: number) => ({ height }),

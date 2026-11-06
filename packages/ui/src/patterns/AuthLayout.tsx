@@ -34,7 +34,7 @@ export interface AuthLayoutProps extends PartProps<'div'> {
 }
 
 /** AuthLayout 的样式：root、split、hero、main、tools */
-export const authLayoutStyles = css.create({
+const authLayoutStyles = css.create({
   // 工具区按整页定位：宽屏时整页的上角就是表单区的上角，窄屏时在品牌区那一条上
   root: {
     position: 'relative',

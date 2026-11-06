@@ -60,7 +60,7 @@ export interface TreemapChartProps<T extends object>
 }
 
 /** TreemapChart 的样式 */
-export const treemapChartStyles = css.create({
+const treemapChartStyles = css.create({
   skeleton: { display: 'block', width: '100%', height: '100%' },
   group: { stroke: 'none' },
   tile: {

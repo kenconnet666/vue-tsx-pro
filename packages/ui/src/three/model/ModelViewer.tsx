@@ -82,7 +82,7 @@ export interface ModelViewerProps extends Omit<EffectProps, 'children' | 'onLoad
 }
 
 /** ModelViewer 的样式：root、interactive、dragging、content、overlay */
-export const modelViewerStyles = css.create({
+const modelViewerStyles = css.create({
   root: { aspectRatio: '1', width: '100%', outlineStyle: 'none' },
   interactive: { cursor: 'grab', touchAction: 'pan-y' },
   dragging: { cursor: 'grabbing' },

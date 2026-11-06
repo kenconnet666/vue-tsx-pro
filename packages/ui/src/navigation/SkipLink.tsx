@@ -25,7 +25,7 @@ export interface SkipLinkProps extends PartProps<'a', 'href'> {
 }
 
 /** SkipLink 的样式：root */
-export const skipLinkStyles = css.create({
+const skipLinkStyles = css.create({
   // 移出视口而不是 display: none：读屏照常能读到，Tab 能聚焦
   root: {
     position: 'fixed',

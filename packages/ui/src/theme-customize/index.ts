@@ -10,14 +10,8 @@
  *
  * 切换主题的 ThemeSwitcher 在 `@zerodep-dev/vue-tsx-pro-ui/patterns`，主题偏好 createThemePreference 在主入口。
  */
-export {
-  ThemeCustomizer,
-  themeCustomizerCornerStyles,
-  themeCustomizerDynamicStyles,
-  themeCustomizerStyles,
-  type ThemeCustomizerProps,
-} from './ThemeCustomizer';
-export { ThemeThumbnail, themeThumbnailStyles, type ThemeThumbnailProps } from './ThemeThumbnail';
+export { ThemeCustomizer, type ThemeCustomizerProps } from './ThemeCustomizer';
+export { ThemeThumbnail, type ThemeThumbnailProps } from './ThemeThumbnail';
 export { checkContrast, CONTRAST_PAIRS, type ContrastIssue, type ContrastPair } from './contrast';
 export {
   customizeTheme,

@@ -110,7 +110,7 @@ export interface CommentComposerProps extends PartProps<'div'> {
 }
 
 /** CommentThread、CommentComposer 的样式 */
-export const commentStyles = css.create({
+const commentStyles = css.create({
   root: { display: 'grid', gap: '_lg' },
   list: { display: 'grid', gap: '_lg', margin: 0, padding: 0, listStyle: 'none' },
   // 头像一列、内容一列

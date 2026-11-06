@@ -53,7 +53,7 @@ export interface TextareaProps extends PartProps<'textarea', TextareaManaged>, C
 }
 
 /** Textarea 的样式：textarea、fixed、count、clear */
-export const textareaStyles = css.create({
+const textareaStyles = css.create({
   // 随外壳拉伸：外壳给了高度（propsRoot 的 height）时文字区占满，不停在基线上
   // 原生控件换不了浮层滚动条：改细，滑块取浮层滚动条（scrollAreaBarStyles.thumb）的颜色
   textarea: {
@@ -72,7 +72,7 @@ export const textareaStyles = css.create({
 
 // 行数是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Textarea 的样式：min、max */
-export const textareaRowStyles = css.create({
+const textareaRowStyles = css.create({
   min: (rows: number) => ({ minHeight: `${rows}lh` }),
   max: (rows: number) => ({ maxHeight: `${rows}lh` }),
 });

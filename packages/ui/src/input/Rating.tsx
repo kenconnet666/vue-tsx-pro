@@ -54,7 +54,7 @@ export interface RatingProps extends PartProps<'div', RatingManaged> {
 }
 
 /** Rating 的样式：root、star、readonly、icon、empty、fill、clip、clipIcon、whole、startHalf、endHalf、disabled */
-export const ratingStyles = css.create({
+const ratingStyles = css.create({
   root: { display: 'inline-flex', alignItems: 'center', gap: '0.15em', lineHeight: 1 },
   // 每颗星：空心图标打底，填色的那层按比例裁出；radio 盖满（半星时左右各一半）
   star: {
@@ -84,7 +84,7 @@ export const ratingStyles = css.create({
 
 // 选中的颜色用各色调的实色（金黄的星、红色的心）：实心与空心靠形状区分，不只靠颜色；Windows 高对比下用系统高亮色
 /** Rating 的颜色：neutral、accent、info、success、warning、danger */
-export const ratingToneStyles = css.create({
+const ratingToneStyles = css.create({
   neutral: { color: { default: '_textMuted', _forcedColors: 'Highlight' } },
   accent: { color: { default: '_accent', _forcedColors: 'Highlight' } },
   info: { color: { default: '_info', _forcedColors: 'Highlight' } },
@@ -94,7 +94,7 @@ export const ratingToneStyles = css.create({
 });
 
 /** 填色那层的宽度 */
-export const ratingClipStyles = css.create({
+const ratingClipStyles = css.create({
   width: (percent: string) => ({ width: percent }),
 });
 

@@ -172,7 +172,7 @@ export interface LabelProps extends PartProps<'label'> {
 }
 
 /** Field 的样式：root、disabled、required */
-export const labelStyles = css.create({
+const labelStyles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'baseline',
@@ -306,7 +306,7 @@ export const fieldStyles = css.create({
 });
 
 /** Field 的动态样式：标签列的宽度 */
-export const fieldColumnStyles = css.create({
+const fieldColumnStyles = css.create({
   columns: (labelWidth: string) => ({ gridTemplateColumns: `${labelWidth} minmax(0, 1fr)` }),
 });
 

@@ -34,7 +34,7 @@ export interface DocArticleProps extends PartProps<'article', 'title'> {
 }
 
 /** DocArticle、DocSection 的样式：article、header、description、section */
-export const docArticleStyles = css.create({
+const docArticleStyles = css.create({
   // 长文阅读：比界面文字（14px）大一号、行距宽松
   article: {
     display: 'flex',

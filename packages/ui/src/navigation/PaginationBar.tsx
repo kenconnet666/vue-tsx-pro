@@ -62,7 +62,7 @@ export interface PaginationBarProps extends PartProps<'div'> {
 }
 
 /** PaginationBar 的样式：root、total、controls、jump */
-export const paginationBarStyles = css.create({
+const paginationBarStyles = css.create({
   // 按自己的宽度决定显示什么：放在侧栏、卡片里时也合适
   root: {
     containerType: 'inline-size',

@@ -54,7 +54,7 @@ export interface SeparatorProps extends PartProps<'div', SeparatorManaged> {
 }
 
 /** Separator 的样式：root、horizontal、vertical、labelled、label、line */
-export const separatorStyles = css.create({
+const separatorStyles = css.create({
   // Windows 高对比（forced-colors）下系统会把背景色改掉，线就看不见了：改用系统的文字色并保留它
   root: {
     flexShrink: 0,

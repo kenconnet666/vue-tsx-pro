@@ -89,7 +89,7 @@ export interface DescriptionsProps extends PartProps<'div', 'title'> {
 }
 
 /** Descriptions 的样式：root、title、list、item、label、value 与各排列、边框 */
-export const descriptionsStyles = css.create({
+const descriptionsStyles = css.create({
   // 容器查询的容器：dl 按它的宽度决定要不要排成一列
   root: { containerType: 'inline-size', display: 'grid', gap: '_md' },
   title: { fontWeight: '_medium', fontSize: '_md' },
@@ -139,7 +139,7 @@ export const descriptionsStyles = css.create({
 
 // 栏数与跨度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Descriptions 的样式：columns（栏数）、span（跨几栏） */
-export const descriptionsGridStyles = css.create({
+const descriptionsGridStyles = css.create({
   // 容器不到 32em 时排成一列
   columns: (count: number) => ({
     gridTemplateColumns: {

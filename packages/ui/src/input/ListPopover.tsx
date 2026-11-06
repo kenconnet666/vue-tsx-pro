@@ -48,7 +48,7 @@ export interface ListPopoverProps<T> {
   propsPopover?: PartProps<'div', ListPopoverManaged>;
 }
 
-/** ListPopover 的样式：panel、header */
+/** ListPopover 的样式：panel、header（组件之间共用，不进入口） @internal */
 export const listPopoverStyles = css.create({
   panel: { maxWidth: 'calc(100vw - 2em)' },
   header: {

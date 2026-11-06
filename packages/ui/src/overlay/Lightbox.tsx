@@ -68,7 +68,7 @@ export interface LightboxProps
 }
 
 /** Lightbox 的样式：root、toolbar、counter、viewport、content、image、side、previous、next、caption、button */
-export const lightboxStyles = css.create({
+const lightboxStyles = css.create({
   root: {
     // 占满视口：原生 dialog 默认有最大宽高与边框
     boxSizing: 'border-box',
@@ -154,7 +154,7 @@ export const lightboxStyles = css.create({
 });
 
 /** Lightbox 的动态样式：平移缩放、框的大小、图片的大小与旋转 */
-export const lightboxDynamicStyles = css.create({
+const lightboxDynamicStyles = css.create({
   transform: (transform: string) => ({ transform }),
   box: (width: number, height: number) => ({ width: `${width}px`, height: `${height}px` }),
   image: (width: number, height: number, degrees: number) => ({

@@ -8,23 +8,20 @@
  * 它们只依赖主入口的组件与工具，不放在主入口：外观与交互更有主见（同 Ant Design 的 ProComponents），
  * 文案自带中英文（messages.ts），别的语言在 Lang.messages.patterns 里补。
  */
-export { ActionBar, actionBarStyles, type ActionBarProps } from './ActionBar';
+export { ActionBar, type ActionBarProps } from './ActionBar';
 export {
   AppShell,
   AppShellBrand,
-  appShellBrandStyles,
   AppShellContext,
   appShellFullscreenOffset,
   appShellOffset,
-  appShellStyles,
   type AppShellBrandProps,
   type AppShellProps,
   type AppShellState,
 } from './AppShell';
-export { AuthLayout, authLayoutStyles, type AuthLayoutProps } from './AuthLayout';
+export { AuthLayout, type AuthLayoutProps } from './AuthLayout';
 export {
   CommentComposer,
-  commentStyles,
   CommentThread,
   type CommentAttachment,
   type CommentAuthor,
@@ -33,46 +30,34 @@ export {
   type CommentItem,
   type CommentThreadProps,
 } from './CommentThread';
-export { DataImport, dataImportStyles, type DataImportProps, type ImportField } from './DataImport';
+export { DataImport, type DataImportProps, type ImportField } from './DataImport';
 export { DeadlineBadge, type DeadlineBadgeProps } from './DeadlineBadge';
-export {
-  FilterBar,
-  filterBarColumnStyles,
-  filterBarStyles,
-  type FilterBarManaged,
-  type FilterBarProps,
-} from './FilterBar';
+export { FilterBar, type FilterBarManaged, type FilterBarProps } from './FilterBar';
 export { FormDialog, type FormDialogProps } from './FormDialog';
 export {
   KanbanBoard,
-  kanbanBoardDynamicStyles,
-  kanbanBoardStyles,
   type KanbanBoardProps,
   type KanbanCardState,
   type KanbanColumn,
 } from './KanbanBoard';
 export {
   NotificationCenter,
-  notificationCenterStyles,
   NotificationList,
-  notificationListStyles,
   type NotificationCenterProps,
   type NotificationItem,
   type NotificationListOptions,
   type NotificationListProps,
   type NotificationType,
 } from './NotificationCenter';
-export { QueryTable, queryTableStyles, type QueryTableProps } from './QueryTable';
+export { QueryTable, type QueryTableProps } from './QueryTable';
 export {
   SlideCaptcha,
-  slideCaptchaDynamicStyles,
-  slideCaptchaStyles,
   type SlideCaptchaProps,
   type SlideChallenge,
   type SlideResult,
   type SlideStatus,
 } from './SlideCaptcha';
-export { StepsForm, stepsFormStyles, type FormStep, type StepsFormProps } from './StepsForm';
+export { StepsForm, type FormStep, type StepsFormProps } from './StepsForm';
 export { ThemeSwitcher, type ThemeSwitcherProps } from './ThemeSwitcher';
 export { useFormDialog, type FormDialogField, type FormDialogOptions } from './form-dialog';
 export { patternsMessages, type PatternsMessages } from './messages';

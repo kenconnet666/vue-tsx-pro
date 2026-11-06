@@ -60,7 +60,7 @@ export interface PopoverProps
 }
 
 /** Popover 的样式：panel */
-export const popoverStyles = css.create({
+const popoverStyles = css.create({
   panel: { padding: '_md', maxWidth: 'calc(100vw - 2em)' },
 });
 

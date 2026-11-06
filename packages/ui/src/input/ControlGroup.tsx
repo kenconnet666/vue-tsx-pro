@@ -36,7 +36,7 @@ export interface ControlGroupProps extends PartProps<'div', ControlGroupManaged>
 }
 
 /** ControlGroup 的样式：root、inline、vertical */
-export const controlGroupStyles = css.create({
+const controlGroupStyles = css.create({
   // 输入框外壳（:not(button)）分掉剩余宽度；按钮、选择框的触发器按内容宽
   root: { display: 'flex', alignItems: 'stretch', width: '100%' },
   inline: { display: 'inline-flex', width: 'auto' },

@@ -200,7 +200,7 @@ export interface RadioProps extends PartProps<'input', RadioManaged> {
 }
 
 /** RadioGroup、Radio 的样式：circle、dot、dotChecked */
-export const radioStyles = css.create({
+const radioStyles = css.create({
   circle: { width: '1.125em', height: '1.125em', borderRadius: '_full' },
   dot: {
     width: '0.45em',

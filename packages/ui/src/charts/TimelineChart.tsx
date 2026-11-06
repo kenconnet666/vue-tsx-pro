@@ -134,7 +134,7 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const LABEL_WIDTH = 160;
 
 /** TimelineChart 的样式：隔行的底色、时间条 */
-export const timelineChartStyles = css.create({
+const timelineChartStyles = css.create({
   stripe: { fill: '_surfaceMuted' },
   segment: { stroke: '_surface', strokeWidth: 0 },
   segmentActive: { strokeWidth: 1.5, stroke: '_text' },

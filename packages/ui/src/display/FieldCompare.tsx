@@ -76,7 +76,7 @@ export interface FieldCompareProps<T> extends PartProps<'div'> {
 }
 
 /** FieldCompare 的样式：list、item、label、value、before、after、arrow、unchanged、changed */
-export const fieldCompareStyles = css.create({
+const fieldCompareStyles = css.create({
   // 字段名一列、值一列：多项时字段名对齐
   list: {
     display: 'grid',

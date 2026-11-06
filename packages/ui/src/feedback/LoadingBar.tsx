@@ -108,7 +108,7 @@ export interface LoadingBarProps extends PartProps<'div', 'role'> {
   controller: LoadingBarController;
 }
 
-/** LoadingBar 的样式：root、visible、bar、failed */
+/** LoadingBar 的样式：root、visible、bar、failed（测试要用，不进入口） @internal */
 export const loadingBarStyles = css.create({
   root: {
     position: 'fixed',
@@ -132,7 +132,7 @@ export const loadingBarStyles = css.create({
 });
 
 /** 进度对应的缩放 */
-export const loadingBarScaleStyles = css.create({
+const loadingBarScaleStyles = css.create({
   at: (progress: number) => ({ transform: `scaleX(${progress / 100})` }),
 });
 

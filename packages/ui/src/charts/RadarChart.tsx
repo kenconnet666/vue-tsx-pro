@@ -63,7 +63,7 @@ export interface RadarChartProps<T extends object>
 }
 
 /** RadarChart 的样式 */
-export const radarChartStyles = css.create({
+const radarChartStyles = css.create({
   svg: { display: 'block', width: '100%', height: '100%', overflow: 'visible' },
   grid: { fill: 'none', stroke: '_borderMuted', strokeWidth: 1 },
   spoke: { stroke: '_borderMuted', strokeWidth: 1 },

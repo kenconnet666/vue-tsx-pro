@@ -23,7 +23,7 @@ import type { ColumnFilterOption, ColumnStickies, SortState } from './columns';
 const SEARCH_THRESHOLD = 8;
 
 /** ColumnHeaderActions 的样式：trigger、active、panel、options、footer */
-export const columnHeaderActionStyles = css.create({
+const columnHeaderActionStyles = css.create({
   // 比正文小一档，不撑高表头
   trigger: { flexShrink: 0, marginBlock: '-0.25em' },
   active: { color: '_accentText' },

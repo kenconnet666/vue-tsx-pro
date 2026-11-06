@@ -95,7 +95,7 @@ export interface KanbanBoardProps<T> extends PartProps<'div'> {
 }
 
 /** KanbanBoard 的样式：board、column、header、list、card、handle… */
-export const kanbanBoardStyles = css.create({
+const kanbanBoardStyles = css.create({
   board: { display: 'flex', gap: '_md', alignItems: 'flex-start', paddingBlockEnd: '_sm' },
   column: {
     display: 'flex',
@@ -174,7 +174,7 @@ export const kanbanBoardStyles = css.create({
 });
 
 /** KanbanBoard 的动态样式：列宽、列高、拖动的位移 */
-export const kanbanBoardDynamicStyles = css.create({
+const kanbanBoardDynamicStyles = css.create({
   // 至少这么宽，富余的空间各列平分（同 Jira 的看板），放不下时外层横向滚动
   width: (width: string) => ({ flexBasis: width, flexGrow: 1, minWidth: width }),
   height: (height: string) => ({ maxHeight: height }),

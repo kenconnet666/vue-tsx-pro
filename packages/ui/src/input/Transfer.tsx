@@ -83,7 +83,7 @@ export interface TreeTransferProps<T> extends TransferBaseProps {
 }
 
 /** Transfer 的样式：root、panel、header、title、search、list、actions、actionIcon */
-export const transferStyles = css.create({
+const transferStyles = css.create({
   // 窄屏时上下排，按钮换成上下箭头
   root: {
     display: 'grid',

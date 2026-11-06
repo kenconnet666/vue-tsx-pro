@@ -155,7 +155,7 @@ export interface GraphChartProps extends PartProps<'div', 'role' | 'aria-busy'>,
 }
 
 /** GraphChart 的样式 */
-export const graphChartStyles = css.create({
+const graphChartStyles = css.create({
   skeleton: { display: 'block', width: '100%', height: '100%' },
   viewport: { position: 'absolute', inset: 0 },
   background: { fill: 'transparent' },

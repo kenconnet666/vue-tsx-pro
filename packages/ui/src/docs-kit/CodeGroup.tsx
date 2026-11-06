@@ -35,7 +35,7 @@ export interface CodeGroupProps extends PartProps<'div'> {
 }
 
 /** CodeGroup 的样式：外框与标签栏；代码块去掉自己的外框 */
-export const codeGroupStyles = css.create({
+const codeGroupStyles = css.create({
   root: {
     minWidth: 0,
     borderWidth: '_xs',

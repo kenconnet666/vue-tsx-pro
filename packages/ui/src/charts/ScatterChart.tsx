@@ -36,7 +36,7 @@ export interface ScatterChartProps<T extends object> extends XYChartProps<T> {
 const BUBBLE_RANGE: [number, number] = [6, 32];
 
 /** ScatterChart 的样式 */
-export const scatterChartStyles = css.create({
+const scatterChartStyles = css.create({
   // 气泡互相重叠时用表面色描一圈边分开；悬停的点描粗一点
   point: {
     stroke: '_surface',

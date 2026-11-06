@@ -10,8 +10,6 @@
 export {
   Diagram,
   DiagramContext,
-  diagramDynamicStyles,
-  diagramStyles,
   type DiagramConnection,
   type DiagramDragModes,
   type DiagramEdgeItem,
@@ -27,14 +25,11 @@ export {
 } from './Diagram';
 export {
   DiagramControls,
-  diagramControlsStyles,
   type DiagramControlsPlacements,
   type DiagramControlsProps,
 } from './DiagramControls';
 export {
   DiagramLanes,
-  diagramLanesDynamicStyles,
-  diagramLanesStyles,
   lanesExtent,
   type DiagramLane,
   type DiagramLanesLayout,
@@ -42,17 +37,10 @@ export {
 } from './DiagramLanes';
 export {
   DiagramMinimap,
-  diagramMinimapStyles,
   type DiagramMinimapPlacements,
   type DiagramMinimapProps,
 } from './DiagramMinimap';
-export {
-  DiagramNode,
-  diagramNodeStyles,
-  diagramNodeToneStyles,
-  type DiagramNodeProps,
-  type DiagramNodeShapes,
-} from './DiagramNode';
+export { DiagramNode, type DiagramNodeProps, type DiagramNodeShapes } from './DiagramNode';
 export {
   diagramInternals,
   useDiagram,

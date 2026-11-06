@@ -263,7 +263,7 @@ const NUDGE = 8;
 const NO_SELECTION: DiagramSelection = { nodes: [], edges: [] };
 const SIDES: readonly DiagramSide[] = ['top', 'right', 'bottom', 'left'];
 
-/** Diagram 的样式 */
+/** Diagram 的样式（测试要用，不进入口） @internal */
 export const diagramStyles = css.create({
   root: {
     position: 'relative',
@@ -447,7 +447,7 @@ const gridImages: Record<keyof DiagramGrids, string> = {
 };
 
 /** 随视口变的样式：平移缩放、网格、节点与文字的位置（值变化只改元素上的变量，画布不重新渲染） */
-export const diagramDynamicStyles = css.create({
+const diagramDynamicStyles = css.create({
   world: (x: number, y: number, scale: number) => ({
     transform: `translate(${x}px, ${y}px) scale(${scale})`,
   }),

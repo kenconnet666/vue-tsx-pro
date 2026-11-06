@@ -36,7 +36,7 @@ export interface ButtonGroupProps
 }
 
 /** ButtonGroup 的样式：root、vertical */
-export const buttonGroupStyles = css.create({
+const buttonGroupStyles = css.create({
   root: { display: 'inline-flex', alignItems: 'stretch' },
   vertical: { flexDirection: 'column' },
 });

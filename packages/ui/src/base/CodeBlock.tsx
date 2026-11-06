@@ -96,7 +96,7 @@ export function parseLineSpec(spec: LineSpec | undefined): Set<number> {
 }
 
 /** CodeBlock 的样式 */
-export const codeBlockStyles = css.create({
+const codeBlockStyles = css.create({
   // minWidth: 0：放在 grid / flex 里时外层不被最长的一行代码撑宽（滚动的是里面的 pre）
   wrapper: {
     minWidth: 0,
@@ -206,7 +206,7 @@ function splitLines(text: string, separator: string): string[] {
 
 // 折叠后的高度按行数算，是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** CodeBlock 的动态样式：折叠后的最大高度 */
-export const codeBlockDynamicStyles = css.create({
+const codeBlockDynamicStyles = css.create({
   maxLines: (lines: number) => ({ maxHeight: `calc(${lines} * 1lh + 2 * 0.75em)` }),
 });
 

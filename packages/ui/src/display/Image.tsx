@@ -104,7 +104,7 @@ export const imageStyles = css.create({
 });
 
 /** Image 的 object-fit：cover、contain、fill、none、scale-down */
-export const imageFitStyles = css.create({
+const imageFitStyles = css.create({
   cover: { objectFit: 'cover' },
   contain: { objectFit: 'contain' },
   fill: { objectFit: 'fill' },
@@ -113,7 +113,7 @@ export const imageFitStyles = css.create({
 });
 
 /** Image 的动态样式：尺寸 */
-export const imageDynamicStyles = css.create({
+const imageDynamicStyles = css.create({
   size: (width: string, height: string) => ({ width, height }),
 });
 
@@ -252,7 +252,7 @@ export interface ImageGroupProps extends PartProps<'div'> {
 }
 
 /** ImageGroup 的样式：root */
-export const imageGroupStyles = css.create({
+const imageGroupStyles = css.create({
   root: { display: 'flex', flexWrap: 'wrap', gap: '_sm' },
 });
 

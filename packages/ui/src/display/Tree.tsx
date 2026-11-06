@@ -168,7 +168,7 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
 }
 
 /** Tree 的样式：root、sizer、row、item、toggle、checkbox、label 等 */
-export const treeStyles = css.create({
+const treeStyles = css.create({
   // 树元素就是 ScrollArea 的视口（浮层滚动条）；焦点与 aria-activedescendant 在它上面
   root: {
     position: 'relative',
@@ -218,7 +218,7 @@ export const treeStyles = css.create({
 
 // 缩进与位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Tree 的样式：indent（缩进）、y、height */
-export const treeDynamicStyles = css.create({
+const treeDynamicStyles = css.create({
   indent: (em: number) => ({ width: `${em}em`, flexShrink: 0 }),
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
   height: (px: number) => ({ height: px }),

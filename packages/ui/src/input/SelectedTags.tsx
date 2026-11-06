@@ -36,7 +36,7 @@ export interface SelectedTagsProps extends PartProps<'span', 'aria-hidden'> {
 }
 
 /** SelectedTags 的样式：root、line */
-export const selectedTagsStyles = css.create({
+const selectedTagsStyles = css.create({
   // 占触发框里剩下的宽度；触发按钮里只剩读屏用的文字
   root: {
     display: 'flex',

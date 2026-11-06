@@ -161,7 +161,7 @@ export interface UploadProps extends PartProps<'div'> {
 }
 
 /** Upload 的样式：root、list、item、icon、body、name、meta、error、progress */
-export const uploadStyles = css.create({
+const uploadStyles = css.create({
   root: { display: 'grid', gap: '_sm' },
   item: {
     cursor: 'default',
@@ -252,7 +252,7 @@ export const uploadStyles = css.create({
 });
 
 /** Upload 的动态样式：缩略图的边长 */
-export const uploadDynamicStyles = css.create({
+const uploadDynamicStyles = css.create({
   square: (size: number) => ({ width: `${size}px`, height: `${size}px` }),
 });
 

@@ -16,13 +16,8 @@ export {
   ShaderBackground,
   type ShaderBackgroundProps,
 } from './background/ShaderBackground';
-export {
-  EffectSurface,
-  effectSurfaceStyles,
-  type EffectProps,
-  type EffectSurfaceProps,
-} from './core/EffectSurface';
-export { ThreeCanvas, threeCanvasStyles, type ThreeCanvasProps } from './core/ThreeCanvas';
+export { EffectSurface, type EffectProps, type EffectSurfaceProps } from './core/EffectSurface';
+export { ThreeCanvas, type ThreeCanvasProps } from './core/ThreeCanvas';
 export { disposeMaterial, disposeObject } from './core/dispose';
 export { createOrbit, type Orbit, type OrbitOptions } from './core/orbit';
 export {
@@ -60,7 +55,6 @@ export {
 export {
   Confetti,
   CONFETTI_PALETTE,
-  confettiStyles,
   type ConfettiOrigin,
   type ConfettiProps,
 } from './effects/Confetti';
@@ -74,7 +68,6 @@ export {
 } from './effects/WaveGrid';
 export {
   Globe,
-  globeStyles,
   latLngToVector,
   type GeoPoint,
   type GlobeArc,
@@ -82,9 +75,4 @@ export {
   type GlobeProps,
 } from './globe/Globe';
 export { LAND_BITS, LAND_HEIGHT, LAND_WIDTH } from './globe/land';
-export {
-  ModelViewer,
-  modelViewerStyles,
-  type ModelViewerProps,
-  type ModelViewerStatuses,
-} from './model/ModelViewer';
+export { ModelViewer, type ModelViewerProps, type ModelViewerStatuses } from './model/ModelViewer';

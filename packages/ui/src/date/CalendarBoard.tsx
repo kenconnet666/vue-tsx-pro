@@ -96,7 +96,7 @@ export interface CalendarBoardProps<T = unknown> extends PartProps<'div', 'role'
 }
 
 /** CalendarBoard 的样式 */
-export const calendarBoardStyles = css.create({
+const calendarBoardStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
   header: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_sm' },
   title: { fontSize: '_lg', fontWeight: '_semibold', marginInlineEnd: 'auto' },

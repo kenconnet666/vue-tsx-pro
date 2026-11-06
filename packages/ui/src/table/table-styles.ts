@@ -37,6 +37,7 @@ export interface DataTableOptions {
 /**
  * 静态 Table 与 DataTable 共用的部件样式：表格、列标题、单元格。两个配方直接引用，两种表格的样子只写在一处；
  * 表格的布局（auto / fixed）、外层、斑马纹各自的配方里给
+ * @internal 组件之间共用，不进入口
  */
 export const tablePartStyles = css.create({
   table: {
@@ -294,6 +295,7 @@ export type DataTablePart = (typeof dataTableRecipe.parts)[number];
 /**
  * 表格按列、按状态叠加的样式：对齐、换行、固定列、已选、正在看、编辑中……追加在部件层之后
  * （`{ ...s.cell, sx: [s.cell.sx, dataTableStateStyles.end] }`）。静态 Table 的对齐、换行也用它
+ * @internal 组件之间共用，不进入口
  */
 export const dataTableStateStyles = css.create({
   // 放在竖排的弹性容器（ViewportFill）里：按行数自己的高度，最多占到剩下的高度，再多在表格里滚动

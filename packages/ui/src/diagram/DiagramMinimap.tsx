@@ -41,7 +41,7 @@ export interface DiagramMinimapProps extends PartProps<'div'> {
 }
 
 /** DiagramMinimap 的样式 */
-export const diagramMinimapStyles = css.create({
+const diagramMinimapStyles = css.create({
   root: {
     position: 'absolute',
     pointerEvents: 'auto',

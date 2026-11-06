@@ -22,7 +22,7 @@ import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { Icon, type IconData, type IconProps } from './Icon';
 
 /** 正文列表的样式：缩进与项目之间的间距；嵌套的列表紧贴上一项；有图标时不要圆点、不缩进 */
-export const listStylesProse = css.create({
+const listStylesProse = css.create({
   root: {
     display: 'grid',
     margin: 0,

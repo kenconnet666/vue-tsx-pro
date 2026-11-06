@@ -61,7 +61,7 @@ export interface ProportionBarProps extends PartProps<'div'> {
 const ORDER: readonly StatusTone[] = ['accent', 'info', 'success', 'warning', 'danger', 'neutral'];
 
 /** ProportionBar 的样式：root、bar、sm、md、legend、legendItem、value */
-export const proportionBarStyles = css.create({
+const proportionBarStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
   bar: { display: 'flex', gap: '2px', borderRadius: '_full', overflow: 'hidden' },
   sm: { height: '0.5rem' },
@@ -82,7 +82,7 @@ export const proportionBarStyles = css.create({
 });
 
 /** ProportionBar 的动态样式：段的份额、任意颜色 */
-export const proportionBarDynamicStyles = css.create({
+const proportionBarDynamicStyles = css.create({
   share: (value: number) => ({ flexGrow: value, flexBasis: 0 }),
   color: (color: string) => ({ backgroundColor: color }),
 });

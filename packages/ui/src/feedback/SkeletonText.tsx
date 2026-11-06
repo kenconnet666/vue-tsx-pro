@@ -31,7 +31,7 @@ export interface SkeletonTextProps extends PartProps<'div', 'aria-hidden'> {
 }
 
 /** SkeletonText 的样式：root、last */
-export const skeletonTextStyles = css.create({
+const skeletonTextStyles = css.create({
   // 1em 高的行加 0.5em 间隔，接近正文 1.5 的行高
   root: { display: 'flex', flexDirection: 'column', gap: '_sm' },
   last: { width: '60%' },

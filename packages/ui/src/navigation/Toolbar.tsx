@@ -42,7 +42,7 @@ export interface ToolbarProps extends PartProps<'div', ToolbarManaged> {
 }
 
 /** Toolbar 的样式：root、vertical */
-export const toolbarStyles = css.create({
+const toolbarStyles = css.create({
   root: { display: 'flex', alignItems: 'center', flexWrap: 'wrap' },
   vertical: { flexDirection: 'column', alignItems: 'stretch' },
 });

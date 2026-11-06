@@ -62,7 +62,7 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'leading'
 }
 
 /** TreeDataTable 的样式：toggle、placeholder */
-export const treeDataTableStyles = css.create({
+const treeDataTableStyles = css.create({
   toggle: { flexShrink: 0, width: '1.5em', minHeight: '1.5em' },
   // 叶子没有按钮，用同样宽的占位让文字对齐
   placeholder: { flexShrink: 0, width: '1.5em' },
@@ -70,7 +70,7 @@ export const treeDataTableStyles = css.create({
 
 // 缩进是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** TreeDataTable 的样式：depth */
-export const treeDataTableIndentStyles = css.create({
+const treeDataTableIndentStyles = css.create({
   depth: (em: number) => ({ width: `${em}em`, flexShrink: 0 }),
 });
 

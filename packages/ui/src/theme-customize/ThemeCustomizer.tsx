@@ -67,7 +67,7 @@ export interface ThemeCustomizerProps extends PartProps<'div'> {
 }
 
 /** ThemeCustomizer 的样式：root、group、groupHeader、field、fieldHeader、options、option、optionContent 等 */
-export const themeCustomizerStyles = css.create({
+const themeCustomizerStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_xl' },
   group: {
     display: 'flex',
@@ -127,7 +127,7 @@ export const themeCustomizerStyles = css.create({
 });
 
 /** ThemeCustomizer 的样式：圆角示意的四档（none、small、medium、large） */
-export const themeCustomizerCornerStyles = css.create({
+const themeCustomizerCornerStyles = css.create({
   none: { borderStartStartRadius: 0 },
   small: { borderStartStartRadius: '0.2em' },
   medium: { borderStartStartRadius: '0.45em' },
@@ -136,7 +136,7 @@ export const themeCustomizerCornerStyles = css.create({
 
 // 色块颜色与示例字号是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** ThemeCustomizer 的动态样式：色块的颜色、缩放示例的字号 */
-export const themeCustomizerDynamicStyles = css.create({
+const themeCustomizerDynamicStyles = css.create({
   fill: (color: string) => ({ backgroundColor: color }),
   scale: (factor: number) => ({ fontSize: `${factor}em` }),
 });

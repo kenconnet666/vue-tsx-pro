@@ -38,7 +38,7 @@ export interface SelectionBarProps extends PartProps<'div'> {
 }
 
 /** SelectionBar 的样式：root、count、actions */
-export const selectionBarStyles = css.create({
+const selectionBarStyles = css.create({
   root: {
     display: 'flex',
     alignItems: 'center',

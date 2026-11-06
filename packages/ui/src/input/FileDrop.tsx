@@ -72,7 +72,7 @@ export interface FileDropProps extends PartProps<
 }
 
 /** FileDrop 的样式：root、dragging、disabled、invalid、icon、hint、description */
-export const fileDropStyles = css.create({
+const fileDropStyles = css.create({
   root: {
     boxSizing: 'border-box',
     display: 'flex',

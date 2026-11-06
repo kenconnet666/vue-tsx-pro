@@ -40,7 +40,7 @@ export interface EffectProps extends PartProps<'div'> {
 }
 
 /** EffectSurface 的样式：root、canvas、content */
-export const effectSurfaceStyles = css.create({
+const effectSurfaceStyles = css.create({
   root: { position: 'relative', isolation: 'isolate', overflow: 'hidden' },
   canvas: {
     position: 'absolute',

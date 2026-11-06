@@ -75,7 +75,7 @@ const CLOSE_DELAY = 100;
 const tooltips = createHoverGroup();
 
 /** Tooltip 的样式：panel */
-export const tooltipStyles = css.create({
+const tooltipStyles = css.create({
   panel: {
     boxSizing: 'border-box',
     maxWidth: 'min(20em, calc(100vw - 2em))',

@@ -104,7 +104,7 @@ const CHANGE_FORMAT: NumericFormat = {
 const StatGroupContext = createContext<boolean>('StatGroup');
 
 /** Stat 的样式：root、label、icon、value、number、unit、change、description、body、footer、skeleton… */
-export const statStyles = css.create({
+const statStyles = css.create({
   // 第一行是指标名与变化量（结束边），其余各占一整行。可换行的弹性布局而不是两列网格：
   // 卡片窄时变化量换到下一行，指标名不被挤成一字一行；DOM 顺序不变（读屏仍是名称、数值、变化量）
   root: {
@@ -333,7 +333,7 @@ export interface StatGroupProps extends PartProps<'div'> {
 }
 
 /** StatGroup 的样式：root、item */
-export const statGroupStyles = css.create({
+const statGroupStyles = css.create({
   // 每个指标的起始边一条竖线；整组往起始方向挪一条线的位置，每行第一个的竖线藏到外面（overflow 裁掉）
   root: { display: 'grid', rowGap: '_md', overflow: 'hidden' },
   item: {
@@ -346,7 +346,7 @@ export const statGroupStyles = css.create({
 });
 
 /** StatGroup 的动态样式：列宽 */
-export const statGroupDynamicStyles = css.create({
+const statGroupDynamicStyles = css.create({
   columns: (min: string) => ({
     gridTemplateColumns: `repeat(auto-fit, minmax(min(${min}, 100%), 1fr))`,
   }),

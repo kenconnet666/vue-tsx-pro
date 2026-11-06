@@ -75,7 +75,7 @@ export interface ItemListItemProps extends PartProps<'li', 'title'> {
 }
 
 /** ItemList 的样式：list、item、divided、hoverable、compact、standard、body、title、description… */
-export const itemListStyles = css.create({
+const itemListStyles = css.create({
   list: { listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' },
   item: {
     display: 'grid',

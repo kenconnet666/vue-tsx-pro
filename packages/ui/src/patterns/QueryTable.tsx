@@ -97,7 +97,7 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
 }
 
 /** QueryTable 的样式：root、rootFill、panel、panelFullscreen、panelFill、toolbar、title、tools、titleInline、toolbarInline */
-export const queryTableStyles = css.create({
+const queryTableStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
   panel: {
     display: 'flex',

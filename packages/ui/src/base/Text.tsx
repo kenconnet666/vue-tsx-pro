@@ -57,7 +57,7 @@ export interface TextOptions {
 export type TextProps<Tag extends TextTag = 'span'> = PartProps<Tag> & TextOptions;
 
 /** Text 系列 的样式：paragraph */
-export const textComponentStyles = css.create({
+const textComponentStyles = css.create({
   // 段落之间的距离交给布局（Flex 的 gap），与标题一致
   paragraph: { margin: 0 },
 });

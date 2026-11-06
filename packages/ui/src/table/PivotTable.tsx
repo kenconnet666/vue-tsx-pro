@@ -87,7 +87,7 @@ export interface PivotTableProps<T> extends Omit<
 }
 
 /** PivotTable 的样式：heat（按比例的底色） */
-export const pivotTableStyles = css.create({
+const pivotTableStyles = css.create({
   heat: (percent: number) => ({
     backgroundColor: `color-mix(in srgb, ${t.colors.accent} ${percent}%, transparent)`,
   }),

@@ -114,7 +114,7 @@ export interface NotificationListProps extends PartProps<'div', 'title'>, Notifi
 }
 
 /** NotificationList 的样式：root、head、title、filters、list、item、dot… */
-export const notificationListStyles = css.create({
+const notificationListStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', minWidth: 0 },
   head: {
     display: 'flex',
@@ -355,7 +355,7 @@ export interface NotificationCenterProps
 }
 
 /** NotificationCenter 的样式：panel（弹出层的宽度）、list（列表的最大高度） */
-export const notificationCenterStyles = css.create({
+const notificationCenterStyles = css.create({
   panel: { width: 'min(26rem, calc(100vw - 2rem))', padding: 0 },
   list: { maxHeight: '24rem' },
 });

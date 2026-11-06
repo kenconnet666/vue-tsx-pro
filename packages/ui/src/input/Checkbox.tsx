@@ -104,7 +104,7 @@ export interface CheckboxProps extends PartProps<'input', CheckboxManaged> {
   children?: VNodeChild;
 }
 
-/** Checkbox 的样式：box、indicator、hidden */
+/** Checkbox 的样式：box、indicator、hidden（组件之间共用，不进入口） @internal */
 export const checkboxStyles = css.create({
   box: { width: '1.125em', height: '1.125em', borderRadius: '_sm' },
   indicator: { width: '0.875em', height: '0.875em', color: 'var(--tone-on-fill)' },

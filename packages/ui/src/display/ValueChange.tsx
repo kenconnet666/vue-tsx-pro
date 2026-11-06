@@ -31,7 +31,7 @@ export interface ValueChangeProps extends PartProps<'span'> {
 }
 
 /** ValueChange 的样式：root、before、arrow、after */
-export const valueChangeStyles = css.create({
+const valueChangeStyles = css.create({
   root: {
     display: 'inline-flex',
     flexWrap: 'wrap',

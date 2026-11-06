@@ -24,7 +24,7 @@ export interface ProseProps extends PartProps<'article'> {
 }
 
 /** Prose 的样式 */
-export const proseStyles = css.create({
+const proseStyles = css.create({
   root: {
     display: 'flex',
     flexDirection: 'column',

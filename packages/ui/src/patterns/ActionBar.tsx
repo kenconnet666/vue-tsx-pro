@@ -37,7 +37,7 @@ export interface ActionBarProps extends PartProps<'div'> {
 }
 
 /** ActionBar 的样式：root、sticky、stuck、start、actions */
-export const actionBarStyles = css.create({
+const actionBarStyles = css.create({
   root: {
     display: 'flex',
     alignItems: 'center',

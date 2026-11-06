@@ -161,7 +161,7 @@ export const appShellOffset = css.createTheme(layoutVars, { stickyOffset: HEADER
 /** 全屏时没有顶栏：标题和粘性侧栏贴着窗口顶端 */
 export const appShellFullscreenOffset = css.createTheme(layoutVars, { stickyOffset: '0px' });
 
-/** AppShell 的样式：root、header、menuButton、body、sidebar、main、aside 等 */
+/** AppShell 的样式：root、header、menuButton、body、sidebar、main、aside 等（测试要用，不进入口） @internal */
 export const appShellStyles = css.create({
   // 整页的界面基准文字（同 Provider）：没有 Provider 时页面是浏览器默认的 16px，与组件的 md 档位对不上
   root: {
@@ -658,7 +658,7 @@ export interface AppShellBrandProps extends PartProps<'a', 'href'> {
 }
 
 /** AppShellBrand 的样式：root、mark */
-export const appShellBrandStyles = css.create({
+const appShellBrandStyles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'center',

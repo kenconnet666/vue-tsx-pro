@@ -220,7 +220,7 @@ type CardParts = Readonly<Record<CardPart, PartLayer>>;
 
 // 倾斜角度、光的位置每帧变化，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Card 效果的样式：tiltTransform、glare（高光的位置与强度）、light（光斑）、beamPath（流光的路径） */
-export const cardEffectDynamicStyles = css.create({
+const cardEffectDynamicStyles = css.create({
   tiltTransform: (rotateX: number, rotateY: number, scale: number) => ({
     transform: `perspective(60em) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${scale})`,
   }),

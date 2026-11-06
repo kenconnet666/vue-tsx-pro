@@ -56,7 +56,7 @@ export interface CountdownProps extends PartProps<'span', 'role'> {
 }
 
 /** Countdown 的样式：root */
-export const countdownStyles = css.create({
+const countdownStyles = css.create({
   // 等宽数字：每秒跳动时宽度不变
   root: { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
 });

@@ -95,7 +95,7 @@ export interface ChecklistProps extends PartProps<'div'> {
   propsItem?: PartProps<'li'> | ((item: ChecklistItem) => PartProps<'li'>);
 }
 
-/** Checklist 的样式 */
+/** Checklist 的样式（测试要用，不进入口） @internal */
 export const checklistStyles = css.create({
   root: { display: 'grid', gap: '_sm' },
   summary: {
@@ -163,7 +163,7 @@ export const checklistStyles = css.create({
 });
 
 /** 各状态的图标与颜色 */
-export const checklistStatusStyles = css.create({
+const checklistStatusStyles = css.create({
   done: { color: '_successText' },
   todo: { color: '_textMuted' },
   overdue: { color: '_dangerText' },

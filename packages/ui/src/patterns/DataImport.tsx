@@ -100,7 +100,7 @@ export interface DataImportProps<Row> extends PartProps<'div'> {
 }
 
 /** DataImport 的样式：root、previewTable、validIcon、invalidIcon */
-export const dataImportStyles = css.create({
+const dataImportStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_lg', minWidth: 0 },
   previewTable: { maxHeight: '24rem' },
   validIcon: { color: '_successText' },

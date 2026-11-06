@@ -71,7 +71,7 @@ export interface HoverCardProps
 }
 
 /** HoverCard 的样式：panel */
-export const hoverCardStyles = css.create({
+const hoverCardStyles = css.create({
   panel: { padding: '_md', maxWidth: 'min(22em, calc(100vw - 2em))' },
 });
 

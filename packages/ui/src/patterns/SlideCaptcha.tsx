@@ -84,7 +84,7 @@ const HANDLE = '2.75rem';
 const SETTLE = '0.28s cubic-bezier(0.34, 1.4, 0.64, 1)';
 
 /** SlideCaptcha 的样式：root、picture、image、piece、banner、track、fill、handle 等 */
-export const slideCaptchaStyles = css.create({
+const slideCaptchaStyles = css.create({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -196,7 +196,7 @@ export const slideCaptchaStyles = css.create({
 });
 
 /** SlideCaptcha 的动态样式：位置用百分比，画面和滑块条按容器宽度缩放 */
-export const slideCaptchaDynamicStyles = css.create({
+const slideCaptchaDynamicStyles = css.create({
   at: (percent: number) => ({ left: `${percent}%` }),
   pieceWidth: (percent: number) => ({ width: `${percent}%` }),
   ratio: (aspect: number) => ({ aspectRatio: String(aspect) }),

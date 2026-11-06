@@ -83,7 +83,7 @@ export interface SplitterProps extends PartProps<'div'> {
 const STEP = 5;
 
 /** Splitter 的样式：root、pane、handle、line、toggle… */
-export const splitterStyles = css.create({
+const splitterStyles = css.create({
   root: { display: 'grid', minWidth: 0, minHeight: 0, height: '100%' },
   bordered: {
     borderWidth: '_xs',
@@ -126,7 +126,7 @@ export const splitterStyles = css.create({
 });
 
 /** Splitter 的动态样式：两栏与分隔条的轨道 */
-export const splitterDynamicStyles = css.create({
+const splitterDynamicStyles = css.create({
   columns: (template: string) => ({ gridTemplateColumns: template }),
   rows: (template: string) => ({ gridTemplateRows: template }),
 });

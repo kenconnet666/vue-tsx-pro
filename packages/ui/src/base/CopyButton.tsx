@@ -59,7 +59,7 @@ export interface CopyButtonProps
 const pop = css.keyframes({ from: { transform: 'scale(0.5)', opacity: 0 } });
 
 /** CopyButton 的样式：copied（对勾弹出；减少动态效果时时长为 0） */
-export const copyButtonStyles = css.create({
+const copyButtonStyles = css.create({
   copied: {
     animationName: pop,
     animationDuration: '_durations.md',

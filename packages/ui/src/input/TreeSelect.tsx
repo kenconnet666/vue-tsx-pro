@@ -145,7 +145,7 @@ export interface TreeSelectProps<T>
 }
 
 /** TreeSelect 的样式：tree */
-export const treeSelectStyles = css.create({
+const treeSelectStyles = css.create({
   // 树的滚动区域占满弹出层剩下的高度（最大高度由定位写在弹出层上）
   tree: { flexGrow: 1, minHeight: 0 },
   // 弹出层比触发框窄时也放得下几层缩进

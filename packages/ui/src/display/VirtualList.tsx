@@ -89,7 +89,7 @@ const SKELETON_ROWS = 5;
 const MORE_SKELETON_ROWS = 2;
 
 /** VirtualList 的样式：root、container、list、item、itemVertical、itemHorizontal 等 */
-export const virtualListStyles = css.create({
+const virtualListStyles = css.create({
   // 自己调整滚动位置（见 virtualizer.ts），不要浏览器再按锚点调整一次
   root: { overflowAnchor: 'none' },
   // 容器模式：列表元素是 ScrollArea 的视口（浮层滚动条）
@@ -104,7 +104,7 @@ export const virtualListStyles = css.create({
 
 // 总大小与位置是任意值，用动态样式（编译为 CSS 变量）；单独一个 create，见 COMPONENTS.md §4
 /** VirtualList 的样式：height、width、y、x、skeleton */
-export const virtualListSizeStyles = css.create({
+const virtualListSizeStyles = css.create({
   height: (px: number) => ({ height: px }),
   width: (px: number) => ({ width: px, height: '_full' }),
   y: (px: number) => ({ transform: `translateY(${px}px)` }),

@@ -41,7 +41,7 @@ export interface ResizeHandleProps extends PartProps<'span', ResizeHandleManaged
 }
 
 /** ResizeHandle 的样式：贴着父元素结束边的细线 */
-export const resizeHandleStyles = css.create({
+const resizeHandleStyles = css.create({
   handle: {
     position: 'absolute',
     top: 0,

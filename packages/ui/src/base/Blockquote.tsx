@@ -14,7 +14,7 @@ export interface BlockquoteProps extends PartProps<'blockquote'> {
 }
 
 /** Blockquote 的样式 */
-export const blockquoteStyles = css.create({
+const blockquoteStyles = css.create({
   root: {
     margin: 0,
     paddingBlock: '_xs',

@@ -73,7 +73,7 @@ export interface FormSectionProps extends PartProps<'div', FormSectionManaged>, 
 }
 
 /** FormSection 的样式：root、header、headerText、heading、trigger、chevron、description、extra、body、singleColumn */
-export const formSectionStyles = css.create({
+const formSectionStyles = css.create({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -132,7 +132,7 @@ export const formSectionStyles = css.create({
 });
 
 /** FormSection 的样式：columns（最多几列、每列不窄于多少） */
-export const formSectionColumnStyles = css.create({
+const formSectionColumnStyles = css.create({
   columns: (count: number, minWidth: string) => ({
     gridTemplateColumns: `repeat(auto-fill, minmax(max(min(${minWidth}, 100%), calc((100% - ${count - 1} * var(--form-section-column-gap)) / ${count})), 1fr))`,
   }),

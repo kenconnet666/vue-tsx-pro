@@ -86,7 +86,7 @@ export interface PropsTableProps extends TableProps {
 }
 
 /** PropsTable 的样式：name、nameCode、head、descriptionCell、type、muted、description、values、valueTerm、valueText */
-export const propsTableStyles = css.create({
+const propsTableStyles = css.create({
   name: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_xs' },
   // 属性名不断开：Code 默认可以在任意位置换行，表格会按它把名称列压到最窄
   nameCode: { whiteSpace: 'nowrap' },

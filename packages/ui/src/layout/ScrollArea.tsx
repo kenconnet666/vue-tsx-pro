@@ -71,7 +71,7 @@ export interface ScrollAreaProps extends PartProps<'div'> {
 const MIN_THUMB = 20;
 
 /** ScrollArea 的样式：root、viewport、y、x、both、wideContent */
-export const scrollAreaStyles = css.create({
+const scrollAreaStyles = css.create({
   // flex 纵向：使用方只给 max-height 时视口也能被限制住（视口 min-height: 0 可以收缩）
   root: { position: 'relative', display: 'flex', flexDirection: 'column', overflow: 'hidden' },
   viewport: {
@@ -88,7 +88,7 @@ export const scrollAreaStyles = css.create({
   wideContent: { display: 'table', minWidth: '_full' },
 });
 
-/** OverlayScrollbar 的样式：track、hidden、y、x、yCorner、xCorner、thumb 等 */
+/** OverlayScrollbar 的样式：track、hidden、y、x、yCorner、xCorner、thumb 等（组件之间共用，不进入口） @internal */
 export const scrollAreaBarStyles = css.create({
   track: {
     position: 'absolute',

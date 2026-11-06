@@ -47,7 +47,7 @@ export interface AsideLayoutProps extends PartProps<'div'> {
 }
 
 /** AsideLayout 的样式：root、grid、column、sticky */
-export const asideLayoutStyles = css.create({
+const asideLayoutStyles = css.create({
   // 容器查询的容器：按自己的宽度决定叠不叠
   root: { containerType: 'inline-size', minWidth: 0 },
   grid: { display: 'grid', alignItems: 'start' },
@@ -59,7 +59,7 @@ export const asideLayoutStyles = css.create({
 });
 
 /** AsideLayout 的动态样式：侧栏的宽度 */
-export const asideLayoutDynamicStyles = css.create({
+const asideLayoutDynamicStyles = css.create({
   columns: (asideWidth: string) => ({
     gridTemplateColumns: {
       default: 'minmax(0, 1fr)',

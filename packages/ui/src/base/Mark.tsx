@@ -14,7 +14,7 @@ export interface MarkProps extends PartProps<'mark'> {
 }
 
 /** Mark 的样式 */
-export const markStyles = css.create({
+const markStyles = css.create({
   root: {
     paddingInline: '0.15em',
     borderRadius: '_xs',

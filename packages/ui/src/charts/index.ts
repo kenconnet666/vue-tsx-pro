@@ -8,19 +8,12 @@
  */
 export { AreaChart, type AreaChartProps } from './AreaChart';
 export { BarChart, type BarChartOrientations, type BarChartProps } from './BarChart';
-export { ChordChart, chordChartStyles, type ChordChartProps } from './ChordChart';
+export { ChordChart, type ChordChartProps } from './ChordChart';
 export { ComboChart, type ComboChartProps, type ComboSeries } from './ComboChart';
-export { DonutChart, donutChartStyles, type DonutChartProps } from './DonutChart';
-export {
-  FunnelChart,
-  funnelChartDynamicStyles,
-  funnelChartStyles,
-  type FunnelChartProps,
-  type FunnelStage,
-} from './FunnelChart';
+export { DonutChart, type DonutChartProps } from './DonutChart';
+export { FunnelChart, type FunnelChartProps, type FunnelStage } from './FunnelChart';
 export {
   GraphChart,
-  graphChartStyles,
   type GraphChartGroup,
   type GraphChartLayouts,
   type GraphChartLink,
@@ -31,34 +24,26 @@ export {
 export { LineChart, type LineChartProps, type LineDots } from './LineChart';
 export {
   MapChart,
-  mapChartStyles,
   type MapArea,
   type MapChartProps,
   type MapLink,
   type MapPoint,
   type MapProjections,
 } from './MapChart';
-export { RadarChart, radarChartStyles, type RadarChartProps } from './RadarChart';
-export {
-  SankeyChart,
-  sankeyChartStyles,
-  type SankeyAligns,
-  type SankeyChartProps,
-} from './SankeyChart';
-export { ScatterChart, scatterChartStyles, type ScatterChartProps } from './ScatterChart';
+export { RadarChart, type RadarChartProps } from './RadarChart';
+export { SankeyChart, type SankeyAligns, type SankeyChartProps } from './SankeyChart';
+export { ScatterChart, type ScatterChartProps } from './ScatterChart';
 export {
   TimelineChart,
-  timelineChartStyles,
   type TimelineChartItem,
   type TimelineChartMarker,
   type TimelineChartProps,
   type TimelineChartSeries,
   type TimelineTime,
 } from './TimelineChart';
-export { TreemapChart, treemapChartStyles, type TreemapChartProps } from './TreemapChart';
+export { TreemapChart, type TreemapChartProps } from './TreemapChart';
 export {
   WaterfallChart,
-  waterfallChartStyles,
   waterfallRows,
   type WaterfallChartProps,
   type WaterfallRow,
@@ -66,7 +51,6 @@ export {
 } from './WaterfallChart';
 export {
   XYChart,
-  xyChartStyles,
   type ChartAnnotation,
   type ChartBand,
   type ChartSecondaryAxis,
@@ -87,7 +71,6 @@ export {
 } from './flow';
 export {
   ChartFrame,
-  chartStyles,
   chartTooltip,
   useChartValueText,
   type ChartFrameParts,
@@ -147,16 +130,13 @@ export {
   chartBars,
   chartDots,
   chartLines,
-  chartMarkStyles,
   type ChartAreaOptions,
   type ChartBarOptions,
   type ChartLineOptions,
 } from './marks';
 export {
   chartAxis,
-  chartSvgStyles,
   ChartTooltipBox,
-  chartTooltipStyles,
   pointerIn,
   usePlotArea,
   usePlotSeen,

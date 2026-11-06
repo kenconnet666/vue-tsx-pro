@@ -94,7 +94,7 @@ export interface TourProps
 }
 
 /** Tour 的样式：root、spotlight、dimmed、panel、cover、title、content、footer、progress */
-export const tourStyles = css.create({
+const tourStyles = css.create({
   // 整屏透明的 dialog：遮罩由镂空的阴影画，原生 ::backdrop 不用
   root: {
     position: 'fixed',
@@ -146,7 +146,7 @@ export const tourStyles = css.create({
 
 // 镂空的位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Tour 的样式：rect（镂空的位置与大小） */
-export const tourDynamicStyles = css.create({
+const tourDynamicStyles = css.create({
   rect: (left: number, top: number, width: number, height: number) => ({
     left,
     top,

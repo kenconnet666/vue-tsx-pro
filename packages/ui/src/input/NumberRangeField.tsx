@@ -72,7 +72,7 @@ export interface NumberRangeFieldProps
 }
 
 /** NumberRangeField 的样式：root、field、separator */
-export const numberRangeFieldStyles = css.create({
+const numberRangeFieldStyles = css.create({
   root: { display: 'flex', alignItems: 'center', gap: '_sm', minWidth: 0 },
   field: { flexGrow: 1, flexBasis: 0, minWidth: 0 },
   separator: { flexShrink: 0, color: '_textMuted' },

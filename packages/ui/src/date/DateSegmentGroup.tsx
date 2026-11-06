@@ -68,7 +68,7 @@ export interface DateSegmentGroupProps extends PartProps<'div', DateSegmentGroup
 }
 
 /** DateSegmentGroup 的样式：root、segment、placeholder、literal */
-export const dateSegmentStyles = css.create({
+const dateSegmentStyles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'center',

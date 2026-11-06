@@ -94,7 +94,7 @@ export interface GlobeProps extends EffectProps {
 }
 
 /** Globe 的样式：root、draggable、dragging */
-export const globeStyles = css.create({
+const globeStyles = css.create({
   root: { aspectRatio: '1', width: '100%' },
   draggable: { cursor: 'grab', touchAction: 'pan-y' },
   dragging: { cursor: 'grabbing' },

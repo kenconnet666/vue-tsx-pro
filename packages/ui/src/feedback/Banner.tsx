@@ -68,7 +68,7 @@ export interface BannerProps extends PartProps<'div', BannerManaged> {
 }
 
 /** Banner 的样式：root、icon、content、title、action、close */
-export const bannerStyles = css.create({
+const bannerStyles = css.create({
   // 内容居中、一行说完；窄屏时换行。关闭按钮贴在结束边，不参与居中
   root: {
     boxSizing: 'border-box',

@@ -22,7 +22,7 @@ export interface ThemeThumbnailProps extends PartProps<'span', 'aria-hidden'> {
 }
 
 /** ThemeThumbnail 的样式：root、card、title、line、button */
-export const themeThumbnailStyles = css.create({
+const themeThumbnailStyles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'flex-end',

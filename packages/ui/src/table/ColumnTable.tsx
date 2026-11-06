@@ -67,7 +67,7 @@ export interface ColumnTableProps<T> extends Omit<TableProps, 'children'> {
 }
 
 /** ColumnTable 的样式：merged */
-export const columnTableStyles = css.create({
+const columnTableStyles = css.create({
   // 合并的格跨了几行：内容垂直居中，下边线照常
   merged: { verticalAlign: 'middle' },
 });

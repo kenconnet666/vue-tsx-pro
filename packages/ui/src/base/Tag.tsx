@@ -36,7 +36,7 @@ export interface TagProps extends PartProps<'span'>, BadgeOptions {
 }
 
 /** Tag 的样式：root、removable、remove、removing */
-export const tagStyles = css.create({
+const tagStyles = css.create({
   // 移除被拒绝（使用方没移除）时从离场状态过渡回来
   root: {
     transition: `opacity ${t.durations.sm} ${t.easings.enter}, scale ${t.durations.sm} ${t.easings.enter}`,

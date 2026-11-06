@@ -111,7 +111,7 @@ export const buttonBaseStyles = css.create({
   disabled: { cursor: 'not-allowed' },
 });
 
-/** 按钮家族 的样式：root、square、fullWidth、disabled、content、hidden 等 */
+/** 按钮家族的样式：root、square、fullWidth、disabled、content、hidden 等（文档站的合并基准测试要用，不进入口） @internal */
 export const buttonStyles = css.create({
   // 去掉默认外观、指针与触摸反馈、颜色过渡来自 buttonBaseStyles 与 interactionTransitions（buttonSx 里排在前面）
   root: {

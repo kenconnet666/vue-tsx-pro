@@ -50,7 +50,7 @@ export interface AnimatedNumberProps extends PartProps<'span', 'prefix'> {
 }
 
 /** AnimatedNumber 的样式：root */
-export const animatedNumberStyles = css.create({
+const animatedNumberStyles = css.create({
   // 等宽数字：滚动时宽度不跳
   root: { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
 });

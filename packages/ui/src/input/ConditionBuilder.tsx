@@ -99,7 +99,7 @@ interface GroupNode {
 const MODES: readonly ConditionMode[] = ['all', 'any', 'none', 'notAll'];
 
 /** ConditionBuilder 的样式：root、group、nested、header、rows、row、joiner、rule、field、op、value、actions、empty */
-export const conditionBuilderStyles = css.create({
+const conditionBuilderStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
   group: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
   // 嵌套的组：浅底加描边，和外层的条件分开

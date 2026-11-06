@@ -62,7 +62,7 @@ export interface ChartFrameParts {
   propsTable?: PartProps<'table'>;
 }
 
-/** 图表共用的样式：root、header、unit、legend、swatch、plot、tooltip… */
+/** 图表共用的样式：root、header、unit、legend、swatch、plot、tooltip…（组件之间共用，不进入口） @internal */
 export const chartStyles = css.create({
   root: {
     display: 'flex',

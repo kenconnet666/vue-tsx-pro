@@ -68,7 +68,7 @@ type Page = 'org' | 'roles' | 'recent';
 const RECENT_LIMIT = 20;
 
 /** PeoplePickerPanel 的样式：root、grid、browse、selected、header、list、start */
-export const peoplePickerPanelStyles = css.create({
+const peoplePickerPanelStyles = css.create({
   // 按自己的宽度决定左右排还是上下排
   root: { containerType: 'inline-size', minWidth: 0 },
   grid: {
@@ -106,7 +106,7 @@ export const peoplePickerPanelStyles = css.create({
 });
 
 /** 随属性变的样式：列表的高度 */
-export const peoplePickerPanelDynamicStyles = css.create({
+const peoplePickerPanelDynamicStyles = css.create({
   height: (height: string) => ({ height }),
 });
 

@@ -38,13 +38,13 @@ export interface StatusDotProps extends PartProps<'span', 'role' | 'aria-hidden'
 }
 
 /** StatusDot 的样式：root、sm、md */
-export const statusDotStyles = css.create({
+const statusDotStyles = css.create({
   root: { display: 'inline-block', flexShrink: 0, borderRadius: '_full' },
   sm: { width: '0.5rem', height: '0.5rem' },
   md: { width: '0.625rem', height: '0.625rem' },
 });
 
-/** StatusDot 的色调 */
+/** StatusDot 的色调（组件之间共用，不进入口） @internal */
 export const statusDotToneStyles = css.create({
   neutral: { backgroundColor: '_textMuted' },
   accent: { backgroundColor: '_accent' },
@@ -55,7 +55,7 @@ export const statusDotToneStyles = css.create({
 });
 
 /** StatusDot 的动态样式：任意颜色 */
-export const statusDotDynamicStyles = css.create({
+const statusDotDynamicStyles = css.create({
   color: (color: string) => ({ backgroundColor: color }),
 });
 

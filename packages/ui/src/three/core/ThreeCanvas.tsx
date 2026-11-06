@@ -52,7 +52,7 @@ export interface ThreeCanvasProps extends PartProps<'div', 'role' | 'data-state'
 }
 
 /** ThreeCanvas 的样式：root、canvas、fallback、fallbackGradient（默认的降级渐变） */
-export const threeCanvasStyles = css.create({
+const threeCanvasStyles = css.create({
   root: {
     position: 'relative',
     display: 'block',

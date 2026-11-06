@@ -37,12 +37,12 @@ export interface ViewportFillProps extends Omit<FlexProps, 'direction'> {
 }
 
 /** ViewportFill 的样式：root */
-export const viewportFillStyles = css.create({
+const viewportFillStyles = css.create({
   root: { minWidth: 0 },
 });
 
 /** ViewportFill 的动态样式：高度 */
-export const viewportFillDynamicStyles = css.create({
+const viewportFillDynamicStyles = css.create({
   size: (top: number, bottom: string, min: string) => ({
     height: `calc(100dvh - ${top}px - ${bottom})`,
     minHeight: min,

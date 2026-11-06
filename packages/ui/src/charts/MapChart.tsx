@@ -166,7 +166,7 @@ export interface MapChartProps extends PartProps<'div', 'role' | 'aria-busy'>, C
 }
 
 /** MapChart 的样式 */
-export const mapChartStyles = css.create({
+const mapChartStyles = css.create({
   skeleton: { display: 'block', width: '100%', height: '100%' },
   viewport: { position: 'absolute', inset: 0 },
   // 地图跟随主题：底色、边界是表面色；缩放时边界不跟着变粗

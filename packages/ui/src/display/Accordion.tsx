@@ -56,7 +56,7 @@ interface AccordionBaseProps extends PartProps<'div'> {
 export type AccordionProps = AccordionBaseProps & SelectionProps;
 
 /** Accordion 的样式：root、item、heading、trigger、chevron、content */
-export const accordionStyles = css.create({
+const accordionStyles = css.create({
   root: { display: 'flex', flexDirection: 'column' },
   item: {
     borderBottomWidth: '_xs',

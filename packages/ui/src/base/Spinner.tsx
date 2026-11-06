@@ -26,7 +26,7 @@ export interface SpinnerProps extends PartProps<'span', 'role'> {
 const spin = css.keyframes({ to: { transform: 'rotate(360deg)' } });
 
 /** Spinner 的样式：root、icon */
-export const spinnerStyles = css.create({
+const spinnerStyles = css.create({
   root: { display: 'inline-flex', flexShrink: 0 },
   icon: {
     animationName: spin,

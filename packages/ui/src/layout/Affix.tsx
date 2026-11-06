@@ -37,7 +37,7 @@ export interface AffixProps extends PartProps<'div', AffixManaged> {
   children?: VNodeChild;
 }
 
-/** Affix 的样式：root、stuck、sentinel */
+/** Affix 的样式：root、stuck、sentinel（测试要用，不进入口） @internal */
 export const affixStyles = css.create({
   root: {
     position: 'sticky',
@@ -50,7 +50,7 @@ export const affixStyles = css.create({
 });
 
 /** 贴住的位置 */
-export const affixPositionStyles = css.create({
+const affixPositionStyles = css.create({
   top: (offset: number) => ({ top: offset }),
   bottom: (offset: number) => ({ bottom: offset }),
 });

@@ -64,7 +64,7 @@ export interface GaugeProps extends PartProps<'div', GaugeManaged> {
 }
 
 /** Gauge 的样式 */
-export const gaugeStyles = css.create({
+const gaugeStyles = css.create({
   root: {
     display: 'inline-grid',
     justifyItems: 'center',

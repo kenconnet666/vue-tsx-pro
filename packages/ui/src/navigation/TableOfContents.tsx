@@ -37,7 +37,7 @@ export interface TableOfContentsProps extends PartProps<'nav', 'aria-labelledby'
 }
 
 /** TableOfContents 的样式：title、list、indicator、link、current */
-export const tableOfContentsStyles = css.create({
+const tableOfContentsStyles = css.create({
   title: { display: 'block', marginBlockEnd: '_sm' },
   // 指示条按链接的 offsetTop 定位：列表是它的定位容器
   list: {

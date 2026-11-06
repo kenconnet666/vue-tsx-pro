@@ -253,7 +253,7 @@ const POINT_REACH = 24;
 /** 骨架柱的高度（百分比）：高低错落，看起来像一组数据 */
 const SKELETON_BARS = [55, 80, 40, 70, 90, 50, 65];
 
-/** XYChart 的样式：缩放的滑块、加载中的骨架、标注（外层结构的样式见 chartStyles） */
+/** XYChart 的样式：缩放的滑块、加载中的骨架、标注（外层结构的样式见 chartStyles）（组件之间共用，不进入口） @internal */
 export const xyChartStyles = css.create({
   svg: { touchAction: 'pan-y' },
   skeleton: { display: 'block', width: '100%', height: '100%' },

@@ -61,7 +61,7 @@ export interface ChordChartProps extends PartProps<'div', 'role' | 'aria-busy'>,
 }
 
 /** ChordChart 的样式：弧、弦、名字、骨架 */
-export const chordChartStyles = css.create({
+const chordChartStyles = css.create({
   skeleton: {
     display: 'block',
     height: '100%',

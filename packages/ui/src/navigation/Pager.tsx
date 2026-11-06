@@ -36,7 +36,7 @@ export interface PagerProps extends PartProps<'nav'> {
 }
 
 /** Pager 的样式：root、link、next、hint、label、arrow */
-export const pagerStyles = css.create({
+const pagerStyles = css.create({
   // 够宽时两列；只有下一篇时它仍在结束边那一列
   root: {
     display: 'grid',

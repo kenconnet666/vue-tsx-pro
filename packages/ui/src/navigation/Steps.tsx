@@ -161,7 +161,7 @@ export const stepsStyles = css.create({
 });
 
 /** Steps 的样式：complete、current、upcoming、error */
-export const stepsStateStyles = css.create({
+const stepsStateStyles = css.create({
   complete: { borderColor: '_accent', backgroundColor: '_accent', color: '_accentContrast' },
   current: { borderColor: '_accent', color: '_accentText' },
   upcoming: { borderColor: '_border', color: '_textMuted' },

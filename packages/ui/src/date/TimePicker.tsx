@@ -42,7 +42,7 @@ export interface TimePickerProps<V extends TimeInput = string>
 }
 
 /** TimePicker 的样式：popover、list、now */
-export const timePickerStyles = css.create({
+const timePickerStyles = css.create({
   popover: { display: 'flex', flexDirection: 'column', padding: '_xs' },
   // 弹层与输入框同宽，列表最多十来项高，其余滚动
   list: { maxHeight: '16em' },

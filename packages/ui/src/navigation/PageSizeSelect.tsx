@@ -34,7 +34,7 @@ export interface PageSizeSelectProps extends Omit<
 }
 
 /** PageSizeSelect 的样式：stack、option、hidden */
-export const pageSizeSelectStyles = css.create({
+const pageSizeSelectStyles = css.create({
   // 所有选项的文字叠在同一格，按最宽的那个撑开，只显示选中的
   stack: { display: 'inline-grid' },
   option: { gridArea: '1 / 1' },

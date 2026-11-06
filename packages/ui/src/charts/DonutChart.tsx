@@ -78,7 +78,7 @@ export interface DonutChartProps<T extends object>
 }
 
 /** DonutChart 的样式：skeleton、扇区、中间的文字 */
-export const donutChartStyles = css.create({
+const donutChartStyles = css.create({
   // 进场：整个环从略小淡入放大
   ring: {
     transformBox: 'fill-box',

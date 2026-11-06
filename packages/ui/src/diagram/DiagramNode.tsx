@@ -53,7 +53,7 @@ export interface DiagramNodeProps extends PartProps<'div', 'title'> {
   children?: VNodeChild;
 }
 
-/** DiagramNode 的样式：root、pill、dashed、alignStart、body、title、description、start、end */
+/** DiagramNode 的样式：root、pill、dashed、alignStart、body、title、description、start、end（测试要用，不进入口） @internal */
 export const diagramNodeStyles = css.create({
   root: {
     display: 'flex',
@@ -83,7 +83,7 @@ export const diagramNodeStyles = css.create({
 });
 
 /** 色调：节点的底色与边框 */
-export const diagramNodeToneStyles = css.create({
+const diagramNodeToneStyles = css.create({
   neutral: { backgroundColor: '_surfaceRaised', borderColor: '_borderStrong' },
   accent: { backgroundColor: '_accentSoft', borderColor: '_accentBorder' },
   info: { backgroundColor: '_infoSoft', borderColor: '_infoBorder' },

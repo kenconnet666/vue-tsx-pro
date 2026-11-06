@@ -100,6 +100,7 @@ export type ChoicePart = (typeof choiceRecipe.parts)[number];
 /**
  * 原生 input 的勾选、出错样式：排在各组件的形状（方框、圆、轨道）之后，所以不放进配方——
  * 开关的轨道把描边设成透明，出错的红色描边要盖过它
+ * @internal 组件之间共用，不进入口
  */
 export const choiceInputStyles = css.create({
   /** 已勾选（或部分勾选）：色调的实底色，见 choiceParts */

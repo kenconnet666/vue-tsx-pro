@@ -85,7 +85,7 @@ export const skeletonStyles = css.create({
 });
 
 /** Skeleton 的样式：text、heading、circle、button、image */
-export const skeletonShapeStyles = css.create({
+const skeletonShapeStyles = css.create({
   text: { display: 'block', width: '_full', height: '1em' },
   heading: { display: 'block', width: '40%', height: '1.5em' },
   circle: { width: '2.5em', height: '2.5em', flexShrink: 0, borderRadius: '_full' },

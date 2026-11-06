@@ -27,7 +27,7 @@ export interface ColorSwatchProps extends PartProps<'div'> {
 }
 
 /** ColorSwatch 的样式：root、swatch、fill、label、value */
-export const colorSwatchStyles = css.create({
+const colorSwatchStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_xs', minWidth: 0 },
   // 棋盘格垫底、内描边画出边界（swatchStyles）；大色块的格子放大一倍
   swatch: {
@@ -44,7 +44,7 @@ export const colorSwatchStyles = css.create({
 
 // 颜色是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** ColorSwatch 的动态样式：色块的颜色 */
-export const colorSwatchDynamicStyles = css.create({
+const colorSwatchDynamicStyles = css.create({
   fill: (color: string) => ({ backgroundColor: color }),
 });
 

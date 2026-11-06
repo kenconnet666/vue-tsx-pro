@@ -84,7 +84,7 @@ export interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManage
 export type ToggleGroupProps = ToggleGroupBaseProps & SelectionProps;
 
 /** ToggleGroup 的样式：root、vertical、indicator */
-export const toggleGroupStyles = css.create({
+const toggleGroupStyles = css.create({
   root: {
     // 滑块按项的 offsetLeft / offsetTop 定位；isolation 让 zIndex: -1 的滑块压在项下、组的底色之上
     position: 'relative',

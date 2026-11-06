@@ -14,7 +14,7 @@ export interface CodeProps extends PartProps<'code'> {
 }
 
 /** Code 的样式：root */
-export const codeStyles = css.create({
+const codeStyles = css.create({
   root: {
     paddingInline: '_xs',
     borderRadius: '_sm',

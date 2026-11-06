@@ -420,18 +420,18 @@ export const toastStyles = css.create({
 
 // 深度是运行时的数，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Toaster 的样式：叠放时第 depth 层（0 是最新的）的位移、缩放与层叠顺序 */
-export const toastStackStyles = css.create({
+const toastStackStyles = css.create({
   depth: (offset: string, scale: number, zIndex: number) => ({ translate: offset, scale, zIndex }),
 });
 
 // 时长来自每条通知，用动态样式；单独一个 create，见 COMPONENTS.md §4
 /** Toaster 的样式：剩余时间条的时长 */
-export const toastCountdownStyles = css.create({
+const toastCountdownStyles = css.create({
   duration: (ms: string) => ({ animationDuration: ms }),
 });
 
 /** Toaster 的样式：top-start、top、top-end、bottom-start、bottom、bottom-end */
-export const toastPlacementStyles = css.create({
+const toastPlacementStyles = css.create({
   'top-start': { top: 0, insetInlineStart: 0 },
   top: { top: 0, insetInline: 0, marginInline: 'auto' },
   'top-end': { top: 0, insetInlineEnd: 0 },

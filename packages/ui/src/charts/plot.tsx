@@ -125,7 +125,7 @@ export function pointerIn(event: { clientX: number; clientY: number }, element: 
 /** 进场：淡入；还有从 0 长出来的（柱、点），时长取主题的 lg */
 const enter = `${t.durations.lg} ${t.easings.standard}`;
 
-/** 图表 SVG 的共用样式 */
+/** 图表 SVG 的共用样式（组件之间共用，不进入口） @internal */
 export const chartSvgStyles = css.create({
   svg: { display: 'block', overflow: 'visible', userSelect: 'none', WebkitUserSelect: 'none' },
   grid: { stroke: '_borderMuted', strokeWidth: 1, shapeRendering: 'crispEdges' },
@@ -262,7 +262,7 @@ export interface ChartTip {
 }
 
 /** 提示框的样式 */
-export const chartTooltipStyles = css.create({
+const chartTooltipStyles = css.create({
   box: {
     position: 'absolute',
     top: 0,

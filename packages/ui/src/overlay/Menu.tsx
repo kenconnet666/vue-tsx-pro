@@ -129,7 +129,7 @@ function menuItemsOf(panel: HTMLElement | null): HTMLElement[] {
 }
 
 /** Menu 的样式：panel、content、label、indicator、hidden、shortcut、groupLabel */
-export const menuStyles = css.create({
+const menuStyles = css.create({
   // 菜单项多时在 ScrollArea 里滚动（浮层滚动条）；内边距放在内容层上，滚动条贴着菜单边缘
   panel: {
     minWidth: '12em',

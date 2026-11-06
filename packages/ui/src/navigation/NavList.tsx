@@ -56,7 +56,7 @@ export const NavGroupContext = createContext<NavGroupState | null>('NavGroup');
 export const NavCompactContext = createContext<() => boolean>('NavCompact');
 
 /** NavList 的样式：nested、row、current、disabled、section、sectionLabel 等 */
-export const navListStyles = css.create({
+const navListStyles = css.create({
   nested: { paddingInlineStart: '_lg', paddingTop: '_xs' },
   // 链接与分组的触发器共用：列表行（itemStyles）之上，导航项更宽松、字重更重，平时是次要颜色
   row: {

@@ -95,7 +95,7 @@ export interface ConfettiProps extends Omit<EffectProps, 'children' | 'fallback'
 }
 
 /** Confetti 的样式：root、fullscreen */
-export const confettiStyles = css.create({
+const confettiStyles = css.create({
   root: { position: 'absolute', inset: 0, pointerEvents: 'none' },
   // 原生 popover 的默认样式（居中、边框、底色）改成铺满视口的透明层
   fullscreen: {

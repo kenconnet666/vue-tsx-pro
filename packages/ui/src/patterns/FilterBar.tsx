@@ -100,7 +100,7 @@ export interface FilterBarProps
 }
 
 /** FilterBar 的样式：root、start、end、fields、more、actions */
-export const filterBarStyles = css.create({
+const filterBarStyles = css.create({
   // 条件栅格与按钮区并排；放不下时按钮区换行
   root: {
     display: 'flex',
@@ -158,7 +158,7 @@ export const filterBarStyles = css.create({
 });
 
 /** FilterBar 的样式：columns（每格的最小宽度；栅格本身至少放得下一格） */
-export const filterBarColumnStyles = css.create({
+const filterBarColumnStyles = css.create({
   columns: (minWidth: string) => ({
     flexBasis: minWidth,
     gridTemplateColumns: `repeat(auto-fill, minmax(min(${minWidth}, 100%), 1fr))`,

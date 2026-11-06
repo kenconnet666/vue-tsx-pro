@@ -39,7 +39,7 @@ export interface EllipsisProps extends PartProps<'span'> {
 }
 
 /** Ellipsis 的样式：root、multiline、text、toggle */
-export const ellipsisStyles = css.create({
+const ellipsisStyles = css.create({
   root: {
     display: 'inline-flex',
     alignItems: 'baseline',

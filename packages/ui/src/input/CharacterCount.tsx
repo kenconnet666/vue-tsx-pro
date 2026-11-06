@@ -25,7 +25,7 @@ export interface CharacterCountProps extends PartProps<'span'> {
 }
 
 /** CharacterCount 的样式：root、over */
-export const characterCountStyles = css.create({
+const characterCountStyles = css.create({
   root: {
     flexShrink: 0,
     fontSize: '_sm',

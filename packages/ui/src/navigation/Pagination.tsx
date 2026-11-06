@@ -58,7 +58,7 @@ export interface PaginationProps extends PartProps<'nav'> {
 }
 
 /** Pagination 的样式：root、list、page、ellipsis、total、tabular */
-export const paginationStyles = css.create({
+const paginationStyles = css.create({
   root: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_md' },
   // 页码按钮等宽，翻页时位置不晃
   page: { minWidth: `max(${t.sizes.control}, ${t.sizes.minTarget})`, paddingInline: '_xs' },

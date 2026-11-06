@@ -85,7 +85,7 @@ export interface FlexOptions {
   children?: VNodeChild;
 }
 
-/** Flex 的样式：root、inline、row、column、row-reverse、column-reverse、wrap、grow 等 */
+/** Flex 的样式：root、inline、row、column、row-reverse、column-reverse、wrap、grow 等（测试要用，不进入口） @internal */
 export const flexStyles = css.create({
   root: { display: 'flex' },
   inline: { display: 'inline-flex' },
@@ -100,7 +100,7 @@ export const flexStyles = css.create({
 });
 
 /** Flex 的样式：start、center、end、stretch、baseline */
-export const flexAlignStyles = css.create({
+const flexAlignStyles = css.create({
   start: { alignItems: 'flex-start' },
   center: { alignItems: 'center' },
   end: { alignItems: 'flex-end' },
@@ -109,7 +109,7 @@ export const flexAlignStyles = css.create({
 });
 
 /** Flex 的样式：start、center、end、between、around、evenly */
-export const flexJustifyStyles = css.create({
+const flexJustifyStyles = css.create({
   start: { justifyContent: 'flex-start' },
   center: { justifyContent: 'center' },
   end: { justifyContent: 'flex-end' },
