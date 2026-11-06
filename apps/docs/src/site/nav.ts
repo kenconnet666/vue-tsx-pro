@@ -73,12 +73,6 @@ const guide: NavSection = {
       component: () => import('../pages/guide/Theming'),
     },
     {
-      path: '/guide/design-resources',
-      title: 'Design Resources 设计资源',
-      description: '每套主题导出成 Figma 变量（DTCG JSON），Figma 设计文件、图标与整页示例',
-      component: () => import('../pages/guide/DesignResources'),
-    },
-    {
       path: '/guide/data',
       title: 'Data 请求与数据',
       description: '配置请求客户端、换成 axios 或 ky，useRequest 管加载、出错、防抖与取消',

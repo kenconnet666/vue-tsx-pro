@@ -208,7 +208,7 @@ return () => {
   ThemeSwitcher 排在“高对比”后面；`boot.ts`、语言包、设计资源页跟着加。
 - `themes:check` 从 `builtin.ts` 自动读到新主题；高对比的两套额外按 7:1 检查（现在只按 AA）。
 - 可选：“跟随系统”时，系统开了“增强对比度”（`prefers-contrast: more`）就选高对比的亮 / 暗一套。
-- Figma 文件里按主题建的变量模式要同步（删海洋、加高对比暗色）：这是改外部文件，到时候先问你。
+- ~~Figma 文件里按主题建的变量模式要同步~~：2026-11-06 用户决定删掉 Figma 设计资源（设计资源页、主题导出 Figma 变量），暂时不做这块。
 
 ### 6.1 系统级（一次改善全库）
 
@@ -285,7 +285,7 @@ CSharpUi、Blazor 两个会话是同一套组件库设计的 C# / Blazor 版本�
 4. 主入口不再导出组件内部的样式表（§5.5），只导出配方与共用件。
 5. 美学：S2 着色页面 + 白卡片；S3 控件高度 xs 24 / sm 28 / md 32 / lg 36 / xl 40（整数、4 px 网格，最接近现在的 27 / 29 / 31.5 / 36 / 40.5）；
    S4 中文 600 只给 H1–H4，按钮、标签页、Alert 标题用 500；C5 波纹保持默认开（2026-11-06 用户改定：先按推荐关了，用户要求默认开）。
-6. 主题：去掉海洋，加高对比暗色。Figma 文件的同步是改外部文件，到时候先问。
+6. 主题：去掉海洋，加高对比暗色。Figma 设计资源整块删掉，暂不做（用户 2026-11-06）。
 
 ## 11. 取舍记录（执行中补充）
 
@@ -342,6 +342,7 @@ CSharpUi、Blazor 两个会话是同一套组件库设计的 C# / Blazor 版本�
 
 主题：
 
+- 去掉 Figma 设计资源：文档站的“设计资源”页；theme-customize 的 `themeDesignTokens`、`elementDesignTokens`、`designTokens` 与 `DesignToken*` 类型；主题编辑器的“下载 Figma 变量”按钮（`propsDownloadTokens`、语言包的 `downloadTokens`）。`themeValues`、`elementThemeValues` 保留
 - 去掉 ocean 主题（`oceanTheme`、`oceanColors`、`oceanShadows`、`oceanRadii`）；需要的把旧版的 ocean.ts 抄进项目
 - 新增高对比暗色 `highContrastDarkTheme`（`'high-contrast-dark'`）；语言包的 `themeOcean` 换成 `themeHighContrastDark`
 - 新增颜色 token `scrim`、`scrimStrong`、`onScrim`（图片上的遮罩）

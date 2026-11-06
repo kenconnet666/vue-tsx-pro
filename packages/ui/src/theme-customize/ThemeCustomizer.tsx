@@ -10,7 +10,7 @@
  * 当前取值写在旋钮名称旁边。对比度按 CONTRAST_PAIRS 检查，读的是 contrastTarget（默认页面根元素）上实际生效的颜色，
  * 所以改了设置、换了主题都会重新检查。
  */
-import { Download, FileBraces, RotateCcw } from '@lucide/icons';
+import { Download, RotateCcw } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, watch, type VNodeChild } from 'vue';
@@ -36,7 +36,6 @@ import {
   type RadiusPresets,
   type ThemeSettings,
 } from './customize';
-import { elementDesignTokens } from './design-tokens';
 import {
   ACCENT_SCALES,
   NEUTRAL_SCALES,
@@ -63,8 +62,6 @@ export interface ThemeCustomizerProps extends PartProps<'div'> {
   propsCode?: Omit<Partial<CodeBlockProps>, 'code' | 'lang'>;
   /** 下载代码按钮的部件属性 */
   propsDownload?: Omit<Partial<ButtonProps>, 'onClick'>;
-  /** 下载设计令牌（Figma 变量能导入的 JSON）按钮的部件属性 */
-  propsDownloadTokens?: Omit<Partial<ButtonProps>, 'onClick'>;
   /** 恢复默认按钮的部件属性 */
   propsReset?: Omit<Partial<ButtonProps>, 'onClick'>;
 }
@@ -173,7 +170,6 @@ export const ThemeCustomizer = _component(
     propsContrast,
     propsCode,
     propsDownload,
-    propsDownloadTokens,
     propsReset,
     ...rest
   }: ThemeCustomizerProps) => {
@@ -205,13 +201,6 @@ export const ThemeCustomizer = _component(
       },
       { immediate: true, deep: true, flush: 'post' },
     );
-
-    /** 页面上实际生效的主题（已经套上这些设置）存成 Figma 变量能导入的设计令牌 */
-    function downloadTokens(customized: boolean) {
-      const name = `${base.name.replace(/-custom$/, '')}${customized ? '-custom' : ''}`;
-      const tokens = elementDesignTokens(contrastTarget ?? document.documentElement);
-      downloadFile(`${name}.tokens.json`, JSON.stringify(tokens, null, 2), 'application/json');
-    }
 
     const group = (title: string, hint: string, children: VNodeChild) => (
       <section {...mergeAttrs<'section'>({ sx: themeCustomizerStyles.group }, propsGroup)}>
@@ -481,15 +470,6 @@ export const ThemeCustomizer = _component(
                 )}
               >
                 {messages.download}
-              </Button>
-              <Button
-                {...mergePartProps<ButtonProps>(
-                  { variant: 'soft', icon: FileBraces },
-                  propsDownloadTokens,
-                  { onClick: () => downloadTokens(customized) },
-                )}
-              >
-                {messages.downloadTokens}
               </Button>
               <Button
                 {...mergePartProps<ButtonProps>(

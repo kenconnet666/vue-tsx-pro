@@ -52,8 +52,6 @@ export interface ThemeCustomizerMessages {
   readonly reset: string;
   /** 把导出代码存成文件的按钮，默认“下载” */
   readonly download: string;
-  /** 把当前主题存成设计令牌（Figma 变量能导入的 JSON）的按钮，默认“下载 Figma 变量” */
-  readonly downloadTokens: string;
   /** 颜色分组的标题，默认“颜色” */
   readonly groupColor: string;
   /** 颜色分组的说明 */
@@ -131,7 +129,6 @@ export const themeCustomizerMessages: MessageTable<ThemeCustomizerMessages> = {
     code: '代码',
     reset: '恢复默认',
     download: '下载',
-    downloadTokens: '下载 Figma 变量',
     groupColor: '颜色',
     groupColorHint: '品牌色用在按钮、链接与选中态；中性色决定背景、文字与边框的灰度',
     groupShape: '形状与尺寸',
@@ -139,8 +136,7 @@ export const themeCustomizerMessages: MessageTable<ThemeCustomizerMessages> = {
     groupType: '字体与动效',
     groupTypeHint: '标题的字体与过渡的快慢；系统开了“减少动态效果”时始终不播放',
     groupExport: '检查与导出',
-    groupExportHint:
-      '改动时实时检查对比度；代码可以直接交给 createUi 的 theme，Figma 变量是 DTCG 格式的 JSON，在 Figma 的变量面板里导入',
+    groupExportHint: '改动时实时检查对比度；代码可以直接交给 createUi 的 theme',
   },
   'en-US': {
     accent: 'Accent',
@@ -199,7 +195,6 @@ export const themeCustomizerMessages: MessageTable<ThemeCustomizerMessages> = {
     code: 'Code',
     reset: 'Reset',
     download: 'Download',
-    downloadTokens: 'Download Figma variables',
     groupColor: 'Color',
     groupColorHint:
       'Accent is used for buttons, links and selection; neutral sets the grays of backgrounds, text and borders',
@@ -211,6 +206,6 @@ export const themeCustomizerMessages: MessageTable<ThemeCustomizerMessages> = {
       'Heading font and transition speed; transitions stay off when the system asks for reduced motion',
     groupExport: 'Check and export',
     groupExportHint:
-      'Contrast is checked as you change things; the code can be passed straight to createUi’s theme, and the Figma variables are DTCG JSON you import in Figma’s variables panel',
+      'Contrast is checked as you change things; the code can be passed straight to createUi’s theme',
   },
 };

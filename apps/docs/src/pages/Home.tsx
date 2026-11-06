@@ -140,7 +140,6 @@ function splitTitle(title: string): { name: string; label: string } {
 /** 指南页的图标，按地址对应；没写的用 BookOpen */
 const guideIcons: Record<string, IconData> = {
   '/guide/theming': SwatchBook,
-  '/guide/design-resources': Shapes,
   [PLAYGROUND_PATH]: Code2,
 };
 const guide = sections.find((section) => section.label === '指南')?.pages ?? [];

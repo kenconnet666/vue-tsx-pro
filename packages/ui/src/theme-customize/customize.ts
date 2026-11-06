@@ -10,7 +10,7 @@
  * 圆角按这套主题自己的圆角等比缩放（在页面里量出来；服务端用默认值），字号按默认值缩放（token-catalog.ts），
  * 动效按倍数缩放时长。
  */
-import { themeValues } from './design-tokens';
+import { themeValues } from './theme-values';
 import { paletteColors, type AccentScale, type NeutralScale } from './palette';
 import { defineTheme, type Theme, type ThemeOverrides } from '../config/theme/theme';
 import { tokenCatalog } from './token-catalog';

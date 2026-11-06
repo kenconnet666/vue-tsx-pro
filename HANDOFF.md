@@ -51,7 +51,7 @@
   - 卡片的装饰效果是 Card 的 `effect`（tilt 倾斜、spotlight 聚光、beam 流光边框，纯 CSS）；跑马灯 Marquee 在主入口（展示）。原 `@zerodep-dev/vue-tsx-pro-ui/effects` 子路径 2026-10-24 取消
   - 主题定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`）：customizeTheme、对比度、设计令牌、ThemeCustomizer、ThemeThumbnail；文档站组件在 `@zerodep-dev/vue-tsx-pro-ui/docs-kit`（CodePreview、PropsTable、CodeGroup、ColorSwatch、DocArticle / DocSection、TextTable、GithubIcon）
 - **主题**：16 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher`（patterns）切换，`ThemeCustomizer` 定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
-- **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、设计资源（每套主题导出 Figma 变量）、演练场；侧栏固定在左侧。文档站不收案例页。
+- **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、演练场；侧栏固定在左侧。文档站不收案例页。
 - **host-demo**（`apps/host-demo`）：模拟宿主项目，留着几个综合页面与组件行为的浏览器测试（`test/*.browser.test.tsx`）。
 - **CI**：GitHub Actions 五个并行任务：check（静态检查）、test（Ubuntu 与 Windows）、browser（三种浏览器的浏览器测试，每个系统分三片并行与文档站的 axe）、build、consumer（发布产物验证）。
 
@@ -234,7 +234,6 @@ tests/consumer 发布产物验证
 | 命令式创建的元素写上样式                                       | `applyStyleAttrs(element, css.attrs(…))`（`utils/props.ts`）；`css.attrs` 的 style 是对象，不是字符串                                                                                                                                          |
 | 能读成数字的文字（接口给的 '19.90'）                           | `isNumericText(value)`（`utils/data/numeric.ts`）：DataTable 的格式化、合计、数字列的排序用它                                                                                                                                                  |
 | 站内链接的地址与点击                                           | `useRouterLink()`：`href(href)` 渲染路由解析后的真实地址（带 base、hash 模式的 #），`onClick(event, href)` 把原文交给路由                                                                                                                      |
-| 主题导出为设计令牌（Figma 变量）                               | `themeDesignTokens(theme)`、`elementDesignTokens(element)`（`@zerodep-dev/vue-tsx-pro-ui/theme-customize`）：DTCG JSON                                                                                                                         |
 | 图表的外层结构（图例、空与加载、读屏数据表）                   | `ChartFrame`（`charts/frame.tsx`）；直角坐标图 `XYChart`，单容器图 `useSingleChart`（`charts/single.tsx`）                                                                                                                                     |
 | 3D 场景、画质、降级                                            | `ThreeCanvas` / `useThree`（`three/core/`）；效果的外层 `EffectSurface`；`quality="off"` 不创建 WebGL、显示 fallback                                                                                                                           |
 
@@ -289,9 +288,8 @@ tests/consumer 发布产物验证
   先想能不能换现成组件演示，不能就把能力补进库里（如画布的 `DiagramNode`、`DiagramLanes`），再让示例用它。外观要和同页其他示例一样舒服。
 - **整体优化**（2026-10-25）：不必迁就旧组件的样式约定与写法，该重做就重做，改过的约定写回 COMPONENTS.md / RUNES.md。
 - **发布**：npm 由用户按 [RELEASE.md](RELEASE.md) 手动发布，不要替他发布；`flow` 仓库的流程引擎以发布的包为依赖。
-- **Figma**：M5 / M6 在 `UTDP9KBNhelTIK1KoMlHYk`（Starter，em 按 14px 换算成精确 px，indigo + slate，Noto Sans SC 与 JetBrains Mono）。
-  2026-10-22 MCP 的月度额度用完，下个月恢复前不调用。
-  示例一律用通用的虚构场景（采购、销售、门店、供应商甲），不用具体项目的业务名词与编号（2026-10-26 整理过一遍）。
+- **Figma**：设计资源（主题导出 Figma 变量、设计资源页）2026-11-06 按用户要求删掉，暂时不做这块。
+- **示例的场景**：示例一律用通用的虚构场景（采购、销售、门店、供应商甲），不用具体项目的业务名词与编号（2026-10-26 整理过一遍）。
 - **密钥**：`GITHUB_TOKEN`、`CONTEXT7_API_KEY` 放在用户级环境变量里，配置用 `${VAR}` 引用，绝不写进文件或提交；GitHub 走 `gh` 的 keyring 登录。
 
 ## 7. 踩过的坑
