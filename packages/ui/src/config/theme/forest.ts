@@ -17,7 +17,7 @@ export const forestColors = css.createTheme(colors, {
   fillActive: '#dce4dc',
   text: '#182318',
   textMuted: '#5b685b',
-  textPlaceholder: '#7a887a',
+  textPlaceholder: '#5b685b',
   textDisabled: '#b6beb6',
   borderMuted: '#d4dcd4',
   border: '#c9d1c9',

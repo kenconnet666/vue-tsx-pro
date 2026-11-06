@@ -17,7 +17,7 @@ export const lemonColors = css.createTheme(colors, {
   fillActive: '#e4e2d3',
   text: '#232010',
   textMuted: '#676552',
-  textPlaceholder: '#878471',
+  textPlaceholder: '#676552',
   textDisabled: '#bebcae',
   borderMuted: '#dddacc',
   border: '#d1cfc1',

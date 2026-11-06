@@ -18,7 +18,7 @@ export const paperColors = css.createTheme(colors, {
   fillActive: '#dccfb0',
   text: '#3b2f20',
   textMuted: '#6b5a43',
-  textPlaceholder: '#76644a',
+  textPlaceholder: '#6b5a43',
   textDisabled: '#b3a383',
   borderMuted: '#ddd0b2',
   border: '#cfbf9b',

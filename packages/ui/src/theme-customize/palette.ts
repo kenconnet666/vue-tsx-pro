@@ -150,7 +150,7 @@ export const NEUTRAL_STEPS = {
   fillActive: [5, 5],
   text: [12, 12],
   textMuted: [11, 11],
-  textPlaceholder: [10, 10],
+  textPlaceholder: [11, 11],
   textDisabled: [8, 8],
   borderMuted: [6, 6],
   border: [7, 7],

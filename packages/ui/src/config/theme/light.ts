@@ -15,7 +15,7 @@ export const lightColors = css.createTheme(colors, {
   fillActive: '#e0e1e6',
   text: '#1c2024',
   textMuted: '#60646c',
-  textPlaceholder: '#80838d',
+  textPlaceholder: '#60646c',
   textDisabled: '#b9bbc6',
   borderMuted: '#d9d9e0',
   border: '#cdced6',

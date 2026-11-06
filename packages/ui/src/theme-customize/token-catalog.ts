@@ -75,8 +75,9 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
       },
       {
         name: 'textPlaceholder',
-        value: '#80838d',
-        description: '输入框占位文字。slate 10：亮色 `#80838d`，暗色 `#777b84`',
+        value: '#60646c',
+        description:
+          '输入框占位文字。slate 11（同 textMuted）：亮色 `#60646c`，暗色 `#b0b4ba`。不用 10 级：在输入框的浅底上只有 3.3:1，占位文字也是要读的文字（WCAG 1.4.3），按 4.5:1；同 GitHub Primer 的做法',
       },
       {
         name: 'textDisabled',

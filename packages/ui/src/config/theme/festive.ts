@@ -20,7 +20,7 @@ export const festiveColors = css.createTheme(colors, {
   fillActive: '#eeded7',
   text: '#2c1b13',
   textMuted: '#735f56',
-  textPlaceholder: '#947e75',
+  textPlaceholder: '#735f56',
   textDisabled: '#c7b8b1',
   borderMuted: '#e6d6cf',
   border: '#dbcbc4',

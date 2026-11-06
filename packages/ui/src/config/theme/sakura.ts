@@ -17,7 +17,7 @@ export const sakuraColors = css.createTheme(colors, {
   fillActive: '#eadee2',
   text: '#281b20',
   textMuted: '#6f5f64',
-  textPlaceholder: '#8f7e84',
+  textPlaceholder: '#6f5f64',
   textDisabled: '#c4b8bc',
   borderMuted: '#e2d6da',
   border: '#d7cbcf',

@@ -317,6 +317,10 @@ CSharpUi、Blazor 两个会话是同一套组件库设计的 C# / Blazor 版本�
 | 原计划 §5.1 | 一个 `disabledStyles` | 先不做 | 透明度已经是 `_disabled` token；各处的差别（带不带 cursor、pointerEvents）是各组件的取舍，统一要逐个看交互，放到阶段 4 的组件级修正一起看 |
 | 原计划 §5.4 | Button 的 36 条组合档位也从色表取 | 只有 Badge、Alert 换成 `statusToneCompound` | 按钮的组合带悬停色（`[HOVER]`），色表里没有；拆成“色表 + 悬停表”两段反而更难读 |
 | 原计划 §5.4 | OtpField 的格子用 `inputRecipe` | 采纳，经 `useControlAppearance` + `controlParts` | 当前格原来画品牌色描边加浅色环，与输入框聚焦时不一致；顺带有了 variant、radius，跟 defaults.Input |
+| 原计划 §5.2 | CalendarView、CalendarBoard 的日期格样式合一 | 不合 | 两种界面（选日期的小网格、排日程的大月历），今天、选中的画法本就不同，共用的只有“月外日期变灰”一行 |
+| 视觉审查 S5 | 小浮层改 md、md 收紧、深色阴影加内高光 | 不改 | 现有分档照搬 Radix Themes（浮层 shadow-5、对话框 shadow-6），深色下浮层有边框分界；高对比暗色的阴影已换成描边 |
+| 视觉审查 S6 | placeholder 按 4.5:1 调；不可用的文字改用 textDisabled、删掉 opacity .5 | 占位文字改用 11 级（同 textMuted，GitHub Primer 的做法），16 套主题与主题编辑器的生成规则一起改，对比度检查加两组；不可用仍用透明度 | 逐个算过：12 套主题在浅底输入框上只有 3.3–4.4；按混色求最小达标值要给每套主题单独调，收益不大。透明度一次压暗整个控件（边框、底色、图标），只换文字色反而不像不可用 |
+| 视觉审查 C4 | NavList 的计数统一成 `Badge radius="full" size="xs"` | 已经是，不改 | 逐行核对 |
 
 ## 12. 迁移说明的素材（阶段 5 汇总进发布说明）
 

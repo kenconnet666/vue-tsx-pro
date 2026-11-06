@@ -52,8 +52,11 @@ export const colors = css.defineVars('vtp-colors', {
   text: '#1c2024',
   /** 次要文字、说明、图标。slate 11：亮色 `#60646c`，暗色 `#b0b4ba` */
   textMuted: '#60646c',
-  /** 输入框占位文字。slate 10：亮色 `#80838d`，暗色 `#777b84` */
-  textPlaceholder: '#80838d',
+  /**
+   * 输入框占位文字。slate 11（同 textMuted）：亮色 `#60646c`，暗色 `#b0b4ba`。
+   * 不用 10 级：在输入框的浅底上只有 3.3:1，占位文字也是要读的文字（WCAG 1.4.3），按 4.5:1；同 GitHub Primer 的做法
+   */
+  textPlaceholder: '#60646c',
   /** 不可用的文字。slate 8：亮色 `#b9bbc6`，暗色 `#5a6169` */
   textDisabled: '#b9bbc6',
 

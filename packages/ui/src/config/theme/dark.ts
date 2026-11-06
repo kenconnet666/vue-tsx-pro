@@ -15,7 +15,7 @@ export const darkColors = css.createTheme(colors, {
   fillActive: '#2e3135',
   text: '#edeef0',
   textMuted: '#b0b4ba',
-  textPlaceholder: '#777b84',
+  textPlaceholder: '#b0b4ba',
   textDisabled: '#5a6169',
   borderMuted: '#363a3f',
   border: '#43484e',

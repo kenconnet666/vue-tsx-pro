@@ -17,7 +17,7 @@ export const monoColors = css.createTheme(colors, {
   fillActive: '#e3e3e3',
   text: '#171717',
   textMuted: '#5c5c5c',
-  textPlaceholder: '#777777',
+  textPlaceholder: '#5c5c5c',
   textDisabled: '#b8b8b8',
   borderMuted: '#e3e3e3',
   border: '#d4d4d4',

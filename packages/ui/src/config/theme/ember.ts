@@ -18,7 +18,7 @@ export const emberColors = css.createTheme(colors, {
   fillActive: '#3c342c',
   text: '#f5ede4',
   textMuted: '#bfb3a6',
-  textPlaceholder: '#887c70',
+  textPlaceholder: '#bfb3a6',
   textDisabled: '#665c52',
   borderMuted: '#3f372f',
   border: '#4f463c',

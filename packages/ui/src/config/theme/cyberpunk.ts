@@ -16,7 +16,7 @@ export const cyberpunkColors = css.createTheme(colors, {
   fillActive: '#312b4d',
   text: '#ede9ff',
   textMuted: '#b3afd2',
-  textPlaceholder: '#7a7697',
+  textPlaceholder: '#b3afd2',
   textDisabled: '#5f5b80',
   borderMuted: '#393457',
   border: '#474266',

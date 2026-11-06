@@ -17,7 +17,7 @@ export const lavenderColors = css.createTheme(colors, {
   fillActive: '#e1dbeb',
   text: '#211b30',
   textMuted: '#5f5770',
-  textPlaceholder: '#7c748d',
+  textPlaceholder: '#5f5770',
   textDisabled: '#bbb5c8',
   borderMuted: '#dcd6e7',
   border: '#d0c9dd',

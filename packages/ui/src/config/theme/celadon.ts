@@ -19,7 +19,7 @@ export const celadonColors = css.createTheme(colors, {
   fillActive: '#d3e1db',
   text: '#16302a',
   textMuted: '#4c645e',
-  textPlaceholder: '#6b817b',
+  textPlaceholder: '#4c645e',
   textDisabled: '#b0c1bb',
   borderMuted: '#d3e0db',
   border: '#c4d4ce',

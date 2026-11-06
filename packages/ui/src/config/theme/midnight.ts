@@ -20,7 +20,7 @@ export const midnightColors = css.createTheme(colors, {
   fillActive: '#28334d',
   text: '#eef2fa',
   textMuted: '#aeb8cb',
-  textPlaceholder: '#737f97',
+  textPlaceholder: '#aeb8cb',
   textDisabled: '#566381',
   borderMuted: '#303c57',
   border: '#3d4a67',

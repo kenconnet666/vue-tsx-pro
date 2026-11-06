@@ -17,7 +17,7 @@ export const highContrastColors = css.createTheme(colors, {
   fillActive: '#d1d1d1',
   text: '#000000',
   textMuted: '#333333',
-  textPlaceholder: '#575757',
+  textPlaceholder: '#333333',
   textDisabled: '#8a8a8a',
   borderMuted: '#8f8f8f',
   border: '#666666',

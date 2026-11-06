@@ -18,7 +18,7 @@ export const bigScreenColors = css.createTheme(colors, {
   fillActive: '#1f3e7e',
   text: '#f0f6ff',
   textMuted: '#b4c7e6',
-  textPlaceholder: '#7f96bd',
+  textPlaceholder: '#b4c7e6',
   textDisabled: '#5c749f',
   borderMuted: '#1f3b73',
   border: '#2c4c8c',
