@@ -1526,6 +1526,7 @@ export { swatchStyles } from './utils/style/swatch-styles';
 export {
   statusIcons,
   statusToneBorderStyles,
+  statusToneCompound,
   statusToneStyles,
   statusToneSx,
   toneFillStyles,

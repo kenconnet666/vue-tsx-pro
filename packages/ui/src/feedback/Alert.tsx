@@ -18,7 +18,12 @@ import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDismissible } from '../utils/motion/presence';
 import { hasContent, mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
-import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
+import {
+  statusIcons,
+  statusToneBorderStyles,
+  statusToneCompound,
+  type StatusTone,
+} from '../utils/style/tone-styles';
 import { presenceStyles } from '../utils/style/transitions';
 import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/style/typography';
 import { radiusStyles, variantOf, type Radius } from '../utils/style/styles';
@@ -95,22 +100,25 @@ export interface AlertProps extends PartProps<'div', AlertManaged>, AlertOptions
 }
 
 /**
- * 提示条的配方：各部件的布局。样式 × 色调的颜色来自共用的 statusToneStyles（直接写主题 token 的表），
- * 排在配方之前，createUi / Provider 的 styles.Alert 能盖过它
+ * 提示条的配方：各部件的布局；样式 × 色调取共用的色表（组合档位，statusToneCompound），
+ * createUi / Provider 的 styles.Alert 排在配方之后，盖得过它
  */
 export const alertRecipe = css.recipe({
   name: 'Alert',
   parts: ['root', 'icon', 'body', 'title', 'description', 'content', 'action', 'close'],
   base: {
     // 进场与离场的淡入淡出用 presenceStyles
-    root: {
-      boxSizing: 'border-box',
-      display: 'flex',
-      alignItems: 'flex-start',
-      gap: '_sm',
-      padding: '_md',
-      lineHeight: '_normal',
-    },
+    root: [
+      statusToneBorderStyles.bordered,
+      {
+        boxSizing: 'border-box',
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '_sm',
+        padding: '_md',
+        lineHeight: '_normal',
+      },
+    ],
     // 图标与第一行文字对齐：行高 1.5em 里居中 1em 的图标
     icon: { flexShrink: 0, marginBlock: '0.25em' },
     body: { flexGrow: 1, minWidth: 0, display: 'grid', gap: '_xs' },
@@ -120,8 +128,14 @@ export const alertRecipe = css.recipe({
     action: { flexShrink: 0, alignSelf: 'center' },
     close: { flexShrink: 0, marginBlock: `calc(-1 * ${t.space.xs})`, color: 'inherit' },
   },
-  // 圆角、字号用共用的档位（样式 × 色调见 statusToneSx，排在配方之前，定制能盖过它）
-  variants: { radius: variantOf(radiusStyles, 'root'), size: variantOf(fontSizeStyles, 'root') },
+  // 圆角、字号用共用的档位
+  variants: {
+    variant: { soft: {}, surface: {}, outline: {} },
+    tone: { neutral: {}, accent: {}, info: {}, success: {}, warning: {}, danger: {} },
+    radius: variantOf(radiusStyles, 'root'),
+    size: variantOf(fontSizeStyles, 'root'),
+  },
+  compound: statusToneCompound(['root'], ['soft', 'surface', 'outline']),
 });
 
 /** 提示条的部件（createUi / Provider 的 styles.Alert 按它定制） */
@@ -161,10 +175,7 @@ export const Alert = _component(
     // 离场结束才交给使用方移除；使用方没移除时提示条重新出现
     const dismissible = useDismissible(() => onClose?.());
     return () => {
-      const {
-        options: { variant: shownVariant },
-        parts: s,
-      } = ui({ tone, size });
+      const { parts: s } = ui({ tone, size });
       const shownIcon = icon === false ? undefined : (icon ?? statusIcons[tone]);
       // 说明取 description，没有时取 children；两个都有时 children 放在说明下面
       const extra = hasContent(description) && hasContent(children);
@@ -175,7 +186,6 @@ export const Alert = _component(
             {
               ...s.root,
               sx: [
-                statusToneSx(shownVariant, tone),
                 s.root.sx,
                 presenceStyles.fade,
                 dismissible.dismissing && presenceStyles.leaving,

@@ -5,7 +5,7 @@
  */
 import { CircleAlert, CircleCheck, Info, TriangleAlert } from '@lucide/icons';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { CompiledStyles, SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { IconData } from '../../base/Icon';
 import type { StyleTable } from './styles';
 
@@ -113,6 +113,29 @@ export const statusIcons: Readonly<Record<StatusTone, IconData>> = {
 /** 样式 × 色调 → 颜色、底色与边框 */
 export function statusToneSx(variant: StatusVariant, tone: StatusTone): SxStyles {
   return [statusToneBorderStyles.bordered, statusToneStyles[variant][tone]] as SxStyles;
+}
+
+/**
+ * 样式 × 色调 → 配方的组合档位：每一组取 statusToneStyles 里的那一项，放在给定的部件上
+ * （`compound: statusToneCompound(['root'])`；组件只支持其中几种样式时第二个参数列出来）。
+ * 配方的档位要有 variant 与 tone，部件要留出边框的位置（statusToneBorderStyles.bordered）。
+ * 色表只写在这一处，各组件同样的组合合成同样的类；主题定制排在配方之后，盖得过它
+ */
+export function statusToneCompound<
+  Part extends string,
+  Variant extends StatusVariant = StatusVariant,
+>(
+  parts: readonly Part[],
+  variants: readonly Variant[] = Object.keys(statusToneStyles) as Variant[],
+): readonly ({ readonly match: { readonly variant: Variant; readonly tone: StatusTone } } & {
+  readonly [P in Part]: readonly [CompiledStyles];
+})[] {
+  return variants.flatMap((variant) =>
+    (Object.keys(statusToneStyles[variant]) as StatusTone[]).map((tone) => ({
+      match: { variant, tone },
+      ...Object.fromEntries(parts.map((part) => [part, [statusToneStyles[variant][tone]]])),
+    })),
+  ) as never;
 }
 
 /**
