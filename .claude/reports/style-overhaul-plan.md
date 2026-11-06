@@ -336,6 +336,13 @@ CSharpUi、Blazor 两个会话是同一套组件库设计的 C# / Blazor 版本�
 - 焦点环：`cascaderStyles.focused`、`codeGroupStyles.panel` → `focusRingStyles.virtual` / `inset`
 - `otpFieldStyles.invalid` / `disabled`（格子的状态来自输入框的配方）；`conditionBuilderStyles.range`（没人用）
 
+主题：
+
+- 去掉 ocean 主题（`oceanTheme`、`oceanColors`、`oceanShadows`、`oceanRadii`）；需要的把旧版的 ocean.ts 抄进项目
+- 新增高对比暗色 `highContrastDarkTheme`（`'high-contrast-dark'`）；语言包的 `themeOcean` 换成 `themeHighContrastDark`
+- 新增颜色 token `scrim`、`scrimStrong`、`onScrim`（图片上的遮罩）
+- 高对比主题的几处文字色加深、遮罩加深到 0.7：按对比度检查的组合都到 7:1，`themes:check` 据此把关
+
 外观上有意的变化：
 
 - OtpField 的当前格画输入框聚焦时的焦点环；只读时与输入框一样变浅

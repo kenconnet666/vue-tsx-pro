@@ -1,5 +1,5 @@
 /**
- * 主题颜色的对比度检查（WCAG 2.2 AA）：每套内置主题（从 builtin.ts 读出，亮色即 tokens.ts 的默认值）逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环；并核对防闪烁脚本用的底色（boot.ts）。
+ * 主题颜色的对比度检查（WCAG 2.2 AA）：每套内置主题（从 builtin.ts 读出，亮色即 tokens.ts 的默认值）逐对检查文字与背景、实色上的文字、提示条、代码高亮、焦点环（高对比的两套按 7:1）；并核对防闪烁脚本用的底色（boot.ts）。
  *
  * 用法：node scripts/themes/check.mjs（CI 的静态检查里跑；改颜色前后都跑一遍）
  *
@@ -93,6 +93,20 @@ const { CONTRAST_PAIRS, checkContrast } =
   await import('../../packages/ui/src/theme-customize/contrast.ts');
 
 const failures = [];
+// 高对比主题（亮、暗两套）说的是文字到 7:1（WCAG AAA）：要求 4.5:1 的组合在这里提到 7:1
+const AAA = 7;
+const { contrastRatio } = await import('../../packages/ui/src/utils/data/color.ts');
+for (const [name, theme] of Object.entries(themes)) {
+  if (!name.startsWith('high-contrast')) continue;
+  for (const [fg, bg, minimum, label] of CONTRAST_PAIRS) {
+    if (minimum < 4.5) continue;
+    const ratio = contrastRatio(theme[fg], theme[bg], theme.background);
+    if (ratio < AAA)
+      failures.push(
+        `${name}：${label} ${fg}（${theme[fg]}）在 ${bg}（${theme[bg]}）上 ${ratio.toFixed(2)}，高对比主题要求 ${AAA}`,
+      );
+  }
+}
 for (const [name, theme] of Object.entries(themes)) {
   for (const issue of checkContrast((token) => theme[token])) {
     const { foreground: fg, background: bg, ratio, minimum, label } = issue;
