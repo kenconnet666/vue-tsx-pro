@@ -10,10 +10,10 @@ import { colors, shadows } from './tokens';
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
 export const celadonColors = css.createTheme(colors, {
-  background: '#f5f9f7',
-  surface: '#f5f9f7',
-  surfaceMuted: '#f0f6f3',
-  surfaceRaised: '#f5f9f7',
+  background: '#f0f6f3',
+  surface: '#ffffff',
+  surfaceMuted: '#ebf3ef',
+  surfaceRaised: '#ffffff',
   fill: '#e6efeb',
   fillHover: '#dde8e3',
   fillActive: '#d3e1db',
@@ -65,7 +65,7 @@ export const celadonColors = css.createTheme(colors, {
   overlay: 'rgba(22, 48, 42, 0.4)',
   selection: '#c7e8de',
   highlight: '#fbeeb0',
-  surfaceTranslucent: 'rgba(245, 249, 247, 0.8)',
+  surfaceTranslucent: 'rgba(240, 246, 243, 0.8)',
   codeKeyword: '#18695d',
   codeString: '#3a7229',
   codeNumber: '#a3481f',

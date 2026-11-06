@@ -8,10 +8,10 @@ import { colors, radii, shadows } from './tokens';
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
 export const lavenderColors = css.createTheme(colors, {
-  background: '#fbf9ff',
-  surface: '#fbf9ff',
-  surfaceMuted: '#f7f4fc',
-  surfaceRaised: '#fbf9ff',
+  background: '#f7f4fc',
+  surface: '#ffffff',
+  surfaceMuted: '#f3f0fa',
+  surfaceRaised: '#ffffff',
   fill: '#efebf7',
   fillHover: '#e8e3f1',
   fillActive: '#e1dbeb',
@@ -63,7 +63,7 @@ export const lavenderColors = css.createTheme(colors, {
   overlay: 'rgba(33, 27, 48, 0.4)',
   selection: '#e1d9ff',
   highlight: '#ffee9c',
-  surfaceTranslucent: 'rgba(251, 249, 255, 0.8)',
+  surfaceTranslucent: 'rgba(247, 244, 252, 0.8)',
   codeKeyword: '#5f49bd',
   codeString: '#147a51',
   codeNumber: '#bf4100',

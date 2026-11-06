@@ -14,7 +14,9 @@ describe('themeSettingsOverrides', () => {
   it('品牌色、中性色按 Radix 色阶整组替换；暗色取暗色色阶', () => {
     const light = themeSettingsOverrides({ accent: 'crimson', neutral: 'mauve' }, 'light');
     expect(light.colors?.accent).toBe(crimson.crimson9);
-    expect(light.colors?.background).toBe(mauve.mauve1);
+    // 亮色的页面着一点色（2 级），卡片是白色
+    expect(light.colors?.background).toBe(mauve.mauve2);
+    expect(light.colors?.surface).toBe('#ffffff');
     const dark = themeSettingsOverrides({ accent: 'crimson' }, 'dark');
     expect(dark.colors?.accentText).toBe(crimsonDark.crimson11);
   });

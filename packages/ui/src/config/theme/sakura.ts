@@ -8,10 +8,10 @@ import { colors, radii, shadows } from './tokens';
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
 export const sakuraColors = css.createTheme(colors, {
-  background: '#fffafc',
-  surface: '#fffafc',
-  surfaceMuted: '#fef7f9',
-  surfaceRaised: '#fffafc',
+  background: '#fef7f9',
+  surface: '#ffffff',
+  surfaceMuted: '#fcf2f5',
+  surfaceRaised: '#ffffff',
   fill: '#f9edf1',
   fillHover: '#f1e5e9',
   fillActive: '#eadee2',
@@ -63,7 +63,7 @@ export const sakuraColors = css.createTheme(colors, {
   overlay: 'rgba(40, 27, 32, 0.4)',
   selection: '#f6cee7',
   highlight: '#ffee9c',
-  surfaceTranslucent: 'rgba(255, 250, 252, 0.8)',
+  surfaceTranslucent: 'rgba(254, 247, 249, 0.8)',
   codeKeyword: '#b91e82',
   codeString: '#147a51',
   codeNumber: '#bf4100',
@@ -80,7 +80,7 @@ export const sakuraColors = css.createTheme(colors, {
   chart4: '#654dc4',
   chart5: '#0d9b8a',
   chart6: '#ef5f00',
-  chart7: '#309dba',
+  chart7: '#309bb8',
   chart8: '#3e9b4f',
 });
 

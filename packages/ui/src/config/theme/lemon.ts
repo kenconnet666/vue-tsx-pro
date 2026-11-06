@@ -8,10 +8,10 @@ import { colors, radii, shadows } from './tokens';
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
 export const lemonColors = css.createTheme(colors, {
-  background: '#fefdf2',
-  surface: '#fefdf2',
-  surfaceMuted: '#fbfaef',
-  surfaceRaised: '#fefdf2',
+  background: '#fbfaef',
+  surface: '#ffffff',
+  surfaceMuted: '#f7f5e9',
+  surfaceRaised: '#ffffff',
   fill: '#f3f1e2',
   fillHover: '#ebe9da',
   fillActive: '#e4e2d3',
@@ -63,7 +63,7 @@ export const lemonColors = css.createTheme(colors, {
   overlay: 'rgba(35, 32, 16, 0.4)',
   selection: '#ffe770',
   highlight: '#e2f0bd',
-  surfaceTranslucent: 'rgba(254, 253, 242, 0.8)',
+  surfaceTranslucent: 'rgba(251, 250, 239, 0.8)',
   codeKeyword: '#956300',
   codeString: '#147a51',
   codeNumber: '#bf4100',
@@ -75,13 +75,13 @@ export const lemonColors = css.createTheme(colors, {
   codeInserted: '#e6f6eb',
   codeDeleted: '#feebec',
   chart1: '#9f8700',
-  chart2: '#6fa000',
+  chart2: '#6e9e00',
   chart3: '#3e9b4f',
   chart4: '#ef5f00',
   chart5: '#0797b9',
   chart6: '#cf3897',
   chart7: '#0d9b8a',
-  chart8: '#c68400',
+  chart8: '#c48300',
 });
 
 /** 柠檬主题的阴影：带主色调的投影 */

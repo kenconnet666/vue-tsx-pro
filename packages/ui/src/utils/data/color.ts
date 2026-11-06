@@ -92,6 +92,18 @@ export function readableText(
   return best;
 }
 
+/** 两个颜色在 sRGB 里按比例混合（amount 是 b 的占比，0–1），输出 #rrggbb；解析不了时抛错 */
+export function mixColors(a: string, b: string, amount = 0.5): string {
+  const [from, to] = [parseColor(a), parseColor(b)];
+  if (!from || !to) throw new Error(`无法解析的颜色：${from ? b : a}`);
+  return formatHex({
+    mode: 'rgb',
+    r: from.r + (to.r - from.r) * amount,
+    g: from.g + (to.g - from.g) * amount,
+    b: from.b + (to.b - from.b) * amount,
+  });
+}
+
 /** 同一个颜色换成给定的不透明度（0–1），输出 rgba()；解析不了时抛错 */
 export function withAlpha(value: string, alpha: number): string {
   const color = parseColor(value);

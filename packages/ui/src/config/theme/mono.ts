@@ -8,9 +8,9 @@ import { colors, radii, shadows } from './tokens';
  * 其余靠黑白灰和线条分层次。先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
 export const monoColors = css.createTheme(colors, {
-  background: '#ffffff',
+  background: '#fafafa',
   surface: '#ffffff',
-  surfaceMuted: '#fafafa',
+  surfaceMuted: '#f7f7f7',
   surfaceRaised: '#ffffff',
   fill: '#f4f4f4',
   fillHover: '#ececec',
@@ -63,7 +63,7 @@ export const monoColors = css.createTheme(colors, {
   overlay: 'rgba(0, 0, 0, 0.4)',
   selection: '#d4d4d4',
   highlight: '#ffee9c',
-  surfaceTranslucent: 'rgba(255, 255, 255, 0.8)',
+  surfaceTranslucent: 'rgba(250, 250, 250, 0.8)',
   codeKeyword: '#171717',
   codeString: '#147a51',
   codeNumber: '#bf4100',

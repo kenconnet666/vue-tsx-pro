@@ -1728,6 +1728,7 @@ export {
 export {
   CONTRAST_AA,
   contrastRatio,
+  mixColors,
   parseColor,
   readableText,
   toHex,

@@ -69,7 +69,7 @@ import {
   yellow,
   yellowDark,
 } from '@radix-ui/colors';
-import { readableText, withAlpha } from '../utils/data/color';
+import { mixColors, readableText, withAlpha } from '../utils/data/color';
 
 /** 一个 Radix 色阶：12 级，键是 `indigo1`…`indigo12` */
 type Scale = Record<string, string>;
@@ -140,7 +140,8 @@ export const ACCENT_STEPS = {
 
 /** 中性色 token → [亮色取第几级, 暗色取第几级]（1–2 背景，3–5 填充，6–8 边框，11–12 文字） */
 export const NEUTRAL_STEPS = {
-  background: [1, 1],
+  // 亮色的页面着一点色（2 级），卡片、浮层是白色（见 paletteColors）
+  background: [2, 1],
   surface: [1, 2],
   surfaceMuted: [2, 2],
   // 暗色不取第 3 级：那是 fill，滑块轨道、进度条底色、标签放进浮层会看不见；浮层靠描边与阴影分层（同 Radix Themes 的 panel）
@@ -205,6 +206,11 @@ export function paletteColors({
   if (neutral) {
     const scale = NEUTRAL_TABLE[neutral][variant];
     Object.assign(colors, pick(scale, neutral, NEUTRAL_STEPS));
+    if (appearance === 'light') {
+      // 着色的页面 + 白色的卡片与浮层；弱化的区域取 2、3 级的中间，放在页面上也看得出
+      colors.surface = colors.surfaceRaised = '#ffffff';
+      colors.surfaceMuted = mixColors(colors.background!, colors.fill!);
+    }
     colors.surfaceTranslucent = withAlpha(colors.background!, TRANSLUCENT_ALPHA);
   }
   return colors;

@@ -76,20 +76,20 @@ export const builtinSystemThemes = {
  * 与主题文件里的 background、text 一致（pnpm themes:check 核对）
  */
 export const builtinThemeBootColors = {
-  light: { background: '#fcfcfd', text: '#1c2024', colorScheme: 'light' },
+  light: { background: '#f9f9fb', text: '#1c2024', colorScheme: 'light' },
   dark: { background: '#111113', text: '#edeef0', colorScheme: 'dark' },
   paper: { background: '#f5efdf', text: '#3b2f20', colorScheme: 'light' },
   midnight: { background: '#0d1321', text: '#eef2fa', colorScheme: 'dark' },
   'high-contrast': { background: '#ffffff', text: '#000000', colorScheme: 'light' },
   'high-contrast-dark': { background: '#000000', text: '#ffffff', colorScheme: 'dark' },
-  forest: { background: '#f9fef9', text: '#182318', colorScheme: 'light' },
-  lemon: { background: '#fefdf2', text: '#232010', colorScheme: 'light' },
-  sakura: { background: '#fffafc', text: '#281b20', colorScheme: 'light' },
-  festive: { background: '#fffaf6', text: '#2c1b13', colorScheme: 'light' },
+  forest: { background: '#f6fbf6', text: '#182318', colorScheme: 'light' },
+  lemon: { background: '#fbfaef', text: '#232010', colorScheme: 'light' },
+  sakura: { background: '#fef7f9', text: '#281b20', colorScheme: 'light' },
+  festive: { background: '#fff7f3', text: '#2c1b13', colorScheme: 'light' },
   cyberpunk: { background: '#110e20', text: '#ede9ff', colorScheme: 'dark' },
   'big-screen': { background: '#061332', text: '#f0f6ff', colorScheme: 'dark' },
-  lavender: { background: '#fbf9ff', text: '#211b30', colorScheme: 'light' },
+  lavender: { background: '#f7f4fc', text: '#211b30', colorScheme: 'light' },
   ember: { background: '#171310', text: '#f5ede4', colorScheme: 'dark' },
-  mono: { background: '#ffffff', text: '#171717', colorScheme: 'light' },
-  celadon: { background: '#f5f9f7', text: '#16302a', colorScheme: 'light' },
+  mono: { background: '#fafafa', text: '#171717', colorScheme: 'light' },
+  celadon: { background: '#f0f6f3', text: '#16302a', colorScheme: 'light' },
 } as const satisfies Record<BuiltinThemeName, ThemeBootColors>;

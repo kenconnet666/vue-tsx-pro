@@ -6,10 +6,10 @@ import { colors, fonts, radii, shadows } from './tokens';
 // 只有显式写出的变量才能盖过外层继承下来的：每套内置主题都写全颜色、阴影、字体、圆角四组，没改的组用这里的默认值。
 /** 亮色主题的颜色（默认值） */
 export const lightColors = css.createTheme(colors, {
-  background: '#fcfcfd',
-  surface: '#fcfcfd',
-  surfaceMuted: '#f9f9fb',
-  surfaceRaised: '#fcfcfd',
+  background: '#f9f9fb',
+  surface: '#ffffff',
+  surfaceMuted: '#f4f4f7',
+  surfaceRaised: '#ffffff',
   fill: '#f0f0f3',
   fillHover: '#e8e8ec',
   fillActive: '#e0e1e6',
@@ -64,7 +64,7 @@ export const lightColors = css.createTheme(colors, {
   onScrim: '#ffffff',
   selection: '#d2deff',
   highlight: '#ffee9c',
-  surfaceTranslucent: 'rgba(252, 252, 253, 0.8)',
+  surfaceTranslucent: 'rgba(249, 249, 251, 0.8)',
   codeKeyword: '#3a5bc7',
   codeString: '#1c7a51',
   codeNumber: '#bb4500',

@@ -11,10 +11,10 @@ import { colors, shadows } from './tokens';
  * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
  */
 export const festiveColors = css.createTheme(colors, {
-  background: '#fffaf6',
-  surface: '#fffaf6',
-  surfaceMuted: '#fff7f3',
-  surfaceRaised: '#fffaf6',
+  background: '#fff7f3',
+  surface: '#ffffff',
+  surfaceMuted: '#fef2ed',
+  surfaceRaised: '#ffffff',
   fill: '#fdede6',
   fillHover: '#f5e5de',
   fillActive: '#eeded7',
@@ -66,7 +66,7 @@ export const festiveColors = css.createTheme(colors, {
   overlay: 'rgba(44, 27, 19, 0.4)',
   selection: '#f8e0a8',
   highlight: '#fbe6a2',
-  surfaceTranslucent: 'rgba(255, 250, 246, 0.8)',
+  surfaceTranslucent: 'rgba(255, 247, 243, 0.8)',
   codeKeyword: '#b3261a',
   codeString: '#147a51',
   codeNumber: '#bf4100',

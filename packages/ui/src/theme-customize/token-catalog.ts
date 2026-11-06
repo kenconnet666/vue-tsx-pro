@@ -28,24 +28,26 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
     tokens: [
       {
         name: 'background',
-        value: '#fcfcfd',
-        description: '页面背景。slate 1：亮色 `#fcfcfd`，暗色 `#111113`',
+        value: '#f9f9fb',
+        description:
+          '页面背景。亮色 slate 2 `#f9f9fb`（着一点色，白色的卡片、输入框浮在上面），暗色 slate 1 `#111113`',
       },
       {
         name: 'surface',
-        value: '#fcfcfd',
-        description: '卡片、输入框等表面。亮色 slate 1 `#fcfcfd`，暗色 slate 2 `#18191b`',
+        value: '#ffffff',
+        description: '卡片、输入框等表面。亮色白 `#ffffff`，暗色 slate 2 `#18191b`：都比页面亮一层',
       },
       {
         name: 'surfaceMuted',
-        value: '#f9f9fb',
-        description: '弱化的区域背景：表头、侧栏、代码块。slate 2：亮色 `#f9f9fb`，暗色 `#18191b`',
+        value: '#f4f4f7',
+        description:
+          '弱化的区域背景：表头、侧栏、代码块。亮色取 slate 2 与 3 的中间 `#f4f4f7`（放在页面上也看得出），暗色 slate 2 `#18191b`',
       },
       {
         name: 'surfaceRaised',
-        value: '#fcfcfd',
+        value: '#ffffff',
         description:
-          '浮层（弹出框、菜单、对话框）表面，靠描边与阴影区分层级。亮色 slate 1 `#fcfcfd`，暗色 slate 2 `#18191b` （不取第 3 级：那是 fill，浮层里的填充会看不见）',
+          '浮层（弹出框、菜单、对话框）表面，靠描边与阴影区分层级。亮色白 `#ffffff`，暗色 slate 2 `#18191b` （暗色不取第 3 级：那是 fill，浮层里的填充会看不见）',
       },
       {
         name: 'fill',
@@ -338,7 +340,7 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
       },
       {
         name: 'surfaceTranslucent',
-        value: 'rgba(252, 252, 253, 0.8)',
+        value: 'rgba(249, 249, 251, 0.8)',
         description: '半透明表面：吸顶的顶栏（配合背景模糊）。页面背景加 80% 不透明',
       },
       {

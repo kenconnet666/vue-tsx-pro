@@ -25,17 +25,21 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 export const colors = css.defineVars('vtp-colors', {
   // ───────── 背景与表面 ─────────
 
-  /** 页面背景。slate 1：亮色 `#fcfcfd`，暗色 `#111113` */
-  background: '#fcfcfd',
-  /** 卡片、输入框等表面。亮色 slate 1 `#fcfcfd`，暗色 slate 2 `#18191b` */
-  surface: '#fcfcfd',
-  /** 弱化的区域背景：表头、侧栏、代码块。slate 2：亮色 `#f9f9fb`，暗色 `#18191b` */
-  surfaceMuted: '#f9f9fb',
   /**
-   * 浮层（弹出框、菜单、对话框）表面，靠描边与阴影区分层级。亮色 slate 1 `#fcfcfd`，暗色 slate 2 `#18191b`
-   * （不取第 3 级：那是 fill，浮层里的填充会看不见）
+   * 页面背景。亮色 slate 2 `#f9f9fb`（着一点色，白色的卡片、输入框浮在上面），暗色 slate 1 `#111113`
    */
-  surfaceRaised: '#fcfcfd',
+  background: '#f9f9fb',
+  /** 卡片、输入框等表面。亮色白 `#ffffff`，暗色 slate 2 `#18191b`：都比页面亮一层 */
+  surface: '#ffffff',
+  /**
+   * 弱化的区域背景：表头、侧栏、代码块。亮色取 slate 2 与 3 的中间 `#f4f4f7`（放在页面上也看得出），暗色 slate 2 `#18191b`
+   */
+  surfaceMuted: '#f4f4f7',
+  /**
+   * 浮层（弹出框、菜单、对话框）表面，靠描边与阴影区分层级。亮色白 `#ffffff`，暗色 slate 2 `#18191b`
+   * （暗色不取第 3 级：那是 fill，浮层里的填充会看不见）
+   */
+  surfaceRaised: '#ffffff',
 
   // ───────── 中性填充：没有背景的元素在交互时铺的底色 ─────────
 
@@ -202,7 +206,7 @@ export const colors = css.defineVars('vtp-colors', {
   /** 高亮标记：搜索命中、`<mark>`。amber 4：亮色 `#ffee9c`，暗色 `#3f2700` */
   highlight: '#ffee9c',
   /** 半透明表面：吸顶的顶栏（配合背景模糊）。页面背景加 80% 不透明 */
-  surfaceTranslucent: 'rgba(252, 252, 253, 0.8)',
+  surfaceTranslucent: 'rgba(249, 249, 251, 0.8)',
   // ───────── 代码高亮：代码块（surfaceMuted）、行内代码与高亮行（fill）、diff 的增删行上都要满足 4.5:1 ─────────
   /** 关键字。indigo 11：亮色 `#3a5bc7`，暗色 `#9eb1ff` */
   codeKeyword: '#3a5bc7',
