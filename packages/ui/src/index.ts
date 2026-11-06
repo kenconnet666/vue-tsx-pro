@@ -1422,6 +1422,7 @@ export { darkColors, darkShadows, darkTheme } from './config/theme/dark';
 export { emberColors, emberTheme } from './config/theme/ember';
 export { festiveColors, festiveShadows, festiveTheme } from './config/theme/festive';
 export { forestColors, forestShadows, forestTheme } from './config/theme/forest';
+export { highContrastDarkColors, highContrastDarkTheme } from './config/theme/high-contrast-dark';
 export {
   highContrastColors,
   highContrastRadii,
@@ -1444,7 +1445,6 @@ export {
 } from './config/theme/light';
 export { midnightColors, midnightTheme } from './config/theme/midnight';
 export { monoColors, monoRadii, monoShadows, monoTheme } from './config/theme/mono';
-export { oceanColors, oceanRadii, oceanShadows, oceanTheme } from './config/theme/ocean';
 export { paperColors, paperFonts, paperShadows, paperTheme } from './config/theme/paper';
 export {
   createThemePreference,

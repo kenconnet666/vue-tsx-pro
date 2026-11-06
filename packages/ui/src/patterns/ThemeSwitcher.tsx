@@ -12,6 +12,7 @@ import {
   ChartNoAxesCombined,
   Citrus,
   Contrast,
+  Eclipse,
   Feather,
   Flame,
   Flower,
@@ -24,7 +25,6 @@ import {
   ScrollText,
   Sun,
   Trees,
-  Waves,
   Zap,
 } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -65,7 +65,7 @@ const DEFAULT_ICONS: Record<BuiltinThemeName | typeof SYSTEM_THEME, IconData> = 
   paper: ScrollText,
   midnight: MoonStar,
   'high-contrast': Contrast,
-  ocean: Waves,
+  'high-contrast-dark': Eclipse,
   forest: Trees,
   lemon: Citrus,
   sakura: Flower2,

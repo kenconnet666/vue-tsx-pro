@@ -369,7 +369,7 @@ export const zhCN: Lang = {
   themePaper: '纸张',
   themeMidnight: '午夜',
   themeHighContrast: '高对比',
-  themeOcean: '海洋',
+  themeHighContrastDark: '高对比暗色',
   themeForest: '森林',
   themeLemon: '柠檬',
   themeSakura: '樱花',

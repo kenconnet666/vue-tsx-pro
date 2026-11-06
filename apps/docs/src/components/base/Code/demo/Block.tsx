@@ -2,11 +2,11 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { CodeBlock } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const source = `import { createApp } from 'vue';
-import { createUi, oceanTheme } from '@zerodep-dev/vue-tsx-pro-ui';
+import { createUi, forestTheme } from '@zerodep-dev/vue-tsx-pro-ui';
 import App from './App';
 
 createApp(App)
-  .use(createUi({ theme: oceanTheme }))
+  .use(createUi({ theme: forestTheme }))
   .mount('#app');`;
 
 export default _component(() => () => (

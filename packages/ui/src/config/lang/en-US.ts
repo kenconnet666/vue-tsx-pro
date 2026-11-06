@@ -392,7 +392,7 @@ export const enUS: Lang = {
   themePaper: 'Paper',
   themeMidnight: 'Midnight',
   themeHighContrast: 'High contrast',
-  themeOcean: 'Ocean',
+  themeHighContrastDark: 'High contrast dark',
   themeForest: 'Forest',
   themeLemon: 'Lemon',
   themeSakura: 'Sakura',

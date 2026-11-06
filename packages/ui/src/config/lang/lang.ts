@@ -648,8 +648,8 @@ export interface Lang {
   readonly themeMidnight: string;
   /** 主题：高对比，默认“高对比” */
   readonly themeHighContrast: string;
-  /** 主题：海洋，默认“海洋” */
-  readonly themeOcean: string;
+  /** 主题：高对比暗色，默认“高对比暗色” */
+  readonly themeHighContrastDark: string;
   /** 主题：森林，默认“森林” */
   readonly themeForest: string;
   /** 主题：柠檬，默认“柠檬” */

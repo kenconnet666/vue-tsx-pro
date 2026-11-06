@@ -58,7 +58,7 @@ export const builtinThemeBootColors = {
   paper: { background: '#f5efdf', text: '#3b2f20', colorScheme: 'light' },
   midnight: { background: '#0d1321', text: '#eef2fa', colorScheme: 'dark' },
   'high-contrast': { background: '#ffffff', text: '#000000', colorScheme: 'light' },
-  ocean: { background: '#f7fdff', text: '#10222c', colorScheme: 'light' },
+  'high-contrast-dark': { background: '#000000', text: '#ffffff', colorScheme: 'dark' },
   forest: { background: '#f9fef9', text: '#182318', colorScheme: 'light' },
   lemon: { background: '#fefdf2', text: '#232010', colorScheme: 'light' },
   sakura: { background: '#fffafc', text: '#281b20', colorScheme: 'light' },

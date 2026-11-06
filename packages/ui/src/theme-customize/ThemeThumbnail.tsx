@@ -2,7 +2,7 @@
  * 主题缩略图（span）：用这套主题画一个缩小的页面：底色上一张卡片，卡片里标题、正文两行字和一个品牌色按钮。
  * 主题选择器、主题列表里代替主题名旁边的色点，一眼看出底色、表面、文字与品牌色的搭配。
  *
- *   <ThemeThumbnail theme={oceanTheme} />
+ *   <ThemeThumbnail theme={forestTheme} />
  *
  * 颜色来自套在它上面的主题变量（themeAttrs），换主题不用重画；纯装饰，对读屏隐藏，名字由使用方写在旁边。
  * 尺寸用 em，随字号缩放。部件：Root（span）、Card（卡片）。
