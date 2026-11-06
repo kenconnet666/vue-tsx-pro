@@ -1,12 +1,14 @@
 // 比对两批示例截图（shots-batch.mjs 截的）：逐像素比，列出有差异的图与差异像素的比例，差异图存进 diff 目录
 //
 //   node scripts/docs/shots-compare.mjs before after
+//   node scripts/docs/shots-compare.mjs before after --ignore=before2   两份基线之间本来就不同的图（动画、3D、时钟）不算
 import { mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireFrom, root } from '../lib/repo.mjs';
 
 const { PNG } = requireFrom('.')('pngjs');
-const [a, b] = process.argv.slice(2);
+const [a, b] = process.argv.slice(2).filter((arg) => !arg.startsWith('--'));
+const ignoreLabel = process.argv.find((arg) => arg.startsWith('--ignore='))?.slice(9);
 const dirA = join(root, `node_modules/.cache/docs-shots-${a}`);
 const dirB = join(root, `node_modules/.cache/docs-shots-${b}`);
 const diffDir = join(root, `node_modules/.cache/docs-shots-diff`);
@@ -15,9 +17,20 @@ mkdirSync(diffDir, { recursive: true });
 
 // 每个通道差超过这个值才算不同（抗锯齿的细微差别不算）
 const THRESHOLD = 24;
+// 两份基线之间字节就不同的图：本来就不稳定，不比
+const unstable = new Set(
+  ignoreLabel
+    ? readdirSync(dirA).filter((file) => {
+        const other = join(root, `node_modules/.cache/docs-shots-${ignoreLabel}`, file);
+        return !existsSync(other) || !readFileSync(join(dirA, file)).equals(readFileSync(other));
+      })
+    : [],
+);
 let same = 0;
 const rows = [];
-for (const file of readdirSync(dirA).filter((name) => name.endsWith('.png'))) {
+for (const file of readdirSync(dirA).filter(
+  (name) => name.endsWith('.png') && !unstable.has(name),
+)) {
   if (!existsSync(join(dirB, file))) {
     rows.push([file, '缺少']);
     continue;
@@ -52,5 +65,7 @@ for (const file of readdirSync(dirA).filter((name) => name.endsWith('.png'))) {
     `${changed} 像素（${((changed / (left.width * left.height)) * 100).toFixed(2)}%）`,
   ]);
 }
-console.log(`相同 ${same} 张，有差异 ${rows.length} 张`);
+console.log(
+  `相同 ${same} 张，有差异 ${rows.length} 张${unstable.size ? `（${unstable.size} 张本来就不稳定，没比）` : ''}`,
+);
 for (const [file, note] of rows) console.log(`  ${file}：${note}`);
