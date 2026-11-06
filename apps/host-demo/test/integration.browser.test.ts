@@ -42,7 +42,7 @@ const settle = async () => {
   await Promise.allSettled(finiteAnimations().map((animation) => animation.finished));
 };
 
-it('em 尺寸：档位改变字号，内部尺寸同比缩放；继承上下文字号', () => {
+it('em 尺寸：档位改变字号，控件高度随之取整到 4px 网格；继承上下文字号', () => {
   const [sm, md, lg] = ['小', '默认', '大'].map(button);
   expect([style(sm!).fontSize, style(md!).fontSize, style(lg!).fontSize]).toEqual([
     '13px',
@@ -50,7 +50,8 @@ it('em 尺寸：档位改变字号，内部尺寸同比缩放；继承上下文�
     '16px',
   ]);
   const heights = [sm!, md!, lg!].map((element) => element.getBoundingClientRect().height);
-  expect(heights[0]! / 13).toBeCloseTo(heights[2]! / 16, 1);
+  // sizes.control 是字号的 2.25 倍取整到 4px：13 / 14 / 16px → 28 / 32 / 36px
+  expect(heights).toEqual([28, 32, 36]);
 
   const inherited = $('.inherit-size');
   expect(style(inherited).fontSize).toBe('24px');
