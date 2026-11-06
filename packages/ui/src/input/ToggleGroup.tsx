@@ -100,7 +100,8 @@ const toggleGroupStyles = css.create({
   vertical: { flexDirection: 'column' },
   // 只读、没选中的项：不像能点（悬停也不出底色）
   readonlyItem: { cursor: 'default', backgroundColor: 'transparent' },
-  // 同按钮的 surface 外观；位置与宽高由脚本写（useActiveIndicator）
+  // 同按钮的 surface 外观；位置与宽高由脚本写（useActiveIndicator）。脚本按 offsetLeft / offsetTop（物理坐标）平移，
+  // 起点用物理的 top / left，从右到左时也对得上
   indicator: {
     position: 'absolute',
     top: 0,

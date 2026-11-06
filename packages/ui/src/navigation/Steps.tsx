@@ -132,7 +132,7 @@ export const stepsStyles = css.create({
     // 走到下一步时圆圈换色、连接线变色都过渡，不是一下跳过去
     transition: `background-color ${t.durations.md} ${t.easings.standard}, border-color ${t.durations.md} ${t.easings.standard}, color ${t.durations.md} ${t.easings.standard}`,
   },
-  text: { display: 'grid', gap: '_xs', paddingTop: '0.3em', minWidth: 0 },
+  text: { display: 'grid', gap: '_xs', paddingBlockStart: '0.3em', minWidth: 0 },
   title: { fontWeight: '_medium' },
   description: { color: '_textMuted', fontSize: '0.93em' },
   // 步骤之间的连接线：横排在标题右侧延伸

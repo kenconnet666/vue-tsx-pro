@@ -326,6 +326,10 @@ CSharpUi、Blazor 两个会话是同一套组件库设计的 C# / Blazor 版本�
 | 视觉审查 S2 / 已定 | 着色页面 + 白卡片，深色 surfaceRaised 提亮，16 套主题跟着调 | 亮色 7 套（亮色、森林、柠檬、樱花、喜庆、薰衣草、墨白）：页面取原来的 surfaceMuted，卡片与浮层白色，surfaceMuted 取页面与 fill 的中间（`mixColors`）；纸张、高对比不动；深色不提亮 | 纸张本来就分了三层，高对比要纯白底；深色本来就是“页面暗、卡片亮”，主题编辑器里写明了浮层不取 3 级（那是 fill，滑块轨道、进度条会看不见），同 Radix Themes 的 panel。页面略深后 4 个图表系列色只到 2.99:1，各调深一点到 3:1 |
 | 视觉审查 S3 / 已定 | 控件高度 24 / 28 / 32 / 36 / 40 | `sizes.control` 改 `round(nearest, 2.25em, 4px)`，`fontSizeStyles` 每档连同控件高度给出，xs 用 2 倍 | 主题可以改字号，高度写死 px 会与字号脱节；2.25 倍取整在 13 / 14 / 16 / 18px 正好是 28 / 32 / 36 / 40，只有 12px 会取到 28（与 sm 撞），所以 xs 单独给 2 倍。`round()` 与已在用的 `@starting-style` 同属 2024 年 Baseline |
 | 视觉审查 S4 / 已定 | 中文 600 只给 H1–H4，按钮、标签页、Alert 标题用 500 | 界面文字（按钮、小标题、分组标签、表头）改 500；H5、H6 仍 600；数字、页面级大标题、未读、品牌名留 600 | 微软雅黑只有常规与粗体，500 落成常规：标题用 500 就与正文分不出；数字是拉丁字形，600 不受影响 |
+| 原计划 §5.2 | 状态类的 `cond && styles.x` 换成条件别名（约 45 处） | 挪到下个版本，随 §5.6 的部件补齐一起做 | 别名展开成 `:is(…)`（优先级 40），排在 `:hover`（130）前面：换过去后已选、不可用的项悬停时会露出悬停色，每处都要单独定组合状态的先后（嵌套条件或悬停排除状态），不是机械替换；这些组件改配方时状态样式本来就要搬进配方，现在改等于做两遍 |
+| 原计划 §5.3 | 组件里的 rem / px、`fontSize: 'x.xem'` 换 token | 同上，随部件补齐做；这一版只把 Tabs、Steps 的物理方向属性换成逻辑属性 | 字号换成档位会让外观有细微变化，要逐个对截图；逻辑属性的改动外观不变 |
+| 原计划 §5.3 | ToggleGroup、Tabs 指示条的 `left` / `top` 换逻辑属性 | 不换，注释写明 | 指示条按 `offsetLeft` / `offsetTop`（物理坐标）平移，起点必须是物理的；顺带修了竖排 Tabs 的指示条在从右到左时被 `left: auto` 盖掉（物理属性排在逻辑属性后面） |
+| 原计划 §5.5 | 主入口只导出配方与共用件 | 约 220 张组件内部的样式表不再导出（只在本文件用的去掉 export，组件之间、测试要用的标 `@internal`）；移动端复用的 15 张（`navBarStyles`、`fieldStyles`…）与 `buttonBaseStyles`、`visuallyHiddenStyles` 照常导出 | 移动端组件在桌面组件的样式上改，是正当的跨包依赖；ButtonBase 是给使用方自建可按下元素的基础件，读屏隐藏是通用件 |
 | 视觉审查 S7 | 拉开标题阶梯、加 display 档、Prose 行高 1.7、info 偏青 | 只把 H6 改成 sm（与 H5 分开）；Prose 已是 1.75；display 档、info 色相不改 | 没有组件要用 display 档；info 换青色要重算 7 个 token × 亮暗，还与图表 chart6（cyan）撞色；Ant Design 的 info 与品牌色同为蓝色 |
 
 ## 12. 迁移说明的素材（阶段 5 汇总进发布说明）
@@ -337,6 +341,9 @@ CSharpUi、Blazor 两个会话是同一套组件库设计的 C# / Blazor 版本�
 - `Tone` / `Tones` → `TextTone` / `TextTones`
 - 配方的 `compound: [{ when }]` → `{ match }`；tsx 的 `Theme` → `VarTheme`；`hotStyles`、`inlineStyle` 挪到 `styles/internal`
 - createUi / Provider 的 `defaults`、`styles` → `components.Xxx.{ defaults, styles, variants }`
+
+主入口不再导出组件内部的样式表（约 220 张，如 `buttonStyles`、`alertStyles`、`tabListStyles`）：外观的定制改用 `components.Xxx` 的
+`styles` / `variants` 与部件的 `propsXxx.sx`；配方（`xxxRecipe`）、共用件（`utils/style`）、移动端复用的样式表照常导出。
 
 去掉的样式表项（改用共用件）：
 

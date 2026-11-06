@@ -265,15 +265,15 @@ export interface TabListProps extends PartProps<'div', TabListManaged> {
   children?: VNodeChild;
 }
 
-/** TabList 的样式：bar、barLine、root、scrollable、line、lineVertical、soft、softVertical、indicator、indicatorVertical */
+/** TabList 的样式：bar、barLine、root、scrollable、line、lineVertical、soft、softVertical、indicator（横排、竖排各一份位置） */
 const tabListStyles = css.create({
   // 横排时包着标签列表与右边的按钮（滚动、全部标签页、新建）：列表按内容宽，放不下时收缩并滚动
   bar: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
   // 横排 line 的分隔线画在整行上：标签少时也铺满（页签区、页面顶部的标签）
   barLine: {
-    borderBottomWidth: '_xs',
-    borderBottomStyle: 'solid',
-    borderBottomColor: '_borderMuted',
+    borderBlockEndWidth: '_xs',
+    borderBlockEndStyle: 'solid',
+    borderBlockEndColor: '_borderMuted',
   },
   root: { display: 'flex', flexShrink: 0 },
   // 横排放不下时（顶栏、窄屏）在列表里横向滚动，不盖到旁边的内容上；滚动条藏起来，触控板、拖动照样能滚
@@ -295,21 +295,18 @@ const tabListStyles = css.create({
   },
   soft: { gap: '_xs', padding: '_xs', borderRadius: '_md', backgroundColor: '_fill' },
   softVertical: { flexDirection: 'column' },
-  // 一条 2px 的品牌色线，压在列表的分隔线上；位置与长度由脚本写（transform 与 width/height）
+  // 一条 2px 的品牌色线，压在列表的分隔线上；位置与长度由脚本写（transform 与 width/height）。
+  // 脚本按标签的 offsetLeft / offsetTop（物理坐标）平移，所以起点是物理的 left / top，从右到左时也对得上
   indicator: {
     position: 'absolute',
-    left: 0,
-    // 压在列表底边的分隔线上（滚动的列表会裁掉伸出去的部分，所以放在边框内侧）
-    bottom: 0,
-    width: 0,
-    height: '_borderWidths.sm',
     borderRadius: '_sm',
     backgroundColor: '_accent',
     pointerEvents: 'none',
   },
+  // 横排：压在列表底边的分隔线上（滚动的列表会裁掉伸出去的部分，所以放在边框内侧）
+  indicatorHorizontal: { left: 0, insetBlockEnd: 0, width: 0, height: '_borderWidths.sm' },
+  // 竖排：压在列表结束边的分隔线上。不与横排的 left 叠用：从右到左时结束边就是 left，物理属性会盖过它
   indicatorVertical: {
-    left: 'auto',
-    bottom: 'auto',
     top: 0,
     insetInlineEnd: `calc(-1 * ${t.borderWidths.xs})`,
     width: '_borderWidths.sm',
@@ -513,7 +510,12 @@ export const TabList = _component(
           {tabs.variant === 'line' && (
             <span
               {...mergeAttrs<'span'>(
-                { sx: [tabListStyles.indicator, vertical && tabListStyles.indicatorVertical] },
+                {
+                  sx: [
+                    tabListStyles.indicator,
+                    vertical ? tabListStyles.indicatorVertical : tabListStyles.indicatorHorizontal,
+                  ],
+                },
                 propsIndicator,
                 { ref: _toRef(indicator), 'aria-hidden': true },
               )}
@@ -615,10 +617,10 @@ export const tabsRecipe = css.recipe({
       // 线由 TabList 的指示条画（切换时滑过去），标签自己只变文字颜色
       line: {
         root: {
-          marginBottom: `calc(-1 * ${t.borderWidths.xs})`,
-          borderBottomWidth: '_sm',
-          borderBottomStyle: 'solid',
-          borderBottomColor: 'transparent',
+          marginBlockEnd: `calc(-1 * ${t.borderWidths.xs})`,
+          borderBlockEndWidth: '_sm',
+          borderBlockEndStyle: 'solid',
+          borderBlockEndColor: 'transparent',
         },
       },
       soft: {
@@ -641,9 +643,9 @@ export const tabsRecipe = css.recipe({
       match: { variant: 'line', orientation: 'vertical' },
       root: {
         justifyContent: 'flex-start',
-        marginBottom: 0,
+        marginBlockEnd: 0,
         marginInlineEnd: `calc(-1 * ${t.borderWidths.xs})`,
-        borderBottomWidth: 0,
+        borderBlockEndWidth: 0,
         borderInlineEndWidth: '_sm',
         borderInlineEndStyle: 'solid',
         borderInlineEndColor: 'transparent',
