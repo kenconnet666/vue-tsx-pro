@@ -335,9 +335,9 @@ catalogs:
     prettier:
       specifier: 3.9.10
       version: 3.9.10
-    rune-ui-wuxiawenkai:
-      specifier: 0.1.0
-      version: 0.1.0
+    rune-ui-font:
+      specifier: 0.2.0
+      version: 0.2.0
     shiki:
       specifier: 4.5.0
       version: 4.5.0
@@ -478,9 +478,9 @@ importers:
       pinyin-pro:
         specifier: 'catalog:'
         version: 3.29.5
-      rune-ui-wuxiawenkai:
+      rune-ui-font:
         specifier: 'catalog:'
-        version: 0.1.0
+        version: 0.2.0
       shiki:
         specifier: 'catalog:'
         version: 4.5.0
@@ -4085,8 +4085,8 @@ packages:
     resolution: {integrity: sha512-nLTrUKm2UyiL7rlhapu/Zl45FwNgkZGaCpZbIHajDYgwlJCOzLSk+cIPAnsEqV955GjILJnKbdQC1nVPz+gAYQ==}
     engines: {node: '>= 18'}
 
-  rune-ui-wuxiawenkai@0.1.0:
-    resolution: {integrity: sha512-ASG9vyPbit3VnrVuSHuzy+RQRDb8+XKgGIkQI3he7ESgIwXOeyEIxVmAjjyM5/ZPHiSkeJqJBXcoZYV9G6fmkA==}
+  rune-ui-font@0.2.0:
+    resolution: {integrity: sha512-XiGbN7hnY2xO7Pz5fnQxPzmmtq6lTSQJQDc2kHvq9hGaKxD3vqZAQYHibqQxeGpWTP8B+AOGE38rbDY9cdEhdw==}
 
   safe-array-concat@1.1.4:
     resolution: {integrity: sha512-wtZlHyOje6OZTGqAoaDKxFkgRtkF9CnHAVnCHKfuj200wAgL+bSJhdsCD2l0Qx/2ekEXjPWcyKkfGb5CPboslg==}
@@ -7891,7 +7891,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  rune-ui-wuxiawenkai@0.1.0: {}
+  rune-ui-font@0.2.0: {}
 
   safe-array-concat@1.1.4:
     dependencies:

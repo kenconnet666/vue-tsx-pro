@@ -22,6 +22,6 @@ const app = (root.hasChildNodes() ? createSSRApp : createApp)(App)
 // 加载失败也照常挂载（用没定制的主题），错误照样报出来；水合要等路由解析完，页面的组件到位
 void Promise.all([siteThemeReady(), router.isReady()]).finally(() => {
   app.mount(root);
-  // 字体（霞鹜文楷等宽的 @font-face，按字切成小片）不挡首屏：挂载后再加载，到之前文字用系统字体
-  void import('rune-ui-wuxiawenkai/lxgw-wenkai-mono.css');
+  // 字体（更纱黑体等宽的 @font-face，按字切成小片）不挡首屏：挂载后再加载，到之前文字用系统字体
+  void import('rune-ui-font/sarasa-mono-sc.css');
 });

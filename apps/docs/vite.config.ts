@@ -74,6 +74,8 @@ export const optimizeDeps = {
   include: [
     // 示例里用到的（组件库源码不在运行时导入它）
     'decimal.js',
+    // 站点字体（src/site/theme.ts）：测试里第一次导入站点主题时才发现的话，会重新预构建并刷新正在跑的测试
+    'rune-ui-font',
     // 代码高亮的几种语言（src/site/ui.ts 按需导入）：第一次出现代码块时才发现的话，会重新预构建并刷新页面
     '@shikijs/langs/css',
     '@shikijs/langs/html',
@@ -110,6 +112,8 @@ export default defineConfig({
   // Shiki 的每种语言语法单独成块、用到才下载（emacs-lisp、cpp 这类大语法不会被页面加载），不必为它们报警
   build: {
     chunkSizeWarningLimit: 1000,
+    // 字体分片（rune-ui-font）不内联：内联进 CSS 的小分片不管页面用不用得到，都随 CSS 一起下载
+    assetsInlineLimit: (file) => (file.endsWith('.woff2') ? false : undefined),
     // 桶文件（组件库入口、@lucide/icons）只编译真正用到的再导出模块：构建时少编译约四分之一的模块，产物不变
     rolldownOptions: {
       // 站点之外还有移动端页面里手机外框加载的演示（mobile-frame.html，单独一个文档）

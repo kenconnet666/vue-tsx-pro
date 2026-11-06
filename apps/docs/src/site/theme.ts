@@ -1,7 +1,7 @@
 /**
  * 站点的主题：主题偏好（全部内置主题或跟随系统）加上主题编辑器的设置，都记在 localStorage。
  * index.html 里的防闪烁脚本用同一个偏好存储键；编辑器的设置在应用加载后套上。
- * 文档站的字体是霞鹜文楷等宽（rune-ui-wuxiawenkai）：每套内置主题都换上它，正文、标题、代码一样；
+ * 文档站的字体是更纱黑体等宽（rune-ui-font）：每套内置主题都换上它，正文、标题、代码一样；
  * 字体的 CSS 在 main.ts 里挂载后才加载，到之前先用系统字体。
  */
 import {
@@ -14,14 +14,14 @@ import {
   type Theme,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import type { customizeTheme, ThemeSettings } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
-import { lxgwWenKaiMonoFonts } from 'rune-ui-wuxiawenkai';
+import { sarasaMonoScFonts } from 'rune-ui-font';
 import { effectScope, shallowRef, watch } from 'vue';
 
-/** 内置主题换上文楷等宽：主题名不变，切换器、防闪烁脚本照常认 */
+/** 内置主题换上更纱等宽：主题名不变，切换器、防闪烁脚本照常认 */
 const siteThemes = Object.fromEntries(
   Object.entries(builtinThemes).map(([name, theme]) => [
     name,
-    defineTheme(theme, { fonts: lxgwWenKaiMonoFonts }),
+    defineTheme(theme, { fonts: sarasaMonoScFonts }),
   ]),
 ) as Record<keyof typeof builtinThemes, Theme>;
 

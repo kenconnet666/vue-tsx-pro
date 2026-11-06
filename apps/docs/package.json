@@ -30,7 +30,7 @@
     "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",
     "decimal.js": "catalog:",
     "pinyin-pro": "catalog:",
-    "rune-ui-wuxiawenkai": "catalog:",
+    "rune-ui-font": "catalog:",
     "shiki": "catalog:",
     "tabbable": "catalog:",
     "three": "catalog:",

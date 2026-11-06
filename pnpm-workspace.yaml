@@ -43,8 +43,8 @@ catalog:
   '@vitejs/plugin-vue': 6.0.10
   vue-router: 5.4.0
   pinia: 4.1.0
-  # 文档站的字体：霞鹜文楷等宽，按界面用字、常用字、生僻字切片（自己的包，rune-ui-wuxiawenkai 仓库）
-  rune-ui-wuxiawenkai: 0.1.0
+  # 文档站的字体：更纱黑体等宽（包里还有霞鹜文楷等宽），按界面用字、常用字、生僻字切片（自己的包，rune-ui-font 仓库）
+  rune-ui-font: 0.2.0
   # 组件库工具：算法与数据，组件本身自己写
   '@floating-ui/dom': 1.8.0
   '@lucide/icons': 1.69.0
@@ -129,8 +129,8 @@ minimumReleaseAgeExclude:
   - '@zerodep-dev/easy-query-ts-sqlite@0.2.0'
   - '@zerodep-dev/easy-query-ts-mysql@0.2.0'
   - '@zerodep-dev/easy-query-ts-pg@0.2.0'
-  # 自己的包（rune-ui-wuxiawenkai 仓库），发布即用
-  - 'rune-ui-wuxiawenkai@0.1.0'
+  # 自己的包（rune-ui-font 仓库），发布即用
+  - 'rune-ui-font@0.2.0'
 
 # 仓库内的 Node 进程（Vite / Vitest 配置、脚本）直接解析各包源码，不用先构建：
 # 改了 tsx 的编译器或 ui 的组件立刻生效。配置文件要用 --configLoader native 加载（Node 自己去掉类型），
