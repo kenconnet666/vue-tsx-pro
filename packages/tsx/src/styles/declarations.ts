@@ -206,12 +206,15 @@ export function serialize(table: Declarations): string[] {
       list.push([property, values]);
     }
   }
+  // 权重先算好再排序：比较器里每次拆条件链、查优先级太慢（块内的属性同样）
   return [...byChain]
-    .sort(([a], [b]) => chainWeight(a) - chainWeight(b))
-    .map(([chain, list]) => {
+    .map(([chain, list]) => [chainWeight(chain), chain, list] as const)
+    .sort((a, b) => a[0] - b[0])
+    .map(([, chain, list]) => {
       const body = list
-        .sort(([a], [b]) => getPriority(a) - getPriority(b))
-        .flatMap(([property, values]) => values.map((value) => `${property}:${value}`))
+        .map(([property, values]) => [getPriority(property), property, values] as const)
+        .sort((a, b) => a[0] - b[0])
+        .flatMap(([, property, values]) => values.map((value) => `${property}:${value}`))
         .join(';');
       const parts = chain ? chain.split('\0') : [];
       const atRules = parts.filter((part) => part.startsWith('@'));

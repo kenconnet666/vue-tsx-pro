@@ -81,6 +81,23 @@ export function vueProps<P extends object>(props: P): P {
   return ((props as { [VUE_PROPS]?: P })[VUE_PROPS] ?? props) as P;
 }
 
+/** restProps 交出背后普通对象的入口（见 ownProps） */
+const OWN = Symbol('rest own props');
+
+/**
+ * 一层属性的普通对象，没有键时 undefined。编译器生成的 ...rest 交出背后的 attrs（有内容时加上 children）：
+ * 对 Proxy 做 for…in 或展开要走 ownKeys、getOwnPropertyDescriptor、get 几层陷阱，比普通对象慢几十倍，
+ * 而合并部件属性时每个部件每次渲染都要判空、展开、逐键遍历（ui 的 mergeProps）。
+ * 交出的可能是 Vue 实例上的 attrs 本身：只读，别改它
+ */
+export function ownProps<T extends object>(value: T | null | undefined): T | undefined {
+  if (!value) return undefined;
+  const own = (value as { [OWN]?: () => T | undefined })[OWN];
+  if (own) return own();
+  for (const _ in value) return value;
+  return undefined;
+}
+
 /**
  * 参数解构里的 ...rest（编译器生成）：没有声明为 prop 的属性（Vue 的 attrs），再加上 children。
  * TypeScript 推出的 rest 类型含 children，运行时也要有：`<Collapse {...rest} />` 才能把内容转交下去。
@@ -93,8 +110,23 @@ export function restProps(
   withChildren = true,
 ): object {
   const hasChildren = () => withChildren && (ctx.slots.default != null || 'children' in ctx.attrs);
+  // Vue 原地更新实例上的 attrs（对象不换）；ctx.attrs 是它外面又一层 Proxy
+  const attrs: Record<string, unknown> = getCurrentInstance()?.attrs ?? ctx.attrs;
+  /** ownProps 用：键与这个 Proxy 一致的普通对象，没有键时 undefined */
+  const own = () => {
+    const content = hasChildren();
+    if (!content && !('children' in attrs)) {
+      for (const _ in attrs) return attrs;
+      return undefined;
+    }
+    const { children: _children, ...copy } = attrs;
+    if (content) copy.children = props.children;
+    for (const _ in copy) return copy;
+    return undefined;
+  };
   return new Proxy(ctx.attrs, {
     get: (target, key, receiver) => {
+      if (key === OWN) return own;
       if (key !== 'children') return Reflect.get(target, key, receiver);
       return withChildren ? props.children : undefined;
     },

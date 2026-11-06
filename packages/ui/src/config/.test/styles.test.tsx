@@ -1,5 +1,6 @@
 // 组件的主题定制（Provider / createUi 的 styles）：追加样式、新增档位、内层盖过外层；部件带 data-scope / data-part
 import { describe, expect, it } from 'vitest';
+import { nextTick, ref } from 'vue';
 import { Badge } from '../../base/Badge';
 import { Button } from '../../base/Button';
 import { Tab, TabList, Tabs } from '../../navigation/Tabs';
@@ -37,6 +38,28 @@ describe('组件的主题定制', () => {
       </Provider>
     ));
     expect(styleOf(host.querySelector('button')!).get('&|color')).toBe('rgb(1, 2, 3)');
+  });
+
+  it('档位与 Provider 的 styles 变了，样式跟着变（配方按实例记住上一次的结果）', async () => {
+    const variant = ref<'solid' | 'link'>('solid');
+    const spacing = ref('1px');
+    const host = mount(() => (
+      <Provider styles={{ Button: { base: { root: { letterSpacing: spacing.value } } } }}>
+        <Button variant={variant.value}>按钮</Button>
+      </Provider>
+    ));
+    const button = host.querySelector('button')!;
+    const solid = button.className;
+    variant.value = 'link';
+    await nextTick();
+    expect(button.className).not.toBe(solid);
+    expect(styleOf(button).get('&|letter-spacing')).toBe('1px');
+    variant.value = 'solid';
+    await nextTick();
+    expect(button.className).toBe(solid);
+    spacing.value = '3px';
+    await nextTick();
+    expect(styleOf(button).get('&|letter-spacing')).toBe('3px');
   });
 
   it('部件带 data-scope / data-part', () => {

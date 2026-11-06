@@ -114,18 +114,48 @@ export function useRecipe<P extends string, V>(
 ): (selection?: Parameters<Recipe<P, V>>[0]) => Readonly<Record<P, PartLayer>> {
   const config = useConfig();
   const name = recipe.name as keyof ComponentStyles | undefined;
+  // 这个实例上一次的档位与结果：重新渲染时档位多半没变，不必再进配方拼键查表
+  let lastLayers: readonly RecipeExtension<P>[] | undefined;
+  let lastSelection: Readonly<Record<string, unknown>> | undefined;
+  let lastResult: Readonly<Record<P, PartLayer>> | undefined;
   return (selection) => {
-    const layers = name && (config.styles[name] as readonly RecipeExtension<P>[] | undefined);
+    const layers =
+      (name && (config.styles[name] as readonly RecipeExtension<P>[] | undefined)) || undefined;
+    if (
+      lastResult &&
+      layers === lastLayers &&
+      sameSelection(selection as Readonly<Record<string, unknown>> | undefined, lastSelection)
+    ) {
+      return lastResult;
+    }
     const styles = layers?.length ? recipe(selection, ...layers) : recipe(selection);
-    let result = layerCache.get(styles);
+    let result = layerCache.get(styles) as Readonly<Record<P, PartLayer>> | undefined;
     if (!result) {
       result = Object.fromEntries(
         recipe.parts.map((part) => [part, { sx: styles[part], ...partAttrs(recipe, part) }]),
-      );
+      ) as Readonly<Record<P, PartLayer>>;
       layerCache.set(styles, result);
     }
-    return result as Readonly<Record<P, PartLayer>>;
+    lastLayers = layers;
+    // 存一份拷贝：调用方原地改了同一个对象时也能看出变化
+    lastSelection = selection && { ...selection };
+    return (lastResult = result);
   };
+}
+
+/** 两次的档位选择相同：同一个组件每次传的键一样，逐个比值 */
+function sameSelection(
+  a: Readonly<Record<string, unknown>> | undefined,
+  b: Readonly<Record<string, unknown>> | undefined,
+): boolean {
+  if (!a || !b) return a === b;
+  let count = 0;
+  for (const key in a) {
+    if (a[key] !== b[key]) return false;
+    count++;
+  }
+  for (const _ in b) count--;
+  return count === 0;
 }
 
 /** 部件的 data 属性 */

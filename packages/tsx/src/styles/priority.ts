@@ -96,8 +96,20 @@ const PSEUDO_PART = /::[a-zA-Z-]+|:[a-zA-Z-]+(?:\([^)]*\))?/g;
 
 const pseudoClass = (name: string) => PSEUDO_CLASSES[name] ?? 40;
 
+/**
+ * 算过的优先级：serialize 排序时每个属性、每段条件都要查，不记住时它占新建组合类耗时的四分之一。
+ * 键是源码里写过的属性名、伪类与 @ 规则，数量有限，不必限制大小
+ */
+const priorities = new Map<string, number>();
+
 /** 属性名（连字符）、伪类、伪元素或 @ 规则的优先级 */
 export function getPriority(key: string): number {
+  let priority = priorities.get(key);
+  if (priority === undefined) priorities.set(key, (priority = computePriority(key)));
+  return priority;
+}
+
+function computePriority(key: string): number {
   if (key.startsWith('--')) return 1;
   if (key.startsWith('@supports')) return 30;
   if (key.startsWith('@media')) return 200;

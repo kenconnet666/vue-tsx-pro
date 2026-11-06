@@ -1,7 +1,7 @@
 // _component 的 props：响应式解构、任意默认值、rest 与组件信息
 import { afterEach, describe, it, expect } from 'vitest';
 import { createApp, nextTick, ref, watch, type VNodeChild } from 'vue';
-import { _component } from '../src';
+import { _component, ownProps } from '../src';
 
 const apps: ReturnType<typeof createApp>[] = [];
 afterEach(() => {
@@ -152,6 +152,40 @@ describe('rest 与组件信息', () => {
     ));
     expect(mount(() => <Probe />).textContent).toBe('none');
     expect(mount(() => <Probe>x</Probe>).textContent).toBe('has');
+  });
+
+  it('ownProps 交出 ...rest 背后的普通对象：键与 rest 一致，跟着上层传的属性与内容变', async () => {
+    const keysOf = (value: object | undefined) => (value ? Object.keys(value).join(',') : '无');
+    const Probe = _component(({ ...rest }: { children?: VNodeChild; title?: string }) => () => (
+      <i>{keysOf(ownProps(rest))}</i>
+    ));
+    const Bare = _component(
+      ({ children, ...rest }: { children?: VNodeChild; title?: string }) =>
+        () => (
+          <i>
+            {keysOf(ownProps(rest))}/{children}
+          </i>
+        ),
+    );
+    const title = ref<string | undefined>(undefined);
+    const el = mount(() => <Probe {...(title.value ? { title: title.value } : {})} />);
+    expect(el.textContent).toBe('无');
+    title.value = '提示';
+    await nextTick();
+    expect(el.textContent).toBe('title');
+    title.value = undefined;
+    await nextTick();
+    expect(el.textContent).toBe('无');
+    // 写了属性、值是 undefined 也算有（同 Object.keys(rest)）
+    expect(mount(() => <Probe title={undefined} />).textContent).toBe('title');
+    expect(mount(() => <Probe title="a">x</Probe>).textContent).toBe('title,children');
+    // 单独解构了 children：rest 里没有它，上层当属性转交下来的 children 也去掉
+    expect(mount(() => <Bare>x</Bare>).textContent).toBe('无/x');
+    const forwarded = { children: 'y' } as { children?: VNodeChild };
+    expect(mount(() => <Bare {...forwarded} />).textContent).toBe('无/y');
+    expect([ownProps({}), ownProps(undefined)]).toEqual([undefined, undefined]);
+    const plain = { a: undefined };
+    expect(ownProps(plain)).toBe(plain);
   });
 
   it('带连字符的 prop 名按驼峰读取，双向绑定照常写回', async () => {

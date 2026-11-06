@@ -14,7 +14,7 @@ import type { IntrinsicProps, JSX } from '@zerodep-dev/vue-tsx-pro-tsx/jsx-runti
 // 登记主题 tokens（样式里的 '_md' 靠它）：每个组件都经过这里合并属性，渲染之前一定登记过
 import '../config/theme/tokens';
 import type { StyleAttrs, SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { mergeRefs, type RefSetter } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { mergeRefs, ownProps, type RefSetter } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { VNodeChild } from 'vue';
 
 /**
@@ -75,8 +75,9 @@ export function mergeProps<Target = Props>(
   managed?: PropsLayer<Target>,
 ): PropsLayer<Target> {
   const base = defaults as Props;
-  const own = hasKeys(user) ? (user as Props) : undefined;
-  const fixed = hasKeys(managed) ? (managed as Props) : undefined;
+  // ...rest 换成背后的普通对象：后面的展开与逐键遍历不再穿过 Proxy
+  const own = ownProps(user as Props | undefined);
+  const fixed = ownProps(managed as Props | undefined);
   if (!own && !fixed) return defaults;
   const merged: Props = { ...base, ...own, ...fixed };
 
@@ -185,12 +186,6 @@ function compileSx(sx: SxStyles) {
 function isHandlerKey(key: string) {
   const third = key.charCodeAt(2);
   return key.charCodeAt(0) === 111 && key.charCodeAt(1) === 110 && third >= 65 && third <= 90;
-}
-
-function hasKeys(layer: object | undefined): boolean {
-  if (!layer) return false;
-  for (const _ in layer) return true;
-  return false;
 }
 
 /**

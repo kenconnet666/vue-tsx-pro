@@ -217,4 +217,4 @@ JSX 交给 vue-jsx 后，没有模板编译器的那几项优化：父组件一�
 
 - **看不出哪里被追踪**：去掉 `.value` 后，读代码时分不清普通变量和响应式变量。缓解：声明处必须写符文；编辑器悬停可见类型。这是 Vue 当年放弃 Reactivity Transform 的主要理由，Svelte 5 接受了同样的代价。
 - **`_` 前缀保留给符文**：项目代码里普通函数和变量不用 `_` 开头。编译器生成的导入别名是 `_vue_ref`、`_vtp_prop` 这类名字，不会冲突。
-- 实现见 `packages/tsx/src/compiler`（编译，渲染优化在 `optimize.ts`）与 `packages/tsx/src/runtime`（props.ts：`prop`、`readonlyProp`、`childrenProp`、`bindable`；component.ts：`restProps`、`childrenStable`、`forwardChildren`；state.ts：`overridable`、`snapshot`、`untrack`；effect.ts：`effect`、`effectRoot`；context.ts：`createContext`）。
+- 实现见 `packages/tsx/src/compiler`（编译，渲染优化在 `optimize.ts`）与 `packages/tsx/src/runtime`（props.ts：`prop`、`readonlyProp`、`childrenProp`、`bindable`；component.ts：`restProps`、`childrenStable`、`forwardChildren`，以及组件库合并属性用的 `ownProps`；state.ts：`overridable`、`snapshot`、`untrack`；effect.ts：`effect`、`effectRoot`；context.ts：`createContext`）。
