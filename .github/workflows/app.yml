@@ -119,8 +119,9 @@ jobs:
             adb exec-out screencap -p > android-index.png
             # 只看 WebView 的控制台（Capacitor/Console），系统进程的日志里也会有 TypeError 字样
             adb logcat -d -s Capacitor/Console:* Capacitor:* > android-logcat.txt
-            # 只算没被捕获的错误：Capacitor 自己捕获后打出来的（如 Error injecting safe area CSS，时有时无）不算
-            if grep "Uncaught" android-logcat.txt; then exit 1; fi
+            # 只算没被捕获的错误：Capacitor 自己捕获后打出来的（如 Error injecting safe area CSS，时有时无）不算；
+            # 原生层在桥接脚本就绪前派发事件（第 1 行注入的 window.Capacitor.triggerEvent，时有时无）也是 Capacitor 自己的时序，不算
+            if grep "Uncaught" android-logcat.txt | grep -v "reading 'triggerEvent'"; then exit 1; fi
             node apps/mobile-demo/test/android-keyboard.mjs
       - uses: actions/upload-artifact@v7
         if: always()
