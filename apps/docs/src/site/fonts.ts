@@ -1,5 +1,5 @@
 /**
- * 文档站的字体：默认是系统自带的（主题的字体栈：苹方、微软雅黑……），顶栏的字体按钮可以换成更纱黑体等宽、
+ * 文档站的字体：默认是系统自带的（主题的字体栈：苹方、微软雅黑……），顶栏的字体按钮可以换成等距更纱黑体 SC、
  * 霞鹜文楷等宽（rune-ui-font），选择记在 localStorage。换的是主题的 fonts（正文、标题、代码一起换），
  * 主题编辑器的字体设置再叠在上面；网页字体选到时才加载（挂载之后），分片按页面上出现的字下载，到之前先用系统字体。
  */
@@ -26,7 +26,7 @@ interface SiteFont {
 export const siteFonts: Record<SiteFontName, SiteFont> = {
   system: { label: '系统字体（苹方、微软雅黑）' },
   sarasa: {
-    label: '更纱黑体等宽',
+    label: '等距更纱黑体 SC',
     fonts: sarasaMonoScFonts,
     load: () => import('rune-ui-font/sarasa-mono-sc.css'),
   },
