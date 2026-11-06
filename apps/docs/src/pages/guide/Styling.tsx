@@ -31,10 +31,11 @@ const styles = css.create({
 <Card sx={[styles.card, { marginTop: '_md' }]} />                       // 组件：sx，一次性的覆盖直接写对象`;
 
 const customize = `createUi({
-  styles: {
+  components: {
     Button: {
-      base: { root: { letterSpacing: '0.02em' } },                  // 追加在组件自己的样式之后
-      variants: { size: { xl: { root: { fontSize: '_xxl' } } } },  // 新档位：先扩展 ButtonVariants 接口
+      defaults: { radius: 'full' },                                            // 档位的默认值
+      styles: { root: { letterSpacing: '0.02em' } },                           // 追加在组件自己的样式之后
+      variants: { variant: { outline: { root: { borderStyle: 'dashed' } } } }, // 某个档位取值的样式
     },
   },
 });
@@ -176,9 +177,12 @@ export default _component(() => () => (
       <Paragraph>
         一处覆盖用 <Code>sx</Code>（组件的根元素）与 <Code>propsXxx.sx</Code>
         （部件，如 <Code>propsTitle</Code>）。整个应用或一块区域统一换样式用{' '}
-        <Code>createUi({'{ styles }'})</Code> 与 <Code>{'<Provider styles>'}</Code>
-        ：追加在组件自己的样式之后，可以改已有的档位、给新档位写样式；内层 Provider
-        排在外层之后。每个部件都带 <Code>data-scope</Code> 与 <Code>data-part</Code>
+        <Code>createUi({'{ components }'})</Code> 与 <Code>{'<Provider components>'}</Code>
+        ：一个组件的定制写在一处——档位的默认值（<Code>defaults</Code>）、追加在组件自己样式之后的（
+        <Code>styles</Code>）、某个档位取值的（<Code>variants</Code>）；内层 Provider 排在外层之后。
+        组件的样式、每层定制、使用方的 <Code>sx</Code>{' '}
+        各进一个级联层，后面的盖过前面的；宿主自己不分层的 CSS
+        盖过整个组件库。用配方写的组件，部件带 <Code>data-scope</Code> 与 <Code>data-part</Code>
         ，宿主自己的 CSS、端到端测试都能按部件选中，不依赖生成的类名。
       </Paragraph>
       <CodeBlock code={customize} lang="tsx" />
@@ -186,7 +190,7 @@ export default _component(() => () => (
     <Example id="customize-example" title="一块区域换个样子" demo={ComponentStyles}>
       右边那张卡片套了一层 <Code>Provider</Code>：组件自己有的选项改默认值（<Code>defaults</Code>
       ：按钮全圆、标记用描边浅底），选项以外的样式写进 <Code>styles</Code>
-      （字距、描边按钮改成虚线、标记大写）。
+      （字距、标记大写），某个档位取值的写进 <Code>variants</Code>（描边按钮改成虚线）。
     </Example>
   </DocPage>
 ));

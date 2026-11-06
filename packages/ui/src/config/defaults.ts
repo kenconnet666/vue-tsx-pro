@@ -1,70 +1,20 @@
 /**
- * 组件默认值：应用级 `createUi({ defaults })`、局部 `<Provider defaults>` 统一改组件的默认外观，
- * 不必每处都写（参考 Ant Design 的 ConfigProvider、MUI 主题的 defaultProps）。
+ * 组件默认值：应用级 `createUi({ components })`、局部 `<Provider components>` 里各组件的 `defaults`
+ * 统一改组件的默认外观，不必每处都写（参考 Ant Design 的 ConfigProvider、MUI 主题的 defaultProps）。
  * 优先级：组件上显式写的 prop > 最近一层 Provider > createUi > 组件自己的默认值。
  *
- *   createUi({ defaults: { Button: { variant: 'outline', size: 'sm' } } })
+ *   createUi({ components: { Button: { defaults: { variant: 'outline', size: 'sm' } } } })
  *
  * 只收外观类的选项（样式、尺寸、色调）；行为类的（disabled、loading）每处单独决定。
  */
 import { computed } from 'vue';
 import { useConfig } from './context';
-import type { BadgeOptions } from '../base/badge-styles';
-import type { AlertOptions } from '../feedback/Alert';
-import type { EmptyOptions } from '../feedback/Empty';
-import type { ProgressOptions } from '../feedback/Progress';
-import type { ResultOptions } from '../feedback/Result';
-import type { IndicatorOptions } from '../base/Indicator';
-import type { LinkOptions } from '../base/Link';
-import type { DialogOptions } from '../overlay/Dialog';
-import type { DrawerOptions } from '../overlay/Drawer';
-import type { AvatarOptions } from '../display/Avatar';
-import type { CardOptions } from '../display/Card';
-import type { ChoiceOptions } from '../input/choice-styles';
-import type { ControlOptions } from '../input/control';
-import type { TabsOptions } from '../navigation/Tabs';
-import type { DataTableOptions } from '../table/table-styles';
-import type { ButtonOptions } from '../base/button-core';
+import type { ComponentName, OptionsOf } from './components';
 
-/** 可以配置默认值的组件与选项；新组件有外观档位时在这里登记 */
-export interface ComponentDefaults {
-  /** Button、LinkButton、IconButton、IconLinkButton 共用 */
-  Button?: Partial<Pick<ButtonOptions, 'variant' | 'tone' | 'size' | 'radius'>>;
-  /** Badge、Tag 共用 */
-  Badge?: BadgeOptions;
-  /** Link */
-  Link?: LinkOptions;
-  /** Indicator */
-  Indicator?: IndicatorOptions;
-  /** Alert */
-  Alert?: AlertOptions;
-  /** Progress */
-  Progress?: ProgressOptions;
-  /** Empty */
-  Empty?: EmptyOptions;
-  /** Result */
-  Result?: ResultOptions;
-  /** Card */
-  Card?: CardOptions;
-  /** Dialog、AlertDialog 共用 */
-  Dialog?: DialogOptions;
-  /** Drawer */
-  Drawer?: DrawerOptions;
-  /** Avatar */
-  Avatar?: AvatarOptions;
-  /** Tabs */
-  Tabs?: TabsOptions;
-  /** 输入框：TextField、Textarea、NumberField、Select、Combobox 共用 */
-  Input?: ControlOptions;
-  /** 勾选类控件：Checkbox、RadioGroup、Switch 共用 */
-  Choice?: ChoiceOptions;
-  /** 表格：DataTable、TreeDataTable 共用 */
-  DataTable?: DataTableOptions;
-  /** 静态表格 Table */
-  Table?: DataTableOptions;
-}
+/** 可以配置默认值的组件与选项：从 UiComponents（components.ts）推出，新组件在那里登记 */
+export type ComponentDefaults = { [Name in ComponentName]?: OptionsOf<Name> };
 
-/** 合并两层默认值：按组件逐个合并，内层写了的选项覆盖外层 */
+/** 合并两层默认值：按组件逐个合并，内层写了的选项覆盖外层 @internal */
 export function mergeDefaults(
   outer: ComponentDefaults,
   inner: ComponentDefaults | undefined,

@@ -7,26 +7,26 @@ import {
   Flex,
   Provider,
   Text,
-  type ComponentDefaults,
-  type ComponentStyles,
+  type ComponentsOptions,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /**
  * 一块区域里的组件统一换个样子：不必包一层组件，也不必每处写 sx。
- * 写法同 createUi({ defaults, styles })；这里用 Provider，只作用在右边那张卡片里。
- * 组件自己有的选项（按钮的 radius、标记的 variant）改默认值；选项以外的样式写进 styles
+ * 写法同 createUi({ components })；这里用 Provider，只作用在右边那张卡片里。
+ * 一个组件的定制写在一处：组件自己有的选项（按钮的 radius、标记的 variant）改默认值，选项以外的样式写进 styles，
+ * 某个档位取值的样式写进 variants
  */
-const defaults: ComponentDefaults = { Button: { radius: 'full' }, Badge: { variant: 'surface' } };
-
-const styles: ComponentStyles = {
+const components: ComponentsOptions = {
   Button: {
+    defaults: { radius: 'full' },
     // 追加在按钮自己的样式之后
-    base: { root: { letterSpacing: '0.06em' } },
+    styles: { root: { letterSpacing: '0.06em' } },
     // 已有的档位也能改：描边按钮改成虚线
     variants: { variant: { outline: { root: { borderStyle: 'dashed' } } } },
   },
   Badge: {
-    base: { root: { textTransform: 'uppercase', fontWeight: '_semibold' } },
+    defaults: { variant: 'surface' },
+    styles: { root: { textTransform: 'uppercase', fontWeight: '_semibold' } },
   },
 };
 
@@ -58,10 +58,10 @@ export default _component(() => () => (
       </Text>
       <Toolbar />
     </Card>
-    <Provider defaults={defaults} styles={styles}>
+    <Provider components={components}>
       <Card sx={{ flex: '1 1 16rem' }}>
         <Text size="sm" tone="muted">
-          Provider 的 defaults 与 styles
+          Provider 的 components
         </Text>
         <Toolbar />
       </Card>

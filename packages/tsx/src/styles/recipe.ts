@@ -41,9 +41,13 @@ export type VariantSelection<V> = {
 };
 
 /** 配方的定义 */
-export interface RecipeConfig<P extends string, V extends Variants<P>> {
+export interface RecipeConfig<
+  P extends string,
+  V extends Variants<P>,
+  N extends string = string,
+> {
   /** 组件名（`'Button'`）：部件的 data-scope 用它，组件库按它找 createUi / Provider 里的主题定制 */
-  name?: string;
+  name?: N;
   /** 部件名 */
   parts: readonly P[];
   /** 不分档位的基础样式 */
@@ -71,7 +75,7 @@ export interface RecipeExtension<P extends string = string> {
 type Compiled = CompiledStyles;
 
 /** 配方：传档位选择（与扩展），返回每个部件的样式数组（交给 css.attrs） */
-export interface Recipe<P extends string, V> {
+export interface Recipe<P extends string, V, N extends string = string> {
   (
     selection?: VariantSelection<V> | Readonly<Record<string, unknown>>,
     ...extensions: readonly (RecipeExtension<P> | undefined)[]
@@ -79,7 +83,7 @@ export interface Recipe<P extends string, V> {
   /** 部件名 */
   readonly parts: readonly P[];
   /** 组件名（定义时给了 name） */
-  readonly name: string | undefined;
+  readonly name: N | undefined;
 }
 
 /** 组合缓存：没有扩展时直接查 results；有扩展时按扩展对象逐层往下 */
@@ -89,9 +93,13 @@ interface CacheNode<P extends string> {
 }
 
 /** 定义配方（见文件开头） */
-export function recipe<const P extends string, const V extends Variants<P> = {}>(
-  config: RecipeConfig<P, V>,
-): Recipe<P, V> {
+export function recipe<
+  const P extends string,
+  const V extends Variants<P> = {},
+  const N extends string = string,
+>(
+  config: RecipeConfig<P, V, N>,
+): Recipe<P, V, N> {
   let state = build(config);
   let cache: CacheNode<P> = { results: new Map() };
 
@@ -183,7 +191,7 @@ export function recipe<const P extends string, const V extends Variants<P> = {}>
     },
   });
   Object.defineProperty(resolve, STATE, { get: () => state });
-  return resolve as unknown as Recipe<P, V>;
+  return resolve as unknown as Recipe<P, V, N>;
 }
 
 const STATE = Symbol('recipe state');

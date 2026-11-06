@@ -108,6 +108,8 @@ function exportsOf(file) {
     if (isExportDeclaration(node) && !empty)
       throw new Error(`${file}：模块里不要再转出别处的导出，入口直接从原模块导出`);
     if (!isExported(node)) continue;
+    // 文档注释里写了 @internal 的：模块之间要用，但不是给使用方的（合并配置的内部件），不进入口
+    if (/@internal\b/.test(text.slice(node.pos, node.getStart(source)))) continue;
     if (isVariableStatement(node)) {
       values.push(...node.declarationList.declarations.map((d) => d.name.getText(source)));
     } else if (isInterfaceDeclaration(node) || isTypeAliasDeclaration(node)) {

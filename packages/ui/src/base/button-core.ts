@@ -11,7 +11,7 @@ import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Icon, type IconData, type IconProps } from './Icon';
 import { Spinner, type SpinnerProps } from './Spinner';
 import { useDefaults } from '../config/defaults';
-import { partAttrs, useRecipe } from '../config/styles';
+import { partAttrs, useRecipe, type RecipeLayers } from '../config/styles';
 import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/ripple';
 import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles, radiusStyles, type Radius } from '../utils/style/styles';
@@ -425,7 +425,7 @@ export type ButtonAppearance = Required<Pick<ButtonOptions, 'variant' | 'tone' |
   Pick<ButtonOptions, 'size'> & {
     attached?: keyof AttachedOrientations;
     /** 按钮的配方，带上 createUi / Provider 里 styles.Button 的定制 */
-    recipe: ReturnType<typeof useRecipe<ButtonPart, unknown>>;
+    recipe: RecipeLayers<ButtonPart>;
   };
 
 /**

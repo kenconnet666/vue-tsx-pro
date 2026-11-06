@@ -19,7 +19,8 @@ import {
   type UiPermissions,
   type UiRouter,
 } from './context';
-import type { ComponentDefaults } from './defaults';
+import { splitComponents, type ComponentsOptions } from './components';
+import { mergeDefaults, type ComponentDefaults } from './defaults';
 import { mergeStyles, type ComponentStyles } from './styles';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
@@ -37,9 +38,14 @@ export interface UiOptions {
   highlighter?: Highlighter;
   /** 额外的文字匹配，如 `@zerodep-dev/vue-tsx-pro-ui/pinyin` 的 createPinyinMatcher()：选项过滤、命令面板认拼音；不写时只按字面匹配 */
   textMatcher?: TextMatcher;
-  /** 组件默认值，如 `{ Button: { variant: 'outline' } }`（见 defaults.ts） */
+  /**
+   * 组件的定制：各组件档位的默认值、追加的样式与档位的样式（见 components.ts），如
+   * `{ Button: { defaults: { variant: 'outline' }, styles: { root: { letterSpacing: '0.02em' } } } }`
+   */
+  components?: ComponentsOptions;
+  /** @deprecated 改用 `components` 里各组件的 `defaults`：`{ Button: { defaults: { variant: 'outline' } } }` */
   defaults?: ComponentDefaults;
-  /** 组件的主题定制：追加样式、新增档位，如 `{ Button: { base: { root: { letterSpacing: '0.02em' } } } }`（见 styles.ts） */
+  /** @deprecated 改用 `components` 里各组件的 `styles`（原 `base`）与 `variants` */
   styles?: ComponentStyles;
   /** 路由适配：站内链接不刷新页面地跳转、导航组件判断当前页（见 UiRouter） */
   router?: UiRouter;
@@ -152,6 +158,7 @@ export function createUi(options: UiOptions = {}): UiPlugin {
       };
     },
     install(app) {
+      const configured = splitComponents(options.components);
       const scope = effectScope();
       app.onUnmount(() => scope.stop());
       scope.run(() => {
@@ -169,8 +176,8 @@ export function createUi(options: UiOptions = {}): UiPlugin {
           },
           highlighter: options.highlighter,
           textMatcher: options.textMatcher,
-          defaults: options.defaults ?? {},
-          styles: mergeStyles({}, options.styles),
+          defaults: mergeDefaults(options.defaults ?? {}, configured?.defaults),
+          styles: mergeStyles(mergeStyles({}, options.styles), configured?.styles),
           router: options.router,
           permissions: options.permissions,
           http: options.http,

@@ -11,14 +11,14 @@ import {
   Provider,
   Small,
   Switch,
-  type ComponentDefaults,
+  type ComponentsOptions,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 // 一处统一改组件的默认外观：显式写的 prop 仍然优先
-const rounded: ComponentDefaults = {
-  Button: { variant: 'outline', radius: 'full' },
-  Badge: { variant: 'solid' },
-  Alert: { variant: 'outline' },
+const rounded: ComponentsOptions = {
+  Button: { defaults: { variant: 'outline', radius: 'full' } },
+  Badge: { defaults: { variant: 'solid' } },
+  Alert: { defaults: { variant: 'outline' } },
 };
 
 const Sample = _component(() => () => (
@@ -45,7 +45,7 @@ export default _component(() => () => (
         <Sample />
       </Flex>
     </Card>
-    <Provider defaults={rounded}>
+    <Provider components={rounded}>
       <Card padding="sm">
         <Flex direction="column" gap="sm">
           <Small tone="muted">Provider defaults：按钮、徽标、提示条换了默认样式</Small>

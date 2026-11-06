@@ -9,6 +9,7 @@ import {
   type UiPermissions,
   type UiRouter,
 } from './context';
+import { splitComponents, type ComponentsOptions } from './components';
 import { mergeDefaults, type ComponentDefaults } from './defaults';
 import { mergeStyles, type ComponentStyles } from './styles';
 import { defineLang, type Lang } from './lang/lang';
@@ -27,9 +28,14 @@ export interface ProviderProps {
   highlighter?: Highlighter;
   /** 额外的文字匹配（拼音）；不写时沿用上层配置 */
   textMatcher?: TextMatcher;
-  /** 组件默认值：按组件逐个与上层合并，只写要改的 */
+  /**
+   * 组件的定制：各组件档位的默认值（`defaults`，按组件逐个与上层合并）、追加的样式（`styles`）与档位的样式（`variants`），
+   * 追加在上层的定制之后：`{ Button: { defaults: { radius: 'full' }, styles: { root: { letterSpacing: '1px' } } } }`（见 components.ts）
+   */
+  components?: ComponentsOptions;
+  /** @deprecated 改用 `components` 里各组件的 `defaults`：`{ Button: { defaults: { … } } }` */
   defaults?: ComponentDefaults;
-  /** 组件的主题定制：追加在上层的定制之后（见 styles.ts） */
+  /** @deprecated 改用 `components` 里各组件的 `styles`（原 `base`）与 `variants` */
   styles?: ComponentStyles;
   /** 路由适配；不写时沿用上层配置 */
   router?: UiRouter;
@@ -66,6 +72,7 @@ export const Provider = _component(
     lang,
     highlighter,
     textMatcher,
+    components,
     defaults,
     styles,
     router,
@@ -79,8 +86,13 @@ export const Provider = _component(
     const prefersDark = usePrefersDark();
     const currentTheme = _derived(theme ? resolveTheme(theme, prefersDark.value) : parent.theme);
     const currentLang = _derived(lang ? defineLang(parent.lang, lang) : parent.lang);
-    const currentDefaults = _derived(mergeDefaults(parent.defaults, defaults));
-    const currentStyles = _derived(mergeStyles(parent.styles, styles));
+    const configured = _derived(splitComponents(components));
+    const currentDefaults = _derived(
+      mergeDefaults(mergeDefaults(parent.defaults, defaults), configured?.defaults),
+    );
+    const currentStyles = _derived(
+      mergeStyles(mergeStyles(parent.styles, styles), configured?.styles),
+    );
     ConfigContext.provide({
       get theme() {
         return currentTheme;

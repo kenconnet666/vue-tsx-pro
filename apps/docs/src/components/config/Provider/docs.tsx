@@ -26,7 +26,7 @@ app.use(
   createUi({
     theme: () => preference.theme,          // ref 或 getter：运行时切换主题
     lang: zhCN,
-    defaults: { Button: { radius: 'full' } }, // 统一改组件的默认外观
+    components: { Button: { defaults: { radius: 'full' } } }, // 统一改组件的默认外观（还能追加样式，见样式指南）
     router: vueRouterAdapter(router),        // 站内链接不刷新页面
     textMatcher: createPinyinMatcher(),      // 选项过滤、命令面板认拼音（可选依赖 pinyin-pro）
   }),

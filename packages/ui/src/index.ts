@@ -681,9 +681,9 @@ export {
   tabListStyles,
   TabPanel,
   tabPanelStyles,
-  tabRecipe,
   Tabs,
   TabsContext,
+  tabsRecipe,
   tabsStyles,
   type TabListManaged,
   type TabListProps,
@@ -1342,6 +1342,15 @@ export {
   type ProviderProps,
 } from './config/Provider';
 export {
+  type ComponentConfig,
+  type ComponentName,
+  type ComponentsOptions,
+  type OptionsOf,
+  type PartOf,
+  type UiComponents,
+  type VariantStyles,
+} from './config/components';
+export {
   ConfigContext,
   defaultConfig,
   useCan,
@@ -1364,12 +1373,7 @@ export {
   type UiOptions,
   type UiPlugin,
 } from './config/createUi';
-export {
-  mergeDefaults,
-  useDefaults,
-  type ComponentDefaults,
-  type ResolvedDefaults,
-} from './config/defaults';
+export { useDefaults, type ComponentDefaults, type ResolvedDefaults } from './config/defaults';
 export {
   queryCodecs,
   useQueryState,
@@ -1378,13 +1382,12 @@ export {
   type QueryCodecs,
 } from './config/query-state';
 export {
-  mergeStyles,
   partAttrs,
   useRecipe,
   type ComponentStyles,
   type PartAttrs,
   type PartLayer,
-  type StyleLayers,
+  type RecipeLayers,
 } from './config/styles';
 
 // 主题；tokens 的变量按组从 t 取（t.space.md），也可以从 @zerodep-dev/vue-tsx-pro-ui/tokens 直接导入各组

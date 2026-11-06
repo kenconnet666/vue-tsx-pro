@@ -13,7 +13,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick } from 'vue';
 import { useDefaults } from '../config/defaults';
-import { useRecipe, type PartLayer } from '../config/styles';
+import { useRecipe, type PartLayer, type RecipeLayers } from '../config/styles';
 import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
@@ -106,7 +106,7 @@ export const choiceInputStyles = css.create({
 export type ChoiceAppearance = Pick<ChoiceOptions, 'size'> &
   Required<Pick<ChoiceOptions, 'tone'>> & {
     /** 勾选类控件的配方，带上 createUi / Provider 里 styles.Choice 的定制 */
-    recipe: ReturnType<typeof useRecipe<ChoicePart, unknown>>;
+    recipe: RecipeLayers<ChoicePart>;
   };
 
 /** 勾选类控件的外观：显式写的 > defaults.Choice > 默认。在 setup 里调用，返回的函数在渲染时调用 */

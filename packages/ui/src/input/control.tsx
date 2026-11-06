@@ -10,7 +10,7 @@ import type { VNodeChild } from 'vue';
 import { ClearButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useDefaults } from '../config/defaults';
-import { useRecipe, type PartLayer } from '../config/styles';
+import { useRecipe, type PartLayer, type RecipeLayers } from '../config/styles';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import {
   AttachedContext,
@@ -208,7 +208,7 @@ export type ControlAppearance = Required<Pick<ControlOptions, 'variant' | 'radiu
   Pick<ControlOptions, 'size'> & {
     attached?: keyof AttachedOrientations;
     /** 外壳的配方，带上 createUi / Provider 里 styles.Input 的定制 */
-    recipe: ReturnType<typeof useRecipe<InputPart, unknown>>;
+    recipe: RecipeLayers<InputPart>;
   };
 
 /**

@@ -19,7 +19,7 @@
 | 选择         | 单选、多选用 `selectionMode: 'single' \| 'multiple'`（Listbox、Select、ToggleGroup、DataTable 同名），props 用 `SelectionProps` 按它区分 `value` 是一个值还是数组；选项的值是 string（与原生表单、URL 参数一致）。选项列表的 `items` 可以是任意数据加 `toOption`（转成 `{ value, label, … }`），渲染函数拿到的仍是原始数据                                                                                                                                                                                                                                                                     |
 | 空值         | 单值控件没有值时是 `null`：Select、Combobox、TreeSelect、Listbox、ToggleGroup、RadioGroup、Accordion 的单选，NumberField，日期与时间控件，清空后都写 `null`；多选清空写 `[]`；文本框（TextField、Textarea）清空是 `''`。schema 里选填的字段写 `.nullable()`（字段约束据此不标必填）                                                                                                                                                                                                                                                                                                            |
 | 表单         | 校验用 zod（peer 依赖）：`useForm({ schema, initial, onSubmit })`，值的类型取自 schema 的输入、`onSubmit` 拿到解析后的输出；必填、长度、范围从 schema 推出交给 Field 与控件，控件上显式写的优先；`form.Field` 的 `name` 带类型                                                                                                                                                                                                                                                                                                                                                                 |
-| 默认值       | 有外观档位的组件在 `ComponentDefaults` 登记，组件里 `useDefaults('Xxx', () => ({ variant, size }), { variant: 'solid' })` 一次合并：显式 prop > Provider > createUi > 组件自己的默认值                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 默认值       | 有外观档位的组件在 `UiComponents`（`config/components.ts`）登记一处，使用方在 `createUi` / `Provider` 的 `components.Xxx.defaults` 里改；组件里 `useDefaults('Xxx', () => ({ variant, size }), { variant: 'solid' })` 一次合并：显式 prop > Provider > createUi > 组件自己的默认值                                                                                                                                                                                                                                                                                                             |
 | 命名         | `use*` 只能在 setup 里调用（用到生命周期、注入、computed）；`create*` 在哪里都能调用。组合式函数的选项写成读取函数：一般是一个返回整个对象的 `read`（`useFieldControl(() => ({ … }))`），要分开追踪依赖时（大列表的 `useListState`）按字段给；回调放在第二个参数（`useAnchoredPopover(read, { close })`）                                                                                                                                                                                                                                                                                      |
 | 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop；列表类的行高叫 `density`（DataTable：compact / standard / comfortable），不占用 `size`                                                                                                                                                                                                                                                                                                                                                                                                                              |
@@ -112,7 +112,7 @@
 ## 4. 样式
 
 - 样式由运行时引擎生成（`packages/tsx/src/styles/`，设计与实测见 STYLE-ENGINE.md）：写法像 StyleX，从 `@zerodep-dev/vue-tsx-pro-tsx/styles` 导入（`import { css }`，不写 `import * as css`：命名空间导入的名字编辑器推不出来，不能自动导入），一个元素一次 `css.attrs` / `sx` 合成一个类，规则第一次用到时插入；组件库发布普通的 JS，使用方不再编译它。变量组（`css.defineVars('vtp-名字', 取值)`）、主题（`createTheme`）、标记（`defineMarker(名字)`）也在运行时生成，不依赖 StyleX。
-- 有部件或外观档位的组件写一个命名配方 `css.recipe({ name, parts, base, variants, compound })`（`name` 用组件名，同 `useDefaults` 的名字）：setup 里 `const recipe = useRecipe(xxxRecipe)`，渲染时 `const s = recipe(档位)` 得到每个部件的默认层（样式 + `data-scope` / `data-part`），直接交给部件的合并 `mergeAttrs<'div'>(s.title, propsTitle)`；这样组件能被 `createUi` / `Provider` 的 `styles` 定制（`config/styles.ts` 的 `ComponentStyles` 里登记 `Xxx?: RecipeExtension<XxxPart>`）。只有一两个元素、没有档位的组件照旧一个 `css.create`。按色调变化的样式在组合档位里逐项写主题 token（`{ when: { variant: 'soft', tone: 'danger' }, root: { color: '_dangerText', … } }`），或用共用的 `statusToneSx`（排在 `s.root.sx` 之前，让定制能盖过它）。
+- 有部件或外观档位的组件写一个命名配方 `css.recipe({ name, parts, base, variants, compound })`（`name` 用组件名，同 `useDefaults` 的名字）：setup 里 `const recipe = useRecipe(xxxRecipe)`，渲染时 `const s = recipe(档位)` 得到每个部件的默认层（样式 + `data-scope` / `data-part`），直接交给部件的合并 `mergeAttrs<'div'>(s.title, propsTitle)`；这样组件能被 `createUi` / `Provider` 的 `components.Xxx`（`defaults`、`styles`、`variants`）定制：在 `config/components.ts` 的 `UiComponents` 里登记一行 `Xxx: ComponentConfig<XxxPart, XxxOptions>`，`useRecipe` 只收登记过名字的配方（写错名字类型检查报错）。只有一两个元素、没有档位的组件照旧一个 `css.create`。按色调变化的样式在组合档位里逐项写主题 token（`{ when: { variant: 'soft', tone: 'danger' }, root: { color: '_dangerText', … } }`），或用共用的 `statusToneSx`（排在 `s.root.sx` 之前，让定制能盖过它）。
 - 样式值以字面量为主，直接写主题 token（`'_accentText'`、`'_full'`）：不加“色调变量”这类中间变量层，也不在样式里引用 JS 变量，读样式时就看得到用的是哪个 token，悬停能看到取值。只有值里夹着 token（`calc`、`color-mix`、多值）才用模板字符串里的 `t.组.名`。
 - 配方导出 `<组件>Recipe`（`alertRecipe`）与部件类型 `<组件>Part`；样式表导出，名字全局唯一：`<组件>Styles`，按部件或档位拆开的叫 `<组件><部件>Styles`（`tabListStyles`）；`css.create` 的结果不标类型（`create` 返回具名的 `CompiledStyles`，声明文件能直接写出），几张样式表组成的对象用 `StyleTable<键>`（`utils/style/styles.ts`）。受管属性的类型叫 `<组件>Managed`。
 - 颜色、字体、间距、圆角、阴影、动效只来自主题 tokens（§6.2），组件里不写裸值。
@@ -268,13 +268,13 @@ interface Lang {
 
 ### 6.4 Provider 的其他配置
 
-| 配置          | 说明                                                                                                              |
-| ------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `defaults`    | 组件默认值（`{ Button: { variant: 'outline' } }`），按组件逐个与上层合并                                          |
-| `router`      | 路由适配 `UiRouter`：站内链接不刷新页面地跳转、导航组件判断当前页（`@zerodep-dev/vue-tsx-pro-ui/vue-router`）     |
-| `http`        | 请求客户端 `HttpClient`（远程选项、上传、列表查询用）：`createHttpClient(…)` 或包一层 axios、ky；`useHttp()` 取它 |
-| `highlighter` | 代码高亮（CodeBlock 用），如 `@zerodep-dev/vue-tsx-pro-ui/shiki` 的 `createShikiHighlighter()`                    |
-| `ripple`      | 按下时的波纹效果，默认开                                                                                          |
+| 配置          | 说明                                                                                                                                                                                            |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `components`  | 组件的定制（`{ Button: { defaults: { variant: 'outline' }, styles: { root: {…} }, variants: {…} } }`）：默认值按组件逐个与上层合并，样式追加在上层之后（旧的 `defaults` / `styles` 留一个版本） |
+| `router`      | 路由适配 `UiRouter`：站内链接不刷新页面地跳转、导航组件判断当前页（`@zerodep-dev/vue-tsx-pro-ui/vue-router`）                                                                                   |
+| `http`        | 请求客户端 `HttpClient`（远程选项、上传、列表查询用）：`createHttpClient(…)` 或包一层 axios、ky；`useHttp()` 取它                                                                               |
+| `highlighter` | 代码高亮（CodeBlock 用），如 `@zerodep-dev/vue-tsx-pro-ui/shiki` 的 `createShikiHighlighter()`                                                                                                  |
+| `ripple`      | 按下时的波纹效果，默认开                                                                                                                                                                        |
 
 请求失败按业务错误码显示（flow 仓库 docs/decisions/0008：HTTP 一律 200，响应体 `{ code, message, params, errors, data }`）：`createHttpClient` 拆开响应体，失败的码抛 `HttpError`（`code`、`params`、`errors`），请求层自己的错是 `http.network`、`http.timeout`、`http.status`、`http.parse`；语言包的 `errorCodes` 给 `http.`、`query.` 的文案，应用与 flow-ui 用 `defineLang` 补自己的命名空间。组件都经 `errorMessage` / `errorCodeText` 取文案：QueryTable 加载失败时表格上方给原因与重试，远程选项的列表、Upload 失败的文件按码说明，`useForm` 的 `submit` 把 `errors` 里按字段的明细标到字段、其余写进 `formError` 并返回 false。
 
@@ -341,7 +341,7 @@ interface Lang {
 
 ## 8. 正式组件的完成标准
 
-1. API 符合 §1、§2：每个内部节点有部件属性，状态写成 data 属性，有外观档位的登记 ComponentDefaults。
+1. API 符合 §1、§2：每个内部节点有部件属性，状态写成 data 属性，有外观档位的写成配方并在 `UiComponents` 登记。
 2. 运行时测试（Vitest + happy-dom，一个组件一个测试文件）覆盖受控、只传值、不传三种用法与主要分支。
 3. 浏览器测试（Vitest 浏览器模式 + Playwright，三种浏览器）：有自己键盘逻辑、焦点管理或输入法处理的组件要有专属用例；
    axe-core 无违规由文档站的通用测试覆盖（全部示例，亮、暗主题）。
