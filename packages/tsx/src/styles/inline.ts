@@ -6,11 +6,12 @@
  *   const style = inlineStyle(className, (condition) => matchOn(node, condition));
  *
  * 条件块按 serialize 的顺序拼接（无条件在前、权重高的条件在后），同一属性后写的覆盖先写的，与样式表的层叠一致。
+ * 一个元素分成几段（几个组合类）时宿主按类的顺序拼接各段：后面的段在后面，同样盖过前面的段（对应级联层）。
  * 伪元素（::before、::placeholder）没法写进行内样式，跳过（传了 onPseudoElement 时告诉宿主，开发期提示用）。
  * 主题类（createTheme）展开成变量声明，子孙照常继承。
  */
-import { merge, serialize, SELF, type Declarations } from './declarations';
-import { compositeFragments, FRAGMENT } from './fragment';
+import { serialize, SELF, type Declarations } from './declarations';
+import { compositeOf, FRAGMENT, segmentTable } from './fragment';
 
 /** 判定条件链里的一段：伪类（:active、:is(…)、:not(…)）或 @ 规则（@media …）；成立返回 true */
 export type ConditionMatcher = (condition: string) => boolean;
@@ -59,12 +60,14 @@ export function inlineStyle(
 }
 
 function blocksOf(name: string): readonly ChainBlock[] | undefined {
-  const fragments = compositeFragments(name);
-  if (!fragments) return undefined;
-  const tables = fragments.map((part) => part[FRAGMENT]);
+  const composite = compositeOf(name);
+  if (!composite) return undefined;
+  // 这一段的声明表取决于它和前面各段的片段（带入的属性族）：这些片段的声明表都没换就用记下的
+  const { segments, index } = composite;
+  const tables = segments.slice(0, index + 1).flatMap((part) => part.map((f) => f[FRAGMENT]));
   const cached = blocksByName.get(name);
   if (cached && sameTables(cached.tables, tables)) return cached.blocks;
-  const blocks = serialize(merge(tables)).flatMap(toBlock);
+  const blocks = serialize(segmentTable(segments, index)).flatMap(toBlock);
   blocksByName.set(name, { tables, blocks });
   return blocks;
 }

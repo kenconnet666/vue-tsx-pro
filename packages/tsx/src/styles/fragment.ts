@@ -2,7 +2,14 @@
  * 片段与组合类：create 的每个命名空间是一个片段（声明表）；attrs 把一个元素的片段合成一个类，第一次出现时插入规则。
  * 记下“组合类 ← 片段”的关系，热更新换了片段的声明时按原类名改写规则。
  */
-import { merge, serialize, SELF, type Declarations } from './declarations';
+import {
+  familyOf,
+  merge,
+  serialize,
+  SELF,
+  type Declarations,
+  type PropertyEntry,
+} from './declarations';
 import { hash, insert, isInserted } from './sheet';
 
 /** 片段上的声明表 */
@@ -67,23 +74,68 @@ export const fragment = (table: Declarations): Fragment =>
 export const isFragment = (value: unknown): value is Fragment =>
   typeof value === 'object' && value !== null && FRAGMENT in value;
 
-/** 组合类 → 组成它的片段；片段 → 用到它的组合类（热更新改了片段时据此改写规则） */
-const composites = new Map<string, readonly Fragment[]>();
+/**
+ * 一个元素的样式按合并来源分段（组件自己的、每层定制、使用方的 sx……，见 runtime.ts 的 layers），每段一个组合类，
+ * 第 k 段的规则在级联层 vtp.s{k}：后面的段不论特异性都盖过前面的段，组合数随段相加而不是相乘。
+ *
+ * 语义与把全部片段合成一个类逐字相同：第 k 段（k > 0）输出它改到的属性所在的属性族（declarations.ts 的 familyOf）
+ * 在前 k + 1 段合并后的完整取值，含它没改的条件值。这样每个属性族最高的那一层里总有这一族完整的合并结果，
+ * 层里按条件、按属性优先级排出的规则与单个组合类相同。
+ * 还有一处要补：层叠时高层在某个状态下没有规则，就轮到低层的规则——单个组合类里被后来的普通值、null 换掉的条件值
+ * 会从低层“漏”上来。所以后段里没有无条件取值、而前面的段写过的属性，补一条无条件的 revert（回到浏览器默认，
+ * 同“引擎没写这个属性”）；去掉的属性（顶层的 null）同样写成 revert
+ */
+export interface Segment {
+  /** 这个元素的全部段（每段的片段） */
+  readonly segments: readonly (readonly Fragment[])[];
+  /** 这个类是第几段 */
+  readonly index: number;
+}
+
+/** 组合类 → 它是哪一组片段的第几段；片段 → 用到它的组合类（热更新改了片段时据此改写规则，带入过它的后段一起改） */
+const composites = new Map<string, Segment>();
 const usedBy = new WeakMap<Fragment, Set<string>>();
 
-/** 组合一组片段：类名是规则内容的哈希，第一次出现时插入 */
-export function composite(fragments: readonly Fragment[]): string {
-  const rules = serialize(merge(fragments.map((part) => part[FRAGMENT])));
+const tablesOf = (fragments: readonly Fragment[]) => fragments.map((part) => part[FRAGMENT]);
+
+/** 第 index 段的声明表（见文件这一节开头的说明） */
+export function segmentTable(segments: Segment['segments'], index: number): Declarations {
+  const own = merge(tablesOf(segments[index]!));
+  if (index === 0) return own;
+  const families = new Set([...own.keys()].map(familyOf));
+  const earlier = segments.slice(0, index).flatMap(tablesOf);
+  const prefix = merge([...earlier, ...tablesOf(segments[index]!)]);
+  const table = new Map<string, PropertyEntry>();
+  for (const [property, entry] of prefix) {
+    if (!families.has(familyOf(property))) continue;
+    // 没有无条件取值、前面的段又写过它：补一条无条件的 revert，挡住低层的规则（见上面的说明）
+    const blocked = !entry.values.has('') && earlier.some((part) => part.has(property));
+    table.set(
+      property,
+      blocked
+        ? { replace: entry.replace, values: new Map([['', REVERT], ...entry.values]) }
+        : entry,
+    );
+  }
+  return table;
+}
+const REVERT = ['revert'];
+
+/** 第 index 段的组合类：类名是规则内容（与段号）的哈希，第一次出现时插入到它的层里；没有声明时为空 */
+export function segmentClass(segments: Segment['segments'], index: number): string {
+  const rules = serialize(segmentTable(segments, index));
   if (!rules.length) return '';
-  const name = `x${hash(rules.join(''))}`;
+  // 第 0 段的类名与不分段时相同；后面的段带上段号，同样的规则在不同的层里是不同的类
+  const name = `x${hash(index ? `${index}|${rules.join('')}` : rules.join(''))}`;
   if (!isInserted(name))
     insert(
       name,
       rules.map((rule) => rule.replaceAll(SELF, name)),
+      index,
     );
   if (!composites.has(name)) {
-    composites.set(name, fragments);
-    for (const part of fragments) {
+    composites.set(name, { segments, index });
+    for (const part of segments.slice(0, index + 1).flat()) {
       let names = usedBy.get(part);
       if (!names) usedBy.set(part, (names = new Set()));
       names.add(name);
@@ -92,19 +144,18 @@ export function composite(fragments: readonly Fragment[]): string {
   return name;
 }
 
-/** 组合类由哪些片段组成；不是引擎生成的组合类时 undefined（行内样式按它查回声明表，见 inline.ts） */
-export const compositeFragments = (name: string): readonly Fragment[] | undefined =>
-  composites.get(name);
+/** 组合类是哪一组片段的第几段；不是引擎生成的组合类时 undefined（小程序按它展开成行内样式，见 inline.ts） */
+export const compositeOf = (name: string): Segment | undefined => composites.get(name);
 
-/** 片段换成新的声明表，用到它的组合类按原类名重写规则 */
+/** 片段换成新的声明表，用到它的组合类按原类名、原来的层重写规则 */
 export function replaceFragment(target: Fragment, table: Declarations) {
   (target as { [FRAGMENT]: Declarations })[FRAGMENT] = table;
   for (const name of usedBy.get(target) ?? []) {
-    const fragments = composites.get(name)!;
-    const rules = serialize(merge(fragments.map((part) => part[FRAGMENT])));
+    const { segments, index } = composites.get(name)!;
     insert(
       name,
-      rules.map((rule) => rule.replaceAll(SELF, name)),
+      serialize(segmentTable(segments, index)).map((rule) => rule.replaceAll(SELF, name)),
+      index,
     );
   }
 }

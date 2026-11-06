@@ -16,6 +16,7 @@ import {
   defineTokens as runtimeDefineTokens,
   defineVars as runtimeDefineVars,
   keyframes as runtimeKeyframes,
+  layers as runtimeLayers,
   select as runtimeSelect,
   when as runtimeWhen,
 } from './runtime';
@@ -219,6 +220,13 @@ export const create: Create = runtimeCreate as never;
  * `<div {...css.attrs(styles.base, active && styles.active, sx)} />`
  */
 export const attrs: (...styles: readonly SxStyles[]) => StyleAttrs = runtimeAttrs as never;
+
+/**
+ * 分段：每组各合成一个类、各进一层级联层，后面的组盖过前面的组，合并语义与写在一起相同。
+ * 组件库用它把"组件自己的样式 / 每层主题定制 / 使用方的 sx"分开，组合数随组相加而不是相乘：
+ * `css.attrs(css.layers(组件的样式, 使用方的 sx))`。空的组不算，只剩一组时就是一个类
+ */
+export const layers: (...groups: readonly SxStyles[]) => SxStyles = runtimeLayers as never;
 
 /** attrs 的结果：交给元素的 class 与行内样式（动态样式的变量与值） */
 export interface StyleAttrs {

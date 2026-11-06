@@ -17,6 +17,7 @@
  *
  * 每个部件的样式是 create 的结果（片段，用到时才展开），合并时后者覆盖前者，
  * 所以“基础 < 档位 < 组合档位 < 扩展 < 调用方的 sx”的顺序由 attrs 的参数顺序保证。
+ * 有扩展时每个部件的结果是分段的（css.layers）：组件自己的一段，每个扩展各一段。
  *
  * 扩展（主题定制）：调用时追加 `button(selection, 扩展…)`，扩展里的 base 与各档位的样式排在配方自己的之后；
  * 扩展可以给配方没有的档位取值（`variants: { size: { xl: { root: {…} } } }`）。组件库把 createUi / Provider 的
@@ -25,7 +26,7 @@
 import type { DocumentedStyles } from './documented';
 import { HOT, hotUpdate } from './hot';
 import type { CompiledStyles } from './index';
-import { create } from './runtime';
+import { create, layers } from './runtime';
 
 /** 每个部件的样式（可以只写其中几个；同 css.create 的一组，属性带说明） */
 export type PartStyles<P extends string> = Partial<Record<P, DocumentedStyles>>;
@@ -120,30 +121,47 @@ export function recipe<const P extends string, const V extends Variants<P> = {}>
     const key = picked.join('\0');
     const hit = node.results.get(key);
     if (hit) return hit;
-    const result = Object.fromEntries(
-      state.parts.map((part) => [part, [] as Compiled[]]),
-    ) as Record<P, Compiled[]>;
-    const push = (styles: Record<P, Compiled> | undefined) => {
+    const emptyParts = () =>
+      Object.fromEntries(state.parts.map((part) => [part, [] as Compiled[]])) as Record<
+        P,
+        Compiled[]
+      >;
+    const push = (target: Record<P, Compiled[]>, styles: Record<P, Compiled> | undefined) => {
       if (!styles) return;
-      for (const part of state.parts) if (part in styles) result[part].push(styles[part]);
+      for (const part of state.parts) if (part in styles) target[part].push(styles[part]);
     };
-    const pushVariants = (segments: Map<string, Record<P, Compiled>>) =>
+    const pushVariants = (
+      target: Record<P, Compiled[]>,
+      segments: Map<string, Record<P, Compiled>>,
+    ) =>
       names.forEach((name, index) => {
         const value = picked[index];
-        if (value !== undefined) push(segments.get(`variant\0${name}\0${value}`));
+        if (value !== undefined) push(target, segments.get(`variant\0${name}\0${value}`));
       });
-    push(state.segments.get('base'));
-    pushVariants(state.segments);
+    const own = emptyParts();
+    push(own, state.segments.get('base'));
+    pushVariants(own, state.segments);
     state.compound.forEach(({ when }, index) => {
       const matches = Object.entries(when).every(
         ([name, value]) => picked[names.indexOf(name)] === String(value),
       );
-      if (matches) push(state.segments.get(`compound\0${index}`));
+      if (matches) push(own, state.segments.get(`compound\0${index}`));
     });
-    for (const extension of added) {
-      push(extension.segments.get('base'));
-      pushVariants(extension.segments);
-    }
+    // 每个扩展（一层主题定制）单独一段：组件自己的组合与定制的组合相加而不是相乘（runtime.ts 的 layers）
+    const groups = added.map((extension) => {
+      const parts = emptyParts();
+      push(parts, extension.segments.get('base'));
+      pushVariants(parts, extension.segments);
+      return parts;
+    });
+    const result = groups.length
+      ? (Object.fromEntries(
+          state.parts.map((part) => [
+            part,
+            layers(own[part], ...groups.map((group) => group[part])),
+          ]),
+        ) as Record<P, Compiled[]>)
+      : own;
     node.results.set(key, result);
     return result;
   };

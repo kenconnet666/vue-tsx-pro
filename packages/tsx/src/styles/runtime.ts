@@ -4,9 +4,11 @@
  *
  *   - create 只产出“片段”（声明表），不注入；命名空间第一次被读到时才展开。
  *   - attrs(片段…) 按片段对象逐层查缓存（WeakMap 链），命中时不拼字符串、不算哈希，返回同一个结果对象，
- *     Vue 比对 class 相同就不碰 DOM。未命中时合并成一个组合类：`.c{…} .c:hover{…} @media(…){.c.c{…}}`，
- *     类名是内容的哈希，同样的组合只插一次。一个元素只挂一个生成的类，没有原子类之间的优先级问题；
- *     块内按 StyleX 的属性优先级排序（简写在前、长属性在后），条件块按条件优先级排序（:hover < :active < @media）。
+ *     Vue 比对 class 相同就不碰 DOM。未命中时合并成组合类：`.c{…} .c:hover{…} @media(…){.c.c{…}}`，
+ *     类名是内容的哈希，同样的组合只插一次；块内按 StyleX 的属性优先级排序（简写在前、长属性在后），
+ *     条件块按条件优先级排序（:hover < :active < @media）。
+ *   - 分段（layers）：合并来源不同的几组样式（组件自己的、每层定制、使用方的 sx）各合成一个类，放进依次靠后的级联层，
+ *     组合数随段相加而不是相乘；合并语义与合成一个类相同（fragment.ts）。只有一组时就是一个类。
  *   - 合并语义：后面的普通值整体替换该属性（同 StyleX，含它的条件值）；条件对象按条件逐项合并，
  *     其中的 null 表示“这个条件不改”（不会像 StyleX 那样把前面的默认值清掉）；顶层的 null 去掉该属性。
  *   - 动态样式（create 里的函数）：一直没变过的属性写进类里；值变过的属性永久转成变量（类里写 var(--x-属性)、
@@ -34,7 +36,7 @@ import {
   type StyleObject,
   type StyleValue,
 } from './declarations';
-import { compose } from './compose';
+import { BOUNDARY, compose } from './compose';
 import { dynamic } from './dynamic';
 import {
   BINDING,
@@ -90,6 +92,19 @@ export function create<S extends Record<string, unknown>>(namespaces: S): S {
 
 type AttrsArg = StyleValue | boolean | object | readonly AttrsArg[];
 
+/** layers 的结果上的标记 */
+const LAYERS = Symbol('style layers');
+
+/**
+ * 分段：每组各合成一个类、各进一层，后面的组盖过前面的组（同合成一个类时的合并语义）。
+ * 组件库把"组件自己的样式 / 每层定制 / 使用方的 sx"分开，组合数相加而不是相乘；空的组不算，只剩一组时就是一个类
+ */
+export function layers(...groups: readonly AttrsArg[]): readonly AttrsArg[] {
+  const result = [...groups];
+  Object.defineProperty(result, LAYERS, { value: true });
+  return result;
+}
+
 /** 直接写的样式对象（`sx={{ marginTop: '_md' }}`）→ 片段：同一个对象按对象记住，每次渲染新建的按内容记住 */
 const literalByObject = new WeakMap<object, Fragment>();
 const literalByContent = new Map<string, Fragment>();
@@ -143,6 +158,13 @@ export function attrs(...styles: readonly AttrsArg[]): Attrs {
       if (DYNAMIC in value) {
         parts.push(value[0] as StylePart);
         addInline(value[1] as Record<string, string>);
+      } else if (LAYERS in value) {
+        // 每组前后各一个分界：组里再有分组时照样展开，前后顺序不变
+        for (const group of value as readonly AttrsArg[]) {
+          parts.push(BOUNDARY as StylePart);
+          collect(group);
+        }
+        parts.push(BOUNDARY as StylePart);
       } else value.forEach(collect);
       return;
     }

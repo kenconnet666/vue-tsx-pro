@@ -1,7 +1,30 @@
 /**
  * 运行时样式引擎的样式表：一张 <style>，规则按名字（类名、关键帧名）登记，同样的内容只插一次；
  * 记下规则原文（SSR 输出、测试断言用），热更新时按名字换掉。
+ *
+ * 规则分层（级联层 @layer）：变量组与主题在 vtp.vars，一个元素的样式按合并来源分段，第 k 段在 vtp.s{k}（fragment.ts）。
+ * 后面的层不论特异性都盖过前面的层；宿主不分层的 CSS 盖过整个组件库。表的开头先声明层的顺序。
+ * 不认 @layer 的环境（测试用的 happy-dom）插不带层的规则，原文仍记带层的写法
  */
+
+/** 一个元素最多分几段（超出的并进最后一段） */
+export const SEGMENT_LIMIT = 8;
+
+/** 层名：变量组与主题在 vars，样式的第 k 段在 s{k} */
+export const layerName = (layer: number | 'vars') =>
+  layer === 'vars' ? 'vtp.vars' : `vtp.s${layer}`;
+
+/** 层的顺序：样式表最前面声明一次 */
+export const LAYER_ORDER = `@layer ${[
+  'vars' as const,
+  ...Array.from({ length: SEGMENT_LIMIT }, (_, index) => index),
+]
+  .map(layerName)
+  .join(',')};`;
+
+/** 规则放进层里；layer 不给时不分层（关键帧） */
+const wrap = (text: string, layer: number | 'vars' | undefined) =>
+  layer === undefined ? text : `@layer ${layerName(layer)}{${text}}`;
 
 /**
  * 插过的规则：类名（关键帧名、变量名）→ 规则原文与 CSSOM 里的规则。同样的内容只插一次；
@@ -18,6 +41,8 @@ const inserted = new Map<
   }
 >();
 let sheet: CSSStyleSheet | null | undefined;
+/** 样式表认 @layer（浏览器都认；happy-dom 不认，插不带层的规则） */
+let layered = true;
 
 /**
  * 引擎自己的样式表：放在 head 最前面，宿主页面后加载的同等特异性的 CSS 能盖过组件库。
@@ -32,16 +57,33 @@ function styleSheet(): CSSStyleSheet | null {
     for (const name of rendered.dataset.names?.split(' ') ?? []) {
       if (name && !inserted.has(name)) inserted.set(name, { texts: [], rules: [], adopted: true });
     }
-    return (sheet = rendered.sheet);
+    // 服务端输出的表开头已经声明了层的顺序（renderStyleTag），这里只看环境认不认 @layer
+    sheet = rendered.sheet;
+    try {
+      sheet.deleteRule(sheet.insertRule(`@layer ${layerName('vars')};`, sheet.cssRules.length));
+    } catch {
+      layered = false;
+    }
+    return sheet;
   }
   const element = document.createElement('style');
   element.dataset.vueTsxPro = '';
   document.head.prepend(element);
-  return (sheet = element.sheet);
+  sheet = element.sheet;
+  try {
+    sheet?.insertRule(LAYER_ORDER, 0);
+  } catch {
+    layered = false;
+  }
+  return sheet;
 }
 
-/** 插入一个名字的规则（已有时先删掉旧的：热更新改写规则） */
-export function insert(name: string, texts: readonly string[]) {
+/**
+ * 插入一个名字的规则（已有时先删掉旧的：热更新改写规则）；layer 是规则所在的层（不给时不分层），
+ * 记下的原文带层，插进样式表时环境不认 @layer 就不带
+ */
+export function insert(name: string, rawTexts: readonly string[], layer?: number | 'vars') {
+  const texts = rawTexts.map((text) => wrap(text, layer));
   const target = styleSheet();
   const previous = inserted.get(name);
   if (previous && target) {
@@ -52,10 +94,11 @@ export function insert(name: string, texts: readonly string[]) {
   }
   const rules: CSSRule[] = [];
   if (target) {
-    for (const text of texts) {
+    for (const [index, text] of texts.entries()) {
       // 浏览器不认的规则（测试环境的 DOM 不认的语法）跳过，同 StyleX 的 inject；样式表里写错的 CSS 本来也会被忽略
       try {
-        rules.push(target.cssRules[target.insertRule(text, target.cssRules.length)]!);
+        const rule = layered ? text : rawTexts[index]!;
+        rules.push(target.cssRules[target.insertRule(rule, target.cssRules.length)]!);
       } catch {}
     }
   }
@@ -66,10 +109,11 @@ export function insert(name: string, texts: readonly string[]) {
  * 按名字登记的规则（变量组）：模块执行时总会调用，同名再调用（热更新）换成新的取值。
  * 服务端输出过的不重复插入，只记下原文；之后的热更新照常插入，排在后面、盖过接管来的那条
  */
-export function insertNamed(name: string, texts: readonly string[]) {
+export function insertNamed(name: string, texts: readonly string[], layer?: number | 'vars') {
   if (sheet === undefined) styleSheet();
-  if (inserted.get(name)?.adopted) inserted.set(name, { texts, rules: [] });
-  else insert(name, texts);
+  if (inserted.get(name)?.adopted)
+    inserted.set(name, { texts: texts.map((text) => wrap(text, layer)), rules: [] });
+  else insert(name, texts, layer);
 }
 
 /** 页面是服务端渲染出来的（接管了服务端输出的样式表） */
@@ -115,14 +159,15 @@ export function renderStyleTag(
     }
   }
   const names = [...inserted.keys()].filter((name) => used.has(name));
-  const css = names.flatMap((name) => inserted.get(name)!.texts).join('\n');
+  // 层的顺序写在最前面：客户端接管这张表，之后插的规则按同样的顺序分层
+  const css = [LAYER_ORDER, ...names.flatMap((name) => inserted.get(name)!.texts)].join('\n');
   // 规则原文里不会有 </style>；防御性地转义，免得用户的样式值截断标签
   return `<style data-vue-tsx-pro data-names="${names.join(' ')}">${css.replaceAll('</', '<\\/')}</style>`;
 }
 
-/** 已插入的全部规则原文，一条一行（SSR 输出 <style> 用） */
+/** 已插入的全部规则原文，一条一行，最前面是层的顺序（小程序的构建、测试断言用） */
 export function styleText(): string {
-  return [...inserted.values()].flatMap((record) => record.texts).join('\n');
+  return [LAYER_ORDER, ...[...inserted.values()].flatMap((record) => record.texts)].join('\n');
 }
 
 /** murmurhash2（同 @emotion/hash、StyleX 的 createHash），转 36 进制 */

@@ -48,7 +48,7 @@ export function defineVars<const T extends Record<string, StyleValue>>(
     const rule = `:root{${list.join(';')}}`;
     return atRule ? `${atRule}{${rule}}` : rule;
   });
-  insertNamed(`--${name}`, rules);
+  insertNamed(`--${name}`, rules, 'vars');
   Object.defineProperty(group, VAR_GROUP, { value: name });
   return Object.freeze(group) as never;
 }
@@ -81,6 +81,7 @@ export function createTheme(group: VarGroup, overrides: Record<string, StyleValu
     insert(
       name,
       rules.map((rule) => rule.replaceAll(SELF, name)),
+      'vars',
     );
   return Object.freeze({ [CLASS]: [group[VAR_GROUP], name] as const });
 }

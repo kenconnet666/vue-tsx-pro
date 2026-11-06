@@ -29,17 +29,23 @@ export function mount(node: () => VNodeChild): HTMLElement {
  * 与引擎怎么生成类无关（原子类、组合类都行），测试按声明断言样式有没有加上：`styleOf(el).get('&|font-weight')`
  */
 export function styleOf(element: Element): Map<string, string> {
-  const patterns = [...element.classList].map((name) => new RegExp(`\\.${name}(?![\\w-])`, 'g'));
   const result = new Map<string, string>();
+  // 一个元素分成几段（几个组合类）时按类的顺序看：后面的段盖过前面的段（引擎把它们放进依次靠后的级联层；
+  // 测试用的 happy-dom 不认 @layer，规则在表里按插入的先后排，不能按表里的顺序）
+  for (const name of element.classList) visitClass(new RegExp(`\\.${name}(?![\\w-])`, 'g'), result);
+  return result;
+}
+
+/** 选中这个类的规则的声明，记进 result（同一个键后记的覆盖先记的） */
+function visitClass(pattern: RegExp, result: Map<string, string>) {
   const visit = (rules: CSSRuleList, wrapper: string) => {
     for (const rule of rules) {
       if ('selectorText' in rule) {
         const style = rule as CSSStyleRule;
-        let selector = style.selectorText;
-        if (!patterns.some((pattern) => selector.match(pattern))) continue;
-        for (const pattern of patterns) selector = selector.replace(pattern, '&');
+        if (!pattern.test(style.selectorText)) continue;
+        pattern.lastIndex = 0;
         // 同一个类重复几次（.c.c）不影响“是什么条件”
-        selector = selector.replace(/&+/g, '&');
+        const selector = style.selectorText.replace(pattern, '&').replace(/&+/g, '&');
         for (let index = 0; index < style.style.length; index++) {
           const property = style.style[index]!;
           result.set(`${wrapper}${selector}|${property}`, style.style.getPropertyValue(property));

@@ -85,6 +85,9 @@ export function mergeProps<Target = Props>(
     const values = present3(base[key], own?.[key], fixed?.[key]);
     if (values) merged[key] = values;
   }
+  // 使用方写了 sx：组件的、使用方的、受管的各成一段（css.layers），组件的组合与使用方的覆盖相加而不是相乘
+  if (own?.sx != null)
+    merged.sx = css.layers(base.sx as SxStyles, own.sx as SxStyles, fixed?.sx as SxStyles);
 
   const refs = present3(base.ref, own?.ref, fixed?.ref) as RefSetter[] | undefined;
   if (refs && refs.length > 1) merged.ref = mergeRefs(refs);

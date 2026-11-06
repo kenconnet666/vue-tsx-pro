@@ -15,12 +15,14 @@ const BASE = [
 
 /** 引擎收集的规则原文 → app 样式表 */
 export function appStyles(styleText: string): string {
-  const kept = topLevelRules(styleText).filter(
-    (rule) =>
-      rule.startsWith(':root') ||
-      rule.startsWith('@keyframes') ||
-      (rule.startsWith('@media') && rule.includes(':root{')),
-  );
+  const kept = topLevelRules(styleText)
+    .flatMap(unlayer)
+    .filter(
+      (rule) =>
+        rule.startsWith(':root') ||
+        rule.startsWith('@keyframes') ||
+        (rule.startsWith('@media') && rule.includes(':root{')),
+    );
   // 小程序的样式表不认 :root；变量写在 page 上，组件里照样继承
   const rules = kept.map((rule) => rule.replaceAll(':root{', 'page{'));
   for (const rule of rules) {
@@ -37,6 +39,16 @@ const WXSS_REJECTS = [
 ];
 
 /** 按顶层花括号配平切出规则（@media 等块规则整体算一条） */
+/**
+ * 去掉级联层：WXSS 不认 @layer。引擎的规则都包在 `@layer vtp.…{…}` 里，最前面还有一句层的顺序（没有花括号，
+ * 按花括号切的时候粘在下一条规则前面）；app 样式表里只有变量组与关键帧，各自一层，去掉层不改变谁盖过谁
+ */
+function unlayer(rule: string): string[] {
+  const text = rule.replace(/^(?:@layer [^{};]*;\s*)+/, '');
+  if (!text.startsWith('@layer ')) return [text];
+  return topLevelRules(text.slice(text.indexOf('{') + 1, -1)).flatMap(unlayer);
+}
+
 function topLevelRules(css: string): string[] {
   const rules: string[] = [];
   let depth = 0;

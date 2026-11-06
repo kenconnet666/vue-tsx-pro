@@ -189,6 +189,36 @@ export function merge(tables: readonly Declarations[]): Declarations {
   return merged;
 }
 
+/**
+ * 属性族的根不按名字前缀走的几个：简写与它的长属性名字对不上（inset 与 top，gap 与 row-gap，place 与 align / justify），
+ * 或简写会顺带重设别的属性（font 重设 line-height，white-space 是 text-wrap-mode 的简写）
+ */
+const FAMILY_ROOTS: Readonly<Record<string, string>> = {
+  top: 'inset',
+  right: 'inset',
+  bottom: 'inset',
+  left: 'inset',
+  'row-gap': 'gap',
+  'column-gap': 'gap',
+  align: 'place',
+  justify: 'place',
+  columns: 'column',
+  'line-height': 'font',
+  white: 'text',
+};
+
+/**
+ * 属性族（连字符写法）：有简写、长属性关系的属性归同一族，按名字的第一段分（border、margin、outline、font…），
+ * 几个例外见 FAMILY_ROOTS；自定义属性各自一族。分得粗没关系（只是多带几条声明），分得细会出错（见 fragment.ts 的分段）
+ */
+export function familyOf(property: string): string {
+  if (property.startsWith('--')) return property;
+  // 从第二个字符找：带厂商前缀的（-webkit-line-clamp）按前缀归族
+  const dash = property.indexOf('-', 1);
+  const root = dash < 0 ? property : property.slice(0, dash);
+  return FAMILY_ROOTS[property] ?? FAMILY_ROOTS[root] ?? root;
+}
+
 /** 条件链的排序权重：伪类、@ 规则的优先级相加（同 StyleX 的规则顺序） */
 const chainWeight = (chain: string) =>
   chain ? chain.split('\0').reduce((sum, part) => sum + getPriority(part), 0) : 0;

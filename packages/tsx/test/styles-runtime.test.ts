@@ -15,10 +15,16 @@ import {
 } from '../src/styles/runtime';
 
 /** 某个类的全部规则文本（每条规则压成一行） */
+/** 选中这些类（分段时一个元素有几个）的规则原文，按类的顺序 */
 const rulesOf = (className: string | undefined) =>
-  [...document.querySelector<HTMLStyleElement>('style[data-vue-tsx-pro]')!.sheet!.cssRules]
-    .map((rule) => rule.cssText.replace(/\s+/g, ' '))
-    .filter((rule) => className && rule.includes(`.${className}`))
+  (className ?? '')
+    .split(' ')
+    .filter(Boolean)
+    .flatMap((name) =>
+      [...document.querySelector<HTMLStyleElement>('style[data-vue-tsx-pro]')!.sheet!.cssRules]
+        .map((rule) => rule.cssText.replace(/\s+/g, ' '))
+        .filter((rule) => new RegExp(`\\.${name}(?![\\w-])`).test(rule)),
+    )
     .join('\n');
 
 describe('create 与 attrs', () => {
