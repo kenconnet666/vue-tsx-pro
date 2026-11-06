@@ -312,4 +312,34 @@ CSharpUi、Blazor 两个会话是同一套组件库设计的 C# / Blazor 版本�
 | 原计划 §4.4 | 密度统一 `density`（NavList 的 `compact`） | 不改 | NavList 的 `compact` 是只剩图标的窄栏（rail），不是行高档位 |
 | 原计划 §4.4 | Result 的 `status: '403' \| '404' \| '500'` 拆出 `illustration`；方向、位置合成一个类型 | 不改 | Result 的状态码就是它要表达的状态（同 Ant Design）；各组件的方向取值本来就不同（ScrollArea 的 `type`、Drawer 的 `side` 各有含义），合成一个类型反而放进不支持的取值 |
 | API 调研 §1 | `Tone` 改名 | `Tone` / `Tones` → `TextTone` / `TextTones`，旧名 @deprecated | 与 `StatusTone` 并列时一眼分得清 |
+| 原计划 §5.1 | 最小点击高度 `max(control, minTarget)` 收成一个片段 | 不收；阶段 4 改高度时改 `sizes.control` 本身 | 它出现在 minHeight、width、gridTemplateColumns、calc 里，片段盖不全；做成派生的 CSS 变量（`--…-control-height: max(var(--control), …)`）会在 :root 上就把 var() 代入，局部主题改 `control` 时跟不上；做成 JS 常量又多一层中间变量（COMPONENTS.md §4 不要） |
+| 原计划 §5.1 | 过渡补齐 `interactionTransitions` 的组合 | 不收 | 逐条核对：约 30 种属性 × 时长 × 缓动的组合，最多的一种 5 处，收成片段只是换个名字 |
+| 原计划 §5.1 | 一个 `disabledStyles` | 先不做 | 透明度已经是 `_disabled` token；各处的差别（带不带 cursor、pointerEvents）是各组件的取舍，统一要逐个看交互，放到阶段 4 的组件级修正一起看 |
+| 原计划 §5.4 | Button 的 36 条组合档位也从色表取 | 只有 Badge、Alert 换成 `statusToneCompound` | 按钮的组合带悬停色（`[HOVER]`），色表里没有；拆成“色表 + 悬停表”两段反而更难读 |
+| 原计划 §5.4 | OtpField 的格子用 `inputRecipe` | 采纳，经 `useControlAppearance` + `controlParts` | 当前格原来画品牌色描边加浅色环，与输入框聚焦时不一致；顺带有了 variant、radius，跟 defaults.Input |
 
+## 12. 迁移说明的素材（阶段 5 汇总进发布说明）
+
+改名（旧名标 @deprecated，留一个版本）：
+
+- Skeleton `variant` → `shape`（`SkeletonVariants` → `SkeletonShapes`，`skeletonVariantStyles` → `skeletonShapeStyles`）
+- Sparkline、TimelineChart 的系列、WaveGrid `variant` → `type`（`SparklineVariants` → `SparklineTypes`，`WaveGridVariants` → `WaveGridTypes`）
+- `Tone` / `Tones` → `TextTone` / `TextTones`
+- 配方的 `compound: [{ when }]` → `{ match }`；tsx 的 `Theme` → `VarTheme`；`hotStyles`、`inlineStyle` 挪到 `styles/internal`
+- createUi / Provider 的 `defaults`、`styles` → `components.Xxx.{ defaults, styles, variants }`
+
+去掉的样式表项（改用共用件）：
+
+- 展开箭头：`accordionStyles.chevronOpen`、`codeBlockStyles.expandOpen`、`selectStyles.chevronOpen`、`filterBarStyles.toggleIconOpen`、
+  `treeStyles.chevronOpen`、`treeDataTableStyles.chevronOpen`、`navListStyles.chevron` / `chevronOpen`、DataTable 的 `chevronOpen`、
+  整个 `comboboxStyles` → `disclosureStyles.flip` / `turn`
+- 焦点环：`cascaderStyles.focused`、`codeGroupStyles.panel` → `focusRingStyles.virtual` / `inset`
+- `otpFieldStyles.invalid` / `disabled`（格子的状态来自输入框的配方）；`conditionBuilderStyles.range`（没人用）
+
+外观上有意的变化：
+
+- OtpField 的当前格画输入框聚焦时的焦点环；只读时与输入框一样变浅
+- SlideCaptcha 的滑块用组件库的焦点环（原来是浏览器默认的）
+- 从右往左时，树、表格子行、导航的展开箭头朝下（原来朝上）；FormSection 收起时朝左
+- NavList 展开箭头的过渡从 md 改成 sm（与其他组件一致）
+- 使用方的 `sx` 在 ViewportFill、NotificationCenter 上进自己的一层（与其他组件一致）
