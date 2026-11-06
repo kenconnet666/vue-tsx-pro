@@ -298,7 +298,7 @@ export const appShellStyles = css.create({
     insetInlineEnd: '_lg',
     zIndex: 10,
     backgroundColor: '_surfaceTranslucent',
-    opacity: { default: 0.6, ':hover': 1, ':focus-visible': 1 },
+    opacity: { default: 0.6, _hover: 1, _focusVisible: 1 },
   },
   footer: {
     paddingBlock: '_lg',

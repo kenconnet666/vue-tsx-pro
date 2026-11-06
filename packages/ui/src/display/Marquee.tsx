@@ -94,7 +94,7 @@ export const marqueeStyles = css.create({
   },
   reverse: { animationDirection: 'reverse' },
   pausable: {
-    animationPlayState: { default: 'running', ':hover': 'paused', ':focus-within': 'paused' },
+    animationPlayState: { default: 'running', _hover: 'paused', _focusWithin: 'paused' },
   },
   paused: { animationPlayState: 'paused' },
   group: { display: 'flex', flexShrink: 0, alignItems: 'center' },

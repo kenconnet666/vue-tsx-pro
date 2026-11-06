@@ -90,7 +90,7 @@ export const tagRecipe = css.recipe({
       backgroundColor: 'transparent',
       color: 'inherit',
       fontSize: '1em',
-      opacity: { default: 0.7, ':active': 1 },
+      opacity: { default: 0.7, _active: 1 },
       cursor: 'pointer',
     },
   },

@@ -85,7 +85,7 @@ export const navBarStyles = css.create({
     paddingInline: '_lg',
     borderWidth: 0,
     backgroundColor: 'transparent',
-    color: { default: '_accentText', ':active': '_accentActive' },
+    color: { default: '_accentText', _active: '_accentActive' },
     fontFamily: 'inherit',
     fontSize: 'inherit',
     cursor: 'pointer',

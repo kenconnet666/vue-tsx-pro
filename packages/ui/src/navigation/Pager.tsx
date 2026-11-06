@@ -50,7 +50,7 @@ export const pagerStyles = css.create({
     padding: '_md',
     borderWidth: '_xs',
     borderStyle: 'solid',
-    borderColor: { default: '_border', ':hover': '_accent' },
+    borderColor: { default: '_border', _hover: '_accent' },
     borderRadius: '_md',
     color: '_text',
     textDecoration: 'none',
@@ -65,7 +65,7 @@ export const pagerStyles = css.create({
   },
   label: { color: '_accentText', fontWeight: '_medium' },
   // 从右到左排版时“上一篇”在右边：箭头跟着掉头
-  arrow: { scale: { default: null, ':dir(rtl)': '-1 1' } },
+  arrow: { scale: { default: null, _rtl: '-1 1' } },
 });
 
 /** 翻页导航（nav）：上一篇、下一篇 */

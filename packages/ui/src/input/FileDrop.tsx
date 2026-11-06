@@ -85,7 +85,7 @@ export const fileDropStyles = css.create({
     padding: '_lg',
     borderWidth: '_sm',
     borderStyle: 'dashed',
-    borderColor: { default: '_borderStrong', ':hover': '_accent' },
+    borderColor: { default: '_borderStrong', _hover: '_accent' },
     borderRadius: '_md',
     backgroundColor: '_surface',
     color: '_text',

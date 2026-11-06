@@ -55,7 +55,7 @@
 ### 2.2 状态用 data 属性表达
 
 组件把状态写成主元素上的 data 属性，使用方用 `sx` 里的条件或宿主 CSS 选择器就能定制状态样式，不必等组件开新的 prop。
-组件自己的状态样式也直接取 DOM 上的状态，不再写 `selected && styles.selected`：条件别名（`_selected`、`_disabled`、`_open`、`_checked`、`_expanded`、`_current`…，一个别名合并了原生、ARIA、data 几种写法，见 `packages/tsx/src/styles/declarations.ts` 的 `CONDITIONS`）或属性选择器条件（`'[data-loading]': …`）。状态变化时只改属性、类名不变；只为样式加的布尔开关仍用条件样式（实测不更快，STYLE-ENGINE.md §9.1）。
+组件自己的状态样式也直接取 DOM 上的状态，不再写 `selected && styles.selected`：条件别名（`_selected`、`_disabled`、`_open`、`_checked`、`_expanded`、`_current`…，一个别名合并了原生、ARIA、data 几种写法，见 `packages/tsx/src/styles/declarations.ts` 的 `CONDITIONS`）或属性选择器条件（`'[data-loading]': …`）。有别名的伪类、媒体查询也写别名（`_hover`、`_active`、`_focusVisible`、`_rtl`、`_forcedColors`、`_reducedMotion`），不写 `':hover'`、`':dir(rtl)'` 这样的字面量：一种条件一种写法，搜得全；伪元素块照写 `'::before'`、`'::placeholder'`。状态变化时只改属性、类名不变；只为样式加的布尔开关仍用条件样式（实测不更快，STYLE-ENGINE.md §9.1）。
 
 | 属性                            | 取值                                                            | 例                                            |
 | ------------------------------- | --------------------------------------------------------------- | --------------------------------------------- |

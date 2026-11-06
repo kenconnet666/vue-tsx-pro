@@ -51,7 +51,7 @@ export const backTopStyles = css.create({
     padding: 0,
     borderWidth: 0,
     borderRadius: '_full',
-    backgroundColor: { default: '_surface', ':active': '_fillActive' },
+    backgroundColor: { default: '_surface', _active: '_fillActive' },
     boxShadow: '_md',
     color: '_text',
     fontSize: '_md',

@@ -42,8 +42,8 @@ export const skipLinkStyles = css.create({
     fontWeight: '_medium',
     textDecoration: 'none',
     // 移出视口之外再透明：阴影不会从顶边漏出来
-    opacity: { default: 0, ':focus': 1 },
-    translate: { default: '0 calc(-100% - 1em)', ':focus': 'none' },
+    opacity: { default: 0, _focus: 1 },
+    translate: { default: '0 calc(-100% - 1em)', _focus: 'none' },
     transition: `translate ${t.durations.sm} ${t.easings.standard}, opacity ${t.durations.sm} ${t.easings.standard}`,
   },
 });

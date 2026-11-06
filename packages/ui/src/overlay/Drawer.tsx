@@ -97,10 +97,10 @@ export const drawerRecipe = css.recipe({
           borderInlineStartWidth: 0,
           translate: {
             default: '-100% 0',
-            ':dir(rtl)': '100% 0',
+            _rtl: '100% 0',
             ':modal': {
               default: 'none',
-              '@starting-style': { default: '-100% 0', ':dir(rtl)': '100% 0' },
+              '@starting-style': { default: '-100% 0', _rtl: '100% 0' },
             },
           },
         },
@@ -116,10 +116,10 @@ export const drawerRecipe = css.recipe({
           borderInlineEndWidth: 0,
           translate: {
             default: '100% 0',
-            ':dir(rtl)': '-100% 0',
+            _rtl: '-100% 0',
             ':modal': {
               default: 'none',
-              '@starting-style': { default: '100% 0', ':dir(rtl)': '-100% 0' },
+              '@starting-style': { default: '100% 0', _rtl: '-100% 0' },
             },
           },
         },

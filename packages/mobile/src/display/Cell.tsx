@@ -94,7 +94,7 @@ export const cellStyles = css.create({
   clickable: {
     cursor: 'pointer',
     userSelect: 'none',
-    backgroundColor: { default: '_surface', ':active': '_fillActive' },
+    backgroundColor: { default: '_surface', _active: '_fillActive' },
     transitionProperty: 'background-color',
     transitionDuration: '_xs',
   },

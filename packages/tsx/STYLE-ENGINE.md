@@ -79,7 +79,7 @@
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 
 const styles = css.create({
-  root: { padding: '_md', color: { default: '_text', ':hover': '_accent' } },
+  root: { padding: '_md', color: { default: '_text', _hover: '_accent' } },
   size: (width: string) => ({ width }), // 动态样式：同现在
 });
 <div {...css.attrs(styles.root, active && styles.active, sx)} />;

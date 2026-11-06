@@ -58,7 +58,7 @@ export const formErrorSummaryStyles = css.create({
   list: { margin: 0, paddingInlineStart: '1.5em', display: 'grid', gap: '_xs' },
   link: {
     color: '_dangerText',
-    textDecoration: { default: 'underline', ':hover': 'none' },
+    textDecoration: { default: 'underline', _hover: 'none' },
     textUnderlineOffset: '0.2em',
   },
 });

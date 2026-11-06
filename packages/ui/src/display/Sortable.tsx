@@ -85,9 +85,9 @@ export const sortableStyles = css.create({
     width: `max(1.75em, ${t.sizes.minTarget})`,
     height: `max(1.75em, ${t.sizes.minTarget})`,
     borderRadius: '_sm',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
     color: '_textMuted',
-    cursor: { default: 'grab', ':active': 'grabbing' },
+    cursor: { default: 'grab', _active: 'grabbing' },
     // 触摸拖动时不滚动页面
     touchAction: 'none',
   },

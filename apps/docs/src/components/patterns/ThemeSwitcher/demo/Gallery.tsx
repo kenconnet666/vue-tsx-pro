@@ -23,10 +23,10 @@ const styles = css.create({
     borderRadius: '_md',
     borderWidth: '_sm',
     borderStyle: 'solid',
-    borderColor: { default: 'transparent', ':hover': '_border' },
+    borderColor: { default: 'transparent', _hover: '_border' },
     textAlign: 'start',
   },
-  selected: { borderColor: { default: '_accent', ':hover': '_accent' } },
+  selected: { borderColor: { default: '_accent', _hover: '_accent' } },
 });
 
 export default _component(() => {

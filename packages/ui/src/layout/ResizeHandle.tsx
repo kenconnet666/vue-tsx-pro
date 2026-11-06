@@ -52,8 +52,8 @@ export const resizeHandleStyles = css.create({
     touchAction: 'none',
     backgroundColor: {
       default: 'transparent',
-      ':hover': '_borderStrong',
-      ':focus-visible': '_accent',
+      _hover: '_borderStrong',
+      _focusVisible: '_accent',
     },
     outlineStyle: 'none',
   },

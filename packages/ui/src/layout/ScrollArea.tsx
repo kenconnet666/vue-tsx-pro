@@ -125,7 +125,7 @@ export const scrollAreaBarStyles = css.create({
     // 半透明：浮在内容上也不完全遮住下面的文字
     backgroundColor: {
       default: `color-mix(in srgb, ${t.colors.textMuted} 50%, transparent)`,
-      ':hover': `color-mix(in srgb, ${t.colors.textMuted} 75%, transparent)`,
+      _hover: `color-mix(in srgb, ${t.colors.textMuted} 75%, transparent)`,
     },
     transition: `background-color ${t.durations.sm} ${t.easings.standard}`,
   },

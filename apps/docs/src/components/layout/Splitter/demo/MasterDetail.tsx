@@ -36,7 +36,7 @@ const styles = css.create({
     paddingBlock: '_sm',
     paddingInline: '_md',
     borderWidth: 0,
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
     cursor: 'pointer',
     color: 'inherit',
   },

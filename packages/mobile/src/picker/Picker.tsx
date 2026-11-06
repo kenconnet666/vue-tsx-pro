@@ -88,12 +88,12 @@ export const pickerStyles = css.create({
     paddingInline: '_lg',
     borderWidth: 0,
     backgroundColor: 'transparent',
-    color: { default: '_textMuted', ':active': '_text' },
+    color: { default: '_textMuted', _active: '_text' },
     fontFamily: 'inherit',
     fontSize: '_md',
     cursor: 'pointer',
   },
-  confirm: { color: { default: '_accentText', ':active': '_accentActive' } },
+  confirm: { color: { default: '_accentText', _active: '_accentActive' } },
   columns: { position: 'relative', display: 'flex', fontSize: '_md' },
   // 上下渐隐到底色，中间一行留白；选中的那一行上下各一条细线
   mask: {

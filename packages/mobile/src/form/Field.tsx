@@ -130,7 +130,7 @@ export const fieldStyles = css.create({
     padding: 0,
     borderWidth: 0,
     backgroundColor: 'transparent',
-    color: { default: '_textPlaceholder', ':active': '_textMuted' },
+    color: { default: '_textPlaceholder', _active: '_textMuted' },
     fontSize: '1.05em',
     cursor: 'pointer',
   },

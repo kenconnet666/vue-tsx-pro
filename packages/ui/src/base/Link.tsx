@@ -68,7 +68,7 @@ export const linkRecipe = css.recipe({
   variants: {
     underline: {
       always: { root: { textDecorationLine: 'underline' } },
-      hover: { root: { textDecorationLine: { default: 'none', ':hover': 'underline' } } },
+      hover: { root: { textDecorationLine: { default: 'none', _hover: 'underline' } } },
       none: { root: { textDecorationLine: 'none' } },
     },
   },

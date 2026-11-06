@@ -140,7 +140,7 @@ export const codeBlockStyles = css.create({
     position: 'absolute',
     top: '_space.xs',
     insetInlineEnd: '_space.xs',
-    backgroundColor: { default: '_surface', ':hover': '_fill' },
+    backgroundColor: { default: '_surface', _hover: '_fill' },
   },
   root: {
     boxSizing: 'border-box',
@@ -191,7 +191,7 @@ export const codeBlockStyles = css.create({
     borderTopWidth: '_xs',
     borderTopStyle: 'solid',
     borderTopColor: '_borderMuted',
-    backgroundColor: { default: '_surfaceMuted', ':hover': '_fill' },
+    backgroundColor: { default: '_surfaceMuted', _hover: '_fill' },
     color: '_textMuted',
     fontSize: '_sm',
   },

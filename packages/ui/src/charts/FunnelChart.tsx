@@ -78,7 +78,7 @@ export const funnelChartStyles = css.create({
     paddingInline: '_xs',
     borderRadius: '_sm',
   },
-  rowClickable: { backgroundColor: { default: 'transparent', ':hover': '_fill' } },
+  rowClickable: { backgroundColor: { default: 'transparent', _hover: '_fill' } },
   label: { color: '_text', textAlign: 'end', whiteSpace: 'nowrap' },
   track: { display: 'flex', justifyContent: 'center' },
   bar: {

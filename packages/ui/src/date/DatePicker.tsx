@@ -88,7 +88,7 @@ export const datePickerStyles = css.create({
   main: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   // 选周时已选那一周的另外六天
   inWeek: {
-    backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' },
+    backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' },
     color: '_accentText',
   },
   footer: {

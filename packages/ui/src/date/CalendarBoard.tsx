@@ -123,12 +123,12 @@ export const calendarBoardStyles = css.create({
     borderColor: '_borderMuted',
     cursor: 'pointer',
     transition: `background-color ${t.durations.sm} ${t.easings.standard}`,
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
   },
-  weekend: { backgroundColor: { default: '_surfaceMuted', ':hover': '_fillHover' } },
+  weekend: { backgroundColor: { default: '_surfaceMuted', _hover: '_fillHover' } },
   outside: { color: '_textMuted' },
   selected: {
-    backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' },
+    backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' },
     boxShadow: `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.accentBorder}`,
   },
   disabled: { cursor: 'not-allowed', opacity: '_disabled' },
@@ -180,7 +180,7 @@ export const calendarBoardStyles = css.create({
     borderRadius: '_sm',
     fontSize: '_xs',
     color: '_textMuted',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
   },
 });
 

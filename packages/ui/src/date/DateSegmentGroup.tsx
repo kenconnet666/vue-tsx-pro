@@ -85,12 +85,12 @@ export const dateSegmentStyles = css.create({
     caretColor: 'transparent',
     outlineStyle: 'none',
     textAlign: 'end',
-    backgroundColor: { default: 'transparent', ':focus': '_accent' },
-    color: { default: 'inherit', ':focus': '_accentContrast' },
+    backgroundColor: { default: 'transparent', _focus: '_accent' },
+    color: { default: 'inherit', _focus: '_accentContrast' },
     cursor: 'text',
   },
   // 占位文字是真正的文字（不是原生 placeholder），要满足 4.5:1：用 textMuted
-  placeholder: { color: { default: '_textMuted', ':focus': '_accentContrast' } },
+  placeholder: { color: { default: '_textMuted', _focus: '_accentContrast' } },
   literal: { color: '_textMuted', whiteSpace: 'pre' },
   disabled: { cursor: 'not-allowed' },
 });

@@ -46,7 +46,7 @@ const styles = css.create({
     width: '_full',
     paddingBlock: '_md',
     borderRadius: '_md',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
     fontSize: '_sm',
   },
   selected: { backgroundColor: '_accentSoft' },

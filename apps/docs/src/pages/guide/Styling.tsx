@@ -21,7 +21,7 @@ const styles = css.create({
   card: {
     padding: '_lg',                                   // 主题 token：整个值是 token 时直接写字符串
     borderRadius: '_lg',
-    borderColor: { default: '_borderMuted', ':hover': '_border' },   // 按条件取值
+    borderColor: { default: '_borderMuted', _hover: '_border' },   // 按条件取值
     transition: \`border-color \${t.durations.md} \${t.easings.standard}\`, // 值里夹着 token：模板字符串里的 t
   },
   featured: { borderColor: '_accentBorder' },

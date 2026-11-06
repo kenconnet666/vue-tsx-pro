@@ -167,7 +167,7 @@ export const sliderStyles = css.create({
     backgroundColor: '_borderStrong',
     pointerEvents: 'none',
   },
-  markHorizontal: { top: '50%', translate: { default: '-50% -50%', ':dir(rtl)': '50% -50%' } },
+  markHorizontal: { top: '50%', translate: { default: '-50% -50%', _rtl: '50% -50%' } },
   markVertical: { left: '50%', translate: '-50% 50%' },
   markActive: { backgroundColor: 'var(--tone-on-fill)' },
   markLabel: {
@@ -180,7 +180,7 @@ export const sliderStyles = css.create({
   },
   markLabelHorizontal: {
     top: `calc(50% + ${t.space.sm})`,
-    translate: { default: '-50% -0.75em', ':dir(rtl)': '50% -0.75em' },
+    translate: { default: '-50% -0.75em', _rtl: '50% -0.75em' },
   },
   markLabelVertical: { left: `calc(50% + ${t.space.md})`, translate: '0 50%' },
 });

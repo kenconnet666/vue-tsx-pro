@@ -61,13 +61,13 @@ export const tableOfContentsStyles = css.create({
     paddingBlock: '_xs',
     paddingInlineEnd: '_xs',
     borderRadius: '_xs',
-    color: { default: '_textMuted', ':hover': '_text' },
+    color: { default: '_textMuted', _hover: '_text' },
     fontSize: '_sm',
     lineHeight: '_snug',
     textDecoration: 'none',
     transition: `color ${t.durations.sm} ${t.easings.standard}`,
   },
-  current: { color: { default: '_accentText', ':hover': '_accentText' } },
+  current: { color: { default: '_accentText', _hover: '_accentText' } },
   // 按级别缩进：2 级贴着细线留一档，往下每级多一档
   indent: (level: number) => ({ paddingInlineStart: `calc(${Math.max(level - 1, 1)} * 0.75em)` }),
 });

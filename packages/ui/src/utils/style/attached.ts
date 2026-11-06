@@ -34,7 +34,7 @@ export const AttachedContext = createContext<AttachedState>('Attached');
 export const attachedStyles = css.create({
   horizontal: {
     position: 'relative',
-    zIndex: { default: null, ':hover': 1, ':focus-visible': 2, ':focus-within': 2 },
+    zIndex: { default: null, _hover: 1, _focusVisible: 2, _focusWithin: 2 },
     marginInlineStart: {
       default: null,
       ':not(:nth-child(1 of :not([popover], [hidden], input[type="hidden"], template)))': `calc(-1 * ${t.borderWidths.xs})`,
@@ -58,7 +58,7 @@ export const attachedStyles = css.create({
   },
   vertical: {
     position: 'relative',
-    zIndex: { default: null, ':hover': 1, ':focus-visible': 2, ':focus-within': 2 },
+    zIndex: { default: null, _hover: 1, _focusVisible: 2, _focusWithin: 2 },
     marginBlockStart: {
       default: null,
       ':not(:nth-child(1 of :not([popover], [hidden], input[type="hidden"], template)))': `calc(-1 * ${t.borderWidths.xs})`,

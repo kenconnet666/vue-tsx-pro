@@ -110,28 +110,28 @@ export const indicatorRecipe = css.recipe({
         badge: {
           top: 0,
           insetInlineEnd: 0,
-          translate: { default: '50% -50%', ':dir(rtl)': '-50% -50%' },
+          translate: { default: '50% -50%', _rtl: '-50% -50%' },
         },
       },
       'bottom-end': {
         badge: {
           bottom: 0,
           insetInlineEnd: 0,
-          translate: { default: '50% 50%', ':dir(rtl)': '-50% 50%' },
+          translate: { default: '50% 50%', _rtl: '-50% 50%' },
         },
       },
       'top-start': {
         badge: {
           top: 0,
           insetInlineStart: 0,
-          translate: { default: '-50% -50%', ':dir(rtl)': '50% -50%' },
+          translate: { default: '-50% -50%', _rtl: '50% -50%' },
         },
       },
       'bottom-start': {
         badge: {
           bottom: 0,
           insetInlineStart: 0,
-          translate: { default: '-50% 50%', ':dir(rtl)': '50% 50%' },
+          translate: { default: '-50% 50%', _rtl: '50% 50%' },
         },
       },
     },

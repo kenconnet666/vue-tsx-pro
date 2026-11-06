@@ -112,7 +112,7 @@ export const formSectionStyles = css.create({
     fontWeight: 'inherit',
     color: 'inherit',
     textAlign: 'start',
-    backgroundColor: { default: 'transparent', ':hover': '_fill' },
+    backgroundColor: { default: 'transparent', _hover: '_fill' },
   },
   chevron: { flexShrink: 0, color: '_textMuted' },
   chevronClosed: { rotate: '-90deg' },

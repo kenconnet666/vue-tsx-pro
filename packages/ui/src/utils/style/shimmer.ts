@@ -32,7 +32,7 @@ export const shimmerStyles = css.create({
     // （overflow 不是 visible 时 inline-block 的基线落到底边，WebKit 里 clip 也是）
     contain: 'paint',
     // 从右到左的语言里整个元素镜像，光带就反向扫；骨架包着的内容本来就看不见，镜像没有影响
-    transform: { default: null, ':dir(rtl)': 'scaleX(-1)' },
+    transform: { default: null, _rtl: 'scaleX(-1)' },
     '::after': {
       content: '""',
       position: 'absolute',

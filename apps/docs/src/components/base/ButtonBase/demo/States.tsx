@@ -15,13 +15,13 @@ const styles = css.create({
     paddingBlock: '_sm',
     paddingInline: '_md',
     borderRadius: '_sm',
-    backgroundColor: { default: 'transparent', ':hover': '_fill', ':active': '_fillActive' },
+    backgroundColor: { default: 'transparent', _hover: '_fill', _active: '_fillActive' },
     textAlign: 'start',
   },
   // 不可用的样式交给使用方：ButtonBase 只换光标、写上 disabled / aria-disabled 与 data-disabled
   disabled: {
     color: '_textDisabled',
-    backgroundColor: { default: 'transparent', ':hover': 'transparent', ':active': 'transparent' },
+    backgroundColor: { default: 'transparent', _hover: 'transparent', _active: 'transparent' },
   },
   hint: { gridColumn: '2' },
 });

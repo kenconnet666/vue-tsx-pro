@@ -20,7 +20,7 @@ const styles = css.create({
     paddingBlock: '2px',
     paddingInline: '_sm',
     borderRadius: '_full',
-    backgroundColor: { default: '_fill', ':hover': '_fillHover' },
+    backgroundColor: { default: '_fill', _hover: '_fillHover' },
   },
   unit: {
     paddingBlock: '1px',

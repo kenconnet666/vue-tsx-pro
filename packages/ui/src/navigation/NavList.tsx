@@ -62,11 +62,11 @@ export const navListStyles = css.create({
   row: {
     paddingInline: '_md',
     borderRadius: '_md',
-    color: { default: '_textMuted', ':hover': '_text' },
+    color: { default: '_textMuted', _hover: '_text' },
     fontWeight: '_medium',
   },
   // 当前页的颜色来自 itemStyles.current；悬停时也保持品牌色
-  current: { color: { default: '_accentText', ':hover': '_accentText' } },
+  current: { color: { default: '_accentText', _hover: '_accentText' } },
   disabled: { pointerEvents: 'none' },
   chevron: { transition: `transform ${t.durations.md} ${t.easings.standard}` },
   chevronOpen: { transform: 'rotate(90deg)' },

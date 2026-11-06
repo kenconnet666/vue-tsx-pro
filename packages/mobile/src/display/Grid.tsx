@@ -74,7 +74,7 @@ export const gridStyles = css.create({
   clickable: {
     cursor: 'pointer',
     userSelect: 'none',
-    backgroundColor: { default: '_surface', ':active': '_fillActive' },
+    backgroundColor: { default: '_surface', _active: '_fillActive' },
   },
   icon: { fontSize: '1.75em', color: '_text' },
   text: { overflowWrap: 'anywhere' },

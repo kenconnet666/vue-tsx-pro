@@ -134,13 +134,13 @@ export const columnGapStyles = css.create({
  */
 export const focusRingStyles = css.create({
   visible: {
-    outlineStyle: { default: 'none', ':focus-visible': 'solid' },
+    outlineStyle: { default: 'none', _focusVisible: 'solid' },
     outlineWidth: '_sm',
     outlineColor: '_focusRing',
     outlineOffset: '_sm',
   },
   tight: {
-    outlineStyle: { default: 'none', ':focus-visible': 'solid' },
+    outlineStyle: { default: 'none', _focusVisible: 'solid' },
     outlineWidth: '_sm',
     outlineColor: '_focusRing',
     outlineOffset: '_borderWidths.sm',
@@ -152,7 +152,7 @@ export const focusRingStyles = css.create({
     outlineOffset: '_borderWidths.sm',
   },
   within: {
-    outlineStyle: { default: 'none', ':focus-within': 'solid' },
+    outlineStyle: { default: 'none', _focusWithin: 'solid' },
     outlineWidth: '_sm',
     outlineColor: '_focusRing',
     outlineOffset: `calc(-1 * ${t.borderWidths.xs})`,

@@ -60,7 +60,7 @@ export const ellipsisStyles = css.create({
     font: 'inherit',
     cursor: 'pointer',
     whiteSpace: 'nowrap',
-    textDecorationLine: { default: 'none', ':hover': 'underline' },
+    textDecorationLine: { default: 'none', _hover: 'underline' },
   },
 });
 

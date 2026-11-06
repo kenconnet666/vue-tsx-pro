@@ -34,7 +34,7 @@ const styles = css.create({
     padding: '_lg',
     borderWidth: '_xs',
     borderStyle: 'solid',
-    borderColor: { default: '_borderMuted', ':hover': '_border' },
+    borderColor: { default: '_borderMuted', _hover: '_border' },
     borderRadius: '_lg',
     backgroundColor: '_surface',
     // 值里夹着 token：写模板字符串里的 t.组.名

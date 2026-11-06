@@ -80,7 +80,7 @@ export const inputRecipe = css.recipe({
         paddingInline: '_md',
         borderWidth: '_xs',
         borderStyle: 'solid',
-        borderColor: { default: '_border', ':hover': '_borderStrong' },
+        borderColor: { default: '_border', _hover: '_borderStrong' },
         borderRadius: '_md',
         backgroundColor: '_surface',
         color: '_text',
@@ -128,7 +128,7 @@ export const inputRecipe = css.recipe({
       surface: {},
       soft: {
         root: {
-          borderColor: { default: 'transparent', ':hover': 'transparent' },
+          borderColor: { default: 'transparent', _hover: 'transparent' },
           backgroundColor: '_fill',
         },
       },
@@ -138,7 +138,7 @@ export const inputRecipe = css.recipe({
     readonly: {
       true: {
         root: {
-          borderColor: { default: '_borderMuted', ':hover': '_borderMuted' },
+          borderColor: { default: '_borderMuted', _hover: '_borderMuted' },
           backgroundColor: '_fill',
         },
       },
@@ -146,7 +146,7 @@ export const inputRecipe = css.recipe({
     invalid: {
       true: {
         root: {
-          borderColor: { default: '_danger', ':hover': '_danger' },
+          borderColor: { default: '_danger', _hover: '_danger' },
           outlineColor: '_danger',
         },
       },

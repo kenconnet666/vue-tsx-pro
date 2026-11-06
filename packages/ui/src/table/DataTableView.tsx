@@ -287,10 +287,10 @@ const ROW_HEIGHT: Record<keyof DataTableDensities, number> = {
 
 /** DataTable、TreeDataTable 的样式：行的色调（不透明的浅色底，悬停加深） */
 export const dataTableRowToneStyles = css.create({
-  info: { backgroundColor: { default: '_infoSoft', ':hover': '_infoSoftHover' } },
-  success: { backgroundColor: { default: '_successSoft', ':hover': '_successSoftHover' } },
-  warning: { backgroundColor: { default: '_warningSoft', ':hover': '_warningSoftHover' } },
-  danger: { backgroundColor: { default: '_dangerSoft', ':hover': '_dangerSoftHover' } },
+  info: { backgroundColor: { default: '_infoSoft', _hover: '_infoSoftHover' } },
+  success: { backgroundColor: { default: '_successSoft', _hover: '_successSoftHover' } },
+  warning: { backgroundColor: { default: '_warningSoft', _hover: '_warningSoftHover' } },
+  danger: { backgroundColor: { default: '_dangerSoft', _hover: '_dangerSoftHover' } },
 });
 
 // 列宽、偏移、占位高度是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4

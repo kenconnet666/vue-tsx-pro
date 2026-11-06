@@ -105,7 +105,7 @@ export const splitterStyles = css.create({
     inset: 0,
     touchAction: 'none',
     outlineStyle: 'none',
-    color: { default: '_borderMuted', ':hover': '_borderStrong', ':focus-visible': '_accent' },
+    color: { default: '_borderMuted', _hover: '_borderStrong', _focusVisible: '_accent' },
   },
   handleHorizontal: { width: '_space.md', cursor: 'col-resize' },
   handleVertical: { height: '_space.md', cursor: 'row-resize' },

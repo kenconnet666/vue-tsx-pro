@@ -63,7 +63,7 @@ export const iconStyles = css.create({
     // 写成 CSS 而不是 stroke-width 属性：主题能统一调整，子元素照常继承
     strokeWidth: '_md',
   },
-  flip: { transform: { default: null, ':dir(rtl)': 'scaleX(-1)' } },
+  flip: { transform: { default: null, _rtl: 'scaleX(-1)' } },
 });
 
 /** 图标（svg）：渲染 Lucide 格式的图标数据；不传 aria-label 时是装饰性的，对读屏隐藏 */

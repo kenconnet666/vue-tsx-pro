@@ -400,7 +400,7 @@ export const toastStyles = css.create({
     height: '_borderWidths.sm',
     borderRadius: '_full',
     backgroundColor: `color-mix(in srgb, ${t.colors.textMuted} 50%, transparent)`,
-    transformOrigin: { default: 'left', ':dir(rtl)': 'right' },
+    transformOrigin: { default: 'left', _rtl: 'right' },
     animationName: countdown,
     animationTimingFunction: 'linear',
     animationFillMode: 'forwards',

@@ -24,7 +24,7 @@ const styles = css.create({
     paddingInlineStart: '_xs',
     paddingInlineEnd: '_sm',
     borderRadius: '_full',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
   },
   chevron: { color: '_textMuted' },
 });

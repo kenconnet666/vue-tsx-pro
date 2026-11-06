@@ -249,7 +249,7 @@ export const progressRecipe = css.recipe({
         // 条形：一段 40% 宽的色块从起始边到结束边循环；它本身就是信息，不随 durations 变为 0，减少动态效果时变慢
         indicator: {
           width: '40%',
-          animationName: { default: slide, ':dir(rtl)': slideRtl },
+          animationName: { default: slide, _rtl: slideRtl },
           animationDuration: { default: '1.4s', _reducedMotion: '3s' },
           animationTimingFunction: '_easings.standard',
           animationIterationCount: 'infinite',

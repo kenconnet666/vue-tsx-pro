@@ -89,7 +89,7 @@ export const itemListStyles = css.create({
     borderBlockEndStyle: 'solid',
     borderBlockEndColor: '_borderMuted',
   },
-  hoverable: { backgroundColor: { default: null, ':hover': '_fillHover' } },
+  hoverable: { backgroundColor: { default: null, _hover: '_fillHover' } },
   compact: { paddingBlock: '_xs' },
   standard: { paddingBlock: '_sm' },
   // 没有 start 时第一列宽度为 0、不留间距

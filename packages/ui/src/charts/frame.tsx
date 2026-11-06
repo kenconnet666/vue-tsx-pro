@@ -93,7 +93,7 @@ export const chartStyles = css.create({
     display: 'inline-flex',
     alignItems: 'center',
     gap: '_xs',
-    color: { default: '_textMuted', ':hover': '_text' },
+    color: { default: '_textMuted', _hover: '_text' },
     fontSize: '_xs',
     borderRadius: '_sm',
   },

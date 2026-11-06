@@ -129,11 +129,11 @@ export const calendarStyles = css.create({
     paddingInline: '_sm',
     borderRadius: '_md',
     fontWeight: '_semibold',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
   },
   headingStatic: {
     cursor: 'default',
-    backgroundColor: { default: 'transparent', ':hover': 'transparent' },
+    backgroundColor: { default: 'transparent', _hover: 'transparent' },
   },
   grid: { borderCollapse: 'collapse', borderSpacing: 0 },
   // 月份、年份视图：一行 3 格，与日期网格同宽
@@ -171,7 +171,7 @@ export const calendarStyles = css.create({
     height: `max(2.25em, ${t.sizes.minTarget})`,
     borderRadius: '_md',
     fontVariantNumeric: 'tabular-nums',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
   },
   periodButton: { width: '_full', height: `max(3em, ${t.sizes.minTarget})` },
   outside: { color: '_textMuted' },
@@ -180,20 +180,20 @@ export const calendarStyles = css.create({
     boxShadow: `inset 0 0 0 ${t.borderWidths.xs} ${t.colors.accentBorder}`,
   },
   selected: {
-    backgroundColor: { default: '_accent', ':hover': '_accentHover' },
+    backgroundColor: { default: '_accent', _hover: '_accentHover' },
     color: '_accentContrast',
     boxShadow: 'none',
   },
   // 区间中间的格：按钮透明，底色是 td 的那一条
   middle: {
-    backgroundColor: { default: 'transparent', ':hover': '_accentSoftHover' },
+    backgroundColor: { default: 'transparent', _hover: '_accentSoftHover' },
     color: '_accentText',
   },
   unavailable: { color: '_textMuted', textDecorationLine: 'line-through' },
   disabled: {
     opacity: '_disabled',
     cursor: 'not-allowed',
-    backgroundColor: { default: 'transparent', ':hover': 'transparent' },
+    backgroundColor: { default: 'transparent', _hover: 'transparent' },
   },
   footer: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_sm' },
 });

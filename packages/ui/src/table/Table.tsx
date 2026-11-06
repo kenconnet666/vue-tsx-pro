@@ -162,11 +162,11 @@ export const tableRecipe = css.recipe({
           borderRadius: '_lg',
           backgroundColor: '_surface',
         },
-        row: { backgroundColor: { default: '_surface', ':hover': '_fillHover' } },
+        row: { backgroundColor: { default: '_surface', _hover: '_fillHover' } },
       },
       ghost: {
         root: { backgroundColor: '_background' },
-        row: { backgroundColor: { default: '_background', ':hover': '_fillHover' } },
+        row: { backgroundColor: { default: '_background', _hover: '_fillHover' } },
       },
     },
     striped: {

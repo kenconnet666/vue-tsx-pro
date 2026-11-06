@@ -125,7 +125,7 @@ export const loadingBarStyles = css.create({
     height: '100%',
     backgroundColor: { default: '_accent', _forcedColors: 'Highlight' },
     boxShadow: `0 0 8px ${t.colors.accent}`,
-    transformOrigin: { default: 'left center', ':dir(rtl)': 'right center' },
+    transformOrigin: { default: 'left center', _rtl: 'right center' },
     transition: `transform ${t.durations.md} ${t.easings.standard}`,
   },
   failed: { backgroundColor: '_danger', boxShadow: 'none' },

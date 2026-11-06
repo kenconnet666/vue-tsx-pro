@@ -124,7 +124,7 @@ export const otpFieldStyles = css.create({
     width: '_borderWidths.xs',
     height: '1.1em',
     backgroundColor: '_text',
-    animationName: { default: blink, '@media (prefers-reduced-motion: reduce)': 'none' },
+    animationName: { default: blink, _reducedMotion: 'none' },
     animationDuration: '1s',
     animationIterationCount: 'infinite',
     animationTimingFunction: 'steps(1)',

@@ -156,7 +156,7 @@ export const cascaderStyles = css.create({
     outlineColor: '_focusRing',
     outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
   },
-  chevron: { flexShrink: 0, color: '_textMuted', scale: { default: null, ':dir(rtl)': '-1 1' } },
+  chevron: { flexShrink: 0, color: '_textMuted', scale: { default: null, _rtl: '-1 1' } },
   check: { flexShrink: 0 },
   empty: { paddingBlock: '_sm', paddingInline: '_sm', color: '_textMuted' },
 });

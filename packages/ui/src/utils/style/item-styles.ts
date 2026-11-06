@@ -34,20 +34,20 @@ export const itemStyles = css.create({
     transition: `background-color ${t.durations.sm} ${t.easings.standard}, color ${t.durations.sm} ${t.easings.standard}`,
   },
   /** 指针悬停时浅色底 */
-  hoverable: { backgroundColor: { default: 'transparent', ':hover': '_fillHover' } },
+  hoverable: { backgroundColor: { default: 'transparent', _hover: '_fillHover' } },
   /** 键盘高亮（aria-activedescendant 指着的选项）：与悬停同色 */
   highlighted: { backgroundColor: '_fillHover' },
   /** 已选（下拉选项）：品牌色文字 */
   selected: { color: '_accentText' },
   /** 当前（导航的当前页、表格的选中行）：品牌色浅底 */
   current: {
-    backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' },
+    backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' },
     color: '_accentText',
   },
   /** 危险操作（删除）：红色文字，悬停浅红底 */
   danger: {
     color: '_dangerText',
-    backgroundColor: { default: 'transparent', ':hover': '_dangerSoft' },
+    backgroundColor: { default: 'transparent', _hover: '_dangerSoft' },
   },
   /** 不可用：不响应悬停（盖掉 hoverable、danger 的 :hover 底色；放在它们后面） */
   disabled: { opacity: '_disabled', cursor: 'not-allowed', backgroundColor: 'transparent' },

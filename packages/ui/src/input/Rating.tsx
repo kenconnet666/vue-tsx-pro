@@ -65,7 +65,7 @@ export const ratingStyles = css.create({
     borderRadius: '_sm',
     cursor: 'pointer',
     transition: `scale ${t.durations.sm} ${t.easings.standard}`,
-    scale: { default: null, ':hover': '1.12' },
+    scale: { default: null, _hover: '1.12' },
   },
   readonly: { cursor: 'default', scale: null },
   icon: { gridArea: '1 / 1', width: '100%', height: '100%' },
@@ -85,12 +85,12 @@ export const ratingStyles = css.create({
 // 选中的颜色用各色调的实色（金黄的星、红色的心）：实心与空心靠形状区分，不只靠颜色；Windows 高对比下用系统高亮色
 /** Rating 的颜色：neutral、accent、info、success、warning、danger */
 export const ratingToneStyles = css.create({
-  neutral: { color: { default: '_textMuted', '@media (forced-colors: active)': 'Highlight' } },
-  accent: { color: { default: '_accent', '@media (forced-colors: active)': 'Highlight' } },
-  info: { color: { default: '_info', '@media (forced-colors: active)': 'Highlight' } },
-  success: { color: { default: '_success', '@media (forced-colors: active)': 'Highlight' } },
-  warning: { color: { default: '_warning', '@media (forced-colors: active)': 'Highlight' } },
-  danger: { color: { default: '_danger', '@media (forced-colors: active)': 'Highlight' } },
+  neutral: { color: { default: '_textMuted', _forcedColors: 'Highlight' } },
+  accent: { color: { default: '_accent', _forcedColors: 'Highlight' } },
+  info: { color: { default: '_info', _forcedColors: 'Highlight' } },
+  success: { color: { default: '_success', _forcedColors: 'Highlight' } },
+  warning: { color: { default: '_warning', _forcedColors: 'Highlight' } },
+  danger: { color: { default: '_danger', _forcedColors: 'Highlight' } },
 });
 
 /** 填色那层的宽度 */

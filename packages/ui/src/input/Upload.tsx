@@ -230,7 +230,7 @@ export const uploadStyles = css.create({
     display: 'flex',
     gap: '2px',
   },
-  action: { backgroundColor: { default: 'rgb(255 255 255 / 0.85)', ':hover': 'white' } },
+  action: { backgroundColor: { default: 'rgb(255 255 255 / 0.85)', _hover: 'white' } },
   handle: {
     display: 'grid',
     placeItems: 'center',
@@ -239,7 +239,7 @@ export const uploadStyles = css.create({
     borderRadius: '_sm',
     color: '_text',
     backgroundColor: 'rgb(255 255 255 / 0.85)',
-    cursor: { default: 'grab', ':active': 'grabbing' },
+    cursor: { default: 'grab', _active: 'grabbing' },
     touchAction: 'none',
   },
 });

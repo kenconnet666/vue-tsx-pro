@@ -126,7 +126,7 @@ export const dataTableRecipe = css.recipe({
       alignItems: 'center',
       gap: '_xs',
       maxWidth: '_full',
-      color: { default: 'inherit', ':hover': '_text' },
+      color: { default: 'inherit', _hover: '_text' },
     },
     sortLabel: { overflow: 'hidden', textOverflow: 'ellipsis' },
     sortIcon: { flexShrink: 0 },
@@ -170,9 +170,9 @@ export const dataTableRecipe = css.recipe({
       height: '1.5em',
       marginBlock: '-0.25em',
       borderRadius: '_sm',
-      backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+      backgroundColor: { default: 'transparent', _hover: '_fillHover' },
       color: '_textMuted',
-      cursor: { default: 'grab', ':active': 'grabbing' },
+      cursor: { default: 'grab', _active: 'grabbing' },
       // 触摸拖动时不滚动页面
       touchAction: 'none',
     },
@@ -248,15 +248,15 @@ export const dataTableRecipe = css.recipe({
           borderRadius: '_lg',
           backgroundColor: '_surface',
         },
-        row: { backgroundColor: { default: '_surface', ':hover': '_fillHover' } },
+        row: { backgroundColor: { default: '_surface', _hover: '_fillHover' } },
       },
       ghost: {
         root: { backgroundColor: '_background' },
-        row: { backgroundColor: { default: '_background', ':hover': '_fillHover' } },
+        row: { backgroundColor: { default: '_background', _hover: '_fillHover' } },
       },
     },
     striped: {
-      true: { row: { backgroundColor: { default: '_fill', ':hover': '_fillHover' } } },
+      true: { row: { backgroundColor: { default: '_fill', _hover: '_fillHover' } } },
     },
   },
 });
@@ -281,14 +281,14 @@ export const dataTableStateStyles = css.create({
   start: { textAlign: 'start' },
   center: { textAlign: 'center' },
   end: { textAlign: 'end' },
-  selected: { backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' } },
+  selected: { backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' } },
   // 主从视图里正在看的一行：同已选的底色；起始边一条强调色的竖线（与勾选区分开）画在第一个单元格上，
   // 浏览器不给 tr 画阴影
-  active: { backgroundColor: { default: '_accentSoft', ':hover': '_accentSoftHover' } },
+  active: { backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' } },
   activeEdge: {
     boxShadow: {
       default: `inset 3px 0 0 ${t.colors.accent}`,
-      ':dir(rtl)': `inset -3px 0 0 ${t.colors.accent}`,
+      _rtl: `inset -3px 0 0 ${t.colors.accent}`,
     },
   },
   // 整行能点（打开详情）：手形指针
@@ -317,7 +317,7 @@ export const dataTableStateStyles = css.create({
     outline: 'none',
     boxShadow: {
       default: null,
-      ':focus-visible': `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.focusRing}`,
+      _focusVisible: `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.focusRing}`,
     },
   },
   // 单击就能编辑的格
@@ -328,7 +328,7 @@ export const dataTableStateStyles = css.create({
   invalidCell: {
     boxShadow: {
       default: `inset 0 0 0 ${t.borderWidths.xs} ${t.colors.danger}`,
-      ':focus-visible': `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.focusRing}`,
+      _focusVisible: `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.focusRing}`,
     },
   },
   // 正在拖动的行：浮在别的行上面

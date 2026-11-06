@@ -92,9 +92,9 @@ const styles = css.create({
     position: 'relative',
     height: '_full',
     transition: `transform ${t.durations.md} ${t.easings.standard}, box-shadow ${t.durations.md} ${t.easings.standard}, border-color ${t.durations.md} ${t.easings.standard}`,
-    transform: { default: 'none', ':hover': 'translateY(-2px)' },
-    boxShadow: { default: 'none', ':hover': '_md' },
-    borderColor: { default: null, ':hover': '_borderStrong' },
+    transform: { default: 'none', _hover: 'translateY(-2px)' },
+    boxShadow: { default: 'none', _hover: '_md' },
+    borderColor: { default: null, _hover: '_borderStrong' },
   },
   entryLink: {
     color: '_text',

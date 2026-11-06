@@ -85,7 +85,7 @@ export const searchStyles = css.create({
     margin: 0,
     borderWidth: 0,
     backgroundColor: 'transparent',
-    color: { default: '_text', ':active': '_textMuted' },
+    color: { default: '_text', _active: '_textMuted' },
     fontFamily: 'inherit',
     fontSize: 'inherit',
     lineHeight: 'inherit',

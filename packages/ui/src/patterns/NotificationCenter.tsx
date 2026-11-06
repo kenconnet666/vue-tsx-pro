@@ -152,7 +152,7 @@ export const notificationListStyles = css.create({
     borderBlockStartWidth: '_xs',
     borderBlockStartStyle: 'solid',
     borderBlockStartColor: '_borderMuted',
-    backgroundColor: { default: 'transparent', ':hover': '_fillHover' },
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
     cursor: 'pointer',
   },
   // 未读的色点贴着标题的第一行

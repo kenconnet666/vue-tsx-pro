@@ -276,8 +276,8 @@ export const diagramStyles = css.create({
     color: '_text',
     // 画布上点选、框选、按着 Shift 加选时不选中文字（节点里要能选中复制的内容自己写 userSelect: 'text'）
     userSelect: 'none',
-    cursor: { default: 'grab', ':active': 'grabbing' },
-    outlineStyle: { default: 'none', ':focus-visible': 'solid' },
+    cursor: { default: 'grab', _active: 'grabbing' },
+    outlineStyle: { default: 'none', _focusVisible: 'solid' },
     outlineWidth: '_sm',
     outlineColor: '_focusRing',
     outlineOffset: '_borderWidths.sm',
@@ -304,8 +304,8 @@ export const diagramStyles = css.create({
   // 对齐线、拖出来的连线、改接把手：画在节点上面，除了把手都不挡指针
   above: { zIndex: 3 },
   edge: {
-    color: { default: '_borderStrong', _pressed: '_accent', ':focus-visible': '_accent' },
-    strokeWidth: { default: 1.5, _pressed: 2.5, ':focus-visible': 2.5 },
+    color: { default: '_borderStrong', _pressed: '_accent', _focusVisible: '_accent' },
+    strokeWidth: { default: 1.5, _pressed: 2.5, _focusVisible: 2.5 },
     outlineStyle: 'none',
   },
   edgeSelectable: {
@@ -313,9 +313,9 @@ export const diagramStyles = css.create({
     // :hover 的优先级高过 aria-pressed：悬停在选中的线上时还要是强调色
     color: {
       default: '_borderStrong',
-      ':hover': { default: '_textMuted', _pressed: '_accent' },
+      _hover: { default: '_textMuted', _pressed: '_accent' },
       _pressed: '_accent',
-      ':focus-visible': '_accent',
+      _focusVisible: '_accent',
     },
   },
   edgeDashed: { strokeDasharray: '6 4' },
@@ -367,15 +367,15 @@ export const diagramStyles = css.create({
     outlineStyle: {
       default: 'none',
       _pressed: 'solid',
-      ':focus-visible': 'solid',
+      _focusVisible: 'solid',
       '[data-link-target]': 'dashed',
     },
     outlineWidth: '_sm',
-    outlineColor: { default: '_accent', ':focus-visible': '_focusRing' },
+    outlineColor: { default: '_accent', _focusVisible: '_focusRing' },
     outlineOffset: '_md',
   },
   nodeSelectable: { cursor: 'pointer' },
-  nodeDraggable: { cursor: { default: 'grab', ':active': 'grabbing' } },
+  nodeDraggable: { cursor: { default: 'grab', _active: 'grabbing' } },
   nodeDragging: { cursor: 'grabbing', opacity: 0.9 },
   port: {
     position: 'absolute',
@@ -388,7 +388,7 @@ export const diagramStyles = css.create({
     borderColor: '_accent',
     backgroundColor: '_surface',
     cursor: 'crosshair',
-    transform: { default: 'translate(-50%, -50%)', ':hover': 'translate(-50%, -50%) scale(1.3)' },
+    transform: { default: 'translate(-50%, -50%)', _hover: 'translate(-50%, -50%) scale(1.3)' },
     transition: `transform ${t.durations.sm} ${t.easings.standard}`,
   },
   portTop: { left: '50%', top: 0 },
@@ -412,7 +412,7 @@ export const diagramStyles = css.create({
 
 /** 有色调的连线：选中、焦点时照样是强调色 */
 const toned = (color: string) => ({
-  color: { default: color, _pressed: '_accent', ':focus-visible': '_accent' },
+  color: { default: color, _pressed: '_accent', _focusVisible: '_accent' },
 });
 
 /** 连线的色调（neutral 用默认的灰） */

@@ -111,7 +111,7 @@ export const lightboxStyles = css.create({
     flexGrow: 1,
     minHeight: 0,
     overflow: 'hidden',
-    cursor: { default: 'grab', ':active': 'grabbing' },
+    cursor: { default: 'grab', _active: 'grabbing' },
     outline: 'none',
   },
   // 平移与缩放作用在它上面（transform-origin 左上角）；它的大小是旋转之后图片占的框
@@ -145,7 +145,7 @@ export const lightboxStyles = css.create({
   // 深色背景上的按钮：文字白色，悬停时浅一点的底
   button: {
     color: 'white',
-    backgroundColor: { default: 'transparent', ':hover': 'rgb(255 255 255 / 0.12)' },
+    backgroundColor: { default: 'transparent', _hover: 'rgb(255 255 255 / 0.12)' },
   },
 });
 

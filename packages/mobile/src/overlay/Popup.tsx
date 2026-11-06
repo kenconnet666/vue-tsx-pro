@@ -142,7 +142,7 @@ export const popupStyles = css.create({
     padding: 0,
     borderWidth: 0,
     borderRadius: '_full',
-    backgroundColor: { default: 'transparent', ':active': '_fill' },
+    backgroundColor: { default: 'transparent', _active: '_fill' },
     color: '_textMuted',
     fontSize: '_xl',
     cursor: 'pointer',
