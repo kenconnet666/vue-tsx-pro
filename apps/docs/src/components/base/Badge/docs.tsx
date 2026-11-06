@@ -38,13 +38,13 @@ export default _component(() => () => (
           字号默认 xs，<Code>size</Code> 改档位；<Code>radius="full"</Code>{' '}
           是胶囊形，适合计数与在线状态；<Code>icon</Code> 放在文字前。
         </Example>
-      </ExampleColumn>
-      <ExampleColumn>
         <Example id="in-context" title="表格里的状态" demo={InContext}>
           状态列用胶囊形的 soft 标记：颜色区分状态，文字说明状态，不只靠颜色。
           <Code>StatusBadge</Code> 的名字与色调取自状态映射，文字前一个同色的圆点（Badge 的{' '}
           <Code>dot</Code>）。
         </Example>
+      </ExampleColumn>
+      <ExampleColumn>
         <Example id="statuses" title="状态映射" demo={Statuses}>
           <Code>createStatusMap</Code>{' '}
           把每种状态的名字、色调、图标与说明写在一处，定义的顺序就是阶段的顺序（<Code>order</Code>

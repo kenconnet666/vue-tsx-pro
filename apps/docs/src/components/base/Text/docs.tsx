@@ -41,10 +41,6 @@ export default _component(() => () => (
           <Code>tone</Code> 取主题的文字色，与 Button、Badge 的色调同名：neutral 是正文色，muted
           用于次要说明，其余是品牌色与提示色的文字色，在每套主题下都通过对比度检查。
         </Example>
-        <Example id="numeric" title="编号与数字" demo={Numeric}>
-          <Code>mono</Code> 用等宽字体（编号、件号），<Code>numeric</Code>{' '}
-          用等宽数字（金额、计数）：上下对齐、变化时不跳动。表格的单元格默认就是等宽数字。
-        </Example>
         <Example id="overflow" title="截断与换行" demo={Overflow}>
           <Code>truncate</Code> 单行省略，<Code>lineClamp</Code> 限制行数；<Code>wrap</Code> 的
           pretty 避免最后一行只剩一个字（Paragraph 默认），balance 让标题各行长度均衡。
@@ -64,6 +60,10 @@ export default _component(() => () => (
         <Example id="headings" title="标题" demo={Headings}>
           H1–H6 是六个组件，默认字号依次减小；级别要连续，视觉层级用 <Code>size</Code> 单独改。
           <Code>anchor</Code> 加指向本节的锚点链接。
+        </Example>
+        <Example id="numeric" title="编号与数字" demo={Numeric}>
+          <Code>mono</Code> 用等宽字体（编号、件号），<Code>numeric</Code>{' '}
+          用等宽数字（金额、计数）：上下对齐、变化时不跳动。表格的单元格默认就是等宽数字。
         </Example>
       </ExampleColumn>
     </Examples>

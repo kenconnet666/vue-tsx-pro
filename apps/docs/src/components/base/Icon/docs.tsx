@@ -43,6 +43,9 @@ export default _component(() => () => (
           不写 <Code>tone</Code> 时跟随文字颜色；状态图标用 <Code>success</Code>、
           <Code>warning</Code>、<Code>danger</Code> 等色调，和提示条、标记的颜色一致。
         </Example>
+        <Example id="custom" title="自定义图标" demo={Custom}>
+          按 Lucide 的格式写节点即可，画布默认 24 格。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="with-text" title="与文字、按钮搭配" demo={WithText}>
@@ -58,9 +61,6 @@ export default _component(() => () => (
         </Example>
         <Example id="draw" title="描线动画" demo={Draw}>
           <Code>draw</Code> 由 false 变为 true 时一笔画出；开启“减少动态效果”时直接画好。
-        </Example>
-        <Example id="custom" title="自定义图标" demo={Custom}>
-          按 Lucide 的格式写节点即可，画布默认 24 格。
         </Example>
       </ExampleColumn>
     </Examples>

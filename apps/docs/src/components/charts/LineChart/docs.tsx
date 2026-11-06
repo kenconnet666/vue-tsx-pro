@@ -37,12 +37,12 @@ export default _component(() => () => (
           平滑（不会越过数据点）、
           <Code>step</Code> 阶梯（值保持到下一个点才跳变）。
         </Example>
-      </ExampleColumn>
-      <ExampleColumn>
         <Example id="gaps" title="缺失的数据" demo={Gaps}>
           值为 <Code>null</Code> 或 <Code>undefined</Code> 的点不画，线在这里断开，不会被当成 0。
           <Code>valueFormat</Code> 设成百分比，<Code>valueDomain</Code> 收窄数值轴，变化更明显。
         </Example>
+      </ExampleColumn>
+      <ExampleColumn>
         <Example id="palette" title="多个系列" demo={Palette}>
           系列按顺序取图表色板的 8 种颜色，各色在亮色、暗色、纸张主题的背景上都满足 3:1
           的图形对比度。

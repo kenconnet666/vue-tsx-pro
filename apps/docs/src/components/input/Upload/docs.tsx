@@ -44,13 +44,13 @@ export default _component(() => () => (
           ，同一套 baseURL、令牌与拆包）把文件 POST 过去，字段名默认 file（<Code>fieldName</Code>
           ）；fetch 拿不到上传进度，要进度时写 upload。
         </Example>
-      </ExampleColumn>
-      <ExampleColumn>
         <Example id="form" title="随表单提交" demo={Resume}>
           不给 <Code>upload</Code> 时文件停在“已选择”，等提交时一起处理；写了 <Code>name</Code>{' '}
           时有一个隐藏的 file input 带着全部文件，原生提交、FormData
           都拿得到。单选时新文件替换旧的。
         </Example>
+      </ExampleColumn>
+      <ExampleColumn>
         <Example id="existing" title="已有文件" demo={Existing}>
           之前上传过、从后端读回来的文件用 <Code>existingUploadFile</Code> 放进
           value：状态是完成、不重新上传，给了 <Code>url</Code>{' '}

@@ -53,15 +53,15 @@ export default _component(() => () => (
           <Code>copyable={'{false}'}</Code> 去掉复制按钮。<Code>highlight={'{false}'}</Code>{' '}
           时按纯文本显示，改回 true 才交给高亮器：收起的、还没滚到的代码可以等要显示时再高亮。
         </Example>
+        <Example id="flush" title="嵌在外框里" demo={Flush}>
+          <Code>flush</Code>{' '}
+          去掉代码块自己的边框、圆角和底色，放进卡片、标签页这类已经有外框的容器。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="diff" title="增删与折叠" demo={Diff}>
           <Code>addedLines</Code>、<Code>removedLines</Code> 标出新增与删除的行；长代码写{' '}
           <Code>maxLines</Code>，超出的部分折叠，底部的按钮展开或收起。
-        </Example>
-        <Example id="flush" title="嵌在外框里" demo={Flush}>
-          <Code>flush</Code>{' '}
-          去掉代码块自己的边框、圆角和底色，放进卡片、标签页这类已经有外框的容器。
         </Example>
         <Example id="group" title="一组代码" demo={Group}>
           <Code>CodeGroup</Code> 用标签页切换几段代码，标签栏就是代码块的标题栏；几组绑同一个{' '}

@@ -37,12 +37,6 @@ export default _component(() => () => (
           页；只有一页时不显示跳页。分页导航的名称用 <Code>propsPagination</Code> 的{' '}
           <Code>aria-label</Code> 区分。
         </Example>
-        <Example id="full" title="自己组合" demo={Full}>
-          给了 <Code>total</Code> 与 <Code>_pageSize</Code> 就自动算页数，也可以直接给{' '}
-          <Code>pageCount</Code>。<Code>showTotal</Code> 显示总条数；每页条数变了时，在
-          PageSizeSelect 的 <Code>onSizeChange</Code> 里回到第 1
-          页。三个组件各自独立，排法与分页栏不同时自己并排。
-        </Example>
         <Example id="variants" title="页码的数量" demo={Variants}>
           按钮数固定：翻页时省略号换位置，按钮不跳动、不会让指针下的按钮变成别的页码。当前页带
           aria-current="page"。
@@ -58,6 +52,12 @@ export default _component(() => () => (
         <Example id="links" title="链接与上一篇 / 下一篇" demo={Links}>
           <Code>href</Code> 给出每页的地址时页码渲染为链接；站内地址经路由适配不刷新页面。Pager 带
           rel="prev" / rel="next"。
+        </Example>
+        <Example id="full" title="自己组合" demo={Full}>
+          给了 <Code>total</Code> 与 <Code>_pageSize</Code> 就自动算页数，也可以直接给{' '}
+          <Code>pageCount</Code>。<Code>showTotal</Code> 显示总条数；每页条数变了时，在
+          PageSizeSelect 的 <Code>onSizeChange</Code> 里回到第 1
+          页。三个组件各自独立，排法与分页栏不同时自己并排。
         </Example>
       </ExampleColumn>
     </Examples>

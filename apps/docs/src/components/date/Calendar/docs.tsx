@@ -39,12 +39,6 @@ export default _component(() => () => (
           <Code>valueType="dateValue"</Code> 指定。<Code>min</Code>{' '}
           之前的日子不能选，翻页按钮到头不可用。
         </Example>
-        <Example id="unavailable" title="不可选的日期" demo={Unavailable}>
-          <Code>isDateUnavailable</Code>{' '}
-          标出约满、放假的日子：画删除线、不能选，但方向键仍能经过，读屏会念出来；判断星期几用{' '}
-          <Code>isoDayOfWeek</Code>（按日期算，不受时区影响）。<Code>min</Code>、<Code>max</Code>{' '}
-          之外的日期变淡，焦点也进不去。
-        </Example>
         <Example id="prices" title="自定义格子" demo={Prices}>
           子节点是渲染函数，拿到日期与这一格的状态（选中、今天、不可选、在不在本月）：价格日历、标记点、农历都在这里放。读屏先念完整日期，再念格子里的文字（房价也能听到）；重复的日期数字加{' '}
           <Code>aria-hidden</Code> 不再念一遍。
@@ -77,6 +71,12 @@ export default _component(() => () => (
           <Code>footer</Code> 放在网格下面（快捷操作、图例）；<Code>fixedWeeks</Code>{' '}
           让每个月都显示六行，翻页时高度不跳；<Code>defaultFocused</Code> 是没有选择时先显示哪个月；
           <Code>onPick</Code> 在每次点选时调用，再点已选的那天也会——日期选择器据此关闭弹层。
+        </Example>
+        <Example id="unavailable" title="不可选的日期" demo={Unavailable}>
+          <Code>isDateUnavailable</Code>{' '}
+          标出约满、放假的日子：画删除线、不能选，但方向键仍能经过，读屏会念出来；判断星期几用{' '}
+          <Code>isoDayOfWeek</Code>（按日期算，不受时区影响）。<Code>min</Code>、<Code>max</Code>{' '}
+          之外的日期变淡，焦点也进不去。
         </Example>
       </ExampleColumn>
     </Examples>

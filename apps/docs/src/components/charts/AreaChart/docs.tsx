@@ -28,12 +28,12 @@ export default _component(() => () => (
           默认各系列重叠、半透明（<Code>opacity</Code> 默认 0.25），上沿描一条线；曲线默认平滑（
           <Code>curve</Code> 同折线图）。悬停时十字线在各片面积的上沿标出当前点。
         </Example>
-      </ExampleColumn>
-      <ExampleColumn>
         <Example id="stacked" title="堆叠" demo={Stacked}>
           <Code>stacked</Code>{' '}
           时依次叠起，最上面是总额；数值轴按叠起来的总和取范围。点图例隐藏一个系列，其余的重新叠起。
         </Example>
+      </ExampleColumn>
+      <ExampleColumn>
         <Example id="options" title="格式、坐标轴与状态" demo={Options}>
           <Code>indexFormat</Code> 把类目换成显示文字（第二个参数是整行数据），
           <Code>valueFormat</Code> 是数值格式（这里是百分比），<Code>valueDomain</Code>{' '}

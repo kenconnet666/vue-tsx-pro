@@ -35,10 +35,6 @@ export default _component(() => () => (
           <Code>valueLabel</Code> 换成自己的文字（只是显示），读屏念的用 <Code>valueText</Code> 改，
           <Code>showValueLabel={'{false}'}</Code> 不显示。值也可以是 bigint、Decimal。
         </Example>
-        <Example id="shapes" title="粗细与不确定进度" demo={Shapes}>
-          <Code>size</Code> 跟字号档位缩放粗细，<Code>radius</Code> 改圆角；不写 <Code>value</Code>{' '}
-          是不确定进度，循环滑动，减少动态效果时停下。
-        </Example>
         <Example id="rings" title="环形与目标" demo={Rings}>
           <Code>shape="circle"</Code> 是环形：中间显示数值，<Code>label</Code> 在下方，直径随{' '}
           <Code>size</Code> 缩放，适合仪表盘与卡片里的完成率；不写 <Code>value</Code>{' '}
@@ -56,6 +52,10 @@ export default _component(() => () => (
           <Code>LoadingOverlay</Code> 盖住一块区域，内容保留在下面，外层带
           aria-busy；很快完成时不出现，出现后至少显示一会儿，淡入淡出。<Code>blur</Code>{' '}
           模糊下面的内容。
+        </Example>
+        <Example id="shapes" title="粗细与不确定进度" demo={Shapes}>
+          <Code>size</Code> 跟字号档位缩放粗细，<Code>radius</Code> 改圆角；不写 <Code>value</Code>{' '}
+          是不确定进度，循环滑动，减少动态效果时停下。
         </Example>
       </ExampleColumn>
     </Examples>

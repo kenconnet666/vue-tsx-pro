@@ -27,13 +27,13 @@ export default _component(() => () => (
           多选，选项多时虚拟滚动（只渲染看得见的几十个）；焦点在列表上，按字母跳转。列表默认最高
           20em，用 <Code>sx</Code> 改。
         </Example>
-      </ExampleColumn>
-      <ExampleColumn>
         <Example id="single" title="单选、分组与说明" demo={Plans}>
           选项可以带 <Code>icon</Code>、<Code>description</Code>、<Code>group</Code>，
           <Code>disabled</Code> 的项高亮时跳过。<Code>required</Code>{' '}
           时单选至少保留一项，再点已选项不取消；在 Field 里时名称取 Field 的标签。
         </Example>
+      </ExampleColumn>
+      <ExampleColumn>
         <Example id="remote" title="远程搜索：加载、空结果与点选" demo={Remote}>
           <Code>loading</Code> 时选项换成骨架行（很快返回时不显示，见防闪烁），不另加进度条；
           <Code>empty</Code> 换掉默认的空状态。<Code>onPick</Code> 在每次点选（点击或

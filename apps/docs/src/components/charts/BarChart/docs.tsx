@@ -50,6 +50,11 @@ export default _component(() => () => (
           是数值格式（这里是百分比）；<Code>valueDomain</Code> 固定数值轴的范围，柱子不必从 0
           起时用。<Code>grid</Code>、<Code>tooltip</Code> 可以关掉。
         </Example>
+        <Example id="states" title="加载与空状态" demo={States}>
+          <Code>loading</Code> 时绘图区显示一排高低不一的骨架柱并扫光（折线图是一整块），图表带{' '}
+          <Code>aria-busy</Code>；没有数据时显示“暂无数据”，<Code>empty</Code>{' '}
+          可以换成自己的内容（如带操作按钮的 Empty）。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="colors" title="颜色" demo={Colors}>
@@ -67,11 +72,6 @@ export default _component(() => () => (
           在数值轴上画虚线（横向图是竖线），标签后面带上数值，数值轴的范围会包含它；颜色默认
           danger，可以写语义色（<Code>warning</Code>）或色板。<Code>onItemClick</Code>{' '}
           点一个类目下钻（指针是手形），参数是这一行与它的位置；点图是鼠标的捷径，同样的去处页面上还要有链接。折线图、面积图、散点图、瀑布图同样支持。
-        </Example>
-        <Example id="states" title="加载与空状态" demo={States}>
-          <Code>loading</Code> 时绘图区显示一排高低不一的骨架柱并扫光（折线图是一整块），图表带{' '}
-          <Code>aria-busy</Code>；没有数据时显示“暂无数据”，<Code>empty</Code>{' '}
-          可以换成自己的内容（如带操作按钮的 Empty）。
         </Example>
         <Example id="parts" title="部件属性" demo={Parts}>
           每个节点都能单独加样式与属性：<Code>propsHeader</Code>（单位与图例那一行）、

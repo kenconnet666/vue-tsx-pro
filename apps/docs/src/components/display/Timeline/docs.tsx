@@ -29,6 +29,9 @@ export default _component(() => () => (
           <Code>tone</Code>（同意、退回、催办、超时自动处理），意见写在 <Code>description</Code>
           ，附件做成链接。<Code>reverse</Code> 新的在前，items 仍按时间先后给。
         </Example>
+        <Example id="contract" title="流转记录：交替、小一号" demo={Contract}>
+          流转记录也是普通的 items，<Code>alternate</Code>、<Code>size</Code>、部件属性照常用。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="order" title="订单进度" demo={Order}>
@@ -38,9 +41,6 @@ export default _component(() => () => (
         <Example id="releases" title="左右交替" demo={Releases}>
           <Code>alternate</Code> 让事件左右交替排布，<Code>tone</Code>{' '}
           给节点着色；容器窄时自动排回一侧。
-        </Example>
-        <Example id="contract" title="流转记录：交替、小一号" demo={Contract}>
-          流转记录也是普通的 items，<Code>alternate</Code>、<Code>size</Code>、部件属性照常用。
         </Example>
       </ExampleColumn>
     </Examples>

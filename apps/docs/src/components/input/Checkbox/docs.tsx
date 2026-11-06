@@ -36,6 +36,13 @@ export default _component(() => () => (
           随表单提交。全选框部分勾选时写 <Code>indeterminate</Code>，读屏念“部分选中”。放进 Field
           时组以标签为名称，并关联说明与错误。
         </Example>
+        <Example id="items" title="选项来自数据" demo={Items}>
+          <Code>CheckboxGroup</Code>、<Code>RadioGroup</Code> 的 <Code>items</Code> 同
+          Select：ListboxOption（值、文字、说明、不可用）、字符串，或任意数据加{' '}
+          <Code>toOption</Code>
+          ，选项来自字典、接口时不用一个个写。<Code>description</Code> 显示在文字下方，经
+          aria-describedby 关联；单独的 <Code>Checkbox</Code>、<Code>Radio</Code> 也能写。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="switch" title="开关" demo={Settings}>
@@ -52,13 +59,6 @@ export default _component(() => () => (
           提交时才检查：Field 的 <Code>required</Code> 标出必填，<Code>error</Code>{' '}
           让整组标红并把错误作为说明念出；单个复选框（同意条款）同样包在 Field 里显示错误。
           <Code>orientation="horizontal"</Code> 让一组横排。
-        </Example>
-        <Example id="items" title="选项来自数据" demo={Items}>
-          <Code>CheckboxGroup</Code>、<Code>RadioGroup</Code> 的 <Code>items</Code> 同
-          Select：ListboxOption（值、文字、说明、不可用）、字符串，或任意数据加{' '}
-          <Code>toOption</Code>
-          ，选项来自字典、接口时不用一个个写。<Code>description</Code> 显示在文字下方，经
-          aria-describedby 关联；单独的 <Code>Checkbox</Code>、<Code>Radio</Code> 也能写。
         </Example>
       </ExampleColumn>
     </Examples>

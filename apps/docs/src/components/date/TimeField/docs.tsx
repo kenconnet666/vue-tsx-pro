@@ -27,13 +27,13 @@ export default _component(() => () => (
           <Code>useFormat().date('21:30', {'{ timeStyle }'})</Code> 按语言显示。键盘同 DateField：打{' '}
           <Kbd>1</Kbd> <Kbd>4</Kbd> <Kbd>3</Kbd> <Kbd>0</Kbd> 就是 14:30。
         </Example>
-      </ExampleColumn>
-      <ExampleColumn>
         <Example id="hour-cycle" title="12 / 24 小时制" demo={HourCycle}>
           12 小时制时多一段上午 / 下午：打 <Kbd>a</Kbd>、<Kbd>p</Kbd> 或用 <Kbd>↑</Kbd> <Kbd>↓</Kbd>{' '}
           切换；改“时”时保留上午下午。语言配置的 <Code>hourCycle</Code>{' '}
           统一指定，组件上的同名属性单独覆盖。
         </Example>
+      </ExampleColumn>
+      <ExampleColumn>
         <Example id="states" title="外观与状态" demo={States}>
           <Code>icon</Code>、<Code>clearable</Code>、<Code>variant</Code>、<Code>size</Code>{' '}
           与其他输入框同一套；<Code>valueType="dateValue"</Code> 写回 @internationalized/date 的

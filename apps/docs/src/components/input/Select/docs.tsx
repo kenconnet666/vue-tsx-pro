@@ -31,12 +31,6 @@ export default _component(() => () => (
           <Code>selectionMode="multiple"</Code> 多选，已选的显示成可移除的标签。键盘同原生
           select：关闭时按字母直接选中以它开头的项。
         </Example>
-        <Example id="appearance" title="图标、外观与状态" demo={Appearance}>
-          <Code>icon</Code>、<Code>variant</Code>、<Code>size</Code>、<Code>radius</Code>{' '}
-          与其他输入框同一套。只读时能聚焦、能看到已选的内容，不能打开、不能清空；Field 上的{' '}
-          <Code>required</Code>、<Code>readonly</Code>、<Code>disabled</Code>、<Code>error</Code>{' '}
-          都交给里面的 Select。
-        </Example>
         <Example id="tags" title="多选的标签：收起、移除与新建" demo={Tags}>
           多选时已选的项是触发按钮前面的一排标签，点 × 移除（先淡出）。<Code>maxTagCount</Code>{' '}
           是数字时只显示前几个，<Code>"responsive"</Code>{' '}
@@ -64,6 +58,12 @@ export default _component(() => () => (
           是第一次结果之前的选项（编辑页放上已选的那几项）。
           <Code>renderValue</Code> 自定义触发框里的已选内容（这里是头像叠放加名字），返回 null
           时显示占位文字；分组来自选项的 <Code>group</Code>。
+        </Example>
+        <Example id="appearance" title="图标、外观与状态" demo={Appearance}>
+          <Code>icon</Code>、<Code>variant</Code>、<Code>size</Code>、<Code>radius</Code>{' '}
+          与其他输入框同一套。只读时能聚焦、能看到已选的内容，不能打开、不能清空；Field 上的{' '}
+          <Code>required</Code>、<Code>readonly</Code>、<Code>disabled</Code>、<Code>error</Code>{' '}
+          都交给里面的 Select。
         </Example>
       </ExampleColumn>
     </Examples>

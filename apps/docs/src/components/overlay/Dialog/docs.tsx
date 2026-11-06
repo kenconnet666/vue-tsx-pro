@@ -46,12 +46,12 @@ export default _component(() => () => (
           改按钮文字，默认取语言包。要先填一两个字段的操作（退回写原因、改派选人）用页面组合里的{' '}
           <Code>useFormDialog</Code>。
         </Example>
-      </ExampleColumn>
-      <ExampleColumn>
         <Example id="long-content" title="宽度与长内容" demo={Terms}>
           <Code>size</Code> 与 Container 同档（xs–xl），另有 full
           占满视口。内容长时只滚正文（ScrollArea），标题与页脚一直看得见。
         </Example>
+      </ExampleColumn>
+      <ExampleColumn>
         <Example id="imperative" title="命令式与关闭的原因" demo={Imperative}>
           <Code>useDialog()</Code>（setup 里调用）的 <Code>open(options)</Code>{' '}
           不必在页面里放对话框、管 open：从列表的一行、回调里直接弹出，关上后自动卸载。属性同

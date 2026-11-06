@@ -26,15 +26,15 @@ export default _component(() => () => (
           <Code>items</Code> 就有建议列表；
           <Code>allowCustomValue={'{false}'}</Code> 只能从建议里选。
         </Example>
-        <Example id="remote" title="异步建议" demo={Remote}>
-          <Code>_inputValue</Code> 双向绑定输入框的文字，按它请求建议；
-          <Code>filter={'{false}'}</Code> 不再本地过滤，<Code>loading</Code> 时建议列表显示加载中。
-        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="states" title="上限、图标与状态" demo={States}>
           <Code>max</Code> 限制个数，满了以后输入框不再接受新的标签。<Code>icon</Code>、
           <Code>variant</Code>、<Code>size</Code> 与其他输入框同一套；只读时标签不能移除。
+        </Example>
+        <Example id="remote" title="异步建议" demo={Remote}>
+          <Code>_inputValue</Code> 双向绑定输入框的文字，按它请求建议；
+          <Code>filter={'{false}'}</Code> 不再本地过滤，<Code>loading</Code> 时建议列表显示加载中。
         </Example>
       </ExampleColumn>
     </Examples>

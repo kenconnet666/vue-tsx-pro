@@ -4,14 +4,16 @@
 //   pnpm docs:review                         全部组件页，亮色主题截图
 //   pnpm docs:review menu,date-picker        只看某几页（页名或地址前缀，逗号分隔）：其他页的截图与报告条目保留
 //   pnpm docs:review --themes=light,dark --no-shots
+//   pnpm docs:review --columns-only           只量两列示例齐不齐（之后 node scripts/docs/balance-columns.mjs --apply）
 //
 // 溢出：示例区（[data-demo]）的内容比它宽（scrollWidth > clientWidth），或整页出现横向滚动条；手机宽度是 390px。
-// 两列不齐：1920 宽时并排的两列示例（apps/docs/src/site/Examples.tsx），底边差超过 COLUMN_SLACK，
-// 而把长的那列最后一个示例挪到短的那列末尾能让两列更齐时，报出该挪哪个（每页在代码里写定左右列，不自动平衡）。
+// 两列不齐：1920 宽时并排的两列示例（apps/docs/src/site/Examples.tsx）底边差得多、挪一下能明显变齐时报出挪法
+// （lib/columns.mjs）；`node scripts/docs/balance-columns.mjs` 照着报告改各页的 docs.tsx。
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireFrom, root } from '../lib/repo.mjs';
+import { bestMove } from './lib/columns.mjs';
 
 // playwright 装在 host-demo（浏览器测试）里
 const { chromium } = requireFrom('apps/host-demo')('playwright');
@@ -26,6 +28,8 @@ const prefixes = (only ?? '')
 const themes = option('themes', 'light').split(',');
 const origin = option('origin', 'http://localhost:5174');
 const shots = !args.includes('--no-shots');
+// --columns-only：只量两列齐不齐（balance-columns.mjs 用），不看控制台、溢出，不截图
+const columnsOnly = args.includes('--columns-only');
 const dir = join(root, 'node_modules/.cache/docs-review');
 // 全量巡检从空目录开始；只看某几页时保留别的页，这几页的截图换新、报告条目替换
 if (!only) rmSync(dir, { recursive: true, force: true });
@@ -90,12 +94,9 @@ const overflow = (page) =>
       .map((demo) => demo.closest('section')?.querySelector('h2[id]')?.id ?? '?'),
   }));
 
-/** 两列底边差多少以内算齐（px，约一个小示例的高度） */
-const COLUMN_SLACK = 160;
-
-/** 并排的两列示例里不齐的：各列高度与建议挪动的示例 */
+/** 并排的两列示例：各列的示例（id 与高度）与上下两个示例的间距，交给 lib/columns.mjs 的 bestMove */
 const columns = (page) =>
-  page.evaluate((slack) => {
+  page.evaluate(() => {
     const found = [];
     for (const grid of document.querySelectorAll('[data-example-columns]')) {
       const narrow = [...grid.children].filter(
@@ -106,28 +107,21 @@ const columns = (page) =>
         const [left, right] = [narrow[index], narrow[index + 1]];
         if (Math.abs(left.getBoundingClientRect().top - right.getBoundingClientRect().top) > 1)
           continue;
-        const height = (element) => element.getBoundingClientRect().height;
-        const [tall, short] = height(left) >= height(right) ? [left, right] : [right, left];
-        const difference = height(tall) - height(short);
-        if (difference <= slack) continue;
-        const items = [...tall.children];
-        const last = items.at(-1);
+        const items = (column) =>
+          [...column.children].map((section) => ({
+            id: section.querySelector('h2[id]')?.id ?? '?',
+            height: Math.round(section.getBoundingClientRect().height),
+          }));
+        const sections = [...left.children];
         const gap =
-          items.length > 1
-            ? last.getBoundingClientRect().top - items.at(-2).getBoundingClientRect().bottom
+          sections.length > 1
+            ? sections[1].getBoundingClientRect().top - sections[0].getBoundingClientRect().bottom
             : 0;
-        const moved = Math.abs(difference - 2 * (height(last) + gap));
-        found.push({
-          left: Math.round(height(left)),
-          right: Math.round(height(right)),
-          move: moved < difference ? (last.querySelector('h2[id]')?.id ?? '?') : null,
-          from: tall === left ? '左' : '右',
-          after: Math.round(moved),
-        });
+        found.push({ left: items(left), right: items(right), gap: Math.round(gap) });
       }
     }
     return found;
-  }, COLUMN_SLACK);
+  });
 
 const results = [];
 const paths = await pagePaths();
@@ -135,7 +129,7 @@ const paths = await pagePaths();
 async function reviewPage(path) {
   const name = path.replace('/components/', '');
   const result = { path, errors: [], desktop: null, mobile: null };
-  for (const theme of themes) {
+  for (const theme of columnsOnly ? [] : themes) {
     const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
     await context.addInitScript((value) => localStorage.setItem('vue-tsx-pro-theme', value), theme);
     const { page, errors } = await open(context, path);
@@ -166,8 +160,12 @@ async function reviewPage(path) {
   }
   // 两列只在宽屏并排（内容区至少 54rem，去掉侧栏与本页目录）：按 1920 宽量
   const wide = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
-  result.columns = await columns((await open(wide, path)).page);
+  // 不齐的才记下：两列的示例与建议的挪法（balance-columns.mjs 照着改代码）
+  result.columns = (await columns((await open(wide, path)).page))
+    .map((pair) => ({ ...pair, move: bestMove(pair) }))
+    .filter((pair) => pair.move);
   await wide.close();
+  if (columnsOnly) return result;
   // 手机宽度只量溢出，不截图
   const mobile = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -216,9 +214,8 @@ for (const r of results) {
     ...(r.desktop?.page ? ['- 桌面：整页横向滚动'] : []),
     ...(r.desktop?.examples ?? []).map((id) => `- 桌面：示例 ${id} 横向溢出`),
     ...(r.columns ?? []).map(
-      ({ left, right, move, from, after }) =>
-        `- 两列不齐：左 ${left} / 右 ${right} px` +
-        (move ? `；把 ${move}（${from}列最后一个）挪到另一列末尾后差 ${after} px` : ''),
+      ({ move }) =>
+        `- 两列不齐：差 ${Math.round(move.before)} px；把 ${move.ids.join('、')}（${move.from === 'left' ? '左' : '右'}列）挪到另一列末尾后差 ${Math.round(move.after)} px`,
     ),
     ...(r.mobile?.page ? ['- 手机：整页横向滚动'] : []),
     ...(r.mobile?.examples ?? []).map((id) => `- 手机：示例 ${id} 横向溢出`),

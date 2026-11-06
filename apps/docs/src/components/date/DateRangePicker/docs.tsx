@@ -36,6 +36,12 @@ export default _component(() => () => (
           之内。结束早于开始、超出范围时外壳显示出错；
           <Code>startName</Code>、<Code>endName</Code> 随表单提交两端的 ISO 日期。
         </Example>
+        <Example id="states" title="跨过不可选的日期与状态" demo={States}>
+          默认区间里不能夹着不可选的日期；<Code>allowsUnavailableInRange</Code>{' '}
+          允许跨过它们（请假只能从工作日起止，但可以跨周末）。<Code>visibleMonths</Code>{' '}
+          改并排的月数，窄的地方用 1。<Code>valueType="dateValue"</Code> 让一开始为空的值也写回
+          CalendarDate，起止能直接 compare 算天数。图标、外观、必填、只读、不可用同其他输入框。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="periods" title="按月、按年与日期时间" demo={Periods}>
@@ -43,12 +49,6 @@ export default _component(() => () => (
           <Code>'2026-01'</Code>、<Code>'2026'</Code>，日历按月、按年选整段；快捷区间截成月、年。到{' '}
           <Code>minute</Code> 时是日期时间区间：日历里选日期，开始补 00:00、结束补
           23:59（已经填了的时间不变），选好后焦点去开始的“时”接着输入。
-        </Example>
-        <Example id="states" title="跨过不可选的日期与状态" demo={States}>
-          默认区间里不能夹着不可选的日期；<Code>allowsUnavailableInRange</Code>{' '}
-          允许跨过它们（请假只能从工作日起止，但可以跨周末）。<Code>visibleMonths</Code>{' '}
-          改并排的月数，窄的地方用 1。<Code>valueType="dateValue"</Code> 让一开始为空的值也写回
-          CalendarDate，起止能直接 compare 算天数。图标、外观、必填、只读、不可用同其他输入框。
         </Example>
       </ExampleColumn>
     </Examples>

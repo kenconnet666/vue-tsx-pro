@@ -31,13 +31,13 @@ export default _component(() => () => (
           <Code>icon</Code>{' '}
           放在文字前；选中项的底色是一个指示条，切换时滑过去，减少动态效果时直接到位。
         </Example>
-      </ExampleColumn>
-      <ExampleColumn>
         <Example id="multiple" title="多选的字形" demo={Format}>
           <Code>selectionMode="multiple"</Code> 时 <Code>_value</Code>{' '}
           是数组，每一项各自开关（aria-pressed）。只有图标的项要写 <Code>aria-label</Code>。放进
           Toolbar 时焦点交给工具栏统一管理。
         </Example>
+      </ExampleColumn>
+      <ExampleColumn>
         <Example id="vertical" title="竖排与不可用" demo={Vertical}>
           <Code>orientation="vertical"</Code> 竖排，键盘改用 ↑↓。放进 Field 时以标签为名称，沿用
           Field 的不可用；单项可以单独不可用。

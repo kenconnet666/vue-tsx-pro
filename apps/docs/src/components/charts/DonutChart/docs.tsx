@@ -29,13 +29,13 @@ export default _component(() => () => (
           是数值；中间的大字默认是显示中各项的合计，<Code>centerSubLabel</Code>{' '}
           是下面的小字。悬停扇区看数值与占比，点图例隐藏一项。
         </Example>
-      </ExampleColumn>
-      <ExampleColumn>
         <Example id="budget" title="饼图" demo={Budget}>
           <Code>arcWidth={'{0}'}</Code> 画成饼图，<Code>centerLabel={'{false}'}</Code>{' '}
           不写中间的字。数值可以是 Decimal、bigint，提示框与读屏的数据表按原值显示；
           <Code>itemColor</Code> 按行给颜色，不写的按顺序取色板。
         </Example>
+      </ExampleColumn>
+      <ExampleColumn>
         <Example id="options" title="图例与状态" demo={Options}>
           <Code>hiddenItems</Code> 双向绑定图例里隐藏的块，占比按剩下的重算；<Code>height</Code>{' '}
           是高度。加载中（<Code>loading</Code>）显示骨架，没有数据时显示 <Code>empty</Code>
