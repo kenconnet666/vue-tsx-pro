@@ -15,7 +15,7 @@ import { useLang } from '../config/context';
 import { externalLinkAttrs, useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
-import { toneStyles, type Tone } from '../utils/style/typography';
+import { toneStyles, type TextTone } from '../utils/style/typography';
 import { Icon, type IconProps } from './Icon';
 import { VisuallyHidden } from './VisuallyHidden';
 
@@ -32,7 +32,7 @@ export interface LinkUnderlines {
 /** Link 的外观选项：可以在 ComponentDefaults 里统一设置 */
 export interface LinkOptions {
   /** 色调，默认 accent（品牌色文字） */
-  tone?: Tone;
+  tone?: TextTone;
   /** 下划线，默认 always */
   underline?: keyof LinkUnderlines;
 }

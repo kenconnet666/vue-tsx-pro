@@ -8,7 +8,7 @@
  *       { row: '官网改版', series: 'plan', start: '2026-03-01', end: '2026-06-30' },
  *       { row: '官网改版', series: 'actual', start: '2026-03-10', end: '2026-07-20' },
  *     ]}
- *     series={[{ key: 'plan', label: '计划', variant: 'track' }, { key: 'actual', label: '实际' }]}
+ *     series={[{ key: 'plan', label: '计划', type: 'track' }, { key: 'actual', label: '实际' }]}
  *     today
  *   />
  *
@@ -67,9 +67,15 @@ export interface TimelineChartSeries {
   label: string;
   /** 颜色；不写时按顺序取色板 */
   color?: ChartColor;
-  /** bar 实心的条（默认）；track 宽而浅的轨道，画在下面（计划） */
+  /** bar 实心的条（默认）；track 宽而浅的轨道，画在下面（计划）。同 ComboChart 系列的 type */
+  type?: 'bar' | 'track';
+  /** @deprecated 改名为 type */
   variant?: 'bar' | 'track';
 }
+
+/** 系列画成轨道（计划） */
+const isTrack = (series: TimelineChartSeries | undefined) =>
+  (series?.type ?? series?.variant) === 'track';
 
 /** 时间轴上的一条竖线：里程碑、截止日 */
 export interface TimelineChartMarker {
@@ -198,7 +204,7 @@ export const TimelineChart = _component(
     const segments = (): Segment[] =>
       visible
         .map((item): Segment => {
-          const track = series.find((entry) => entry.key === item.series)?.variant === 'track';
+          const track = isTrack(series.find((entry) => entry.key === item.series));
           return {
             item,
             start: toTime(item.start, zone()),
@@ -388,7 +394,7 @@ export const TimelineChart = _component(
             return {
               key: item.key,
               label: item.label,
-              color: item.variant === 'track' ? trackColor(color) : color,
+              color: isTrack(item) ? trackColor(color) : color,
             };
           })}
           hiddenKeys={hiddenSeries}

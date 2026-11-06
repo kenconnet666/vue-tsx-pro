@@ -307,4 +307,9 @@ CSharpUi、Blazor 两个会话是同一套组件库设计的 C# / Blazor 版本�
 | 原计划 §4.5 | `hotStyles`、`inlineStyle` 直接从公开入口去掉 | 挪到 `styles/internal`，公开入口里标 @deprecated 留一个版本 | 实测：正在运行的开发服务器（旧编译器）与磁盘编译缓存里的产物还从公开入口导入 `hotStyles`，直接去掉会让页面打不开 |
 | 原计划 §4.2 | 所有配方组件都改用 `useComponent` | 默认值只交给配方的改用（12 个）；默认值还要交给上下文或子组件的（Drawer、DataTable、Table、Tabs）照旧分开用 `useDefaults` + `useRecipe` | 硬套反而要在组件里多拆一次 |
 | 原计划 §4.2 | 字号、圆角都进配方 | Progress 的字号仍按布局放在外层或轨道上 | 放在哪个元素上取决于布局，是组件自己的逻辑 |
+| 原计划 §4.4 | `variant` 挪作他用的改名 | Skeleton → `shape`；Sparkline、TimelineChart 的系列、WaveGrid → `type`（同 ComboChart 系列已有的 `type`）；旧名标 @deprecated 留一个版本 | 调研漏了 WaveGrid（grid / dots 是画法），逐个核对 `variant?:` 时补上 |
+| 原计划 §4.4 | Container / Dialog / Drawer 的宽度改 `width`；StatusDot、ProportionBar 两档并进字号 | 不改，COMPONENTS.md §3 写明这几个例外；新组件的宽度用 `width` | `size` 表示对话框、抽屉的宽度档是 Radix、Ant Design 等的通行叫法，改了只换说法、使用方全要改；两档的是直径、粗细，不是字号 |
+| 原计划 §4.4 | 密度统一 `density`（NavList 的 `compact`） | 不改 | NavList 的 `compact` 是只剩图标的窄栏（rail），不是行高档位 |
+| 原计划 §4.4 | Result 的 `status: '403' \| '404' \| '500'` 拆出 `illustration`；方向、位置合成一个类型 | 不改 | Result 的状态码就是它要表达的状态（同 Ant Design）；各组件的方向取值本来就不同（ScrollArea 的 `type`、Drawer 的 `side` 各有含义），合成一个类型反而放进不支持的取值 |
+| API 调研 §1 | `Tone` 改名 | `Tone` / `Tones` → `TextTone` / `TextTones`，旧名 @deprecated | 与 `StatusTone` 并列时一眼分得清 |
 

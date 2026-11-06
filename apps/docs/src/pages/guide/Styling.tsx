@@ -179,8 +179,8 @@ export default _component(() => () => (
         （部件，如 <Code>propsTitle</Code>）。整个应用或一块区域统一换样式用{' '}
         <Code>createUi({'{ components }'})</Code> 与 <Code>{'<Provider components>'}</Code>
         ：一个组件的定制写在一处——档位的默认值（<Code>defaults</Code>）、追加在组件自己样式之后的（
-        <Code>styles</Code>）、某个档位取值的（<Code>variants</Code>）；内层 Provider 排在外层之后。
-        组件的样式、每层定制、使用方的 <Code>sx</Code>{' '}
+        <Code>styles</Code>）、某个档位取值的（<Code>variants</Code>）；内层 Provider
+        排在外层之后。组件的样式、每层定制、使用方的 <Code>sx</Code>{' '}
         各进一个级联层，后面的盖过前面的；宿主自己不分层的 CSS
         盖过整个组件库。用配方写的组件，部件带 <Code>data-scope</Code> 与 <Code>data-part</Code>
         ，宿主自己的 CSS、端到端测试都能按部件选中，不依赖生成的类名。

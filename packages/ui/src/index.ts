@@ -367,6 +367,7 @@ export {
   sparklineStyles,
   type SparklineManaged,
   type SparklineProps,
+  type SparklineTypes,
   type SparklineVariants,
 } from './display/Sparkline';
 export {
@@ -474,10 +475,12 @@ export {
 } from './feedback/Result';
 export {
   Skeleton,
+  skeletonShapeStyles,
   skeletonStyles,
   skeletonVariantStyles,
   type SkeletonProps,
   type SkeletonShapeProps,
+  type SkeletonShapes,
   type SkeletonVariants,
 } from './feedback/Skeleton';
 export { SkeletonText, skeletonTextStyles, type SkeletonTextProps } from './feedback/SkeletonText';
@@ -1556,6 +1559,8 @@ export {
   type TextAligns,
   type TextSize,
   type TextSizes,
+  type TextTone,
+  type TextTones,
   type TextWrap,
   type TextWraps,
   type Tone,

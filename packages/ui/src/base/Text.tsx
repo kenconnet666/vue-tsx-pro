@@ -24,7 +24,7 @@ import {
   type TextAlign,
   type TextSize,
   type TextWrap,
-  type Tone,
+  type TextTone,
 } from '../utils/style/typography';
 
 /** 文字组件可用的标签 */
@@ -37,7 +37,7 @@ export interface TextOptions {
   /** 字重，对应主题的 fontWeights；不写时继承（Strong 默认 semibold） */
   weight?: FontWeight;
   /** 色调：muted 次要说明，其余为品牌色与提示色的文字色；不写时继承 */
-  tone?: Tone;
+  tone?: TextTone;
   /** 水平对齐，不写时继承（只在块级元素上有效，如 Paragraph） */
   align?: TextAlign;
   /** 单行省略（在块级元素或 flex 子项上生效） */

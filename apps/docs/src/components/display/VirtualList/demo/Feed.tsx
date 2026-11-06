@@ -6,12 +6,12 @@ import {
   Small,
   Text,
   VirtualList,
-  type Tone,
+  type TextTone,
   type VisibleRange,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const levels = ['INFO', 'WARN', 'INFO', 'ERROR', 'INFO', 'DEBUG'] as const;
-const levelTones: Record<(typeof levels)[number], Tone> = {
+const levelTones: Record<(typeof levels)[number], TextTone> = {
   DEBUG: 'muted',
   INFO: 'info',
   WARN: 'warning',

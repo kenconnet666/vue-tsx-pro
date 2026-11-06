@@ -159,7 +159,7 @@ describe('ParticleField、WaveGrid', () => {
   it('地形：grid 是线段，dots 是点', async () => {
     const grid = await render(() => <WaveGrid />);
     expect(grid.objects[0]).toBeInstanceOf(LineSegments);
-    const dots = await render(() => <WaveGrid variant="dots" />);
+    const dots = await render(() => <WaveGrid type="dots" />);
     expect(dots.objects[0]).toBeInstanceOf(Points);
   });
 });

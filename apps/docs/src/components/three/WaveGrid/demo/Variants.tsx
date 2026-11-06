@@ -20,7 +20,7 @@ export default _component(() => () => (
     <Card padding="none">
       <WaveGrid
         sx={styles.stage}
-        variant="dots"
+        type="dots"
         palette={[colors.chart2, colors.chart7, colors.warning]}
       />
       <Text size="sm" sx={styles.caption}>

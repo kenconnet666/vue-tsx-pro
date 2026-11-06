@@ -47,7 +47,7 @@ export const SkeletonText = _component(
             key={index}
             {...mergePartProps<SkeletonProps>(
               {
-                variant: 'text',
+                shape: 'text',
                 delay: delay + index * SHIMMER_STAGGER,
                 sx: lines > 1 && index === lines - 1 && skeletonTextStyles.last,
               },

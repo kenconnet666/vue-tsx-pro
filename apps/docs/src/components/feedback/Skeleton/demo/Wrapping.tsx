@@ -17,7 +17,7 @@ export default _component(() => {
       <Switch _checked={loading}>加载中</Switch>
       <Card style={{ maxWidth: '24rem' }}>
         <Flex gap="md" align="center">
-          <Skeleton loading={loading} variant="circle">
+          <Skeleton loading={loading} shape="circle">
             <Avatar name="Ada Lovelace" />
           </Skeleton>
           <Flex direction="column" gap="xs">

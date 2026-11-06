@@ -3,9 +3,9 @@
  * 纯 SVG，不依赖图表库；宽度占满容器，高度默认 2em（随字号缩放）。
  *
  *   <Stat label="实际销售" value={910.36} unit="万元">
- *     <Sparkline data={monthly} variant="area" label="近 12 个月" />
+ *     <Sparkline data={monthly} type="area" label="近 12 个月" />
  *   </Stat>
- *   <Sparkline data={[3, 5, null, 4, 8]} variant="bar" tone="success" />
+ *   <Sparkline data={[3, 5, null, 4, 8]} type="bar" tone="success" />
  *
  * 空值（null、undefined）处断开（柱是空位）；默认标出最后一个点。读屏念成一句话：几个值、从哪到哪、最低最高
  * （按 valueFormat 与当前语言格式化），label 写在前面。
@@ -20,7 +20,7 @@ import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 import { t } from '../config/theme/tokens';
 
 /** 迷你图的画法 */
-export interface SparklineVariants {
+export interface SparklineTypes {
   /** 折线（默认） */
   line: unknown;
   /** 折线下面填一层浅色 */
@@ -29,6 +29,9 @@ export interface SparklineVariants {
   bar: unknown;
 }
 
+/** @deprecated 改名为 SparklineTypes */
+export type SparklineVariants = SparklineTypes;
+
 /** 角色与名称由组件给出（role="img"，名称是 label 加上数据的概括） */
 export type SparklineManaged = 'role' | 'aria-label';
 
@@ -36,8 +39,10 @@ export type SparklineManaged = 'role' | 'aria-label';
 export interface SparklineProps extends PartProps<'span', SparklineManaged> {
   /** 各个值，按时间先后；空值处断开 */
   data: readonly (NumericValue | null | undefined)[];
-  /** 画法，默认 line */
-  variant?: keyof SparklineVariants;
+  /** 画法，默认 line（同 ComboChart 系列的 type） */
+  type?: keyof SparklineTypes;
+  /** @deprecated 改名为 type（variant 只表示外观变体，见 COMPONENTS.md §1 的词表） */
+  variant?: keyof SparklineTypes;
   /** 色调，默认 accent */
   tone?: StatusTone;
   /** 高度（CSS 长度），默认 2em */
@@ -85,7 +90,8 @@ export const sparklineStyles = css.create({
 export const Sparkline = _component(
   ({
     data,
-    variant = 'line',
+    type,
+    variant,
     tone = 'accent',
     height = '2em',
     showLast = true,
@@ -99,7 +105,8 @@ export const Sparkline = _component(
     return () => {
       const values = data.map((value) => (value == null ? undefined : toNumber(value)));
       const present = values.filter((value): value is number => value !== undefined);
-      const bars = variant === 'bar';
+      const kind = type ?? variant ?? 'line';
+      const bars = kind === 'bar';
       const low = domain?.[0] ?? Math.min(...present, ...(bars ? [0] : []));
       const high = domain?.[1] ?? Math.max(...present, ...(bars ? [0] : []));
       const span = high - low || 1;
@@ -161,7 +168,7 @@ export const Sparkline = _component(
                 )
               : segments.map((points, position) => (
                   <g key={position}>
-                    {variant === 'area' && points.length > 1 && (
+                    {kind === 'area' && points.length > 1 && (
                       <path
                         d={`${path(points)} L${points.at(-1)![0]} 100 L${points[0]![0]} 100 Z`}
                         {...css.attrs(sparklineStyles.area)}

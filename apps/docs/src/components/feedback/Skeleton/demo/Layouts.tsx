@@ -52,8 +52,8 @@ export default _component(() => {
         <Card>
           {loading ? (
             <Flex direction="column" gap="md">
-              <Skeleton variant="image" />
-              <Skeleton variant="heading" delay={SHIMMER_STAGGER} style={{ width: '70%' }} />
+              <Skeleton shape="image" />
+              <Skeleton shape="heading" delay={SHIMMER_STAGGER} style={{ width: '70%' }} />
               <SkeletonText lines={3} delay={2 * SHIMMER_STAGGER} />
             </Flex>
           ) : (
@@ -74,14 +74,14 @@ export default _component(() => {
             <Flex direction="column" gap="lg">
               {messages.map((_, index) => (
                 <Flex key={index} gap="md" align="center">
-                  <Skeleton variant="circle" delay={index * SHIMMER_STAGGER} />
+                  <Skeleton shape="circle" delay={index * SHIMMER_STAGGER} />
                   <Flex direction="column" gap="sm" style={{ flex: 1 }}>
                     <Skeleton
-                      variant="text"
+                      shape="text"
                       delay={index * SHIMMER_STAGGER}
                       style={{ width: '35%' }}
                     />
-                    <Skeleton variant="text" delay={(index + 0.5) * SHIMMER_STAGGER} />
+                    <Skeleton shape="text" delay={(index + 0.5) * SHIMMER_STAGGER} />
                   </Flex>
                 </Flex>
               ))}
@@ -130,7 +130,7 @@ export default _component(() => {
                   <Skeleton sx={styles.field} delay={(index + 0.5) * SHIMMER_STAGGER} />
                 </Flex>
               ))}
-              <Skeleton variant="button" delay={3 * SHIMMER_STAGGER} />
+              <Skeleton shape="button" delay={3 * SHIMMER_STAGGER} />
             </Flex>
           ) : (
             <Flex direction="column" gap="lg" sx={shimmerStyles.reveal}>

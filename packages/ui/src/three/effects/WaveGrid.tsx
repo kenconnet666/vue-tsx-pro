@@ -3,7 +3,7 @@
  * 颜色按高度在色板里取（低处第一个颜色、高处最后一个），远处渐隐到透明。
  *
  *   <WaveGrid sx={styles.banner} />
- *   <WaveGrid variant="dots" palette={[colors.chart2, colors.accent]} />
+ *   <WaveGrid type="dots" palette={[colors.chart2, colors.accent]} />
  *
  * 背景透明；细分程度随画质档位变化。
  *
@@ -26,12 +26,15 @@ import { shaderChunks, THEME_PALETTE_SIZE } from '../core/shaders';
 export const WAVE_GRID_PALETTE: readonly string[] = [colors.chart6, colors.accent, colors.chart5];
 
 /** 网格的画法 */
-export interface WaveGridVariants {
+export interface WaveGridTypes {
   /** 网格线 */
   grid: unknown;
   /** 只画交点 */
   dots: unknown;
 }
+
+/** @deprecated 改名为 WaveGridTypes */
+export type WaveGridVariants = WaveGridTypes;
 
 /** 未声明的属性落到外层 div 上 */
 export interface WaveGridProps extends EffectProps {
@@ -39,7 +42,9 @@ export interface WaveGridProps extends EffectProps {
    * 画法：网格线或只画交点；变了会重建
    * @default 'grid'
    */
-  variant?: keyof WaveGridVariants;
+  type?: keyof WaveGridTypes;
+  /** @deprecated 改名为 type（variant 只表示外观变体，见 COMPONENTS.md §1 的词表） */
+  variant?: keyof WaveGridTypes;
   /** 色板（token 或 CSS 颜色，2–6 个），按高度取色；变了会重建 */
   palette?: readonly string[];
   /**
@@ -99,7 +104,7 @@ void main() {
 `;
 
 /** 网格的顶点：dots 时是交点，grid 时是横竖两组线段 */
-function gridGeometry(cells: number, variant: keyof WaveGridVariants) {
+function gridGeometry(cells: number, type: keyof WaveGridTypes) {
   const columns = Math.round(cells * (WIDTH / DEPTH));
   const at = (column: number, row: number) => [
     (column / columns - 0.5) * WIDTH,
@@ -109,7 +114,7 @@ function gridGeometry(cells: number, variant: keyof WaveGridVariants) {
   const vertices: number[] = [];
   for (let row = 0; row <= cells; row++) {
     for (let column = 0; column <= columns; column++) {
-      if (variant === 'dots') vertices.push(...at(column, row));
+      if (type === 'dots') vertices.push(...at(column, row));
       else {
         if (column < columns) vertices.push(...at(column, row), ...at(column + 1, row));
         if (row < cells) vertices.push(...at(column, row), ...at(column, row + 1));
@@ -124,62 +129,66 @@ function gridGeometry(cells: number, variant: keyof WaveGridVariants) {
 /** 线框地形：随噪声起伏的网格，指针处隆起 */
 export const WaveGrid = _component(
   ({
-    variant = 'grid',
+    type,
+    variant,
     palette = WAVE_GRID_PALETTE,
     speed = 1,
     amplitude = 1,
     interactive = true,
     ...rest
   }: WaveGridProps) => {
-    return () => (
-      <EffectSurface
-        {...rest}
-        sceneKey={`${variant}|${palette.join(',')}`}
-        setup={({ scene, camera, quality, size, pointer, themeColorList }) => {
-          const sources = palette.slice(0, THEME_PALETTE_SIZE);
-          const list = themeColorList(sources, THEME_PALETTE_SIZE);
-          const uniforms = {
-            uTime: { value: 0 },
-            uAmplitude: { value: amplitude },
-            uPointer: { value: new Vector3() },
-            uPointSize: { value: 2 },
-            uColors: { value: list },
-            uColorCount: { value: Math.max(1, sources.length) },
-          };
-          const material = new ShaderMaterial({
-            vertexShader,
-            fragmentShader,
-            uniforms,
-            transparent: true,
-            premultipliedAlpha: true,
-            depthWrite: false,
-          });
-          const geometry = gridGeometry(Math.round(CELLS * quality.density), variant);
-          const mesh =
-            variant === 'dots'
-              ? new Points(geometry, material)
-              : new LineSegments(geometry, material);
-          mesh.rotation.x = -Math.PI * 0.42;
-          mesh.position.y = -0.6;
-          scene.add(mesh);
-          camera.position.set(0, 1.4, 6.5);
-          camera.lookAt(0, -0.4, 0);
-          // 指针在网格平面上的落点：近似为按屏幕位置映射到网格的范围
-          return {
-            frame: ({ time }) => {
-              uniforms.uTime.value = time * speed;
-              uniforms.uAmplitude.value = amplitude;
-              uniforms.uPointer.value.set(
-                pointer.x * WIDTH * 0.35,
-                (pointer.y + 0.3) * DEPTH * 0.45,
-                interactive ? pointer.strength : 0,
-              );
-            },
-            resize: (next) =>
-              (uniforms.uPointSize.value = 2.2 * next.pixelRatio * (size.height / 400 || 1)),
-          };
-        }}
-      />
-    );
+    return () => {
+      const kind = type ?? variant ?? 'grid';
+      return (
+        <EffectSurface
+          {...rest}
+          sceneKey={`${kind}|${palette.join(',')}`}
+          setup={({ scene, camera, quality, size, pointer, themeColorList }) => {
+            const sources = palette.slice(0, THEME_PALETTE_SIZE);
+            const list = themeColorList(sources, THEME_PALETTE_SIZE);
+            const uniforms = {
+              uTime: { value: 0 },
+              uAmplitude: { value: amplitude },
+              uPointer: { value: new Vector3() },
+              uPointSize: { value: 2 },
+              uColors: { value: list },
+              uColorCount: { value: Math.max(1, sources.length) },
+            };
+            const material = new ShaderMaterial({
+              vertexShader,
+              fragmentShader,
+              uniforms,
+              transparent: true,
+              premultipliedAlpha: true,
+              depthWrite: false,
+            });
+            const geometry = gridGeometry(Math.round(CELLS * quality.density), kind);
+            const mesh =
+              kind === 'dots'
+                ? new Points(geometry, material)
+                : new LineSegments(geometry, material);
+            mesh.rotation.x = -Math.PI * 0.42;
+            mesh.position.y = -0.6;
+            scene.add(mesh);
+            camera.position.set(0, 1.4, 6.5);
+            camera.lookAt(0, -0.4, 0);
+            // 指针在网格平面上的落点：近似为按屏幕位置映射到网格的范围
+            return {
+              frame: ({ time }) => {
+                uniforms.uTime.value = time * speed;
+                uniforms.uAmplitude.value = amplitude;
+                uniforms.uPointer.value.set(
+                  pointer.x * WIDTH * 0.35,
+                  (pointer.y + 0.3) * DEPTH * 0.45,
+                  interactive ? pointer.strength : 0,
+                );
+              },
+              resize: (next) =>
+                (uniforms.uPointSize.value = 2.2 * next.pixelRatio * (size.height / 400 || 1)),
+            };
+          }}
+        />
+      );
+    };
   },
 );

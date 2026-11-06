@@ -28,7 +28,7 @@ import { Skeleton } from '../feedback/Skeleton';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
-import { toneStyles, type Tone } from '../utils/style/typography';
+import { toneStyles, type TextTone } from '../utils/style/typography';
 import type { NumericValue } from '../utils/data/numeric';
 import { AnimatedNumber, type AnimatedNumberProps } from './AnimatedNumber';
 import { t } from '../config/theme/tokens';
@@ -50,7 +50,7 @@ export interface StatProps extends PartProps<'dl', StatManaged> {
   /** 单位，跟在数值后面、字号小一档 */
   unit?: VNodeChild;
   /** 数值的色调：超时、缺漏这类要引起注意的数用 danger、warning；不写时是正文色 */
-  tone?: Tone;
+  tone?: TextTone;
   /** 指标名前面的图标（装饰，对读屏隐藏） */
   icon?: IconData;
   /** 变化量（环比、同比）：正数向上、负数向下；默认按百分比显示（0.12 → +12%） */

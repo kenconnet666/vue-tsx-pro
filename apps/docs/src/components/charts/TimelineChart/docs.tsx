@@ -24,8 +24,7 @@ export default _component(() => () => (
   >
     <Example id="projects" title="项目进度：计划与实际" demo={Projects}>
       <Code>items</Code> 的每一项是一段：所在的行（<Code>row</Code>）、开始与结束（Date、时间戳或
-      ISO 字符串，只有日期的结束含这一天）、系列。<Code>series</Code> 的{' '}
-      <Code>variant="track"</Code>{' '}
+      ISO 字符串，只有日期的结束含这一天）、系列。<Code>series</Code> 的 <Code>type="track"</Code>{' '}
       画成宽而浅的轨道、在下面（计划），默认的实心条画在上面（实际）；单独一段可以用{' '}
       <Code>color</Code> 标红。<Code>today</Code> 画出今天（可以给一个日期），<Code>markers</Code>{' '}
       是里程碑、截止日的竖线。悬停一段看起止与天数，点图例隐藏系列；读屏的数据表列出每一段。

@@ -17,13 +17,13 @@ const shapes = [
 
 export default _component(() => () => (
   <Grid minItemWidth="10em" gap="lg">
-    {shapes.map(([variant, label]) => (
-      <Flex key={variant} direction="column" gap="sm">
+    {shapes.map(([shape, label]) => (
+      <Flex key={shape} direction="column" gap="sm">
         <div {...css.attrs(styles.stage)}>
-          <Skeleton variant={variant} />
+          <Skeleton shape={shape} />
         </div>
         <Small tone="muted">
-          {label} variant="{variant}"
+          {label} shape="{shape}"
         </Small>
       </Flex>
     ))}

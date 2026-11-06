@@ -16,12 +16,12 @@ export default _component(() => () => (
     </Card>
     <Card>
       <Stat label="门户访问" value={1680} unit="次" change={0.127} changeLabel="较上月">
-        <Sparkline data={visits} variant="area" tone="info" label="近 12 个月门户访问" />
+        <Sparkline data={visits} type="area" tone="info" label="近 12 个月门户访问" />
       </Stat>
     </Card>
     <Card>
       <Stat label="超时任务" value={1} unit="项" tone="danger" change={-0.667} invertChange>
-        <Sparkline data={overdue} variant="bar" tone="danger" label="近 12 个月超时任务" />
+        <Sparkline data={overdue} type="bar" tone="danger" label="近 12 个月超时任务" />
       </Stat>
     </Card>
   </Grid>

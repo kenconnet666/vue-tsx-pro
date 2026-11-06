@@ -16,7 +16,7 @@ import { useFormat, type NumericFormat } from '../config/lang/format';
 import { compareNumeric, numericText, toNumber, type NumericValue } from '../utils/data/numeric';
 import { useTween, type TweenOptions } from '../utils/motion/tween';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { toneStyles, type Tone } from '../utils/style/typography';
+import { toneStyles, type TextTone } from '../utils/style/typography';
 
 /** 未声明的属性落到外层 span 上；原生的 prefix 属性（RDFa）让给前缀内容 */
 export interface AnimatedNumberProps extends PartProps<'span', 'prefix'> {
@@ -34,7 +34,7 @@ export interface AnimatedNumberProps extends PartProps<'span', 'prefix'> {
   /** 按正负着色：正数成功色、负数危险色（涨跌）；data-trend 写 up / down / flat */
   trend?: boolean;
   /** 文字色调；给了 trend 时由正负决定 */
-  tone?: Tone;
+  tone?: TextTone;
   /** 数字前的内容（如“¥”以外的说明文字、图标） */
   prefix?: VNodeChild;
   /** 数字后的内容（如单位“人”） */

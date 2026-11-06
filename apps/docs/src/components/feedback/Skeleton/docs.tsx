@@ -25,7 +25,7 @@ export default _component(() => () => (
     <Examples>
       <ExampleColumn>
         <Example id="shapes" title="形状" demo={Shapes}>
-          <Code>variant</Code> 给出常用形状：文字行、标题、头像、按钮、图片；多行段落用
+          <Code>shape</Code> 给出常用形状：文字行、标题、头像、按钮、图片；多行段落用
           SkeletonText，最后一行短一些，各行的光带依次错开。其他大小用 <Code>sx</Code> 给。
         </Example>
         <Example id="wrapping" title="包着内容" demo={Wrapping}>

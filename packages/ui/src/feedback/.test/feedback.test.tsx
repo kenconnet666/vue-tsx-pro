@@ -150,8 +150,8 @@ describe('Skeleton', () => {
   it('形状预设各自给出大小，sx 可以覆盖；不包内容时也对读屏隐藏', () => {
     const root = mount(() => (
       <>
-        <Skeleton variant="circle" />
-        <Skeleton variant="text" />
+        <Skeleton shape="circle" />
+        <Skeleton shape="text" />
         <Skeleton />
       </>
     ));

@@ -967,12 +967,12 @@ export const Base = _component(() => {
             </Skeleton>
           </Card>
           <Flex gap="md" align="center" class="skeleton-shapes">
-            <Skeleton variant="circle" />
+            <Skeleton shape="circle" />
             <Flex direction="column" gap="sm" style={{ flex: 1 }}>
-              <Skeleton variant="heading" />
+              <Skeleton shape="heading" />
               <SkeletonText lines={2} />
             </Flex>
-            <Skeleton variant="button" />
+            <Skeleton shape="button" />
           </Flex>
           <Card class="card-loading-demo" header="加载中的卡片" loading={loadingProfile}>
             <Paragraph>正文加载完成。</Paragraph>

@@ -12,7 +12,12 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, watch } from 'vue';
 import { setValues, useAnimate } from '../utils/motion/animation';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { fontSizeStyles, toneStyles, type TextSize, type Tone } from '../utils/style/typography';
+import {
+  fontSizeStyles,
+  toneStyles,
+  type TextSize,
+  type TextTone,
+} from '../utils/style/typography';
 
 /** 图标数据：Lucide 的标准格式 */
 export type IconData = LucideIconData;
@@ -35,7 +40,7 @@ export interface IconProps extends PartProps<'svg', IconManaged> {
   /** 不写时为 1em，跟随所在文字；档位对应主题字号，数字为像素 */
   size?: TextSize | number;
   /** 色调（状态图标：成功、警告…）；不写时跟随文字颜色 */
-  tone?: Tone;
+  tone?: TextTone;
   /** 线宽（24 格画布上的单位），默认取主题的 strokeWidths.md */
   strokeWidth?: number;
   /** 从右到左排版时水平翻转：箭头、chevron 这类有方向的图标 */

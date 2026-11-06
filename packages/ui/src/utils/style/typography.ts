@@ -53,7 +53,7 @@ export type FontWeight = keyof FontWeights;
  * 文字色调，对应主题的文字颜色。与状态色调（StatusTones：neutral、accent、info、success、warning、danger）同名，
  * 再加文字专用的 muted：Text、Link、Icon 与 Button、Badge 写同一个值得到同一种颜色
  */
-export interface Tones {
+export interface TextTones {
   /** 中性：正文色 */
   neutral: unknown;
   /** 次要文字色：说明、辅助信息 */
@@ -72,8 +72,13 @@ export interface Tones {
   inherit: unknown;
 }
 
-/** 文字色调 */
-export type Tone = keyof Tones;
+/** 文字色调：六个状态色加 muted、inherit（状态类组件的色调见 StatusTone） */
+export type TextTone = keyof TextTones;
+
+/** @deprecated 改名为 TextTones */
+export type Tones = TextTones;
+/** @deprecated 改名为 TextTone */
+export type Tone = TextTone;
 
 /** 文字的水平对齐（text-align），按书写方向 */
 export interface TextAligns {

@@ -69,6 +69,7 @@ export {
   WAVE_GRID_PALETTE,
   WaveGrid,
   type WaveGridProps,
+  type WaveGridTypes,
   type WaveGridVariants,
 } from './effects/WaveGrid';
 export {

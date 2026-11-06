@@ -30,7 +30,7 @@ export default _component(() => () => (
     aria-label="项目进度"
     items={items}
     series={[
-      { key: 'plan', label: '计划', variant: 'track', color: 'chart1' },
+      { key: 'plan', label: '计划', type: 'track', color: 'chart1' },
       { key: 'actual', label: '实际', color: 'chart1' },
     ]}
     today={TODAY}

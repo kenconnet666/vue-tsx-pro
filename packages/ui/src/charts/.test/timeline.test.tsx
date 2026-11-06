@@ -10,7 +10,7 @@ const items = [
   { row: '收纳夹国产化', series: 'actual', start: '2026-04-01T08:00', end: '2026-04-02T20:00' },
 ];
 const series = [
-  { key: 'plan', label: '计划', variant: 'track' as const },
+  { key: 'plan', label: '计划', type: 'track' as const },
   { key: 'actual', label: '实际' },
 ];
 

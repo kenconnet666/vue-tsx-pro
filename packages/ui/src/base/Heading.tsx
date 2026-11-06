@@ -32,7 +32,7 @@ import {
   type FontWeight,
   type TextAlign,
   type TextWrap,
-  type Tone,
+  type TextTone,
 } from '../utils/style/typography';
 
 /** 标题组件可用的标签 */
@@ -45,7 +45,7 @@ export interface HeadingProps extends PartProps<HeadingTag> {
   /** 字重，默认 semibold */
   weight?: FontWeight;
   /** 色调，不写时继承 */
-  tone?: Tone;
+  tone?: TextTone;
   /** 水平对齐，不写时继承 */
   align?: TextAlign;
   /** 单行省略 */

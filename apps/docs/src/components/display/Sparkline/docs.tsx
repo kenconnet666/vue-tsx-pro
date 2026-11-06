@@ -17,7 +17,7 @@ export const meta = {
 export default _component(() => () => (
   <DocPage wide meta={meta} imports="import { Sparkline } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Example id="cards" title="指标卡里" demo={Cards}>
-      放进 Stat 的 children：占满数值下面的一行。<Code>variant</Code> 是 <Code>line</Code>
+      放进 Stat 的 children：占满数值下面的一行。<Code>type</Code> 是 <Code>line</Code>
       （默认）、<Code>area</Code>（下面填一层浅色）或 <Code>bar</Code>（每个值一根柱，从 0 起），
       <Code>tone</Code> 是色调。默认标出最后一个点（<Code>showLast</Code>
       ）。读屏念成一句话：几个值、从哪到哪、最低最高，按 <Code>valueFormat</Code> 格式化，

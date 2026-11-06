@@ -33,7 +33,7 @@ export default _component(() => () => (
       </ExampleColumn>
       <ExampleColumn>
         <Example id="variants" title="画法与色板" demo={Variants}>
-          <Code>variant</Code> 是网格线（grid）或只画交点（dots）；<Code>palette</Code>{' '}
+          <Code>type</Code> 是网格线（grid）或只画交点（dots）；<Code>palette</Code>{' '}
           的第一个颜色在低处、最后一个在高处。<Code>amplitude</Code>、<Code>speed</Code>{' '}
           调起伏的高度与快慢；细分程度随画质档位变化。
         </Example>
