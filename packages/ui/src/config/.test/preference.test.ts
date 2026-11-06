@@ -1,5 +1,5 @@
 // 主题偏好：记住选择、跟随系统、其他标签页同步；防闪烁脚本；createUi 的 paintDocument
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createApp, nextTick } from 'vue';
 import { createUi } from '../createUi';
 import { darkTheme } from '../theme/dark';
@@ -11,7 +11,18 @@ import { createThemePreference } from '../theme/preference';
 const themes = { light: lightTheme, dark: darkTheme, paper: paperTheme };
 const KEY = 'test-theme';
 
+/** 系统要求增强对比度（测试环境的 matchMedia 只认这一条） */
+function stubMoreContrast() {
+  const real = globalThis.matchMedia;
+  vi.stubGlobal('matchMedia', (query: string) =>
+    query === '(prefers-contrast: more)'
+      ? { matches: true, media: query, addEventListener() {}, removeEventListener() {} }
+      : real(query),
+  );
+}
+
 afterEach(() => {
+  vi.unstubAllGlobals();
   localStorage.clear();
   const root = document.documentElement;
   root.removeAttribute('style');
@@ -52,6 +63,17 @@ describe('createThemePreference', () => {
     expect(() => preference.set('sepia' as 'dark')).toThrow('没有名为 sepia 的主题');
   });
 
+  it('系统要求增强对比度时，跟随系统改用 system.contrast 的一套；没给 contrast 时照旧', () => {
+    stubMoreContrast();
+    const system = {
+      light: 'light',
+      dark: 'dark',
+      contrast: { light: 'paper', dark: 'dark' },
+    } as const;
+    expect(createThemePreference({ themes, storageKey: KEY, system }).name).toBe('paper');
+    expect(createThemePreference({ themes, storageKey: KEY }).name).toBe('light');
+  });
+
   it('其他标签页改了偏好：跟着变', () => {
     const preference = createThemePreference({ themes, storageKey: KEY });
     localStorage.setItem(KEY, 'dark');
@@ -81,6 +103,18 @@ describe('themeBootScript', () => {
     // oxlint-disable-next-line no-implied-eval -- 要验证的就是生成的脚本文本
     new Function(themeBootScript({ themes: colors, storageKey: KEY }))();
     expect(document.documentElement.dataset.theme).toBe('light');
+  });
+
+  it('系统要求增强对比度时用 system.contrast 的一套，与 createThemePreference 一致', () => {
+    stubMoreContrast();
+    const system = {
+      light: 'light',
+      dark: 'dark',
+      contrast: { light: 'paper', dark: 'dark' },
+    } as const;
+    // oxlint-disable-next-line no-implied-eval -- 要验证的就是生成的脚本文本
+    new Function(themeBootScript({ themes: colors, storageKey: KEY, system }))();
+    expect(document.documentElement.dataset.theme).toBe('paper');
   });
 });
 

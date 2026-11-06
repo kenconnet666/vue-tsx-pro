@@ -3,6 +3,7 @@
  * index.html 里的防闪烁脚本用同一个偏好存储键；编辑器的设置在应用加载后套上。
  */
 import {
+  builtinSystemThemes,
   builtinThemes,
   createThemePreference,
   usePersistentState,
@@ -12,7 +13,10 @@ import {
 import type { customizeTheme, ThemeSettings } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
 import { effectScope, shallowRef, watch } from 'vue';
 
-export const preference = createThemePreference({ themes: builtinThemes });
+export const preference = createThemePreference({
+  themes: builtinThemes,
+  system: builtinSystemThemes,
+});
 
 /** 主题编辑器的设置：改动立即生效，并记下来 */
 export const themeSettings = usePersistentState<ThemeSettings>('vue-tsx-pro-theme-settings', {});

@@ -75,7 +75,10 @@ export default _component(() => () => (
       都接受这种写法。左边一张跟随系统，右边两张是系统亮、暗时它的样子。
     </Example>
     <Example id="switch" title="运行时切换" demo={RuntimeSwitch}>
-      <Code>createThemePreference</Code> 记住用户的选择（某一套主题或跟随系统），
+      <Code>createThemePreference</Code> 记住用户的选择（某一套主题或跟随系统）；
+      <Code>system</Code> 给 <Code>builtinSystemThemes</Code> 时，系统要求增强对比度（Windows
+      的对比度主题、macOS 的“增强对比度”）的访客跟随系统时用高对比的亮、暗两套，
+      <Code>themeBootScript</Code> 的 <Code>system</Code> 给同一个值。
       <Code>ThemeSwitcher</Code> 是顶栏里一个按钮的紧凑写法，设置页可以用{' '}
       <Code>ThemeThumbnail</Code> 与 <Code>builtinThemeLabel</Code>{' '}
       列出每套主题的缩略图与名字。页面首次加载不闪默认主题：把 <Code>themeBootScript</Code>{' '}

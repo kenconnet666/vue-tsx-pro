@@ -1,9 +1,8 @@
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { darkShadows } from './dark';
 import { highContrastRadii } from './high-contrast';
 import { defaultFonts } from './light';
 import type { Theme } from './theme';
-import { colors } from './tokens';
+import { colors, shadows } from './tokens';
 
 /**
  * 高对比暗色主题的颜色：纯黑底、纯白字，文字与底色都到 7:1（WCAG AAA），边框到 3:1 以上；
@@ -87,12 +86,24 @@ export const highContrastDarkColors = css.createTheme(colors, {
 });
 
 /**
- * 高对比暗色主题：纯黑底纯白字、文字 7:1、边框加亮、圆角收小（同高对比）；焦点环用黄色，在黑底与亮色的实色按钮旁都醒目；
+ * 高对比暗色主题的阴影：黑底上阴影看不见，换成一圈浅色的描边，浮起的卡片、浮层仍分得出边界
+ */
+export const highContrastDarkShadows = css.createTheme(shadows, {
+  none: 'none',
+  xs: '0 0 0 1px rgba(255, 255, 255, 0.4)',
+  sm: '0 0 0 1px rgba(255, 255, 255, 0.5)',
+  md: '0 0 0 1px rgba(255, 255, 255, 0.6)',
+  lg: '0 0 0 1px rgba(255, 255, 255, 0.6)',
+  xl: '0 0 0 1px rgba(255, 255, 255, 0.7)',
+});
+
+/**
+ * 高对比暗色主题：纯黑底纯白字、文字 7:1、边框加亮、阴影换成描边、圆角收小（同高对比）；焦点环用黄色，在黑底与亮色的实色按钮旁都醒目；
  * 浏览器配色按暗色
  */
 export const highContrastDarkTheme: Theme = {
   name: 'high-contrast-dark',
   colorScheme: 'dark',
-  styles: [highContrastDarkColors, darkShadows, defaultFonts, highContrastRadii],
+  styles: [highContrastDarkColors, highContrastDarkShadows, defaultFonts, highContrastRadii],
   overrides: {},
 };

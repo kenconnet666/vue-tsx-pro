@@ -15,6 +15,19 @@ export const SYSTEM_THEME = 'system';
 /** 记住主题选择的默认 localStorage 键（createThemePreference 与 themeBootScript 共用） */
 export const DEFAULT_THEME_STORAGE_KEY = 'vue-tsx-pro-theme';
 
+/**
+ * 跟随系统时各用哪一套：按系统的明暗选 light 或 dark；给了 contrast 时，系统要求增强对比度
+ * （prefers-contrast: more，如 Windows 的对比度主题、macOS 的“增强对比度”）改用它的两套
+ */
+export interface SystemThemes<Name extends string> {
+  /** 系统是亮色时 */
+  light: Name;
+  /** 系统是暗色时 */
+  dark: Name;
+  /** 系统要求增强对比度时的亮、暗两套（如 high-contrast、high-contrast-dark） */
+  contrast?: { light: Name; dark: Name };
+}
+
 /** themeBootScript 要知道的每套主题的取值：主题的颜色编译后是 CSS 变量，脚本在应用加载前拿不到 */
 export interface ThemeBootColors {
   /** 页面背景色 */
@@ -32,8 +45,8 @@ export interface ThemeBootColors {
 export function themeBootScript<Name extends string>(options: {
   /** 各主题的取值 */
   themes: Record<Name, ThemeBootColors>;
-  /** 跟随系统时用哪两套，默认 light、dark */
-  system?: { light: Name; dark: Name };
+  /** 跟随系统时用哪几套，默认 light、dark（同 createThemePreference 的 system） */
+  system?: SystemThemes<Name>;
   /** 与 createThemePreference 相同的存储键 */
   storageKey?: string;
   /** 没记过时的偏好，默认跟随系统 */
@@ -45,8 +58,18 @@ export function themeBootScript<Name extends string>(options: {
     key: options.storageKey ?? DEFAULT_THEME_STORAGE_KEY,
     fallback: options.fallback ?? SYSTEM_THEME,
   });
-  return `(()=>{const c=${config};let p;try{p=localStorage.getItem(c.key)}catch(e){}if(p!=='system'&&!c.themes[p])p=c.fallback;const n=p==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?c.system.dark:c.system.light):p;const t=c.themes[n];if(!t)return;const r=document.documentElement;r.dataset.theme=n;r.style.colorScheme=t.colorScheme;r.style.backgroundColor=t.background;r.style.color=t.text})()`;
+  return `(()=>{const c=${config};let p;try{p=localStorage.getItem(c.key)}catch(e){}if(p!=='system'&&!c.themes[p])p=c.fallback;const s=c.system.contrast&&matchMedia('(prefers-contrast: more)').matches?c.system.contrast:c.system;const n=p==='system'?(matchMedia('(prefers-color-scheme: dark)').matches?s.dark:s.light):p;const t=c.themes[n];if(!t)return;const r=document.documentElement;r.dataset.theme=n;r.style.colorScheme=t.colorScheme;r.style.backgroundColor=t.background;r.style.color=t.text})()`;
 }
+
+/**
+ * 内置主题跟随系统的搭配：亮色、暗色；系统要求增强对比度时用高对比的亮、暗两套。
+ * createThemePreference 与 themeBootScript 的 system 都给它，两边选的是同一套
+ */
+export const builtinSystemThemes = {
+  light: 'light',
+  dark: 'dark',
+  contrast: { light: 'high-contrast', dark: 'high-contrast-dark' },
+} as const satisfies SystemThemes<BuiltinThemeName>;
 
 /**
  * 内置主题（builtinThemes）的底色、文字色与配色方案，给 themeBootScript 用。

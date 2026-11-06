@@ -1403,10 +1403,12 @@ export {
   bigScreenTheme,
 } from './config/theme/big-screen';
 export {
+  builtinSystemThemes,
   builtinThemeBootColors,
   DEFAULT_THEME_STORAGE_KEY,
   SYSTEM_THEME,
   themeBootScript,
+  type SystemThemes,
   type ThemeBootColors,
 } from './config/theme/boot';
 export { builtinThemeLabel, builtinThemes, type BuiltinThemeName } from './config/theme/builtin';
@@ -1422,7 +1424,11 @@ export { darkColors, darkShadows, darkTheme } from './config/theme/dark';
 export { emberColors, emberTheme } from './config/theme/ember';
 export { festiveColors, festiveShadows, festiveTheme } from './config/theme/festive';
 export { forestColors, forestShadows, forestTheme } from './config/theme/forest';
-export { highContrastDarkColors, highContrastDarkTheme } from './config/theme/high-contrast-dark';
+export {
+  highContrastDarkColors,
+  highContrastDarkShadows,
+  highContrastDarkTheme,
+} from './config/theme/high-contrast-dark';
 export {
   highContrastColors,
   highContrastRadii,
@@ -1630,7 +1636,12 @@ export {
   useRouterLink,
   type RouterLink,
 } from './utils/dom/link';
-export { useMediaQuery, usePrefersDark, useReducedMotion } from './utils/dom/media-query';
+export {
+  useMediaQuery,
+  usePrefersDark,
+  usePrefersMoreContrast,
+  useReducedMotion,
+} from './utils/dom/media-query';
 export { useMounted } from './utils/dom/mounted';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {

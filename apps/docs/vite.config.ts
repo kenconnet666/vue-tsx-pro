@@ -2,7 +2,11 @@ import { existsSync } from 'node:fs';
 import { extname, join, resolve } from 'node:path';
 import { configDefaults, defineConfig, type Plugin } from 'vitest/config';
 import { browserCompile, vueTsxPro, workspaceSource } from '@zerodep-dev/vue-tsx-pro-tsx/vite';
-import { builtinThemeBootColors, themeBootScript } from '@zerodep-dev/vue-tsx-pro-ui/theme-boot';
+import {
+  builtinSystemThemes,
+  builtinThemeBootColors,
+  themeBootScript,
+} from '@zerodep-dev/vue-tsx-pro-ui/theme-boot';
 import { componentApi } from './build/api.ts';
 import { demoSource } from './build/demo.ts';
 import { iconImports } from './build/icons.ts';
@@ -18,7 +22,10 @@ function themeBoot(): Plugin {
         : [
             {
               tag: 'script',
-              children: themeBootScript({ themes: builtinThemeBootColors }),
+              children: themeBootScript({
+                themes: builtinThemeBootColors,
+                system: builtinSystemThemes,
+              }),
               injectTo: 'head-prepend',
             },
           ],

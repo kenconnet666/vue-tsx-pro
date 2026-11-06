@@ -11,16 +11,19 @@
  */
 import { computed, effectScope, shallowRef } from 'vue';
 import { revealTransition, type RevealOrigin } from '../../utils/motion/reveal';
-import { usePrefersDark } from '../../utils/dom/media-query';
-import { DEFAULT_THEME_STORAGE_KEY, SYSTEM_THEME } from './boot';
+import { usePrefersDark, usePrefersMoreContrast } from '../../utils/dom/media-query';
+import { DEFAULT_THEME_STORAGE_KEY, SYSTEM_THEME, type SystemThemes } from './boot';
 import type { Theme } from './theme';
 
 /** createThemePreference 的选项 */
 export interface ThemePreferenceOptions<Name extends string> {
   /** 可选的主题：名字 → 主题 */
   themes: Record<Name, Theme>;
-  /** 跟随系统时，亮色与暗色各用哪一套；默认 light、dark */
-  system?: { light: NoInfer<Name>; dark: NoInfer<Name> };
+  /**
+   * 跟随系统时，亮色与暗色各用哪一套；默认 light、dark。给了 contrast 时，系统要求增强对比度时改用它的两套；
+   * 用内置主题时给 builtinSystemThemes
+   */
+  system?: SystemThemes<NoInfer<Name>>;
   /** 记住选择的 localStorage 键，默认 'vue-tsx-pro-theme'；false 不记 */
   storageKey?: string | false;
   /** 没记过（或记的主题已经没有了）时的偏好，默认跟随系统 */
@@ -33,7 +36,7 @@ export interface ThemePreference<Name extends string> {
   readonly names: readonly Name[];
   /** 当前的选择：某一套主题，或 'system' */
   readonly preference: Name | typeof SYSTEM_THEME;
-  /** 解析出的主题名（跟随系统时按系统明暗） */
+  /** 解析出的主题名（跟随系统时按系统的明暗与对比度） */
   readonly name: Name;
   /** 解析出的主题，交给 createUi 或 Provider */
   readonly theme: Theme;
@@ -46,8 +49,7 @@ export function createThemePreference<Name extends string>(
   options: ThemePreferenceOptions<Name>,
 ): ThemePreference<Name> {
   const names = Object.keys(options.themes) as Name[];
-  const system =
-    options.system ?? ({ light: 'light', dark: 'dark' } as { light: Name; dark: Name });
+  const system = options.system ?? ({ light: 'light', dark: 'dark' } as SystemThemes<Name>);
   const storageKey = options.storageKey ?? DEFAULT_THEME_STORAGE_KEY;
   const fallback = options.fallback ?? SYSTEM_THEME;
   const isChoice = (value: unknown): value is Name | typeof SYSTEM_THEME =>
@@ -63,13 +65,12 @@ export function createThemePreference<Name extends string>(
   const scope = effectScope(true);
   const name = scope.run(() => {
     const prefersDark = usePrefersDark();
-    return computed<Name>(() =>
-      preference.value === SYSTEM_THEME
-        ? prefersDark.value
-          ? system.dark
-          : system.light
-        : preference.value,
-    );
+    const prefersMoreContrast = usePrefersMoreContrast();
+    return computed<Name>(() => {
+      if (preference.value !== SYSTEM_THEME) return preference.value;
+      const pair = prefersMoreContrast.value && system.contrast ? system.contrast : system;
+      return prefersDark.value ? pair.dark : pair.light;
+    });
   })!;
 
   // 其他标签页改了偏好：跟着变
