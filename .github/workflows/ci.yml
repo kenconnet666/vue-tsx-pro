@@ -220,6 +220,10 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     needs: [check, hydration]
     runs-on: ubuntu-latest
+    # CLOUDFLARE_API_TOKEN 存在 docs 环境里，该环境只允许 master 使用：别的分支改了 workflow 也拿不到（同 easy-query-ts）
+    environment:
+      name: docs
+      url: https://vue-tsx-pro.zerodep.dpdns.org
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
@@ -234,7 +238,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         run: |
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo '::warning::没有配置 CLOUDFLARE_API_TOKEN，跳过部署'
-            exit 0
+            echo '::error::docs 环境里没有 CLOUDFLARE_API_TOKEN，文档站没有部署'
+            exit 1
           fi
           npx --yes wrangler@4.156.1 deploy
