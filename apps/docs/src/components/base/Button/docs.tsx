@@ -59,8 +59,8 @@ export default _component(() => () => (
         <Example id="types" title="表单里的按钮与波纹" demo={Types}>
           <Code>type</Code> 默认是 <Code>button</Code>，放在表单里也不会误提交；
           <Code>submit</Code> 提交所在的表单，<Code>reset</Code> 触发表单的 reset 事件。
-          <Code>ripple</Code> 给单个按钮打开点击波纹，全局默认（关）由 <Code>createUi</Code> 的{' '}
-          <Code>ripple</Code> 决定。
+          <Code>ripple={'{false}'}</Code> 关掉单个按钮的点击波纹，全局默认由 <Code>createUi</Code>{' '}
+          的 <Code>ripple</Code> 决定。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

@@ -1,4 +1,4 @@
-// Provider 也能局部换掉代码高亮器（highlighter）、打开点击波纹（ripple）；不写的配置沿用上一层
+// Provider 也能局部换掉代码高亮器（highlighter）、关掉点击波纹（ripple）；不写的配置沿用上一层
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
