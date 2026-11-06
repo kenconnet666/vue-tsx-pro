@@ -59,9 +59,9 @@ it('em 尺寸：档位改变字号，控件高度随之取整到 4px 网格；�
 });
 
 it('主题：token 变量生效，页面内切换暗色', async () => {
-  // 主按钮 indigo 9 两套主题相同；输入框表面亮色 slate 1、暗色 slate 2
+  // 主按钮 indigo 9 两套主题相同；输入框表面亮色白、暗色 slate 2
   expect(style(button('默认')).backgroundColor).toBe('rgb(62, 99, 221)');
-  expect(style($('.search-field')).backgroundColor).toBe('rgb(252, 252, 253)');
+  expect(style($('.search-field')).backgroundColor).toBe('rgb(255, 255, 255)');
   $('.toggle-theme').click();
   await expect.poll(() => style($('.search-field')).backgroundColor).toBe('rgb(24, 25, 27)');
 });

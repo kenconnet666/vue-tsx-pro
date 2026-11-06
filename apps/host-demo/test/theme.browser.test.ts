@@ -26,7 +26,8 @@ it('切换主题：页面底色、配色方案与 data-theme 跟着变', async (
   app.mount(document.createElement('div'));
   const root = document.documentElement;
   const background = () => getComputedStyle(root).backgroundColor;
-  await expect.poll(background).toBe('rgb(252, 252, 253)');
+  // 亮色的页面着一点色（slate 2）
+  await expect.poll(background).toBe('rgb(249, 249, 251)');
 
   await preference.set('paper', { origin: { x: 10, y: 10 } });
   await expect.poll(() => root.dataset.theme).toBe('paper');
