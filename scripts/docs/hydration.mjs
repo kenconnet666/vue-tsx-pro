@@ -48,6 +48,42 @@ await new Promise((resolve, reject) => {
   server.on('exit', (code) => reject(new Error(`预览服务器退出了（${code}）`)));
 });
 
+/**
+ * 跟踪页面（连同 iframe）进行中的请求，quiet() 等到 500ms 内没有请求。不用 goto 的 networkidle：
+ * iframe 触发过 networkidle 之后又发请求（字体分片按页面上出现的字陆续下载）时，Playwright 不再给它重新计时，
+ * 整页的 networkidle 就永远等不到
+ */
+function trackRequests(page) {
+  let inflight = 0;
+  let changed = () => {};
+  const update = (delta) => {
+    inflight += delta;
+    changed();
+  };
+  page.on('request', () => update(1));
+  page.on('requestfinished', () => update(-1));
+  page.on('requestfailed', () => update(-1));
+  return {
+    quiet: (timeout = 30_000) =>
+      new Promise((resolve, reject) => {
+        let timer;
+        const deadline = setTimeout(
+          () => reject(new Error(`${timeout / 1000} 秒内网络没有静下来`)),
+          timeout,
+        );
+        changed = () => {
+          clearTimeout(timer);
+          if (inflight > 0) return;
+          timer = setTimeout(() => {
+            clearTimeout(deadline);
+            resolve();
+          }, 500);
+        };
+        changed();
+      }),
+  };
+}
+
 /** 警告的文字：参数里的 DOM 节点换成它的开头一段 HTML（默认只打出 JSHandle@node） */
 async function describe(message) {
   const parts = await Promise.all(
@@ -113,13 +149,15 @@ const problems = [];
 try {
   for (const path of pages) {
     const page = await browser.newPage();
+    const requests = trackRequests(page);
     const pending = [];
     page.on('console', (message) => {
       if (/hydrat/i.test(message.text())) pending.push(describe(message));
     });
     const messages = [];
     page.on('pageerror', (error) => messages.push(`页面报错：${error.message}`));
-    await page.goto(`http://localhost:${port}${path}`, { waitUntil: 'networkidle' });
+    await page.goto(`http://localhost:${port}${path}`, { waitUntil: 'load' });
+    await requests.quiet().catch((error) => messages.push(error.message));
     messages.push(
       ...(await Promise.all(pending)),
       ...(await nativeScrollbars(page)),
