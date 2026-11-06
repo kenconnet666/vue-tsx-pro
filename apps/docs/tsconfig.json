@@ -3,5 +3,5 @@
   "compilerOptions": {
     "types": ["node", "vite/client", "@zerodep-dev/vue-tsx-pro-tsx/runes"]
   },
-  "include": ["src", "build", "*.config.ts"]
+  "include": ["src", "build", "bench", "*.config.ts"]
 }
