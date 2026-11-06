@@ -812,6 +812,21 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] 23.6 实测：两个实例共用 PG 与 Redis，一个写入后另一个的本机层、Redis 与浏览器都变新；PG 的监听连接被断开后重连并 reset；
       全栈示例接上失效推送，端到端测试里一个页面添加待办、另一个页面的缓存数据自动刷新
 
+## 阶段 24：样式体系改造的收尾（0.12）
+
+0.11 发了样式体系改造的破坏性部分与文档（见附 D），这里是只加不破的后半段，按目录逐批做，每批截图零差异再合。
+计划与取舍记在 [.claude/reports/style-overhaul-plan.md](.claude/reports/style-overhaul-plan.md) §5、§11。
+
+- [ ] 24.1 部件补齐：约 190 个用 `css.attrs` 直接取样式的内部节点补 `propsXxx` 与 `data-part`（CommentThread、Checklist、Cascader、CalendarBoard…）；
+      部件多却没有配方的改成配方并在 `UiComponents` 登记（AppShell、Transfer、NavList、NotificationCenter、FilterBar、Upload、Timeline、CalendarView、CodeBlock、Tour、Stat、Menu、Toast）
+- [ ] 24.2 状态写法换条件别名（约 45 处 `条件 && styles.selected / disabled…`）：随 24.1 把状态样式搬进配方时一起换；
+      别名展开成 `:is(…)`，优先级排在 `:hover` 前面，每处要定组合状态（已选 + 悬停、不可用 + 悬停）的先后
+- [ ] 24.3 裸值换 token：组件里的 rem / px、`fontSize: 'x.xem'`（25 处）换成 em、`relativeFontSizeStyles` 或 token，逐个对截图
+- [ ] 24.4 去掉 0.11 标了 `@deprecated` 的旧写法：`createUi` / `Provider` 的 `defaults`、`styles`，改名前的旧名（Skeleton 的 `variant`、`Tone`、`Theme`…）
+- [ ] 24.5 截图基线容器化进 CI（同 8.3）：之后外观的任何改动都由 CI 拦
+- [ ] 24.6 文档站的 API 小节列出配方的部件（`data-part`）与档位（`components.Xxx` 能改、能加的）：现在只列部件属性 `propsXxx`；
+      从 `css.recipe` 的定义提取，24.1 补齐部件后一起做
+
 ## 已知局限（有意的取舍，写在文档里）
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）
@@ -1002,3 +1017,14 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] 测试按元素实际得到的声明断言（`styleOf`、`styleTextOf`），与引擎怎么生成类无关；文档站加样式更新基准（`/bench/style-updates`）与截图逐像素比对脚本
 - [x] 完全去掉 StyleX：变量组、token 短写、主题、标记在运行时处理，类型用收录的 CSS 类型表；删掉编译模式与编译期的 token 改写（STYLE-ENGINE.md §9.5）
 - [x] 有限状态也绕过组件渲染：`条件 && styles.x` 编译成 `css.select`，由元素上的绑定就地换组合类（1000 行切换 485 → 298 ms、渲染 1000 → 0，手写 396 ms），形状变化也就地换类、不再强制重渲染；挂载时参数只算一次（STYLE-ENGINE.md §9.7）
+
+### D. 样式体系联合改造（2026-11-06，0.11）
+
+计划、取舍与迁移素材在 [.claude/reports/style-overhaul-plan.md](.claude/reports/style-overhaul-plan.md)，使用方的变化见 RELEASE.md；后半段在阶段 24。
+
+- [x] 引擎：样式按合并来源分段输出（组件、每层定制、`sx` 各一段），引擎的规则进级联层；条件别名在展开时解析；配方的组合档位 `match`、片段可以进部件与档位
+- [x] 定制合成一个入口 `components`（`defaults`、`styles`、`variants`），登记表 `UiComponents` 有类型检查；`useComponent` 一次合上档位默认值与配方
+- [x] 整理：焦点环、展开箭头、弹出面板、状态色表收进共用件；`variant` 只表示外观；主入口不再导出组件内部的样式表（约 220 张）
+- [x] 主题：去掉海洋，加高对比暗色（7:1），跟随系统时尊重“增强对比度”；遮罩 token `scrim` / `onScrim`
+- [x] 美学：着色页面 + 白卡片、控件高度 4px 网格、中文界面字重 500、提示色中间调、占位文字 4.5:1、表单标签 14px、小浮层动效更快
+- [x] 文档站：示例画布用页面底色；顶栏的字体切换（系统字体，或按需加载的更纱黑体等宽、霞鹜文楷等宽，独立的 rune-ui-font 包）

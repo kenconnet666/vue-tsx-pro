@@ -24,7 +24,8 @@ import { Button, Card, Flex } from '@zerodep-dev/vue-tsx-pro-ui';
 </Card>;
 ```
 
-- 组件的默认外观用 `createUi({ defaults })` 统一改，样式用 `createUi({ styles })` 定制；一处覆盖用 `sx`，部件用 `propsXxx`。
+- 组件的外观在一个入口统一改：`createUi({ components: { Button: { defaults, styles, variants } } })`（档位的默认值、追加的样式、新的档位），
+  局部用 `<Provider components>`；一处覆盖用 `sx`，部件用 `propsXxx`。宿主不分层的 CSS 盖过整个组件库（组件的样式在 `@layer` 里）。
 - 每个部件带 `data-scope` / `data-part`，宿主的 CSS 与端到端测试能稳定地选中部件。
 - 图表（`@zerodep-dev/vue-tsx-pro-ui/charts`）、3D（`/three`）、代码高亮（`/shiki`）、Excel（`/xlsx`）等在子路径里，用到才安装对应的可选依赖。
 
