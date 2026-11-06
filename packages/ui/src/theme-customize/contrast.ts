@@ -62,6 +62,8 @@ export const CONTRAST_PAIRS: readonly ContrastPair[] = [
     [`${tone}Text`, `${tone}SoftHover`, TEXT, '状态浅底悬停'],
   ]),
   ['inverseText', 'inverseSurface', TEXT, '反色表面'],
+  // 遮罩是半透明的：按叠在页面背景上算（盖在图片上时由遮罩本身保证够深）
+  ['onScrim', 'scrim', TEXT, '图片上的遮罩'],
   // 代码块（surfaceMuted）、行内代码与高亮行（fill）、diff 的增删行上都有高亮的代码
   ...[
     'codeKeyword',

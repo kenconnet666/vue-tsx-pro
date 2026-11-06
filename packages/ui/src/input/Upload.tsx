@@ -57,6 +57,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
 import { FileDrop, matchesAccept, type FileDropProps } from './FileDrop';
 import { GridList, type GridProps } from '../layout/Grid';
+import { t } from '../config/theme/tokens';
 
 /** 列表里的一个文件 */
 export interface UploadFile {
@@ -203,8 +204,8 @@ export const uploadStyles = css.create({
     flexDirection: 'column',
     gap: '_xs',
     padding: '_xs',
-    backgroundColor: 'rgb(0 0 0 / 0.55)',
-    color: 'white',
+    backgroundColor: '_scrim',
+    color: '_onScrim',
     fontSize: '_xs',
   },
   placeholder: {
@@ -230,7 +231,12 @@ export const uploadStyles = css.create({
     display: 'flex',
     gap: '2px',
   },
-  action: { backgroundColor: { default: 'rgb(255 255 255 / 0.85)', _hover: 'white' } },
+  action: {
+    backgroundColor: {
+      default: `color-mix(in srgb, ${t.colors.onScrim} 85%, transparent)`,
+      _hover: '_onScrim',
+    },
+  },
   handle: {
     display: 'grid',
     placeItems: 'center',
@@ -238,7 +244,7 @@ export const uploadStyles = css.create({
     height: '1.75em',
     borderRadius: '_sm',
     color: '_text',
-    backgroundColor: 'rgb(255 255 255 / 0.85)',
+    backgroundColor: `color-mix(in srgb, ${t.colors.onScrim} 85%, transparent)`,
     cursor: { default: 'grab', _active: 'grabbing' },
     touchAction: 'none',
   },

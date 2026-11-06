@@ -182,6 +182,15 @@ export const colors = css.defineVars('vtp-colors', {
   focusRing: '#3e63dd',
   /** 模态遮罩。亮色 blackA 6 `rgba(0, 0, 0, 0.4)`，暗色 blackA 8 `rgba(0, 0, 0, 0.6)` */
   overlay: 'rgba(0, 0, 0, 0.4)',
+  /**
+   * 图片、视频上的深色遮罩，上面放 onScrim 的文字（上传的进度与文件名）。
+   * 盖在任意图片上，不跟主题变：`rgba(0, 0, 0, 0.55)`
+   */
+  scrim: 'rgba(0, 0, 0, 0.55)',
+  /** 看图时铺满的深色背景（Lightbox）：`rgba(0, 0, 0, 0.86)` */
+  scrimStrong: 'rgba(0, 0, 0, 0.86)',
+  /** 遮罩上的文字与图标：`#ffffff` */
+  onScrim: '#ffffff',
   /** 选中文字的底色（::selection）。indigo 5：亮色 `#d2deff`，暗色 `#253974` */
   selection: '#d2deff',
   /** 高亮标记：搜索命中、`<mark>`。amber 4：亮色 `#ffee9c`，暗色 `#3f2700` */

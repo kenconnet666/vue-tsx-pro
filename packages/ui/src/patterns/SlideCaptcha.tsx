@@ -129,7 +129,7 @@ export const slideCaptchaStyles = css.create({
     paddingInline: '_md',
     fontSize: '_sm',
     textAlign: 'center',
-    color: 'white',
+    color: '_onScrim',
   },
   bannerSuccess: { backgroundColor: 'rgb(22 163 74 / 0.88)' },
   bannerError: { backgroundColor: 'rgb(220 38 38 / 0.88)' },

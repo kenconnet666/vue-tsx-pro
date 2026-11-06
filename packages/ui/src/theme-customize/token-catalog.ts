@@ -310,6 +310,22 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
           '模态遮罩。亮色 blackA 6 `rgba(0, 0, 0, 0.4)`，暗色 blackA 8 `rgba(0, 0, 0, 0.6)`',
       },
       {
+        name: 'scrim',
+        value: 'rgba(0, 0, 0, 0.55)',
+        description:
+          '图片、视频上的深色遮罩，上面放 onScrim 的文字（上传的进度与文件名）。盖在任意图片上，不跟主题变：`rgba(0, 0, 0, 0.55)`',
+      },
+      {
+        name: 'scrimStrong',
+        value: 'rgba(0, 0, 0, 0.86)',
+        description: '看图时铺满的深色背景（Lightbox）：`rgba(0, 0, 0, 0.86)`',
+      },
+      {
+        name: 'onScrim',
+        value: '#ffffff',
+        description: '遮罩上的文字与图标：`#ffffff`',
+      },
+      {
         name: 'selection',
         value: '#d2deff',
         description: '选中文字的底色（::selection）。indigo 5：亮色 `#d2deff`，暗色 `#253974`',

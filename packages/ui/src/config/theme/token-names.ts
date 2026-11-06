@@ -331,6 +331,25 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
      */
     _overlay: unknown;
     /**
+     * 图片、视频上的深色遮罩，上面放 onScrim 的文字（上传的进度与文件名）。
+     * 盖在任意图片上，不跟主题变：`rgba(0, 0, 0, 0.55)`
+     *
+     * `colors.scrim`
+     */
+    _scrim: unknown;
+    /**
+     * 看图时铺满的深色背景（Lightbox）：`rgba(0, 0, 0, 0.86)`
+     *
+     * `colors.scrimStrong`
+     */
+    _scrimStrong: unknown;
+    /**
+     * 遮罩上的文字与图标：`#ffffff`
+     *
+     * `colors.onScrim`
+     */
+    _onScrim: unknown;
+    /**
      * 选中文字的底色（::selection）。indigo 5：亮色 `#d2deff`，暗色 `#253974`
      *
      * `colors.selection`
@@ -786,6 +805,25 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
      * `colors.overlay`
      */
     '_colors.overlay': unknown;
+    /**
+     * 图片、视频上的深色遮罩，上面放 onScrim 的文字（上传的进度与文件名）。
+     * 盖在任意图片上，不跟主题变：`rgba(0, 0, 0, 0.55)`
+     *
+     * `colors.scrim`
+     */
+    '_colors.scrim': unknown;
+    /**
+     * 看图时铺满的深色背景（Lightbox）：`rgba(0, 0, 0, 0.86)`
+     *
+     * `colors.scrimStrong`
+     */
+    '_colors.scrimStrong': unknown;
+    /**
+     * 遮罩上的文字与图标：`#ffffff`
+     *
+     * `colors.onScrim`
+     */
+    '_colors.onScrim': unknown;
     /**
      * 选中文字的底色（::selection）。indigo 5：亮色 `#d2deff`，暗色 `#253974`
      *

@@ -34,6 +34,7 @@ import { openModalDialog } from '../utils/dom/overlay';
 import { usePanZoom } from '../utils/dom/pan-zoom';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
+import { t } from '../config/theme/tokens';
 
 /** 一张图 */
 export interface LightboxItem {
@@ -81,8 +82,8 @@ export const lightboxStyles = css.create({
     display: { default: 'none', ':modal': 'flex' },
     flexDirection: 'column',
     // 图片预览总是深色背景：不跟主题变（看图片本身的颜色）
-    backgroundColor: 'rgb(0 0 0 / 0.86)',
-    color: 'white',
+    backgroundColor: '_scrimStrong',
+    color: '_onScrim',
     colorScheme: 'dark',
   },
   toolbar: {
@@ -144,8 +145,11 @@ export const lightboxStyles = css.create({
   },
   // 深色背景上的按钮：文字白色，悬停时浅一点的底
   button: {
-    color: 'white',
-    backgroundColor: { default: 'transparent', _hover: 'rgb(255 255 255 / 0.12)' },
+    color: '_onScrim',
+    backgroundColor: {
+      default: 'transparent',
+      _hover: `color-mix(in srgb, ${t.colors.onScrim} 12%, transparent)`,
+    },
   },
 });
 

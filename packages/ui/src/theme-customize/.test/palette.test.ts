@@ -89,6 +89,13 @@ const adjusted: [Record<string, string>, Record<string, string>] = [
   },
 ];
 
+/** 不随主题变、不取色阶的颜色：盖在图片上的遮罩（暗色主题不覆盖，沿用默认值） */
+const fixed: Record<string, string> = {
+  scrim: 'rgba(0, 0, 0, 0.55)',
+  scrimStrong: 'rgba(0, 0, 0, 0.86)',
+  onScrim: '#ffffff',
+};
+
 /** slateDark4 → radix.slateDark.slate4（暗色色阶里的键不带 Dark） */
 function radixColor(step: string) {
   const scale = step.replace(/\d+$/, '');
@@ -122,7 +129,7 @@ describe('颜色 token', () => {
         Object.entries(steps).map(([token, pair]) => [token, radixColor(pair[index])]),
       ),
     });
-    expect(light).toEqual({ ...expected(0), ...adjusted[0] });
+    expect(light).toEqual({ ...expected(0), ...adjusted[0], ...fixed });
     expect(dark).toEqual({ ...expected(1), ...adjusted[1] });
   });
 });
