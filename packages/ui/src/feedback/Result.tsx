@@ -18,6 +18,7 @@ import { Paragraph, Text, type TextProps } from '../base/Text';
 import { useDefaults } from '../config/defaults';
 import { useRecipe } from '../config/styles';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { variantOf } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
 import {
   fontSizeStyles,
@@ -129,6 +130,7 @@ export const resultRecipe = css.recipe({
       marginBlockStart: '_md',
     },
   },
+  variants: { size: variantOf(fontSizeStyles, 'root') },
 });
 
 /** 结果页的部件（createUi / Provider 的 styles.Result 按它定制） */
@@ -157,21 +159,14 @@ export const Result = _component(
     const appearance = useDefaults('Result', () => ({ size }));
     const recipe = useRecipe(resultRecipe);
     return () => {
-      const textSize = appearance().size;
       const preset = status && STATUS_LOOKS[Number(status) as keyof ResultStatuses];
       const text = status && lang.resultStatus[status];
       const shownTone = tone ?? preset?.tone ?? 'success';
       const shownTitle = title ?? text?.title;
       const shownDescription = description ?? text?.description;
-      const s = recipe({ tone: shownTone });
+      const s = recipe({ tone: shownTone, size: appearance().size });
       return (
-        <div
-          {...mergeAttrs<'div'>(
-            { ...s.root, sx: [s.root.sx, textSize && fontSizeStyles[textSize]] },
-            rest,
-          )}
-          data-tone={shownTone}
-        >
+        <div {...mergeAttrs<'div'>(s.root, rest)} data-tone={shownTone}>
           {icon !== false && (
             <Icon
               {...mergePartProps<IconProps>(

@@ -23,7 +23,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { usePointer } from '../utils/motion/pointer';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
-import { radiusStyles, type Radius, type Space } from '../utils/style/styles';
+import { radiusStyles, variantOf, type Radius, type Space } from '../utils/style/styles';
 
 /** 卡片样式 */
 export interface CardVariants {
@@ -143,6 +143,8 @@ export const cardRecipe = css.recipe({
     },
   },
   variants: {
+    // 外层（有效果时）与表面同一个圆角
+    radius: variantOf(radiusStyles, 'root', 'frame'),
     variant: {
       surface: { root: { backgroundColor: '_surface', borderColor: '_border' } },
       outline: { root: { borderColor: '_border' } },
@@ -329,9 +331,10 @@ export const Card = _component(
         padding: shownPadding,
         extra: extra != null,
         effect,
+        radius: shownRadius,
       });
       if (skeleton.value) revealing = true;
-      const surface = { ...s.root, sx: [s.root.sx, radiusStyles[shownRadius]] };
+      const surface = s.root;
       const content = renderContent(s);
       if (!effect)
         return (
@@ -347,7 +350,6 @@ export const Card = _component(
               ...s.frame,
               sx: [
                 s.frame.sx,
-                radiusStyles[shownRadius],
                 effect === 'tilt' &&
                   cardEffectDynamicStyles.tiltTransform(
                     pointer.y * TILT * tilt,

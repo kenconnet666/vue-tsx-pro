@@ -22,7 +22,7 @@ import { hasContent, mergeAttrs, mergePartProps, mergeProps, type PartProps } fr
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { presenceStyles } from '../utils/style/transitions';
 import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/style/typography';
-import { radiusStyles, type Radius } from '../utils/style/styles';
+import { radiusStyles, variantOf, type Radius } from '../utils/style/styles';
 import { t } from '../config/theme/tokens';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
@@ -121,6 +121,8 @@ export const alertRecipe = css.recipe({
     action: { flexShrink: 0, alignSelf: 'center' },
     close: { flexShrink: 0, marginBlock: `calc(-1 * ${t.space.xs})`, color: 'inherit' },
   },
+  // 圆角、字号用共用的档位（样式 × 色调见 statusToneSx，排在配方之前，定制能盖过它）
+  variants: { radius: variantOf(radiusStyles, 'root'), size: variantOf(fontSizeStyles, 'root') },
 });
 
 /** 提示条的部件（createUi / Provider 的 styles.Alert 按它定制） */
@@ -162,7 +164,7 @@ export const Alert = _component(
     const dismissible = useDismissible(() => onClose?.());
     return () => {
       const { variant: shownVariant, radius: shownRadius } = appearance();
-      const s = recipe({ variant: shownVariant, tone });
+      const s = recipe({ variant: shownVariant, tone, radius: shownRadius, size });
       const shownIcon = icon === false ? undefined : (icon ?? statusIcons[tone]);
       // 说明取 description，没有时取 children；两个都有时 children 放在说明下面
       const extra = hasContent(description) && hasContent(children);
@@ -176,8 +178,6 @@ export const Alert = _component(
                 statusToneSx(shownVariant, tone),
                 s.root.sx,
                 presenceStyles.fade,
-                radiusStyles[shownRadius],
-                size && fontSizeStyles[size],
                 dismissible.dismissing && presenceStyles.leaving,
               ],
             },

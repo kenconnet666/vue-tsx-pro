@@ -16,7 +16,7 @@ import { useRecipe } from '../config/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import { radiusStyles, type Radius } from '../utils/style/styles';
+import { radiusStyles, variantOf, type Radius } from '../utils/style/styles';
 import { t } from '../config/theme/tokens';
 
 /** 后备内容（首字母、图标）的底色样式 */
@@ -94,6 +94,8 @@ export const avatarRecipe = css.recipe({
     },
     // 图片加载完之前先藏起来（仍在 DOM 里加载），后备内容垫在下面
     loading: { true: { image: { position: 'absolute', opacity: 0 } } },
+    radius: variantOf(radiusStyles, 'root'),
+    size: variantOf(fontSizeStyles, 'root'),
   },
 });
 
@@ -145,18 +147,15 @@ export const Avatar = _component(
         tone: color,
         grouped: !!group,
         loading: status === 'loading',
+        radius: corner,
+        size: fontSize,
       });
       return (
         <span
           {...mergeAttrs<'span'>(
             {
               ...s.root,
-              sx: [
-                statusToneStyles[fill][color],
-                s.root.sx,
-                radiusStyles[corner],
-                fontSize && fontSizeStyles[fontSize],
-              ],
+              sx: [statusToneStyles[fill][color], s.root.sx],
             },
             rest,
             name ? { role: 'img', 'aria-label': name } : { 'aria-hidden': true },

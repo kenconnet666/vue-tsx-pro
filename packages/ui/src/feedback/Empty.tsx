@@ -16,6 +16,7 @@ import { Paragraph, Text, type TextProps } from '../base/Text';
 import { useDefaults } from '../config/defaults';
 import { useRecipe } from '../config/styles';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { variantOf } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
 /** Empty 的外观选项：可以在 ComponentDefaults 里统一设置 */
@@ -66,6 +67,7 @@ export const emptyRecipe = css.recipe({
     description: { maxWidth: '32em', color: '_textMuted' },
     action: { marginBlockStart: '_sm' },
   },
+  variants: { size: variantOf(fontSizeStyles, 'root') },
 });
 
 /** 空状态的部件（createUi / Provider 的 styles.Empty 按它定制） */
@@ -89,15 +91,9 @@ export const Empty = _component(
     const appearance = useDefaults('Empty', () => ({ size }));
     const recipe = useRecipe(emptyRecipe);
     return () => {
-      const textSize = appearance().size;
-      const s = recipe();
+      const s = recipe({ size: appearance().size });
       return (
-        <div
-          {...mergeAttrs<'div'>(
-            { ...s.root, sx: [s.root.sx, textSize && fontSizeStyles[textSize]] },
-            rest,
-          )}
-        >
+        <div {...mergeAttrs<'div'>(s.root, rest)}>
           {icon !== false && (
             <Icon {...mergePartProps<IconProps>({ ...s.icon, icon: icon ?? Inbox }, propsIcon)} />
           )}

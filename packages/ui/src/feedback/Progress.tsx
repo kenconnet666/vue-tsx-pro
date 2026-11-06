@@ -25,7 +25,7 @@ import { clamp, svgNumber } from '../utils/data/number';
 import { compareNumeric, toNumber, type NumericValue } from '../utils/data/numeric';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/style/typography';
-import { radiusStyles, type Radius } from '../utils/style/styles';
+import { radiusStyles, variantOf, type Radius } from '../utils/style/styles';
 import { t } from '../config/theme/tokens';
 
 /** 角色与取值由组件管理 */
@@ -170,6 +170,7 @@ export const progressRecipe = css.recipe({
     circleTarget: { stroke: '_text', strokeLinecap: 'round' },
   },
   variants: {
+    radius: variantOf(radiusStyles, 'track'),
     shape: {
       bar: {
         // 有标签行时的外层：标签行在上、进度条在下
@@ -327,7 +328,12 @@ export const Progress = _component(
     return () => {
       const look = appearance();
       const determinate = value != null;
-      const s = recipe({ shape, tone: look.tone, indeterminate: !determinate });
+      const s = recipe({
+        shape,
+        tone: look.tone,
+        indeterminate: !determinate,
+        radius: look.radius,
+      });
       // 夹在 0–max 之间、按原值比较；比例与读屏的 aria-valuenow 用浮点数就够
       const clamped: NumericValue = !determinate
         ? 0
@@ -438,7 +444,6 @@ export const Progress = _component(
               ...s.track,
               sx: [
                 s.track.sx,
-                radiusStyles[look.radius],
                 // 有外层时字号档位放在外层，标签行一起缩放
                 !header && look.size && fontSizeStyles[look.size],
               ],
