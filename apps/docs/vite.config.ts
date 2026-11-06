@@ -74,7 +74,7 @@ export const optimizeDeps = {
   include: [
     // 示例里用到的（组件库源码不在运行时导入它）
     'decimal.js',
-    // 站点字体（src/site/theme.ts）：测试里第一次导入站点主题时才发现的话，会重新预构建并刷新正在跑的测试
+    // 站点字体（src/site/fonts.ts）：测试里第一次导入站点主题时才发现的话，会重新预构建并刷新正在跑的测试
     'rune-ui-font',
     // 代码高亮的几种语言（src/site/ui.ts 按需导入）：第一次出现代码块时才发现的话，会重新预构建并刷新页面
     '@shikijs/langs/css',

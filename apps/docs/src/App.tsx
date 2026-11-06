@@ -24,6 +24,7 @@ import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { RouterView, useRoute, useRouter } from 'vue-router';
 import { loadingBar } from './site/loading-bar';
 import { allPages, sectionOf, sections } from './site/nav';
+import { FontSwitcher } from './site/FontSwitcher';
 import { PropsPlaygroundButton } from './site/PropsPlaygroundButton';
 import { isFrame } from './router';
 import { preference } from './site/theme';
@@ -116,6 +117,7 @@ export const App = _component(() => {
                 />
                 <PropsPlaygroundButton />
                 <ThemeSwitcher preference={preference} />
+                <FontSwitcher />
                 <IconLinkButton
                   href="https://github.com/kenconnet666/vue-tsx-pro"
                   external

@@ -1,32 +1,22 @@
 /**
  * 站点的主题：主题偏好（全部内置主题或跟随系统）加上主题编辑器的设置，都记在 localStorage。
  * index.html 里的防闪烁脚本用同一个偏好存储键；编辑器的设置在应用加载后套上。
- * 文档站的字体是更纱黑体等宽（rune-ui-font）：每套内置主题都换上它，正文、标题、代码一样；
- * 字体的 CSS 在 main.ts 里挂载后才加载，到之前先用系统字体。
+ * 字体另在 fonts.ts（顶栏的字体按钮）：生效的主题先换上选中的字体，再套编辑器的设置。
  */
 import {
   builtinSystemThemes,
   builtinThemes,
   createThemePreference,
-  defineTheme,
   usePersistentState,
   useReducedMotion,
   type Theme,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import type { customizeTheme, ThemeSettings } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
-import { sarasaMonoScFonts } from 'rune-ui-font';
 import { effectScope, shallowRef, watch } from 'vue';
-
-/** 内置主题换上更纱等宽：主题名不变，切换器、防闪烁脚本照常认 */
-const siteThemes = Object.fromEntries(
-  Object.entries(builtinThemes).map(([name, theme]) => [
-    name,
-    defineTheme(theme, { fonts: sarasaMonoScFonts }),
-  ]),
-) as Record<keyof typeof builtinThemes, Theme>;
+import { withSiteFont } from './fonts';
 
 export const preference = createThemePreference({
-  themes: siteThemes,
+  themes: builtinThemes,
   system: builtinSystemThemes,
 });
 
@@ -59,9 +49,10 @@ export function siteThemeReady(): Promise<void> {
   return customized() ? loadCustomize() : Promise.resolve();
 }
 
-/** 实际生效的主题：明暗偏好选出的主题，套上编辑器的设置 */
+/** 实际生效的主题：明暗偏好选出的主题，换上选中的字体，再套编辑器的设置 */
 export function siteTheme(): Theme {
+  const theme = withSiteFont(preference.theme);
   const apply = customize.value;
-  if (!apply) return preference.theme;
-  return apply(preference.theme, themeSettings.value, { reducedMotion: reducedMotion.value });
+  if (!apply) return theme;
+  return apply(theme, themeSettings.value, { reducedMotion: reducedMotion.value });
 }
