@@ -15,6 +15,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import {
+  anchoredPanelSx,
   floatingStyles,
   type FloatingOptions,
   type FloatingPlacement,
@@ -24,7 +25,6 @@ import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { useHoverLayer } from '../utils/dom/hover-layer';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { transitions } from '../utils/style/transitions';
 import { useMounted } from '../utils/dom/mounted';
 
 /** 交给触发器的属性：展开到触发元素上（`{...props}`） */
@@ -125,13 +125,7 @@ export const HoverCard = _component(
           <div
             {...mergeAttrs<'div'>(
               {
-                sx: [
-                  floatingStyles.anchored,
-                  floatingStyles.surface,
-                  hoverCardStyles.panel,
-                  transitions.scale,
-                  arrow && floatingStyles.withArrow,
-                ],
+                sx: [anchoredPanelSx(), hoverCardStyles.panel, arrow && floatingStyles.withArrow],
               },
               rest,
               {

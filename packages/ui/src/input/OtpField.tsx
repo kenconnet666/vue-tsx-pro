@@ -7,12 +7,14 @@
  * 参考 input-otp（shadcn 的 InputOTP）的做法：只有一个真正的 input（透明、盖在格子上面），格子只是显示。
  * 所以短信验证码的自动填充（autocomplete="one-time-code"）、整段粘贴、退格、选中都是原生的，读屏看到的是一个输入框；
  * 输入时只留数字（或字母数字），填满时调用 onComplete。焦点在框里时当前格画焦点环，空格里有闪烁的光标。
+ * 格子用输入框的配方（同 TextField 的外壳）：样式、圆角、出错、只读、不可用与输入框一致，也跟着 styles.Input 的定制。
  * 部件：Root（div：格子的容器）、Input（主元素）、Slot（div，每格一个）、Separator（groups 之间）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
+import { controlParts, useControlAppearance, type ControlOptions } from './control';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
@@ -30,7 +32,8 @@ export type OtpFieldManaged =
   'value' | 'type' | 'maxlength' | 'inputmode' | 'pattern' | 'disabled' | 'readonly' | 'required';
 
 /** 未声明的属性落到 input（主元素）上；格子的容器用 propsRoot */
-export interface OtpFieldProps extends PartProps<'input', OtpFieldManaged> {
+export interface OtpFieldProps
+  extends PartProps<'input', OtpFieldManaged>, Pick<ControlOptions, 'variant' | 'radius'> {
   /** 输入的字符：父级写 _value={code} */
   _value?: string;
   /** 几位，默认 6 */
@@ -64,7 +67,7 @@ export interface OtpFieldProps extends PartProps<'input', OtpFieldManaged> {
 
 const blink = css.keyframes({ '50%': { opacity: 0 } });
 
-/** OtpField 的样式：root、input、slot、active、invalid、disabled、caret、separator */
+/** OtpField 的样式：root、input、slot、active、caret、separator（格子的外观来自输入框的配方） */
 export const otpFieldStyles = css.create({
   root: {
     position: 'relative',
@@ -91,34 +94,20 @@ export const otpFieldStyles = css.create({
     cursor: 'text',
     '::selection': { backgroundColor: 'transparent' },
   },
+  // 格子的大小与字：外壳的样式、描边、状态来自输入框的配方
   slot: {
-    boxSizing: 'border-box',
     position: 'relative',
     display: 'grid',
     placeItems: 'center',
     width: '2.5em',
     height: `max(2.75em, ${t.sizes.minTarget})`,
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_border',
-    borderRadius: '_md',
-    backgroundColor: '_surface',
-    color: '_text',
+    paddingInline: 0,
     fontSize: '1.15em',
     fontWeight: '_semibold',
     fontVariantNumeric: 'tabular-nums',
-    transition: `border-color ${t.durations.sm} ${t.easings.standard}`,
   },
-  // 当前格：同输入框聚焦时的强调描边与焦点环
-  active: {
-    borderColor: '_accent',
-    outlineWidth: '_borderWidths.sm',
-    outlineStyle: 'solid',
-    outlineColor: '_accentBorder',
-    outlineOffset: 0,
-  },
-  invalid: { borderColor: '_danger' },
-  disabled: { opacity: '_disabled' },
+  // 当前格：画出输入框聚焦时的焦点环（焦点在盖着的 input 上，格子自己没有 :focus-within）
+  active: { outlineStyle: 'solid' },
   // 空的当前格里闪烁的光标；减少动态效果时常亮
   caret: {
     width: '_borderWidths.xs',
@@ -146,7 +135,9 @@ export const OtpField = _component(
     groups,
     mask = false,
     onComplete,
+    variant,
     size,
+    radius,
     disabled,
     readonly,
     required,
@@ -158,6 +149,7 @@ export const OtpField = _component(
     ...rest
   }: OtpFieldProps) => {
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
+    const appearance = useControlAppearance(() => ({ variant, size, radius }));
     let focused = _state(false);
 
     function onInput(event: Event) {
@@ -187,6 +179,8 @@ export const OtpField = _component(
       const chars = value.split('');
       const current = Math.min(chars.length, length - 1);
       const ends = groupEnds();
+      // 字号设在格子的容器上（格子的 em 跟着它），配方里不再给格子设字号
+      const shell = controlParts({ ...appearance(), size: undefined }, state).root.sx;
       return (
         <div
           {...mergeAttrs<'div'>(
@@ -205,12 +199,7 @@ export const OtpField = _component(
                 aria-hidden="true"
                 {...mergeAttrs<'div'>(
                   {
-                    sx: [
-                      otpFieldStyles.slot,
-                      state.invalid && otpFieldStyles.invalid,
-                      active && otpFieldStyles.active,
-                      state.disabled && otpFieldStyles.disabled,
-                    ],
+                    sx: [shell, otpFieldStyles.slot, active && otpFieldStyles.active],
                   },
                   propsSlot,
                 )}

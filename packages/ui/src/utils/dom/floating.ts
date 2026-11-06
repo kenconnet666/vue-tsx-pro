@@ -118,8 +118,9 @@ const ARROW_EDGE: Record<Side, Side> = {
 const ARROW_ROTATION: Record<Side, number> = { top: 45, right: 135, bottom: 225, left: -45 };
 
 /**
- * 弹出面板（选项列表、树、日期面板）共用的样式：锚定定位、浮起的表面、缩放进出场；
- * 面板渲染在顶层，不是输入框外壳的后代、不继承它的字号：按控件的 size 设置。ListPopover、TreeSelect、日期选择器用它
+ * 弹出面板共用的样式：锚定定位、浮起的表面、缩放进出场；
+ * 面板渲染在顶层，不是触发器的后代、不继承它的字号：按控件的 size 设置。Popover、HoverCard、Menu、ListPopover、
+ * Cascader、TreeSelect、日期选择器用它；组件自己的面板样式（内边距、宽度）排在后面
  */
 export function anchoredPanelSx(size?: TextSize): SxStyles {
   return [

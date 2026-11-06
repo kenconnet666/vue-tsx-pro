@@ -11,6 +11,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import {
+  anchoredPanelSx,
   floatingStyles,
   useAnchoredPopover,
   type FloatingOptions,
@@ -21,7 +22,6 @@ import { focusFirst } from '../utils/dom/focus';
 import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
 import { defaultLabelledBy, mergeAttrs, type PartProps, type TriggerProps } from '../utils/props';
-import { transitions } from '../utils/style/transitions';
 import { useMounted } from '../utils/dom/mounted';
 
 /** 交给触发器的属性：展开收起的通用属性，加上弹层需要的 id、ref 与 aria-haspopup */
@@ -115,13 +115,7 @@ export const Popover = _component(
           <div
             {...mergeAttrs<'div'>(
               {
-                sx: [
-                  floatingStyles.anchored,
-                  floatingStyles.surface,
-                  popoverStyles.panel,
-                  transitions.scale,
-                  arrow && floatingStyles.withArrow,
-                ],
+                sx: [anchoredPanelSx(), popoverStyles.panel, arrow && floatingStyles.withArrow],
                 'aria-labelledby': defaultLabelledBy(rest, triggerId),
               },
               rest,

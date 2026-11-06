@@ -30,6 +30,7 @@ import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import {
+  anchoredPanelSx,
   floatingStyles,
   pointAnchor,
   useAnchoredPopover,
@@ -56,8 +57,7 @@ import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
-import { transitions } from '../utils/style/transitions';
+import { type TextSize } from '../utils/style/typography';
 
 /** Menu 交给菜单项的状态 */
 export interface MenuState {
@@ -254,14 +254,7 @@ export const Menu = _component(
         <div
           {...mergeAttrs<'div'>(
             {
-              sx: [
-                floatingStyles.anchored,
-                floatingStyles.surface,
-                floatingStyles.scrollPanel,
-                menuStyles.panel,
-                size && fontSizeStyles[size],
-                transitions.scale,
-              ],
+              sx: [anchoredPanelSx(size), floatingStyles.scrollPanel, menuStyles.panel],
               // 右键菜单没有触发器：名称由使用方的 aria-label 给
               'aria-labelledby': anchor ? defaultLabelledBy(rest, triggerId) : undefined,
             },
@@ -1007,13 +1000,7 @@ export const MenuSub = _component(
         <div
           {...mergeAttrs<'div'>(
             {
-              sx: [
-                floatingStyles.anchored,
-                floatingStyles.surface,
-                floatingStyles.scrollPanel,
-                menuStyles.panel,
-                transitions.scale,
-              ],
+              sx: [anchoredPanelSx(), floatingStyles.scrollPanel, menuStyles.panel],
               'aria-labelledby': defaultLabelledBy(propsPanel ?? {}, triggerId),
             },
             propsPanel,
