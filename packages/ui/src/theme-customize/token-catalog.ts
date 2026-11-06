@@ -833,7 +833,7 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
       {
         name: 'lg',
         value: '300ms',
-        description: '`300ms`：对话框、抽屉',
+        description: '`300ms`：抽屉滑入、图表的进场、主题切换的展开、波纹与骨架的扫光',
       },
       {
         name: 'xl',

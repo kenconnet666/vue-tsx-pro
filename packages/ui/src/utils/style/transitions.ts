@@ -11,7 +11,7 @@
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from '../../config/theme/tokens';
 
-/** 顶层元素的进出场过渡：fade 淡入淡出、scale 缩放加淡入、backdrop 模态遮罩的淡入 */
+/** 顶层元素的进出场过渡：fade 淡入淡出、scale 缩放加淡入（对话框）、pop 更快的缩放（小浮层）、backdrop 模态遮罩的淡入 */
 export const transitions = css.create({
   /** 淡入淡出 */
   fade: {
@@ -42,6 +42,21 @@ export const transitions = css.create({
       default: `opacity ${t.durations.sm} ${t.easings.exit}, transform ${t.durations.sm} ${t.easings.exit}, display ${t.durations.sm} allow-discrete, overlay ${t.durations.sm} allow-discrete`,
       ':popover-open': `opacity ${t.durations.md} ${t.easings.enter}, transform ${t.durations.md} ${t.easings.enter}, display ${t.durations.md} allow-discrete, overlay ${t.durations.md} allow-discrete`,
       ':modal': `opacity ${t.durations.md} ${t.easings.enter}, transform ${t.durations.md} ${t.easings.enter}, display ${t.durations.md} allow-discrete, overlay ${t.durations.md} allow-discrete`,
+    },
+  },
+  /**
+   * 小浮层（菜单、弹出框、选项列表、日期面板）：同 scale，但更快——进场 sm、离场 xs。
+   * 跟着点击出现的小面板慢了会显得拖沓；对话框面积大、打断当前操作，用 scale 的 md
+   */
+  pop: {
+    opacity: { default: 0, ':popover-open': { default: 1, '@starting-style': 0 } },
+    transform: {
+      default: 'scale(0.96)',
+      ':popover-open': { default: 'none', '@starting-style': 'scale(0.96)' },
+    },
+    transition: {
+      default: `opacity ${t.durations.xs} ${t.easings.exit}, transform ${t.durations.xs} ${t.easings.exit}, display ${t.durations.xs} allow-discrete, overlay ${t.durations.xs} allow-discrete`,
+      ':popover-open': `opacity ${t.durations.sm} ${t.easings.enter}, transform ${t.durations.sm} ${t.easings.enter}, display ${t.durations.sm} allow-discrete, overlay ${t.durations.sm} allow-discrete`,
     },
   },
   /** 模态遮罩淡入淡出，颜色取 colors.overlay */

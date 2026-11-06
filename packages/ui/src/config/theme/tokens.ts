@@ -462,7 +462,7 @@ export const durations = css.defineVars('vtp-durations', {
   sm: { default: '120ms', [reduce]: '0ms' },
   /** `200ms`：展开、淡入、浮层出现 */
   md: { default: '200ms', [reduce]: '0ms' },
-  /** `300ms`：对话框、抽屉 */
+  /** `300ms`：抽屉滑入、图表的进场、主题切换的展开、波纹与骨架的扫光 */
   lg: { default: '300ms', [reduce]: '0ms' },
   /** `500ms`：大面积的页面切换 */
   xl: { default: '500ms', [reduce]: '0ms' },

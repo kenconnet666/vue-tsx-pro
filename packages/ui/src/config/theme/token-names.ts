@@ -1768,7 +1768,7 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
      */
     _md: unknown;
     /**
-     * `300ms`：对话框、抽屉
+     * `300ms`：抽屉滑入、图表的进场、主题切换的展开、波纹与骨架的扫光
      *
      * `durations.lg`
      */
@@ -1807,7 +1807,7 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
      */
     '_durations.md': unknown;
     /**
-     * `300ms`：对话框、抽屉
+     * `300ms`：抽屉滑入、图表的进场、主题切换的展开、波纹与骨架的扫光
      *
      * `durations.lg`
      */

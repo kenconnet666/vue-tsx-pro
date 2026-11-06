@@ -124,7 +124,8 @@ export const formSectionStyles = css.create({
     '--form-section-column-gap': '_space.xl',
     display: 'grid',
     columnGap: 'var(--form-section-column-gap)',
-    rowGap: '_md',
+    // 字段之间比字段内部（标签、控件、说明之间是 xs）明显宽：一眼看出哪几行是一组
+    rowGap: '_lg',
     gridTemplateColumns: 'minmax(0, 1fr)',
     alignItems: 'start',
   },

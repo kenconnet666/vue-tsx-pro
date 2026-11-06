@@ -177,7 +177,8 @@ export const labelStyles = css.create({
     display: 'inline-flex',
     alignItems: 'baseline',
     gap: '_xs',
-    fontSize: '_sm',
+    // 标签与控件里的文字一样大、字重高一档；说明文字（fieldStyles.hint）小一档、弱化色，层级不只靠颜色
+    fontSize: '_md',
     fontWeight: '_medium',
     lineHeight: '_tight',
     color: '_text',
