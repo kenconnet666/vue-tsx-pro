@@ -75,6 +75,10 @@ const adjusted: [Record<string, string>, Record<string, string>] = [
     info: '#0073e0',
     infoHover: '#0060bd',
     infoContrast: '#ffffff',
+    // 状态文字取 11 与 12 级之间：11 级在浅底上不到 4.5，12 级近黑与正文分不出
+    successText: '#17714a',
+    warningText: '#8a5300',
+    infoText: '#0c64b3',
   },
   {
     dangerContrast: '#ffffff',

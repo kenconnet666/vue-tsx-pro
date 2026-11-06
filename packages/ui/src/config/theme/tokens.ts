@@ -106,10 +106,11 @@ export const colors = css.defineVars('vtp-colors', {
   // ───────── 状态色：成功、警告、信息（提示条、徽标、图标、按钮） ─────────
 
   /**
-   * 成功文字与图标。亮色 green 12 `#193b2d`，暗色 green 11 `#3dd68c`。
-   * 亮色不用 11 级：green 11 在 successSoft（green 3）上只有 4.21:1，标记、提示条里的文字不到 4.5
+   * 成功文字与图标。亮色 `#17714a`（green 11 与 12 之间），暗色 green 11 `#3dd68c`。
+   * 亮色不用 11 级：green 11 在 successSoft（green 3）上只有 4.21:1，标记、提示条里的文字不到 4.5；
+   * 也不用 12 级：近黑色与正文分不出（同 dangerText 取中间调），在浅底、浅底悬停、表面上都到 5:1
    */
-  successText: '#193b2d',
+  successText: '#17714a',
   /** 成功浅底。green 3：亮色 `#e6f6eb`，暗色 `#132d21` */
   successSoft: '#e6f6eb',
   /** 成功边框。green 7：亮色 `#8eceaa`，暗色 `#28684a` */
@@ -126,10 +127,11 @@ export const colors = css.defineVars('vtp-colors', {
   /** 成功浅底悬停。green 4：亮色 `#d6f1df`，暗色 `#113b29` */
   successSoftHover: '#d6f1df',
   /**
-   * 警告文字与图标。亮色 amber 12 `#4f3422`，暗色 amber 11 `#ffca16`。
-   * 亮色不用 11 级：amber 11（`#ab6400`）在页面背景上对比度 4.49，不到 WCAG AA 的 4.5
+   * 警告文字与图标。亮色 `#8a5300`（amber 11 与 12 之间），暗色 amber 11 `#ffca16`。
+   * 亮色不用 11 级：amber 11（`#ab6400`）在页面背景上对比度 4.49，不到 WCAG AA 的 4.5；
+   * 也不用 12 级：近黑色与正文分不出，在浅底、浅底悬停、表面上都到 5:1
    */
-  warningText: '#4f3422',
+  warningText: '#8a5300',
   /** 警告浅底。amber 3：亮色 `#fff7c2`，暗色 `#302008` */
   warningSoft: '#fff7c2',
   /** 警告边框。amber 7：亮色 `#e9c162`，暗色 `#714f19` */
@@ -146,10 +148,11 @@ export const colors = css.defineVars('vtp-colors', {
   /** 警告浅底悬停。amber 4：亮色 `#ffee9c`，暗色 `#3f2700` */
   warningSoftHover: '#ffee9c',
   /**
-   * 信息文字与图标。亮色 blue 12 `#113264`，暗色 blue 11 `#70b8ff`。
-   * 亮色不用 11 级：blue 11 在 infoSoft（blue 3）上只有 4.25:1
+   * 信息文字与图标。亮色 `#0c64b3`（blue 11 与 12 之间），暗色 blue 11 `#70b8ff`。
+   * 亮色不用 11 级：blue 11 在 infoSoft（blue 3）上只有 4.25:1；也不用 12 级：近黑色与正文分不出，
+   * 在浅底、浅底悬停、表面上都到 5:1
    */
-  infoText: '#113264',
+  infoText: '#0c64b3',
   /** 信息浅底。blue 3：亮色 `#e6f4fe`，暗色 `#0d2847` */
   infoSoft: '#e6f4fe',
   /** 信息边框。blue 7：亮色 `#8ec8f6`，暗色 `#205d9e` */

@@ -12,7 +12,10 @@ import { demoSource } from './build/demo.ts';
 import { iconImports } from './build/icons.ts';
 import { docPages } from './build/pages.ts';
 
-/** 应用加载前按记住的主题设好页面底色，不先闪一下亮色；移动端演示（mobile-frame.html）用自己的主题，不加 */
+/**
+ * 应用加载前按记住的主题设好页面底色，不先闪一下亮色（跟随系统时按系统的明暗与对比度，同 site/theme.ts）；
+ * 移动端演示（mobile-frame.html）用自己的主题，不加
+ */
 function themeBoot(): Plugin {
   return {
     name: 'docs:theme-boot',

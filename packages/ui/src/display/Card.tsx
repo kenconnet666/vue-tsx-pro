@@ -148,7 +148,10 @@ export const cardRecipe = css.recipe({
     variant: {
       surface: { root: { backgroundColor: '_surface', borderColor: '_border' } },
       outline: { root: { borderColor: '_border' } },
-      elevated: { root: { backgroundColor: '_surfaceRaised', boxShadow: '_md' } },
+      // 一圈弱边框：深色主题里阴影看不见，卡片仍与页面分得开
+      elevated: {
+        root: { backgroundColor: '_surfaceRaised', borderColor: '_borderMuted', boxShadow: '_md' },
+      },
       ghost: {},
     },
     // 页头、正文、页脚的内边距

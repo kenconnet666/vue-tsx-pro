@@ -175,9 +175,9 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
       },
       {
         name: 'successText',
-        value: '#193b2d',
+        value: '#17714a',
         description:
-          '成功文字与图标。亮色 green 12 `#193b2d`，暗色 green 11 `#3dd68c`。亮色不用 11 级：green 11 在 successSoft（green 3）上只有 4.21:1，标记、提示条里的文字不到 4.5',
+          '成功文字与图标。亮色 `#17714a`（green 11 与 12 之间），暗色 green 11 `#3dd68c`。亮色不用 11 级：green 11 在 successSoft（green 3）上只有 4.21:1，标记、提示条里的文字不到 4.5；也不用 12 级：近黑色与正文分不出（同 dangerText 取中间调），在浅底、浅底悬停、表面上都到 5:1',
       },
       {
         name: 'successSoft',
@@ -213,9 +213,9 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
       },
       {
         name: 'warningText',
-        value: '#4f3422',
+        value: '#8a5300',
         description:
-          '警告文字与图标。亮色 amber 12 `#4f3422`，暗色 amber 11 `#ffca16`。亮色不用 11 级：amber 11（`#ab6400`）在页面背景上对比度 4.49，不到 WCAG AA 的 4.5',
+          '警告文字与图标。亮色 `#8a5300`（amber 11 与 12 之间），暗色 amber 11 `#ffca16`。亮色不用 11 级：amber 11（`#ab6400`）在页面背景上对比度 4.49，不到 WCAG AA 的 4.5；也不用 12 级：近黑色与正文分不出，在浅底、浅底悬停、表面上都到 5:1',
       },
       {
         name: 'warningSoft',
@@ -251,9 +251,9 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
       },
       {
         name: 'infoText',
-        value: '#113264',
+        value: '#0c64b3',
         description:
-          '信息文字与图标。亮色 blue 12 `#113264`，暗色 blue 11 `#70b8ff`。亮色不用 11 级：blue 11 在 infoSoft（blue 3）上只有 4.25:1',
+          '信息文字与图标。亮色 `#0c64b3`（blue 11 与 12 之间），暗色 blue 11 `#70b8ff`。亮色不用 11 级：blue 11 在 infoSoft（blue 3）上只有 4.25:1；也不用 12 级：近黑色与正文分不出，在浅底、浅底悬停、表面上都到 5:1',
       },
       {
         name: 'infoSoft',
