@@ -13,12 +13,11 @@
  * 环形：根元素是 progressbar，里面是 SVG（轨道、进度、目标刻度）与中间的 ValueLabel；有 label 时外层是 Root，标签在下方。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { useComponent } from '../config/components';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { Text, type TextProps } from '../base/Text';
 import { useLang } from '../config/context';
-import { useDefaults } from '../config/defaults';
-import { useRecipe } from '../config/styles';
 import { useFormat } from '../config/lang/format';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { clamp, svgNumber } from '../utils/data/number';
@@ -317,23 +316,16 @@ export const Progress = _component(
     const labelId = `${useId()}-label`;
     const format = useFormat();
     const lang = useLang();
-    const appearance = useDefaults('Progress', () => ({ tone, size, radius }), {
+    const ui = useComponent(progressRecipe, () => ({ tone, size, radius }), {
       tone: 'accent',
       radius: 'full',
     });
-    const recipe = useRecipe(progressRecipe);
     const percentText = (percent: number) =>
       format.number(percent / 100, { style: 'percent', maximumFractionDigits: 0 });
 
     return () => {
-      const look = appearance();
       const determinate = value != null;
-      const s = recipe({
-        shape,
-        tone: look.tone,
-        indeterminate: !determinate,
-        radius: look.radius,
-      });
+      const { options: look, parts: s } = ui({ shape, indeterminate: !determinate });
       // 夹在 0–max 之间、按原值比较；比例与读屏的 aria-valuenow 用浮点数就够
       const clamped: NumericValue = !determinate
         ? 0

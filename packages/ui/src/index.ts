@@ -1342,6 +1342,7 @@ export {
   type ProviderProps,
 } from './config/Provider';
 export {
+  useComponent,
   type ComponentConfig,
   type ComponentName,
   type ComponentsOptions,

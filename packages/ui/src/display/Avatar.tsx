@@ -7,12 +7,11 @@
  *   <Avatar name="李四" variant="solid" tone="success" />
  */
 import { User } from '@lucide/icons';
+import { useComponent } from '../config/components';
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
-import { useDefaults } from '../config/defaults';
-import { useRecipe } from '../config/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -125,12 +124,11 @@ export const Avatar = _component(
     propsFallback,
     ...rest
   }: AvatarProps) => {
-    const appearance = useDefaults('Avatar', () => ({ size, radius, variant, tone }), {
+    const ui = useComponent(avatarRecipe, () => ({ size, radius, variant, tone }), {
       radius: 'full',
       variant: 'soft',
       tone: 'accent',
     });
-    const recipe = useRecipe(avatarRecipe);
     const group = AvatarGroupContext.inject(null);
     // 图片状态：loading 加载中、loaded 已显示、error 失败（显示后备内容）
     let status = _state<'loading' | 'loaded' | 'error'>('loading');
@@ -141,15 +139,10 @@ export const Avatar = _component(
 
     return () => {
       const showFallback = !src || status !== 'loaded';
-      const { size: fontSize, radius: corner, variant: fill, tone: color } = appearance();
-      const s = recipe({
-        variant: fill,
-        tone: color,
-        grouped: !!group,
-        loading: status === 'loading',
-        radius: corner,
-        size: fontSize,
-      });
+      const {
+        options: { variant: fill, tone: color },
+        parts: s,
+      } = ui({ grouped: !!group, loading: status === 'loading' });
       return (
         <span
           {...mergeAttrs<'span'>(

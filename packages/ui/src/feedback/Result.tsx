@@ -10,13 +10,12 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { useComponent } from '../config/components';
 import { FileQuestionMark, ServerCrash, ShieldX } from '@lucide/icons';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useLang } from '../config/context';
 import { Paragraph, Text, type TextProps } from '../base/Text';
-import { useDefaults } from '../config/defaults';
-import { useRecipe } from '../config/styles';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { variantOf } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
@@ -156,15 +155,14 @@ export const Result = _component(
     ...rest
   }: ResultProps) => {
     const lang = useLang();
-    const appearance = useDefaults('Result', () => ({ size }));
-    const recipe = useRecipe(resultRecipe);
+    const ui = useComponent(resultRecipe, () => ({ size }));
     return () => {
       const preset = status && STATUS_LOOKS[Number(status) as keyof ResultStatuses];
       const text = status && lang.resultStatus[status];
       const shownTone = tone ?? preset?.tone ?? 'success';
       const shownTitle = title ?? text?.title;
       const shownDescription = description ?? text?.description;
-      const s = recipe({ tone: shownTone, size: appearance().size });
+      const s = ui({ tone: shownTone }).parts;
       return (
         <div {...mergeAttrs<'div'>(s.root, rest)} data-tone={shownTone}>
           {icon !== false && (

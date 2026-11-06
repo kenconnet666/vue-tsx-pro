@@ -25,10 +25,9 @@
  *   if (reason !== null) await api.reject(id, reason);
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { useComponent } from '../config/components';
 import { shallowRef, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { useDefaults } from '../config/defaults';
-import { useRecipe } from '../config/styles';
 import { transitions } from '../utils/style/transitions';
 import { Field } from '../form/Field';
 import { Textarea } from '../input/Textarea';
@@ -46,14 +45,13 @@ export interface AlertDialogProps extends Omit<
 /** 确认对话框：确认 / 取消两个按钮，焦点先落在取消上 */
 export const AlertDialog = _component(
   ({ _open: open = _bindable(false), size, onConfirm, propsCancel, ...rest }: AlertDialogProps) => {
-    const appearance = useDefaults('Dialog', () => ({ size }), { size: 'xs' });
-    const recipe = useRecipe(dialogRecipe);
+    const ui = useComponent(dialogRecipe, () => ({ size }), { size: 'xs' });
     return () => (
       <ModalCore
         {...mergePartProps<ModalCoreProps>(
           {
             title: rest.title,
-            parts: recipe({ size: appearance().size }),
+            parts: ui().parts,
             panelSx: transitions.scale,
           },
           rest,

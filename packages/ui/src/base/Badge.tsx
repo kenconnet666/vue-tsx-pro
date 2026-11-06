@@ -9,12 +9,11 @@
  * 部件：Root（span）、Icon、Dot（span，dot 时）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { useComponent } from '../config/components';
 import type { VNodeChild } from 'vue';
-import { useDefaults } from '../config/defaults';
 import type { StatusMap } from '../utils/data/status';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { badgeRecipe, type BadgeOptions } from './badge-styles';
-import { useRecipe } from '../config/styles';
 import { Icon, type IconData, type IconProps } from './Icon';
 
 /** 未声明的属性落到 span 上 */
@@ -44,10 +43,9 @@ export const Badge = _component(
     children,
     ...rest
   }: BadgeProps) => {
-    const appearance = useDefaults('Badge', () => ({ variant, tone, size, radius }));
-    const recipe = useRecipe(badgeRecipe);
+    const ui = useComponent(badgeRecipe, () => ({ variant, tone, size, radius }));
     return () => {
-      const styles = recipe(appearance());
+      const styles = ui().parts;
       return (
         <span {...mergeAttrs<'span'>(styles.root, rest)}>
           {icon ? (

@@ -11,12 +11,11 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { useComponent } from '../config/components';
 import type { VNodeChild } from 'vue';
 import { CloseButton, type PresetIconButtonProps } from '../base/CloseButton';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
-import { useDefaults } from '../config/defaults';
-import { useRecipe } from '../config/styles';
 import { useDismissible } from '../utils/motion/presence';
 import { hasContent, mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { statusIcons, statusToneSx, type StatusTone } from '../utils/style/tone-styles';
@@ -155,16 +154,17 @@ export const Alert = _component(
     children,
     ...rest
   }: AlertProps) => {
-    const appearance = useDefaults('Alert', () => ({ variant, radius }), {
+    const ui = useComponent(alertRecipe, () => ({ variant, radius }), {
       variant: 'soft',
       radius: 'md',
     });
-    const recipe = useRecipe(alertRecipe);
     // 离场结束才交给使用方移除；使用方没移除时提示条重新出现
     const dismissible = useDismissible(() => onClose?.());
     return () => {
-      const { variant: shownVariant, radius: shownRadius } = appearance();
-      const s = recipe({ variant: shownVariant, tone, radius: shownRadius, size });
+      const {
+        options: { variant: shownVariant },
+        parts: s,
+      } = ui({ tone, size });
       const shownIcon = icon === false ? undefined : (icon ?? statusIcons[tone]);
       // 说明取 description，没有时取 children；两个都有时 children 放在说明下面
       const extra = hasContent(description) && hasContent(children);

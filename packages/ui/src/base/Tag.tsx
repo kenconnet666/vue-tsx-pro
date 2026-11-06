@@ -8,15 +8,14 @@
  *   <Tag onRemove={() => layout.change(() => remove(item))}>…</Tag>
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { useComponent } from '../config/components';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { useDefaults } from '../config/defaults';
 import { useDismissible } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { plainText } from '../utils/data/text';
 import { badgeRecipe, type BadgeOptions } from './badge-styles';
-import { useRecipe } from '../config/styles';
 import { CloseButton, type PresetIconButtonProps } from './CloseButton';
 import { Icon, type IconData, type IconProps } from './Icon';
 import { t } from '../config/theme/tokens';
@@ -73,8 +72,7 @@ export const Tag = _component(
     ...rest
   }: TagProps) => {
     const lang = useLang();
-    const appearance = useDefaults('Badge', () => ({ variant, tone, size, radius }));
-    const recipe = useRecipe(badgeRecipe);
+    const ui = useComponent(badgeRecipe, () => ({ variant, tone, size, radius }));
     // 离场结束才交给使用方移除；使用方没移除（如拒绝删除）时标签重新出现
     const dismissible = useDismissible(() => onRemove?.());
     return () => {
@@ -84,9 +82,9 @@ export const Tag = _component(
         <span
           {...mergeAttrs<'span'>(
             {
-              ...recipe(appearance()).root,
+              ...ui().parts.root,
               sx: [
-                recipe(appearance()).root.sx,
+                ui().parts.root.sx,
                 tagStyles.root,
                 onRemove && tagStyles.removable,
                 dismissible.dismissing && tagStyles.removing,

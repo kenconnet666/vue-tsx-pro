@@ -9,10 +9,9 @@
 import { ArrowUpRight } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { useComponent } from '../config/components';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { useDefaults } from '../config/defaults';
-import { useRecipe } from '../config/styles';
 import { externalLinkAttrs, useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
@@ -83,14 +82,15 @@ export const Link = _component(
   ({ href, tone, underline, external = false, propsIcon, children, ...rest }: LinkProps) => {
     const lang = useLang();
     const router = useRouterLink();
-    const appearance = useDefaults('Link', () => ({ tone, underline }), {
+    const ui = useComponent(linkRecipe, () => ({ tone, underline }), {
       tone: 'accent',
       underline: 'always',
     });
-    const recipe = useRecipe(linkRecipe);
     return () => {
-      const { tone: shownTone, underline: shownUnderline } = appearance();
-      const s = recipe({ underline: shownUnderline, tone: shownTone });
+      const {
+        options: { tone: shownTone },
+        parts: s,
+      } = ui();
       return (
         <a
           {...mergeAttrs<'a'>(

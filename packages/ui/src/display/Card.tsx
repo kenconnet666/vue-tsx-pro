@@ -12,10 +12,10 @@
  * 未声明的属性落在这一层上。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { useComponent } from '../config/components';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
-import { useDefaults } from '../config/defaults';
-import { useRecipe, type PartLayer } from '../config/styles';
+import type { PartLayer } from '../config/styles';
 import { t } from '../config/theme/tokens';
 import { SkeletonText, type SkeletonTextProps } from '../feedback/SkeletonText';
 import { useReducedMotion } from '../utils/dom/media-query';
@@ -212,7 +212,7 @@ export const cardRecipe = css.recipe({
 /** 卡片的部件（createUi / Provider 的 styles.Card 按它定制） */
 export type CardPart = (typeof cardRecipe.parts)[number];
 
-/** 一次渲染里各部件的默认层（useRecipe 的结果） */
+/** 一次渲染里各部件的默认层（useComponent 的 parts） */
 type CardParts = Readonly<Record<CardPart, PartLayer>>;
 
 // 倾斜角度、光的位置每帧变化，用动态样式；单独一个 create，见 COMPONENTS.md §4
@@ -255,12 +255,11 @@ export const Card = _component(
     children,
     ...rest
   }: CardProps) => {
-    const appearance = useDefaults('Card', () => ({ variant, padding, radius }), {
+    const ui = useComponent(cardRecipe, () => ({ variant, padding, radius }), {
       variant: 'surface',
       padding: 'lg',
       radius: 'lg',
     });
-    const recipe = useRecipe(cardRecipe);
     // 骨架防闪烁；aria-busy 按真实的 loading
     const skeleton = useDelayedLoading(() => loading);
     // 出现过骨架之后，骨架与正文互换时都淡入（样式在切换的那一刻加上，动画才会播）；一开始就有内容的卡片不播
@@ -325,14 +324,10 @@ export const Card = _component(
     }
 
     return () => {
-      const { variant: shownVariant, padding: shownPadding, radius: shownRadius } = appearance();
-      const s = recipe({
-        variant: shownVariant,
-        padding: shownPadding,
-        extra: extra != null,
-        effect,
-        radius: shownRadius,
-      });
+      const {
+        options: { radius: shownRadius },
+        parts: s,
+      } = ui({ extra: extra != null, effect });
       if (skeleton.value) revealing = true;
       const surface = s.root;
       const content = renderContent(s);

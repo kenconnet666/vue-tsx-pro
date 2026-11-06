@@ -10,11 +10,10 @@
 import { Inbox } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { useComponent } from '../config/components';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Paragraph, Text, type TextProps } from '../base/Text';
-import { useDefaults } from '../config/defaults';
-import { useRecipe } from '../config/styles';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { variantOf } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -88,10 +87,9 @@ export const Empty = _component(
     children,
     ...rest
   }: EmptyProps) => {
-    const appearance = useDefaults('Empty', () => ({ size }));
-    const recipe = useRecipe(emptyRecipe);
+    const ui = useComponent(emptyRecipe, () => ({ size }));
     return () => {
-      const s = recipe({ size: appearance().size });
+      const s = ui().parts;
       return (
         <div {...mergeAttrs<'div'>(s.root, rest)}>
           {icon !== false && (

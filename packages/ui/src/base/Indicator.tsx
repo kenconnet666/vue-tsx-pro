@@ -10,10 +10,9 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { useComponent } from '../config/components';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
-import { useDefaults } from '../config/defaults';
-import { useRecipe } from '../config/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneSx, type StatusTone } from '../utils/style/tone-styles';
 import { VisuallyHidden } from './VisuallyHidden';
@@ -164,13 +163,14 @@ export const Indicator = _component(
     ...rest
   }: IndicatorProps) => {
     const lang = useLang();
-    const appearance = useDefaults('Indicator', () => ({ tone }), { tone: 'danger' });
-    const recipe = useRecipe(indicatorRecipe);
+    const ui = useComponent(indicatorRecipe, () => ({ tone }), { tone: 'danger' });
     return () => {
       const visible = dot || (count != null && (count > 0 || showZero));
       const text = count == null ? '' : count > max ? `${max}+` : String(count);
-      const shownTone = appearance().tone;
-      const s = recipe({ dot, placement, overlap, tone: shownTone });
+      const {
+        options: { tone: shownTone },
+        parts: s,
+      } = ui({ dot, placement, overlap });
       return (
         <span {...mergeAttrs<'span'>(s.root, rest)}>
           {children}

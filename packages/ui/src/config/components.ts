@@ -15,7 +15,7 @@
  *
  * 新的配方组件在 UiComponents 里加一行：部件类型取配方的 `<组件>Part`，档位选项取组件的 `<组件>Options`。
  */
-import type { PartStyles, RecipeExtension } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { PartStyles, Recipe, RecipeExtension } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { AlertOptions, AlertPart } from '../feedback/Alert';
 import type { AvatarOptions, AvatarPart } from '../display/Avatar';
 import type { BadgeOptions, BadgePart } from '../base/badge-styles';
@@ -33,8 +33,8 @@ import type { ProgressOptions, ProgressPart } from '../feedback/Progress';
 import type { ResultOptions, ResultPart } from '../feedback/Result';
 import type { TablePart } from '../table/Table';
 import type { TabPart, TabsOptions } from '../navigation/Tabs';
-import type { ComponentDefaults } from './defaults';
-import type { ComponentStyles } from './styles';
+import { useDefaults, type ComponentDefaults, type ResolvedDefaults } from './defaults';
+import { useRecipe, type ComponentStyles, type PartLayer } from './styles';
 
 /** 档位取值在配置里的键：布尔档位写 'true' / 'false' */
 type ValueKey<T> = T extends boolean
@@ -153,4 +153,42 @@ export function splitComponents(
     if (extension) styles[name] = extension;
   }
   return { defaults: defaults as ComponentDefaults, styles: styles as ComponentStyles };
+}
+
+/**
+ * 组件的外观：档位的默认值（createUi / Provider 的 `components.Xxx.defaults` 与组件自己的 fallback）加上配方与它的定制，
+ * 一次调用。名字取自配方（只收登记过的），在 setup 里调用，渲染时调用返回的函数：
+ *
+ *   const ui = useComponent(alertRecipe, () => ({ variant, size, radius }), { variant: 'soft', radius: 'md' });
+ *   return () => {
+ *     const { options, parts } = ui({ tone });   // 参数：这次渲染的状态（不进默认值的档位，如 tone、extra）
+ *     return <div {...mergeAttrs<'div'>(parts.root, rest)}>…</div>;
+ *   };
+ */
+export function useComponent<
+  P extends string,
+  V,
+  N extends ComponentName,
+  Own extends OptionsOf<N>,
+  const Fallback extends { [K in keyof Own]?: Exclude<Own[K], undefined> } = {},
+>(
+  recipe: Recipe<P, V, N>,
+  read: () => Own,
+  fallback?: Fallback,
+): (state?: object) => {
+  readonly options: ResolvedDefaults<Own, Fallback>;
+  readonly parts: Readonly<Record<P, PartLayer>>;
+} {
+  if (!recipe.name)
+    throw new Error('useComponent：配方要有 name（同 UiComponents 里登记的组件名）');
+  const options = useDefaults(
+    recipe.name,
+    read as () => OptionsOf<N>,
+    fallback,
+  ) as () => ResolvedDefaults<Own, Fallback>;
+  const parts = useRecipe(recipe);
+  return (state) => {
+    const resolved = options();
+    return { options: resolved, parts: parts(state ? { ...resolved, ...state } : resolved) };
+  };
 }

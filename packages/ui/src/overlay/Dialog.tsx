@@ -10,6 +10,7 @@
  *   handle.update({ title: '订单详情（已发货）' }); handle.close(); await handle.closed;
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { useComponent } from '../config/components';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { ContainerSizes } from '../layout/Container';
 import {
@@ -17,8 +18,6 @@ import {
   type DetachedOverlayHandle,
   type DetachedOverlayOptions,
 } from './detached';
-import { useDefaults } from '../config/defaults';
-import { useRecipe } from '../config/styles';
 import { transitions } from '../utils/style/transitions';
 import { ModalCore, modalPartStyles, type ModalProps } from './ModalCore';
 import { t } from '../config/theme/tokens';
@@ -73,15 +72,9 @@ export type DialogPart = (typeof dialogRecipe.parts)[number];
 /** 模态对话框：居中显示，淡入放大 */
 export const Dialog = _component(
   ({ _open: open = _bindable(false), size, ...rest }: DialogProps) => {
-    const appearance = useDefaults('Dialog', () => ({ size }), { size: 'xs' });
-    const recipe = useRecipe(dialogRecipe);
+    const ui = useComponent(dialogRecipe, () => ({ size }), { size: 'xs' });
     return () => (
-      <ModalCore
-        {...rest}
-        parts={recipe({ size: appearance().size })}
-        panelSx={transitions.scale}
-        _open={open}
-      />
+      <ModalCore {...rest} parts={ui().parts} panelSx={transitions.scale} _open={open} />
     );
   },
 );
