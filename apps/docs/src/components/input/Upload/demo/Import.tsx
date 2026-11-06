@@ -21,12 +21,13 @@ export default _component(() => {
         onFiles={(files) => void onFiles(files)}
         onReject={(files) => (rejected = files.map((file) => file.name).join('、'))}
       />
-      {rejected && (
+      {/* 条件写成布尔：两个挨着的空字符串会渲染成两段空文本，预渲染的页面水合时 Vue 把它们与片段的结尾标记弄混 */}
+      {rejected !== '' && (
         <Alert tone="danger" title="不是 CSV 文件">
           {rejected}
         </Alert>
       )}
-      {imported && <Small tone="muted">已读取 {imported}</Small>}
+      {imported !== '' && <Small tone="muted">已读取 {imported}</Small>}
     </Flex>
   );
 });
