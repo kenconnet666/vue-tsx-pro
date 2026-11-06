@@ -3,13 +3,14 @@ import { mount, styleOf, styleTextOf } from '../../utils/.test/mount';
 import { Em, Paragraph, Small, Strong, Text } from '../Text';
 
 const render = (node: Parameters<typeof mount>[0]) => mount(node).firstElementChild as HTMLElement;
-const classes = (el: Element) => styleOf(el).size;
+/** 元素上生效的声明条数 */
+const declarations = (el: Element) => styleOf(el).size;
 
 describe('Text', () => {
   it('span 且不加样式（全部继承上下文）', () => {
     const plain = render(() => <Text>a</Text>);
     expect(plain.tagName).toBe('SPAN');
-    expect(classes(plain)).toBe(0);
+    expect(declarations(plain)).toBe(0);
   });
 
   it('各项 prop 各自追加样式；lineClamp 的行数写在行内变量里', () => {
@@ -18,7 +19,7 @@ describe('Text', () => {
         a
       </Text>
     ));
-    expect(classes(el)).toBeGreaterThanOrEqual(5);
+    expect(declarations(el)).toBeGreaterThanOrEqual(5);
     expect(styleTextOf(el)).toContain('2');
   });
 });
@@ -32,11 +33,11 @@ describe('一个元素一个组件', () => {
   });
 
   it('各自的默认值带样式，可以被 prop 覆盖', () => {
-    // Paragraph：去外边距 + pretty 换行；Strong：semibold；Small：xs
-    expect(classes(render(() => <Paragraph>a</Paragraph>))).toBeGreaterThanOrEqual(2);
-    expect(classes(render(() => <Strong>a</Strong>))).toBe(1);
-    expect(classes(render(() => <Small>a</Small>))).toBe(1);
-    expect(classes(render(() => <Em>a</Em>))).toBe(0);
+    // Paragraph：去外边距 + pretty 换行；Strong：semibold；Small：xs 字号与这一档的控件高度
+    expect(declarations(render(() => <Paragraph>a</Paragraph>))).toBeGreaterThanOrEqual(2);
+    expect(declarations(render(() => <Strong>a</Strong>))).toBe(1);
+    expect(declarations(render(() => <Small>a</Small>))).toBe(2);
+    expect(declarations(render(() => <Em>a</Em>))).toBe(0);
     const small = render(() => <Small size="md">a</Small>);
     expect(small.className).not.toBe(render(() => <Small>a</Small>).className);
   });

@@ -26,12 +26,14 @@ const $ = <T extends HTMLElement = HTMLElement>(selector: string) =>
 const nextFrame = () => new Promise((resolve) => requestAnimationFrame(resolve));
 
 describe('Button', () => {
-  it('高度不小于 24px 的点击区域，随字号缩放（control 2.25em）', () => {
+  it('高度不小于 24px 的点击区域，随字号缩放，取整到 4px 网格（control 是字号的 2.25 倍取整，xs 档 2 倍）', () => {
     for (const button of root.querySelectorAll<HTMLElement>('.button-row-accent button')) {
       if (button.textContent === 'link') continue;
       const { height } = button.getBoundingClientRect();
       const fontSize = Number.parseFloat(getComputedStyle(button).fontSize);
-      expect(height).toBeGreaterThanOrEqual(Math.max(24, fontSize * 2.25) - 0.5);
+      expect(height % 4).toBe(0);
+      expect(height).toBeGreaterThanOrEqual(24);
+      expect(Math.abs(height - fontSize * 2.25)).toBeLessThanOrEqual(3);
     }
     const icon = $('.icon-button-demo').getBoundingClientRect();
     expect(icon.width).toBeCloseTo(icon.height, 0);

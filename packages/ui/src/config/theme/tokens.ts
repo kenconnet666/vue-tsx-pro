@@ -344,8 +344,12 @@ export const space = css.defineVars('vtp-space', {
  * 容器宽度（Container 与页面内容的最大宽度）是页面级的，用 rem，跟随浏览器的字号设置
  */
 export const sizes = css.defineVars('vtp-sizes', {
-  /** `2.25em`：单行控件（按钮、输入框、下拉框）的高度 */
-  control: '2.25em',
+  /**
+   * `round(nearest, 2.25em, 4px)`：单行控件（按钮、输入框、下拉框）的高度。字号的 2.25 倍取整到 4px：
+   * 13 / 14 / 16 / 18px 的字号是 28 / 32 / 36 / 40px，整数像素的边框在 1 倍屏上不发虚；
+   * 字号档位 xs 另给 2 倍（12px → 24px，见 fontSizeStyles），不与 sm 同高
+   */
+  control: 'round(nearest, 2.25em, 4px)',
   /** `24px`：可点击区域的最小尺寸（WCAG 2.2 目标尺寸 24×24），与 control 取较大值 */
   minTarget: '24px',
   /** `30rem`（480px）：窄内容，如登录表单 */

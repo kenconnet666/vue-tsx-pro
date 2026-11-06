@@ -1389,7 +1389,9 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
    */
   interface SizesTokens {
     /**
-     * `2.25em`：单行控件（按钮、输入框、下拉框）的高度
+     * `round(nearest, 2.25em, 4px)`：单行控件（按钮、输入框、下拉框）的高度。字号的 2.25 倍取整到 4px：
+     * 13 / 14 / 16 / 18px 的字号是 28 / 32 / 36 / 40px，整数像素的边框在 1 倍屏上不发虚；
+     * 字号档位 xs 另给 2 倍（12px → 24px，见 fontSizeStyles），不与 sm 同高
      *
      * `sizes.control`
      */
@@ -1443,7 +1445,9 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
    */
   interface QualifiedSizesTokens {
     /**
-     * `2.25em`：单行控件（按钮、输入框、下拉框）的高度
+     * `round(nearest, 2.25em, 4px)`：单行控件（按钮、输入框、下拉框）的高度。字号的 2.25 倍取整到 4px：
+     * 13 / 14 / 16 / 18px 的字号是 28 / 32 / 36 / 40px，整数像素的边框在 1 倍屏上不发虚；
+     * 字号档位 xs 另给 2 倍（12px → 24px，见 fontSizeStyles），不与 sm 同高
      *
      * `sizes.control`
      */

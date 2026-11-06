@@ -3,6 +3,7 @@
  * 档位与主题 tokens 同名（COMPONENTS.md §6.2）。
  */
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { t } from '../../config/theme/tokens';
 // 取值类型写成带注释接口的 keyof：补全与悬停能看到每个取值的效果（见 styles.ts）
 
 /** 界面文字的字号档位，对应主题的 fontSizes；组件的 size 档位也用它，括号里是默认主题的值 */
@@ -108,15 +109,21 @@ export interface TextWraps {
 /** 换行方式 */
 export type TextWrap = keyof TextWraps;
 
-/** 字号档位 → fontSizes token */
+/** 控件高度（sizes.control）的默认取法：字号的 2.25 倍取整到 4px */
+const CONTROL_HEIGHT = 'round(nearest, 2.25em, 4px)';
+
+/**
+ * 字号档位 → fontSizes token，连同这一档的控件高度：xs 用字号的 2 倍（12px → 24px），不与 sm（28px）同高；
+ * 其余档同 sizes.control 的默认取法，也写上：嵌在 xs 里的别的档不带着 xs 的高度
+ */
 export const fontSizeStyles = css.create({
-  xs: { fontSize: '_xs' },
-  sm: { fontSize: '_sm' },
-  md: { fontSize: '_md' },
-  lg: { fontSize: '_lg' },
-  xl: { fontSize: '_xl' },
-  xxl: { fontSize: '_xxl' },
-  xxxl: { fontSize: '_xxxl' },
+  xs: { fontSize: '_xs', [t.sizes.control]: 'round(nearest, 2em, 4px)' },
+  sm: { fontSize: '_sm', [t.sizes.control]: CONTROL_HEIGHT },
+  md: { fontSize: '_md', [t.sizes.control]: CONTROL_HEIGHT },
+  lg: { fontSize: '_lg', [t.sizes.control]: CONTROL_HEIGHT },
+  xl: { fontSize: '_xl', [t.sizes.control]: CONTROL_HEIGHT },
+  xxl: { fontSize: '_xxl', [t.sizes.control]: CONTROL_HEIGHT },
+  xxxl: { fontSize: '_xxxl', [t.sizes.control]: CONTROL_HEIGHT },
 });
 
 /**

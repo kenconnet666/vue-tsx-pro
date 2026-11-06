@@ -108,6 +108,7 @@
 - 只有组件根元素设字号，内部部件不再改字号，避免 em 层层嵌套后越缩越小；部件需要不同字号时用主题里的比例变量。
 - 例外用 px：边框宽度、焦点环宽度与偏移、分隔线。这些 px 必须经主题的 `borderWidths` token（短写 `'_xs'`；表外属性写 `'_borderWidths.xs'`；夹在值里写 `t.borderWidths.xs`，负偏移 `` `calc(-1 * ${t.borderWidths.sm})` ``），不写死数字：主题把线改粗时一起变。
 - 可点击区域不小于 24px（WCAG 2.5.8）：如 `min-height: max(2em, 24px)`。
+- 单行控件的高度用 `sizes.control`（`max(${t.sizes.control}, ${t.sizes.minTarget})`）：字号的 2.25 倍取整到 4px 网格，xs 档是 2 倍，五档依次 24 / 28 / 32 / 36 / 40px；整数像素的边框在 1 倍屏上不发虚。档位的控件高度跟着 `fontSizeStyles` 走，组件只要用字号档位。
 - 行高不带单位。
 
 ## 4. 样式
