@@ -302,4 +302,9 @@ CSharpUi、Blazor 两个会话是同一套组件库设计的 C# / Blazor 版本�
 | 用户（文档站） | 示例按高度自动分两列 | 不自动分，加检查：`docs:review` 报出不齐的页与该挪的示例，人在代码里挪 | 首屏之外的示例推迟渲染，自动平衡会让已经看到的示例换列（`Examples.tsx` 的既有取舍） |
 | 原计划 §4.1 | 登记表由脚本扫描配方生成 | 改为一张手写的 `UiComponents`（config/components.ts），`ComponentDefaults` / `ComponentStyles` 从它推出；配方的 `name` 是字面量类型，`useRecipe` 只收登记过的名字；测试用 `satisfies Record<ComponentName, …>` 查两边一一对应 | 少一个生成步骤；写错名字在类型检查时就报（Tab / Tabs 的错位这样查出），效果与生成相同 |
 | 原计划 §4.1 | 新入口 `components`，旧的 `defaults` / `styles` 废弃 | 采纳；入口处换成原来的两层机制（`splitComponents`），内部的合并、配方的扩展不变；合并配置的内部件标 `@internal`，导出脚本不放进主入口 | 改动面最小，旧写法照样能用 |
+| API 调研 §6 | `bind` / `select` 挪出公开入口 | 不挪 | COMPONENTS.md 让使用方给导入的样式手写 `css.bind` / `css.select`，是正当的公开 API |
+| API 调研 §6 | 配方的 `name` 覆盖了函数自带的 name，改名 `component` | 不改 | `name` 现在是有类型检查的组件名，与配置里的 `name` 一致；改名只是换个说法 |
+| 原计划 §4.5 | `hotStyles`、`inlineStyle` 直接从公开入口去掉 | 挪到 `styles/internal`，公开入口里标 @deprecated 留一个版本 | 实测：正在运行的开发服务器（旧编译器）与磁盘编译缓存里的产物还从公开入口导入 `hotStyles`，直接去掉会让页面打不开 |
+| 原计划 §4.2 | 所有配方组件都改用 `useComponent` | 默认值只交给配方的改用（12 个）；默认值还要交给上下文或子组件的（Drawer、DataTable、Table、Tabs）照旧分开用 `useDefaults` + `useRecipe` | 硬套反而要在组件里多拆一次 |
+| 原计划 §4.2 | 字号、圆角都进配方 | Progress 的字号仍按布局放在外层或轨道上 | 放在哪个元素上取决于布局，是组件自己的逻辑 |
 
