@@ -98,7 +98,7 @@ interface GroupNode {
 
 const MODES: readonly ConditionMode[] = ['all', 'any', 'none', 'notAll'];
 
-/** ConditionBuilder 的样式：root、group、nested、header、rows、row、joiner、rule、field、op、value、range、actions、empty */
+/** ConditionBuilder 的样式：root、group、nested、header、rows、row、joiner、rule、field、op、value、actions、empty */
 export const conditionBuilderStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
   group: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
@@ -138,7 +138,6 @@ export const conditionBuilderStyles = css.create({
   op: { flexGrow: 0, flexShrink: 1, flexBasis: '8rem', minWidth: '6rem' },
   // grid：里面的输入框拉满这一格（多选的标签按这个宽度排）
   value: { display: 'grid', flexGrow: 2, flexShrink: 1, flexBasis: '12rem', minWidth: '8rem' },
-  range: { display: 'flex', alignItems: 'center', gap: '_xs' },
   actions: {
     display: 'flex',
     flexWrap: 'wrap',

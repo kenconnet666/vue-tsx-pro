@@ -35,7 +35,7 @@ import { Switch, type SwitchProps } from '../input/Switch';
 import { ToggleGroup, ToggleItem, type ToggleGroupBaseProps } from '../input/ToggleGroup';
 import { Popover, type PopoverProps } from '../overlay/Popover';
 import { useRouterLink } from '../utils/dom/link';
-import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import type { SingleSelectionProps } from '../utils/data/selection';
 import type { StatusTone } from '../utils/style/tone-styles';
@@ -373,16 +373,16 @@ export const NotificationCenter = _component(
     _open: open = _bindable(false),
     propsTrigger,
     propsNotificationList,
-    sx,
     ...rest
   }: NotificationCenterProps) => {
     const messages = useMessages('patterns', patternsMessages);
     const unread = _derived(items.filter((item) => !item.read).length);
     return () => (
       <Popover
-        {...rest}
-        placement={rest.placement ?? 'bottom-end'}
-        sx={[notificationCenterStyles.panel, sx]}
+        {...mergeProps<PopoverProps>(
+          { placement: 'bottom-end', sx: notificationCenterStyles.panel },
+          rest,
+        )}
         _open={open}
         trigger={(trigger) => (
           <Indicator count={unread} label={messages.notificationsUnread(unread)}>

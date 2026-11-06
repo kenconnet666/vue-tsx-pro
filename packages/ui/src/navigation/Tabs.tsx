@@ -584,7 +584,6 @@ export interface TabProps extends PartProps<'button', TabManaged> {
   children?: VNodeChild;
 }
 
-/** Tabs 的样式：root、hover、line、lineVertical、lineActive、soft 等 */
 /**
  * 标签的配方：状态（选中、禁用、拖动中）由 DOM 上的 aria-selected、disabled、data-dragging 决定，
  * 样式、方向、可关闭是档位

@@ -18,6 +18,7 @@ import { space } from '../config/theme/tokens';
 import { useResizeObserver } from '../utils/dom/resize';
 import { toElement } from '../utils/dom/element';
 import { useEventListener } from '../utils/dom/event-listener';
+import { mergePartProps } from '../utils/props';
 import { Flex, type FlexProps } from './Flex';
 import type { Space } from '../utils/style/styles';
 
@@ -50,7 +51,7 @@ export const viewportFillDynamicStyles = css.create({
 
 /** 占满到窗口底边 */
 export const ViewportFill = _component(
-  ({ bottom = 'xl', minHeight = '24rem', sx, ...rest }: ViewportFillProps) => {
+  ({ bottom = 'xl', minHeight = '24rem', ...rest }: ViewportFillProps) => {
     let element = _state.raw<HTMLElement | null>(null);
     // 顶边在文档里的位置（不随滚动变）
     let top = _state(0);
@@ -65,14 +66,16 @@ export const ViewportFill = _component(
     useResizeObserver(() => (element ? document.body : null), measure);
     return () => (
       <Flex
-        {...rest}
-        direction="column"
-        ref={(value: unknown) => (element = toElement(value))}
-        sx={[
-          viewportFillStyles.root,
-          viewportFillDynamicStyles.size(top, space[bottom], minHeight),
-          sx,
-        ]}
+        {...mergePartProps<FlexProps>(
+          {
+            sx: [
+              viewportFillStyles.root,
+              viewportFillDynamicStyles.size(top, space[bottom], minHeight),
+            ],
+          },
+          rest,
+          { direction: 'column', ref: (value: unknown) => (element = toElement(value)) },
+        )}
       />
     );
   },
