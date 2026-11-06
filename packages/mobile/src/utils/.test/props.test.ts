@@ -14,7 +14,8 @@ describe('mergeProps', () => {
       { sx: 'u', class: 'u', title: 'u', role: 'u' },
       { role: 'm' },
     );
-    expect(merged.sx).toEqual(['d', 'u']);
+    // 使用方写了 sx：组件的、使用方的、受管的各成一段（受管的没写，是空的一段）
+    expect(merged.sx).toEqual(['d', 'u', undefined]);
     expect(merged.class).toEqual(['d', 'u']);
     expect(merged.title).toBe('u');
     expect(merged.role).toBe('m');

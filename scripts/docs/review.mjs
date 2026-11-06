@@ -131,7 +131,8 @@ const columns = (page) =>
 
 const results = [];
 const paths = await pagePaths();
-for (const [index, path] of paths.entries()) {
+/** 巡检一页：桌面（各主题）、1920 宽的两列、手机宽度 */
+async function reviewPage(path) {
   const name = path.replace('/components/', '');
   const result = { path, errors: [], desktop: null, mobile: null };
   for (const theme of themes) {
@@ -177,6 +178,23 @@ for (const [index, path] of paths.entries()) {
   result.mobile = await overflow(page);
   result.errors.push(...errors.map((error) => `mobile: ${error}`));
   await mobile.close();
+  return result;
+}
+
+/** 开发服务器热更新会整页刷新（边改代码边巡检时）：量到一半页面没了就整页重来，最多三次 */
+async function reviewWithRetry(path) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await reviewPage(path);
+    } catch (error) {
+      if (attempt >= 3 || !/context was destroyed|navigat|Target page.*closed/i.test(String(error)))
+        throw error;
+    }
+  }
+}
+
+for (const [index, path] of paths.entries()) {
+  const result = await reviewWithRetry(path);
   results.push(result);
   const flags = [
     result.errors.length && `${result.errors.length} 个错误`,

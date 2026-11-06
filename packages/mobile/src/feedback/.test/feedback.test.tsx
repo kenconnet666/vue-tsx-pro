@@ -24,7 +24,8 @@ describe('showToast', () => {
     await nextTick();
     expect(toasts()).toHaveLength(1);
     expect(toasts()[0]!.textContent).toBe('已复制');
-    await wait(100 + 300);
+    // 显示 100 ms + 离场 300 ms；多等一点：恰好等到点时机器忙就会差几毫秒
+    await wait(100 + 300 + 100);
     expect(toasts()).toHaveLength(0);
   });
 

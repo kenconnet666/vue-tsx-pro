@@ -1,6 +1,7 @@
 // pivot 与 PivotTable：多级行维度、列维度的顺序、各种聚合、合计；Decimal 精确求和；多级行合并、热力着色、空格子
 import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { mount, styleTextOf } from '../../utils/.test/mount';
 import { pivot } from '../pivot';
 import { PivotTable } from '../PivotTable';
@@ -101,8 +102,14 @@ describe('PivotTable', () => {
     expect(styled[1]).toContain('color-mix');
     expect(styled[2]).toContain('color-mix');
     expect(styled[3]).not.toContain('color-mix');
-    // 着色与单元格自己的样式合成一个类：不靠样式表里规则的先后，单元格的 background-color: inherit 盖不住它
-    expect(cells[1]!.classList).toHaveLength(1);
-    expect(styled[1]).not.toMatch(/background-color:\s*inherit/);
+    // 着色在单元格样式的最后一段（最靠后的级联层）：不靠样式表里规则的先后，单元格的 background-color: inherit 盖不住它
+    const last = [...cells[1]!.classList].at(-1)!;
+    const lastRules = css
+      .styleText()
+      .split('\n')
+      .filter((line) => line.includes(`.${last}`))
+      .join('');
+    expect(lastRules).toContain('color-mix');
+    expect(lastRules).not.toMatch(/background-color:\s*inherit/);
   });
 });

@@ -16,16 +16,24 @@ describe('mergeProps', () => {
     expect(merged).toMatchObject({ id: 'mine', title: 'a', role: 'switch' });
   });
 
-  it('sx、class、style 依次排列成数组', () => {
+  it('sx、class、style 依次排列成数组；使用方写了 sx 时三层分段（受管的没写，是空的一段）', () => {
     const merged = mergeProps(
       { sx: 'a', class: 'x', style: 'color: red' },
       { sx: 'b', class: { active: true } },
     );
     expect(merged).toMatchObject({
-      sx: ['a', 'b'],
+      sx: ['a', 'b', undefined],
       class: ['x', { active: true }],
       style: ['color: red'],
     });
+    expect(mergeProps({ sx: 'a' }, { title: 't' }, { sx: 'c' }).sx).toEqual(['a', 'c']);
+  });
+
+  it('使用方的 sx 单成一段：组件的样式与使用方的覆盖各是一个类，不合成一个', () => {
+    const one = css.attrs(mergeProps({ sx: styles.box }, { title: 't' }).sx as never);
+    const two = css.attrs(mergeProps({ sx: styles.box }, { sx: styles.red }).sx as never);
+    expect(one.class!.split(' ')).toHaveLength(1);
+    expect(two.class!.split(' ')).toEqual([one.class, expect.any(String)]);
   });
 
   it('事件：使用方先执行；preventDefault 后跳过组件自己的处理', () => {

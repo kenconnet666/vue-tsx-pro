@@ -123,6 +123,61 @@ describe('分段', () => {
   });
 });
 
+describe('分段与热更新、绑定', () => {
+  it('热更新换了前段的片段：带入过它的后段按原类名一起改写', async () => {
+    const { hotStyles } = await import('../src/styles/runtime');
+    const first = hotStyles(
+      'layers.ts#ring',
+      create({
+        ring: { outline: { default: 'none', ':focus-visible': '2px solid rgb(1, 1, 1)' } },
+      }),
+    );
+    const user = create({ color: { outlineColor: 'rgb(9, 9, 9)' } });
+    const [, second] = classes(attrs(layers(first.ring, user.color)));
+    expect(textsOf(second!).join('')).toContain('2px solid rgb(1, 1, 1)');
+    hotStyles(
+      'layers.ts#ring',
+      create({
+        ring: { outline: { default: 'none', ':focus-visible': '3px solid rgb(2, 2, 2)' } },
+      }),
+    );
+    expect(textsOf(second!).join('')).toContain('3px solid rgb(2, 2, 2)');
+    expect(textsOf(second!).join('')).not.toContain('rgb(1, 1, 1)');
+  });
+
+  it('按状态选样式（select）在后面的段里：状态变化只换那一段的类，组件不重新渲染', async () => {
+    const { createApp, h, nextTick, ref } = await import('vue');
+    const { select } = await import('../src/styles/runtime');
+    const styles = create({
+      root: { display: 'flex', color: 'rgb(10, 0, 0)' },
+      gap: { gap: 4 },
+      wide: { gap: 8 },
+    });
+    const wide = ref(false);
+    let renders = 0;
+    const host = document.createElement('div');
+    document.body.append(host);
+    createApp({
+      render: () => {
+        renders++;
+        return h(
+          'div',
+          attrs(layers(styles.root, [styles.gap, select(() => wide.value && styles.wide)])),
+        );
+      },
+    }).mount(host);
+    const element = host.firstElementChild as HTMLElement;
+    const [own, before] = [...element.classList];
+    wide.value = true;
+    await nextTick();
+    const [ownAfter, after] = [...element.classList];
+    expect(ownAfter).toBe(own);
+    expect(after).not.toBe(before);
+    expect(textsOf(after!).join('')).toContain('gap:8px');
+    expect(renders).toBe(1);
+  });
+});
+
 describe('分段与合成一个类等价（随机）', () => {
   const PROPERTIES = ['color', 'margin-top', 'outline', 'outline-color'];
   const CONDITIONS = [':hover', ':focus', '@media (min-width: 1px)'];
