@@ -37,6 +37,7 @@ import {
   type StyleValue,
 } from './declarations';
 import { BOUNDARY, compose } from './compose';
+import type { StyleAttrs } from './index';
 import { dynamic } from './dynamic';
 import {
   BINDING,
@@ -58,16 +59,6 @@ export { hash, renderStyleTag, styleText } from './sheet';
 export { inlineStyle, type ConditionMatcher } from './inline';
 export { defineTokens } from './tokens';
 export { createTheme, defineMarker, defineVars, when } from './vars';
-
-/** attrs 的结果 */
-export interface Attrs {
-  /** 组合类，加上主题、标记的类 */
-  class?: string;
-  /** 动态样式的行内变量 */
-  style?: Readonly<Record<string, string>>;
-  /** 有响应式绑定时：元素挂上后起 effect 改变量，卸载时停掉 */
-  ref?: (element: unknown) => void;
-}
 
 /** css.create：命名空间第一次被读时展开（惰性）；函数是动态样式 */
 export function create<S extends Record<string, unknown>>(namespaces: S): S {
@@ -129,7 +120,7 @@ function literal(value: object): Fragment {
  * 只有静态片段时返回缓存的同一个对象；有动态样式时 class 走缓存，style 是这次的变量值；
  * 有响应式绑定（bind、select）时再带一个 ref：元素挂上后由 effect 改变量、换类（见 watchBindings）
  */
-export function attrs(...styles: readonly AttrsArg[]): Attrs {
+export function attrs(...styles: readonly AttrsArg[]): StyleAttrs {
   const parts: StylePart[] = [];
   let inline: Record<string, string> | undefined;
   let bindings: BindingEntry[] | undefined;
@@ -174,7 +165,7 @@ export function attrs(...styles: readonly AttrsArg[]): Attrs {
 
   const composed = compose(parts);
   if (!inline && !bindings) return composed;
-  const result: Attrs = inline ? { ...composed, style: inline } : { ...composed };
+  const result: StyleAttrs = inline ? { ...composed, style: inline } : { ...composed };
   if (bindings) result.ref = watchBindings(bindings, parts, composed.class ?? '');
   return result;
 }

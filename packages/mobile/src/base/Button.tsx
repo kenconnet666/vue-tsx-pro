@@ -168,14 +168,14 @@ export const buttonRecipe = css.recipe({
   compound: [
     // ───── 实底 ─────
     {
-      when: { variant: 'solid', tone: 'accent' },
+      match: { variant: 'solid', tone: 'accent' },
       root: {
         color: '_accentContrast',
         backgroundColor: { default: '_accent', ':active:not([data-disabled])': '_accentActive' },
       },
     },
     {
-      when: { variant: 'solid', tone: 'neutral' },
+      match: { variant: 'solid', tone: 'neutral' },
       root: {
         color: '_inverseText',
         backgroundColor: '_inverseSurface',
@@ -187,28 +187,28 @@ export const buttonRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'solid', tone: 'danger' },
+      match: { variant: 'solid', tone: 'danger' },
       root: {
         color: '_dangerContrast',
         backgroundColor: { default: '_danger', ':active:not([data-disabled])': '_dangerActive' },
       },
     },
     {
-      when: { variant: 'solid', tone: 'success' },
+      match: { variant: 'solid', tone: 'success' },
       root: {
         color: '_successContrast',
         backgroundColor: { default: '_success', ':active:not([data-disabled])': '_successActive' },
       },
     },
     {
-      when: { variant: 'solid', tone: 'warning' },
+      match: { variant: 'solid', tone: 'warning' },
       root: {
         color: '_warningContrast',
         backgroundColor: { default: '_warning', ':active:not([data-disabled])': '_warningActive' },
       },
     },
     {
-      when: { variant: 'solid', tone: 'info' },
+      match: { variant: 'solid', tone: 'info' },
       root: {
         color: '_infoContrast',
         backgroundColor: { default: '_info', ':active:not([data-disabled])': '_infoActive' },
@@ -216,7 +216,7 @@ export const buttonRecipe = css.recipe({
     },
     // ───── 浅色底 ─────
     {
-      when: { variant: 'soft', tone: 'accent' },
+      match: { variant: 'soft', tone: 'accent' },
       root: {
         color: '_accentText',
         backgroundColor: {
@@ -226,14 +226,14 @@ export const buttonRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'soft', tone: 'neutral' },
+      match: { variant: 'soft', tone: 'neutral' },
       root: {
         color: '_text',
         backgroundColor: { default: '_fill', ':active:not([data-disabled])': '_fillActive' },
       },
     },
     {
-      when: { variant: 'soft', tone: 'danger' },
+      match: { variant: 'soft', tone: 'danger' },
       root: {
         color: '_dangerText',
         backgroundColor: {
@@ -243,7 +243,7 @@ export const buttonRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'soft', tone: 'success' },
+      match: { variant: 'soft', tone: 'success' },
       root: {
         color: '_successText',
         backgroundColor: {
@@ -253,7 +253,7 @@ export const buttonRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'soft', tone: 'warning' },
+      match: { variant: 'soft', tone: 'warning' },
       root: {
         color: '_warningText',
         backgroundColor: {
@@ -263,7 +263,7 @@ export const buttonRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'soft', tone: 'info' },
+      match: { variant: 'soft', tone: 'info' },
       root: {
         color: '_infoText',
         backgroundColor: {
@@ -274,7 +274,7 @@ export const buttonRecipe = css.recipe({
     },
     // ───── 描边 ─────
     {
-      when: { variant: 'outline', tone: 'accent' },
+      match: { variant: 'outline', tone: 'accent' },
       root: {
         color: '_accentText',
         borderColor: '_accent',
@@ -282,7 +282,7 @@ export const buttonRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'outline', tone: 'neutral' },
+      match: { variant: 'outline', tone: 'neutral' },
       root: {
         color: '_text',
         borderColor: '_borderStrong',
@@ -290,7 +290,7 @@ export const buttonRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'outline', tone: 'danger' },
+      match: { variant: 'outline', tone: 'danger' },
       root: {
         color: '_dangerText',
         borderColor: '_danger',
@@ -298,7 +298,7 @@ export const buttonRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'outline', tone: 'success' },
+      match: { variant: 'outline', tone: 'success' },
       root: {
         color: '_successText',
         borderColor: '_success',
@@ -306,7 +306,7 @@ export const buttonRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'outline', tone: 'warning' },
+      match: { variant: 'outline', tone: 'warning' },
       root: {
         color: '_warningText',
         borderColor: '_warning',
@@ -314,7 +314,7 @@ export const buttonRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'outline', tone: 'info' },
+      match: { variant: 'outline', tone: 'info' },
       root: {
         color: '_infoText',
         borderColor: '_info',
@@ -323,42 +323,42 @@ export const buttonRecipe = css.recipe({
     },
     // ───── 无底无边 ─────
     {
-      when: { variant: 'ghost', tone: 'accent' },
+      match: { variant: 'ghost', tone: 'accent' },
       root: {
         color: '_accentText',
         backgroundColor: { default: 'transparent', ':active:not([data-disabled])': '_accentSoft' },
       },
     },
     {
-      when: { variant: 'ghost', tone: 'neutral' },
+      match: { variant: 'ghost', tone: 'neutral' },
       root: {
         color: '_text',
         backgroundColor: { default: 'transparent', ':active:not([data-disabled])': '_fill' },
       },
     },
     {
-      when: { variant: 'ghost', tone: 'danger' },
+      match: { variant: 'ghost', tone: 'danger' },
       root: {
         color: '_dangerText',
         backgroundColor: { default: 'transparent', ':active:not([data-disabled])': '_dangerSoft' },
       },
     },
     {
-      when: { variant: 'ghost', tone: 'success' },
+      match: { variant: 'ghost', tone: 'success' },
       root: {
         color: '_successText',
         backgroundColor: { default: 'transparent', ':active:not([data-disabled])': '_successSoft' },
       },
     },
     {
-      when: { variant: 'ghost', tone: 'warning' },
+      match: { variant: 'ghost', tone: 'warning' },
       root: {
         color: '_warningText',
         backgroundColor: { default: 'transparent', ':active:not([data-disabled])': '_warningSoft' },
       },
     },
     {
-      when: { variant: 'ghost', tone: 'info' },
+      match: { variant: 'ghost', tone: 'info' },
       root: {
         color: '_infoText',
         backgroundColor: { default: 'transparent', ':active:not([data-disabled])': '_infoSoft' },

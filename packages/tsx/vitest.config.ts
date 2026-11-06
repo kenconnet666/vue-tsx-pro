@@ -14,6 +14,11 @@ export default defineConfig({
         find: /^@zerodep-dev\/vue-tsx-pro-tsx\/styles$/,
         replacement: source('./src/styles/index.ts'),
       },
+      // 编译器生成的热更新包装从给工具链用的入口导入 hotStyles
+      {
+        find: /^@zerodep-dev\/vue-tsx-pro-tsx\/styles\/internal$/,
+        replacement: source('./src/styles/internal.ts'),
+      },
     ],
   },
   test: {

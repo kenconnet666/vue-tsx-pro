@@ -15,6 +15,8 @@ export default defineConfig({
     index: 'src/index.ts',
     vite: 'src/vite/index.ts',
     styles: 'src/styles/index.ts',
+    // 给工具链用的样式入口（编译器生成的热更新包装、小程序的行内样式）
+    'styles-internal': 'src/styles/internal.ts',
     compiler: 'src/compiler/index.ts',
     // 浏览器里编译：入口不带 Babel，Worker 才带
     'browser-compile': 'src/browser-compile/index.ts',

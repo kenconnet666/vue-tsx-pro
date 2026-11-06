@@ -186,7 +186,7 @@ describe('recipe', () => {
       size: { sm: { root: { fontSize: 12 } }, md: { root: { fontSize: 14 } } },
       block: { true: { root: { width: '100%' } } },
     },
-    compound: [{ when: { size: 'sm', block: true }, root: { paddingInline: 0 } }],
+    compound: [{ match: { size: 'sm', block: true }, root: { paddingInline: 0 } }],
     defaults: { size: 'md' },
   });
 

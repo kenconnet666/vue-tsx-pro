@@ -34,14 +34,12 @@ export {
   type RecipeExtension,
   type VariantSelection,
 } from './recipe';
-export {
-  CONDITIONS as conditions,
-  hotStyles,
-  inlineStyle,
-  renderStyleTag,
-  styleText,
-  type ConditionMatcher,
-} from './runtime';
+export { CONDITIONS as conditions, renderStyleTag, styleText } from './runtime';
+/**
+ * @deprecated 给工具链用的，改从 `@zerodep-dev/vue-tsx-pro-tsx/styles/internal` 导入。留一个版本：
+ * 旧版编译器生成的热更新包装、磁盘上的编译缓存、正在运行的开发服务器都还从这里导入 hotStyles
+ */
+export { hotStyles, inlineStyle, type ConditionMatcher } from './internal';
 
 /*
  * 主题 tokens 的短写（`fontSize: '_xs'`）：每组一个接口，主题库（@zerodep-dev/vue-tsx-pro-ui 的 token-names.ts）用
@@ -166,7 +164,7 @@ export type VarGroup<T = Record<string, unknown>> = { readonly [K in keyof T]: C
 };
 
 /** createTheme 的结果：只改一组变量的类，作为样式放进 attrs、sx */
-export interface Theme<Group extends VarGroup = VarGroup> extends CompiledStyles {
+export interface VarTheme<Group extends VarGroup = VarGroup> extends CompiledStyles {
   /** 只在类型上：区分不同变量组的主题 */
   readonly __group?: Group;
 }
@@ -260,7 +258,10 @@ export const defineTokens: <const Groups extends Readonly<Record<string, VarGrou
 export const createTheme: <Group extends VarGroup>(
   group: Group,
   overrides: { readonly [K in Exclude<keyof Group, typeof VAR_GROUP>]?: VarValue },
-) => Theme<Group> = runtimeCreateTheme as never;
+) => VarTheme<Group> = runtimeCreateTheme as never;
+
+/** @deprecated 改名为 VarTheme（与组件库的主题 Theme 分开） */
+export type Theme<Group extends VarGroup = VarGroup> = VarTheme<Group>;
 
 /** 定义标记：`defineMarker('vtp-heading')`，挂到元素上（放进 attrs），子元素用 when.* 按它的状态取样式 */
 export const defineMarker: (name: string) => Marker = runtimeDefineMarker as never;

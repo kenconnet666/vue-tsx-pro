@@ -9,7 +9,7 @@
  *   - @media：宽度按窗口算，prefers-color-scheme 按系统的深浅色；减少动效、强制颜色、悬停能力一律不成立
  * 别的写法（标签与类名选择器、:nth-child、@supports、伪元素……）展开不了，按不成立处理，开发构建里每种提示一次。
  */
-import { inlineStyle } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { inlineStyle } from '@zerodep-dev/vue-tsx-pro-tsx/styles/internal';
 import { baseClassOf } from './elements.ts';
 import type { MiniNode } from './node.ts';
 

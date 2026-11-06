@@ -47,6 +47,11 @@
       "types": "./dist/styles.d.ts",
       "default": "./dist/styles.js"
     },
+    "./styles/internal": {
+      "@vue-tsx-pro/source": "./src/styles/internal.ts",
+      "types": "./dist/styles-internal.d.ts",
+      "default": "./dist/styles-internal.js"
+    },
     "./compiler": {
       "@vue-tsx-pro/source": "./src/compiler/index.ts",
       "types": "./dist/compiler.d.ts",

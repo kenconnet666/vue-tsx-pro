@@ -9,7 +9,7 @@
  *       size: { sm: { root: { fontSize: '_sm' } }, md: { root: { fontSize: '_md' } } },
  *       fullWidth: { true: { root: { width: '100%' } } },        // 布尔档位写 true / false 键
  *     },
- *     compound: [{ when: { size: 'sm', fullWidth: true }, root: { paddingInline: 0 } }],
+ *     compound: [{ match: { size: 'sm', fullWidth: true }, root: { paddingInline: 0 } }],
  *     defaults: { size: 'md' },
  *   });
  *   const s = button({ size, fullWidth });       // { root: [...样式], icon: [...] }，按档位组合缓存
@@ -47,6 +47,14 @@ export type VariantSelection<V> = {
   [Name in keyof V]?: ValueOf<keyof V[Name]> | null | undefined;
 };
 
+/** 组合档位的条件：几个档位同时取这些值时追加样式 */
+type CompoundCondition<V> =
+  | { match: VariantSelection<V> }
+  | {
+      /** @deprecated 改名为 match（与 css.when.* 的关系条件分开） */
+      when: VariantSelection<V>;
+    };
+
 /** 配方的定义 */
 export interface RecipeConfig<P extends string, V extends Variants<P>, N extends string = string> {
   /** 组件名（`'Button'`）：部件的 data-scope 用它，组件库按它找 createUi / Provider 里的主题定制 */
@@ -58,7 +66,7 @@ export interface RecipeConfig<P extends string, V extends Variants<P>, N extends
   /** 档位 */
   variants?: V;
   /** 几个档位同时取某些值时追加的样式 */
-  compound?: readonly ({ when: VariantSelection<V> } & PartStyles<P>)[];
+  compound?: readonly (CompoundCondition<V> & PartStyles<P>)[];
   /** 不传时的档位取值 */
   defaults?: VariantSelection<V>;
 }
@@ -150,8 +158,8 @@ export function recipe<
     const own = emptyParts();
     push(own, state.segments.get('base'));
     pushVariants(own, state.segments);
-    state.compound.forEach(({ when }, index) => {
-      const matches = Object.entries(when).every(
+    state.compound.forEach(({ match }, index) => {
+      const matches = Object.entries(match).every(
         ([name, value]) => picked[names.indexOf(name)] === String(value),
       );
       if (matches) push(own, state.segments.get(`compound\0${index}`));
@@ -204,7 +212,7 @@ interface RecipeState<P extends string> {
   defaults: Readonly<Record<string, unknown>>;
   /** 'base'、'variant\0档位\0取值'、'compound\0序号' → 这一段各部件的样式 */
   segments: Map<string, Record<P, Compiled>>;
-  compound: readonly { when: Readonly<Record<string, unknown>> }[];
+  compound: readonly { match: Readonly<Record<string, unknown>> }[];
 }
 
 /** 扩展展开后的状态：同配方，没有组合档位 */
@@ -259,17 +267,17 @@ function build<P extends string, V extends Variants<P>>(
   const { parts, base = {}, variants = {} as V, compound = [], defaults = {} } = config;
   const segments = new Map<string, Record<P, Compiled>>([['base', compile<P>(base)]]);
   variantSegments(variants, segments);
-  compound.forEach((entry, index) => {
-    const { when, ...styles } = entry;
-    void when;
-    segments.set(`compound\0${index}`, compile<P>(styles));
+  const conditions = compound.map((entry) => {
+    const { match, when, ...styles } = entry as { match?: object; when?: object };
+    return { styles, match: (match ?? when ?? {}) as Record<string, unknown> };
   });
+  conditions.forEach(({ styles }, index) => segments.set(`compound\0${index}`, compile<P>(styles)));
   return {
     parts,
     names: Object.keys(variants),
     defaults: defaults as Record<string, unknown>,
     segments,
-    compound: compound.map(({ when }) => ({ when: when as Record<string, unknown> })),
+    compound: conditions.map(({ match }) => ({ match })),
   };
 }
 

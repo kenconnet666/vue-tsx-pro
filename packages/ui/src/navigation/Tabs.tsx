@@ -639,7 +639,7 @@ export const tabsRecipe = css.recipe({
   },
   compound: [
     {
-      when: { variant: 'line', orientation: 'vertical' },
+      match: { variant: 'line', orientation: 'vertical' },
       root: {
         justifyContent: 'flex-start',
         marginBottom: 0,

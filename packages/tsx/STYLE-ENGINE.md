@@ -181,7 +181,7 @@ export const buttonRecipe = css.recipe({
     size: { sm: { root: { fontSize: '_sm' } }, md: { root: { fontSize: '_md' } } },
     fullWidth: { true: { root: { width: '100%' } } },
   },
-  compound: [{ when: { variant: 'link', size: 'sm' }, root: { paddingInline: 0 } }],
+  compound: [{ match: { variant: 'link', size: 'sm' }, root: { paddingInline: 0 } }],
   defaults: { variant: 'solid', size: 'md' },
 });
 

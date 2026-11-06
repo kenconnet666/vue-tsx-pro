@@ -57,67 +57,67 @@ export const badgeRecipe = css.recipe({
   // 样式 × 色调逐项写主题 token；中性色的实底是反色表面
   compound: [
     {
-      when: { variant: 'solid', tone: 'neutral' },
+      match: { variant: 'solid', tone: 'neutral' },
       root: { color: '_inverseText', backgroundColor: '_inverseSurface' },
     },
     {
-      when: { variant: 'solid', tone: 'accent' },
+      match: { variant: 'solid', tone: 'accent' },
       root: { color: '_accentContrast', backgroundColor: '_accent' },
     },
     {
-      when: { variant: 'solid', tone: 'info' },
+      match: { variant: 'solid', tone: 'info' },
       root: { color: '_infoContrast', backgroundColor: '_info' },
     },
     {
-      when: { variant: 'solid', tone: 'success' },
+      match: { variant: 'solid', tone: 'success' },
       root: { color: '_successContrast', backgroundColor: '_success' },
     },
     {
-      when: { variant: 'solid', tone: 'warning' },
+      match: { variant: 'solid', tone: 'warning' },
       root: { color: '_warningContrast', backgroundColor: '_warning' },
     },
     {
-      when: { variant: 'solid', tone: 'danger' },
+      match: { variant: 'solid', tone: 'danger' },
       root: { color: '_dangerContrast', backgroundColor: '_danger' },
     },
     {
-      when: { variant: 'soft', tone: 'neutral' },
+      match: { variant: 'soft', tone: 'neutral' },
       root: { color: '_text', backgroundColor: '_fill' },
     },
     {
-      when: { variant: 'soft', tone: 'accent' },
+      match: { variant: 'soft', tone: 'accent' },
       root: { color: '_accentText', backgroundColor: '_accentSoft' },
     },
     {
-      when: { variant: 'soft', tone: 'info' },
+      match: { variant: 'soft', tone: 'info' },
       root: { color: '_infoText', backgroundColor: '_infoSoft' },
     },
     {
-      when: { variant: 'soft', tone: 'success' },
+      match: { variant: 'soft', tone: 'success' },
       root: { color: '_successText', backgroundColor: '_successSoft' },
     },
     {
-      when: { variant: 'soft', tone: 'warning' },
+      match: { variant: 'soft', tone: 'warning' },
       root: { color: '_warningText', backgroundColor: '_warningSoft' },
     },
     {
-      when: { variant: 'soft', tone: 'danger' },
+      match: { variant: 'soft', tone: 'danger' },
       root: { color: '_dangerText', backgroundColor: '_dangerSoft' },
     },
     {
-      when: { variant: 'surface', tone: 'neutral' },
+      match: { variant: 'surface', tone: 'neutral' },
       root: { color: '_text', backgroundColor: '_surface', borderColor: '_border' },
     },
     {
-      when: { variant: 'surface', tone: 'accent' },
+      match: { variant: 'surface', tone: 'accent' },
       root: { color: '_accentText', backgroundColor: '_accentSoft', borderColor: '_accentBorder' },
     },
     {
-      when: { variant: 'surface', tone: 'info' },
+      match: { variant: 'surface', tone: 'info' },
       root: { color: '_infoText', backgroundColor: '_infoSoft', borderColor: '_infoBorder' },
     },
     {
-      when: { variant: 'surface', tone: 'success' },
+      match: { variant: 'surface', tone: 'success' },
       root: {
         color: '_successText',
         backgroundColor: '_successSoft',
@@ -125,7 +125,7 @@ export const badgeRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'surface', tone: 'warning' },
+      match: { variant: 'surface', tone: 'warning' },
       root: {
         color: '_warningText',
         backgroundColor: '_warningSoft',
@@ -133,31 +133,31 @@ export const badgeRecipe = css.recipe({
       },
     },
     {
-      when: { variant: 'surface', tone: 'danger' },
+      match: { variant: 'surface', tone: 'danger' },
       root: { color: '_dangerText', backgroundColor: '_dangerSoft', borderColor: '_dangerBorder' },
     },
     {
-      when: { variant: 'outline', tone: 'neutral' },
+      match: { variant: 'outline', tone: 'neutral' },
       root: { color: '_text', borderColor: '_border' },
     },
     {
-      when: { variant: 'outline', tone: 'accent' },
+      match: { variant: 'outline', tone: 'accent' },
       root: { color: '_accentText', borderColor: '_accentBorder' },
     },
     {
-      when: { variant: 'outline', tone: 'info' },
+      match: { variant: 'outline', tone: 'info' },
       root: { color: '_infoText', borderColor: '_infoBorder' },
     },
     {
-      when: { variant: 'outline', tone: 'success' },
+      match: { variant: 'outline', tone: 'success' },
       root: { color: '_successText', borderColor: '_successBorder' },
     },
     {
-      when: { variant: 'outline', tone: 'warning' },
+      match: { variant: 'outline', tone: 'warning' },
       root: { color: '_warningText', borderColor: '_warningBorder' },
     },
     {
-      when: { variant: 'outline', tone: 'danger' },
+      match: { variant: 'outline', tone: 'danger' },
       root: { color: '_dangerText', borderColor: '_dangerBorder' },
     },
   ],

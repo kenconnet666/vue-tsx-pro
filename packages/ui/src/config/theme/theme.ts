@@ -3,7 +3,7 @@
  * defineTheme 的局部修改在运行时写成 CSS 变量，作用在 Provider 的容器上。
  */
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { CssVar, Theme as GroupThemeOf } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import type { CssVar, VarTheme as GroupThemeOf } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from './tokens';
 
 type Groups = typeof t;

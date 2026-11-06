@@ -10,7 +10,7 @@
  * 只认顶层声明里的 create、recipe：函数里的调用每次执行都是新对象，不能按 id 合并。
  */
 import { types as t, type NodePath, type PluginObject, type PluginPass } from '@babel/core';
-import { isStyleNamespace, STYLE_SOURCE } from './ast.ts';
+import { isStyleNamespace, STYLE_INTERNAL_SOURCE, STYLE_SOURCE } from './ast.ts';
 
 /** 能原地更新的样式函数 */
 const HOT_FUNCTIONS = new Set(['create', 'recipe']);
@@ -55,7 +55,7 @@ export function styleHotPlugin(moduleId: string): PluginObject<PluginPass> {
           'body',
           t.importDeclaration(
             [t.importSpecifier(wrapper, t.identifier('hotStyles'))],
-            t.stringLiteral(imports.source),
+            t.stringLiteral(STYLE_INTERNAL_SOURCE),
           ),
         );
         (state.file.metadata as { styleSkeleton?: string }).styleSkeleton = skeleton(code, removed);
@@ -65,16 +65,14 @@ export function styleHotPlugin(moduleId: string): PluginObject<PluginPass> {
 }
 
 interface HotImports {
-  source: string;
   namespace?: string;
   named: Set<string>;
 }
 
 function hotImports(program: NodePath<t.Program>): HotImports {
-  const found: HotImports = { source: STYLE_SOURCE, named: new Set() };
+  const found: HotImports = { named: new Set() };
   for (const statement of program.node.body) {
     if (!t.isImportDeclaration(statement) || statement.source.value !== STYLE_SOURCE) continue;
-    found.source = statement.source.value;
     for (const specifier of statement.specifiers) {
       if (isStyleNamespace(specifier)) found.namespace = specifier.local.name;
       else if (

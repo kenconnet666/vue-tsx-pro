@@ -9,6 +9,9 @@ export type Language = 'ts' | 'tsx' | 'js' | 'jsx';
 /** 样式入口（src/styles）：编译器按从它导入的 create 找样式 */
 export const STYLE_SOURCE = '@zerodep-dev/vue-tsx-pro-tsx/styles';
 
+/** 给工具链用的样式入口（src/styles/internal.ts）：编译器生成的热更新包装从这里导入 hotStyles */
+export const STYLE_INTERNAL_SOURCE = '@zerodep-dev/vue-tsx-pro-tsx/styles/internal';
+
 /**
  * 模块的语言：Vue 单文件组件里的脚本（X.vue?vue&type=script&lang.tsx）看查询参数，其他看扩展名；
  * 不是脚本时返回 undefined
