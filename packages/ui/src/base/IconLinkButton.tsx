@@ -101,7 +101,7 @@ export const IconLinkButton = _component(
           },
         )}
       >
-        {buttonContent({ icon, propsContent, propsIcon }, { loading: false })}
+        {buttonContent({ icon, propsContent, propsIcon }, { loading: false }, appearance())}
       </a>
     );
   },

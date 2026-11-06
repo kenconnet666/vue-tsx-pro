@@ -78,6 +78,7 @@ export const Button = _component(
         {buttonContent(
           { icon, iconEnd, children, propsContent, propsIcon, propsIconEnd },
           { loading: spinner.value, propsSpinner },
+          appearance(),
         )}
       </button>
     );

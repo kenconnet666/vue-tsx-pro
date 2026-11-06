@@ -11,9 +11,9 @@ import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Icon, type IconData, type IconProps } from './Icon';
 import { Spinner, type SpinnerProps } from './Spinner';
 import { useDefaults } from '../config/defaults';
-import { partAttrs, useRecipe, type RecipeLayers } from '../config/styles';
+import { partAttrs, useRecipe, type PartLayer, type RecipeLayers } from '../config/styles';
 import { rippleHostStyles, useRipple, type RippleHandlers } from '../utils/dom/ripple';
-import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles, radiusStyles, variantOf, type Radius } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import {
@@ -156,7 +156,8 @@ const HOVER = ':hover:not(:disabled,[aria-disabled="true"])';
  */
 export const buttonRecipe = css.recipe({
   name: 'Button',
-  parts: ['root'],
+  // 内容层（包着图标与文字）、前后图标、加载指示：每个内部节点都是部件，带 data-part，主题定制也改得到
+  parts: ['root', 'content', 'icon', 'iconEnd', 'spinner'],
   base: {
     root: [
       buttonBaseStyles.root,
@@ -165,6 +166,8 @@ export const buttonRecipe = css.recipe({
       focusRingStyles.visible,
       rippleHostStyles.host,
     ],
+    content: [buttonStyles.content],
+    spinner: [buttonStyles.spinner],
   },
   variants: {
     variant: {
@@ -470,16 +473,26 @@ export function useButtonAppearance(
   );
 }
 
+/** 外观（已合并默认值）→ 按钮各部件的默认层（配方带上主题定制；同样的外观返回同一个对象） */
+export function buttonParts({
+  attached: _attached,
+  recipe,
+  ...selection
+}: ButtonAppearance): Readonly<Record<ButtonPart, PartLayer>> {
+  return recipe(selection);
+}
+
 /**
  * 外观（已合并默认值）与状态 → 按钮根元素的样式：配方（基础、样式、色调、字号、圆角与主题定制）之后是状态——
  * 在按钮组里相连、只有图标、占满宽度、不可用
  */
 export function buttonSx(
-  { attached, recipe, ...selection }: ButtonAppearance,
+  appearance: ButtonAppearance,
   state: { disabled: boolean; square?: boolean; fullWidth?: boolean },
 ): SxStyles {
+  const { attached } = appearance;
   return [
-    recipe(selection).root.sx,
+    buttonParts(appearance).root.sx,
     attached && attachedStyles[attached],
     state.square && buttonStyles.square,
     state.fullWidth && buttonStyles.fullWidth,
@@ -487,7 +500,10 @@ export function buttonSx(
   ] as SxStyles;
 }
 
-/** 按钮内容：图标、文字、加载指示；加载中内容透明但保留宽度与无障碍名称 */
+/**
+ * 按钮内容：图标、文字、加载指示；加载中内容透明但保留宽度与无障碍名称。
+ * appearance 给出各部件的默认层（样式与 data-scope / data-part，见 buttonParts）
+ */
 export function buttonContent(
   {
     icon,
@@ -498,24 +514,23 @@ export function buttonContent(
     propsIconEnd,
   }: Omit<ButtonContentOptions, 'fullWidth'>,
   { loading, propsSpinner }: Pick<ButtonOptions, 'loading' | 'propsSpinner'>,
+  appearance: ButtonAppearance,
 ): VNodeChild {
+  const parts = buttonParts(appearance);
   return [
     h(
       'span',
-      mergeAttrs<'span'>({ sx: buttonStyles.content }, propsContent, {
+      mergeAttrs<'span'>(parts.content, propsContent, {
         sx: loading && buttonStyles.hidden,
       }),
       [
-        icon && h(Icon, mergeProps<IconProps>({ icon }, propsIcon) as IconProps),
+        icon && h(Icon, mergePartProps<IconProps>({ ...parts.icon, icon }, propsIcon)),
         children,
-        iconEnd && h(Icon, mergeProps<IconProps>({ icon: iconEnd }, propsIconEnd) as IconProps),
+        iconEnd &&
+          h(Icon, mergePartProps<IconProps>({ ...parts.iconEnd, icon: iconEnd }, propsIconEnd)),
       ],
     ),
-    loading &&
-      h(
-        Spinner,
-        mergeProps<SpinnerProps>({ sx: buttonStyles.spinner }, propsSpinner) as SpinnerProps,
-      ),
+    loading && h(Spinner, mergePartProps<SpinnerProps>(parts.spinner, propsSpinner)),
   ];
 }
 

@@ -126,6 +126,7 @@ export {
   buttonContent,
   ButtonGroupContext,
   buttonPart,
+  buttonParts,
   buttonRecipe,
   buttonStyles,
   buttonSx,

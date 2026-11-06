@@ -89,7 +89,11 @@ export const IconButton = _component(
           { ...behavior(), 'aria-label': label },
         )}
       >
-        {buttonContent({ icon, propsContent, propsIcon }, { loading: spinner.value, propsSpinner })}
+        {buttonContent(
+          { icon, propsContent, propsIcon },
+          { loading: spinner.value, propsSpinner },
+          appearance(),
+        )}
       </button>
     );
   },

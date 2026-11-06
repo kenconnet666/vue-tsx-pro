@@ -143,6 +143,7 @@ export const CopyButton = _component(
             }),
           },
           { loading: pending },
+          appearance(),
         )}
       </button>
     );

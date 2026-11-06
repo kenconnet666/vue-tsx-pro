@@ -103,6 +103,7 @@ export const LinkButton = _component(
             children: [children, external && <VisuallyHidden>{lang.linkNewWindow}</VisuallyHidden>],
           },
           { loading: spinner.value, propsSpinner },
+          appearance(),
         )}
       </a>
     );

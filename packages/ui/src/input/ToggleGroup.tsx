@@ -271,22 +271,19 @@ export const ToggleItem = _component(
     return () => {
       const pressed = group.selected.includes(value);
       const off = disabled || group.disabled;
-      const base = appearance();
+      const look = {
+        ...appearance(),
+        // 单选时选中底色由组的滑块画
+        variant: pressed && !group.sliding ? ('surface' as const) : ('ghost' as const),
+        tone: pressed ? ('accent' as const) : ('neutral' as const),
+      };
       return (
         <button
           {...mergeAttrs<'button'>(
             {
               ...buttonPart,
               sx: [
-                buttonSx(
-                  {
-                    ...base,
-                    // 单选时选中底色由组的滑块画
-                    variant: pressed && !group.sliding ? 'surface' : 'ghost',
-                    tone: pressed ? 'accent' : 'neutral',
-                  },
-                  { disabled: off, square: children == null },
-                ),
+                buttonSx(look, { disabled: off, square: children == null }),
                 group.readonly && !pressed && toggleGroupStyles.readonlyItem,
               ],
             },
@@ -300,7 +297,7 @@ export const ToggleItem = _component(
           )}
           data-state={pressed ? 'on' : 'off'}
         >
-          {buttonContent({ icon, propsIcon, propsContent, children }, { loading: false })}
+          {buttonContent({ icon, propsIcon, propsContent, children }, { loading: false }, look)}
         </button>
       );
     };

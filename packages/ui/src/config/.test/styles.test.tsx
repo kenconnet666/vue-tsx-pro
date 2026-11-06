@@ -1,6 +1,7 @@
 // 组件的定制（Provider / createUi 的 components，旧的 defaults / styles）：默认值、追加样式、档位样式、内层盖过外层；
 // 登记表与配方名一一对应；部件带 data-scope / data-part
 import { describe, expect, it } from 'vitest';
+import { Plus } from '@lucide/icons';
 import { nextTick, ref } from 'vue';
 import { alertRecipe } from '../../feedback/Alert';
 import { avatarRecipe } from '../../display/Avatar';
@@ -155,7 +156,9 @@ describe('组件的主题定制', () => {
   it('部件带 data-scope / data-part', () => {
     const host = mount(() => (
       <>
-        <Button>按钮</Button>
+        <Button icon={Plus} loading>
+          按钮
+        </Button>
         <Badge dot>标记</Badge>
         <Tabs _value="a">
           <TabList aria-label="标签">
@@ -167,6 +170,10 @@ describe('组件的主题定制', () => {
       </>
     ));
     expect(host.querySelector('button[data-scope="button"][data-part="root"]')).not.toBeNull();
+    // 按钮的每个内部节点都是部件：内容层、图标、加载指示（主题定制按部件改得到）
+    expect(host.querySelector('button [data-scope="button"][data-part="content"]')).not.toBeNull();
+    expect(host.querySelector('button svg[data-scope="button"][data-part="icon"]')).not.toBeNull();
+    expect(host.querySelector('button [data-scope="button"][data-part="spinner"]')).not.toBeNull();
     expect(host.querySelector('[data-scope="badge"][data-part="root"]')).not.toBeNull();
     expect(host.querySelector('[data-scope="badge"][data-part="dot"]')).not.toBeNull();
     expect(host.querySelector('[role="tab"][data-scope="tabs"][data-part="root"]')).not.toBeNull();
