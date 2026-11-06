@@ -50,18 +50,18 @@ describe('useRipple 的开关', () => {
     return () => <button {...handlers}>x</button>;
   });
 
-  it('默认开启；Provider 可以全局关闭，组件的 prop 优先', () => {
+  it('默认关闭；Provider 可以全局打开，组件的 prop 优先', () => {
     const root = mount(() => (
       <>
         <Clickable />
-        <Provider ripple={false}>
+        <Provider ripple>
           <Clickable />
-          <Clickable ripple />
+          <Clickable ripple={false} />
         </Provider>
       </>
     ));
-    const [on, off, forced] = root.querySelectorAll('button');
-    for (const button of [on, off, forced]) button!.dispatchEvent(down());
-    expect([on, off, forced].map((button) => ripples(button!).length)).toEqual([1, 0, 1]);
+    const [off, on, forced] = root.querySelectorAll('button');
+    for (const button of [off, on, forced]) button!.dispatchEvent(down());
+    expect([off, on, forced].map((button) => ripples(button!).length)).toEqual([0, 1, 0]);
   });
 });

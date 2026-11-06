@@ -1,5 +1,5 @@
 // type：submit 提交所在的表单，reset 触发表单的 reset 事件（默认 button，放在表单里也不会误提交）；
-// ripple={false} 关掉这一个按钮的点击波纹（全局默认见 createUi 的 ripple）
+// ripple 给这一个按钮打开点击波纹（全局默认关，见 createUi 的 ripple）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Button, Field, Flex, Small, TextField } from '@zerodep-dev/vue-tsx-pro-ui';
 
@@ -30,8 +30,8 @@ export default _component(() => {
           <Button type="reset" variant="outline">
             重置
           </Button>
-          <Button variant="ghost" ripple={false} onClick={() => (nickname = '')}>
-            清空（无波纹）
+          <Button variant="ghost" ripple onClick={() => (nickname = '')}>
+            清空（带波纹）
           </Button>
         </Flex>
         <Small tone="muted">{saved ? `已保存：${saved}` : '还没有保存'}</Small>

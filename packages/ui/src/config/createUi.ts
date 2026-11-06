@@ -55,7 +55,7 @@ export interface UiOptions {
   http?: HttpClient;
   /** 工作日历：createWorkCalendar({ holidays, workdays }) 带上法定节假日与调休；不写时只按周末算 */
   workCalendar?: WorkCalendar;
-  /** 按下时的波纹效果，默认 true；关掉后组件的 ripple prop 仍可单独打开 */
+  /** 按下时的波纹效果，默认 false（扁平的风格里不用）；关着时组件的 ripple prop 仍可单独打开 */
   ripple?: boolean;
   /**
    * 页面根元素也用主题的背景色、文字色与字体，并去掉 body 的默认外边距，默认 false。
@@ -182,7 +182,7 @@ export function createUi(options: UiOptions = {}): UiPlugin {
           permissions: options.permissions,
           http: options.http,
           workCalendar: options.workCalendar,
-          ripple: options.ripple ?? true,
+          ripple: options.ripple ?? false,
         });
         // 应用级的语言也写在页面根元素上（Provider 写在自己的元素上）：读屏按 lang 选发音，
         // 从右到左的语言靠 dir 镜像排版与滚动条；没传 lang 时不动，宿主自己管

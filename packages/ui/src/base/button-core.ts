@@ -97,6 +97,8 @@ export const buttonBaseStyles = css.create({
     color: 'inherit',
     fontFamily: 'inherit',
     fontSize: 'inherit',
+    // 字重也继承：浏览器给按钮的是 400，放进加粗的表头、标题里会比旁边的字细一号
+    fontWeight: 'inherit',
     lineHeight: 'inherit',
     textAlign: 'inherit',
     textDecoration: 'none',

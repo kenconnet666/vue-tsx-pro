@@ -94,7 +94,7 @@ export interface UiConfig {
   readonly http?: HttpClient;
   /** 工作日历（时限、剩余工作日用）；没有时只按周末算 */
   readonly workCalendar?: WorkCalendar;
-  /** 可点击组件按下时的波纹效果，默认开启；组件的 ripple prop 可以单独覆盖 */
+  /** 可点击组件按下时的波纹效果，默认关闭；组件的 ripple prop 可以单独覆盖 */
   readonly ripple: boolean;
 }
 
@@ -107,7 +107,7 @@ export const defaultConfig: UiConfig = {
   lang: zhCN,
   defaults: {},
   styles: {},
-  ripple: true,
+  ripple: false,
 };
 
 /** 当前的主题与语言配置；没有 createUi 与 Provider 时为默认配置 */
