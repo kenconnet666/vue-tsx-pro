@@ -223,7 +223,8 @@ export const uploadStyles = css.create({
     textAlign: 'center',
     overflowWrap: 'anywhere',
   },
-  // 右上角的把手、重试、移除：浅色底上的小按钮
+  // 右上角的把手、重试、移除：半透明表面色底上的小按钮，文字跟着主题，深浅主题里都读得清
+  // （白底配主题文字色在深色主题里只有约 1.2:1）
   actions: {
     position: 'absolute',
     top: '_xs',
@@ -233,8 +234,8 @@ export const uploadStyles = css.create({
   },
   action: {
     backgroundColor: {
-      default: `color-mix(in srgb, ${t.colors.onScrim} 85%, transparent)`,
-      _hover: '_onScrim',
+      default: `color-mix(in oklab, ${t.colors.surface} 85%, transparent)`,
+      _hover: '_surface',
     },
   },
   handle: {
@@ -244,7 +245,7 @@ export const uploadStyles = css.create({
     height: '1.75em',
     borderRadius: '_sm',
     color: '_text',
-    backgroundColor: `color-mix(in srgb, ${t.colors.onScrim} 85%, transparent)`,
+    backgroundColor: `color-mix(in oklab, ${t.colors.surface} 85%, transparent)`,
     cursor: { default: 'grab', _active: 'grabbing' },
     touchAction: 'none',
   },
