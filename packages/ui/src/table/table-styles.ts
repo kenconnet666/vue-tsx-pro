@@ -308,7 +308,6 @@ export const dataTableStateStyles = css.create({
   },
   // 有起始边的固定列时，勾选列也固定在最前面
   stickySelect: { position: 'sticky', zIndex: 1, insetInlineStart: 0 },
-  chevronOpen: { rotate: '90deg' },
   sortActive: { color: '_accentText' },
   // 靠结束边的列（数字）：文字靠结束边，按钮仍在最后
   headerMainEnd: { textAlign: 'end' },

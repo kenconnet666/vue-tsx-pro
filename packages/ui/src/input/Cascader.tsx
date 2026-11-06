@@ -40,7 +40,7 @@ import {
 import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { mergeAttrs, mergePartProps, type PartProps, mergeProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
-import { t } from '../config/theme/tokens';
+import { focusRingStyles } from '../utils/style/styles';
 import { disclosureStyles } from '../utils/style/transitions';
 import {
   clickOnShell,
@@ -121,7 +121,7 @@ export interface CascaderProps<T>
   propsColumn?: PartProps<'div', 'role' | 'id' | 'tabindex'>;
 }
 
-/** Cascader 的样式：columns、column、option、onPath、focused、chevron、results */
+/** Cascader 的样式：columns、column、option、onPath、chevron、results */
 export const cascaderStyles = css.create({
   // 各列横排；列多了在弹出层里横向滚动
   columnsFrame: { position: 'relative', display: 'flex', minHeight: 0, minWidth: 0, flexGrow: 1 },
@@ -149,13 +149,6 @@ export const cascaderStyles = css.create({
   results: { flexGrow: 1, maxWidth: 'none' },
   // 已展开的那一项（各列里在当前路径上的）
   onPath: { backgroundColor: '_fillHover' },
-  // 列有焦点时它的高亮项画焦点环（列本身不画）
-  focused: {
-    outlineStyle: 'solid',
-    outlineWidth: '_sm',
-    outlineColor: '_focusRing',
-    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
-  },
   chevron: { flexShrink: 0, color: '_textMuted', scale: { default: null, _rtl: '-1 1' } },
   check: { flexShrink: 0 },
   empty: { paddingBlock: '_sm', paddingInline: '_sm', color: '_textMuted' },
@@ -542,7 +535,8 @@ export const Cascader = _component(
                   itemStyles.row,
                   itemStyles.hoverable,
                   active && cascaderStyles.onPath,
-                  active && focused && cascaderStyles.focused,
+                  // 列有焦点时它的高亮项画焦点环（列本身不画）
+                  active && focused && focusRingStyles.virtual,
                   selected && itemStyles.selected,
                   off && itemStyles.disabled,
                 )}
@@ -698,7 +692,7 @@ export const Cascader = _component(
                 {
                   ...s.icon,
                   icon: ChevronDown,
-                  sx: [s.icon.sx, disclosureStyles.icon, open && selectStyles.chevronOpen],
+                  sx: [s.icon.sx, disclosureStyles.icon, open && disclosureStyles.flip],
                 },
                 propsChevron,
               )}

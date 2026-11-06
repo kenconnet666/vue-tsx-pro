@@ -129,6 +129,8 @@ export const columnGapStyles = css.create({
  * 焦点环：宽度、颜色全站一致，只有触发的伪类与偏移不同。
  * - visible：键盘聚焦本元素（Link、Button 等），环离开元素一点；
  * - tight：同上但贴着边框（勾选框、单选、开关这类小控件，环离远了显得松）；
+ * - inset：同上但画在元素里面（滚动区域、标签页面板、滑块：外层 overflow: hidden 会裁掉画在外面的环）；
+ * - virtual：一直画、画在里面：焦点在容器上、由当前项（aria-activedescendant）显示焦点时，给当前项（Cascader 的列）；
  * - hasVisible：里面的元素键盘聚焦时画在整块上（FileDrop：原生 input 视觉上隐藏）；
  * - within：里面的元素聚焦（含鼠标）时画在外壳上，往里收压住边框（输入框外壳）
  */
@@ -144,6 +146,18 @@ export const focusRingStyles = css.create({
     outlineWidth: '_sm',
     outlineColor: '_focusRing',
     outlineOffset: '_borderWidths.sm',
+  },
+  inset: {
+    outlineStyle: { default: 'none', _focusVisible: 'solid' },
+    outlineWidth: '_sm',
+    outlineColor: '_focusRing',
+    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
+  },
+  virtual: {
+    outlineStyle: 'solid',
+    outlineWidth: '_sm',
+    outlineColor: '_focusRing',
+    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
   },
   hasVisible: {
     outlineStyle: { default: 'none', ':has(:focus-visible)': 'solid' },

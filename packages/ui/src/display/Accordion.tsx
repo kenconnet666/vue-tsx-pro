@@ -55,7 +55,7 @@ interface AccordionBaseProps extends PartProps<'div'> {
 /** 单开（selectionMode="single"，value 是展开项的值）或多开（value 是数组） */
 export type AccordionProps = AccordionBaseProps & SelectionProps;
 
-/** Accordion 的样式：root、item、heading、trigger、chevron、chevronOpen、content */
+/** Accordion 的样式：root、item、heading、trigger、chevron、content */
 export const accordionStyles = css.create({
   root: { display: 'flex', flexDirection: 'column' },
   item: {
@@ -82,7 +82,6 @@ export const accordionStyles = css.create({
   },
   triggerDisabled: { opacity: '_disabled' },
   chevron: { flexShrink: 0, color: '_textMuted' },
-  chevronOpen: { rotate: '180deg' },
   content: { paddingInline: '_sm', paddingBlockEnd: '_md', color: '_text' },
 });
 
@@ -227,11 +226,7 @@ export const AccordionItem = _component(
             {...mergePartProps<IconProps>(
               {
                 icon: ChevronDown,
-                sx: [
-                  accordionStyles.chevron,
-                  disclosureStyles.icon,
-                  open && accordionStyles.chevronOpen,
-                ],
+                sx: [accordionStyles.chevron, disclosureStyles.icon, open && disclosureStyles.flip],
               },
               propsChevron,
             )}

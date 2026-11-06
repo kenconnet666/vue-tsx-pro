@@ -195,7 +195,6 @@ export const codeBlockStyles = css.create({
     color: '_textMuted',
     fontSize: '_sm',
   },
-  expandOpen: { rotate: '180deg' },
 });
 
 /** 按行拆开；结尾的换行不算新的一行（文件末尾通常有一个），不然行号会多出一行空的 */
@@ -383,7 +382,7 @@ export const CodeBlock = _component(
                 {...mergePartProps<IconProps>(
                   { icon: ChevronDown, sx: disclosureStyles.icon },
                   propsExpandIcon,
-                  { sx: expanded && codeBlockStyles.expandOpen },
+                  { sx: expanded && disclosureStyles.flip },
                 )}
               />
             </ButtonBase>

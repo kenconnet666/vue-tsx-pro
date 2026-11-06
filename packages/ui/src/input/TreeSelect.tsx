@@ -477,7 +477,7 @@ export const TreeSelect = _component(
                 {
                   ...s.icon,
                   icon: ChevronDown,
-                  sx: [s.icon.sx, disclosureStyles.icon, open && selectStyles.chevronOpen],
+                  sx: [s.icon.sx, disclosureStyles.icon, open && disclosureStyles.flip],
                 },
                 propsChevron,
               )}

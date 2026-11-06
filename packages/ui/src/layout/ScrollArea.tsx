@@ -80,8 +80,6 @@ export const scrollAreaStyles = css.create({
     // 隐藏原生滚动条：Firefox、新版 Chromium 与 Safari 用标准属性，旧版 WebKit 用伪元素
     scrollbarWidth: 'none',
     '::-webkit-scrollbar': { display: 'none' },
-    // 焦点环画在里面：外层 overflow: hidden 会裁掉画在外面的
-    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
   },
   y: { overflowX: 'hidden', overflowY: 'auto' },
   x: { overflowX: 'auto', overflowY: 'hidden' },
@@ -414,7 +412,7 @@ export const ScrollArea = _component(
           <div
             {...mergeAttrs<'div'>(
               {
-                sx: [focusRingStyles.visible, scrollAreaStyles.viewport, scrollAreaStyles[axis]],
+                sx: [focusRingStyles.inset, scrollAreaStyles.viewport, scrollAreaStyles[axis]],
               },
               propsViewport,
               {

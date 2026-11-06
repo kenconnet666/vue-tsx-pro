@@ -41,7 +41,7 @@ import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { FlexList, type FlexProps } from '../layout/Flex';
-import { t } from '../config/theme/tokens';
+import { disclosureStyles } from '../utils/style/transitions';
 
 /** 分组向里面的项要的信息：哪些项是当前页（有当前页时自动展开） */
 export interface NavGroupState {
@@ -55,7 +55,7 @@ export const NavGroupContext = createContext<NavGroupState | null>('NavGroup');
 /** 导航是不是紧凑（只显示图标）：AppShell 按侧栏宽度提供，NavList 的 compact 可以覆盖 */
 export const NavCompactContext = createContext<() => boolean>('NavCompact');
 
-/** NavList 的样式：nested、row、current、disabled、chevron、section、sectionLabel 等 */
+/** NavList 的样式：nested、row、current、disabled、section、sectionLabel 等 */
 export const navListStyles = css.create({
   nested: { paddingInlineStart: '_lg', paddingTop: '_xs' },
   // 链接与分组的触发器共用：列表行（itemStyles）之上，导航项更宽松、字重更重，平时是次要颜色
@@ -68,8 +68,6 @@ export const navListStyles = css.create({
   // 当前页的颜色来自 itemStyles.current；悬停时也保持品牌色
   current: { color: { default: '_accentText', _hover: '_accentText' } },
   disabled: { pointerEvents: 'none' },
-  chevron: { transition: `transform ${t.durations.md} ${t.easings.standard}` },
-  chevronOpen: { transform: 'rotate(90deg)' },
   // 小节之间留出间隔，第一节贴着顶部
   section: {
     display: 'flex',
@@ -397,7 +395,7 @@ export const NavGroup = _component(
                       <Icon
                         icon={ChevronRight}
                         flipInRtl
-                        sx={[navListStyles.chevron, open && navListStyles.chevronOpen]}
+                        sx={[disclosureStyles.icon, open && disclosureStyles.turn]}
                       />
                     )}
                   </ButtonBase>

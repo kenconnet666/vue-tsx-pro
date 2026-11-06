@@ -99,7 +99,7 @@ export interface FilterBarProps
   children?: VNodeChild;
 }
 
-/** FilterBar 的样式：root、start、end、fields、more、actions、toggleIconOpen */
+/** FilterBar 的样式：root、start、end、fields、more、actions */
 export const filterBarStyles = css.create({
   // 条件栅格与按钮区并排；放不下时按钮区换行
   root: {
@@ -144,7 +144,6 @@ export const filterBarStyles = css.create({
     marginInlineStart: 'auto',
   },
   // 展开后箭头朝上
-  toggleIconOpen: { rotate: '180deg' },
   // 高级筛选与它的摘要各占一整行，排在条件与按钮下面
   advanced: {
     flexBasis: '100%',
@@ -249,7 +248,7 @@ export const FilterBar = _component(
                   tone: 'neutral',
                   iconEnd: ChevronDown,
                   propsIconEnd: {
-                    sx: [disclosureStyles.icon, expanded && filterBarStyles.toggleIconOpen],
+                    sx: [disclosureStyles.icon, expanded && disclosureStyles.flip],
                   },
                 },
                 propsToggle,

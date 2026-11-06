@@ -67,10 +67,17 @@ export const interactionTransitions = css.create({
   },
 });
 
-/** 展开指示（chevron）的旋转过渡；旋转角度由各组件给（右指向下 90°，下指向上 180°） */
+/** 展开指示（chevron）：icon 给旋转的过渡，展开时再加 flip 或 turn */
 export const disclosureStyles = css.create({
   /** 旋转在 durations.sm 内过渡 */
   icon: { transition: `rotate ${t.durations.sm} ${t.easings.standard}` },
+  /** 向下的箭头展开时朝上（下拉框、折叠面板） */
+  flip: { rotate: '180deg' },
+  /**
+   * 朝行尾的箭头展开时朝下（树、导航、表格的子行），图标要带 flipInRtl：
+   * 从右往左排版时图标先镜像成朝左，再反着转才朝下
+   */
+  turn: { rotate: { default: '90deg', _rtl: '-90deg' } },
 });
 
 /**

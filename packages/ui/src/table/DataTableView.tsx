@@ -609,7 +609,7 @@ export const DataTableRow = _component(
                     propsIcon: mergeProps<IconProps>(
                       { flipInRtl: true, sx: disclosureStyles.icon },
                       propsDetailToggle?.propsIcon,
-                      expanded ? { sx: dataTableStateStyles.chevronOpen } : undefined,
+                      expanded ? { sx: disclosureStyles.turn } : undefined,
                     ),
                     onClick: () => onToggleDetail?.(row.key),
                   },

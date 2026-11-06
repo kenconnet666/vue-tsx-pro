@@ -115,7 +115,8 @@ export const formSectionStyles = css.create({
     backgroundColor: { default: 'transparent', _hover: '_fill' },
   },
   chevron: { flexShrink: 0, color: '_textMuted' },
-  chevronClosed: { rotate: '-90deg' },
+  // 收起时朝行尾：从左往右时朝右、从右往左时朝左
+  chevronClosed: { rotate: { default: '-90deg', _rtl: '90deg' } },
   description: { fontSize: '_sm', lineHeight: '_normal' },
   extra: { display: 'flex', alignItems: 'center', gap: '_sm', flexShrink: 0 },
   // 多列时列间距比行间距大：一眼看出哪几项是同一列

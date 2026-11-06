@@ -18,7 +18,6 @@
  */
 import { ChevronDown } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -126,11 +125,6 @@ export interface ComboboxBaseProps<T>
 
 /** 组合框的属性；items 不是 ListboxOption 或字符串时要给 toOption */
 export type ComboboxProps<T = ListboxOption> = ComboboxBaseProps<T> & OptionMapping<T>;
-
-/** Combobox 的样式：chevronOpen */
-export const comboboxStyles = css.create({
-  chevronOpen: { rotate: '180deg' },
-});
 
 /** 组合框：输入框 + 过滤后的选项列表 */
 export const Combobox = _component(
@@ -365,7 +359,7 @@ export const Combobox = _component(
                 {...mergePartProps<IconButtonProps>(
                   {
                     ...s.button,
-                    sx: [s.button.sx, disclosureStyles.icon, open && comboboxStyles.chevronOpen],
+                    sx: [s.button.sx, disclosureStyles.icon, open && disclosureStyles.flip],
                     radius: 'full',
                     icon: ChevronDown,
                     'aria-label': lang.comboboxToggle,

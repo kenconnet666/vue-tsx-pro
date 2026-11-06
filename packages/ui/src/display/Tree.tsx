@@ -188,7 +188,6 @@ export const treeStyles = css.create({
     height: '1.5em',
     color: '_textMuted',
   },
-  chevronOpen: { rotate: '90deg' },
   checkbox: { marginInlineEnd: '_xs' },
   checkMark: { width: '0.875em', height: '0.875em', color: '_accentContrast' },
   hidden: { visibility: 'hidden' },
@@ -704,7 +703,7 @@ export const Tree = _component(
                 <Icon
                   icon={ChevronRight}
                   flipInRtl
-                  sx={[disclosureStyles.icon, open && treeStyles.chevronOpen]}
+                  sx={[disclosureStyles.icon, open && disclosureStyles.turn]}
                 />
               )
             )}

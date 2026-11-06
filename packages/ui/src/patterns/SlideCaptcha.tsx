@@ -25,7 +25,7 @@ import { IconButton } from '../base/IconButton';
 import { Spinner } from '../base/Spinner';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useMessages } from '../config/lang/messages';
-import { t } from '../config/theme/tokens';
+import { focusRingStyles } from '../utils/style/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { patternsMessages } from './messages';
 
@@ -186,7 +186,6 @@ export const slideCaptchaStyles = css.create({
     color: '_accentText',
     cursor: 'grab',
     touchAction: 'none',
-    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
   },
   handleActive: { cursor: 'grabbing', boxShadow: '_md' },
   handleSuccess: { color: '_successText' },
@@ -447,6 +446,7 @@ export const SlideCaptcha = _component(
                 {
                   sx: [
                     slideCaptchaStyles.handle,
+                    focusRingStyles.inset,
                     dragging && slideCaptchaStyles.handleActive,
                     status === 'success' && slideCaptchaStyles.handleSuccess,
                     status === 'error' && slideCaptchaStyles.handleError,

@@ -61,10 +61,9 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'leading'
   propsToggle?: Omit<Partial<IconButtonProps>, 'loading' | 'aria-expanded' | 'onClick'>;
 }
 
-/** TreeDataTable 的样式：toggle、chevronOpen、placeholder */
+/** TreeDataTable 的样式：toggle、placeholder */
 export const treeDataTableStyles = css.create({
   toggle: { flexShrink: 0, width: '1.5em', minHeight: '1.5em' },
-  chevronOpen: { rotate: '90deg' },
   // 叶子没有按钮，用同样宽的占位让文字对齐
   placeholder: { flexShrink: 0, width: '1.5em' },
 });
@@ -173,7 +172,7 @@ export const TreeDataTable = _component(
                   propsIcon: mergeProps<IconProps>(
                     { flipInRtl: true, sx: disclosureStyles.icon },
                     propsToggle?.propsIcon,
-                    open ? { sx: treeDataTableStyles.chevronOpen } : undefined,
+                    open ? { sx: disclosureStyles.turn } : undefined,
                   ),
                   onClick: () => void expansion.setOpen(model.data, model.key, !open),
                 },

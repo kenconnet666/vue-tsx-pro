@@ -30,6 +30,7 @@ import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useMessages } from '../config/lang/messages';
+import { focusRingStyles } from '../utils/style/styles';
 import { t } from '../config/theme/tokens';
 import { startMove } from '../utils/dom/move';
 import { useResizeObserver } from '../utils/dom/resize';
@@ -277,10 +278,6 @@ export const diagramStyles = css.create({
     // 画布上点选、框选、按着 Shift 加选时不选中文字（节点里要能选中复制的内容自己写 userSelect: 'text'）
     userSelect: 'none',
     cursor: { default: 'grab', _active: 'grabbing' },
-    outlineStyle: { default: 'none', _focusVisible: 'solid' },
-    outlineWidth: '_sm',
-    outlineColor: '_focusRing',
-    outlineOffset: '_borderWidths.sm',
   },
   rootSelect: { cursor: 'default' },
   world: {
@@ -1219,6 +1216,7 @@ export const Diagram = _component(
             {
               sx: [
                 diagramStyles.root,
+                focusRingStyles.tight,
                 diagramDynamicStyles.height(height),
                 dragMode === 'select' && diagramStyles.rootSelect,
                 diagramDynamicStyles.grid(grid, diagram.x, diagram.y, diagram.scale, gridSize),

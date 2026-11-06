@@ -14,7 +14,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { CodeBlock, type CodeBlockProps } from '../base/CodeBlock';
 import { Tab, TabList, TabPanel, Tabs, type TabListProps } from '../navigation/Tabs';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { t } from '../config/theme/tokens';
+import { focusRingStyles } from '../utils/style/styles';
 
 /** 一组代码里的一段 */
 export interface CodeGroupItem extends Omit<CodeBlockProps, 'title'> {
@@ -46,7 +46,6 @@ export const codeGroupStyles = css.create({
     overflow: 'hidden',
   },
   list: { paddingInline: '_sm', backgroundColor: '_surfaceMuted', fontSize: '_sm' },
-  panel: { outlineOffset: `calc(-1 * ${t.borderWidths.sm})` },
 });
 
 const keyOf = (item: CodeGroupItem) => item.value ?? item.label;
@@ -87,7 +86,7 @@ export const CodeGroup = _component(
             {items.map((item) => {
               const { label: _label, value: _value, propsRoot, ...block } = item;
               return (
-                <TabPanel key={keyOf(item)} value={keyOf(item)} sx={codeGroupStyles.panel}>
+                <TabPanel key={keyOf(item)} value={keyOf(item)} sx={focusRingStyles.inset}>
                   <CodeBlock {...block} flush propsRoot={propsRoot} />
                 </TabPanel>
               );

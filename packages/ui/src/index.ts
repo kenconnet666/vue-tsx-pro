@@ -741,7 +741,6 @@ export {
 } from './input/ColorField';
 export {
   Combobox,
-  comboboxStyles,
   type ComboboxBaseProps,
   type ComboboxManaged,
   type ComboboxProps,

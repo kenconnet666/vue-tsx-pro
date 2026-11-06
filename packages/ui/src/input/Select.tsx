@@ -161,7 +161,7 @@ export interface SelectBaseProps<T>
 /** 单选或多选；items 不是 ListboxOption 或字符串时要给 toOption */
 export type SelectProps<T = ListboxOption> = SelectBaseProps<T> & SelectionProps & OptionMapping<T>;
 
-/** Select 的样式：root、trigger、value、placeholder、chevronOpen 等 */
+/** Select 的样式：root、trigger、value、placeholder 等 */
 export const selectStyles = css.create({
   // 在 ControlGroup 里也按内容宽（输入框才分剩余宽度）。
   // 指针跟着外壳上的 data 属性走：这里的 cursor 排在配方之后，会盖过配方 disabled 档的 not-allowed
@@ -195,7 +195,6 @@ export const selectStyles = css.create({
   placeholder: { color: '_textMuted' },
   // 多选时标签排在触发按钮前面（SelectedTags）占剩余宽度，触发按钮里只剩读屏用的文字
   triggerBehindTags: { flexGrow: 0 },
-  chevronOpen: { rotate: '180deg' },
   // 弹出层顶部的搜索框占满宽度
   search: { width: '_full' },
 });
@@ -531,7 +530,7 @@ export const Select = _component(
                 {
                   ...s.icon,
                   icon: ChevronDown,
-                  sx: [s.icon.sx, disclosureStyles.icon, open && selectStyles.chevronOpen],
+                  sx: [s.icon.sx, disclosureStyles.icon, open && disclosureStyles.flip],
                 },
                 propsChevron,
               )}
