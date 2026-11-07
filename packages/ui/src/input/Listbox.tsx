@@ -25,6 +25,7 @@ import { Icon, type IconProps } from '../base/Icon';
 import { Text, type TextProps } from '../base/Text';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
+import { partAttrs } from '../config/styles';
 import { Empty, type EmptyProps } from '../feedback/Empty';
 import { Skeleton, type SkeletonProps, type SkeletonShapeProps } from '../feedback/Skeleton';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
@@ -113,6 +114,9 @@ type Row<T> =
 const SKELETON_ROWS = 4;
 
 /** Listbox 的样式：root、scroll、sizer、row、groupLabel、content 等 */
+/** 列表本身的部件标记（data-scope="listbox" data-part="root"）：使用方的全局样式能选中它，也让它和别的部件一样 border-box */
+const listboxPart = partAttrs({ name: 'Listbox' }, 'root');
+
 const listboxStyles = css.create({
   root: { position: 'relative', padding: '_xs', lineHeight: '_normal', outlineStyle: 'none' },
   // 自己是滚动容器时（单独使用的 Listbox）：限制高度，滚动不传给页面
@@ -405,7 +409,10 @@ export const ListboxView = _component(
       const own = scroller === undefined;
       // 先不编译 sx：自己滚动时这些属性交给 ScrollArea 的视口，和视口自己的样式一次合并
       const props = mergeProps<'div'>(
-        { sx: [listboxStyles.root, own && listboxStyles.scroll, focusRingStyles.visible] },
+        {
+          ...listboxPart,
+          sx: [listboxStyles.root, own && listboxStyles.scroll, focusRingStyles.visible],
+        },
         rest,
         {
           ref: _toRef(root),
