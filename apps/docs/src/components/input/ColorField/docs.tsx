@@ -1,7 +1,6 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ColorFieldProps';
-import swatchApi from 'virtual:api/ColorSwatchProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -9,25 +8,16 @@ import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Brand from './demo/Brand.tsx?demo';
 import Formats from './demo/Formats.tsx?demo';
-import Tokens from './demo/Tokens.tsx?demo';
 import States from './demo/States.tsx?demo';
 
 export const meta = {
   title: 'ColorField 颜色输入',
-  description:
-    '颜色输入：色块点开原生取色器，后面可以直接输入颜色值；ColorSwatch 列出一块颜色与它的名称、取值（调色板、设计 token）。',
+  description: '颜色输入：色块点开原生取色器，后面可以直接输入颜色值。',
   order: 12,
 };
 
 export default _component(() => () => (
-  <DocPage
-    wide
-    meta={meta}
-    imports={
-      "import { ColorField } from '@zerodep-dev/vue-tsx-pro-ui';\n" +
-      "import { ColorSwatch } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';"
-    }
-  >
+  <DocPage wide meta={meta} imports="import { ColorField } from '@zerodep-dev/vue-tsx-pro-ui';">
     <Examples>
       <ExampleColumn>
         <Example id="brand" title="品牌配色" demo={Brand}>
@@ -38,10 +28,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
       <ExampleColumn>
-        <Example id="swatch" title="ColorSwatch" demo={Tokens}>
-          <Code>color</Code> 是颜色值或主题 token：token
-          的取值按当前主题读出，换主题时跟着变（右上角切换主题试试）。半透明的颜色下面垫棋盘格。
-        </Example>
         <Example id="states" title="外观与状态" demo={States}>
           <Code>variant</Code>、<Code>size</Code>、<Code>radius</Code> 与其他输入框同一套；Field
           上的 <Code>required</Code>、<Code>error</Code>、<Code>readonly</Code>、
@@ -56,6 +42,6 @@ export default _component(() => () => (
         ['Tab', '色块与文字输入框各占一个 Tab 位置'],
       ]}
     />
-    <ApiReference api={[api, swatchApi]} />
+    <ApiReference api={api} />
   </DocPage>
 ));

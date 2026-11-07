@@ -16,4 +16,6 @@ export const redirects: Readonly<Record<string, string>> = {
   '/components/viewport-fill': '/components/aside-layout#viewport-fill',
   '/components/gauge': '/components/sparkline#gauge',
   '/components/proportion-bar': '/components/sparkline#proportion-bar',
+  '/components/doc-article': '/components/docs-kit#article',
+  '/components/props-table': '/components/docs-kit#props-table',
 };

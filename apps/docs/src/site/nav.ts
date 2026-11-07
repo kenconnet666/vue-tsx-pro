@@ -44,6 +44,8 @@ const CATEGORIES: [string, string][] = [
   ['charts', '图表'],
   ['three', '3D · three.js'],
   ['config', '配置'],
+  // @zerodep-dev/vue-tsx-pro-ui/docs-kit：写文档站用的，不是业务界面，放在最后
+  ['docs-kit', '文档工具'],
 ];
 
 /** 分类目录名 → 组名 */
