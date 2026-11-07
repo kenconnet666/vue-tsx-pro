@@ -118,7 +118,10 @@ export interface CalendarState {
   readonly week: WeekOptions;
   /** 切换视图（不能比选择的粒度更细） */
   setView(view: DateUnit): void;
-  /** 移动焦点日期（夹到可选范围内），移出当前页时翻页 */
+  /**
+   * 移动焦点日期（夹到可选范围内），移出当前页时翻页。month、year 视图里 date 代表它所在的那一格（某月、某年），
+   * 焦点保留原来的日（和月）：点月份格时浏览器先聚焦、再点击，回到 day 视图仍是原来那天
+   */
   focus(date: CalendarDate): void;
   /** 翻页：day 视图一次翻并排的月数，month 视图一年，year 视图十年；焦点跟着走 */
   turnPage(direction: 1 | -1): void;
@@ -165,6 +168,21 @@ export function useCalendarState(config: CalendarStateOptions): CalendarState {
   }
 
   const pageEnd = () => page.value.add(pageSize(view.value)).subtract({ days: 1 });
+
+  /** month、year 视图里的一格换成焦点那天落在这格里的日期：保留原来的月、日（这个月没有那天时取最后一天） */
+  function keepFocusedDay(cell: CalendarDate): CalendarDate {
+    if (view.value === 'year') return focused.value.set({ year: cell.year });
+    if (view.value === 'month') return focused.value.set({ year: cell.year, month: cell.month });
+    return cell;
+  }
+
+  /** 焦点移到这一天（夹到可选范围内），移出当前页时翻页 */
+  function moveFocus(date: CalendarDate) {
+    focused.value = isOutOfRange(date, limits.value, view.value)
+      ? clampDate(date, limits.value)
+      : date;
+    followFocus();
+  }
 
   /** 焦点移出当前页时翻页：往前移出时焦点所在的月排在最后，往后移出时排在最前（同 React Aria） */
   function followFocus() {
@@ -285,10 +303,7 @@ export function useCalendarState(config: CalendarStateOptions): CalendarState {
       page.value = pageOf(focused.value, next);
     },
     focus(date) {
-      focused.value = isOutOfRange(date, limits.value, view.value)
-        ? clampDate(date, limits.value)
-        : date;
-      followFocus();
+      moveFocus(keepFocusedDay(date));
     },
     turnPage(direction) {
       if (!state.canTurnPage(direction)) return;
@@ -312,12 +327,9 @@ export function useCalendarState(config: CalendarStateOptions): CalendarState {
         select(date);
         return;
       }
-      // 进到下一级视图：焦点保留原来的月、日（这个月没有那天时取最后一天）
+      // 进到下一级视图：焦点保留原来的月、日
       const finer = VIEWS[VIEWS.indexOf(view.value) + 1]!;
-      const next =
-        view.value === 'year'
-          ? focused.value.set({ year: date.year })
-          : focused.value.set({ year: date.year, month: date.month });
+      const next = keepFocusedDay(date);
       view.value = finer;
       focused.value = clampDate(next, limits.value);
       page.value = pageOf(focused.value, finer);
@@ -352,11 +364,11 @@ export function useCalendarState(config: CalendarStateOptions): CalendarState {
       };
     },
   };
-  // 父级从外面改了值（快捷按钮、重置）且不在这一页：翻到它那里
+  // 父级从外面改了值（快捷按钮、重置）且不在这一页：翻到它那里（焦点就是那天，不保留原来的日）
   watch(
     () => config.selected()[0],
     (date) => {
-      if (date && (date.compare(page.value) < 0 || date.compare(pageEnd()) > 0)) state.focus(date);
+      if (date && (date.compare(page.value) < 0 || date.compare(pageEnd()) > 0)) moveFocus(date);
     },
   );
   return state;

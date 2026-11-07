@@ -1,7 +1,7 @@
 // 日历状态：单选 / 区间 / 多选、区间预览与不可选日期、翻页、三种视图、日期网格的键盘操作（中文、英文、周日开始）
 import { CalendarDate } from '@internationalized/date';
 import { describe, expect, it } from 'vitest';
-import { shallowRef } from 'vue';
+import { nextTick, shallowRef } from 'vue';
 import { parseIsoDate, type DateLimits, type DateUnit } from '../../utils/data/date';
 import {
   handleCalendarKeydown,
@@ -42,7 +42,9 @@ function setup({
   });
   const press = (key: string, options: KeyboardEventInit = {}, rtl = false) =>
     handleCalendarKeydown(state, new KeyboardEvent('keydown', { key, ...options }), rtl);
-  return { state, value: () => iso(value.value), press };
+  // 父级从外面改值
+  const setValue = (next: string[]) => (value.value = next.map(date));
+  return { state, value: () => iso(value.value), press, setValue };
 }
 
 describe('选择', () => {
@@ -153,6 +155,26 @@ describe('翻页与视图', () => {
     state.activate(date('2028-02-01'));
     expect([state.view, state.focused.toString()]).toEqual(['day', '2028-02-20']);
     expect(value()).toEqual(['2026-10-20']);
+  });
+
+  it('粗的视图里聚焦一格（点击前浏览器先聚焦）：焦点保留原来的日；父级改值时焦点就是那天', async () => {
+    const { state, setValue } = setup({ selected: ['1995-06-18'] });
+    state.setView('year');
+    state.focus(date('2001-01-01'));
+    expect(state.focused.toString()).toBe('2001-06-18');
+    state.activate(date('2001-01-01'));
+    state.focus(date('2001-09-01'));
+    expect(state.focused.toString()).toBe('2001-09-18');
+    state.activate(date('2001-09-01'));
+    expect([state.view, state.focused.toString()]).toEqual(['day', '2001-09-18']);
+    // 这个月没有那天：取最后一天
+    state.focus(date('2001-10-31'));
+    state.setView('month');
+    state.focus(date('2001-02-01'));
+    expect(state.focused.toString()).toBe('2001-02-28');
+    setValue(['2030-03-05']);
+    await nextTick();
+    expect(state.focused.toString()).toBe('2030-03-05');
   });
 
   it('选择粒度是月（MonthPicker）：月份视图里点一格就是选中，不能切到日视图', () => {
