@@ -1,7 +1,8 @@
 /**
  * 中国省、市、区县的行政区划（按 6 位代码），给 Area 一类的联动选择用。
  * 数据取自 @vant/area-data 2.2.0（Copyright (c) Youzan，MIT License：https://opensource.org/licenses/MIT），原样收录。
- * 单独一个子路径（@zerodep-dev/vue-tsx-pro-mobile/area）：约 100 KB，用不到的应用不打包。
+ * 单独一个子路径（移动端与桌面组件库的 /area）：约 100 KB，用不到的应用不打包。
+ * 两个包不能互相导入，各放一份：以 packages/mobile/src/area/data.ts 为准，scripts/structure/copies.mjs 核对桌面那份一致。
  */
 export const areaList: {
   province_list: Record<string, string>;

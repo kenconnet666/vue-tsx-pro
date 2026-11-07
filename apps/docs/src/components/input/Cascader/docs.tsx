@@ -27,7 +27,10 @@ export default _component(() => () => (
           是从第一级到选中节点的 key 路径，key
           只要在同级里唯一。默认只能选到叶子，点有下一级的项只是展开。
           <Code>searchable</Code> 时输入就换成一列匹配的完整路径（按已加载的节点，认拼音）；
-          <Code>showAllLevels</Code> 关掉时只显示最后一级。
+          <Code>showAllLevels</Code> 关掉时只显示最后一级。全国的省市区数据在子路径{' '}
+          <Code>@zerodep-dev/vue-tsx-pro-ui/area</Code>：<Code>areaTree({'{ depth }'})</Code>{' '}
+          是三级（或两级、一级）的树，<Code>{'{...areaAccessors}'}</Code> 给出三个取值函数，
+          <Code>areaNames(路径)</Code> 把存下来的代码换回名称；约 100 KB，用不到的应用不打包。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

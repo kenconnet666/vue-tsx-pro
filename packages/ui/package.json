@@ -33,6 +33,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./area": {
+      "@vue-tsx-pro/source": "./src/area/index.ts",
+      "types": "./dist/area/index.d.ts",
+      "default": "./dist/area/index.js"
+    },
     "./shiki": {
       "@vue-tsx-pro/source": "./src/config/shiki.ts",
       "types": "./dist/config/shiki.d.ts",
