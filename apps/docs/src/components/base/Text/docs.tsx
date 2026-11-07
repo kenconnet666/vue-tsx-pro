@@ -70,7 +70,9 @@ export default _component(() => () => (
         <Example id="links" title="链接" demo={Links}>
           <Code>Link</Code> 默认带下划线（WCAG
           1.4.1：正文里的链接不能只靠颜色区分）；导航这类上下文明确的地方可以
-          <Code>underline="hover"</Code> 或 none。按钮样式的链接用 LinkButton。
+          <Code>underline="hover"</Code> 或 none。条目列表、卡片页头、指标、时间线、描述列表里的
+          Link 默认就是悬停才有下划线（这些容器经 <Code>LinkUnderlineScope</Code>{' '}
+          {'给默认值，显式写的优先），正文里的照旧。按钮样式的链接用 LinkButton。'}
         </Example>
         <Example id="headings" title="标题" demo={Headings}>
           H1–H6 是六个组件，默认字号依次减小；级别要连续，视觉层级用 <Code>size</Code> 单独改。

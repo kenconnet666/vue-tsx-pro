@@ -7,7 +7,6 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
-import Existing from './demo/Existing.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Photos from './demo/Photos.tsx?demo';
 import Resume from './demo/Resume.tsx?demo';
@@ -42,19 +41,17 @@ export default _component(() => () => (
           <Code>accept</Code> 里的也列出来，带错误、不上传。不写 upload 时可以给 <Code>action</Code>
           ：用应用配置的请求客户端（<Code>createUi</Code> 的 <Code>http</Code>
           ，同一套 baseURL、令牌与拆包）把文件 POST 过去，字段名默认 file（<Code>fieldName</Code>
-          ）；fetch 拿不到上传进度，要进度时写 upload。
-        </Example>
-        <Example id="form" title="随表单提交" demo={Resume}>
-          不给 <Code>upload</Code> 时文件停在“已选择”，等提交时一起处理；写了 <Code>name</Code>{' '}
-          时有一个隐藏的 file input 带着全部文件，原生提交、FormData
-          都拿得到。单选时新文件替换旧的。
+          ）；fetch 拿不到上传进度，要进度时写 upload。父级放进 value 的“已选择”文件（带{' '}
+          <Code>file</Code>）同样马上开始上传。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
-        <Example id="existing" title="已有文件" demo={Existing}>
+        <Example id="form" title="随表单提交与已有文件" demo={Resume}>
           之前上传过、从后端读回来的文件用 <Code>existingUploadFile</Code> 放进
-          value：状态是完成、不重新上传，给了 <Code>url</Code>{' '}
-          时文件名链到它；可以移除，新选的照常上传。
+          value：状态是完成、不重新上传，给了 <Code>url</Code> 时文件名链到它，可以移除。不给{' '}
+          <Code>upload</Code> 时新选的停在“已选择”，等提交时一起处理；写了 <Code>name</Code>{' '}
+          时有一个隐藏的 file input 带着新选的文件，原生提交、FormData
+          都拿得到。单选时新文件替换旧的。
         </Example>
         <Example id="file-drop" title="FileDrop" demo={Import}>
           只负责选文件：点击、聚焦后按 Enter / 空格、或把文件拖进来。选到的经 <Code>onFiles</Code>{' '}
