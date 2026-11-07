@@ -32,6 +32,9 @@ import type { DrawerOptions, DrawerPart } from '../overlay/Drawer';
 import type { EmptyOptions, EmptyPart } from '../feedback/Empty';
 import type { IndicatorOptions, IndicatorPart } from '../base/Indicator';
 import type { LinkOptions, LinkPart } from '../base/Link';
+import type { MenuOptions, MenuPart } from '../overlay/Menu';
+import type { NavListOptions, NavListPart } from '../navigation/NavList';
+import type { ToasterOptions, ToasterPart } from '../feedback/Toast';
 import type { ProgressOptions, ProgressPart } from '../feedback/Progress';
 import type { ResultOptions, ResultPart } from '../feedback/Result';
 import type { TablePart } from '../table/Table';
@@ -108,6 +111,12 @@ export interface UiComponents {
   Tour: ComponentConfig<TourPart, TourOptions>;
   /** UserButton */
   UserButton: ComponentConfig<UserButtonPart, UserButtonOptions>;
+  /** Menu、ContextMenu 与其中的菜单项、子菜单 */
+  Menu: ComponentConfig<MenuPart, MenuOptions>;
+  /** NavList 与其中的 NavItem、NavGroup、NavSection（NavMenu 也是它们） */
+  NavList: ComponentConfig<NavListPart, NavListOptions>;
+  /** Toaster 与其中的每条通知（ToastItem） */
+  Toaster: ComponentConfig<ToasterPart, ToasterOptions>;
   /** Dialog、AlertDialog 共用：dialog 元素与标题行、标题、关闭按钮、说明、正文、页脚 */
   Dialog: ComponentConfig<DialogPart, DialogOptions>;
   /** Drawer：同 Dialog 的部件 */

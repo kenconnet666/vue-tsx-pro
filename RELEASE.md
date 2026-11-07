@@ -41,6 +41,14 @@
   name、description、indicator；`vtp-ui create` 的模板顶栏换成了用它的账号菜单。
 - Countdown 加 `variant="blocks"`：一格一格的数字块（限时抢购），天数单独一格，字号随上下文。改成配方组件 `Countdown`，部件
   root、segment、separator，`components.Countdown` 可以给 `variant` 的默认值、按部件追加样式（如数字块换成危险色）。
+- NavList、Menu、Toaster 改成配方组件，各部件带上标记（原来没有）：
+  `components.NavList` 按部件（root、list、item、link、icon、label、badge、group、trigger、chevron、groupList、flyout、section、
+  sectionLabel、sectionIcon、sectionText）追加样式，NavItem、NavGroup、NavSection、NavMenu 共用；`components.Menu` 可以给 `size`
+  的默认值，按部件（panel、content、item、icon、label、text、description、indicator、shortcut、chevron、group、groupLabel）追加样式，
+  ContextMenu、子菜单与各种菜单项共用；`components.Toaster` 可以给 `placement`、`max`、`stack`、`progress` 的默认值（全站的通知
+  位置、叠放），按部件（region、list、item、gap、toast、progress）追加样式。`menuItemSx` 换成 `menuItemLayer(parts, tone, disabled)`，
+  `menuItemContent` 的第一个参数是所在菜单的部件（`useMenuItem().menu.parts()`）；`toastStyles` 不再导出（用 `components.Toaster`），
+  `createToaster` 的选项类型改名 `CreateToasterOptions`（`ToasterOptions` 是 Toaster 的档位）。
 - Timeline 改成配方组件：`createUi` / `Provider` 的 `components.Timeline` 可以给 `alternate`、`size` 的默认值，按部件
   （root、item、rail、marker、line、content、title、meta、actor、time、description、toggleLine、toggleContent）追加样式。
 

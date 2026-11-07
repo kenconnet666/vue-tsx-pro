@@ -33,9 +33,11 @@ import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { Collapsible, type CollapsibleProps } from '../display/Collapsible';
 import { HoverCard } from '../overlay/HoverCard';
 import { Tooltip, type TooltipTriggerProps } from '../overlay/Tooltip';
+import { useComponent } from '../config/components';
+import type { PartLayer } from '../config/styles';
 import { useLang } from '../config/context';
 import { useRouterLink } from '../utils/dom/link';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { dataAttrs, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { rippleHostStyles, useRipple } from '../utils/dom/ripple';
 import { itemStyles } from '../utils/style/item-styles';
 import { focusRingStyles } from '../utils/style/styles';
@@ -55,38 +57,87 @@ export const NavGroupContext = createContext<NavGroupState | null>('NavGroup');
 /** 导航是不是紧凑（只显示图标）：AppShell 按侧栏宽度提供，NavList 的 compact 可以覆盖 */
 export const NavCompactContext = createContext<() => boolean>('NavCompact');
 
-/** NavList 的样式：nested、row、current、disabled、section、sectionLabel 等 */
-const navListStyles = css.create({
-  nested: { paddingInlineStart: '_lg', paddingTop: '_xs' },
-  // 链接与分组的触发器共用：列表行（itemStyles）之上，导航项更宽松、字重更重，平时是次要颜色
-  row: {
+// 链接与分组的触发器共用：列表行（itemStyles）之上，导航项更宽松、字重更重，平时是次要颜色；
+// 整行占满宽度，分组展开的区域为动画裁掉了溢出：焦点环画在里面
+const row = [
+  itemStyles.row,
+  itemStyles.hoverable,
+  focusRingStyles.inset,
+  {
     paddingInline: '_md',
     borderRadius: '_md',
     color: { default: '_textMuted', _hover: '_text' },
     fontWeight: '_medium',
   },
-  // 当前页的颜色来自 itemStyles.current；悬停时也保持品牌色
+] as const;
+
+/**
+ * NavList 的配方（createUi / Provider 的 components.NavList 按它定制；NavItem、NavGroup、NavSection 共用）：
+ * root（nav）、list（ul）、item（NavItem 的 li）、link（a）、icon、label、badge（计数角标）、group（NavGroup 的 li）、
+ * trigger（分组的标题按钮）、chevron、groupList（分组里的 ul）、flyout（紧凑时弹出的卡片）、section（NavSection 的 li）、
+ * sectionLabel、sectionIcon、sectionText。当前页、不可用、紧凑按项变，叠在部件层之后（navListStateStyles）
+ */
+export const navListRecipe = css.recipe({
+  name: 'NavList',
+  parts: [
+    'root',
+    'list',
+    'item',
+    'link',
+    'icon',
+    'label',
+    'badge',
+    'group',
+    'trigger',
+    'chevron',
+    'groupList',
+    'flyout',
+    'section',
+    'sectionLabel',
+    'sectionIcon',
+    'sectionText',
+  ],
+  base: {
+    link: [...row, rippleHostStyles.host],
+    label: [itemStyles.label],
+    trigger: row,
+    chevron: [disclosureStyles.icon],
+    groupList: { paddingInlineStart: '_lg', paddingTop: '_xs' },
+    // 紧凑分组弹出的卡片：比侧栏宽，放得下完整的文字
+    flyout: { padding: '_xs', minWidth: '12em' },
+    // 小节之间留出间隔，第一节贴着顶部
+    section: {
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '_xs',
+      marginBlockStart: { default: '_lg', ':first-child': 0 },
+    },
+    // 标题行的内边距、图标与间距和链接行同一套（随所在字号），图标与文字才和下面的项上下对齐；只有文字小一档、加粗
+    sectionLabel: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '_sm',
+      paddingBlock: '_xs',
+      paddingInline: '_md',
+      color: '_text',
+    },
+    // 小节标题的图标只是标记，比链接的图标淡
+    sectionIcon: { color: '_textMuted', flexShrink: 0 },
+    sectionText: { fontSize: '_sm', fontWeight: '_medium', letterSpacing: '_wide' },
+  },
+});
+
+/** NavList 的部件（createUi / Provider 的 components.NavList.styles 按它定制） */
+export type NavListPart = (typeof navListRecipe.parts)[number];
+
+/** NavList 没有档位：紧凑跟随所在的 AppShell 侧栏或 compact 属性 */
+export type NavListOptions = Record<never, never>;
+
+/** 按项变的样式，追加在部件层之后：当前页、不可用、紧凑 */
+const navListStateStyles = css.create({
+  // 当前页的底色来自 itemStyles.current；悬停时也保持品牌色
   current: { color: { default: '_accentText', _hover: '_accentText' } },
   disabled: { pointerEvents: 'none' },
-  // 小节之间留出间隔，第一节贴着顶部
-  section: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_xs',
-    marginBlockStart: { default: '_lg', ':first-child': 0 },
-  },
-  // 标题行的内边距、图标与间距和链接行同一套（随所在字号），图标与文字才和下面的项上下对齐；只有文字小一档、加粗
-  sectionLabel: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '_sm',
-    paddingBlock: '_xs',
-    paddingInline: '_md',
-    color: '_text',
-  },
-  sectionText: { fontSize: '_sm', fontWeight: '_medium', letterSpacing: '_wide' },
-  // 小节标题的图标只是标记，比链接的图标淡
-  sectionIcon: { color: '_textMuted', flexShrink: 0 },
   // 紧凑：图标居中；小节标题只剩图标，上面一条细线与上一节隔开
   compactRow: { justifyContent: 'center', paddingInline: 0 },
   compactSection: {
@@ -98,9 +149,12 @@ const navListStyles = css.create({
     borderBlockStartColor: '_borderMuted',
   },
   compactNested: { paddingInlineStart: 0 },
-  // 紧凑分组弹出的卡片：比侧栏宽，放得下完整的文字
-  flyout: { padding: '_xs', minWidth: '12em' },
 });
+
+type NavListParts = Readonly<Record<NavListPart, PartLayer>>;
+
+/** 当前页的行：列表行的选中底色 + 品牌色文字 */
+const currentRow = [itemStyles.current, navListStateStyles.current];
 
 // ─────────────── NavList ───────────────
 
@@ -115,16 +169,31 @@ export interface NavListProps extends PartProps<'nav'> {
 
 /** 侧边导航（nav > ul），里面放 NavItem 与 NavGroup */
 export const NavList = _component(({ compact, propsList, children, ...rest }: NavListProps) => {
+  const ui = useComponent(navListRecipe, () => ({}));
   const inherited = NavCompactContext.inject(() => false);
   const isCompact = () => compact ?? inherited();
   NavCompactContext.provide(isCompact);
-  return () => (
-    <nav {...mergeAttrs<'nav'>({}, rest)} data-compact={isCompact() || undefined}>
-      <FlexList {...mergePartProps<FlexProps<'ul'>>({ direction: 'column', gap: 'xs' }, propsList)}>
-        {children}
-      </FlexList>
-    </nav>
-  );
+  return () => {
+    const s = ui().parts;
+    return (
+      <nav
+        {...mergeAttrs<'nav'>(
+          s.root,
+          rest,
+          dataAttrs({ 'data-compact': isCompact() || undefined }),
+        )}
+      >
+        <FlexList
+          {...mergePartProps<FlexProps<'ul'>>(
+            { ...s.list, direction: 'column', gap: 'xs' },
+            propsList,
+          )}
+        >
+          {children}
+        </FlexList>
+      </nav>
+    );
+  };
 });
 
 // ─────────────── NavItem ───────────────
@@ -176,6 +245,7 @@ export const NavItem = _component(
     children,
     ...rest
   }: NavItemProps) => {
+    const ui = useComponent(navListRecipe, () => ({}));
     const lang = useLang();
     const router = useRouterLink();
     const group = NavGroupContext.inject(null);
@@ -196,21 +266,17 @@ export const NavItem = _component(
 
     const iconOnly = () => compact() && icon != null;
     // tooltip：只剩图标时 Tooltip 给触发器的属性（定位用的 ref、悬停与聚焦的事件）
-    const link = (tooltip?: TooltipTriggerProps) => (
+    const link = (s: NavListParts, tooltip?: TooltipTriggerProps) => (
       <a
         {...mergeAttrs<'a'>(
           {
             ...tooltip,
+            ...s.link,
             sx: [
-              itemStyles.row,
-              itemStyles.hoverable,
-              navListStyles.row,
-              // 整行占满宽度，分组展开的区域为动画裁掉了溢出：焦点环画在里面（分组的触发器同样）
-              focusRingStyles.inset,
-              rippleHostStyles.host,
-              iconOnly() && navListStyles.compactRow,
-              current && [itemStyles.current, navListStyles.current],
-              disabled && [itemStyles.disabled, navListStyles.disabled],
+              s.link.sx,
+              iconOnly() && navListStateStyles.compactRow,
+              current && currentRow,
+              disabled && [itemStyles.disabled, navListStateStyles.disabled],
             ],
           },
           rest,
@@ -229,14 +295,14 @@ export const NavItem = _component(
           (iconOnly() && badge > 0 ? (
             // 紧凑：图标右上角一个小圆点（图标太小，叠不下数字）；读屏照样念出数目
             <Indicator dot tone={badgeTone} label={lang.indicatorCount(badge)}>
-              <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />
+              <Icon {...mergePartProps<IconProps>({ ...s.icon, icon }, propsIcon)} />
             </Indicator>
           ) : (
-            <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />
+            <Icon {...mergePartProps<IconProps>({ ...s.icon, icon }, propsIcon)} />
           ))}
         <span
           {...mergeAttrs<'span'>(
-            { sx: [itemStyles.label, iconOnly() && visuallyHiddenStyles.hidden] },
+            { ...s.label, sx: [s.label.sx, iconOnly() && visuallyHiddenStyles.hidden] },
             propsLabel,
           )}
         >
@@ -244,25 +310,28 @@ export const NavItem = _component(
         </span>
         {!iconOnly() && end}
         {!iconOnly() && badge > 0 && (
-          <Badge size="xs" variant="solid" tone={badgeTone} radius="full">
+          <Badge {...s.badge} size="xs" variant="solid" tone={badgeTone} radius="full">
             {badge > 99 ? '99+' : badge}
           </Badge>
         )}
       </a>
     );
 
-    return () => (
-      <li {...mergeAttrs<'li'>({}, propsItem)}>
-        {iconOnly() ? (
-          // 只剩图标：名称在读屏的文字里，看的人悬停、聚焦时从提示里读
-          <Tooltip placement="right" delay={200} trigger={link}>
-            {children}
-          </Tooltip>
-        ) : (
-          link()
-        )}
-      </li>
-    );
+    return () => {
+      const s = ui().parts;
+      return (
+        <li {...mergeAttrs<'li'>(s.item, propsItem)}>
+          {iconOnly() ? (
+            // 只剩图标：名称在读屏的文字里，看的人悬停、聚焦时从提示里读
+            <Tooltip placement="right" delay={200} trigger={(props) => link(s, props)}>
+              {children}
+            </Tooltip>
+          ) : (
+            link(s)
+          )}
+        </li>
+      );
+    };
   },
 );
 
@@ -303,6 +372,7 @@ export const NavGroup = _component(
     children,
     ...rest
   }: NavGroupProps) => {
+    const ui = useComponent(navListRecipe, () => ({}));
     const compact = NavCompactContext.inject(() => false);
     const iconOnly = () => compact() && icon != null;
     const activeItems = new Set<symbol>();
@@ -319,35 +389,34 @@ export const NavGroup = _component(
     });
 
     /** 紧凑时：只剩图标，悬停、聚焦时子项从右边弹出来（完整的文字，不再紧凑） */
-    function renderFlyout() {
+    function renderFlyout(s: NavListParts) {
       return (
-        <li {...mergeAttrs<'li'>({}, rest)}>
+        <li {...mergeAttrs<'li'>(s.group, rest)}>
           <HoverCard
+            {...s.flyout}
             placement="right-start"
             delay={150}
             // 子项一直渲染：它们要报告自己是不是当前页，分组的图标才知道要不要高亮
             lazy={false}
-            sx={navListStyles.flyout}
             trigger={(props) => (
               <ButtonBase
                 {...mergePartProps<ButtonBaseProps>(
                   {
-                    sx: [
-                      itemStyles.row,
-                      itemStyles.hoverable,
-                      navListStyles.row,
-                      navListStyles.compactRow,
-                      focusRingStyles.inset,
-                      hasCurrent && [itemStyles.current, navListStyles.current],
-                    ],
+                    ...s.trigger,
+                    sx: [s.trigger.sx, navListStateStyles.compactRow, hasCurrent && currentRow],
                   },
                   propsTrigger,
                   props as Partial<ButtonBaseProps>,
                 )}
                 data-state={hasCurrent ? 'active' : 'inactive'}
               >
-                <Icon {...mergePartProps<IconProps>({ icon: icon! }, propsIcon)} />
-                <span {...mergeAttrs<'span'>({ sx: visuallyHiddenStyles.hidden }, propsLabel)}>
+                <Icon {...mergePartProps<IconProps>({ ...s.icon, icon: icon! }, propsIcon)} />
+                <span
+                  {...mergeAttrs<'span'>(
+                    { ...s.label, sx: [s.label.sx, visuallyHiddenStyles.hidden] },
+                    propsLabel,
+                  )}
+                >
                   {label}
                 </span>
               </ButtonBase>
@@ -361,46 +430,26 @@ export const NavGroup = _component(
       );
     }
 
-    return () =>
-      iconOnly() ? (
-        renderFlyout()
-      ) : (
-        <li {...mergeAttrs<'li'>({}, rest)}>
+    return () => {
+      const s = ui().parts;
+      if (iconOnly()) return renderFlyout(s);
+      return (
+        <li {...mergeAttrs<'li'>(s.group, rest)}>
           <Collapsible
             {...mergePartProps<CollapsibleProps>(
               {
                 trigger: (props) => (
-                  <ButtonBase
-                    {...mergePartProps<ButtonBaseProps>(
-                      {
-                        sx: [
-                          itemStyles.row,
-                          itemStyles.hoverable,
-                          navListStyles.row,
-                          iconOnly() && navListStyles.compactRow,
-                          focusRingStyles.inset,
-                        ],
-                      },
-                      propsTrigger,
-                      props,
+                  <ButtonBase {...mergePartProps<ButtonBaseProps>(s.trigger, propsTrigger, props)}>
+                    {icon && (
+                      <Icon {...mergePartProps<IconProps>({ ...s.icon, icon }, propsIcon)} />
                     )}
-                  >
-                    {icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />}
-                    <span
-                      {...mergeAttrs<'span'>(
-                        { sx: [itemStyles.label, iconOnly() && visuallyHiddenStyles.hidden] },
-                        propsLabel,
-                      )}
-                    >
-                      {label}
-                    </span>
-                    {!iconOnly() && (
-                      <Icon
-                        icon={ChevronRight}
-                        flipInRtl
-                        sx={[disclosureStyles.icon, open && disclosureStyles.turn]}
-                      />
-                    )}
+                    <span {...mergeAttrs<'span'>(s.label, propsLabel)}>{label}</span>
+                    <Icon
+                      {...s.chevron}
+                      icon={ChevronRight}
+                      flipInRtl
+                      sx={[s.chevron.sx, open && disclosureStyles.turn]}
+                    />
                   </ButtonBase>
                 ),
               },
@@ -411,9 +460,10 @@ export const NavGroup = _component(
             <FlexList
               {...mergePartProps<FlexProps<'ul'>>(
                 {
+                  ...s.groupList,
                   direction: 'column',
                   gap: 'xs',
-                  sx: [navListStyles.nested, compact() && navListStyles.compactNested],
+                  sx: [s.groupList.sx, compact() && navListStateStyles.compactNested],
                 },
                 propsList,
               )}
@@ -423,6 +473,7 @@ export const NavGroup = _component(
           </Collapsible>
         </li>
       );
+    };
   },
 );
 
@@ -437,17 +488,24 @@ const NavFlyoutContent = _component(
     propsList?: Partial<FlexProps<'ul'>>;
     children?: VNodeChild;
   }) => {
+    const ui = useComponent(navListRecipe, () => ({}));
     NavCompactContext.provide(() => false);
-    return () => (
-      <>
-        <span {...css.attrs(navListStyles.sectionLabel)}>{label}</span>
-        <FlexList
-          {...mergePartProps<FlexProps<'ul'>>({ direction: 'column', gap: 'xs' }, propsList)}
-        >
-          {children}
-        </FlexList>
-      </>
-    );
+    return () => {
+      const s = ui().parts;
+      return (
+        <>
+          <span {...mergeAttrs<'span'>(s.sectionLabel)}>{label}</span>
+          <FlexList
+            {...mergePartProps<FlexProps<'ul'>>(
+              { ...s.list, direction: 'column', gap: 'xs' },
+              propsList,
+            )}
+          >
+            {children}
+          </FlexList>
+        </>
+      );
+    };
   },
 );
 
@@ -472,37 +530,45 @@ export interface NavSectionProps extends PartProps<'li'> {
 /** 带小标题的一组导航链接（li > 标题 + ul）：一直展开，不能收起；要收起用 NavGroup */
 export const NavSection = _component(
   ({ label, icon, propsLabel, propsIcon, propsList, children, ...rest }: NavSectionProps) => {
+    const ui = useComponent(navListRecipe, () => ({}));
     const labelId = useId();
     const compact = NavCompactContext.inject(() => false);
     const iconOnly = () => compact() && icon != null;
-    return () => (
-      <li {...mergeAttrs<'li'>({ sx: navListStyles.section }, rest)}>
-        <span
-          {...mergeAttrs<'span'>(
-            { sx: [navListStyles.sectionLabel, iconOnly() && navListStyles.compactSection] },
-            propsLabel,
-          )}
-        >
-          {icon && (
-            <Icon
-              {...mergePartProps<IconProps>({ icon, sx: navListStyles.sectionIcon }, propsIcon)}
-            />
-          )}
+    return () => {
+      const s = ui().parts;
+      return (
+        <li {...mergeAttrs<'li'>(s.section, rest)}>
           <span
-            id={labelId}
-            {...css.attrs(navListStyles.sectionText, iconOnly() && visuallyHiddenStyles.hidden)}
+            {...mergeAttrs<'span'>(
+              {
+                ...s.sectionLabel,
+                sx: [s.sectionLabel.sx, iconOnly() && navListStateStyles.compactSection],
+              },
+              propsLabel,
+            )}
           >
-            {label}
+            {icon && <Icon {...mergePartProps<IconProps>({ ...s.sectionIcon, icon }, propsIcon)} />}
+            <span
+              {...mergeAttrs<'span'>({
+                ...s.sectionText,
+                sx: [s.sectionText.sx, iconOnly() && visuallyHiddenStyles.hidden],
+              })}
+              id={labelId}
+            >
+              {label}
+            </span>
           </span>
-        </span>
-        <FlexList
-          {...mergePartProps<FlexProps<'ul'>>({ direction: 'column', gap: 'xs' }, propsList, {
-            'aria-labelledby': labelId,
-          })}
-        >
-          {children}
-        </FlexList>
-      </li>
-    );
+          <FlexList
+            {...mergePartProps<FlexProps<'ul'>>(
+              { ...s.list, direction: 'column', gap: 'xs' },
+              propsList,
+              { 'aria-labelledby': labelId },
+            )}
+          >
+            {children}
+          </FlexList>
+        </li>
+      );
+    };
   },
 );

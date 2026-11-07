@@ -24,7 +24,6 @@
 import { Check, ChevronRight, Dot } from '@lucide/icons';
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
@@ -39,6 +38,8 @@ import {
 } from '../utils/dom/floating';
 import { ariaKeyShortcut, formatHotkey, useHotkeys } from '../utils/dom/hotkeys';
 import { ScrollArea } from '../layout/ScrollArea';
+import { useComponent } from '../config/components';
+import type { PartLayer } from '../config/styles';
 import { useRouterLink } from '../utils/dom/link';
 import { toElement } from '../utils/dom/element';
 import { useLazyContent, type LazyContentOptions } from '../utils/motion/presence';
@@ -63,6 +64,8 @@ import { type TextSize } from '../utils/style/typography';
 export interface MenuState {
   /** 波纹；不写时沿用配置 */
   readonly ripple: boolean | undefined;
+  /** 菜单各部件的样式与标记（菜单项、子菜单都取所在菜单的） */
+  parts(): MenuParts;
   /** 执行了一项：关闭菜单（onOpenChange 的原因是 select），焦点回到触发器 */
   close(event?: Event): void;
 }
@@ -128,30 +131,81 @@ function menuItemsOf(panel: HTMLElement | null): HTMLElement[] {
   );
 }
 
-/** Menu 的样式：panel、content、label、indicator、hidden、shortcut、groupLabel */
-const menuStyles = css.create({
-  // 菜单项多时在 ScrollArea 里滚动（浮层滚动条）；内边距放在内容层上，滚动条贴着菜单边缘
-  panel: {
-    minWidth: '12em',
-    maxWidth: 'calc(100vw - 2em)',
-    lineHeight: '_normal',
-  },
-  content: { padding: '_xs' },
-  label: { flexGrow: 1, minWidth: 0 },
-  // 有说明时文字与说明上下排，作为一个整体占满剩余宽度
-  text: { display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 },
-  description: { display: 'block' },
-  // 复选、单选的标记占一列，有没有勾都对齐
-  indicator: { flexShrink: 0, width: '1em' },
-  hidden: { visibility: 'hidden' },
-  shortcut: { flexShrink: 0, marginInlineStart: '_lg' },
-  groupLabel: {
-    display: 'block',
-    paddingBlock: '_xs',
-    paddingInline: '_sm',
-    fontWeight: '_medium',
+/** Menu 的档位（createUi / Provider 的 components.Menu.defaults） */
+export interface MenuOptions {
+  /** 字号档位，菜单项随之缩放；不写时继承上下文字号 */
+  size?: TextSize;
+}
+
+/**
+ * Menu 的配方（createUi / Provider 的 components.Menu 按它定制；子菜单、各种菜单项共用）：panel（role="menu"）、
+ * content（滚动区里的内容层）、item（菜单项）、icon、label、text（有说明时文字与说明的外层）、description、
+ * indicator（复选、单选的标记）、shortcut、chevron（子菜单的箭头）、group、groupLabel。
+ * 色调、不可用、未勾选按项变，叠在部件层之后（menuItemStateStyles）
+ */
+export const menuRecipe = css.recipe({
+  name: 'Menu',
+  parts: [
+    'panel',
+    'content',
+    'item',
+    'icon',
+    'label',
+    'text',
+    'description',
+    'indicator',
+    'shortcut',
+    'chevron',
+    'group',
+    'groupLabel',
+  ],
+  base: {
+    // 菜单项多时在 ScrollArea 里滚动（浮层滚动条）；内边距放在内容层上，滚动条贴着菜单边缘
+    panel: [
+      floatingStyles.scrollPanel,
+      { minWidth: '12em', maxWidth: 'calc(100vw - 2em)', lineHeight: '_normal' },
+    ],
+    content: { padding: '_xs' },
+    // 幽灵按钮，内容靠起始边排列
+    item: [itemStyles.row, focusRingStyles.visible, rippleHostStyles.host],
+    label: { flexGrow: 1, minWidth: 0 },
+    // 有说明时文字与说明上下排，作为一个整体占满剩余宽度
+    text: { display: 'flex', flexDirection: 'column', flexGrow: 1, minWidth: 0 },
+    description: { display: 'block' },
+    // 复选、单选的标记占一列，有没有勾都对齐
+    indicator: { flexShrink: 0, width: '1em' },
+    shortcut: { flexShrink: 0, marginInlineStart: '_lg' },
+    chevron: { flexShrink: 0, marginInlineStart: '_lg' },
+    groupLabel: {
+      display: 'block',
+      paddingBlock: '_xs',
+      paddingInline: '_sm',
+      fontWeight: '_medium',
+    },
   },
 });
+
+/** Menu 的部件（createUi / Provider 的 components.Menu.styles 按它定制） */
+export type MenuPart = (typeof menuRecipe.parts)[number];
+/** 菜单各部件这一次渲染的层（样式与标记） */
+export type MenuParts = Readonly<Record<MenuPart, PartLayer>>;
+
+/** 按项变的样式，追加在部件层之后：色调（普通项悬停有底色，破坏性操作是危险色）、不可用、未勾选的标记只占位 */
+const menuItemStateStyles = css.create({
+  unchecked: { visibility: 'hidden' },
+});
+
+/** 菜单项这一层：部件层 + 色调 + 不可用。自定义菜单项用它（parts 取 useMenuItem().menu.parts()） */
+export function menuItemLayer(parts: MenuParts, tone: MenuItemTone, disabled: boolean): PartLayer {
+  return {
+    ...parts.item,
+    sx: [
+      parts.item.sx,
+      tone === 'danger' ? itemStyles.danger : itemStyles.hoverable,
+      disabled && itemStyles.disabled,
+    ],
+  } as PartLayer;
+}
 
 /** 菜单：触发器 + 弹出的一列菜单项 */
 export const Menu = _component(
@@ -168,6 +222,7 @@ export const Menu = _component(
     children,
     ...rest
   }: MenuProps) => {
+    const ui = useComponent(menuRecipe, () => ({ size }));
     const id = useId();
     // 菜单项的快捷键在菜单没打开时也要能用：有快捷键的菜单照常渲染菜单项
     const showContent = useLazyContent(
@@ -192,7 +247,7 @@ export const Menu = _component(
       get ripple() {
         return ripple;
       },
-
+      parts: () => ui().parts,
       close: (event) => setOpen(false, 'select', event),
     });
 
@@ -240,46 +295,46 @@ export const Menu = _component(
         : undefined,
     );
 
-    return () => (
-      <>
-        {trigger({
-          id: triggerId,
-          ref: (value) => (anchor = toElement(value)),
-          onClick: (event: MouseEvent) => setOpen(!open, 'trigger', event),
-          onKeydown: onTriggerKeydown,
-          'aria-haspopup': 'menu',
-          'aria-expanded': open,
-          'aria-controls': id,
-        })}
-        <div
-          {...mergeAttrs<'div'>(
-            {
-              sx: [anchoredPanelSx(size), floatingStyles.scrollPanel, menuStyles.panel],
-              // 右键菜单没有触发器：名称由使用方的 aria-label 给
-              'aria-labelledby': anchor ? defaultLabelledBy(rest, triggerId) : undefined,
-            },
-            rest,
-            {
-              ref: _toRef(panel),
-              id,
-              popover: 'auto',
-              role: 'menu',
-              onToggle,
-              onKeydown: onPanelKeydown,
-            },
-          )}
-          data-state={open ? 'open' : 'closed'}
-        >
-          <ScrollArea
-            focusable={false}
-            sx={floatingStyles.scrollArea}
-            propsContent={{ sx: menuStyles.content }}
+    return () => {
+      const { options, parts: s } = ui();
+      return (
+        <>
+          {trigger({
+            id: triggerId,
+            ref: (value) => (anchor = toElement(value)),
+            onClick: (event: MouseEvent) => setOpen(!open, 'trigger', event),
+            onKeydown: onTriggerKeydown,
+            'aria-haspopup': 'menu',
+            'aria-expanded': open,
+            'aria-controls': id,
+          })}
+          <div
+            {...mergeAttrs<'div'>(
+              {
+                ...s.panel,
+                sx: [anchoredPanelSx(options.size), s.panel.sx],
+                // 右键菜单没有触发器：名称由使用方的 aria-label 给
+                'aria-labelledby': anchor ? defaultLabelledBy(rest, triggerId) : undefined,
+              },
+              rest,
+              {
+                ref: _toRef(panel),
+                id,
+                popover: 'auto',
+                role: 'menu',
+                onToggle,
+                onKeydown: onPanelKeydown,
+              },
+            )}
+            data-state={open ? 'open' : 'closed'}
           >
-            {(showContent() || hasShortcut(children)) && children}
-          </ScrollArea>
-        </div>
-      </>
-    );
+            <ScrollArea focusable={false} sx={floatingStyles.scrollArea} propsContent={s.content}>
+              {(showContent() || hasShortcut(children)) && children}
+            </ScrollArea>
+          </div>
+        </>
+      );
+    };
   },
 );
 
@@ -337,8 +392,9 @@ export function menuItemDescribedBy(description: VNodeChild | undefined, ids: Me
     : { 'aria-labelledby': ids.label, 'aria-describedby': ids.description };
 }
 
-/** 菜单项的内容：标记 + 图标 + 文字（与说明）+ 快捷键 */
+/** 菜单项的内容：标记 + 图标 + 文字（与说明）+ 快捷键；parts 取所在菜单的（useMenuItem().menu.parts()） */
 export function menuItemContent(
+  s: MenuParts,
   {
     icon,
     shortcut,
@@ -356,20 +412,24 @@ export function menuItemContent(
     mark && (
       <Icon
         {...mergePartProps<IconProps>(
-          { icon: mark.icon, sx: [menuStyles.indicator, !mark.checked && menuStyles.hidden] },
+          {
+            ...s.indicator,
+            icon: mark.icon,
+            sx: [s.indicator.sx, !mark.checked && menuItemStateStyles.unchecked],
+          },
           mark.props,
         )}
       />
     ),
-    icon && <Icon {...mergePartProps<IconProps>({ icon }, propsIcon)} />,
+    icon && <Icon {...mergePartProps<IconProps>({ ...s.icon, icon }, propsIcon)} />,
     description == null ? (
-      <span {...mergeAttrs<'span'>({ sx: menuStyles.label }, propsLabel)}>{children}</span>
+      <span {...mergeAttrs<'span'>(s.label, propsLabel)}>{children}</span>
     ) : (
-      <span {...css.attrs(menuStyles.text)}>
+      <span {...mergeAttrs<'span'>(s.text)}>
         <span {...mergeAttrs<'span'>({ id: ids?.label }, propsLabel)}>{children}</span>
         <Text
           {...mergePartProps<TextProps>(
-            { tone: 'muted', size: 'sm', id: ids?.description, sx: menuStyles.description },
+            { ...s.description, tone: 'muted', size: 'sm', id: ids?.description },
             propsDescription,
           )}
         >
@@ -380,7 +440,7 @@ export function menuItemContent(
     shortcut && (
       <Text
         {...mergePartProps<TextProps>(
-          { tone: 'muted', size: 'sm', sx: menuStyles.shortcut },
+          { ...s.shortcut, tone: 'muted', size: 'sm' },
           propsShortcut,
           // 有 aria-keyshortcuts 时读屏从它念，显示的文字不重复念；序列键没有，照常念
           { 'aria-hidden': keyShortcuts(shortcut) ? true : undefined },
@@ -406,17 +466,6 @@ function useItemShortcut(read: () => { shortcut?: string; disabled: boolean }, r
 
 /** 菜单项的色调：菜单里只区分普通操作与破坏性操作，其余状态色会让一列选项显得像警报 */
 export type MenuItemTone = 'neutral' | 'danger';
-
-/** 菜单项的外观：幽灵按钮，内容靠起始边排列 */
-export function menuItemSx(tone: MenuItemTone, disabled: boolean): SxStyles {
-  return [
-    itemStyles.row,
-    tone === 'danger' ? itemStyles.danger : itemStyles.hoverable,
-    focusRingStyles.visible,
-    rippleHostStyles.host,
-    disabled && itemStyles.disabled,
-  ] as SxStyles;
-}
 
 /** 菜单项共用的：所在的菜单、按下的波纹（链接项用；按钮项由 ButtonBase 给出）、执行后关闭菜单 */
 export function useMenuItem() {
@@ -463,29 +512,32 @@ function useButtonItem(
     indicator,
     content,
     attrs,
-  }) => (
-    <ButtonBase
-      {...mergePartProps<ButtonBaseProps>(
-        { sx: menuItemSx(tone, disabled), ripple: item.menu.ripple },
-        attrs as Partial<ButtonBaseProps>,
-        {
-          role,
-          disabled,
-          'aria-keyshortcuts': keyShortcuts(content.shortcut),
-          'aria-checked': checked,
-          ...menuItemDescribedBy(content.description, ids),
-          // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
-          onClick: (event: MouseEvent) => {
-            run();
-            if (closeOnSelect) item.close(event);
+  }) => {
+    const s = item.menu.parts();
+    return (
+      <ButtonBase
+        {...mergePartProps<ButtonBaseProps>(
+          { ...menuItemLayer(s, tone, disabled), ripple: item.menu.ripple },
+          attrs as Partial<ButtonBaseProps>,
+          {
+            role,
+            disabled,
+            'aria-keyshortcuts': keyShortcuts(content.shortcut),
+            'aria-checked': checked,
+            ...menuItemDescribedBy(content.description, ids),
+            // 使用方的 onClick 先执行，preventDefault 可以拦下执行与关闭（mergeProps 的规则）
+            onClick: (event: MouseEvent) => {
+              run();
+              if (closeOnSelect) item.close(event);
+            },
           },
-        },
-      )}
-      data-state={checked == null ? undefined : checked ? 'checked' : 'unchecked'}
-    >
-      {menuItemContent(content, indicator, ids)}
-    </ButtonBase>
-  );
+        )}
+        data-state={checked == null ? undefined : checked ? 'checked' : 'unchecked'}
+      >
+        {menuItemContent(s, content, indicator, ids)}
+      </ButtonBase>
+    );
+  };
 }
 
 /** 按钮类菜单项共有的属性；未声明的属性落到 button 上 */
@@ -577,40 +629,44 @@ export const MenuLinkItem = _component(
     const item = useMenuItem();
     const ids = useMenuItemContentIds();
     const router = useRouterLink();
-    return () => (
-      <a
-        {...mergeAttrs<'a'>({ sx: menuItemSx('neutral', disabled) }, rest, {
-          role: 'menuitem',
-          href: disabled ? undefined : router.href(href),
-          'aria-keyshortcuts': keyShortcuts(shortcut),
-          'aria-disabled': disabled || undefined,
-          ...menuItemDescribedBy(description, ids),
-          onClick: (event: MouseEvent) => {
-            // 不可用的项不响应点击：不跳转，也不关闭菜单
-            if (disabled) return event.preventDefault();
-            router.onClick(event, href);
-            item.close(event);
-          },
-          ...item.ripple,
-        })}
-        data-disabled={disabled || undefined}
-      >
-        {menuItemContent(
-          {
-            icon,
-            shortcut,
-            description,
-            propsIcon,
-            propsLabel,
-            propsShortcut,
-            propsDescription,
-            children,
-          },
-          undefined,
-          ids,
-        )}
-      </a>
-    );
+    return () => {
+      const s = item.menu.parts();
+      return (
+        <a
+          {...mergeAttrs<'a'>(menuItemLayer(s, 'neutral', disabled), rest, {
+            role: 'menuitem',
+            href: disabled ? undefined : router.href(href),
+            'aria-keyshortcuts': keyShortcuts(shortcut),
+            'aria-disabled': disabled || undefined,
+            ...menuItemDescribedBy(description, ids),
+            onClick: (event: MouseEvent) => {
+              // 不可用的项不响应点击：不跳转，也不关闭菜单
+              if (disabled) return event.preventDefault();
+              router.onClick(event, href);
+              item.close(event);
+            },
+            ...item.ripple,
+          })}
+          data-disabled={disabled || undefined}
+        >
+          {menuItemContent(
+            s,
+            {
+              icon,
+              shortcut,
+              description,
+              propsIcon,
+              propsLabel,
+              propsShortcut,
+              propsDescription,
+              children,
+            },
+            undefined,
+            ids,
+          )}
+        </a>
+      );
+    };
   },
 );
 
@@ -676,12 +732,13 @@ export interface MenuGroupProps extends PartProps<'div', 'role'> {
 
 /** 渲染分组：role="group"，有标题时 aria-labelledby 指向它 */
 function renderGroup(
+  s: MenuParts,
   labelId: string,
   { label, propsLabel, children, ...rest }: MenuGroupProps,
 ): VNodeChild {
   return (
     <div
-      {...mergeAttrs<'div'>({}, rest, {
+      {...mergeAttrs<'div'>(s.group, rest, {
         role: 'group',
         'aria-labelledby': hasContent(label) ? labelId : undefined,
       })}
@@ -689,7 +746,7 @@ function renderGroup(
       {hasContent(label) && (
         <Text
           {...mergePartProps<TextProps>(
-            { tone: 'muted', size: 'sm', sx: menuStyles.groupLabel },
+            { ...s.groupLabel, tone: 'muted', size: 'sm' },
             propsLabel,
             { id: labelId },
           )}
@@ -704,8 +761,9 @@ function renderGroup(
 
 /** 菜单里的一组项，带可选的标题 */
 export const MenuGroup = _component(({ label, propsLabel, children, ...rest }: MenuGroupProps) => {
+  const menu = MenuContext.inject();
   const labelId = useId();
-  return () => renderGroup(labelId, { label, propsLabel, children, ...rest });
+  return () => renderGroup(menu.parts(), labelId, { label, propsLabel, children, ...rest });
 });
 
 /** 未声明的属性落到分组的 div（role="group"）上 */
@@ -723,6 +781,7 @@ export const MenuRadioGroup = _component(
     children,
     ...rest
   }: MenuRadioGroupProps) => {
+    const menu = MenuContext.inject();
     const labelId = useId();
     MenuRadioGroupContext.provide({
       get value() {
@@ -730,7 +789,7 @@ export const MenuRadioGroup = _component(
       },
       select: (next) => (value = next),
     });
-    return () => renderGroup(labelId, { label, propsLabel, children, ...rest });
+    return () => renderGroup(menu.parts(), labelId, { label, propsLabel, children, ...rest });
   },
 );
 
@@ -869,7 +928,7 @@ export const MenuSub = _component(
       get ripple() {
         return parent.ripple;
       },
-
+      parts: () => parent.parts(),
       close: (event) => {
         setOpen(false, 'select', event);
         parent.close(event);
@@ -967,65 +1026,65 @@ export const MenuSub = _component(
       openTimer = setTimeout(() => setOpen(true, 'hover', event), SUBMENU_OPEN_DELAY);
     }
 
-    return () => (
-      <>
-        <ButtonBase
-          {...mergePartProps<ButtonBaseProps>(
-            { sx: menuItemSx('neutral', disabled), ripple: parent.ripple },
-            rest as Partial<ButtonBaseProps>,
-            {
-              ref: (value: unknown) => (trigger = toElement(value)),
-              id: triggerId,
-              role: 'menuitem',
-              disabled,
-              'aria-haspopup': 'menu',
-              'aria-expanded': open,
-              'aria-controls': id,
-              onClick: openWithFocus,
-              onKeydown: onTriggerKeydown,
-              onPointerenter: onTriggerPointerenter,
-              onPointerleave: onTriggerPointerleave,
-            },
-          )}
-          data-state={open ? 'open' : 'closed'}
-        >
-          {menuItemContent({ icon, propsIcon, propsLabel, children: label })}
-          <Icon
-            {...mergePartProps<IconProps>(
-              { icon: ChevronRight, flipInRtl: true, sx: menuStyles.shortcut },
-              propsChevron,
+    return () => {
+      const s = parent.parts();
+      return (
+        <>
+          <ButtonBase
+            {...mergePartProps<ButtonBaseProps>(
+              { ...menuItemLayer(s, 'neutral', disabled), ripple: parent.ripple },
+              rest as Partial<ButtonBaseProps>,
+              {
+                ref: (value: unknown) => (trigger = toElement(value)),
+                id: triggerId,
+                role: 'menuitem',
+                disabled,
+                'aria-haspopup': 'menu',
+                'aria-expanded': open,
+                'aria-controls': id,
+                onClick: openWithFocus,
+                onKeydown: onTriggerKeydown,
+                onPointerenter: onTriggerPointerenter,
+                onPointerleave: onTriggerPointerleave,
+              },
             )}
-          />
-        </ButtonBase>
-        <div
-          {...mergeAttrs<'div'>(
-            {
-              sx: [anchoredPanelSx(), floatingStyles.scrollPanel, menuStyles.panel],
-              'aria-labelledby': defaultLabelledBy(propsPanel ?? {}, triggerId),
-            },
-            propsPanel,
-            {
-              ref: _toRef(panel),
-              id,
-              popover: 'auto',
-              role: 'menu',
-              onToggle,
-              onKeydown: onPanelKeydown,
-              onPointerenter: () => stopGrace?.(),
-            },
-          )}
-          data-state={open ? 'open' : 'closed'}
-        >
-          <ScrollArea
-            focusable={false}
-            sx={floatingStyles.scrollArea}
-            propsContent={{ sx: menuStyles.content }}
+            data-state={open ? 'open' : 'closed'}
           >
-            {children}
-          </ScrollArea>
-        </div>
-      </>
-    );
+            {menuItemContent(s, { icon, propsIcon, propsLabel, children: label })}
+            <Icon
+              {...mergePartProps<IconProps>(
+                { ...s.chevron, icon: ChevronRight, flipInRtl: true },
+                propsChevron,
+              )}
+            />
+          </ButtonBase>
+          <div
+            {...mergeAttrs<'div'>(
+              {
+                ...s.panel,
+                sx: [anchoredPanelSx(), s.panel.sx],
+                'aria-labelledby': defaultLabelledBy(propsPanel ?? {}, triggerId),
+              },
+              propsPanel,
+              {
+                ref: _toRef(panel),
+                id,
+                popover: 'auto',
+                role: 'menu',
+                onToggle,
+                onKeydown: onPanelKeydown,
+                onPointerenter: () => stopGrace?.(),
+              },
+            )}
+            data-state={open ? 'open' : 'closed'}
+          >
+            <ScrollArea focusable={false} sx={floatingStyles.scrollArea} propsContent={s.content}>
+              {children}
+            </ScrollArea>
+          </div>
+        </>
+      );
+    };
   },
 );
 
