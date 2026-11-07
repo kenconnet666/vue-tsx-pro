@@ -854,7 +854,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       schemaFilters 生成查询栏的条件、schemaConditionFields 给高级筛选，Form 页“按 schema 生成”与 FilterBar 的高级筛选示例用上。
       第二步（JSON 字段配置在运行时转成 zod、显示 / 必填条件）以后做）
 - [ ] P5 阶段 24（含 24.4 直接删旧写法）
-- [ ] P6 `/testing` 测试辅助、桌面端 `create` 模板
+- [ ] P6 `/testing` 测试辅助、桌面端 `create` 模板（2026-11-08：/testing 做了——Select、Cascader、TreeSelect、Tree、日期、DataTable 的 harness，
+      文档站的 Testing 指南与 Cascader 的浏览器测试用上；create 模板待做）
 - [ ] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计
 - [ ] P10 组件规格 JSON 给下游比对、下游问题用 GitHub issue 跟踪
 - [x] ~~P11 取消流程引擎的前端包 `@zerodep-dev/flow-ts-ui`（用户加）：流程图需要的能力做进画布（节点形状、节点与连线的状态、

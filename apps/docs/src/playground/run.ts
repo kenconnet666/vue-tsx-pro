@@ -31,6 +31,7 @@ const MODULES: Record<string, unknown> = {
 const LAZY_MODULES: Record<string, () => Promise<unknown>> = {
   '@lucide/icons': () => import('@lucide/icons'),
   '@zerodep-dev/vue-tsx-pro-ui/area': () => import('@zerodep-dev/vue-tsx-pro-ui/area'),
+  '@zerodep-dev/vue-tsx-pro-ui/testing': () => import('@zerodep-dev/vue-tsx-pro-ui/testing'),
   '@zerodep-dev/vue-tsx-pro-ui/charts': () => import('@zerodep-dev/vue-tsx-pro-ui/charts'),
   '@zerodep-dev/vue-tsx-pro-ui/maps': () => import('@zerodep-dev/vue-tsx-pro-ui/maps'),
   '@zerodep-dev/vue-tsx-pro-ui/patterns': () => import('@zerodep-dev/vue-tsx-pro-ui/patterns'),

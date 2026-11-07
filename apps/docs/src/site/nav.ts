@@ -99,6 +99,13 @@ const guide: NavSection = {
       component: () => import('../pages/guide/Data'),
     },
     {
+      path: '/guide/testing',
+      title: 'Testing 测试',
+      description:
+        '测试里按用户的操作驱动 Select、Cascader、日期、Tree、DataTable：/testing 子路径的 harness，按名称找控件',
+      component: () => import('../pages/guide/Testing'),
+    },
+    {
       path: PLAYGROUND_PATH,
       title: 'Playground 代码演练场',
       description: '在浏览器里改代码、立即看效果，复制链接分享；示例卡片上的“编辑”把示例带进来',

@@ -64,6 +64,10 @@
   ColorPicker（`propsArea`、`propsThumb`、`propsEyeDropper`、`propsHue`、`propsAlpha`、`propsPreview`、`propsFormat`、
   `propsInput`、`propsSwatches`、`propsSwatch`）；DiagramNode（`propsStart`、`propsBody`、`propsTitle`、`propsDescription`、`propsEnd`）。
   按列、按卡片、按选项、按日程计算的部件属性写成函数。
+- 新子路径 `@zerodep-dev/vue-tsx-pro-ui/testing`：在自己的测试里按用户的操作驱动复合控件——`selectHarness`、
+  `cascaderHarness`、`treeSelectHarness`、`treeHarness`、`dateFieldHarness` / `datePickerHarness`、`dataTableHarness`，
+  `getControl(容器, 名称)` 按标签找控件，`setupTestingDom()` 给 happy-dom / jsdom 补上 popover 等 API 与视口大小。
+  文档站加“Testing 测试”指南。Tree 的勾选框带 `data-part="checkbox"`。
 - 字段约束认 `z.iso.datetime({ local: true })`：输入框不再把它当普通文字。
 - `useFormDialog` 的表单加了 `novalidate`：必填没填时只显示字段下的错误，不再弹浏览器自带的气泡。
 
