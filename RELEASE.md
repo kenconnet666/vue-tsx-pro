@@ -39,6 +39,8 @@
 - 新组件 UserButton：头像 + 名字（可带一行说明）+ 箭头，做账号菜单的触发器，Menu 的 `trigger` 里把触发器的 props 展开给它。
   没有说明时是顶栏里的胶囊，有说明时占满一行（侧栏底部），`compact` 只剩头像。配方组件 `UserButton`，部件 root、avatar、text、
   name、description、indicator；`vtp-ui create` 的模板顶栏换成了用它的账号菜单。
+- Countdown 加 `variant="blocks"`：一格一格的数字块（限时抢购），天数单独一格，字号随上下文。改成配方组件 `Countdown`，部件
+  root、segment、separator，`components.Countdown` 可以给 `variant` 的默认值、按部件追加样式（如数字块换成危险色）。
 - Timeline 改成配方组件：`createUi` / `Provider` 的 `components.Timeline` 可以给 `alternate`、`size` 的默认值，按部件
   （root、item、rail、marker、line、content、title、meta、actor、time、description、toggleLine、toggleContent）追加样式。
 

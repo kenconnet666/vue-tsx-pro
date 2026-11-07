@@ -31,6 +31,7 @@ import { timelineRecipe } from '../../display/Timeline';
 import { codeBlockRecipe } from '../../base/CodeBlock';
 import { tourRecipe } from '../../overlay/Tour';
 import { userButtonRecipe } from '../../display/UserButton';
+import { countdownRecipe } from '../../date/Countdown';
 import { calendarRecipe } from '../../date/CalendarView';
 
 describe('components', () => {
@@ -47,6 +48,7 @@ describe('components', () => {
       Calendar: calendarRecipe,
       Card: cardRecipe,
       CodeBlock: codeBlockRecipe,
+      Countdown: countdownRecipe,
       Progress: progressRecipe,
       Empty: emptyRecipe,
       Result: resultRecipe,

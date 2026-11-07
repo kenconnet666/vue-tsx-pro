@@ -1,42 +1,33 @@
-import { Armchair, BedDouble, Lamp, LampDesk, Sofa } from '@lucide/icons';
+// 常用零件：容器多宽就放几列；图片是文档站共用的示例图纸
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Card, Flex, GridList, Icon, Small, Strong, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Card, Flex, GridList, Image, Small, Strong, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import { drawings } from '../../../display/Image/demo/drawings';
 
-const products = [
-  { icon: Sofa, name: '云朵三人沙发', price: 4299 },
-  { icon: Armchair, name: '藤编单椅', price: 899 },
-  { icon: BedDouble, name: '实木双人床', price: 3599 },
-  { icon: Lamp, name: '黄铜落地灯', price: 659 },
-  { icon: Armchair, name: '人体工学椅', price: 1999 },
-  { icon: LampDesk, name: '护眼台灯', price: 329 },
-];
+const prices = [86, 128, 245, 12, 39, 64];
+const parts = drawings.map((drawing, index) => ({ ...drawing, price: prices[index]! }));
 
 const styles = css.create({
-  cover: {
-    display: 'grid',
-    placeItems: 'center',
-    height: '5rem',
-    marginBlockEnd: '_sm',
-    borderRadius: '_sm',
-    backgroundColor: '_fill',
-    color: '_textMuted',
-    fontSize: '2rem',
-  },
+  cover: { display: 'block', marginBlockEnd: '_sm', aspectRatio: '3 / 2' },
 });
 
 export default _component(() => () => (
-  <GridList minItemWidth="9rem" gap="md" aria-label="热卖家具">
-    {products.map((product) => (
-      <li key={product.name}>
+  <GridList minItemWidth="9rem" gap="md" aria-label="常用零件">
+    {parts.map((part) => (
+      <li key={part.code}>
         <Card padding="sm">
-          <div {...css.attrs(styles.cover)}>
-            <Icon icon={product.icon} />
-          </div>
+          <Image
+            src={part.src}
+            alt=""
+            width="100%"
+            height="auto"
+            fit="contain"
+            propsRoot={{ sx: styles.cover }}
+          />
           <Flex direction="column" gap="xs">
-            <Text size="sm">{product.name}</Text>
+            <Text size="sm">{part.title}</Text>
             <Strong>
-              ¥{product.price.toLocaleString()} <Small tone="muted">起</Small>
+              ¥{part.price} <Small tone="muted">/ 件</Small>
             </Strong>
           </Flex>
         </Card>

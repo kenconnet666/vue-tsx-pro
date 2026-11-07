@@ -99,6 +99,17 @@ describe('RelativeTime 与 Countdown（假时钟）', () => {
     expect(ended).toHaveBeenCalledTimes(1);
   });
 
+  it('Countdown variant="blocks"：天数一格、时分秒各一格，中间是冒号；部件带标记', () => {
+    const root = mount(() => (
+      <Countdown to={new Date(NOW + 2 * 86_400_000 + 3_723_000)} variant="blocks" />
+    ));
+    const timer = root.querySelector('[role="timer"]')!;
+    const segments = [...timer.querySelectorAll('[data-part="segment"]')];
+    expect(segments.map((segment) => segment.textContent)).toEqual(['2天', '01', '02', '03']);
+    expect(timer.querySelectorAll('[data-part="separator"]')).toHaveLength(2);
+    expect(timer.getAttribute('data-scope')).toBe('countdown');
+  });
+
   it('服务端渲染记下“现在”：几天后水合时先按它渲染（和服务端一致、不报不匹配），挂载后换成真实的现在', async () => {
     // 16.4 天前：服务端是“16天前”，一天后在浏览器里打开是“17天前”
     const app = () => [

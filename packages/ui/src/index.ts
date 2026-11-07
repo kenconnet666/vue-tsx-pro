@@ -850,6 +850,9 @@ export {
 export {
   Countdown,
   countdownParts,
+  countdownRecipe,
+  type CountdownOptions,
+  type CountdownPart,
   type CountdownParts,
   type CountdownPrecisions,
   type CountdownProps,

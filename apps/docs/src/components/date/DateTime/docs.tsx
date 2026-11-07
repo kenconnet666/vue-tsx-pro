@@ -39,8 +39,9 @@ export default _component(() => () => (
       </ExampleColumn>
       <ExampleColumn>
         <Example id="countdowns" title="倒计时" demo={Countdowns}>
-          <Code>Countdown</Code>{' '}
-          默认显示“时:分:秒”，超过一天时前面加天数；渲染函数拿到拆好的天、时、分、秒，可以排成任意样子。
+          <Code>Countdown</Code> 默认显示“时:分:秒”，超过一天时前面加天数；
+          <Code>variant="blocks"</Code>{' '}
+          是一格一格的数字块（限时抢购），字号随上下文；渲染函数拿到拆好的天、时、分、秒，可以排成任意样子。
           <Code>role="timer"</Code> 默认不播报，到点时 <Code>onEnd</Code>{' '}
           调用一次（发送验证码后恢复按钮）。几个计时器对齐到整秒一起跳；
           <Code>precision="minute"</Code> 只到分、每分钟更新一次，适合以天计的期限。

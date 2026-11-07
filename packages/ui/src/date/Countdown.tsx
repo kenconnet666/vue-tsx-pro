@@ -4,6 +4,7 @@
  *
  *   <Countdown to={sale.startsAt} onEnd={refresh} />          // 2天 03:15:42
  *   <Countdown to={deadline} precision="minute" />            // 2天 03:15
+ *   <Countdown to={sale.startsAt} variant="blocks" />          // [2天] [03]:[15]:[42]，限时抢购的数字块
  *   <Countdown to={deadline}>{({ days, hours }) => `还剩 ${days} 天 ${hours} 小时`}</Countdown>
  *
  * 目标时刻同 DateTime 的值（Date、DateValue 或 ISO 字符串）。默认显示 时:分:秒，超过一天时前面加天数（Intl 的单位写法）。
@@ -12,6 +13,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch, type VNodeChild } from 'vue';
+import { useComponent } from '../config/components';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { toInstant } from '../utils/data/date';
@@ -43,8 +45,14 @@ export interface CountdownPrecisions {
   minute: unknown;
 }
 
+/** Countdown 的档位（createUi / Provider 的 components.Countdown.defaults） */
+export interface CountdownOptions {
+  /** 外观：text（默认）是一串“时:分:秒”；blocks 是一格一格的数字块（限时抢购），天数单独一格。字号随上下文 */
+  variant?: 'text' | 'blocks';
+}
+
 /** 未声明的属性落到 span（role="timer"）上 */
-export interface CountdownProps extends PartProps<'span', 'role'> {
+export interface CountdownProps extends PartProps<'span', 'role'>, CountdownOptions {
   /** 目标时刻 */
   to: DateTimeInput;
   /** 精度，默认 second */
@@ -55,11 +63,38 @@ export interface CountdownProps extends PartProps<'span', 'role'> {
   children?: (parts: CountdownParts) => VNodeChild;
 }
 
-/** Countdown 的样式：root */
-const countdownStyles = css.create({
-  // 等宽数字：每秒跳动时宽度不变
-  root: { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
+/**
+ * Countdown 的配方（createUi / Provider 的 components.Countdown 按它定制）：root（role="timer"）、segment（blocks 的一格）、
+ * separator（格之间的冒号）。外观（variant）是档位
+ */
+export const countdownRecipe = css.recipe({
+  name: 'Countdown',
+  parts: ['root', 'segment', 'separator'],
+  base: {
+    // 等宽数字：每秒跳动时宽度不变
+    root: { fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
+    segment: {
+      minWidth: '2em',
+      paddingBlock: '_xxs',
+      paddingInline: '_xs',
+      borderRadius: '_sm',
+      backgroundColor: '_accent',
+      color: '_accentContrast',
+      fontWeight: '_semibold',
+      textAlign: 'center',
+    },
+    separator: { fontWeight: '_semibold' },
+  },
+  variants: {
+    variant: {
+      text: {},
+      blocks: { root: { display: 'inline-flex', alignItems: 'center', gap: '_xs' } },
+    },
+  },
 });
+
+/** Countdown 的部件（createUi / Provider 的 components.Countdown.styles 按它定制） */
+export type CountdownPart = (typeof countdownRecipe.parts)[number];
 
 const SECOND = 1000;
 const MINUTE = 60 * SECOND;
@@ -86,7 +121,8 @@ const pad = (value: number) => String(value).padStart(2, '0');
 
 /** 倒计时 */
 export const Countdown = _component(
-  ({ to, precision = 'second', onEnd, children, ...rest }: CountdownProps) => {
+  ({ to, precision = 'second', variant, onEnd, children, ...rest }: CountdownProps) => {
+    const ui = useComponent(countdownRecipe, () => ({ variant }), { variant: 'text' });
     const lang = useLang();
     const format = useFormat();
     const target = () => toInstant(to, lang.timeZone);
@@ -102,22 +138,30 @@ export const Countdown = _component(
     );
 
     return () => {
+      const { options, parts: s } = ui();
       const { days, hours, minutes, seconds } = parts;
-      const clock = [hours, minutes, ...(precision === 'second' ? [seconds] : [])]
-        .map(pad)
-        .join(':');
+      const clock = [hours, minutes, ...(precision === 'second' ? [seconds] : [])].map(pad);
       const dayText =
-        days > 0
-          ? `${format.number(days, { style: 'unit', unit: 'day', unitDisplay: 'long' })} `
-          : '';
+        days > 0 ? format.number(days, { style: 'unit', unit: 'day', unitDisplay: 'long' }) : '';
+      const blocks = () => [
+        dayText && <span {...mergeAttrs<'span'>(s.segment)}>{dayText}</span>,
+        clock.map((value, index) => [
+          index > 0 && <span {...mergeAttrs<'span'>(s.separator)}>:</span>,
+          <span {...mergeAttrs<'span'>(s.segment)}>{value}</span>,
+        ]),
+      ];
       return (
         <span
-          {...mergeAttrs<'span'>({ sx: countdownStyles.root }, rest, {
+          {...mergeAttrs<'span'>(s.root, rest, {
             role: 'timer',
             ...nowAttrs(now.value),
           })}
         >
-          {children ? children(parts) : `${dayText}${clock}`}
+          {children
+            ? children(parts)
+            : options.variant === 'blocks'
+              ? blocks()
+              : `${dayText && `${dayText} `}${clock.join(':')}`}
         </span>
       );
     };

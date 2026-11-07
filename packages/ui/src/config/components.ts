@@ -23,6 +23,7 @@ import type { ButtonOptions, ButtonPart } from '../base/button-core';
 import type { CalendarOptions, CalendarPart } from '../date/CalendarView';
 import type { CardOptions, CardPart } from '../display/Card';
 import type { CodeBlockOptions, CodeBlockPart } from '../base/CodeBlock';
+import type { CountdownOptions, CountdownPart } from '../date/Countdown';
 import type { ChoiceOptions, ChoicePart } from '../input/choice-styles';
 import type { ControlOptions, InputPart } from '../input/control';
 import type { DataTableOptions, DataTablePart } from '../table/table-styles';
@@ -89,6 +90,8 @@ export interface UiComponents {
   CodeBlock: ComponentConfig<CodeBlockPart, CodeBlockOptions>;
   /** Calendar（CalendarView：Calendar、RangeCalendar、日期选择器的弹层；QuarterCalendar 也取它的样式） */
   Calendar: ComponentConfig<CalendarPart, CalendarOptions>;
+  /** Countdown */
+  Countdown: ComponentConfig<CountdownPart, CountdownOptions>;
   /** Card */
   Card: ComponentConfig<CardPart, CardOptions>;
   /** Progress（条形与环形） */
