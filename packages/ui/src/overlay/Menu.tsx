@@ -167,6 +167,7 @@ export const menuRecipe = css.recipe({
     ],
     content: { padding: '_xs' },
     // 幽灵按钮，内容靠起始边排列
+    // 不可用（disabled、aria-disabled）跟着属性走
     item: [itemStyles.row, focusRingStyles.visible, rippleHostStyles.host],
     label: { flexGrow: 1, minWidth: 0 },
     // 有说明时文字与说明上下排，作为一个整体占满剩余宽度
@@ -195,14 +196,17 @@ const menuItemStateStyles = css.create({
   unchecked: { visibility: 'hidden' },
 });
 
-/** 菜单项这一层：部件层 + 色调 + 不可用。自定义菜单项用它（parts 取 useMenuItem().menu.parts()） */
-export function menuItemLayer(parts: MenuParts, tone: MenuItemTone, disabled: boolean): PartLayer {
+/**
+ * 菜单项这一层：部件层 + 色调（普通项悬停有底色，破坏性操作是危险色）；不可用跟着元素的 disabled / aria-disabled。
+ * 自定义菜单项用它（parts 取 useMenuItem().menu.parts()）
+ */
+export function menuItemLayer(parts: MenuParts, tone: MenuItemTone): PartLayer {
   return {
     ...parts.item,
     sx: [
       parts.item.sx,
       tone === 'danger' ? itemStyles.danger : itemStyles.hoverable,
-      disabled && itemStyles.disabled,
+      itemStyles.states,
     ],
   } as PartLayer;
 }
@@ -517,7 +521,7 @@ function useButtonItem(
     return (
       <ButtonBase
         {...mergePartProps<ButtonBaseProps>(
-          { ...menuItemLayer(s, tone, disabled), ripple: item.menu.ripple },
+          { ...menuItemLayer(s, tone), ripple: item.menu.ripple },
           attrs as Partial<ButtonBaseProps>,
           {
             role,
@@ -633,7 +637,7 @@ export const MenuLinkItem = _component(
       const s = item.menu.parts();
       return (
         <a
-          {...mergeAttrs<'a'>(menuItemLayer(s, 'neutral', disabled), rest, {
+          {...mergeAttrs<'a'>(menuItemLayer(s, 'neutral'), rest, {
             role: 'menuitem',
             href: disabled ? undefined : router.href(href),
             'aria-keyshortcuts': keyShortcuts(shortcut),
@@ -1032,7 +1036,7 @@ export const MenuSub = _component(
         <>
           <ButtonBase
             {...mergePartProps<ButtonBaseProps>(
-              { ...menuItemLayer(s, 'neutral', disabled), ripple: parent.ripple },
+              { ...menuItemLayer(s, 'neutral'), ripple: parent.ripple },
               rest as Partial<ButtonBaseProps>,
               {
                 ref: (value: unknown) => (trigger = toElement(value)),

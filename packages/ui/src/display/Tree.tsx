@@ -652,9 +652,7 @@ export const Tree = _component(
                 itemStyles.row,
                 itemStyles.hoverable,
                 treeStyles.item,
-                focused && state.active && itemStyles.highlighted,
-                state.selected && itemStyles.current,
-                disabled && itemStyles.disabled,
+                itemStyles.states,
                 dragging === row.key && treeStyles.dragging,
                 dropZone === 'inside' && treeStyles.dropInside,
                 dropZone && dropZone !== 'inside' && treeStyles.positioned,
@@ -684,7 +682,9 @@ export const Tree = _component(
             },
           )}
           data-state={state.selected ? 'selected' : undefined}
-          data-active={state.active || undefined}
+          // 选中的节点是当前项的外观（品牌色浅底）；键盘高亮只在树有焦点时
+          data-current={state.selected || undefined}
+          data-highlighted={(focused && state.active) || undefined}
           data-disabled={disabled || undefined}
         >
           {row.depth > 0 && <span {...css.attrs(treeDynamicStyles.indent(row.depth * indent))} />}

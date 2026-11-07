@@ -65,6 +65,10 @@
 - Upload 改成配方组件：`components.Upload` 可以给 `listType`、`thumbnailSize`、`sortable`、`pasteable` 的默认值，按部件（root、drop、
   hint、list、item、icon、body、name、link、progress、meta、retry、remove、wall、wallList、card、image、placeholder、overlay、actions、
   handle）追加样式；drop、list、card、image、retry、remove 等原来没有标记的也带上了。
+- 列表行（Listbox、Tree、Cascader、NavList、Menu）的高亮、已选、当前、不可用改成跟着元素上的属性走（条件别名）：
+  `itemStyles.highlighted / selected / current / disabled` 合成 `itemStyles.states`，元素写 `data-highlighted`、`aria-selected`、
+  `aria-current`（或 `data-current`）、`aria-disabled` 即可；Listbox、Tree 的 `data-active` 换成 `data-highlighted`（Tree 只在有焦点时），
+  Tree 选中的节点多一个 `data-current`；`menuItemLayer` 去掉 `disabled` 参数。外观不变，当前项悬停时文字保持品牌色。
 - Timeline 改成配方组件：`createUi` / `Provider` 的 `components.Timeline` 可以给 `alternate`、`size` 的默认值，按部件
   （root、item、rail、marker、line、content、title、meta、actor、time、description、toggleLine、toggleContent）追加样式。
 
