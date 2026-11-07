@@ -1,5 +1,5 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Code, CodeBlock } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Code, CodeBlock, Link } from '@zerodep-dev/vue-tsx-pro-ui';
 import loadingBarApi from 'virtual:api/LoadingBarProps';
 import overlayApi from 'virtual:api/LoadingOverlayProps';
 import api from 'virtual:api/ProgressProps';
@@ -53,7 +53,8 @@ export default _component(() => () => (
           <Code>size</Code> 缩放，适合仪表盘与卡片里的完成率；不写 <Code>value</Code>{' '}
           时一段弧一直转。
           <Code>target</Code> 是目标值：条上画一条竖线、环上画一道刻度，读屏念成“60%，目标
-          80%”。分段的占比（各部门、各状态）用 ProportionBar。
+          80%”。分段的占比（各部门、各状态）用{' '}
+          <Link href="/components/sparkline#proportion-bar">ProportionBar</Link>。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

@@ -14,4 +14,6 @@ export const redirects: Readonly<Record<string, string>> = {
   '/components/nav-menu': '/components/nav-list#menu',
   '/components/nav-bar': '/components/nav-list#nav-bar',
   '/components/viewport-fill': '/components/aside-layout#viewport-fill',
+  '/components/gauge': '/components/sparkline#gauge',
+  '/components/proportion-bar': '/components/sparkline#proportion-bar',
 };
