@@ -7,6 +7,7 @@
  * 每层定制、使用方的 sx 各成一段，进依次靠后的级联层（STYLE-ENGINE.md §11）。
  * 用配方写的组件（css.recipe 给了 name）才认这里的定制；部件上的 data-scope / data-part 也来自配方（partAttrs）。
  */
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { CompiledStyles, Recipe, RecipeExtension } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { ComponentName, PartOf } from './components';
 import { useConfig } from './context';
@@ -112,12 +113,20 @@ function sameSelection(
 export type PartAttrs = Readonly<{ 'data-scope': string; 'data-part': string }>;
 
 const partCache = new Map<string, PartAttrs>();
+let partBase = false;
 
 /**
  * 部件的标记：`data-scope="button" data-part="icon"`（组件名转成连字符小写）。使用方的全局 CSS、测试
- * 都能稳定地选中部件，不依赖生成的类名（同 Ark UI、Zag 的约定）。同一组合返回同一个对象
+ * 都能稳定地选中部件，不依赖生成的类名（同 Ark UI、Zag 的约定）。同一组合返回同一个对象。
+ *
+ * 第一次用到时登记一条基础规则：部件一律 border-box——使用方写的宽高就是整个部件的宽高，不因组件有没有内边距而不同
+ * （在最前面的级联层，组件与使用方的样式都盖得过它）
  */
 export function partAttrs(recipe: { readonly name: string | undefined }, part: string): PartAttrs {
+  if (!partBase) {
+    partBase = true;
+    css.globalRule('part-box-sizing', ':where([data-part])', { boxSizing: 'border-box' });
+  }
   const scope = (recipe.name ?? '').replace(/[A-Z]/g, (c, index: number) =>
     index ? `-${c.toLowerCase()}` : c.toLowerCase(),
   );
