@@ -823,7 +823,9 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 
 - [ ] 24.1 部件补齐：约 190 个用 `css.attrs` 直接取样式的内部节点补 `propsXxx` 与 `data-part`（CommentThread、Checklist、Cascader、CalendarBoard…）；
       （2026-11-08 做了五批：CommentThread、Checklist、Cascader、KanbanBoard、CalendarBoard、ColorPicker、Diagram、DiagramNode 补部件属性与标记，
-      已有部件属性的十几个组件统一补标记；下一批：图表的外框、Gauge、TreemapChart、QuarterCalendar、Rating、NavBar、ColumnSettings……）
+      已有部件属性的十几个组件统一补标记；第七批给 NotificationList、Upload、ConditionBuilder、ColorPicker、JsonViewer、Lightbox、
+      Timeline、ProportionBar 的内部节点补标记；部件名一律小驼峰，scripts/structure/part-names.mjs 检查；下一批：图表的外框、
+      Gauge、TreemapChart、QuarterCalendar、Rating、NavBar……）
       部件多却没有配方的改成配方并在 `UiComponents` 登记（AppShell、Transfer、NavList、NotificationCenter、FilterBar、Upload、Timeline、CalendarView、CodeBlock、Tour、Stat、Menu、Toast）
 - [ ] 24.2 状态写法换条件别名（约 45 处 `条件 && styles.selected / disabled…`）：随 24.1 把状态样式搬进配方时一起换；
       别名展开成 `:is(…)`，优先级排在 `:hover` 前面，每处要定组合状态（已选 + 悬停、不可用 + 悬停）的先后
@@ -868,8 +870,10 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] ~~P6 `/testing` 测试辅助、桌面端 `create` 模板~~（2026-11-08：/testing 做了——Select、Cascader、TreeSelect、Tree、日期、DataTable 的 harness，
       文档站的 Testing 指南与 Cascader 的浏览器测试用上；`vtp-ui create` 的桌面后台模板也做了，进了 test:consumer）
 - [ ] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计（2026-11-08：达标矩阵做了——scripts/structure/matrix.mjs 进 pnpm check，
-      新组件缺单元测试、文档、键盘一节、浏览器测试、类型测试时报错，已知缺项在 matrix-baseline.json（107 个组件），整张表见
-      .claude/reports/matrix.md；按表逐个补）
+      新组件缺单元测试、文档、键盘一节、浏览器测试、类型测试时报错，已知缺项在 matrix-baseline.json，整张表见
+      .claude/reports/matrix.md；按表逐个补。同日补到 107 → 23 个组件有缺项：文档、键盘一节、浏览器测试三列清零，
+      31 个泛型组件有了类型测试，二十来个组件补了单元测试；剩下的多是内部拼装件（表格行、列头按钮、滚动条、ListboxView、
+      ModalCore…），父组件的测试已覆盖。API 审计未做）
 - [x] ~~P10 组件规格 JSON 给下游比对、下游问题用 GitHub issue 跟踪~~（2026-11-08：文档站构建时输出 /spec/components.json——全部组件的属性、
       默认值、可选值、事件、部件属性、部件标记、能否定制，CSharpUi、Blazor 的 CI 取线上这份比对；GitHub 建了 `parity` 标签跟踪下游报的问题。
       键盘行为还在文档页里，没进规格）
