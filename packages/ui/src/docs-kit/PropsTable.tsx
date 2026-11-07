@@ -75,6 +75,10 @@ export interface ComponentApi {
   description: string;
   /** 各个 prop */
   props: ApiProp[];
+  /** 部件的标记：data-scope 与各部件的 data-part（使用方的全局样式、测试按它选中部件） */
+  parts?: { scope: string; names: string[] };
+  /** 能在 createUi / Provider 的 components 里定制时，是那里的名字（UiComponents 的键） */
+  customizable?: string;
 }
 
 /** 未声明的属性落到 table 上 */

@@ -828,8 +828,9 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [ ] 24.3 裸值换 token：组件里的 rem / px、`fontSize: 'x.xem'`（25 处）换成 em、`relativeFontSizeStyles` 或 token，逐个对截图
 - [x] ~~24.4 去掉 0.11 标了 `@deprecated` 的旧写法：`createUi` / `Provider` 的 `defaults`、`styles`，改名前的旧名（Skeleton 的 `variant`、`Tone`、`Theme`…）~~（2026-11-08，16 处全删）
 - [x] ~~24.5 截图基线容器化进 CI（同 8.3）：之后外观的任何改动都由 CI 拦~~（即 P0.1：CI 的 visual 任务与上一次通过的 master 比对，只报告）
-- [ ] 24.6 文档站的 API 小节列出配方的部件（`data-part`）与档位（`components.Xxx` 能改、能加的）：现在只列部件属性 `propsXxx`；
-      从 `css.recipe` 的定义提取，24.1 补齐部件后一起做
+- [x] ~~24.6 文档站的 API 小节列出配方的部件（`data-part`）与档位（`components.Xxx` 能改、能加的）：现在只列部件属性 `propsXxx`；
+      从 `css.recipe` 的定义提取，24.1 补齐部件后一起做~~（2026-11-08：API 数据带上部件标记（配方的 parts、源码里的部件辅助函数）与
+      UiComponents 的定制名，API 小节写成一段；档位的取值原来就在属性表里）
 
 ## 阶段 25：文档站整改、组件补缺与发布流程（2026-11-07 计划）
 

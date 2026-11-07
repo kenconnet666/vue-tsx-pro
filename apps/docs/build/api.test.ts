@@ -62,4 +62,20 @@ describe('extractComponentApi', () => {
     const iconButton = extractComponentApi('IconButtonProps');
     expect(iconButton.props.find((item) => item.name === 'variant')!.default).toBe("'ghost'");
   });
+
+  it('部件标记：配方的部件、源码里给这个组件打的标记；在 UiComponents 登记的能在 components 里定制', () => {
+    expect(button.customizable).toBe('Button');
+    expect(button.parts?.scope).toBe('button');
+    expect(button.parts?.names).toContain('icon');
+    // IconButton 共用 Button 的配方（UiComponents 注释里写了）
+    expect(extractComponentApi('IconButtonProps').customizable).toBe('Button');
+    const kanban = extractComponentApi('KanbanBoardProps');
+    expect(kanban.customizable).toBeUndefined();
+    expect(kanban.parts?.scope).toBe('kanban-board');
+    expect(kanban.parts?.names).toEqual(
+      expect.arrayContaining(['root', 'column', 'card', 'handle']),
+    );
+    // 同一个文件里的另一个组件不混进来
+    expect(extractComponentApi('CommentComposerProps').parts?.scope).toBe('comment-composer');
+  });
 });

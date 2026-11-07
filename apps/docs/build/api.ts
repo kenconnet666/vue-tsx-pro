@@ -5,7 +5,8 @@
  * - 每个 prop 的类型、必填、说明（JSDoc）、`@default` 标签；
  * - 档位类的类型（`keyof ButtonVariants`、`TextSize`）展开成可选值，每个值带上接口里那个键的注释；
  * - 组件实现的参数解构里的默认值（`type = 'button'`）与 `_bindable(…)`（可以 `_bind` 双向绑定）；
- * - 接口自己的注释（“未声明的属性落到 button 上”）。
+ * - 接口自己的注释（“未声明的属性落到 button 上”）；
+ * - 部件的标记（源码里的 partAttrs、部件辅助函数、配方的 parts）与能不能在 components 里定制（UiComponents 的键与注释）。
  * 只列组件库里声明的 prop；继承来的原生属性与通用的 sx 不逐条列出。
  *
  * 用 TypeScript 7 的程序化 API（typescript/sync）：程序与检查器在 tsc 子进程里，这里同步调用。程序只建一次，
@@ -66,6 +67,9 @@ const ui = resolve(dirname(fileURLToPath(import.meta.url)), '../../../packages/u
 const src = join(ui, 'src').split('\\').join('/');
 /** 部件属性的通用部分（sx）声明在这里：不逐条列出 */
 const PART_PROPS_FILE = `${src}/utils/props.ts`;
+
+/** 组件的定制登记在这里（UiComponents）：键是配方名，注释里写了共用它的组件 */
+const COMPONENTS_FILE = `${src}/config/components.ts`;
 
 /** 组件库的 package.json：入口登记在它的 exports 里 */
 const MANIFEST = join(ui, 'package.json').split('\\').join('/');
@@ -324,6 +328,67 @@ function unionDoc(declarations: Node[], checker: Checker): string {
 }
 
 /** 一个 Props 接口的 API 数据，默认值从对应组件的参数里读 */
+/** 组件名 → 连字符小写（data-scope 的写法，同 partAttrs） */
+const kebab = (name: string) =>
+  name.replace(/[A-Z]/g, (c, index: number) => (index ? `-${c.toLowerCase()}` : c.toLowerCase()));
+
+/** 能在 components 里定制的组件：组件名 → UiComponents 的键（注释里列了共用同一个配方的组件） */
+function customizableNames(): Map<string, string> {
+  const text = readFileSync(COMPONENTS_FILE, 'utf8');
+  const body = text.slice(text.indexOf('export interface UiComponents'));
+  const names = new Map<string, string>();
+  for (const match of body.matchAll(/\/\*\*([^*]*)\*\/\s*\n\s*(\w+): ComponentConfig/g)) {
+    const key = match[2]!;
+    names.set(key, key);
+    for (const name of match[1]!.match(/[A-Z][A-Za-z]+/g) ?? []) names.set(name, key);
+  }
+  return names;
+}
+
+/** 配方名 → 它的部件（`css.recipe({ name: 'Button', parts: ['root', …] })`），在整个组件库的源码里找 */
+let recipeParts: Map<string, string[]> | undefined;
+function recipePartsOf(name: string): string[] | undefined {
+  if (!recipeParts) {
+    recipeParts = new Map();
+    for (const file of globSync(`${src}/**/*.{ts,tsx}`)) {
+      const text = readFileSync(file, 'utf8');
+      for (const match of text.matchAll(
+        /name:\s*'(\w+)',(?:\s*\/\/[^\n]*)*\s*parts:\s*\[([^\]]*)\]/g,
+      )) {
+        recipeParts.set(
+          match[1]!,
+          [...match[2]!.matchAll(/'([\w-]+)'/g)].map((part) => part[1]!),
+        );
+      }
+    }
+  }
+  return recipeParts.get(name);
+}
+
+/**
+ * 组件的部件标记：组件所在文件里给这个组件名打的标记（partAttrs({ name }, 'x')、部件辅助函数 xxxPart('x')），
+ * 再加上同名配方的部件；都没有时是 undefined
+ */
+function partsOf(component: string, file: string | undefined, recipe: string | undefined) {
+  const names = new Set<string>();
+  if (file) {
+    const text = readFileSync(file, 'utf8');
+    const helpers = new Map<string, string>();
+    for (const match of text.matchAll(
+      /const (\w+) = \(part: string\) => partAttrs\(\{ name: '(\w+)' \}, part\)/g,
+    ))
+      helpers.set(match[1]!, match[2]!);
+    for (const match of text.matchAll(/(\w+)\('([\w-]+)'\)/g))
+      if (helpers.get(match[1]!) === component) names.add(match[2]!);
+    for (const match of text.matchAll(/partAttrs\(\{ name: '(\w+)' \}, '([\w-]+)'\)/g))
+      if (match[1] === component) names.add(match[2]!);
+  }
+  const fromRecipe = recipePartsOf(recipe ?? component);
+  if (fromRecipe) for (const part of fromRecipe) names.add(part);
+  if (names.size === 0) return undefined;
+  return { scope: kebab(recipe && fromRecipe ? recipe : component), names: [...names] };
+}
+
 export function extractComponentApi(interfaceName: string): ComponentApi {
   const checker = currentChecker();
   const symbol = exportedSymbol(interfaceName);
@@ -362,11 +427,16 @@ export function extractComponentApi(interfaceName: string): ComponentApi {
   });
   // 说明取组件自己的注释（“按钮（button）：样式、色调…”），没有时才用接口的（“未声明的属性落到…上”这类）
   const componentDoc = componentSymbol(component);
+  const customizable = customizableNames().get(component);
+  const declaration = componentDoc && declarationOf(componentDoc, isVariableDeclaration);
+  const parts = partsOf(component, declaration && fileOf(declaration), customizable);
   return {
     name: interfaceName,
     component,
     description: (componentDoc && docOf(componentDoc, checker)) || docOf(symbol, checker),
     props,
+    ...(parts ? { parts } : {}),
+    ...(customizable ? { customizable } : {}),
   };
 }
 

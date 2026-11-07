@@ -6,7 +6,7 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Flex, H2, H3, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Code, Flex, H2, H3, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
 import {
   PropsTable,
   type ApiPropKinds,
@@ -84,6 +84,27 @@ export const ApiReference = _component(({ api }: ApiReferenceProps) => {
               </H3>
             )}
             {item.description && <Paragraph tone="muted">{item.description}</Paragraph>}
+            {item.parts && (
+              <Paragraph tone="muted" size="sm">
+                {'部件标记：'}
+                <Code>{`data-scope="${item.parts.scope}"`}</Code>
+                {'，data-part 是 '}
+                {item.parts.names.flatMap((name, index) => [
+                  index > 0 && '、',
+                  <Code key={name}>{name}</Code>,
+                ])}
+                {'。全局样式与测试按它选中部件，写在部件上的宽高按 border-box 算。'}
+                {item.customizable && (
+                  <>
+                    {'能在 createUi / Provider 的 '}
+                    <Code>{`components.${item.customizable}`}</Code>
+                    {
+                      ' 里改默认值（defaults）、各部件的样式（styles）与档位（variants，扩展了档位接口时能加新的取值）。'
+                    }
+                  </>
+                )}
+              </Paragraph>
+            )}
             {tables.map(
               ({ kind, label, props }, index) =>
                 start + index < shown && (
