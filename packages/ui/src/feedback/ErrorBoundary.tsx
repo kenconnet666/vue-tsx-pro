@@ -15,6 +15,7 @@ import { useLang } from '../config/context';
 import { mergePartProps } from '../utils/props';
 import { Result, type ResultProps } from './Result';
 
+/** 里面的内容是 children；出错时显示 fallback（不写时是 Result） */
 export interface ErrorBoundaryProps {
   /** 出错时显示什么：拿到错误与重试函数；不写时是 Result（危险色调、标题、错误信息与重试按钮） */
   fallback?: (error: Error, retry: () => void) => VNodeChild;
