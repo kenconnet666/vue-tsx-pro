@@ -6,13 +6,16 @@ import { Tree } from '../../display/Tree';
 import { VirtualList } from '../../display/VirtualList';
 import { KanbanBoard } from '../../patterns/KanbanBoard';
 import { DataTable } from '../../table/DataTable';
+import { Autocomplete } from '../Autocomplete';
 import { Cascader } from '../Cascader';
 import { CheckboxGroup } from '../Checkbox';
 import { Combobox } from '../Combobox';
+import { Mentions } from '../Mentions';
 import { RadioGroup } from '../Radio';
 import { Select } from '../Select';
 import { Slider } from '../Slider';
-import { Transfer } from '../Transfer';
+import { TagsInput } from '../TagsInput';
+import { Transfer, TreeTransfer } from '../Transfer';
 import { TreeSelect } from '../TreeSelect';
 
 interface Region {
@@ -116,3 +119,48 @@ export const list = (
 export const isoDate = <DateField _value="2026-11-07" />;
 declare const day: CalendarDate;
 export const dateValue = <DatePicker valueType="dateValue" _value={day} />;
+
+// 文字输入加建议：建议是任意数据时给 toOption，类型从 items 推出来；不是 ListboxOption、字符串又没给 toOption 时报错
+export const autocomplete = (
+  <Autocomplete
+    _value=""
+    items={users}
+    toOption={(user) => ({ value: user.name, label: user.name })}
+  />
+);
+export const autocompleteMissing = (
+  // @ts-expect-error 建议是 User，要给 toOption
+  <Autocomplete _value="" items={users} />
+);
+export const tags = <TagsInput _value={['北京']} items={['北京', '上海']} />;
+export const tagsData = (
+  <TagsInput
+    _value={[]}
+    items={users}
+    toOption={(user) => ({ value: String(user.id), label: user.name })}
+  />
+);
+export const mentions = (
+  <Mentions
+    _value=""
+    items={users}
+    toOption={(user) => ({ value: String(user.id), label: user.name })}
+  />
+);
+export const mentionsTypo = (
+  <Mentions
+    _value=""
+    items={users}
+    // @ts-expect-error 候选人是 User，没有 email
+    toOption={(user) => ({ value: user.email, label: user.name })}
+  />
+);
+export const treeTransfer = <TreeTransfer items={regions} {...accessors} _value={['hz']} />;
+export const treeTransferTypo = (
+  <TreeTransfer
+    items={regions}
+    {...accessors}
+    // @ts-expect-error 节点是 Region，没有 label
+    getLabel={(region) => region.label}
+  />
+);

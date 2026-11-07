@@ -19,13 +19,13 @@
 | ColumnFilterButton | table/ColumnHeaderActions.tsx | ✗ |  |  |  |  |
 | ColumnMenuButton | table/ColumnHeaderActions.tsx | ✗ |  |  |  |  |
 | ColumnResizer | table/ColumnResizer.tsx | ✗ |  |  |  |  |
-| ColumnSettings | table/ColumnSettings.tsx | ✗ |  |  |  | ✗ |
-| ColumnTable | table/ColumnTable.tsx |  |  |  |  | ✗ |
+| ColumnSettings | table/ColumnSettings.tsx | ✗ |  |  |  |  |
+| ColumnTable | table/ColumnTable.tsx |  |  |  |  |  |
 | DataTable | table/DataTable.tsx |  |  |  |  |  |
 | DataTableRow | table/DataTableView.tsx | ✗ |  |  |  | ✗ |
 | DataTableDetailRow | table/DataTableView.tsx | ✗ |  |  |  | ✗ |
 | DataTableView | table/DataTableView.tsx |  |  |  |  | ✗ |
-| PivotTable | table/PivotTable.tsx |  |  |  |  | ✗ |
+| PivotTable | table/PivotTable.tsx |  |  |  |  |  |
 | SelectionBar | table/SelectionBar.tsx |  |  |  |  |  |
 | Table | table/Table.tsx |  |  |  |  |  |
 | TableCaption | table/Table.tsx |  |  |  |  |  |
@@ -35,26 +35,26 @@
 | TableRow | table/Table.tsx |  |  |  |  |  |
 | TableHeaderCell | table/Table.tsx |  |  |  |  |  |
 | TableCell | table/Table.tsx |  |  |  |  |  |
-| TreeDataTable | table/TreeDataTable.tsx |  |  |  |  | ✗ |
+| TreeDataTable | table/TreeDataTable.tsx |  |  |  |  |  |
 | ActionBar | patterns/ActionBar.tsx |  |  |  |  |  |
 | AppShell | patterns/AppShell.tsx |  |  |  |  |  |
 | AppShellBrand | patterns/AppShell.tsx |  |  |  |  |  |
 | AuthLayout | patterns/AuthLayout.tsx |  |  |  |  |  |
 | CommentComposer | patterns/CommentThread.tsx | ✗ |  |  |  |  |
 | CommentThread | patterns/CommentThread.tsx |  |  |  |  |  |
-| DataImport | patterns/DataImport.tsx |  |  |  |  | ✗ |
+| DataImport | patterns/DataImport.tsx |  |  |  |  |  |
 | DeadlineBadge | patterns/DeadlineBadge.tsx |  |  |  |  |  |
 | FilterBar | patterns/FilterBar.tsx |  |  |  |  |  |
 | FormDialog | patterns/FormDialog.tsx |  |  |  |  |  |
 | KanbanBoard | patterns/KanbanBoard.tsx |  |  |  |  |  |
 | NotificationList | patterns/NotificationCenter.tsx | ✗ |  |  |  |  |
 | NotificationCenter | patterns/NotificationCenter.tsx |  |  |  |  |  |
-| QueryTable | patterns/QueryTable.tsx |  |  |  |  | ✗ |
+| QueryTable | patterns/QueryTable.tsx |  |  |  |  |  |
 | SlideCaptcha | patterns/SlideCaptcha.tsx |  |  |  |  |  |
 | StepsForm | patterns/StepsForm.tsx |  |  |  |  |  |
-| ThemeSwitcher | patterns/ThemeSwitcher.tsx | ✗ |  |  |  | ✗ |
+| ThemeSwitcher | patterns/ThemeSwitcher.tsx | ✗ |  |  |  |  |
 | AlertDialog | overlay/AlertDialog.tsx |  |  |  |  |  |
-| CommandPalette | overlay/CommandPalette.tsx |  |  |  |  | ✗ |
+| CommandPalette | overlay/CommandPalette.tsx |  |  |  |  |  |
 | ContextMenu | overlay/ContextMenu.tsx | ✗ |  |  |  |  |
 | Dialog | overlay/Dialog.tsx |  |  |  |  |  |
 | Drawer | overlay/Drawer.tsx |  |  |  |  |  |
@@ -106,7 +106,7 @@
 | Separator | layout/Separator.tsx |  |  |  |  |  |
 | Splitter | layout/Splitter.tsx |  |  |  |  |  |
 | ViewportFill | layout/ViewportFill.tsx |  |  |  |  |  |
-| Autocomplete | input/Autocomplete.tsx |  |  |  |  | ✗ |
+| Autocomplete | input/Autocomplete.tsx |  |  |  |  |  |
 | Cascader | input/Cascader.tsx |  |  |  |  |  |
 | CharacterCount | input/CharacterCount.tsx |  |  |  |  |  |
 | Checkbox | input/Checkbox.tsx |  |  |  |  |  |
@@ -122,7 +122,7 @@
 | Listbox | input/Listbox.tsx |  |  |  |  |  |
 | ListPopover | input/ListPopover.tsx | ✗ |  |  |  | ✗ |
 | MentionText | input/Mentions.tsx |  |  |  |  |  |
-| Mentions | input/Mentions.tsx |  |  |  |  | ✗ |
+| Mentions | input/Mentions.tsx |  |  |  |  |  |
 | NumberField | input/NumberField.tsx |  |  |  |  |  |
 | NumberRangeField | input/NumberRangeField.tsx |  |  |  |  |  |
 | OtpField | input/OtpField.tsx |  |  |  |  |  |
@@ -136,13 +136,13 @@
 | SignaturePad | input/SignaturePad.tsx | ✗ |  |  |  |  |
 | Slider | input/Slider.tsx |  |  |  |  |  |
 | Switch | input/Switch.tsx |  |  |  |  |  |
-| TagsInput | input/TagsInput.tsx |  |  |  |  | ✗ |
+| TagsInput | input/TagsInput.tsx |  |  |  |  |  |
 | Textarea | input/Textarea.tsx |  |  |  |  |  |
 | TextField | input/TextField.tsx |  |  |  |  |  |
 | ToggleGroup | input/ToggleGroup.tsx |  |  |  |  |  |
 | ToggleItem | input/ToggleGroup.tsx |  |  |  |  |  |
 | Transfer | input/Transfer.tsx |  |  |  |  |  |
-| TreeTransfer | input/Transfer.tsx |  |  |  |  | ✗ |
+| TreeTransfer | input/Transfer.tsx |  |  |  |  |  |
 | TreeSelect | input/TreeSelect.tsx |  |  |  |  |  |
 | Upload | input/Upload.tsx |  |  |  |  |  |
 | Label | form/Field.tsx | ✗ |  |  |  |  |
@@ -178,13 +178,13 @@
 | Avatar | display/Avatar.tsx |  |  |  |  |  |
 | AvatarGroup | display/AvatarGroup.tsx |  |  |  |  |  |
 | Card | display/Card.tsx |  |  |  |  |  |
-| Carousel | display/Carousel.tsx | ✗ |  |  |  | ✗ |
+| Carousel | display/Carousel.tsx | ✗ |  |  |  |  |
 | Checklist | display/Checklist.tsx |  |  |  |  |  |
 | Collapse | display/Collapse.tsx |  |  |  |  |  |
 | Collapsible | display/Collapsible.tsx |  |  |  |  |  |
 | Descriptions | display/Descriptions.tsx |  |  |  |  |  |
 | Ellipsis | display/Ellipsis.tsx |  |  |  |  |  |
-| FieldCompare | display/FieldCompare.tsx |  |  |  |  | ✗ |
+| FieldCompare | display/FieldCompare.tsx |  |  |  |  |  |
 | Gauge | display/Gauge.tsx |  |  |  |  |  |
 | Image | display/Image.tsx |  |  |  |  |  |
 | ImageGroup | display/Image.tsx |  |  |  |  |  |
@@ -195,7 +195,7 @@
 | Marquee | display/Marquee.tsx |  |  |  |  |  |
 | ProportionBar | display/ProportionBar.tsx |  |  |  |  |  |
 | QRCode | display/QRCode.tsx |  |  |  |  |  |
-| Sortable | display/Sortable.tsx |  |  |  |  | ✗ |
+| Sortable | display/Sortable.tsx |  |  |  |  |  |
 | Sparkline | display/Sparkline.tsx |  |  |  |  |  |
 | Stat | display/Stat.tsx |  |  |  |  |  |
 | StatGroup | display/Stat.tsx |  |  |  |  |  |
@@ -204,49 +204,49 @@
 | ValueChange | display/ValueChange.tsx |  |  |  |  |  |
 | VirtualList | display/VirtualList.tsx |  |  |  |  |  |
 | Watermark | display/Watermark.tsx |  |  |  |  |  |
-| Diagram | diagram/Diagram.tsx |  |  |  |  | ✗ |
+| Diagram | diagram/Diagram.tsx |  |  |  |  |  |
 | DiagramControls | diagram/DiagramControls.tsx |  |  |  |  |  |
 | DiagramLanes | diagram/DiagramLanes.tsx |  |  |  |  |  |
 | DiagramMinimap | diagram/DiagramMinimap.tsx |  |  |  |  |  |
 | DiagramNode | diagram/DiagramNode.tsx |  |  |  |  |  |
-| Calendar | date/Calendar.tsx |  |  |  |  | ✗ |
-| CalendarBoard | date/CalendarBoard.tsx |  |  |  |  | ✗ |
+| Calendar | date/Calendar.tsx |  |  |  |  |  |
+| CalendarBoard | date/CalendarBoard.tsx |  |  |  |  |  |
 | CalendarView | date/CalendarView.tsx | ✗ |  |  |  |  |
 | Countdown | date/Countdown.tsx |  |  |  |  |  |
 | DateField | date/DateField.tsx |  |  |  |  |  |
 | DatePicker | date/DatePicker.tsx |  |  |  |  |  |
-| DateRangePicker | date/DateRangePicker.tsx |  |  |  |  | ✗ |
+| DateRangePicker | date/DateRangePicker.tsx |  |  |  |  |  |
 | DateSegmentGroup | date/DateSegmentGroup.tsx | ✗ |  |  |  |  |
 | DateTime | date/DateTime.tsx |  |  |  |  |  |
 | QuarterCalendar | date/QuarterCalendar.tsx |  |  |  |  |  |
-| RangeCalendar | date/RangeCalendar.tsx |  |  |  |  | ✗ |
+| RangeCalendar | date/RangeCalendar.tsx |  |  |  |  |  |
 | RelativeTime | date/RelativeTime.tsx |  |  |  |  |  |
 | SegmentedField | date/SegmentedField.tsx | ✗ |  |  |  |  |
-| TimeField | date/TimeField.tsx |  |  |  |  | ✗ |
-| TimePicker | date/TimePicker.tsx |  |  |  |  | ✗ |
+| TimeField | date/TimeField.tsx |  |  |  |  |  |
+| TimePicker | date/TimePicker.tsx |  |  |  |  |  |
 | Provider | config/Provider.tsx |  |  |  |  |  |
 | ConfigScope | config/Provider.tsx | ✗ |  |  |  |  |
 | CodeEditor | code-editor/CodeEditor.tsx | ✗ |  |  |  |  |
-| AreaChart | charts/AreaChart.tsx |  |  |  |  | ✗ |
-| BarChart | charts/BarChart.tsx |  |  |  |  | ✗ |
+| AreaChart | charts/AreaChart.tsx |  |  |  |  |  |
+| BarChart | charts/BarChart.tsx |  |  |  |  |  |
 | ChordChart | charts/ChordChart.tsx |  |  |  |  |  |
-| ComboChart | charts/ComboChart.tsx |  |  |  |  | ✗ |
-| DonutChart | charts/DonutChart.tsx |  |  |  |  | ✗ |
+| ComboChart | charts/ComboChart.tsx |  |  |  |  |  |
+| DonutChart | charts/DonutChart.tsx |  |  |  |  |  |
 | ChartFrame | charts/frame.tsx | ✗ |  |  |  |  |
 | FunnelChart | charts/FunnelChart.tsx |  |  |  |  |  |
 | GraphChart | charts/GraphChart.tsx |  |  |  |  |  |
-| LineChart | charts/LineChart.tsx |  |  |  |  | ✗ |
+| LineChart | charts/LineChart.tsx |  |  |  |  |  |
 | MapChart | charts/MapChart.tsx | ✗ |  |  |  |  |
 | ChartTooltipBox | charts/plot.tsx | ✗ |  |  |  |  |
-| RadarChart | charts/RadarChart.tsx | ✗ |  |  |  | ✗ |
+| RadarChart | charts/RadarChart.tsx | ✗ |  |  |  |  |
 | SankeyChart | charts/SankeyChart.tsx |  |  |  |  |  |
-| ScatterChart | charts/ScatterChart.tsx |  |  |  |  | ✗ |
+| ScatterChart | charts/ScatterChart.tsx |  |  |  |  |  |
 | TimelineChart | charts/TimelineChart.tsx |  |  |  |  |  |
-| TreemapChart | charts/TreemapChart.tsx | ✗ |  |  |  | ✗ |
+| TreemapChart | charts/TreemapChart.tsx | ✗ |  |  |  |  |
 | WaterfallChart | charts/WaterfallChart.tsx |  |  |  |  |  |
 | XYChart | charts/XYChart.tsx | ✗ |  |  |  | ✗ |
 | Badge | base/Badge.tsx |  |  |  |  |  |
-| StatusBadge | base/Badge.tsx |  |  |  |  | ✗ |
+| StatusBadge | base/Badge.tsx |  |  |  |  |  |
 | Blockquote | base/Blockquote.tsx |  |  |  |  |  |
 | Button | base/Button.tsx |  |  |  |  |  |
 | ButtonBase | base/ButtonBase.tsx | ✗ |  |  |  |  |

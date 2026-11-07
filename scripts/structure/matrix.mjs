@@ -48,9 +48,13 @@ const components = files('packages/ui/src/**/*.tsx')
       });
   });
 
-const joined = (pattern) => files(pattern).map(read).join('\n');
-// Node 的 glob 里 ** 不进以点开头的目录：测试目录 .test 一层层写出来
-const unitTests = joined('packages/ui/src/{,*/,*/*/}.test/*.{ts,tsx}');
+const joined = (pattern, exclude) =>
+  files(pattern)
+    .filter((path) => !exclude?.test(path))
+    .map(read)
+    .join('\n');
+// Node 的 glob 里 ** 不进以点开头的目录：测试目录 .test 一层层写出来；类型测试（.test-d）不算单元测试
+const unitTests = joined('packages/ui/src/{,*/,*/*/}.test/*.{ts,tsx}', /\.test-d\.tsx?$/);
 const typeTests = joined('packages/*/src/{,*/,*/*/}.test/*.test-d.{ts,tsx}');
 const browserTests = joined(
   '{apps/docs/src/**/*.browser.test.{ts,tsx},apps/host-demo/test/**/*.browser.test.{ts,tsx}}',
