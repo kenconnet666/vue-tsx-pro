@@ -80,14 +80,14 @@
 | NavGroup | navigation/NavList.tsx |  |  |  |  |  |
 | NavSection | navigation/NavList.tsx |  |  |  |  |  |
 | NavMenu | navigation/NavMenu.tsx |  |  |  |  |  |
-| PageJump | navigation/PageJump.tsx | ✗ |  |  |  |  |
+| PageJump | navigation/PageJump.tsx |  |  |  |  |  |
 | Pager | navigation/Pager.tsx |  |  |  |  |  |
-| PageSizeSelect | navigation/PageSizeSelect.tsx | ✗ |  |  |  |  |
+| PageSizeSelect | navigation/PageSizeSelect.tsx |  |  |  |  |  |
 | Pagination | navigation/Pagination.tsx |  |  |  |  |  |
 | PaginationBar | navigation/PaginationBar.tsx |  |  |  |  |  |
-| SkipLink | navigation/SkipLink.tsx | ✗ |  |  |  |  |
+| SkipLink | navigation/SkipLink.tsx |  |  |  |  |  |
 | Steps | navigation/Steps.tsx |  |  |  |  |  |
-| TableOfContents | navigation/TableOfContents.tsx | ✗ |  |  |  |  |
+| TableOfContents | navigation/TableOfContents.tsx |  |  |  |  |  |
 | Tabs | navigation/Tabs.tsx |  |  |  |  |  |
 | TabList | navigation/Tabs.tsx |  |  |  |  |  |
 | Tab | navigation/Tabs.tsx |  |  |  |  |  |
@@ -100,7 +100,7 @@
 | FloatButtonGroup | layout/FloatButton.tsx |  |  |  |  |  |
 | PageScrollbar | layout/PageScrollbar.tsx | ✗ |  |  |  |  |
 | Prose | layout/Prose.tsx |  |  |  |  |  |
-| ResizeHandle | layout/ResizeHandle.tsx | ✗ |  |  |  |  |
+| ResizeHandle | layout/ResizeHandle.tsx |  |  |  |  |  |
 | OverlayScrollbar | layout/ScrollArea.tsx | ✗ |  |  |  |  |
 | ScrollArea | layout/ScrollArea.tsx |  |  |  |  |  |
 | Separator | layout/Separator.tsx |  |  |  |  |  |
@@ -150,7 +150,7 @@
 | Form | form/Form.tsx |  |  |  |  |  |
 | FormErrorSummary | form/FormErrorSummary.tsx |  |  |  |  |  |
 | FormSection | form/FormSection.tsx |  |  |  |  |  |
-| FormValue | form/FormValue.tsx | ✗ |  |  |  |  |
+| FormValue | form/FormValue.tsx |  |  |  |  |  |
 | SchemaFields | form/SchemaForm.tsx |  |  |  |  |  |
 | SchemaForm | form/SchemaForm.tsx |  |  |  |  |  |
 | Alert | feedback/Alert.tsx |  |  |  |  |  |
@@ -250,7 +250,7 @@
 | Blockquote | base/Blockquote.tsx |  |  |  |  |  |
 | Button | base/Button.tsx |  |  |  |  |  |
 | ButtonBase | base/ButtonBase.tsx | ✗ |  |  |  |  |
-| ButtonGroup | base/ButtonGroup.tsx | ✗ |  |  |  |  |
+| ButtonGroup | base/ButtonGroup.tsx |  |  |  |  |  |
 | Can | base/Can.tsx |  |  |  |  |  |
 | ClientOnly | base/ClientOnly.tsx |  | ✗ |  |  |  |
 | Code | base/Code.tsx |  |  |  |  |  |
