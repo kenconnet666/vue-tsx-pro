@@ -15,7 +15,7 @@
 import { ChevronLeft, ChevronRight, Pause, Play } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { onScopeDispose, watch, type VNodeChild } from 'vue';
+import { onMounted, onScopeDispose, watch, type VNodeChild } from 'vue';
 import { ButtonBase } from '../base/ButtonBase';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -23,6 +23,7 @@ import { t } from '../config/theme/tokens';
 import { isRtl } from '../utils/dom/direction';
 import { useReducedMotion } from '../utils/dom/media-query';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { focusRingStyles } from '../utils/style/styles';
 
 /** 未声明的属性落到根元素（section）上；aria-label 是轮播的名称 */
 export interface CarouselProps<T> extends PartProps<'section', 'role'> {
@@ -144,8 +145,12 @@ export const Carousel = _component(
     const lang = useLang();
     const reduced = useReducedMotion();
     let viewport = _state.raw<HTMLElement | null>(null);
-    // 偏好减少动态效果时一开始就暂停；用户点了播放照样播
-    let paused = _state(reduced.value);
+    // 偏好减少动态效果时一开始就暂停（挂载后）；用户点了播放照样播
+    let paused = _state(false);
+    // 偏好在服务端拿不到：挂载后再按它暂停，水合时两边一致
+    onMounted(() => {
+      if (reduced.value) paused = true;
+    });
     let hovering = _state(false);
     let focused = _state(false);
 
@@ -219,7 +224,7 @@ export const Carousel = _component(
       () => [playing(), index, interval()] as const,
       ([play, current, delay]) => {
         clearTimeout(timer);
-        if (play) timer = setTimeout(() => go(current + 1), delay);
+        if (play && typeof window !== 'undefined') timer = setTimeout(() => go(current + 1), delay);
       },
       { immediate: true },
     );
@@ -273,10 +278,14 @@ export const Carousel = _component(
         >
           <div
             {...mergeAttrs<'div'>(
-              { sx: [carouselStyles.viewport, carouselSizeStyles.gap(gap)] },
+              {
+                sx: [carouselStyles.viewport, focusRingStyles.visible, carouselSizeStyles.gap(gap)],
+              },
               propsViewport,
               {
                 ref: _toRef(viewport),
+                // 能聚焦：键盘用户按方向键横向滚动（停下时吸附到整张）
+                tabindex: 0,
                 'aria-live': playing() ? 'off' : 'polite',
                 onScroll,
               },

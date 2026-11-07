@@ -15,7 +15,7 @@
 import { Pipette } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { shallowRef, watch } from 'vue';
+import { onMounted, shallowRef, watch } from 'vue';
 import { ButtonBase } from '../base/ButtonBase';
 import { IconButton } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -243,14 +243,14 @@ export const ColorPicker = _component(
       remember(hex());
     }
 
-    const eyeDropper =
-      typeof window !== 'undefined' && 'EyeDropper' in window
-        ? (
-            window as unknown as {
-              EyeDropper: new () => { open: () => Promise<{ sRGBHex: string }> };
-            }
-          ).EyeDropper
-        : undefined;
+    // 吸管：挂载后才看浏览器支不支持（服务端没有 window，先不画，水合时两边一致）
+    let eyeDropper = _state.raw<
+      (new () => { open: () => Promise<{ sRGBHex: string }> }) | undefined
+    >(undefined);
+    onMounted(() => {
+      if ('EyeDropper' in window)
+        eyeDropper = (window as unknown as { EyeDropper: typeof eyeDropper }).EyeDropper;
+    });
     async function sample() {
       if (!eyeDropper) return;
       try {
