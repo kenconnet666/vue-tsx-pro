@@ -21,6 +21,7 @@ import type { AvatarOptions, AvatarPart } from '../display/Avatar';
 import type { BadgeOptions, BadgePart } from '../base/badge-styles';
 import type { ButtonOptions, ButtonPart } from '../base/button-core';
 import type { CardOptions, CardPart } from '../display/Card';
+import type { CodeBlockOptions, CodeBlockPart } from '../base/CodeBlock';
 import type { ChoiceOptions, ChoicePart } from '../input/choice-styles';
 import type { ControlOptions, InputPart } from '../input/control';
 import type { DataTableOptions, DataTablePart } from '../table/table-styles';
@@ -33,6 +34,9 @@ import type { ProgressOptions, ProgressPart } from '../feedback/Progress';
 import type { ResultOptions, ResultPart } from '../feedback/Result';
 import type { TablePart } from '../table/Table';
 import type { TabPart, TabsOptions } from '../navigation/Tabs';
+import type { StatOptions, StatPart } from '../display/Stat';
+import type { TimelineOptions, TimelinePart } from '../display/Timeline';
+import type { TourOptions, TourPart } from '../overlay/Tour';
 import { useDefaults, type ComponentDefaults, type ResolvedDefaults } from './defaults';
 import { useRecipe, type ComponentStyles, type PartLayer } from './styles';
 
@@ -79,6 +83,8 @@ export interface UiComponents {
   Indicator: ComponentConfig<IndicatorPart, IndicatorOptions>;
   /** Avatar（AvatarGroup 的“+N”也取它的外层样式） */
   Avatar: ComponentConfig<AvatarPart, AvatarOptions>;
+  /** CodeBlock（CodeGroup、示例的源码也是它） */
+  CodeBlock: ComponentConfig<CodeBlockPart, CodeBlockOptions>;
   /** Card */
   Card: ComponentConfig<CardPart, CardOptions>;
   /** Progress（条形与环形） */
@@ -87,6 +93,12 @@ export interface UiComponents {
   Empty: ComponentConfig<EmptyPart, EmptyOptions>;
   /** Result */
   Result: ComponentConfig<ResultPart, ResultOptions>;
+  /** Stat（StatGroup 里的每一个也是它） */
+  Stat: ComponentConfig<StatPart, StatOptions>;
+  /** Timeline */
+  Timeline: ComponentConfig<TimelinePart, TimelineOptions>;
+  /** Tour */
+  Tour: ComponentConfig<TourPart, TourOptions>;
   /** Dialog、AlertDialog 共用：dialog 元素与标题行、标题、关闭按钮、说明、正文、页脚 */
   Dialog: ComponentConfig<DialogPart, DialogOptions>;
   /** Drawer：同 Dialog 的部件 */

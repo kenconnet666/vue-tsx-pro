@@ -1,8 +1,10 @@
-// Timeline：有序列表、时间用 <time>、pending 是最后一项、reverse 新的在前、部件属性；操作人、详情、收起其余各项
+// Timeline：有序列表、时间用 <time>、pending 是最后一项、reverse 新的在前、部件属性；操作人、详情、收起其余各项；
+// 应用里用 components.Timeline 给默认值、追加样式
 import { Truck } from '@lucide/icons';
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
-import { mount } from '../../utils/.test/mount';
+import { Provider } from '../../config/Provider';
+import { mount, styleOf } from '../../utils/.test/mount';
 import { Timeline } from '../Timeline';
 
 describe('Timeline', () => {
@@ -112,5 +114,26 @@ describe('Timeline', () => {
   it('项数不超过 maxVisible 时没有按钮', () => {
     const root = mount(() => <Timeline items={[{ title: '一' }]} maxVisible={2} />);
     expect(root.querySelector('button')).toBeNull();
+  });
+});
+
+describe('Timeline 的定制（components.Timeline）', () => {
+  it('默认值与追加的样式：应用里统一交替排布、改节点的样式；组件上写的仍优先', () => {
+    const root = mount(() => (
+      <Provider
+        components={{
+          Timeline: { defaults: { alternate: true }, styles: { marker: { borderRadius: '2px' } } },
+        }}
+      >
+        <Timeline items={[{ title: '已下单', time: '09:12' }]} />
+        <Timeline alternate={false} items={[{ title: '已发货' }]} />
+      </Provider>
+    ));
+    const [first, second] = root.querySelectorAll('ol');
+    expect(first!.hasAttribute('data-alternate')).toBe(true);
+    expect(second!.hasAttribute('data-alternate')).toBe(false);
+    const marker = first!.querySelector('[data-part="marker"]')!;
+    expect(marker.getAttribute('data-scope')).toBe('timeline');
+    expect(styleOf(marker).get('&|border-top-left-radius')).toBe('2px');
   });
 });

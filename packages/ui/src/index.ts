@@ -15,7 +15,15 @@ export {
   type PresetIconButtonProps,
 } from './base/CloseButton';
 export { Code, type CodeProps } from './base/Code';
-export { CodeBlock, parseLineSpec, type CodeBlockProps, type LineSpec } from './base/CodeBlock';
+export {
+  CodeBlock,
+  codeBlockRecipe,
+  parseLineSpec,
+  type CodeBlockOptions,
+  type CodeBlockPart,
+  type CodeBlockProps,
+  type LineSpec,
+} from './base/CodeBlock';
 export { CodeText, type CodeTextProps } from './base/CodeText';
 export { CopyButton, type CopyButtonManaged, type CopyButtonProps } from './base/CopyButton';
 export {
@@ -295,11 +303,21 @@ export {
 export {
   Stat,
   StatGroup,
+  statRecipe,
   type StatGroupProps,
   type StatManaged,
+  type StatOptions,
+  type StatPart,
   type StatProps,
 } from './display/Stat';
-export { Timeline, type TimelineItem, type TimelineProps } from './display/Timeline';
+export {
+  Timeline,
+  timelineRecipe,
+  type TimelineItem,
+  type TimelineOptions,
+  type TimelinePart,
+  type TimelineProps,
+} from './display/Timeline';
 export { Tree, type TreeItemRenderState, type TreeMove, type TreeProps } from './display/Tree';
 export { ValueChange, type ValueChangeProps } from './display/ValueChange';
 export {
@@ -475,7 +493,14 @@ export {
 export { Popconfirm, type PopconfirmProps } from './overlay/Popconfirm';
 export { Popover, type PopoverProps, type PopoverTriggerProps } from './overlay/Popover';
 export { Tooltip, type TooltipProps, type TooltipTriggerProps } from './overlay/Tooltip';
-export { Tour, type TourProps, type TourStep } from './overlay/Tour';
+export {
+  Tour,
+  tourRecipe,
+  type TourOptions,
+  type TourPart,
+  type TourProps,
+  type TourStep,
+} from './overlay/Tour';
 export {
   useDetachedDialog,
   useDetachedOverlay,

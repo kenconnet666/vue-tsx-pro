@@ -1,8 +1,9 @@
-// Stat：dl 结构、数值格式、单位、变化量的方向与色调、加载骨架（滚动见 AnimatedNumber）
+// Stat：dl 结构、数值格式、单位、变化量的方向与色调、加载骨架（滚动见 AnimatedNumber）；components.Stat 的定制
 import { ClipboardList } from '@lucide/icons';
-import { expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { shimmerStyles } from '../../utils/style/shimmer';
-import { hasStyles, mount } from '../../utils/.test/mount';
+import { Provider } from '../../config/Provider';
+import { hasStyles, mount, styleOf } from '../../utils/.test/mount';
 import { Stat } from '../Stat';
 
 it('指标名是 dt、数值与单位是 dd；数字按语言格式化，图标对读屏隐藏', () => {
@@ -142,4 +143,23 @@ it('每个节点都有部件属性：图标、数字、单位、变化与说明�
   expect(root.querySelector('.change')!.tagName).toBe('DD');
   expect(root.querySelector('.change-label')!.textContent).toBe('环比');
   expect(root.querySelector('.description')!.textContent).toBe('截至昨天');
+});
+
+describe('Stat 的定制（components.Stat）', () => {
+  it('部件带标记；按色调档位追加样式（应用里统一调危险色的数值）', () => {
+    const root = mount(() => (
+      <Provider
+        components={{
+          Stat: { variants: { tone: { danger: { number: { textDecorationLine: 'underline' } } } } },
+        }}
+      >
+        <Stat label="超时" value="10" tone="danger" />
+        <Stat label="待验收" value="5" />
+      </Provider>
+    ));
+    const [danger, plain] = [...root.querySelectorAll('[data-scope="stat"][data-part="number"]')];
+    expect(root.querySelector('dl')!.getAttribute('data-part')).toBe('root');
+    expect(styleOf(danger!).get('&|text-decoration-line')).toBe('underline');
+    expect(styleOf(plain!).get('&|text-decoration-line')).toBeUndefined();
+  });
 });

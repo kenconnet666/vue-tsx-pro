@@ -43,7 +43,7 @@ import {
 import { openModalDialog } from '../utils/dom/overlay';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { t } from '../config/theme/tokens';
-import { partAttrs } from '../config/styles';
+import { useComponent } from '../config/components';
 
 /** 引导的一步 */
 export interface TourStep {
@@ -59,17 +59,24 @@ export interface TourStep {
   placement?: FloatingPlacement;
 }
 
+/** Tour 的档位：createUi / Provider 的 components.Tour.defaults 可以给默认值 */
+export interface TourOptions {
+  /** 镂空比目标大出多少（px），默认 6 */
+  padding?: number;
+}
+
 /** 打开、无障碍关联由组件管理；未声明的属性落到 dialog 上 */
 export interface TourProps
-  extends PartProps<'dialog', 'open' | 'aria-labelledby' | 'aria-describedby'>, OpenChangeProps {
+  extends
+    PartProps<'dialog', 'open' | 'aria-labelledby' | 'aria-describedby'>,
+    OpenChangeProps,
+    TourOptions {
   /** 各步 */
   steps: readonly TourStep[];
   /** 是否显示：父级写 _open={x} */
   _open?: boolean;
   /** 当前第几步，从 0 开始：父级写 _current={n} */
   _current?: number;
-  /** 镂空比目标大出多少（px），默认 6 */
-  padding?: number;
   /** 点了最后一步的“完成” */
   onFinish?: () => void;
   /** 镂空的部件属性 */
@@ -94,56 +101,66 @@ export interface TourProps
   propsNext?: Omit<Partial<ButtonProps>, 'onClick'>;
 }
 
-/** 部件的标记（data-scope="tour"） */
-const tourPart = (part: string) => partAttrs({ name: 'Tour' }, part);
+/**
+ * Tour 的配方（createUi / Provider 的 components.Tour 按它定制）：root（整屏透明的 dialog）、spotlight（镂空与遮罩）、
+ * panel（说明卡片）、cover（封面）、content（正文）
+ */
+export const tourRecipe = css.recipe({
+  name: 'Tour',
+  parts: ['root', 'spotlight', 'panel', 'cover', 'content'],
+  base: {
+    // 整屏透明的 dialog：遮罩由镂空的阴影画，原生 ::backdrop 不用
+    root: {
+      position: 'fixed',
+      inset: 0,
+      width: '100%',
+      height: '100%',
+      maxWidth: 'none',
+      maxHeight: 'none',
+      margin: 0,
+      padding: 0,
+      borderWidth: 0,
+      backgroundColor: 'transparent',
+      overflow: 'hidden',
+      '::backdrop': { backgroundColor: 'transparent' },
+    },
+    // 一个盒子画成镂空：外面一圈巨大的阴影就是遮罩
+    spotlight: {
+      position: 'fixed',
+      borderRadius: '_md',
+      boxShadow: `0 0 0 100vmax ${t.colors.overlay}`,
+      pointerEvents: 'none',
+      transition: `left ${t.durations.md} ${t.easings.standard}, top ${t.durations.md} ${t.easings.standard}, width ${t.durations.md} ${t.easings.standard}, height ${t.durations.md} ${t.easings.standard}`,
+    },
+    panel: {
+      display: 'grid',
+      gap: '_sm',
+      width: 'min(22rem, calc(100vw - 2rem))',
+      padding: '_lg',
+      lineHeight: '_normal',
+    },
+    // 封面贴着卡片的上、左、右边（盖住内边距），圆角随卡片
+    cover: {
+      display: 'grid',
+      overflow: 'hidden',
+      marginBlockStart: `calc(-1 * ${t.space.lg})`,
+      marginInline: `calc(-1 * ${t.space.lg})`,
+      marginBlockEnd: '_xs',
+      borderStartStartRadius: 'inherit',
+      borderStartEndRadius: 'inherit',
+    },
+    content: { color: '_textMuted' },
+  },
+});
 
-/** Tour 的样式：root、spotlight、dimmed、panel、cover、title、content、footer、progress */
-const tourStyles = css.create({
-  // 整屏透明的 dialog：遮罩由镂空的阴影画，原生 ::backdrop 不用
-  root: {
-    position: 'fixed',
-    inset: 0,
-    width: '100%',
-    height: '100%',
-    maxWidth: 'none',
-    maxHeight: 'none',
-    margin: 0,
-    padding: 0,
-    borderWidth: 0,
-    backgroundColor: 'transparent',
-    overflow: 'hidden',
-    '::backdrop': { backgroundColor: 'transparent' },
-  },
-  // 一个盒子画成镂空：外面一圈巨大的阴影就是遮罩
-  spotlight: {
-    position: 'fixed',
-    borderRadius: '_md',
-    boxShadow: `0 0 0 100vmax ${t.colors.overlay}`,
-    pointerEvents: 'none',
-    transition: `left ${t.durations.md} ${t.easings.standard}, top ${t.durations.md} ${t.easings.standard}, width ${t.durations.md} ${t.easings.standard}, height ${t.durations.md} ${t.easings.standard}`,
-  },
-  // 没有目标：整页遮罩
+/** Tour 的部件（createUi / Provider 的 components.Tour.styles 按它定制） */
+export type TourPart = (typeof tourRecipe.parts)[number];
+
+/** 随状态叠在部件层之后的样式（没有目标时整页遮罩、卡片居中），以及卡片里的标题、底栏、进度 */
+const tourStateStyles = css.create({
   dimmed: { inset: 0, borderRadius: 0, backgroundColor: '_overlay', boxShadow: 'none' },
-  panel: {
-    display: 'grid',
-    gap: '_sm',
-    width: 'min(22rem, calc(100vw - 2rem))',
-    padding: '_lg',
-    lineHeight: '_normal',
-  },
   centered: { left: '50%', top: '50%', transform: 'translate(-50%, -50%)' },
-  // 封面贴着卡片的上、左、右边（盖住内边距），圆角随卡片
-  cover: {
-    display: 'grid',
-    overflow: 'hidden',
-    marginBlockStart: `calc(-1 * ${t.space.lg})`,
-    marginInline: `calc(-1 * ${t.space.lg})`,
-    marginBlockEnd: '_xs',
-    borderStartStartRadius: 'inherit',
-    borderStartEndRadius: 'inherit',
-  },
   title: { margin: 0 },
-  content: { color: '_textMuted' },
   footer: { marginBlockStart: '_xs' },
   progress: { marginInlineEnd: 'auto' },
 });
@@ -174,7 +191,7 @@ export const Tour = _component(
     _open: open = _bindable(false),
     onOpenChange,
     _current: current = _bindable(0),
-    padding = 6,
+    padding,
     onFinish,
     propsSpotlight,
     propsPanel,
@@ -189,6 +206,7 @@ export const Tour = _component(
     ...rest
   }: TourProps) => {
     const lang = useLang();
+    const ui = useComponent(tourRecipe, () => ({ padding }), { padding: 6 });
     const id = useId();
     const titleId = `${id}-title`;
     const contentId = `${id}-content`;
@@ -230,18 +248,20 @@ export const Tour = _component(
         return;
       }
       target.scrollIntoView({ block: 'center', inline: 'nearest' });
+      // 镂空比目标大出的距离（档位，应用可以给默认值）
+      const gap = ui().options.padding;
       const anchored = anchorFloating(target, panel, {
         placement: step()?.placement ?? 'bottom',
-        offset: padding + 8,
+        offset: gap + 8,
         crossAxisFallback: true,
       });
       const stopSpotlight = autoUpdate(target, panel, () => {
         const box = target.getBoundingClientRect();
         rect = {
-          left: box.left - padding,
-          top: box.top - padding,
-          width: box.width + padding * 2,
-          height: box.height + padding * 2,
+          left: box.left - gap,
+          top: box.top - gap,
+          width: box.width + gap * 2,
+          height: box.height + gap * 2,
         };
       });
       stopFollow = () => {
@@ -304,10 +324,11 @@ export const Tour = _component(
     });
 
     return () => {
+      const s = ui().parts;
       const currentStep = step();
       return (
         <dialog
-          {...mergeAttrs<'dialog'>({ sx: tourStyles.root, ...tourPart('root') }, rest, {
+          {...mergeAttrs<'dialog'>(s.root, rest, {
             ref: _toRef(dialog),
             'aria-labelledby': titleId,
             'aria-describedby': currentStep?.content != null ? contentId : undefined,
@@ -319,13 +340,13 @@ export const Tour = _component(
           <div
             {...mergeAttrs<'div'>(
               {
+                ...s.spotlight,
                 sx: [
-                  tourStyles.spotlight,
+                  s.spotlight.sx,
                   rect
                     ? tourDynamicStyles.rect(rect.left, rect.top, rect.width, rect.height)
-                    : tourStyles.dimmed,
+                    : tourStateStyles.dimmed,
                 ],
-                ...tourPart('spotlight'),
               },
               propsSpotlight,
               { 'aria-hidden': true },
@@ -335,54 +356,50 @@ export const Tour = _component(
             <div
               {...mergeAttrs<'div'>(
                 {
+                  ...s.panel,
                   sx: [
                     floatingStyles.anchored,
                     floatingStyles.surface,
-                    tourStyles.panel,
-                    !rect && tourStyles.centered,
+                    s.panel.sx,
+                    !rect && tourStateStyles.centered,
                   ],
-                  ...tourPart('panel'),
                 },
                 propsPanel,
                 { ref: _toRef(panel), tabindex: -1 },
               )}
             >
               {currentStep.cover != null && (
-                <div
-                  {...mergeAttrs<'div'>({ sx: tourStyles.cover, ...tourPart('cover') }, propsCover)}
-                >
-                  {currentStep.cover}
-                </div>
+                <div {...mergeAttrs<'div'>(s.cover, propsCover)}>{currentStep.cover}</div>
               )}
               <H2
-                {...mergePartProps<HeadingProps>({ size: 'md', sx: tourStyles.title }, propsTitle, {
-                  id: titleId,
-                })}
+                {...mergePartProps<HeadingProps>(
+                  { size: 'md', sx: tourStateStyles.title },
+                  propsTitle,
+                  {
+                    id: titleId,
+                  },
+                )}
               >
                 {currentStep.title}
               </H2>
               {currentStep.content != null && (
                 <div
-                  {...mergeAttrs<'div'>(
-                    { sx: tourStyles.content, ...tourPart('content') },
-                    propsContent,
-                    {
-                      id: contentId,
-                    },
-                  )}
+                  {...mergeAttrs<'div'>(s.content, propsContent, {
+                    id: contentId,
+                  })}
                 >
                   {currentStep.content}
                 </div>
               )}
               <Flex
                 {...mergePartProps<FlexProps>(
-                  { align: 'center', gap: 'sm', wrap: true, sx: tourStyles.footer },
+                  { align: 'center', gap: 'sm', wrap: true, sx: tourStateStyles.footer },
                   propsFooter,
                 )}
               >
                 <Text
                   {...mergePartProps<TextProps>(
-                    { size: 'sm', tone: 'muted', sx: tourStyles.progress },
+                    { size: 'sm', tone: 'muted', sx: tourStateStyles.progress },
                     propsProgress,
                   )}
                 >

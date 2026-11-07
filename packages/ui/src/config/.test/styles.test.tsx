@@ -26,6 +26,10 @@ import type { ComponentName } from '../components';
 import { Tab, TabList, Tabs } from '../../navigation/Tabs';
 import { mount, styleOf } from '../../utils/.test/mount';
 import { Provider } from '../Provider';
+import { statRecipe } from '../../display/Stat';
+import { timelineRecipe } from '../../display/Timeline';
+import { codeBlockRecipe } from '../../base/CodeBlock';
+import { tourRecipe } from '../../overlay/Tour';
 
 describe('components', () => {
   it('登记表的每个组件都有同名的配方', () => {
@@ -39,6 +43,7 @@ describe('components', () => {
       Indicator: indicatorRecipe,
       Avatar: avatarRecipe,
       Card: cardRecipe,
+      CodeBlock: codeBlockRecipe,
       Progress: progressRecipe,
       Empty: emptyRecipe,
       Result: resultRecipe,
@@ -48,6 +53,9 @@ describe('components', () => {
       Choice: choiceRecipe,
       DataTable: dataTableRecipe,
       Table: tableRecipe,
+      Stat: statRecipe,
+      Timeline: timelineRecipe,
+      Tour: tourRecipe,
     } satisfies Record<ComponentName, { readonly name: string | undefined }>;
     for (const [name, recipe] of Object.entries(recipes)) expect(recipe.name).toBe(name);
   });
