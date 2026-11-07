@@ -236,9 +236,11 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 包的元数据：LICENSE（MIT）、两个包各自的 README（安装、最小例子、链到文档站）、repository / homepage / bugs、
       keywords、`sideEffects`（样式文件）、`publishConfig.access`；`engines` 只写在 tsx 包（Vite 预设跑在 Node 里，
       与 Vite 8 一致），ui 包跑在浏览器里不写
-- [ ] peer 范围放宽到实际测过的区间（Vite、Vue、各可选 peer），`test:consumer` 按区间的两端各跑一遍
+- [x] ~~peer 范围放宽到实际测过的区间（Vite、Vue、各可选 peer），`test:consumer` 按区间的两端各跑一遍~~（2026-11-08：现有区间的下限
+      vue 3.5.0、vite 8.0.0、vue-router 5.0.0、zod 4.6.0、@lucide/icons 1.69.0、shiki 4.0.0 测过能用，不用再改区间；CI 的 consumer-min 任务一直跑下限）
 - [ ] changesets：每次改动带一条变更说明，合并后自动开“版本 PR”，生成 CHANGELOG；npm 发布走 GitHub Actions（带 provenance）
-- [ ] 体积预算：主入口与各子路径打包后的大小进 CI（size-limit），超了报出来
+- [x] ~~体积预算：主入口与各子路径打包后的大小进 CI（size-limit），超了报出来~~（2026-11-08：不加 size-limit，packages/ui/scripts/size.mjs
+      用 Vite 自带的 rolldown 把 18 个入口各打成一个压缩文件量 gzip，与 size-budgets.json 比对，CI 的 consumer 任务构建后跑）
 - [ ] 文档站部署（每次推送 master 自动更新），README 与 npm 页链过去
 - [x] 两个包的版本定为 0.1.0，[RELEASE.md](RELEASE.md) 写手动发布的步骤（预检、`pnpm test:consumer`、`pnpm publish`）
 - [x] 发 0.1.0（2026-10-26 已发布；包名是 `@zerodep-dev/vue-tsx-pro-tsx`、`@zerodep-dev/vue-tsx-pro-ui`）
@@ -843,7 +845,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [ ] P0 安全网：~~截图比对进 CI~~（2026-11-07：`visual` 任务与上一次 master 全绿运行比对，报差异图）、~~box-sizing 统一~~（`:where([data-part])`，截图比对过）；
       还剩：从右到左、高对比、手机宽度的截图，浮层截打开后的状态，焦点环被裁的全站检查（P0.3）
 - [x] P1 CSP nonce、ErrorBoundary、过时文档（2026-11-07）
-- [ ] P7 发布流程：~~打标签发版、CI 带 provenance 发布~~（2026-11-07，`scripts/release.mjs` + `release.yml`，不用 changesets）；还剩体积预算、peer 区间
+- [x] P7 发布流程：~~打标签发版、CI 带 provenance 发布~~（2026-11-07，`scripts/release.mjs` + `release.yml`，不用 changesets）；体积预算（packages/ui/scripts/size.mjs）与 peer 区间（test:consumer 的
+      CONSUMER_RANGE=min 按 peerDependencies 的下限装，CI 的 consumer-min 任务）也做了，2026-11-08
 - [ ] P2 文档站整改：~~信息架构（合并、挪动、旧地址重定向）~~（2026-11-07：组件页 137 → 119，新组“文档工具”，小图归图表组，
       3D 9 → 5 页，旧地址跳到新页的小节）、示例改用组件库（进行中：Stat、ScrollArea、DateTime、Splitter、Tabs、Card 外框、MapChart、ButtonBase、ThemeSwitcher 已改）、逐页问题（进行中：QueryTable、FilterBar、Card、Code、Timeline、NavList、Flex、Icon、Tree、Upload、链接下划线已改）、~~文档站功能~~（~~组件选择指南~~、~~整页模板~~、~~示例工具~~、~~搜索~~、~~无障碍一节~~）
 - [ ] P2.5 逐个组件精修样式（随 P2 的页面顺序）

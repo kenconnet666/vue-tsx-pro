@@ -260,6 +260,28 @@ jobs:
           done
           exit 1
       - run: pnpm test:consumer
+      # 体积预算：test:consumer 构建过 dist，组件库各入口打包后的 gzip 大小不超过 size-budgets.json
+      - run: pnpm --filter @zerodep-dev/vue-tsx-pro-ui size
+
+  # peer 区间的下限：按组件库与框架 peerDependencies 里最低的版本（vue 3.5.0、vite 8.0.0……）再装一遍、构建、在浏览器里跑
+  consumer-min:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - name: Install browsers
+        timeout-minutes: 30
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            timeout 600 pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium && exit 0
+            echo "playwright install failed (attempt $attempt), retrying"
+            sleep 15
+          done
+          exit 1
+      - run: pnpm test:consumer
+        env:
+          CONSUMER_RANGE: min
 
   # 移动端：微信、支付宝两端的小程序产物构建得出来，支付宝的产物用 minidev 离线编译一遍
   #（WXML / WXSS 的编译检查要用微信开发者工具，只有 Windows 与 macOS 版，在本地做）

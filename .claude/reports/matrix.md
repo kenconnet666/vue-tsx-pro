@@ -40,7 +40,7 @@
 | AppShell | patterns/AppShell.tsx |  |  |  |  |  |
 | AppShellBrand | patterns/AppShell.tsx |  |  |  |  |  |
 | AuthLayout | patterns/AuthLayout.tsx |  |  |  |  |  |
-| CommentComposer | patterns/CommentThread.tsx | ✗ |  |  | ✗ |  |
+| CommentComposer | patterns/CommentThread.tsx | ✗ |  |  |  |  |
 | CommentThread | patterns/CommentThread.tsx |  |  |  |  |  |
 | DataImport | patterns/DataImport.tsx |  |  |  |  | ✗ |
 | DeadlineBadge | patterns/DeadlineBadge.tsx |  |  |  |  |  |
@@ -67,7 +67,7 @@
 | MenuGroup | overlay/Menu.tsx | ✗ |  |  |  |  |
 | MenuRadioGroup | overlay/Menu.tsx | ✗ |  |  |  |  |
 | MenuRadioItem | overlay/Menu.tsx | ✗ |  |  |  |  |
-| MenuSub | overlay/Menu.tsx | ✗ |  |  | ✗ |  |
+| MenuSub | overlay/Menu.tsx | ✗ |  |  |  |  |
 | ModalCore | overlay/ModalCore.tsx | ✗ |  |  |  |  |
 | Popconfirm | overlay/Popconfirm.tsx |  |  |  |  |  |
 | Popover | overlay/Popover.tsx |  |  |  |  |  |
@@ -97,10 +97,10 @@
 | AsideLayout | layout/AsideLayout.tsx |  |  |  |  |  |
 | BackTop | layout/BackTop.tsx |  |  |  |  |  |
 | FloatButton | layout/FloatButton.tsx |  |  |  |  |  |
-| FloatButtonGroup | layout/FloatButton.tsx |  |  |  | ✗ |  |
+| FloatButtonGroup | layout/FloatButton.tsx |  |  |  |  |  |
 | PageScrollbar | layout/PageScrollbar.tsx | ✗ |  |  |  |  |
 | Prose | layout/Prose.tsx |  |  |  |  |  |
-| ResizeHandle | layout/ResizeHandle.tsx | ✗ |  |  | ✗ |  |
+| ResizeHandle | layout/ResizeHandle.tsx | ✗ |  |  |  |  |
 | OverlayScrollbar | layout/ScrollArea.tsx | ✗ |  |  |  |  |
 | ScrollArea | layout/ScrollArea.tsx |  |  |  |  |  |
 | Separator | layout/Separator.tsx |  |  |  |  |  |
@@ -122,8 +122,8 @@
 | Listbox | input/Listbox.tsx |  |  |  |  |  |
 | ListPopover | input/ListPopover.tsx | ✗ |  |  |  | ✗ |
 | MentionText | input/Mentions.tsx |  |  |  |  |  |
-| Mentions | input/Mentions.tsx |  |  |  | ✗ | ✗ |
-| NumberField | input/NumberField.tsx |  |  |  | ✗ |  |
+| Mentions | input/Mentions.tsx |  |  |  |  | ✗ |
+| NumberField | input/NumberField.tsx |  |  |  |  |  |
 | NumberRangeField | input/NumberRangeField.tsx |  |  |  |  |  |
 | OtpField | input/OtpField.tsx |  |  |  |  |  |
 | PeoplePicker | input/PeoplePicker.tsx |  |  |  | ✗ |  |
@@ -172,7 +172,7 @@
 | DocSection | docs-kit/DocArticle.tsx |  |  |  |  |  |
 | PropsTable | docs-kit/PropsTable.tsx |  |  |  |  |  |
 | TextTable | docs-kit/TextTable.tsx |  |  |  |  |  |
-| Accordion | display/Accordion.tsx |  |  |  | ✗ |  |
+| Accordion | display/Accordion.tsx |  |  |  |  |  |
 | AccordionItem | display/Accordion.tsx |  |  |  |  |  |
 | AnimatedNumber | display/AnimatedNumber.tsx |  |  |  |  |  |
 | Avatar | display/Avatar.tsx |  |  |  |  |  |
@@ -216,7 +216,7 @@
 | DateField | date/DateField.tsx |  |  |  |  |  |
 | DatePicker | date/DatePicker.tsx |  |  |  |  |  |
 | DateRangePicker | date/DateRangePicker.tsx |  |  |  |  | ✗ |
-| DateSegmentGroup | date/DateSegmentGroup.tsx | ✗ |  |  | ✗ |  |
+| DateSegmentGroup | date/DateSegmentGroup.tsx | ✗ |  |  |  |  |
 | DateTime | date/DateTime.tsx |  |  |  |  |  |
 | QuarterCalendar | date/QuarterCalendar.tsx |  |  |  | ✗ |  |
 | RangeCalendar | date/RangeCalendar.tsx |  |  |  |  | ✗ |

@@ -131,6 +131,7 @@
   "scripts": {
     "build": "vite build --configLoader native && tsc -p tsconfig.build.json",
     "prepack": "pnpm run build",
+    "size": "node scripts/size.mjs",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
     "test": "vitest run --configLoader native"
   },

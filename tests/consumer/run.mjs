@@ -51,11 +51,27 @@ function run(command, args, cwd) {
   execSync(line, { cwd, stdio: 'inherit', env: cwd === root ? process.env : consumerEnv });
 }
 
-/** 使用方要装的第三方依赖，版本与仓库 catalog 一致 */
+/**
+ * CONSUMER_RANGE=min 时按 peer 区间的下限装（组件库与框架声明的 peerDependencies 里最低的版本），
+ * 确认写出去的区间真的测过；默认装仓库 catalog 的版本（区间的上端）
+ */
+const lowest = process.env.CONSUMER_RANGE === 'min';
+const peerFloors = Object.fromEntries(
+  ['ui', 'tsx'].flatMap((pkg) =>
+    Object.entries(
+      JSON.parse(readFileSync(join(root, 'packages', pkg, 'package.json'), 'utf8'))
+        .peerDependencies ?? {},
+    ).map(([name, range]) => [name, range.replace(/^[\^~>=\s]+/, '')]),
+  ),
+);
+if (lowest) console.log(`按 peer 区间的下限安装：${JSON.stringify(peerFloors)}`);
+
+/** 使用方要装的第三方依赖：版本与仓库 catalog 一致；CONSUMER_RANGE=min 时是 peer 区间的下限 */
 function catalogVersions(names) {
   const yaml = readFileSync(join(root, 'pnpm-workspace.yaml'), 'utf8');
   return Object.fromEntries(
     names.map((name) => {
+      if (lowest && peerFloors[name]) return [name, peerFloors[name]];
       const match = new RegExp(`^\\s+'?${name.replace('/', '\\/')}'?: (\\S+)`, 'm').exec(yaml);
       if (!match) throw new Error(`pnpm-workspace.yaml 的 catalog 里没有 ${name}`);
       return [name, match[1]];
@@ -237,10 +253,16 @@ await checkDesktop();
 
 // 桌面后台模板：create 用仓库里的，装的是打出的包（ui 的包上面已经打过）
 run('node', [join(root, 'packages/ui/bin/vtp-ui.mjs'), 'create', adminApp], root);
-install(adminApp, {
-  '@zerodep-dev/vue-tsx-pro-tsx': tsx,
-  '@zerodep-dev/vue-tsx-pro-ui': uiPackage,
-});
+install(
+  adminApp,
+  {
+    '@zerodep-dev/vue-tsx-pro-tsx': tsx,
+    '@zerodep-dev/vue-tsx-pro-ui': uiPackage,
+    // 模板里写的是区间；按下限测时换成下限
+    ...(lowest ? catalogVersions(['vue', 'vue-router', 'zod', '@lucide/icons']) : {}),
+  },
+  lowest ? catalogVersions(['vite']) : {},
+);
 run('npx', ['tsc', '-p', '.'], adminApp);
 run('npx', ['vite', 'build'], adminApp);
 await checkAdmin();
