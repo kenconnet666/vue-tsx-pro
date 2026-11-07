@@ -21,7 +21,7 @@
 | ColumnResizer | table/ColumnResizer.tsx | ✗ |  |  |  |  |
 | ColumnSettings | table/ColumnSettings.tsx | ✗ |  |  |  | ✗ |
 | ColumnTable | table/ColumnTable.tsx |  |  |  |  | ✗ |
-| DataTable | table/DataTable.tsx |  |  |  |  | ✗ |
+| DataTable | table/DataTable.tsx |  |  |  |  |  |
 | DataTableRow | table/DataTableView.tsx | ✗ | ✗ |  |  | ✗ |
 | DataTableDetailRow | table/DataTableView.tsx | ✗ | ✗ |  |  | ✗ |
 | DataTableView | table/DataTableView.tsx |  |  |  |  | ✗ |
@@ -46,7 +46,7 @@
 | DeadlineBadge | patterns/DeadlineBadge.tsx |  |  |  |  |  |
 | FilterBar | patterns/FilterBar.tsx |  |  |  |  |  |
 | FormDialog | patterns/FormDialog.tsx |  |  |  |  |  |
-| KanbanBoard | patterns/KanbanBoard.tsx |  |  |  |  | ✗ |
+| KanbanBoard | patterns/KanbanBoard.tsx |  |  |  |  |  |
 | NotificationList | patterns/NotificationCenter.tsx | ✗ |  | ✗ | ✗ |  |
 | NotificationCenter | patterns/NotificationCenter.tsx |  |  |  |  |  |
 | QueryTable | patterns/QueryTable.tsx |  |  |  |  | ✗ |
@@ -107,13 +107,13 @@
 | Splitter | layout/Splitter.tsx |  |  |  |  |  |
 | ViewportFill | layout/ViewportFill.tsx |  |  |  |  |  |
 | Autocomplete | input/Autocomplete.tsx |  |  |  |  | ✗ |
-| Cascader | input/Cascader.tsx |  |  |  |  | ✗ |
+| Cascader | input/Cascader.tsx |  |  |  |  |  |
 | CharacterCount | input/CharacterCount.tsx |  |  |  |  |  |
 | Checkbox | input/Checkbox.tsx |  |  |  |  |  |
-| CheckboxGroup | input/Checkbox.tsx |  |  |  |  | ✗ |
+| CheckboxGroup | input/Checkbox.tsx |  |  |  |  |  |
 | ColorField | input/ColorField.tsx |  |  |  |  |  |
 | ColorPicker | input/ColorPicker.tsx |  |  |  |  |  |
-| Combobox | input/Combobox.tsx |  |  |  |  | ✗ |
+| Combobox | input/Combobox.tsx |  |  |  |  |  |
 | ConditionBuilder | input/ConditionBuilder.tsx |  |  |  |  |  |
 | ControlGroup | input/ControlGroup.tsx |  |  |  |  |  |
 | FileDrop | input/FileDrop.tsx |  |  |  |  |  |
@@ -128,22 +128,22 @@
 | OtpField | input/OtpField.tsx |  |  |  |  |  |
 | PeoplePicker | input/PeoplePicker.tsx |  |  |  | ✗ |  |
 | PeoplePickerPanel | input/PeoplePickerPanel.tsx |  |  |  |  |  |
-| RadioGroup | input/Radio.tsx |  |  |  |  | ✗ |
+| RadioGroup | input/Radio.tsx |  |  |  |  |  |
 | Radio | input/Radio.tsx |  |  |  |  |  |
 | Rating | input/Rating.tsx |  |  |  |  |  |
 | Select | input/Select.tsx |  |  |  |  |  |
 | SelectedTags | input/SelectedTags.tsx | ✗ | ✗ |  |  |  |
 | SignaturePad | input/SignaturePad.tsx | ✗ |  |  |  |  |
-| Slider | input/Slider.tsx |  |  |  |  | ✗ |
+| Slider | input/Slider.tsx |  |  |  |  |  |
 | Switch | input/Switch.tsx |  |  |  |  |  |
 | TagsInput | input/TagsInput.tsx |  |  |  |  | ✗ |
 | Textarea | input/Textarea.tsx |  |  |  |  |  |
 | TextField | input/TextField.tsx |  |  |  |  |  |
 | ToggleGroup | input/ToggleGroup.tsx |  |  |  |  |  |
 | ToggleItem | input/ToggleGroup.tsx |  |  |  |  |  |
-| Transfer | input/Transfer.tsx |  |  |  |  | ✗ |
+| Transfer | input/Transfer.tsx |  |  |  |  |  |
 | TreeTransfer | input/Transfer.tsx |  |  |  |  | ✗ |
-| TreeSelect | input/TreeSelect.tsx |  |  |  |  | ✗ |
+| TreeSelect | input/TreeSelect.tsx |  |  |  |  |  |
 | Upload | input/Upload.tsx |  |  |  |  |  |
 | Label | form/Field.tsx | ✗ |  |  |  |  |
 | Field | form/Field.tsx |  |  |  |  |  |
@@ -151,7 +151,7 @@
 | FormErrorSummary | form/FormErrorSummary.tsx |  |  |  |  |  |
 | FormSection | form/FormSection.tsx |  |  |  |  |  |
 | FormValue | form/FormValue.tsx | ✗ |  |  |  |  |
-| SchemaFields | form/SchemaForm.tsx |  | ✗ |  |  | ✗ |
+| SchemaFields | form/SchemaForm.tsx |  |  |  |  |  |
 | SchemaForm | form/SchemaForm.tsx |  |  |  |  |  |
 | Alert | feedback/Alert.tsx |  |  |  |  |  |
 | Banner | feedback/Banner.tsx |  |  |  |  |  |
@@ -200,9 +200,9 @@
 | Stat | display/Stat.tsx |  |  |  |  |  |
 | StatGroup | display/Stat.tsx |  | ✗ |  |  |  |
 | Timeline | display/Timeline.tsx |  |  |  |  |  |
-| Tree | display/Tree.tsx |  |  |  |  | ✗ |
+| Tree | display/Tree.tsx |  |  |  |  |  |
 | ValueChange | display/ValueChange.tsx |  |  |  |  |  |
-| VirtualList | display/VirtualList.tsx |  |  |  |  | ✗ |
+| VirtualList | display/VirtualList.tsx |  |  |  |  |  |
 | Watermark | display/Watermark.tsx |  |  |  |  |  |
 | Diagram | diagram/Diagram.tsx |  |  |  | ✗ | ✗ |
 | DiagramControls | diagram/DiagramControls.tsx |  |  |  |  |  |
@@ -213,8 +213,8 @@
 | CalendarBoard | date/CalendarBoard.tsx |  |  |  | ✗ | ✗ |
 | CalendarView | date/CalendarView.tsx | ✗ |  |  | ✗ |  |
 | Countdown | date/Countdown.tsx |  |  |  |  |  |
-| DateField | date/DateField.tsx |  |  |  |  | ✗ |
-| DatePicker | date/DatePicker.tsx |  |  |  |  | ✗ |
+| DateField | date/DateField.tsx |  |  |  |  |  |
+| DatePicker | date/DatePicker.tsx |  |  |  |  |  |
 | DateRangePicker | date/DateRangePicker.tsx |  |  |  |  | ✗ |
 | DateSegmentGroup | date/DateSegmentGroup.tsx | ✗ |  |  | ✗ |  |
 | DateTime | date/DateTime.tsx |  |  |  |  |  |

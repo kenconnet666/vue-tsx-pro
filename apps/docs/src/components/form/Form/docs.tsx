@@ -6,6 +6,7 @@ import formValueApi from 'virtual:api/FormValueProps';
 import summaryApi from 'virtual:api/FormErrorSummaryProps';
 import sectionApi from 'virtual:api/FormSectionProps';
 import labelApi from 'virtual:api/LabelProps';
+import schemaFieldsApi from 'virtual:api/SchemaFieldsProps';
 import schemaFormApi from 'virtual:api/SchemaFormProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -151,7 +152,16 @@ export default _component(() => () => (
       </ExampleColumn>
     </Examples>
     <ApiReference
-      api={[api, summaryApi, fieldApi, sectionApi, schemaFormApi, formValueApi, labelApi]}
+      api={[
+        api,
+        summaryApi,
+        fieldApi,
+        sectionApi,
+        schemaFormApi,
+        schemaFieldsApi,
+        formValueApi,
+        labelApi,
+      ]}
     />
   </DocPage>
 ));
