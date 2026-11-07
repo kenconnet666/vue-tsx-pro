@@ -29,6 +29,9 @@
 - 新组件 ColorPicker（取色器面板）：饱和度 / 明度色板（role="slider"，方向键调）、色相与不透明度滑块（Slider，渐变轨道）、
   吸管（支持 EyeDropper 的浏览器）、HEX / RGB / HSL 输入、`presets` 与最近使用；`alpha={false}` 去掉不透明度。
   颜色工具新增 `toHsva`、`hsvaToHex`、`formatColor`。语言包加了 `colorArea` 等八条。
+- DataTable（及 TreeDataTable）加 `virtualColumns`：列也虚拟滚动，只渲染看得见的列（前后各多三列），跳过的列用一格
+  colspan 占位，colgroup 的列宽都在，固定列、分组表头、列宽调整、单元格导航照常；没写宽度的列按 150px，两端的固定列总在，
+  固定列夹在中间时不虚拟化；各格带 aria-colindex、表格带 aria-colcount。新导出 `columnSkips`、`VIRTUAL_COLUMN_WIDTH`。
 - **破坏性**：ColorField 的色块不再是原生取色器，点开弹出 ColorPicker（能选透明度、各系统外观一致）；`propsSwatch` 现在是按钮
   （ButtonBase）的属性，`propsPicker` 现在是 ColorPicker 的属性；新增 `presets`、`alpha`、`propsPopover`。
 - **破坏性**：语言包 `lightboxReset` 改名 `resetView`（图片预览与裁剪共用）；新增 `cropLabel`、`cropHint`、`cropZoom`。

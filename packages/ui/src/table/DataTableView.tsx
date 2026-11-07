@@ -42,6 +42,8 @@ import { mergeAttrs, mergePartProps, mergeProps, type PartProps } from '../utils
 import { disclosureStyles } from '../utils/style/transitions';
 import type { SelectionModes } from '../utils/data/selection';
 import { plainText } from '../utils/data/text';
+import { useEventListener } from '../utils/dom/event-listener';
+import { useResizeObserver } from '../utils/dom/resize';
 import { gridFocus } from '../utils/dom/roving-focus';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VirtualScrollOptions, VisibleRange } from '../utils/virtual/virtualizer';
@@ -64,6 +66,9 @@ import {
   sumColumn,
   flexColumnWidth,
   tableMinWidth,
+  columnSkips,
+  VIRTUAL_COLUMN_WIDTH,
+  type ColumnSkip,
   type EditTriggers,
   type ColumnFilterOption,
   type ColumnTypes,
@@ -155,6 +160,11 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   leading?: (row: DataTableRowModel<T>, index: number) => VNodeChild;
   /** 行的估计高度（px）；不写时按密度估计，渲染后以实际高度为准 */
   estimateRowHeight?: number;
+  /**
+   * 列也虚拟滚动（几十上百列的宽表、透视结果）：只渲染看得见的列，跳过的列用一格 colspan 占住位置。
+   * 没写宽度的列按 150px；两端的固定列总在，固定列夹在中间时不虚拟化
+   */
+  virtualColumns?: boolean;
   /** 行的色调：导入校验的错误行、即将超期的行整行着浅色底（不透明，固定列也盖得住） */
   rowTone?: (row: T) => RowTone | undefined;
   /** 主从视图里正在看的那一行的 key：整行高亮、起始边一条竖线，带 aria-current */
@@ -309,6 +319,30 @@ export const dataTableDynamicStyles = css.create({
   percent: (value: string) => ({ width: value }),
 });
 
+/** 不跳过任何列（不做列虚拟化）：共用一个空数组，行组件的属性才不会每次都变 */
+const NO_SKIPS: readonly ColumnSkip[] = [];
+
+/** 按列渲染一排格，跳过的列段换成 spacer 给的一格（colspan 占住它们的位置） */
+function withSkips<C>(
+  items: readonly C[],
+  skips: readonly ColumnSkip[],
+  cell: (item: C, index: number) => VNodeChild,
+  spacer: (skip: ColumnSkip) => VNodeChild,
+): VNodeChild[] {
+  if (skips.length === 0) return items.map(cell);
+  const result: VNodeChild[] = [];
+  for (let index = 0; index < items.length; index++) {
+    const skip = skips.find((range) => range.from === index);
+    if (skip) {
+      result.push(spacer(skip));
+      index = skip.to - 1;
+    } else {
+      result.push(cell(items[index]!, index));
+    }
+  }
+  return result;
+}
+
 /** 固定列单元格的样式：position: sticky 加上按列宽累加的偏移；挨着滚动列的那一列加一条竖线 */
 function stickyCellSx(column: DataTableColumn<never>, offsets: StickyOffsets) {
   if (column.sticky === 'start')
@@ -416,6 +450,10 @@ export interface DataTableRowProps<T> {
   propsContent?: PartProps<'div'>;
   /** 测量行高（虚拟滚动） */
   measure: (element: unknown) => void;
+  /** 列虚拟化时跳过的列段（换成一格 colspan） */
+  skips?: readonly ColumnSkip[];
+  /** 列虚拟化时数据格的 aria-colindex 从这里数起；不虚拟化时不写 */
+  colIndexBase?: number;
   /** 勾选或取消这一行 */
   onToggle?: (key: string) => void;
   /** 单元格导航：数据格可以聚焦，可编辑的格响应 Enter / F2、双击、打字 */
@@ -472,6 +510,8 @@ export const DataTableRow = _component(
     propsLeading,
     propsContent,
     measure,
+    skips = NO_SKIPS,
+    colIndexBase,
     onToggle,
     cellNavigation = false,
     editingColumn,
@@ -623,73 +663,86 @@ export const DataTableRow = _component(
             )}
           </td>
         )}
-        {columns.map((column, position) => {
-          const editing = editingColumn === column.key;
-          const value = editing
-            ? renderEditor?.(row.data, column)
-            : column.cell
-              ? column.cell(row.data, index)
-              : String(columnValue(column, row.data) ?? '');
-          const error = cellNavigation ? rowErrors?.(row.data)?.[column.key] : undefined;
-          const editable = cellNavigation && isCellEditable(column, row.data);
-          return (
+        {withSkips(
+          columns,
+          skips,
+          (column, position) => {
+            const editing = editingColumn === column.key;
+            const value = editing
+              ? renderEditor?.(row.data, column)
+              : column.cell
+                ? column.cell(row.data, index)
+                : String(columnValue(column, row.data) ?? '');
+            const error = cellNavigation ? rowErrors?.(row.data)?.[column.key] : undefined;
+            const editable = cellNavigation && isCellEditable(column, row.data);
+            return (
+              <td
+                key={column.key}
+                {...mergeAttrs<'td'>(
+                  {
+                    ...s.cell,
+                    'aria-colindex': colIndexBase != null ? colIndexBase + position + 1 : undefined,
+                    sx: [
+                      s.cell.sx,
+                      dataTableStateStyles[column.align ?? 'start'],
+                      column.wrap && dataTableStateStyles.wrap,
+                      stickyCellSx(column, offsets),
+                      active &&
+                        position === 0 &&
+                        !selectionMode &&
+                        !detailColumn &&
+                        dataTableStateStyles.activeEdge,
+                      cellNavigation && dataTableStateStyles.gridCell,
+                      editable && editTrigger === 'click' && dataTableStateStyles.clickToEdit,
+                      editing && dataTableStateStyles.editingCell,
+                      !!error && dataTableStateStyles.invalidCell,
+                    ],
+                  },
+                  typeof propsCell === 'function' ? propsCell(row.data, column) : propsCell,
+                  cellNavigation
+                    ? ({
+                        'data-column': column.key,
+                        'aria-invalid': error ? 'true' : undefined,
+                        // 错误原因：悬停看，读屏随格一起念（aria-description）
+                        title: error,
+                        'aria-description': error,
+                        onKeydown: (event: KeyboardEvent) => onCellKeydown(event, column),
+                        onDblclick:
+                          editable && editTrigger === 'doubleClick'
+                            ? () => onEditStart?.({ row: row.key, column: column.key })
+                            : undefined,
+                        onClick:
+                          editable && editTrigger === 'click'
+                            ? (event: MouseEvent) => {
+                                // 点在编辑器、格里的控件上：交给控件自己
+                                if ((event.target as Element).closest(CELL_CONTROLS)) return;
+                                onEditStart?.({ row: row.key, column: column.key });
+                              }
+                            : undefined,
+                      } as PartProps<'td'>)
+                    : {},
+                )}
+              >
+                {position === 0 && leading ? (
+                  <div {...mergeAttrs<'div'>(s.leading, propsLeading)}>
+                    {leading(row, index)}
+                    <div {...mergeAttrs<'div'>(s.content, propsContent)}>{value}</div>
+                  </div>
+                ) : (
+                  value
+                )}
+              </td>
+            );
+          },
+          (skip) => (
             <td
-              key={column.key}
-              {...mergeAttrs<'td'>(
-                {
-                  ...s.cell,
-                  sx: [
-                    s.cell.sx,
-                    dataTableStateStyles[column.align ?? 'start'],
-                    column.wrap && dataTableStateStyles.wrap,
-                    stickyCellSx(column, offsets),
-                    active &&
-                      position === 0 &&
-                      !selectionMode &&
-                      !detailColumn &&
-                      dataTableStateStyles.activeEdge,
-                    cellNavigation && dataTableStateStyles.gridCell,
-                    editable && editTrigger === 'click' && dataTableStateStyles.clickToEdit,
-                    editing && dataTableStateStyles.editingCell,
-                    !!error && dataTableStateStyles.invalidCell,
-                  ],
-                },
-                typeof propsCell === 'function' ? propsCell(row.data, column) : propsCell,
-                cellNavigation
-                  ? ({
-                      'data-column': column.key,
-                      'aria-invalid': error ? 'true' : undefined,
-                      // 错误原因：悬停看，读屏随格一起念（aria-description）
-                      title: error,
-                      'aria-description': error,
-                      onKeydown: (event: KeyboardEvent) => onCellKeydown(event, column),
-                      onDblclick:
-                        editable && editTrigger === 'doubleClick'
-                          ? () => onEditStart?.({ row: row.key, column: column.key })
-                          : undefined,
-                      onClick:
-                        editable && editTrigger === 'click'
-                          ? (event: MouseEvent) => {
-                              // 点在编辑器、格里的控件上：交给控件自己
-                              if ((event.target as Element).closest(CELL_CONTROLS)) return;
-                              onEditStart?.({ row: row.key, column: column.key });
-                            }
-                          : undefined,
-                    } as PartProps<'td'>)
-                  : {},
-              )}
-            >
-              {position === 0 && leading ? (
-                <div {...mergeAttrs<'div'>(s.leading, propsLeading)}>
-                  {leading(row, index)}
-                  <div {...mergeAttrs<'div'>(s.content, propsContent)}>{value}</div>
-                </div>
-              ) : (
-                value
-              )}
-            </td>
-          );
-        })}
+              key={`skip-${skip.from}`}
+              {...mergeAttrs<'td'>(s.cell)}
+              colspan={skip.to - skip.from}
+              aria-hidden="true"
+            />
+          ),
+        )}
       </tr>
     );
   },
@@ -726,6 +779,10 @@ export interface DataTableDetailRowProps<T> {
   propsDetailCell?: PartProps<'td', 'colspan'>;
   /** 测量行高（虚拟滚动） */
   measure: (element: unknown) => void;
+  /** 列虚拟化时跳过的列段（换成一格 colspan） */
+  skips?: readonly ColumnSkip[];
+  /** 列虚拟化时数据格的 aria-colindex 从这里数起；不虚拟化时不写 */
+  colIndexBase?: number;
 }
 
 /** 展开的详情：一行一个跨全部列的单元格；单独成组件，滚动时没变的详情不必重渲 */
@@ -819,6 +876,7 @@ export const DataTableView = _component(
     variant = 'surface',
     striped = false,
     estimateRowHeight,
+    virtualColumns = false,
     onRangeChange,
     handle,
     rowTone,
@@ -929,29 +987,44 @@ export const DataTableView = _component(
     const replacing = () => indicator.value && !(onRangeChange != null && rows.length > 0);
     const appending = () => indicator.value && onRangeChange != null && rows.length > 0;
 
+    /** 列虚拟化时跳过的一段列：一格 colspan 占住位置（表体、骨架、合计行） */
+    const spacerCell = (skip: ColumnSkip) => (
+      <td
+        key={`skip-${skip.from}`}
+        {...mergeAttrs<'td'>(s.cell)}
+        colspan={skip.to - skip.from}
+        aria-hidden="true"
+      />
+    );
+
     /** 一行骨架：同一行的单元格一起扫，行与行依次错开（一道波从上往下推过表格） */
     const skeletonRow = (index: number) => (
       <tr key={`skeleton-${index}`} aria-hidden="true" {...mergeAttrs<'tr'>(s.row)}>
         {selectionMode && <td {...mergeAttrs<'td'>(s.cell)} />}
         {renderDetail && <td {...mergeAttrs<'td'>(s.cell)} />}
-        {shown.map((column, position) => (
-          <td key={column.key} {...mergeAttrs<'td'>(s.cell)}>
-            <Skeleton
-              {...mergePartProps<SkeletonProps>(
-                {
-                  ...s.skeleton,
-                  sx: [
-                    s.skeleton.sx,
-                    dataTableDynamicStyles.percent(`${90 - ((index + position) % 4) * 15}%`),
-                  ],
-                  // 同一行的单元格一起扫，行与行依次错开：一道波从上往下推过表格
-                  delay: index * SHIMMER_STAGGER,
-                },
-                propsSkeleton,
-              )}
-            />
-          </td>
-        ))}
+        {withSkips(
+          shown,
+          skips,
+          (column, position) => (
+            <td key={column.key} {...mergeAttrs<'td'>(s.cell)}>
+              <Skeleton
+                {...mergePartProps<SkeletonProps>(
+                  {
+                    ...s.skeleton,
+                    sx: [
+                      s.skeleton.sx,
+                      dataTableDynamicStyles.percent(`${90 - ((index + position) % 4) * 15}%`),
+                    ],
+                    // 同一行的单元格一起扫，行与行依次错开：一道波从上往下推过表格
+                    delay: index * SHIMMER_STAGGER,
+                  },
+                  propsSkeleton,
+                )}
+              />
+            </td>
+          ),
+          spacerCell,
+        )}
       </tr>
     );
 
@@ -1064,6 +1137,9 @@ export const DataTableView = _component(
 
     /** 列的宽度：调整过的、列定义里的，或者没有（与其他没写宽度的列平分） */
     const widthOf = (column: DataTableColumn<T>) => widths[column.key] ?? column.width;
+    /** 列虚拟化时没写宽度的列按 VIRTUAL_COLUMN_WIDTH：宽度要确定，才算得出哪些列看得见 */
+    const widthFor = (column: DataTableColumn<T>) =>
+      widthOf(column) ?? (virtualColumns ? VIRTUAL_COLUMN_WIDTH : undefined);
 
     const leadingWidth = () =>
       (selectionMode ? SELECT_WIDTH : 0) + (renderDetail ? DETAIL_WIDTH : 0);
@@ -1071,11 +1147,48 @@ export const DataTableView = _component(
     // 偏移没变时沿用上一次的对象：它交给每一行，调整非固定列的宽度（每次指针移动）时各行不必重渲染
     let lastOffsets: StickyOffsets | undefined;
     const offsets = _derived.by(() => {
-      const next = stickyOffsets(shown, widthOf, leadingWidth());
+      const next = stickyOffsets(shown, widthFor, leadingWidth());
       if (lastOffsets && sameStickyOffsets(lastOffsets, next)) return lastOffsets;
       return (lastOffsets = next);
     });
-    const minWidth = () => tableMinWidth(shown, widthOf, leadingWidth());
+    const minWidth = () => tableMinWidth(shown, widthFor, leadingWidth());
+
+    // 列虚拟化：视口的横向位置与宽度（滚动、改大小时更新），算出跳过的几段列。
+    // 挂载前按 1280 px 宽算：服务端与浏览器第一次渲染一样，水合后再按实际的视口
+    let horizontal = _state.raw({ offset: 0, width: 1280 });
+    let frame = 0;
+    const readHorizontal = () => {
+      frame = 0;
+      if (viewport)
+        horizontal = { offset: Math.abs(viewport.scrollLeft), width: viewport.clientWidth };
+    };
+    useEventListener(
+      () => (virtualColumns ? viewport : null),
+      'scroll',
+      () => {
+        frame ||= requestAnimationFrame(readHorizontal);
+      },
+      { passive: true },
+    );
+    useResizeObserver(() => (virtualColumns ? viewport : null), readHorizontal);
+    // 跳过的列段没变时沿用上一次的数组：它交给每一行，竖向滚动时各行不必因此重渲染
+    let lastSkips: readonly ColumnSkip[] = NO_SKIPS;
+    const skips = _derived.by((): readonly ColumnSkip[] => {
+      if (!virtualColumns) return NO_SKIPS;
+      const next = columnSkips(shown, (column) => widthFor(column)!, {
+        ...horizontal,
+        leading: leadingWidth(),
+      });
+      const same =
+        next.length === lastSkips.length &&
+        next.every(
+          (skip, index) => skip.from === lastSkips[index]!.from && skip.to === lastSkips[index]!.to,
+        );
+      return same ? lastSkips : (lastSkips = next);
+    });
+    /** 列虚拟化时各格的 aria-colindex 从这里数起（勾选列、详情列之后）；不虚拟化时不写 */
+    const colIndexBase = () =>
+      virtualColumns ? (selectionMode ? 1 : 0) + (renderDetail ? 1 : 0) : undefined;
 
     const sorts = _derived(sortList(sort));
 
@@ -1183,6 +1296,8 @@ export const DataTableView = _component(
               ref: (element: unknown) => (cell = element as HTMLElement | null),
               scope: 'col',
               rowspan: rowspan > 1 ? rowspan : undefined,
+              'aria-colindex':
+                colIndexBase() != null ? colIndexBase()! + shown.indexOf(column) + 1 : undefined,
               'aria-sort': column.sortable ? (priority === 0 ? sorted : 'none') : undefined,
             },
           )}
@@ -1254,6 +1369,19 @@ export const DataTableView = _component(
       );
     }
 
+    /** 列虚拟化时表头里跳过的一段列：一格占位（分组表头时跨两行） */
+    function headerSpacer(skip: ColumnSkip, rowspan: number) {
+      return (
+        <th
+          key={`skip-${skip.from}`}
+          {...mergeAttrs<'th'>(s.headerCell)}
+          colspan={skip.to - skip.from}
+          rowspan={rowspan > 1 ? rowspan : undefined}
+          aria-hidden="true"
+        />
+      );
+    }
+
     /** 表头的列标题：一行；有分组时两行 */
     function renderHeaderRows(selectHeader: VNodeChild, detailHeader: VNodeChild) {
       const cells = layout;
@@ -1262,33 +1390,48 @@ export const DataTableView = _component(
           <tr {...mergeAttrs<'tr'>(s.headRow, propsHeadRow, { 'aria-rowindex': 1 })}>
             {selectHeader}
             {detailHeader}
-            {shown.map((column) => renderHeaderCell(column))}
+            {withSkips(
+              shown,
+              skips,
+              (column) => renderHeaderCell(column),
+              (skip) => headerSpacer(skip, 1),
+            )}
           </tr>
         );
       const nextToGroup = (position: number) =>
         position > 0 &&
         (cells[position]!.kind === 'group' || cells[position - 1]!.kind === 'group');
+      // 列虚拟化：跳过的列不渲染；每一段跳过的列在第一行放一格跨两行的占位，按列的顺序插进去
+      const skipped = (column: DataTableColumn<T>) => {
+        const index = shown.indexOf(column);
+        return skips.some((skip) => index >= skip.from && index < skip.to);
+      };
+      const firstRow: { order: number; node: VNodeChild }[] = cells.flatMap((cell, position) => {
+        if (cell.kind !== 'group') {
+          if (skipped(cell.column)) return [];
+          const node = renderHeaderCell(cell.column, 2, nextToGroup(position));
+          return [{ order: shown.indexOf(cell.column), node }];
+        }
+        const members = cell.columns.filter((column) => !skipped(column));
+        if (members.length === 0) return [];
+        const key = `${cell.group.key}-${position}`;
+        const node = renderGroupCell(cell.group, members, key, nextToGroup(position));
+        return [{ order: shown.indexOf(members[0]!), node }];
+      });
+      for (const skip of skips) firstRow.push({ order: skip.from, node: headerSpacer(skip, 2) });
+      firstRow.sort((a, b) => a.order - b.order);
       return [
         <tr key="groups" {...mergeAttrs<'tr'>(s.headRow, propsHeadRow, { 'aria-rowindex': 1 })}>
           {selectHeader}
           {detailHeader}
-          {cells.map((cell, position) =>
-            cell.kind === 'group'
-              ? renderGroupCell(
-                  cell.group,
-                  cell.columns,
-                  `${cell.group.key}-${position}`,
-                  nextToGroup(position),
-                )
-              : renderHeaderCell(cell.column, 2, nextToGroup(position)),
-          )}
+          {firstRow.map((entry) => entry.node)}
         </tr>,
         <tr key="columns" {...mergeAttrs<'tr'>(s.headRow, propsHeadRow, { 'aria-rowindex': 2 })}>
           {cells.flatMap((cell, position) =>
             cell.kind === 'group'
-              ? cell.columns.map((column, index) =>
-                  renderHeaderCell(column, 1, index === 0 && position > 0),
-                )
+              ? cell.columns
+                  .filter((column) => !skipped(column))
+                  .map((column, index) => renderHeaderCell(column, 1, index === 0 && position > 0))
               : [],
           )}
         </tr>,
@@ -1321,6 +1464,8 @@ export const DataTableView = _component(
                 'aria-rowcount':
                   bodyRowCount() + headerRows + (hasSummary && rows.length > 0 ? 1 : 0),
                 'aria-busy': loading || undefined,
+                // 列虚拟化：没渲染的列也算在总列数里
+                'aria-colcount': virtualColumns ? span : undefined,
                 // 单元格导航：读屏按网格念，方向键在格之间走
                 role: cellNavigation ? 'grid' : undefined,
               },
@@ -1331,7 +1476,7 @@ export const DataTableView = _component(
               {renderDetail && <col {...css.attrs(dataTableDynamicStyles.width(DETAIL_WIDTH))} />}
               {shown.map((column) => {
                 const width =
-                  widthOf(column) ?? flexColumnWidth(column, shown, widthOf, leadingWidth());
+                  widthFor(column) ?? flexColumnWidth(column, shown, widthOf, leadingWidth());
                 return (
                   <col
                     key={column.key}
@@ -1485,6 +1630,8 @@ export const DataTableView = _component(
                     propsLeading={propsLeading}
                     propsContent={propsContent}
                     measure={virtual.measure}
+                    skips={skips}
+                    colIndexBase={colIndexBase()}
                     onToggle={onToggleRow}
                     cellNavigation={cellNavigation}
                     editingColumn={editing?.row === row.key ? editing.column : undefined}
@@ -1537,27 +1684,32 @@ export const DataTableView = _component(
                       })}
                     />
                   )}
-                  {shown.map((column, position) => (
-                    <td
-                      key={column.key}
-                      {...mergeAttrs<'td'>(
-                        {
-                          ...s.summaryCell,
-                          sx: [
-                            s.cell.sx,
-                            s.summaryCell.sx,
-                            dataTableStateStyles[column.align ?? 'start'],
-                            stickyCellSx(column, offsets),
-                          ],
-                        },
-                        typeof propsSummaryCell === 'function'
-                          ? propsSummaryCell(column)
-                          : propsSummaryCell,
-                      )}
-                    >
-                      {summaryOf(column, position)}
-                    </td>
-                  ))}
+                  {withSkips(
+                    shown,
+                    skips,
+                    (column, position) => (
+                      <td
+                        key={column.key}
+                        {...mergeAttrs<'td'>(
+                          {
+                            ...s.summaryCell,
+                            sx: [
+                              s.cell.sx,
+                              s.summaryCell.sx,
+                              dataTableStateStyles[column.align ?? 'start'],
+                              stickyCellSx(column, offsets),
+                            ],
+                          },
+                          typeof propsSummaryCell === 'function'
+                            ? propsSummaryCell(column)
+                            : propsSummaryCell,
+                        )}
+                      >
+                        {summaryOf(column, position)}
+                      </td>
+                    ),
+                    spacerCell,
+                  )}
                 </tr>
               </tfoot>
             )}

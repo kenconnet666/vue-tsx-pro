@@ -542,3 +542,50 @@ export function arrangeColumns<T>(
     ...arranged.filter((column) => column.sticky === 'end'),
   ];
 }
+
+/** 列虚拟化时没写宽度的列按这个宽度（px）：宽度要确定，才算得出哪些列看得见 */
+export const VIRTUAL_COLUMN_WIDTH = 150;
+
+/** 不渲染的一段列 [from, to)：用一格 colspan 占住它们的位置（colgroup 里的列都在，宽度不变） */
+export interface ColumnSkip {
+  /** 第一列的下标 */
+  from: number;
+  /** 最后一列的下一列的下标 */
+  to: number;
+}
+
+/**
+ * 列虚拟化：只渲染看得见的列，前后各多 overscan 列，返回要跳过的几段（最多两段）。
+ * 两端的固定列（开头连着的 start、末尾连着的 end）总是渲染；固定列夹在中间时不虚拟化（返回空）。
+ * offset 是视口起始边在表格里的位置（scrollLeft 的绝对值），leading 是数据列前面的宽度（勾选列、详情列）
+ */
+export function columnSkips<T>(
+  columns: readonly DataTableColumn<T>[],
+  widthOf: (column: DataTableColumn<T>) => number,
+  view: { offset: number; width: number; leading?: number; overscan?: number },
+): ColumnSkip[] {
+  const { offset, width, leading = 0, overscan = 3 } = view;
+  let lead = 0;
+  while (lead < columns.length && columns[lead]!.sticky === 'start') lead++;
+  let trail = columns.length;
+  while (trail > lead && columns[trail - 1]!.sticky === 'end') trail--;
+  if (columns.slice(lead, trail).some((column) => column.sticky)) return [];
+  let position = leading;
+  for (let index = 0; index < lead; index++) position += widthOf(columns[index]!);
+  let first = -1;
+  let last = -1;
+  for (let index = lead; index < trail; index++) {
+    const size = widthOf(columns[index]!);
+    if (first < 0 && position + size > offset) first = index;
+    if (position < offset + width) last = index;
+    position += size;
+  }
+  if (first < 0) first = trail - 1;
+  if (last < first) last = first;
+  first = Math.max(lead, first - overscan);
+  last = Math.min(trail - 1, last + overscan);
+  const skips: ColumnSkip[] = [];
+  if (first > lead) skips.push({ from: lead, to: first });
+  if (last + 1 < trail) skips.push({ from: last + 1, to: trail });
+  return skips;
+}

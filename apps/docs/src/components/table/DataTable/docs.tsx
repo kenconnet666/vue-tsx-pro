@@ -24,6 +24,7 @@ import Pick from './demo/Pick.tsx?demo';
 import Priority from './demo/Priority.tsx?demo';
 import Proposals from './demo/Proposals.tsx?demo';
 import States from './demo/States.tsx?demo';
+import Wide from './demo/Wide.tsx?demo';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 
 export const meta = {
@@ -95,6 +96,12 @@ export default _component(() => () => (
     <Example id="changes" title="采购方案调整：分组表头" demo={Changes}>
       <Code>columnGroups</Code> 写组标题与组里各列的
       key：相邻的几列上方共用一个标题，表头变成两行，没分组的列跨两行；组与相邻的列之间有竖线，固定列照常固定。列定义仍是平铺的，排序、列宽、隐藏列都按列算，组里的列全隐藏时这一组也不显示。
+    </Example>
+    <Example id="wide" title="宽表：列也虚拟滚动" demo={Wide}>
+      <Code>virtualColumns</Code>
+      {
+        ' 时只渲染看得见的列（前后各多几列），跳过的列用一格 colspan 占住位置：colgroup 里的列宽都在，固定列、分组表头、列宽调整照常。几十上百列的宽表、透视结果打开它；行本来就是虚拟滚动的。没写宽度的列按 150px；两端的固定列总在，固定列夹在中间时不虚拟化。各格带 aria-colindex、表格带 aria-colcount，读屏照样知道第几列。'
+      }
     </Example>
     <Example id="details" title="供应商改进建议：展开行" demo={Proposals}>
       <Code>renderDetail</Code> 给出一行的详情：多一列展开按钮（aria-expanded，aria-controls
