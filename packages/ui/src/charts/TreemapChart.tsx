@@ -19,11 +19,11 @@ import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
-import { toNumber, type NumericValue } from '../utils/data/numeric';
+import { toNumber } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
 import { colors, t } from '../config/theme/tokens';
 import { svgNumber } from '../utils/data/number';
-import { chartTooltip, ChartFrame, type ChartFrameParts } from './frame';
+import { chartTooltip, ChartFrame, useChartValueText, type ChartFrameParts } from './frame';
 import { groupTree, treemapLayout, type TreemapNode } from './layout/treemap';
 import { ChartTooltipBox, chartSvgStyles, pointerIn, usePlotArea, type ChartTip } from './plot';
 import { resolveColor, seriesValue, type NumericKey } from './series';
@@ -124,8 +124,7 @@ export const TreemapChart = _component(
         ]),
       ),
     );
-    const valueText = (amount: NumericValue) =>
-      format.number(amount, unit ? { ...valueFormat, suffix: unit } : valueFormat);
+    const valueText = useChartValueText(() => ({ valueFormat, unit }));
     const shareText = (amount: number) =>
       total === 0
         ? lang.emptyValue
@@ -324,7 +323,11 @@ export const TreemapChart = _component(
           ],
           rows: visible.map((row) => ({
             header: groups.map((key) => String(row[key] ?? '')).join(' / '),
-            cells: [valueText(seriesValue(row, value) ?? 0), shareText(numberOf(row))],
+            // 单位已在表头里，格子只写数（同环形图）
+            cells: [
+              format.number(seriesValue(row, value) ?? 0, valueFormat),
+              shareText(numberOf(row)),
+            ],
           })),
         }}
         plotRef={area.ref}

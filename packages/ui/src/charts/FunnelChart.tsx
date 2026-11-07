@@ -15,7 +15,7 @@ import { useFormat, type NumericFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
-import { ChartFrame, type ChartFrameParts } from './frame';
+import { ChartFrame, useChartValueText, type ChartFrameParts } from './frame';
 import { resolveColor, type ChartColor } from './series';
 import { t } from '../config/theme/tokens';
 
@@ -137,8 +137,7 @@ export const FunnelChart = _component(
     /** 第 index 个环节比 base 个环节的转化率；base 为 0 时没有 */
     const rate = (index: number, base: number) =>
       numbers[base] ? percent(numbers[index]! / numbers[base]!) : lang.emptyValue;
-    const valueText = (stage: FunnelStage) =>
-      format.number(stage.value, unit ? { ...valueFormat, suffix: unit } : valueFormat);
+    const valueText = useChartValueText(() => ({ valueFormat, unit }));
 
     return () => (
       <ChartFrame
@@ -202,7 +201,7 @@ export const FunnelChart = _component(
                     )}
                   />
                 </span>
-                <span {...css.attrs(funnelChartStyles.value)}>{valueText(stage)}</span>
+                <span {...css.attrs(funnelChartStyles.value)}>{valueText(stage.value)}</span>
               </div>,
             ])}
             {rates && stages.length > 1 && (

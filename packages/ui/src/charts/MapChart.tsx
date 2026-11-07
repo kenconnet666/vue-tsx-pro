@@ -41,7 +41,7 @@ import { toNumber, type NumericValue } from '../utils/data/numeric';
 import { useReducedMotion } from '../utils/dom/media-query';
 import { usePanZoom } from '../utils/dom/pan-zoom';
 import type { PartProps } from '../utils/props';
-import { chartTooltip, ChartFrame, type ChartFrameParts } from './frame';
+import { chartTooltip, ChartFrame, useChartValueText, type ChartFrameParts } from './frame';
 import { createProjection, type MapGeoProjection, type MapProjectionName } from './geo/projection';
 import {
   simplifyTopology,
@@ -297,10 +297,7 @@ export const MapChart = _component(
     );
     const largest = (values: readonly { value?: NumericValue }[]) =>
       Math.max(0, ...values.map((item) => (item.value === undefined ? 0 : toNumber(item.value))));
-    const valueText = (value: NumericValue | undefined) =>
-      value === undefined
-        ? lang.emptyValue
-        : format.number(value, unit ? { ...valueFormat, suffix: unit } : valueFormat);
+    const valueText = useChartValueText(() => ({ valueFormat, unit }));
     const numberText = (value: number) => format.number(value, valueFormat);
     const areaById = _derived(new Map(areas.map((item) => [item.id, item])));
     const pointById = _derived(new Map(points.map((point) => [point.id, point])));
