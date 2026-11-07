@@ -1,6 +1,6 @@
-# 手动发布到 npm
+# 发布
 
-发布由维护者在本机手动执行，CI 不发布（changesets 与带 provenance 的发布工作流见 ROADMAP 8.4，还没做）。
+`node scripts/release.mjs <版本>` 打标签，CI 带 provenance 发布到 npm（下面“每次发布”）。
 发布的四个包都在 npm 组织 `zerodep-dev` 下（和 query 的包同一个组织，npm 上没有 `@vue-tsx-pro` 这个范围），版本号一起走：
 
 | 包                                | 内容                                                                                                                |
@@ -14,38 +14,48 @@
 
 ## 下一版对使用方的变化
 
-发布时把这一节搬进 GitHub Release 的说明，再清空。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
+发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
-
-## 一次性准备
-
-1. npm 账号开启 2FA，建一个范围是 `@zerodep-dev`、勾选 Bypass 2FA 的 Granular Access Token，放进用户级环境变量 `NPM_TOKEN`。
-2. `~/.npmrc` 写 `//registry.npmjs.org/:_authToken=${NPM_TOKEN}`，不写明文。
-3. 组织 `zerodep-dev` 在 npm 上已建好，账号是它的 owner。
-4. 新包第一次发布后要经过一两分钟校验才出现在版本列表里；发布中途报 `409 Cannot publish over previously staged version` 说明上传已被接收，等一会儿，不要重发。
+- 新组件 ErrorBoundary：一块内容出错时只把这一块换成出错提示，可以重试、`resetKeys` 变了自动恢复；语言包加了 `errorTitle`、`errorRetry`。
+- 部件（带 `data-part` 的元素）一律 `box-sizing: border-box`：使用方给部件写的宽高就是整个部件的宽高。以前没设的组件（如 Listbox 的根）
+  写 `height` 时实际高度会少算内边距，现在按写的高度。
+- 条件别名 `_hover`、`_active` 在不可用（`disabled`、`aria-disabled="true"`、`data-disabled`）时不算：不可用的项不再有悬停、按下的反馈。
+- 键盘焦点的样式（`_focusVisible`、`_focusWithin`）排在悬停之后，鼠标停在已聚焦的元素上时不再盖掉焦点样式。
+- 日期输入（DateField、DateRangePicker）点后面的段，焦点就在那一段（以前会被拉回第一段）；输入框外壳只在点到空白处时才转交焦点。
+- CodeBlock 的展开按钮焦点环画在里面，不再被外框裁掉。
+- 内容安全策略：`createUi({ nonce })` 或 Vite 的 `html.cspNonce` 让样式引擎的 `<style>` 带上 nonce；服务端渲染用 `renderStyleTag(html, { nonce })`。
+- 样式引擎新增 `css.globalRule`：登记放在最前面级联层（`vtp.base`）的基础规则。
 
 ## 每次发布
 
-1. **确认版本**：`packages/` 下 `tsx`、`ui`、`mobile`、`mini` 四个 `package.json` 的 `version` 相同且没发布过（npm 上已发布的版本不能覆盖）。
-2. **确认 CI**：要发布的提交在 `master` 上，GitHub Actions 全部通过（check、test、browser、build、consumer、mini）。
-3. **本机预检**：
+只有一条线：每批改动在 master 上 CI 全部通过后就发一版，使用方一律用最新版；没有补丁分支，也不来回改版本号。
 
-   ```bash
-   pnpm install --frozen-lockfile
-   pnpm check && pnpm typecheck && pnpm test
-   pnpm build
-   pnpm test:consumer   # pnpm pack 的包在仓库外的独立应用里安装、类型检查、构建、真实浏览器里运行（桌面组件库，以及模板建的移动端项目）
-   ```
+1. **写变化**：这一版对使用方能察觉的变化写进上面的“下一版对使用方的变化”（破坏性改动写清怎么改）。
+2. **发版**：`node scripts/release.mjs <版本>`。它先确认在 master、工作区干净、与 origin 一致、HEAD 的 CI 全部通过，
+   再把四个包的 `version` 改成这个版本、把上面那一节搬进 [CHANGELOG.md](CHANGELOG.md)（原处清回“（暂无）”），提交 `chore(release): <版本>`，
+   打标签 `v<版本>` 并推送。
+3. **发布**由标签触发的 `.github/workflows/release.yml` 完成：核对版本号，`pnpm test:consumer`（`pnpm pack` 的包在仓库外的独立应用里安装、
+   类型检查、构建、真实浏览器里运行），带 provenance 发布四个包（`-r` 按依赖顺序先发 `tsx`；各包的 `prepack` 重新构建），用 CHANGELOG
+   这一节建 GitHub Release。令牌是 `release` 环境（只允许 master 分支与 `v*` 标签）的 secret `NPM_TOKEN`。
+4. **之后**：npm 上新版本要经过几分钟校验才出现在版本列表里（这期间显示 `0.0.0-stage`）；能装了以后把 easy-query-ts 文档站升到这一版，
+   两个文档站都到线上核对。
 
-4. **发布**（`-r` 按依赖顺序先发 `tsx`，再发 `ui`、`mobile`、`mini`；各包的 `prepack` 会重新构建，不会把旧的 `dist` 发出去；`kit` 还是 private，`storage` 不随这四个包发布）：
+## 一次性准备（已做好）
 
-   ```bash
-   pnpm -r --filter "./packages/tsx" --filter "./packages/ui" --filter "./packages/mobile" --filter "./packages/mini" publish --access public --no-git-checks
-   ```
+1. npm 账号开启 2FA，建一个范围是 `@zerodep-dev`、勾选 Bypass 2FA 的 Granular Access Token：放进 GitHub 仓库 `release` 环境的
+   secret `NPM_TOKEN`（CI 发布用），本机也放进用户级环境变量 `NPM_TOKEN`、`~/.npmrc` 写 `//registry.npmjs.org/:_authToken=${NPM_TOKEN}`（手动发布用）。
+2. 组织 `zerodep-dev` 在 npm 上已建好，账号是它的 owner。
 
-5. **打标签**：`git tag -a v0.1.0 -m "0.1.0"`，`git push origin v0.1.0`；在 GitHub 上用这个标签建 Release。
-6. **进入下一个版本**：四个包的 `version` 一起改成下一个版本号，单独提交。
+## 手动发布（CI 发布出问题时）
+
+在打了标签的提交上（必须用 pnpm 发布，见开头）：
+
+```bash
+pnpm install --frozen-lockfile && pnpm build && pnpm test:consumer
+pnpm -r --filter "./packages/tsx" --filter "./packages/ui" --filter "./packages/mobile" --filter "./packages/mini" publish --access public --no-git-checks
+```
+
+发布中途报 `409 Cannot publish over previously staged version` 说明上传已被接收，等一会儿，不要重发。
 
 ## 使用方怎样装
 

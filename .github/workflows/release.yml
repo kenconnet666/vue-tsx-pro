@@ -1,0 +1,60 @@
+name: Release
+
+# 推送 v* 标签（node scripts/release.mjs 打的）时发布：先验证版本号与打包产物，再带 provenance 发布四个包到 npm、建 GitHub Release。
+# 打标签前 release.mjs 已要求那个提交的 CI 全部通过；这里只补打包产物在独立应用里的验证（同 RELEASE.md 的预检）
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # 建 GitHub Release
+  id-token: write # npm provenance
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # 令牌在只允许 master 与 v* 标签的 release 环境里
+    environment:
+      name: release
+      url: https://www.npmjs.com/package/@zerodep-dev/vue-tsx-pro-ui
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - name: Versions match the tag
+        shell: bash
+        run: node scripts/release.mjs --verify "${GITHUB_REF_NAME#v}"
+      - name: Install browsers
+        timeout-minutes: 30
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            timeout 600 pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium && exit 0
+            echo "playwright install failed (attempt $attempt), retrying"
+            sleep 15
+          done
+          exit 1
+      - name: Packed packages work in a standalone app
+        run: pnpm test:consumer
+      - name: Publish to npm
+        shell: bash
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "::error::release 环境里没有 NPM_TOKEN"
+            exit 1
+          fi
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$HOME/.npmrc"
+          pnpm -r --filter ./packages/tsx --filter ./packages/ui --filter ./packages/mobile --filter ./packages/mini \
+            publish --access public --no-git-checks --provenance
+      - name: GitHub Release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node scripts/release.mjs --notes "${GITHUB_REF_NAME#v}" > release-notes.md
+          gh release create "$GITHUB_REF_NAME" --title "${GITHUB_REF_NAME#v}" --notes-file release-notes.md
