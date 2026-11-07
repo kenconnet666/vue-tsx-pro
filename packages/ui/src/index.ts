@@ -137,6 +137,7 @@ export {
   type FlexProps,
 } from './layout/Flex';
 export {
+  balancedColumns,
   createGrid,
   createGridItem,
   Grid,
@@ -266,7 +267,6 @@ export {
   type SparklineManaged,
   type SparklineProps,
   type SparklineTypes,
-  type SparklineVariants,
 } from './display/Sparkline';
 export {
   Stat,

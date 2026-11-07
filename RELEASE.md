@@ -30,6 +30,10 @@
   根元素写上新导出的 `nowAttrs(now.value)` 得到同样的效果。
 - CommentThread、NotificationCenter 的时间改用 RelativeTime：随时间自动更新，悬停显示完整的日期时间。
 - ProportionBar 的图例从起始边依次排开（以前两端对齐）。
+- Grid、GridList 新增 `balanced`（和 `minItemWidth` 一起用）：按项数取列数，最后一行最多空一格，4 项不排成 3 + 1。
+  `provideGridColumns` 的返回值改成 `{ ref, columns }`（以前直接是 ref）。
+- Sparkline 的柱（`type="bar"`）在 `showLast` 时最新的一根实色、前面的淡下去。**破坏性**：删掉已废弃的 `variant` 属性与
+  `SparklineVariants` 类型，改用 `type` 与 `SparklineTypes`。
 
 ## 每次发布
 

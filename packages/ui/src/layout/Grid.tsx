@@ -11,6 +11,7 @@
 import { _component, type TsxComponent } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { inject, provide, type InjectionKey, type VNodeChild } from 'vue';
+import { childNodes } from '../utils/data/text';
 import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
@@ -56,6 +57,11 @@ export interface GridOptions {
    * 项目比放得下的列数少时，空列收起、各项拉宽占满（auto-fit，同 Chakra 的 minChildWidth），不在右边留空
    */
   minItemWidth?: string;
+  /**
+   * 和 minItemWidth 一起用：按项数取列数，最后一行最多空一格——4 项放得下 3 列时排成 2 + 2，6 项放得下 4 列时排成 3 + 3，
+   * 不落单（一排指标卡、一组入口）。浏览器里量出宽度之前（服务端渲染）照 minItemWidth 自动换列
+   */
+  balanced?: boolean;
   /** 间距档位，对应主题的 space */
   gap?: Space;
   /** 行间距，覆盖 gap */
@@ -123,19 +129,31 @@ function lengthToPx(length: string, element: Element): number | null {
   return value * parseFloat(getComputedStyle(from).fontSize);
 }
 
+/** 放得下 fits 列、共 count 项时排几列：最后一行最多空一格（4 项、3 列 → 2 列；6 项、4 列 → 3 列） */
+export function balancedColumns(count: number, fits: number): number {
+  for (let columns = Math.min(fits, count); columns > 1; columns--) {
+    const last = count % columns;
+    if (last === 0 || last >= columns - 1) return columns;
+  }
+  return 1;
+}
+
 /**
  * 网格的列数交给里面的 GridItem（数字 span 不超过它）：按宽度自动换列（auto-fill / auto-fit）时量出来，
- * 不然窄到一列时 span={2} 会撑出一条隐式的列、内容溢出。返回给网格元素的 ref；FormSection 也用它。
+ * 不然窄到一列时 span={2} 会撑出一条隐式的列、内容溢出。ref 给网格元素；columns 是现在的列数（null 是不知道），
+ * 均衡换列时在渲染里传项数（子元素是插槽，只能在渲染里数）。FormSection 也用它。
  */
-export function provideGridColumns(
-  read: () => { columns?: number; minItemWidth?: string },
-): (element: unknown) => void {
+export function provideGridColumns(read: () => { columns?: number; minItemWidth?: string }): {
+  ref: (element: unknown) => void;
+  columns: (balanceItems?: number) => number | null;
+} {
   let element = _state.raw<HTMLElement | null>(null);
-  let measured = _state<number | null>(null);
+  // 按宽度放得下几列；null 是量不出来（长度单位换算不了，或还没量）
+  let fits = _state<number | null>(null);
   useResizeObserver(
     () => (read().minItemWidth == null ? null : element),
     () => {
-      const { columns, minItemWidth } = read();
+      const { minItemWidth } = read();
       if (!element || minItemWidth == null) return;
       const style = getComputedStyle(element);
       const gap = parseFloat(style.columnGap) || 0;
@@ -144,15 +162,22 @@ export function provideGridColumns(
         parseFloat(style.paddingInlineStart) -
         parseFloat(style.paddingInlineEnd);
       const min = lengthToPx(minItemWidth, element);
-      const fits =
+      fits =
         min == null ? null : Math.max(1, Math.floor((width + gap) / (Math.min(min, width) + gap)));
-      measured = fits == null ? null : Math.min(fits, columns ?? fits);
     },
   );
-  provide(gridColumnsKey, () =>
-    read().minItemWidth == null ? (read().columns ?? null) : measured,
-  );
-  return (next) => (element = next as HTMLElement | null);
+  // 上次渲染时数出的项数：GridItem 读列数时沿用
+  let lastItems: number | undefined;
+  const columns = (balanceItems?: number) => {
+    lastItems = balanceItems;
+    const { columns, minItemWidth } = read();
+    if (minItemWidth == null) return columns ?? null;
+    if (fits == null) return null;
+    const most = Math.min(fits, columns ?? fits);
+    return balanceItems == null ? most : balancedColumns(balanceItems, most);
+  };
+  provide(gridColumnsKey, () => columns(lastItems));
+  return { ref: (next) => (element = next as HTMLElement | null), columns };
 }
 
 /** 未声明的属性落到元素上：Grid 为 div，GridList 为 ul，createGrid 生成的为给定的标签 */
@@ -171,6 +196,7 @@ export function createGrid<Tag extends LayoutTag>(
     ({
       columns,
       minItemWidth,
+      balanced = false,
       gap,
       rowGap,
       columnGap,
@@ -180,13 +206,17 @@ export function createGrid<Tag extends LayoutTag>(
       children,
       ...rest
     }: GridProps<LayoutTag>) => {
-      const gridRef = provideGridColumns(() => ({ columns, minItemWidth }));
+      const grid = provideGridColumns(() => ({ columns, minItemWidth }));
       return () => {
         const Tag = tag as LayoutTag;
+        const balancedCount =
+          balanced && minItemWidth != null ? grid.columns(childNodes(children).length) : null;
         const template =
-          minItemWidth != null
-            ? gridDynamicStyles.minItemWidth(minItemWidth)
-            : columns != null && gridDynamicStyles.columns(columns);
+          balancedCount != null
+            ? gridDynamicStyles.columns(balancedCount)
+            : minItemWidth != null
+              ? gridDynamicStyles.minItemWidth(minItemWidth)
+              : columns != null && gridDynamicStyles.columns(columns);
         const sx = [
           gridStyles.root,
           template,
@@ -199,7 +229,7 @@ export function createGrid<Tag extends LayoutTag>(
           listRole(tag) && listStyles.reset,
         ];
         return (
-          <Tag {...mergeAttrs<LayoutTag>({ sx, role: listRole(tag) }, rest, { ref: gridRef })}>
+          <Tag {...mergeAttrs<LayoutTag>({ sx, role: listRole(tag) }, rest, { ref: grid.ref })}>
             {children}
           </Tag>
         );

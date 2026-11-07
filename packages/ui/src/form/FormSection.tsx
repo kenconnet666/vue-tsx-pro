@@ -168,7 +168,7 @@ export const FormSection = _component(
     const id = useId();
     const ids = { title: `${id}-title`, description: `${id}-description`, body: `${id}-body` };
     provideFieldLayout(() => ({ labelPlacement, labelWidth, labelAlign, disabled, readonly }));
-    const bodyRef = provideGridColumns(() =>
+    const grid = provideGridColumns(() =>
       columns > 1 ? { columns, minItemWidth: minColumnWidth } : { columns: 1 },
     );
 
@@ -213,7 +213,7 @@ export const FormSection = _component(
               ],
             },
             propsBody,
-            { ref: bodyRef, ...(collapsible ? {} : { id: ids.body }) },
+            { ref: grid.ref, ...(collapsible ? {} : { id: ids.body }) },
           )}
         >
           {children}

@@ -7,7 +7,7 @@
  *   </Stat>
  *   <Sparkline data={[3, 5, null, 4, 8]} type="bar" tone="success" />
  *
- * 空值（null、undefined）处断开（柱是空位）；默认标出最后一个点。读屏念成一句话：几个值、从哪到哪、最低最高
+ * 空值（null、undefined）处断开（柱是空位）；默认标出最后一个值。读屏念成一句话：几个值、从哪到哪、最低最高
  * （按 valueFormat 与当前语言格式化），label 写在前面。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -29,9 +29,6 @@ export interface SparklineTypes {
   bar: unknown;
 }
 
-/** @deprecated 改名为 SparklineTypes */
-export type SparklineVariants = SparklineTypes;
-
 /** 角色与名称由组件给出（role="img"，名称是 label 加上数据的概括） */
 export type SparklineManaged = 'role' | 'aria-label';
 
@@ -41,13 +38,11 @@ export interface SparklineProps extends PartProps<'span', SparklineManaged> {
   data: readonly (NumericValue | null | undefined)[];
   /** 画法，默认 line（同 ComboChart 系列的 type） */
   type?: keyof SparklineTypes;
-  /** @deprecated 改名为 type（variant 只表示外观变体，见 COMPONENTS.md §1 的词表） */
-  variant?: keyof SparklineTypes;
   /** 色调，默认 accent */
   tone?: StatusTone;
   /** 高度（CSS 长度），默认 2em */
   height?: string;
-  /** 标出最后一个点（折线、面积），默认 true */
+  /** 标出最后一个值，默认 true：折线、面积画一个点，柱是最新的一根实色、前面的淡下去 */
   showLast?: boolean;
   /** 纵向范围 [最小, 最大]；不写的一端按数据取（柱从 0 起） */
   domain?: readonly [number | undefined, number | undefined];
@@ -70,6 +65,9 @@ const sparklineStyles = css.create({
   },
   area: { fill: 'var(--tone-fill)', fillOpacity: 0.15, stroke: 'none' },
   bar: { fill: 'var(--tone-fill)', fillOpacity: 0.85 },
+  // 标出最后一个值时：前面的柱淡下去，最新的一根实色
+  barBefore: { fillOpacity: 0.4 },
+  barLast: { fillOpacity: 1 },
   // 最后一个点：HTML 圆点按百分比定位（SVG 拉伸时圆不变形）
   last: {
     position: 'absolute',
@@ -90,8 +88,7 @@ const sparklineStyles = css.create({
 export const Sparkline = _component(
   ({
     data,
-    type,
-    variant,
+    type = 'line',
     tone = 'accent',
     height = '2em',
     showLast = true,
@@ -105,8 +102,7 @@ export const Sparkline = _component(
     return () => {
       const values = data.map((value) => (value == null ? undefined : toNumber(value)));
       const present = values.filter((value): value is number => value !== undefined);
-      const kind = type ?? variant ?? 'line';
-      const bars = kind === 'bar';
+      const bars = type === 'bar';
       const low = domain?.[0] ?? Math.min(...present, ...(bars ? [0] : []));
       const high = domain?.[1] ?? Math.max(...present, ...(bars ? [0] : []));
       const span = high - low || 1;
@@ -162,13 +158,19 @@ export const Sparkline = _component(
                       width={0.7}
                       y={Math.min(yOf(value), yOf(Math.max(low, 0)))}
                       height={Math.abs(yOf(value) - yOf(Math.max(low, 0)))}
-                      {...css.attrs(sparklineStyles.bar)}
+                      {...css.attrs(
+                        sparklineStyles.bar,
+                        showLast &&
+                          (position === lastIndex
+                            ? sparklineStyles.barLast
+                            : sparklineStyles.barBefore),
+                      )}
                     />
                   ),
                 )
               : segments.map((points, position) => (
                   <g key={position}>
-                    {kind === 'area' && points.length > 1 && (
+                    {type === 'area' && points.length > 1 && (
                       <path
                         d={`${path(points)} L${points.at(-1)![0]} 100 L${points[0]![0]} 100 Z`}
                         {...css.attrs(sparklineStyles.area)}

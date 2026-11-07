@@ -1,7 +1,7 @@
 // 实际列数、自动换列见 apps/host-demo/test/base.browser.test.ts
 import { describe, expect, it } from 'vitest';
 import { mount, styleTextOf } from '../../utils/.test/mount';
-import { createGrid, Grid, GridItem, GridList, GridListItem } from '../Grid';
+import { balancedColumns, createGrid, Grid, GridItem, GridList, GridListItem } from '../Grid';
 
 const render = (node: Parameters<typeof mount>[0]) => mount(node).firstElementChild as HTMLElement;
 
@@ -24,6 +24,15 @@ describe('Grid', () => {
     expect(grid.tagName).toBe('UL');
     expect(styleTextOf(grid)).toContain('auto-fit');
     expect(grid.getAttribute('role')).toBe('list');
+  });
+
+  it('balancedColumns：最后一行最多空一格，放不下就少一列', () => {
+    expect(balancedColumns(4, 3)).toBe(2);
+    expect(balancedColumns(6, 4)).toBe(3);
+    expect(balancedColumns(5, 4)).toBe(3);
+    expect(balancedColumns(7, 4)).toBe(4);
+    expect(balancedColumns(4, 6)).toBe(4);
+    expect(balancedColumns(3, 1)).toBe(1);
   });
 
   it('createGrid 生成其他语义标签的组件', () => {

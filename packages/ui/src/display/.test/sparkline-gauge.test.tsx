@@ -21,15 +21,17 @@ describe('Sparkline', () => {
     expect(root.querySelector('[role="img"] > span[aria-hidden]')).not.toBeNull();
   });
 
-  it('柱：每个值一根（空值是空位），不标最后一个点；Decimal 按原值念', () => {
+  it('柱：每个值一根（空值是空位），最新的一根与前面的样式不同、不画圆点；Decimal 按原值念', () => {
     const root = mount(() => (
-      <Sparkline
-        data={[new Decimal('1.5'), null, 3]}
-        variant="bar"
-        valueFormat={{ suffix: '万' }}
-      />
+      <>
+        <Sparkline data={[new Decimal('1.5'), null, 3]} type="bar" valueFormat={{ suffix: '万' }} />
+        <Sparkline data={[1, 2]} type="bar" showLast={false} />
+      </>
     ));
-    expect(root.querySelectorAll('rect')).toHaveLength(2);
+    const [first, last, plainFirst, plainLast] = [...root.querySelectorAll('rect')];
+    expect(root.querySelectorAll('rect')).toHaveLength(4);
+    expect(first!.getAttribute('class')).not.toBe(last!.getAttribute('class'));
+    expect(plainFirst!.getAttribute('class')).toBe(plainLast!.getAttribute('class'));
     expect(root.querySelector('[role="img"] > span[aria-hidden]')).toBeNull();
     expect(root.querySelector('[role="img"]')!.getAttribute('aria-label')).toContain('从 1.5 万');
   });
