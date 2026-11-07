@@ -53,6 +53,17 @@
   WaveGrid 的 `variant`、`WaveGridVariants`（改 `type`、`WaveGridTypes`）；TimelineChart 系列的 `variant`（改 `type`）；
   `Tones`、`Tone`（改 `TextTones`、`TextTone`）；tsx 的 `Theme`（改 `VarTheme`）、配方组合档位的 `when`（改 `match`），
   `@zerodep-dev/vue-tsx-pro-tsx/styles` 不再转出 `hotStyles`、`inlineStyle`、`ConditionMatcher`（在 `styles/internal`）。
+- 部件补齐（层层合并、层层转发）：组件内部的节点带上 `data-scope` / `data-part`，使用方的全局样式与测试能稳定选中，
+  写在部件上的宽高按 border-box 算。新增的部件属性：CommentThread（`propsAvatar`、`propsBody`、`propsHeader`、`propsAuthor`、
+  `propsContent`、`propsAttachments`、`propsActions`、`propsReplies`、`propsEmpty`）与 CommentComposer（`propsMain`、
+  `propsUpload`、`propsError`、`propsFooter`、`propsAttach`、`propsCancel`、`propsSend`）；Checklist（`propsSummary`、
+  `propsProgress`、`propsList`、`propsStatus`、`propsLabel`、`propsDescription`、`propsMeta`、`propsAction`）；
+  Cascader 的 `propsOption`；KanbanBoard（`propsBoard`、`propsColumn`、`propsHeader`、`propsCount`、`propsReason`、
+  `propsList`、`propsEmpty`、`propsCard`、`propsHandle`）；CalendarBoard（`propsHeader`、`propsTitle`、`propsPrevious`、
+  `propsNext`、`propsGrid`、`propsWeekday`、`propsDayButton`、`propsNote`、`propsEvents`、`propsEvent`、`propsMore`）；
+  ColorPicker（`propsArea`、`propsThumb`、`propsEyeDropper`、`propsHue`、`propsAlpha`、`propsPreview`、`propsFormat`、
+  `propsInput`、`propsSwatches`、`propsSwatch`）；DiagramNode（`propsStart`、`propsBody`、`propsTitle`、`propsDescription`、`propsEnd`）。
+  按列、按卡片、按选项、按日程计算的部件属性写成函数。
 - 字段约束认 `z.iso.datetime({ local: true })`：输入框不再把它当普通文字。
 - `useFormDialog` 的表单加了 `novalidate`：必填没填时只显示字段下的错误，不再弹浏览器自带的气泡。
 
