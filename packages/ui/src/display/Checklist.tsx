@@ -18,7 +18,8 @@
  * summary 在上面显示“已完成 2 / 3”与进度条（不适用的不算）。没完成的名称是次要色，不适用的划掉；
  * 超时的日期用危险色。每项的状态写在给读屏的文字里。
  *
- * 部件：Root（div）、Summary（汇总行）、List（ul）、Item（li，可以按项计算）、Status（状态图标，可勾选时是按钮）、Label、Meta。
+ * 部件（data-scope="checklist"）：Root（div；inline 排法是 ul，icons 排法是 span）、Summary（汇总行）、Progress、List（ul）、
+ * Item（li，可以按项计算）、Status（状态图标，可勾选时里面是 Toggle 按钮）、Body、Label、Description、Meta、Action。
  */
 import { Ban, CircleAlert, CircleCheck, CircleDashed, CircleMinus } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -28,8 +29,9 @@ import { useId, type VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
-import { Progress } from '../feedback/Progress';
-import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
+import { partAttrs } from '../config/styles';
+import { Progress, type ProgressProps } from '../feedback/Progress';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 
@@ -94,7 +96,26 @@ export interface ChecklistProps extends PartProps<'div'> {
   onCheckedChange?: (item: ChecklistItem, done: boolean) => void;
   /** 每一项（li）的部件属性，可以按项计算 */
   propsItem?: PartProps<'li'> | ((item: ChecklistItem) => PartProps<'li'>);
+  /** 汇总行（“已完成 2 / 3”与进度条）的部件属性 */
+  propsSummary?: PartProps<'div'>;
+  /** 汇总行里进度条的部件属性 */
+  propsProgress?: Partial<ProgressProps>;
+  /** 列表（ul）的部件属性 */
+  propsList?: PartProps<'ul'>;
+  /** 状态（图标，可勾选时包着按钮）的部件属性 */
+  propsStatus?: PartProps<'span'>;
+  /** 名称的部件属性 */
+  propsLabel?: PartProps<'span'>;
+  /** 说明的部件属性 */
+  propsDescription?: PartProps<'span'>;
+  /** 负责人、日期、证据那一行的部件属性 */
+  propsMeta?: PartProps<'span'>;
+  /** 结束边的操作的部件属性 */
+  propsAction?: PartProps<'div'>;
 }
+
+/** 部件的标记（data-scope="checklist"） */
+const checklistPart = (part: string) => partAttrs({ name: 'Checklist' }, part);
 
 /** Checklist 的样式（测试要用，不进入口） @internal */
 export const checklistStyles = css.create({
@@ -194,6 +215,14 @@ export const Checklist = _component(
     size,
     onCheckedChange,
     propsItem,
+    propsSummary,
+    propsProgress,
+    propsList,
+    propsStatus,
+    propsLabel,
+    propsDescription,
+    propsMeta,
+    propsAction,
     ...rest
   }: ChecklistProps) => {
     // 界面里的链接（指标的操作、附件、值）悬停才有下划线
@@ -209,16 +238,20 @@ export const Checklist = _component(
     /** 状态：可以勾选时是复选按钮（名称是这一项的名称），否则是图标加给读屏的状态文字 */
     const status = (item: ChecklistItem, labelId: string) => {
       const state = statusOf(item);
+      const attrs = mergeAttrs<'span'>(
+        { sx: checklistStyles.status, ...checklistPart('status') },
+        propsStatus,
+      );
       if (!onCheckedChange)
         return (
-          <span {...css.attrs(checklistStyles.status)}>
+          <span {...attrs}>
             {statusIcon(item)}
             <VisuallyHidden>{lang.checklistStatus[state]}</VisuallyHidden>
           </span>
         );
       const done = state === 'done';
       return (
-        <span {...css.attrs(checklistStyles.status)}>
+        <span {...attrs}>
           <button
             type="button"
             role="checkbox"
@@ -228,6 +261,7 @@ export const Checklist = _component(
             disabled={state === 'skipped' || state === 'blocked'}
             onClick={() => onCheckedChange(item, !done)}
             {...css.attrs(checklistStyles.toggle, focusRingStyles.visible)}
+            {...checklistPart('toggle')}
           >
             {statusIcon(item)}
           </button>
@@ -236,15 +270,37 @@ export const Checklist = _component(
       );
     };
 
-    const labelSx = (item: ChecklistItem) => {
+    /** 名称：没完成的是次要色，不适用的划掉 */
+    const label = (item: ChecklistItem, labelId: string) => {
       const state = statusOf(item);
-      return [
-        checklistStyles.label,
-        state === 'skipped'
-          ? checklistStyles.labelSkipped
-          : state !== 'done' && checklistStyles.labelPending,
-      ];
+      return (
+        <span
+          {...mergeAttrs<'span'>(
+            {
+              sx: [
+                checklistStyles.label,
+                state === 'skipped'
+                  ? checklistStyles.labelSkipped
+                  : state !== 'done' && checklistStyles.labelPending,
+              ],
+              ...checklistPart('label'),
+            },
+            propsLabel,
+            { id: labelId },
+          )}
+        >
+          {item.label}
+        </span>
+      );
     };
+
+    /** 日期：超时的用危险色 */
+    const date = (item: ChecklistItem) =>
+      hasContent(item.date) && (
+        <span {...css.attrs(statusOf(item) === 'overdue' && checklistStyles.late)}>
+          {item.date}
+        </span>
+      );
 
     /** 读屏念的整组：名称与状态（icons 排法） */
     const iconsLabel = () =>
@@ -266,7 +322,10 @@ export const Checklist = _component(
         return (
           <span
             {...mergeAttrs<'span'>(
-              { sx: [checklistStyles.icons, size && fontSizeStyles[size]] },
+              {
+                sx: [checklistStyles.icons, size && fontSizeStyles[size]],
+                ...checklistPart('root'),
+              },
               rest as PartProps<'span'>,
               { role: 'img', 'aria-label': label, title: label },
             )}
@@ -282,26 +341,35 @@ export const Checklist = _component(
         return (
           <ul
             {...mergeAttrs<'ul'>(
-              { sx: [checklistStyles.inline, size && fontSizeStyles[size]] },
+              {
+                sx: [checklistStyles.inline, size && fontSizeStyles[size]],
+                ...checklistPart('root'),
+              },
               rest as PartProps<'ul'>,
             )}
           >
             {items.map((item, index) => {
               const labelId = `${id}-${index}`;
+              const own = typeof propsItem === 'function' ? propsItem(item) : propsItem;
               return (
-                <li key={keyOf(item, index)} {...css.attrs(checklistStyles.inlineItem)}>
+                <li
+                  key={keyOf(item, index)}
+                  {...mergeAttrs<'li'>(
+                    { sx: checklistStyles.inlineItem, ...checklistPart('item') },
+                    own,
+                  )}
+                  data-status={statusOf(item)}
+                >
                   {status(item, labelId)}
-                  <span id={labelId} {...css.attrs(labelSx(item))}>
-                    {item.label}
-                  </span>
+                  {label(item, labelId)}
                   {hasContent(item.date) && (
                     <span
-                      {...css.attrs(
-                        checklistStyles.meta,
-                        statusOf(item) === 'overdue' && checklistStyles.late,
+                      {...mergeAttrs<'span'>(
+                        { sx: checklistStyles.meta, ...checklistPart('meta') },
+                        propsMeta,
                       )}
                     >
-                      {item.date}
+                      {date(item)}
                     </span>
                   )}
                   {item.evidence}
@@ -314,21 +382,39 @@ export const Checklist = _component(
       const total = counted().length;
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: [checklistStyles.root, size && fontSizeStyles[size]] }, rest)}
+          {...mergeAttrs<'div'>(
+            { sx: [checklistStyles.root, size && fontSizeStyles[size]], ...checklistPart('root') },
+            rest,
+          )}
         >
           {summary && total > 0 && (
-            <div {...css.attrs(checklistStyles.summary)}>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: checklistStyles.summary, ...checklistPart('summary') },
+                propsSummary,
+              )}
+            >
               <span>{lang.checklistSummary(doneCount(), total)}</span>
               <Progress
-                value={doneCount()}
-                max={total}
-                size="xs"
-                tone={doneCount() === total ? 'success' : 'accent'}
-                aria-label={lang.checklistSummary(doneCount(), total)}
+                {...mergePartProps<ProgressProps>(
+                  {
+                    size: 'xs',
+                    tone: doneCount() === total ? 'success' : 'accent',
+                    ...checklistPart('progress'),
+                  },
+                  propsProgress,
+                  {
+                    value: doneCount(),
+                    max: total,
+                    'aria-label': lang.checklistSummary(doneCount(), total),
+                  },
+                )}
               />
             </div>
           )}
-          <ul {...css.attrs(checklistStyles.list)}>
+          <ul
+            {...mergeAttrs<'ul'>({ sx: checklistStyles.list, ...checklistPart('list') }, propsList)}
+          >
             {items.map((item, index) => {
               const own = typeof propsItem === 'function' ? propsItem(item) : propsItem;
               const labelId = `${id}-${index}`;
@@ -336,33 +422,44 @@ export const Checklist = _component(
               return (
                 <li
                   key={keyOf(item, index)}
-                  {...mergeAttrs<'li'>({ sx: checklistStyles.item }, own)}
+                  {...mergeAttrs<'li'>({ sx: checklistStyles.item, ...checklistPart('item') }, own)}
                   data-status={statusOf(item)}
                 >
                   {status(item, labelId)}
-                  <div {...css.attrs(checklistStyles.body)}>
-                    <span id={labelId} {...css.attrs(labelSx(item))}>
-                      {item.label}
-                    </span>
+                  <div {...css.attrs(checklistStyles.body)} {...checklistPart('body')}>
+                    {label(item, labelId)}
                     {hasContent(item.description) && (
-                      <span {...css.attrs(checklistStyles.description)}>{item.description}</span>
+                      <span
+                        {...mergeAttrs<'span'>(
+                          { sx: checklistStyles.description, ...checklistPart('description') },
+                          propsDescription,
+                        )}
+                      >
+                        {item.description}
+                      </span>
                     )}
                     {meta && (
-                      <span {...css.attrs(checklistStyles.meta)}>
-                        {hasContent(item.owner) && <span>{item.owner}</span>}
-                        {hasContent(item.date) && (
-                          <span
-                            {...css.attrs(statusOf(item) === 'overdue' && checklistStyles.late)}
-                          >
-                            {item.date}
-                          </span>
+                      <span
+                        {...mergeAttrs<'span'>(
+                          { sx: checklistStyles.meta, ...checklistPart('meta') },
+                          propsMeta,
                         )}
+                      >
+                        {hasContent(item.owner) && <span>{item.owner}</span>}
+                        {date(item)}
                         {item.evidence}
                       </span>
                     )}
                   </div>
                   {hasContent(item.action) ? (
-                    <div {...css.attrs(checklistStyles.action)}>{item.action}</div>
+                    <div
+                      {...mergeAttrs<'div'>(
+                        { sx: checklistStyles.action, ...checklistPart('action') },
+                        propsAction,
+                      )}
+                    >
+                      {item.action}
+                    </div>
                   ) : (
                     <span />
                   )}

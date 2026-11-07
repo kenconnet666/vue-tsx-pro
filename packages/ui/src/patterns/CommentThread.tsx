@@ -14,23 +14,32 @@
  * 时间写成相对现在（3 分钟前），悬停看完整时间。actions 给每条留言加操作（编辑、删除、标为已解决）。
  *
  * 单独的输入框用 CommentComposer（协商回复、审批意见）。
- * 部件：Root（div）、List（ul）、Item（li，可以按条计算）、Composer（CommentComposer）。
+ * 部件（data-scope="comment-thread"）：Root（div）、List（ul）、Item（li，可以按条计算）、Avatar、Body（article）、Header、Author、
+ * Meta（时间、已编辑、附件大小）、Content、Attachments（ul）、Actions、Replies（ul）、Empty、Composer（CommentComposer）。
+ * CommentComposer 的部件（data-scope="comment-composer"）：Root、Main、Mentions、Upload、Error、Footer、Tools（两组按钮）、
+ * Hint、Attach、Cancel、Send（Button）。
  */
 import { Paperclip } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, type VNodeChild } from 'vue';
-import { Button } from '../base/Button';
 import { Icon } from '../base/Icon';
 import { Link } from '../base/Link';
+import { Button, type ButtonProps } from '../base/Button';
 import { useFormat } from '../config/lang/format';
 import { useMessages } from '../config/lang/messages';
+import { partAttrs } from '../config/styles';
 import { RelativeTime } from '../date/RelativeTime';
-import { Avatar, initials } from '../display/Avatar';
-import { Empty } from '../feedback/Empty';
-import { Mentions, MentionText, type MentionsProps } from '../input/Mentions';
+import { Avatar, initials, type AvatarProps } from '../display/Avatar';
+import { Empty, type EmptyProps } from '../feedback/Empty';
+import {
+  Mentions,
+  MentionText,
+  type MentionsProps,
+  type MentionTextProps,
+} from '../input/Mentions';
 import type { ListboxOption } from '../input/list-state';
-import { Upload, type UploadFile, type UploadHandler } from '../input/Upload';
+import { Upload, type UploadFile, type UploadHandler, type UploadProps } from '../input/Upload';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { patternsMessages } from './messages';
 
@@ -108,6 +117,22 @@ export interface CommentComposerProps extends PartProps<'div'> {
   placeholder?: string;
   /** 输入框（Mentions）的部件属性；它的 aria-label 是输入框的名称 */
   propsMentions?: Partial<MentionsProps>;
+  /** 头像的部件属性 */
+  propsAvatar?: Partial<AvatarProps>;
+  /** 头像右边那一列（输入框、附件、按钮）的部件属性 */
+  propsMain?: PartProps<'div'>;
+  /** 附件上传（Upload）的部件属性 */
+  propsUpload?: Partial<UploadProps>;
+  /** 发送失败的提示的部件属性 */
+  propsError?: PartProps<'div'>;
+  /** 底部那一行（附件按钮、提示、取消、发送）的部件属性 */
+  propsFooter?: PartProps<'div'>;
+  /** 附件按钮的部件属性 */
+  propsAttach?: Partial<ButtonProps>;
+  /** 取消按钮的部件属性 */
+  propsCancel?: Partial<ButtonProps>;
+  /** 发送按钮的部件属性 */
+  propsSend?: Partial<ButtonProps>;
 }
 
 /** CommentThread、CommentComposer 的样式 */
@@ -171,9 +196,23 @@ const commentStyles = css.create({
   error: { fontSize: '_sm', color: '_dangerText' },
 });
 
+/** 部件的标记 */
+const threadPart = (part: string) => partAttrs({ name: 'CommentThread' }, part);
+const composerPart = (part: string) => partAttrs({ name: 'CommentComposer' }, part);
+
 /** 头像：有图片用图片，没有时是名字的首字母（名字就在旁边，头像只是装饰） */
-const authorAvatar = (name: string, avatar: string | undefined) => (
-  <Avatar src={avatar} fallback={initials(name)} size="sm" />
+const authorAvatar = (
+  name: string,
+  avatar: string | undefined,
+  marker: ReturnType<typeof threadPart>,
+  part: Partial<AvatarProps> | undefined,
+) => (
+  <Avatar
+    {...mergePartProps<AvatarProps>(
+      { src: avatar, fallback: initials(name), size: 'sm', ...marker },
+      part,
+    )}
+  />
 );
 
 /** 写留言的输入框：提及、附件、发送 */
@@ -188,6 +227,14 @@ export const CommentComposer = _component(
     autofocus = false,
     placeholder,
     propsMentions,
+    propsAvatar,
+    propsMain,
+    propsUpload,
+    propsError,
+    propsFooter,
+    propsAttach,
+    propsCancel,
+    propsSend,
     ...rest
   }: CommentComposerProps) => {
     const messages = useMessages('patterns', patternsMessages);
@@ -245,13 +292,21 @@ export const CommentComposer = _component(
     return () => (
       <div
         {...mergeAttrs<'div'>(
-          { sx: [commentStyles.composer, !author && commentStyles.composerNoAvatar] },
+          {
+            sx: [commentStyles.composer, !author && commentStyles.composerNoAvatar],
+            ...composerPart('root'),
+          },
           rest,
           { ref: _toRef(root) },
         )}
       >
-        {author && authorAvatar(author.name, author.avatar)}
-        <div {...css.attrs(commentStyles.composerMain)}>
+        {author && authorAvatar(author.name, author.avatar, composerPart('avatar'), propsAvatar)}
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: commentStyles.composerMain, ...composerPart('main') },
+            propsMain,
+          )}
+        >
           <Mentions
             {...mergePartProps<MentionsProps>(
               {
@@ -266,41 +321,65 @@ export const CommentComposer = _component(
             _value={text}
             _mentions={mentions}
           />
-          {upload && attaching && <Upload _value={files} upload={upload} multiple />}
+          {upload && attaching && (
+            <Upload
+              {...mergePartProps<UploadProps>({ multiple: true }, propsUpload, { upload })}
+              _value={files}
+            />
+          )}
           {failed && (
-            <div role="alert" {...css.attrs(commentStyles.error)}>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: commentStyles.error, ...composerPart('error') },
+                propsError,
+                { role: 'alert' },
+              )}
+            >
               {messages.commentSendFailed}
             </div>
           )}
-          <div {...css.attrs(commentStyles.composerFooter)}>
-            <div {...css.attrs(commentStyles.composerTools)}>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: commentStyles.composerFooter, ...composerPart('footer') },
+              propsFooter,
+            )}
+          >
+            <div {...css.attrs(commentStyles.composerTools)} {...composerPart('tools')}>
               {upload && (
                 <Button
-                  variant="ghost"
-                  tone="neutral"
-                  size="sm"
-                  icon={Paperclip}
-                  aria-pressed={attaching}
-                  onClick={() => (attaching = !attaching)}
+                  {...mergePartProps<ButtonProps>(
+                    { variant: 'ghost', tone: 'neutral', size: 'sm', icon: Paperclip },
+                    propsAttach,
+                    { 'aria-pressed': attaching, onClick: () => (attaching = !attaching) },
+                  )}
                 >
                   {files.length > 0
                     ? `${messages.commentAttach} ${files.length}`
                     : messages.commentAttach}
                 </Button>
               )}
-              <span {...css.attrs(commentStyles.hint)}>{messages.commentSendHint}</span>
+              <span {...css.attrs(commentStyles.hint)} {...composerPart('hint')}>
+                {messages.commentSendHint}
+              </span>
             </div>
-            <div {...css.attrs(commentStyles.composerTools)}>
+            <div {...css.attrs(commentStyles.composerTools)} {...composerPart('tools')}>
               {onCancel && (
-                <Button variant="ghost" tone="neutral" size="sm" onClick={onCancel}>
+                <Button
+                  {...mergePartProps<ButtonProps>(
+                    { variant: 'ghost', tone: 'neutral', size: 'sm' },
+                    propsCancel,
+                    { onClick: onCancel },
+                  )}
+                >
                   {messages.commentCancel}
                 </Button>
               )}
               <Button
-                size="sm"
-                loading={sending}
-                disabled={!sendable()}
-                onClick={() => void send()}
+                {...mergePartProps<ButtonProps>({ size: 'sm' }, propsSend, {
+                  loading: sending,
+                  disabled: !sendable(),
+                  onClick: () => void send(),
+                })}
               >
                 {messages.commentSend}
               </Button>
@@ -334,6 +413,24 @@ export interface CommentThreadProps extends PartProps<'div'> {
   propsList?: PartProps<'ul'>;
   /** 每条留言（li）的部件属性，可以按条计算 */
   propsItem?: PartProps<'li'> | ((comment: CommentItem) => PartProps<'li'>);
+  /** 头像的部件属性 */
+  propsAvatar?: Partial<AvatarProps>;
+  /** 头像右边的内容（article）的部件属性 */
+  propsBody?: PartProps<'article'>;
+  /** 作者、身份、时间那一行的部件属性 */
+  propsHeader?: PartProps<'div'>;
+  /** 作者名的部件属性 */
+  propsAuthor?: PartProps<'span'>;
+  /** 留言内容（MentionText）的部件属性 */
+  propsContent?: Partial<MentionTextProps>;
+  /** 附件列表（ul）的部件属性 */
+  propsAttachments?: PartProps<'ul'>;
+  /** 回复按钮与 actions 那一行的部件属性 */
+  propsActions?: PartProps<'div'>;
+  /** 回复列表（ul）的部件属性 */
+  propsReplies?: PartProps<'ul'>;
+  /** 没有留言时的 Empty 的部件属性 */
+  propsEmpty?: Partial<EmptyProps>;
   /** 输入框（CommentComposer）的部件属性 */
   propsComposer?: Partial<Omit<CommentComposerProps, 'onSend'>>;
 }
@@ -351,6 +448,15 @@ export const CommentThread = _component(
     now,
     propsList,
     propsItem,
+    propsAvatar,
+    propsBody,
+    propsHeader,
+    propsAuthor,
+    propsContent,
+    propsAttachments,
+    propsActions,
+    propsReplies,
+    propsEmpty,
     propsComposer,
     ...rest
   }: CommentThreadProps) => {
@@ -363,25 +469,70 @@ export const CommentThread = _component(
       const own = typeof propsItem === 'function' ? propsItem(comment) : propsItem;
       const top = comment === thread;
       return (
-        <li key={comment.id} {...mergeAttrs<'li'>({ sx: commentStyles.item }, own)}>
-          {authorAvatar(comment.author, comment.avatar)}
-          <article {...css.attrs(commentStyles.body)} aria-label={comment.author}>
-            <div {...css.attrs(commentStyles.header)}>
-              <span {...css.attrs(commentStyles.author)}>{comment.author}</span>
+        <li
+          key={comment.id}
+          {...mergeAttrs<'li'>({ sx: commentStyles.item, ...threadPart('item') }, own)}
+        >
+          {authorAvatar(comment.author, comment.avatar, threadPart('avatar'), propsAvatar)}
+          <article
+            {...mergeAttrs<'article'>(
+              { sx: commentStyles.body, ...threadPart('body') },
+              propsBody,
+              { 'aria-label': comment.author },
+            )}
+          >
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: commentStyles.header, ...threadPart('header') },
+                propsHeader,
+              )}
+            >
+              <span
+                {...mergeAttrs<'span'>(
+                  { sx: commentStyles.author, ...threadPart('author') },
+                  propsAuthor,
+                )}
+              >
+                {comment.author}
+              </span>
               {comment.role}
-              <RelativeTime value={comment.time} now={now} sx={commentStyles.meta} />
+              <RelativeTime
+                value={comment.time}
+                now={now}
+                sx={commentStyles.meta}
+                {...threadPart('meta')}
+              />
               {comment.edited && (
-                <span {...css.attrs(commentStyles.meta)}>{messages.commentEdited}</span>
+                <span {...css.attrs(commentStyles.meta)} {...threadPart('meta')}>
+                  {messages.commentEdited}
+                </span>
               )}
             </div>
-            <MentionText text={comment.content} options={people} sx={commentStyles.content} />
+            <MentionText
+              {...mergePartProps<MentionTextProps>(
+                {
+                  sx: commentStyles.content,
+                  ...threadPart('content'),
+                  text: comment.content,
+                  options: people,
+                },
+                propsContent,
+              )}
+            />
             {comment.attachments && comment.attachments.length > 0 && (
               <ul
-                {...css.attrs(commentStyles.attachments)}
-                aria-label={messages.commentAttachments}
+                {...mergeAttrs<'ul'>(
+                  { sx: commentStyles.attachments, ...threadPart('attachments') },
+                  propsAttachments,
+                  { 'aria-label': messages.commentAttachments },
+                )}
               >
                 {comment.attachments.map((file) => (
-                  <li key={file.name} {...css.attrs(commentStyles.attachment)}>
+                  <li
+                    key={file.name}
+                    {...css.attrs(commentStyles.attachment)}
+                    {...threadPart('attachment')}
+                  >
                     <Icon icon={Paperclip} />
                     {file.url ? (
                       <Link href={file.url} underline="hover">
@@ -391,7 +542,9 @@ export const CommentThread = _component(
                       file.name
                     )}
                     {file.size != null && (
-                      <span {...css.attrs(commentStyles.meta)}>{format.fileSize(file.size)}</span>
+                      <span {...css.attrs(commentStyles.meta)} {...threadPart('meta')}>
+                        {format.fileSize(file.size)}
+                      </span>
                     )}
                   </li>
                 ))}
@@ -399,7 +552,12 @@ export const CommentThread = _component(
             )}
             {comment.extra}
             {(onSend || actions) && (
-              <div {...css.attrs(commentStyles.actions)}>
+              <div
+                {...mergeAttrs<'div'>(
+                  { sx: commentStyles.actions, ...threadPart('actions') },
+                  propsActions,
+                )}
+              >
                 {onSend && (
                   <Button
                     variant="link"
@@ -428,8 +586,11 @@ export const CommentThread = _component(
         <>
           {list.length > 0 && (
             <ul
-              {...css.attrs(commentStyles.replies)}
-              aria-label={messages.commentReplies(list.length)}
+              {...mergeAttrs<'ul'>(
+                { sx: commentStyles.replies, ...threadPart('replies') },
+                propsReplies,
+                { 'aria-label': messages.commentReplies(list.length) },
+              )}
             >
               {list.map((reply) => item(reply, thread))}
             </ul>
@@ -462,17 +623,23 @@ export const CommentThread = _component(
     };
 
     return () => (
-      <div {...mergeAttrs<'div'>({ sx: commentStyles.root }, rest)}>
+      <div {...mergeAttrs<'div'>({ sx: commentStyles.root, ...threadPart('root') }, rest)}>
         {comments.length === 0 ? (
           hasContent(empty) ? (
             empty
           ) : (
-            <Empty size="sm" title={messages.commentsEmpty} />
+            <Empty
+              {...mergePartProps<EmptyProps>(
+                { size: 'sm', title: messages.commentsEmpty, ...threadPart('empty') },
+                propsEmpty,
+              )}
+            />
           )
         ) : (
           <ul
-            {...mergeAttrs<'ul'>({ sx: commentStyles.list }, propsList)}
-            aria-label={messages.comments}
+            {...mergeAttrs<'ul'>({ sx: commentStyles.list, ...threadPart('list') }, propsList, {
+              'aria-label': messages.comments,
+            })}
           >
             {comments.map((comment) => item(comment, comment))}
           </ul>

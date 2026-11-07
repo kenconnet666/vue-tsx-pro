@@ -62,4 +62,41 @@ describe('Checklist', () => {
       '验收报告已完成，财务复核意见已超时，合同签订记录未完成',
     );
   });
+
+  it('部件：各层带 data-part，部件属性合并到对应的节点上', () => {
+    const root = mount(() => (
+      <Checklist
+        items={[...items, { label: '上线', action: <button>去处理</button> }]}
+        summary
+        propsSummary={{ class: 'my-summary' }}
+        propsLabel={{ class: 'my-label' }}
+        propsAction={{ class: 'my-action' }}
+        propsProgress={{ tone: 'warning' }}
+      />
+    ));
+    const parts = new Set(
+      [...root.querySelectorAll('[data-scope="checklist"]')].map((node) =>
+        node.getAttribute('data-part'),
+      ),
+    );
+    for (const part of [
+      'root',
+      'summary',
+      'progress',
+      'list',
+      'item',
+      'status',
+      'body',
+      'label',
+      'description',
+      'meta',
+      'action',
+    ])
+      expect(parts.has(part)).toBe(true);
+    expect(root.querySelector('[data-part="summary"]')!.classList.contains('my-summary')).toBe(
+      true,
+    );
+    expect(root.querySelectorAll('.my-label')).toHaveLength(5);
+    expect(root.querySelector('[data-part="action"]')!.classList.contains('my-action')).toBe(true);
+  });
 });

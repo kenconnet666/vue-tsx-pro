@@ -107,4 +107,50 @@ describe('CommentThread', () => {
     expect(root.querySelector('[role="alert"]')!.textContent).toContain('发送失败');
     expect(textarea.value).toBe('请尽快确认');
   });
+
+  it('部件：各层带 data-part，部件属性合并到对应的节点上（使用方的在后）', async () => {
+    const root = mount(() => (
+      <CommentThread
+        comments={comments}
+        people={people}
+        now={now}
+        onSend={() => {}}
+        propsHeader={{ class: 'my-header' }}
+        propsActions={{ 'data-test': 'actions' } as never}
+        propsComposer={{ propsSend: { variant: 'soft' }, propsFooter: { class: 'my-footer' } }}
+      />
+    ));
+    await flush();
+    const parts = (scope: string) =>
+      [...root.querySelectorAll(`[data-scope="${scope}"]`)].map((node) =>
+        node.getAttribute('data-part'),
+      );
+    expect(new Set(parts('comment-thread'))).toEqual(
+      new Set([
+        'root',
+        'list',
+        'item',
+        'avatar',
+        'body',
+        'header',
+        'author',
+        'meta',
+        'content',
+        'attachments',
+        'attachment',
+        'actions',
+        'replies',
+      ]),
+    );
+    expect(parts('comment-composer')).toEqual(
+      expect.arrayContaining(['root', 'main', 'footer', 'tools', 'hint']),
+    );
+    expect(root.querySelector('[data-part="header"]')!.classList.contains('my-header')).toBe(true);
+    expect(root.querySelector('[data-part="actions"]')!.getAttribute('data-test')).toBe('actions');
+    expect(
+      root
+        .querySelector('[data-scope="comment-composer"][data-part="footer"]')!
+        .classList.contains('my-footer'),
+    ).toBe(true);
+  });
 });
