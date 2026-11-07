@@ -221,6 +221,7 @@ export {
   type CardProps,
   type CardVariants,
 } from './display/Card';
+export { Carousel, carouselStyles, type CarouselProps } from './display/Carousel';
 export {
   Checklist,
   type ChecklistItem,
@@ -1423,6 +1424,7 @@ export {
   type PanZoom,
   type PanZoomContent,
   type PanZoomOptions,
+  type PanZoomRegion,
   type PanZoomState,
   type PanZoomWheelModes,
   type Point,

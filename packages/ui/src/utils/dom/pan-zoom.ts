@@ -14,7 +14,8 @@
  * - 滚轮：wheel 为 'zoom'（默认，图片预览）时滚轮缩放；为 'pan' 时滚轮平移、按住 Ctrl / ⌘ 才缩放（流程图、画布）。
  *   触控板的双指缩放在浏览器里就是按着 Ctrl 的滚轮，两种模式下都是缩放。
  * - 键盘（视口要能聚焦）：+ / − 缩放，0 回到初始，方向键平移。
- * - bounds 给出内容的大小时限制平移：内容比视口大就不露出边外的空白，比视口小就居中。
+ * - bounds 给出内容的大小时限制平移：内容比视口大就不露出边外的空白，比视口小就居中。frame 给出视口里的一块（裁剪框）时按它限制，
+ *   cover 时缩放下限是内容盖满 frame 所需的比例（裁剪图片：框里永远是图）。
  * - filter 挑出要处理的事件（同 d3-zoom 的 filter）：画布里按在节点上、按着 Shift 框选时返回 false，平移让给它们。
  * 视口要设 touch-action: none（viewportProps 里已带），否则触屏拖动会被当成页面滚动。
  */
@@ -58,6 +59,10 @@ export interface PanZoomOptions {
   wheel?: keyof PanZoomWheelModes;
   /** 内容的大小（缩放前）：给了就限制平移，不露出内容外的空白 */
   bounds?: () => { width: number; height: number } | undefined;
+  /** 平移限制按视口里的这一块算（裁剪框，视口内坐标）；不写时是整个视口 */
+  frame?: () => PanZoomRegion | undefined;
+  /** 内容至少盖满 frame（配合 bounds）：缩放下限取盖满所需的比例与 min 里大的那个 */
+  cover?: boolean;
   /** 不可用：不响应拖动、滚轮与键盘 */
   disabled?: () => boolean;
   /** 只处理返回 true 的事件（按下、滚轮、双击、按键）；默认都处理。返回 false 的事件原样留给页面与别的处理函数 */
@@ -104,6 +109,18 @@ export interface PanZoom {
   readonly viewportProps: Record<string, unknown>;
 }
 
+/** 视口里的一块（相对视口左上角，px） */
+export interface PanZoomRegion {
+  /** 左边，默认 0 */
+  x?: number;
+  /** 上边，默认 0 */
+  y?: number;
+  /** 宽 */
+  width: number;
+  /** 高 */
+  height: number;
+}
+
 /** 视口内的一点（相对视口左上角，px） */
 export interface Point {
   /** 横坐标 */
@@ -122,17 +139,17 @@ export function zoomAround(state: PanZoomState, next: number, origin: Point): Pa
   };
 }
 
-/** 平移的限制：内容比视口大时边缘不进到视口里，比视口小时居中 */
+/** 平移的限制：内容比区域（视口或裁剪框）大时边缘不进到区域里，比区域小时在区域里居中 */
 export function clampPan(
   state: PanZoomState,
-  viewport: { width: number; height: number },
+  region: PanZoomRegion,
   content: { width: number; height: number },
 ): PanZoomState {
-  const axis = (offset: number, view: number, size: number) =>
-    size <= view ? (view - size) / 2 : clamp(offset, view - size, 0);
+  const axis = (offset: number, start: number, room: number, size: number) =>
+    size <= room ? start + (room - size) / 2 : clamp(offset, start + room - size, start);
   return {
-    x: axis(state.x, viewport.width, content.width * state.scale),
-    y: axis(state.y, viewport.height, content.height * state.scale),
+    x: axis(state.x, region.x ?? 0, region.width, content.width * state.scale),
+    y: axis(state.y, region.y ?? 0, region.height, content.height * state.scale),
     scale: state.scale,
   };
 }
@@ -196,13 +213,27 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
     return { x: event.clientX - (rect?.left ?? 0), y: event.clientY - (rect?.top ?? 0) };
   };
 
+  const region = (): PanZoomRegion => options.frame?.() ?? viewportSize();
+  /** 缩放下限：cover 时还要盖满 frame */
+  function minScale() {
+    const content = options.bounds?.();
+    if (!options.cover || !content?.width || !content.height) return min;
+    const { width, height } = region();
+    return Math.max(min, width / content.width, height / content.height);
+  }
+
   function apply(next: PanZoomState) {
     const content = options.bounds?.();
-    state.value = content ? clampPan(next, viewportSize(), content) : next;
+    if (!content) {
+      state.value = next;
+      return;
+    }
+    const scale = clamp(next.scale, minScale(), Math.max(max, minScale()));
+    state.value = clampPan({ ...next, scale }, region(), content);
   }
 
   function zoomTo(scale: number, origin: Point = center()) {
-    const next = clamp(scale, min, max);
+    const next = clamp(scale, minScale(), Math.max(max, minScale()));
     if (next === state.value.scale) return;
     apply(zoomAround(state.value, next, origin));
   }
@@ -257,7 +288,11 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
     pointers.set(event.pointerId, local(event));
     const [a, b] = [...pointers.values()] as [Point, Point];
     const distance = Math.hypot(a.x - b.x, a.y - b.y);
-    const scale = clamp((pinch.state.scale * distance) / pinch.distance, min, max);
+    const scale = clamp(
+      (pinch.state.scale * distance) / pinch.distance,
+      minScale(),
+      Math.max(max, minScale()),
+    );
     apply(zoomAround(pinch.state, scale, { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }));
   }
 

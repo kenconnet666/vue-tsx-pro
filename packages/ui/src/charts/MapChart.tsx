@@ -800,8 +800,8 @@ export const MapChart = _component(
         )}
         {(
           [
-            [Plus, lang.chartZoomIn, () => view.zoomIn()],
-            [Minus, lang.chartZoomOut, () => view.zoomOut()],
+            [Plus, lang.zoomIn, () => view.zoomIn()],
+            [Minus, lang.zoomOut, () => view.zoomOut()],
             [Maximize, lang.chartZoomFit, () => view.reset()],
           ] as const
         ).map(([icon, label, action]) => (

@@ -16,7 +16,13 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- 新组件 Carousel（轮播）：原生横向滚动加 scroll-snap，上一张 / 下一张、页点；`autoplay`（指针停留、焦点进来时暂停，
+  有暂停 / 播放按钮，偏好减少动态效果时一开始暂停）；`slidesPerView`（可以是 1.5）、`gap`、`loop`、`_index`；
+  WAI-ARIA 轮播模式（区域、每张 role="group"、不自动播放时 aria-live="polite"）。
+- **破坏性**：语言包合并重复的条目：`lightboxZoomIn` 与 `chartZoomIn` 合成 `zoomIn`，`lightboxZoomOut` 与 `chartZoomOut`
+  合成 `zoomOut`，`lightboxCounter` 改名 `slideCounter`（图片预览的计数与轮播共用）。自定义的语言包照着改名。
+- `usePanZoom` 加 `frame`（平移按视口里的一块限制，如裁剪框）与 `cover`（缩放下限是内容盖满 frame 的比例）；
+  `clampPan` 的第二个参数可以带 x、y（视口里的一块）。
 
 ## 每次发布
 

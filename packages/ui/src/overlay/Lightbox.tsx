@@ -318,12 +318,12 @@ export const Lightbox = _component(
         >
           <div {...css.attrs(lightboxStyles.toolbar)}>
             <span {...css.attrs(lightboxStyles.counter)} aria-live="polite">
-              {total > 1 ? lang.lightboxCounter(index + 1, total) : ''}
+              {total > 1 ? lang.slideCounter(index + 1, total) : ''}
             </span>
             <IconButton
               {...button({
                 icon: ZoomOut,
-                'aria-label': lang.lightboxZoomOut,
+                'aria-label': lang.zoomOut,
                 onClick: () => view.zoomOut(),
               })}
             />
@@ -333,7 +333,7 @@ export const Lightbox = _component(
             <IconButton
               {...button({
                 icon: ZoomIn,
-                'aria-label': lang.lightboxZoomIn,
+                'aria-label': lang.zoomIn,
                 onClick: () => view.zoomIn(),
               })}
             />

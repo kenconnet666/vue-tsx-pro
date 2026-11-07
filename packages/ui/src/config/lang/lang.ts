@@ -81,12 +81,14 @@ export interface Lang {
    * `defineLang(zhCN, { errorCodes: { 'app.quota-exceeded': '额度不足' } })`
    */
   readonly errorCodes: Readonly<Record<string, ErrorCodeText>>;
+  /** 放大按钮（图片预览、地图、裁剪图片共用），默认“放大” */
+  readonly zoomIn: string;
+  /** 缩小按钮（图片预览、地图、裁剪图片共用），默认“缩小” */
+  readonly zoomOut: string;
+  /** 第几张（图片预览的计数、轮播每一张与页点的名称）：`(2, 5)` → “第 2 张，共 5 张” */
+  readonly slideCounter: (index: number, total: number) => string;
   /** 图片预览（Lightbox）的名称，默认“图片预览” */
   readonly lightboxLabel: string;
-  /** 图片预览：放大，默认“放大” */
-  readonly lightboxZoomIn: string;
-  /** 图片预览：缩小，默认“缩小” */
-  readonly lightboxZoomOut: string;
   /** 图片预览：向左旋转，默认“向左旋转” */
   readonly lightboxRotateLeft: string;
   /** 图片预览：向右旋转，默认“向右旋转” */
@@ -99,8 +101,6 @@ export interface Lang {
   readonly lightboxPrevious: string;
   /** 图片预览：下一张，默认“下一张” */
   readonly lightboxNext: string;
-  /** 图片预览的位置：`(2, 5)` → “第 2 张，共 5 张” */
-  readonly lightboxCounter: (index: number, total: number) => string;
   /** 描述列表里复制一项的值的按钮：`('订单号')` → “复制订单号” */
   readonly descriptionsCopy: (label: string) => string;
   /** 字段对比的表头：字段、原值、新值、变化 */
@@ -139,10 +139,6 @@ export interface Lang {
   readonly chartZoom: string;
   /** 图表缩放后恢复全部，默认“显示全部” */
   readonly chartZoomReset: string;
-  /** 地图的放大按钮，默认“放大” */
-  readonly chartZoomIn: string;
-  /** 地图的缩小按钮，默认“缩小” */
-  readonly chartZoomOut: string;
   /** 地图的复位按钮，默认“复位” */
   readonly chartZoomFit: string;
   /** 地图拦下没按 Ctrl 的滚轮时的提示，默认“按住 Ctrl 滚动缩放地图” */
@@ -393,6 +389,16 @@ export interface Lang {
   readonly jsonCopyPath: string;
   /** JsonViewer：没有选中项时路径栏的提示，默认“选中一项后可以复制它的值与路径” */
   readonly jsonPathHint: string;
+  /** Carousel：区域的默认名称，默认“轮播” */
+  readonly carousel: string;
+  /** Carousel：上一张，默认“上一张” */
+  readonly carouselPrevious: string;
+  /** Carousel：下一张，默认“下一张” */
+  readonly carouselNext: string;
+  /** Carousel：暂停自动播放，默认“暂停自动播放” */
+  readonly carouselPause: string;
+  /** Carousel：继续自动播放，默认“开始自动播放” */
+  readonly carouselPlay: string;
   /** SignaturePad：签名区域的默认名称，默认“签名” */
   readonly signature: string;
   /** SignaturePad：还没签时区域里的提示，默认“在此处签名” */
