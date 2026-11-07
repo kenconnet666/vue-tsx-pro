@@ -45,6 +45,10 @@ export default _component(() => () => (
           ）；fetch 拿不到上传进度，要进度时写 upload。父级放进 value 的“已选择”文件（带{' '}
           <Code>file</Code>）同样马上开始上传。
         </Example>
+        <Example id="file-drop" title="FileDrop" demo={Import}>
+          只负责选文件：点击、聚焦后按 Enter / 空格、或把文件拖进来。选到的经 <Code>onFiles</Code>{' '}
+          交出去；拖放不受 accept 限制，不合格的经 <Code>onReject</Code> 交出去。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="form" title="随表单提交与已有文件" demo={Resume}>
@@ -53,10 +57,6 @@ export default _component(() => () => (
           <Code>upload</Code> 时新选的停在“已选择”，等提交时一起处理；写了 <Code>name</Code>{' '}
           时有一个隐藏的 file input 带着新选的文件，原生提交、FormData
           都拿得到。单选时新文件替换旧的。
-        </Example>
-        <Example id="file-drop" title="FileDrop" demo={Import}>
-          只负责选文件：点击、聚焦后按 Enter / 空格、或把文件拖进来。选到的经 <Code>onFiles</Code>{' '}
-          交出去；拖放不受 accept 限制，不合格的经 <Code>onReject</Code> 交出去。
         </Example>
         <Example id="folder" title="上传整个文件夹" demo={Folder}>
           <Code>directory</Code>{' '}

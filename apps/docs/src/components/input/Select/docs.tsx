@@ -41,6 +41,13 @@ export default _component(() => () => (
           自带搜索框，输入的文字没有对应的选项时列表末尾多一项“新建”，选中后值就是这段文字，在{' '}
           <Code>onCreate</Code> 里把它加进 items。
         </Example>
+        <Example id="custom" title="异步加载与自定义显示" demo={Members}>
+          <Code>load(搜索词, signal)</Code> 在打开时请求（searchable 时搜索词停下 300 ms
+          再请求），只采用最后一次，请求期间列表里是骨架行，失败时提示重试；<Code>items</Code>{' '}
+          是第一次结果之前的选项（编辑页放上已选的那几项）。
+          <Code>renderValue</Code> 自定义触发框里的已选内容（这里是头像叠放加名字），返回 null
+          时显示占位文字；分组来自选项的 <Code>group</Code>。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="searchable" title="可搜索" demo={Searchable}>
@@ -53,13 +60,6 @@ export default _component(() => () => (
           换成了另一页的搜索结果时，触发框里照样显示它的文字。远程搜索给 <Code>load</Code>{' '}
           （见下一个示例）；自己管请求时用 <Code>_search={'{keyword}'}</Code> 拿到搜索词、
           <Code>filter={'{false}'}</Code> 关掉本地过滤。
-        </Example>
-        <Example id="custom" title="异步加载与自定义显示" demo={Members}>
-          <Code>load(搜索词, signal)</Code> 在打开时请求（searchable 时搜索词停下 300 ms
-          再请求），只采用最后一次，请求期间列表里是骨架行，失败时提示重试；<Code>items</Code>{' '}
-          是第一次结果之前的选项（编辑页放上已选的那几项）。
-          <Code>renderValue</Code> 自定义触发框里的已选内容（这里是头像叠放加名字），返回 null
-          时显示占位文字；分组来自选项的 <Code>group</Code>。
         </Example>
         <Example id="paged" title="远程搜索与分页" demo={Suppliers}>
           选项太多、要分页取时，<Code>load</Code> 的第三个参数是第几页（从 1 开始），返回{' '}
