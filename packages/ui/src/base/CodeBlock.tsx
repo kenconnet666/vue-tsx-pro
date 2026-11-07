@@ -18,6 +18,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useConfig, useLang } from '../config/context';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { focusRingStyles } from '../utils/style/styles';
 import { disclosureStyles } from '../utils/style/transitions';
 import { ScrollArea, type ScrollAreaProps } from '../layout/ScrollArea';
 import { ButtonBase, type ButtonBaseProps } from './ButtonBase';
@@ -372,10 +373,15 @@ export const CodeBlock = _component(
           </div>
           {collapsible && (
             <ButtonBase
-              {...mergePartProps<ButtonBaseProps>({ sx: codeBlockStyles.expand }, propsExpand, {
-                'aria-expanded': expanded,
-                onClick: () => (expanded = !expanded),
-              })}
+              {...mergePartProps<ButtonBaseProps>(
+                // 外框裁掉溢出：焦点环画在按钮里面，画在外侧会整圈被裁掉
+                { sx: [focusRingStyles.inset, codeBlockStyles.expand] },
+                propsExpand,
+                {
+                  'aria-expanded': expanded,
+                  onClick: () => (expanded = !expanded),
+                },
+              )}
             >
               {expanded ? labels.codeCollapse : labels.codeExpand}
               <Icon
