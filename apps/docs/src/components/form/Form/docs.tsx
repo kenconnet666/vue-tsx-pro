@@ -4,6 +4,7 @@ import fieldApi from 'virtual:api/FieldProps';
 import api from 'virtual:api/FormProps';
 import formValueApi from 'virtual:api/FormValueProps';
 import summaryApi from 'virtual:api/FormErrorSummaryProps';
+import sectionApi from 'virtual:api/FormSectionProps';
 import labelApi from 'virtual:api/LabelProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -13,6 +14,9 @@ import Admission from './demo/Admission.tsx?demo';
 import Layout from './demo/Layout.tsx?demo';
 import Native from './demo/Native.tsx?demo';
 import Quote from './demo/Quote.tsx?demo';
+import SectionCollapsible from './demo/SectionCollapsible.tsx?demo';
+import SectionReview from './demo/SectionReview.tsx?demo';
+import Sections from './demo/Sections.tsx?demo';
 import Signup from './demo/Signup.tsx?demo';
 import Wizard from './demo/Wizard.tsx?demo';
 import States from './demo/States.tsx?demo';
@@ -20,7 +24,7 @@ import States from './demo/States.tsx?demo';
 export const meta = {
   title: 'Form 表单',
   description:
-    'useForm 把值、校验、错误、提交状态放进一个控制器；Field 关联标签、说明与错误；一份 zod schema 同时给出校验、类型与字段约束。',
+    'useForm 把值、校验、错误、提交状态放进一个控制器；Field 关联标签、说明与错误；一份 zod schema 同时给出校验、类型与字段约束；长表单用 FormSection 按主题分组。',
   order: 1,
 };
 
@@ -28,7 +32,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { bigintSchema, decimalSchema, Field, Form, FormErrorSummary, FormValue, useForm, useLeaveConfirmation } from '@zerodep-dev/vue-tsx-pro-ui';"
+    imports="import { bigintSchema, decimalSchema, Field, Form, FormErrorSummary, FormSection, FormValue, useForm, useLeaveConfirmation } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Example id="admission" title="供应商准入：自动绑定与错误汇总" demo={Admission}>
       <Code>form.Field</Code> 里只有一个控件、控件上没写值时，自动绑定 <Code>form.values</Code>{' '}
@@ -90,6 +94,33 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, summaryApi, fieldApi, formValueApi, labelApi]} />
+    <Example id="sections" title="长表单分组与目录：FormSection" demo={Sections}>
+      <Code>FormSection</Code> 按主题分组：标题、说明、结束边的操作，下面是最多 <Code>columns</Code>{' '}
+      列的字段栅格（每列不窄于 <Code>minColumnWidth</Code>，容器窄时自动减少列数，不用断点；跨整行用{' '}
+      <Code>GridItem span="full"</Code>）。给了 <Code>id</Code> 就能当锚点：旁边放一个
+      TableOfContents 做分节导航。语义是以标题为名称的 group，标题是 h2–h6（
+      <Code>headingLevel</Code>，默认 h3），读屏能按标题跳转。
+    </Example>
+    <Examples>
+      <ExampleColumn>
+        <Example id="section-review" title="审批时整组只读" demo={SectionReview}>
+          分组也是一层字段布局：<Code>readonly</Code>、<Code>disabled</Code>、
+          <Code>labelPlacement</Code>、<Code>labelWidth</Code> 写在分组上只作用于这一组，没写的沿用
+          Form 的。申请内容只读，审批意见照常填。
+        </Example>
+      </ExampleColumn>
+      <ExampleColumn>
+        <Example
+          id="section-collapsible"
+          title="可收起的分组、标题栏的操作"
+          demo={SectionCollapsible}
+        >
+          <Code>collapsible</Code> 时标题是展开收起的按钮（aria-expanded），<Code>_open</Code>{' '}
+          可以绑定；收起的字段不能被 Tab 到。<Code>extra</Code>{' '}
+          放在标题栏的结束边：添加一行、查看关联明细。
+        </Example>
+      </ExampleColumn>
+    </Examples>
+    <ApiReference api={[api, summaryApi, fieldApi, sectionApi, formValueApi, labelApi]} />
   </DocPage>
 ));

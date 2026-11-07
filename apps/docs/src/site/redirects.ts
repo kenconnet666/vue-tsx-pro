@@ -4,4 +4,9 @@
  */
 export const redirects: Readonly<Record<string, string>> = {
   '/components/icon-button': '/components/button#icon-buttons',
+  '/components/banner': '/components/alert#banner',
+  '/components/loading-bar': '/components/progress#loading-bar',
+  '/components/value-change': '/components/field-compare#value-change',
+  '/components/resize-handle': '/components/splitter#resize-handle',
+  '/components/form-section': '/components/form#sections',
 };

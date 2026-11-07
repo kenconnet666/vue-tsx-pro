@@ -1,5 +1,6 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Code, CodeBlock } from '@zerodep-dev/vue-tsx-pro-ui';
+import loadingBarApi from 'virtual:api/LoadingBarProps';
 import overlayApi from 'virtual:api/LoadingOverlayProps';
 import api from 'virtual:api/ProgressProps';
 import spinnerApi from 'virtual:api/SpinnerProps';
@@ -8,6 +9,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Bars from './demo/Bars.tsx?demo';
+import LoadingBar from './demo/LoadingBar.tsx?demo';
 import Overlay from './demo/Overlay.tsx?demo';
 import Rings from './demo/Rings.tsx?demo';
 import Shapes from './demo/Shapes.tsx?demo';
@@ -16,15 +18,26 @@ import Spinners from './demo/Spinners.tsx?demo';
 export const meta = {
   title: 'Progress 进度与加载',
   description:
-    '进度条（Progress）、加载中的旋转指示（Spinner）与盖住一块区域的加载遮罩（LoadingOverlay）；内容还没来时的占位用 Skeleton。',
+    '进度条（Progress）、加载中的旋转指示（Spinner）、盖住一块区域的加载遮罩（LoadingOverlay）与窗口顶部的加载条（LoadingBar）；内容还没来时的占位用 Skeleton。',
   order: 2,
 };
+
+const routerCode = `// loading-bar.ts：应用里创建一次，组件内外都能调用
+export const loadingBar = createLoadingBar();
+
+// main.ts：换页时自动 start / finish，跳转失败时 error
+useRouteLoadingBar(router, loadingBar);
+
+// App.tsx：放一个
+<LoadingBar controller={loadingBar} />`;
 
 export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Progress, Spinner, LoadingOverlay } from '@zerodep-dev/vue-tsx-pro-ui';"
+    imports={
+      "import { Progress, Spinner, LoadingOverlay, LoadingBar, createLoadingBar } from '@zerodep-dev/vue-tsx-pro-ui';\nimport { useRouteLoadingBar } from '@zerodep-dev/vue-tsx-pro-ui/vue-router';"
+    }
   >
     <Examples>
       <ExampleColumn>
@@ -57,8 +70,17 @@ export default _component(() => () => (
           <Code>size</Code> 跟字号档位缩放粗细，<Code>radius</Code> 改圆角；不写 <Code>value</Code>{' '}
           是不确定进度，循环滑动，减少动态效果时停下。
         </Example>
+        <Example id="loading-bar" title="换页时的加载条" demo={LoadingBar}>
+          <Code>LoadingBar</Code> 是窗口顶部的一条细线，控制器加显示（同 Toast）：
+          <Code>createLoadingBar()</Code> 返回控制器，<Code>start</Code> 开始、<Code>finish</Code>{' '}
+          走满后淡出、<Code>error</Code> 变成危险色走满。不知道真实进度，所以先快后慢地涨，停在 90%
+          前等完成；<Code>delay</Code>
+          （默认 200ms）之内就完成的不显示。它只是视觉提示：读屏读到的是内容区域的{' '}
+          <Code>aria-busy</Code>。示例把加载条放进了框里，平时它贴在窗口顶部；接上路由见下面的代码。
+        </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, spinnerApi, overlayApi]} />
+    <CodeBlock code={routerCode} lang="tsx" title="加载条接上路由（本文档站就是这样接的）" />
+    <ApiReference api={[api, spinnerApi, overlayApi, loadingBarApi]} />
   </DocPage>
 ));

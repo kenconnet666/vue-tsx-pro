@@ -2,21 +2,27 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/FieldCompareProps';
 import fieldApi from 'virtual:api/CompareField';
+import valueChangeApi from 'virtual:api/ValueChangeProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import Changes from './demo/Changes.tsx?demo';
+import ValueChange from './demo/ValueChange.tsx?demo';
 import Versions from './demo/Versions.tsx?demo';
 
 export const meta = {
-  title: 'FieldCompare 字段对比',
+  title: 'FieldCompare 字段对比与值的变化',
   description:
-    '两份记录按字段列出原值与新值（测算版本对比、编辑前后、审批前后），数值字段带变化量与变化率，按好坏着色。',
+    '两份记录按字段列出原值与新值（测算版本对比、编辑前后、审批前后），数值字段带变化量与变化率，按好坏着色；单个值的变化用 ValueChange。',
   order: 5.5,
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { FieldCompare } from '@zerodep-dev/vue-tsx-pro-ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { FieldCompare, ValueChange } from '@zerodep-dev/vue-tsx-pro-ui';"
+  >
     <Example id="versions" title="版本对比：表格" demo={Versions}>
       <Code>fields</Code> 的写法与表格的列相同（<Code>key</Code>、<Code>header</Code>、
       <Code>type</Code>、<Code>format</Code>、<Code>statuses</Code>、<Code>value</Code>
@@ -32,6 +38,11 @@ export default _component(() => () => (
       Timeline 的操作记录）。原值是 del、新值是 ins，中间有给读屏的“改为”；
       <Code>before</Code> 为空（新建）时只列新值，什么都没改时显示“没有改动”（语言包可改）。
     </Example>
-    <ApiReference api={[api, fieldApi]} />
+    <Example id="value-change" title="单个值的变化：操作记录" demo={ValueChange}>
+      <Code>ValueChange</Code> 是一个值的变化：<Code>before</Code> 划掉、箭头、<Code>after</Code>
+      ，放在表格单元格、操作记录、审批意见里；没有原值（新建）时只显示新值。表格里标出改过的格见
+      DataTable 的“数据修正”。
+    </Example>
+    <ApiReference api={[api, fieldApi, valueChangeApi]} />
   </DocPage>
 ));
