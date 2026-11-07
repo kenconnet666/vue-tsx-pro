@@ -18,4 +18,8 @@ export const redirects: Readonly<Record<string, string>> = {
   '/components/proportion-bar': '/components/sparkline#proportion-bar',
   '/components/doc-article': '/components/docs-kit#article',
   '/components/props-table': '/components/docs-kit#props-table',
+  '/components/mesh-gradient': '/components/shader-background#mesh-gradient',
+  '/components/aurora-background': '/components/shader-background#aurora',
+  '/components/particle-field': '/components/shader-background#particle-field',
+  '/components/wave-grid': '/components/shader-background#wave-grid',
 };

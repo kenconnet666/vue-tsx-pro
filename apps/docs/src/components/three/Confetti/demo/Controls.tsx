@@ -1,7 +1,7 @@
 // 只在一块区域里放（fullscreen={false}）：方向、散开角度、数量、初速度与重力实时调整
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Button, Card, Flex, Grid, Slider, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Button, Card, Field, Flex, Grid, Slider } from '@zerodep-dev/vue-tsx-pro-ui';
 import { Confetti } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 const styles = css.create({
@@ -14,8 +14,6 @@ const styles = css.create({
     paddingBottom: '_lg',
     overflow: 'hidden',
   },
-  label: { minWidth: '5em', color: '_textMuted' },
-  slider: { flexGrow: 1 },
 });
 
 export default _component(() => {
@@ -69,22 +67,17 @@ export default _component(() => {
   ];
   return () => (
     <Flex direction="column" gap="md">
-      <Grid minItemWidth="14rem" gap="md">
+      <Grid minItemWidth="10rem" gap="lg">
         {sliders.map((item) => (
-          <Flex key={item.label} gap="sm" align="center">
-            <Text size="sm" sx={styles.label}>
-              {item.label}
-            </Text>
+          <Field key={item.label} label={item.label}>
             <Slider
               _value={item.get()}
               onUpdate:_value={item.set}
               min={item.min}
               max={item.max}
               step={item.step}
-              aria-label={item.label}
-              propsRoot={{ sx: styles.slider }}
             />
-          </Flex>
+          </Field>
         ))}
       </Grid>
       <Card padding="none">

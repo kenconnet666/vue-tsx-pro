@@ -1,6 +1,6 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Flex, Slider, Text } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Field, Flex, Slider } from '@zerodep-dev/vue-tsx-pro-ui';
 import { ShaderBackground } from '@zerodep-dev/vue-tsx-pro-ui/three';
 
 // 同心圆环从指针处荡开：uRings 是自己加的 uniform，uPointer 自动提供（z 是指针在区域内的程度）
@@ -22,8 +22,7 @@ vec4 shade(vec2 uv) {
 
 const styles = css.create({
   stage: { height: '18rem' },
-  label: { color: '_textMuted' },
-  slider: { flexGrow: 1, maxWidth: '20rem' },
+  field: { maxWidth: '20rem' },
 });
 
 export default _component(() => {
@@ -32,18 +31,9 @@ export default _component(() => {
   _effect(() => void (uniforms.uRings.value = rings));
   return () => (
     <Flex direction="column" gap="md">
-      <Flex gap="sm" align="center">
-        <Text size="sm" sx={styles.label}>
-          圆环数 {rings}
-        </Text>
-        <Slider
-          _value={rings}
-          min={1}
-          max={20}
-          aria-label="圆环数"
-          propsRoot={{ sx: styles.slider }}
-        />
-      </Flex>
+      <Field label={`圆环数 ${rings}`} sx={styles.field}>
+        <Slider _value={rings} min={1} max={20} />
+      </Field>
       <ShaderBackground sx={styles.stage} fragmentShader={RIPPLES} uniforms={uniforms} />
     </Flex>
   );

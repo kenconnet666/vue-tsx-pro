@@ -1,4 +1,4 @@
-// 画质、渲染分辨率与暂停；quality="off" 时不创建 WebGL，显示 fallback（没有 WebGL 时也是它）
+// 所有 3D 效果共有：画质档位、渲染分辨率、暂停；quality="off" 时不创建 WebGL，显示 fallback（没有 WebGL 时也是它）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
@@ -11,19 +11,19 @@ import {
   ToggleItem,
   t,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import { ShaderBackground, type ThreeQuality } from '@zerodep-dev/vue-tsx-pro-ui/three';
+import {
+  AuroraBackground,
+  MeshGradient,
+  ParticleField,
+  WaveGrid,
+  type EffectProps,
+  type ThreeQuality,
+} from '@zerodep-dev/vue-tsx-pro-ui/three';
 
-const PLASMA = /* glsl */ `
-vec4 shade(vec2 uv) {
-  vec2 p = (uv - 0.5) * vec2(uResolution.x / uResolution.y, 1.0) * 3.0;
-  float t = uTime * 0.6;
-  float v = sin(p.x + t) + sin(p.y * 1.3 - t) + sin(length(p) * 2.0 - t * 1.5);
-  return vec4(themePalette(v * 0.16 + 0.5), 1.0);
-}
-`;
+type Effect = 'mesh' | 'aurora' | 'particles' | 'wave';
 
 const styles = css.create({
-  stage: { height: '16rem', borderRadius: '_lg' },
+  stage: { height: '16rem', borderRadius: '_lg', backgroundColor: '_surfaceMuted' },
   // 静态的替代画面：同样的色调，一层 CSS 渐变
   fallback: {
     height: '100%',
@@ -33,39 +33,53 @@ const styles = css.create({
 });
 
 export default _component(() => {
+  let effect = _state<Effect>('mesh');
   let quality = _state<ThreeQuality>('auto');
-  let resolution = _state(1);
+  let resolution = _state(0.5);
   let paused = _state(false);
-  return () => (
-    <Flex direction="column" gap="md">
-      <Grid minItemWidth="12rem" gap="lg" align="end">
-        <Field label="画质">
-          <ToggleGroup _value={quality} required>
-            <ToggleItem value="auto">自动</ToggleItem>
-            <ToggleItem value="low">低</ToggleItem>
-            <ToggleItem value="high">高</ToggleItem>
-            <ToggleItem value="off">关</ToggleItem>
+  return () => {
+    const props: EffectProps = {
+      sx: styles.stage,
+      quality,
+      resolution,
+      paused,
+      fallback: <div {...css.attrs(styles.fallback)} />,
+    };
+    return (
+      <Flex direction="column" gap="md">
+        <Field label="效果">
+          <ToggleGroup _value={effect} required>
+            <ToggleItem value="mesh">网格渐变</ToggleItem>
+            <ToggleItem value="aurora">极光</ToggleItem>
+            <ToggleItem value="particles">粒子场</ToggleItem>
+            <ToggleItem value="wave">线框地形</ToggleItem>
           </ToggleGroup>
         </Field>
-        <Field label="渲染分辨率">
-          <Slider
-            _value={resolution}
-            min={0.1}
-            max={1}
-            step={0.05}
-            valueText={(value) => `${Math.round(value * 100)}%`}
-          />
-        </Field>
-        <Switch _checked={paused}>暂停</Switch>
-      </Grid>
-      <ShaderBackground
-        sx={styles.stage}
-        fragmentShader={PLASMA}
-        quality={quality}
-        resolution={resolution}
-        paused={paused}
-        fallback={<div {...css.attrs(styles.fallback)} />}
-      />
-    </Flex>
-  );
+        <Grid minItemWidth="12rem" gap="lg" align="end">
+          <Field label="画质">
+            <ToggleGroup _value={quality} required>
+              <ToggleItem value="auto">自动</ToggleItem>
+              <ToggleItem value="low">低</ToggleItem>
+              <ToggleItem value="high">高</ToggleItem>
+              <ToggleItem value="off">关</ToggleItem>
+            </ToggleGroup>
+          </Field>
+          <Field label="渲染分辨率">
+            <Slider
+              _value={resolution}
+              min={0.1}
+              max={1}
+              step={0.05}
+              valueText={(value) => `${Math.round(value * 100)}%`}
+            />
+          </Field>
+          <Switch _checked={paused}>暂停</Switch>
+        </Grid>
+        {effect === 'mesh' && <MeshGradient {...props} />}
+        {effect === 'aurora' && <AuroraBackground {...props} />}
+        {effect === 'particles' && <ParticleField {...props} links />}
+        {effect === 'wave' && <WaveGrid {...props} />}
+      </Flex>
+    );
+  };
 });
