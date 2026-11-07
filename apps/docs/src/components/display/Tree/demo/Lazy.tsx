@@ -32,7 +32,7 @@ const fetchTeams = (parent: Department) =>
     ),
   );
 
-const styles = css.create({ tree: { height: '16rem' }, count: { marginInlineStart: '_xs' } });
+const styles = css.create({ tree: { maxHeight: '16rem' }, count: { marginInlineStart: '_xs' } });
 
 export default _component(() => {
   let departments = _state<Department[]>([

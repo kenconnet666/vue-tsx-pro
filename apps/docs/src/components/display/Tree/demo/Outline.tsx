@@ -46,7 +46,7 @@ const editor = {
   withChildren: (section: Section, children: Section[]) => ({ ...section, children }),
 };
 
-const styles = css.create({ tree: { height: '18rem' } });
+const styles = css.create({ tree: { maxHeight: '18rem' } });
 
 export default _component(() => {
   let sections = _state(outline);

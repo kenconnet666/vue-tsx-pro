@@ -43,6 +43,8 @@
   不写色调时用 accent、字号默认 sm。筛选条件的一排标签用它。
 - ItemListItem 整条可点：`href`（标题是 Link，走路由适配）或 `onSelect`（标题是 ButtonBase），标题伸展盖住整条，结束边的操作叠在上面照常可点；
   `selected` 是正在看的一条（选中色、aria-current），`disabled` 变淡点不了；`propsLink`、`propsButton` 转发给标题的链接、按钮。
+- ScrollArea 的根、视口、内容层、滚动条、滑块带上部件标记（`data-scope="scroll-area"`），一样 border-box：Tree、Listbox
+  这类以视口为主体、带内边距的组件，写的高度（`maxHeight`）就是整块的高度。Tree 写 `maxHeight` 时节点少按内容高、多了才滚动。
 - Listbox 的根带上部件标记（`data-scope="listbox" data-part="root"`），和别的部件一样 border-box：写的高度就是整个列表的高度。
 - 静态 Table 新增 `stickyHeader`（外层限高、竖向滚动时表头吸顶），TableHeaderCell、TableCell 新增 `sticky`（第一列固定在起始边）。
 - Sparkline 的柱（`type="bar"`）在 `showLast` 时最新的一根实色、前面的淡下去。**破坏性**：删掉已废弃的 `variant` 属性与

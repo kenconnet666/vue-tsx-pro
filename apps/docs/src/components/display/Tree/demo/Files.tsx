@@ -38,7 +38,7 @@ const iconOf = (entry: Entry, expanded: boolean): IconData => {
   return FileCode;
 };
 
-const styles = css.create({ tree: { height: '17rem' } });
+const styles = css.create({ tree: { maxHeight: '17rem' } });
 
 export default _component(() => {
   let expanded = _state(['/src', '/src/components']);

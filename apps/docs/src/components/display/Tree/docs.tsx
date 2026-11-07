@@ -25,7 +25,8 @@ export default _component(() => () => (
         <Example id="files" title="文件树" demo={Files}>
           <Code>getKey</Code>、<Code>getLabel</Code>、<Code>getChildren</Code>{' '}
           读你自己的数据结构，不用先转换；<Code>getIcon</Code> 按展开状态换图标。键盘 ↑↓ 移动，→
-          展开，← 收起，Enter 选中，输入文字跳到匹配项。
+          展开，← 收起，Enter 选中，输入文字跳到匹配项。高度写 <Code>maxHeight</Code>
+          ：节点少时按内容高，多了才在树里滚动（始终虚拟滚动，上万个节点也只渲染看得见的）。
         </Example>
         <Example id="outline" title="搜索与拖动" demo={Outline}>
           <Code>filter</Code> 给字符串时按节点文字过滤（认拼音，同 createUi 的

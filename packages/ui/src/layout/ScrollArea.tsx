@@ -16,6 +16,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { startMove } from '../utils/dom/move';
+import { partAttrs } from '../config/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { isRtl } from '../utils/dom/direction';
@@ -331,6 +332,7 @@ export const OverlayScrollbar = _component(
         <div
           {...mergeAttrs<'div'>(
             {
+              ...scrollAreaParts.scrollbar,
               sx: [
                 scrollAreaBarStyles.track,
                 scrollAreaBarStyles[axis],
@@ -355,6 +357,7 @@ export const OverlayScrollbar = _component(
           <div
             {...mergeAttrs<'div'>(
               {
+                ...scrollAreaParts.thumb,
                 sx: [
                   scrollAreaBarStyles.thumb,
                   axis === 'y' ? scrollAreaBarStyles.thumbY : scrollAreaBarStyles.thumbX,
@@ -370,6 +373,15 @@ export const OverlayScrollbar = _component(
   },
   { name: 'OverlayScrollbar' },
 );
+
+/** 各部件的标记（data-scope="scroll-area"）：使用方的全局样式能选中，也让写在部件上的宽高按 border-box 算 */
+const scrollAreaParts = {
+  root: partAttrs({ name: 'ScrollArea' }, 'root'),
+  viewport: partAttrs({ name: 'ScrollArea' }, 'viewport'),
+  content: partAttrs({ name: 'ScrollArea' }, 'content'),
+  scrollbar: partAttrs({ name: 'ScrollArea' }, 'scrollbar'),
+  thumb: partAttrs({ name: 'ScrollArea' }, 'thumb'),
+};
 
 /** 滚动区域：原生滚动 + 半透明的浮层滚动条，出现与消失都不占位 */
 export const ScrollArea = _component(
@@ -408,10 +420,15 @@ export const ScrollArea = _component(
         />
       );
       return (
-        <div {...mergeAttrs<'div'>({ sx: scrollAreaStyles.root }, rest, { ref: _toRef(root) })}>
+        <div
+          {...mergeAttrs<'div'>({ ...scrollAreaParts.root, sx: scrollAreaStyles.root }, rest, {
+            ref: _toRef(root),
+          })}
+        >
           <div
             {...mergeAttrs<'div'>(
               {
+                ...scrollAreaParts.viewport,
                 sx: [focusRingStyles.inset, scrollAreaStyles.viewport, scrollAreaStyles[axis]],
               },
               propsViewport,
@@ -423,7 +440,7 @@ export const ScrollArea = _component(
           >
             <div
               {...mergeAttrs<'div'>(
-                { sx: axis !== 'y' && scrollAreaStyles.wideContent },
+                { ...scrollAreaParts.content, sx: axis !== 'y' && scrollAreaStyles.wideContent },
                 propsContent,
                 {
                   ref: _toRef(content),
