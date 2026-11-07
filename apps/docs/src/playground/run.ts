@@ -27,9 +27,10 @@ const MODULES: Record<string, unknown> = {
   '@zerodep-dev/vue-tsx-pro-ui/vars': vars,
 };
 
-/** 代码里用到时才加载的模块（图标很多；地图数据几百 KB、3D 带着 three；子路径不在文档站的首屏里） */
+/** 代码里用到时才加载的模块（图标很多；地图、省市区数据几百 KB、3D 带着 three；子路径不在文档站的首屏里） */
 const LAZY_MODULES: Record<string, () => Promise<unknown>> = {
   '@lucide/icons': () => import('@lucide/icons'),
+  '@zerodep-dev/vue-tsx-pro-ui/area': () => import('@zerodep-dev/vue-tsx-pro-ui/area'),
   '@zerodep-dev/vue-tsx-pro-ui/charts': () => import('@zerodep-dev/vue-tsx-pro-ui/charts'),
   '@zerodep-dev/vue-tsx-pro-ui/maps': () => import('@zerodep-dev/vue-tsx-pro-ui/maps'),
   '@zerodep-dev/vue-tsx-pro-ui/patterns': () => import('@zerodep-dev/vue-tsx-pro-ui/patterns'),
