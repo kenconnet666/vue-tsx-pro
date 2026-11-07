@@ -176,6 +176,7 @@ jobs:
           cat preview.log
           exit 1
       - name: Screenshots
+        timeout-minutes: 40
         run: node scripts/docs/shots-batch.mjs current all --jobs=4 --variants=rtl,forced,mobile
       - name: Reference (last fully green master run)
         shell: bash

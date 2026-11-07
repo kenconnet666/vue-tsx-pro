@@ -85,6 +85,9 @@ async function worker() {
   for (let task = queue.shift(); task; task = queue.shift()) {
     const [page, variant] = task;
     const name = variant ? `${page}（${variant}）` : page;
+    const started = performance.now();
+    // 每一项的耗时：CI 里看慢在哪一页
+    const took = () => `${((performance.now() - started) / 1000).toFixed(1)}s`;
     try {
       await run(
         'node',
@@ -98,10 +101,10 @@ async function worker() {
         ],
         { maxBuffer: 1 << 24 },
       );
-      console.log(`✓ ${name}`);
+      console.log(`✓ ${name} ${took()}`);
     } catch (error) {
       failed.push(name);
-      console.log(`✗ ${name}：${String(error.stderr ?? error.message).split('\n')[0]}`);
+      console.log(`✗ ${name} ${took()}：${String(error.stderr ?? error.message).split('\n')[0]}`);
     }
   }
 }

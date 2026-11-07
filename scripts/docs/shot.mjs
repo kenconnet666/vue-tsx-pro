@@ -83,7 +83,6 @@ async function shoot(page, id, file) {
  * 打开了弹层或对话框就截一张，再关掉（Esc 关不掉的直接关）
  */
 async function shootOpen(page, target, id, file) {
-  await markOpen(page);
   const demo = target.locator('[data-demo]');
   const marked = demo.locator('[aria-haspopup], [aria-expanded]');
   const trigger = (
@@ -91,6 +90,9 @@ async function shootOpen(page, target, id, file) {
       ? marked
       : demo.locator(':is(button, a[href]):not([aria-pressed], [role="radio"], [role="tab"])')
   ).first();
+  // 键盘、API 这类不是示例的小节、没有触发器的示例：跳过（不然下面每一步都要等到超时）
+  if (!(await trigger.count())) return;
+  await markOpen(page);
   const opened = () => page.locator(OPENED).count();
   try {
     // 触发器放到视口中间：贴着底边时弹层只剩一点高度
