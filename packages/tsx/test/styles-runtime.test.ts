@@ -85,6 +85,21 @@ describe('create 与 attrs', () => {
     expect(rules.lastIndexOf(':hover')).toBeLessThan(rules.indexOf(':focus-visible'));
   });
 
+  it('_hover、_active 不可用时不算：排除写在 :where 里不加特异性，先后仍按 :hover、:active 排', () => {
+    const styles = create({
+      row: {
+        backgroundColor: { default: 'white', _active: 'black', _hover: 'gray', _disabled: 'pink' },
+      },
+    });
+    // 各环境的 cssText 空格写法不一，去掉空格再比
+    const rules = rulesOf(attrs(styles.row).class).replace(/ /g, '');
+    const enabled = ':where(:not(:disabled,[aria-disabled="true"],[data-disabled]))';
+    expect(rules).toContain(`:hover${enabled}{background-color:gray;}`);
+    expect(rules).toContain(`:active${enabled}{background-color:black;}`);
+    expect(rules.indexOf(':is(:disabled')).toBeLessThan(rules.indexOf(':hover:where'));
+    expect(rules.indexOf(':hover:where')).toBeLessThan(rules.indexOf(':active:where'));
+  });
+
   it('条件别名换成 aria / data 选择器；属性选择器包成 :is(…)，顶层条件块也行；写错的条件直接报错', () => {
     const styles = create({ tab: { color: { default: 'gray', _selected: 'black' } } });
     expect(rulesOf(attrs(styles.tab).class)).toContain('[aria-selected="true"]');

@@ -149,9 +149,6 @@ export const buttonStyles = css.create({
   },
 });
 
-/** 悬停变色只在可用时：原生 disabled 的按钮照样匹配 :hover，悬停变色会让人以为还能点 */
-const HOVER = ':hover:not(:disabled,[aria-disabled="true"])';
-
 /**
  * 按钮的样式（配方）：基础是与 ButtonBase 共用的去默认外观、颜色过渡、焦点环、波纹；样式 × 色调逐项写主题 token（组合档位），
  * 中性色没有专门的实底色，用反色表面；字号、圆角用共用的档位。实底悬停用各色调的 Hover token：主题检查保证它与 Contrast 字色到 4.5:1
@@ -184,7 +181,7 @@ export const buttonRecipe = css.recipe({
           paddingInline: 0,
           fontWeight: '_medium',
           textUnderlineOffset: '0.2em',
-          textDecorationLine: { default: 'none', [HOVER]: 'underline' },
+          textDecorationLine: { default: 'none', _hover: 'underline' },
         },
       },
     },
@@ -199,7 +196,7 @@ export const buttonRecipe = css.recipe({
         color: '_inverseText',
         backgroundColor: {
           default: '_inverseSurface',
-          [HOVER]: `color-mix(in oklab, ${t.colors.inverseSurface} 85%, ${t.colors.background})`,
+          _hover: `color-mix(in oklab, ${t.colors.inverseSurface} 85%, ${t.colors.background})`,
         },
       },
     },
@@ -207,74 +204,74 @@ export const buttonRecipe = css.recipe({
       match: { variant: 'solid', tone: 'accent' },
       root: {
         color: '_accentContrast',
-        backgroundColor: { default: '_accent', [HOVER]: '_accentHover' },
+        backgroundColor: { default: '_accent', _hover: '_accentHover' },
       },
     },
     {
       match: { variant: 'solid', tone: 'info' },
       root: {
         color: '_infoContrast',
-        backgroundColor: { default: '_info', [HOVER]: '_infoHover' },
+        backgroundColor: { default: '_info', _hover: '_infoHover' },
       },
     },
     {
       match: { variant: 'solid', tone: 'success' },
       root: {
         color: '_successContrast',
-        backgroundColor: { default: '_success', [HOVER]: '_successHover' },
+        backgroundColor: { default: '_success', _hover: '_successHover' },
       },
     },
     {
       match: { variant: 'solid', tone: 'warning' },
       root: {
         color: '_warningContrast',
-        backgroundColor: { default: '_warning', [HOVER]: '_warningHover' },
+        backgroundColor: { default: '_warning', _hover: '_warningHover' },
       },
     },
     {
       match: { variant: 'solid', tone: 'danger' },
       root: {
         color: '_dangerContrast',
-        backgroundColor: { default: '_danger', [HOVER]: '_dangerHover' },
+        backgroundColor: { default: '_danger', _hover: '_dangerHover' },
       },
     },
     {
       match: { variant: 'soft', tone: 'neutral' },
-      root: { color: '_text', backgroundColor: { default: '_fill', [HOVER]: '_fillHover' } },
+      root: { color: '_text', backgroundColor: { default: '_fill', _hover: '_fillHover' } },
     },
     {
       match: { variant: 'soft', tone: 'accent' },
       root: {
         color: '_accentText',
-        backgroundColor: { default: '_accentSoft', [HOVER]: '_accentSoftHover' },
+        backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' },
       },
     },
     {
       match: { variant: 'soft', tone: 'info' },
       root: {
         color: '_infoText',
-        backgroundColor: { default: '_infoSoft', [HOVER]: '_infoSoftHover' },
+        backgroundColor: { default: '_infoSoft', _hover: '_infoSoftHover' },
       },
     },
     {
       match: { variant: 'soft', tone: 'success' },
       root: {
         color: '_successText',
-        backgroundColor: { default: '_successSoft', [HOVER]: '_successSoftHover' },
+        backgroundColor: { default: '_successSoft', _hover: '_successSoftHover' },
       },
     },
     {
       match: { variant: 'soft', tone: 'warning' },
       root: {
         color: '_warningText',
-        backgroundColor: { default: '_warningSoft', [HOVER]: '_warningSoftHover' },
+        backgroundColor: { default: '_warningSoft', _hover: '_warningSoftHover' },
       },
     },
     {
       match: { variant: 'soft', tone: 'danger' },
       root: {
         color: '_dangerText',
-        backgroundColor: { default: '_dangerSoft', [HOVER]: '_dangerSoftHover' },
+        backgroundColor: { default: '_dangerSoft', _hover: '_dangerSoftHover' },
       },
     },
     {
@@ -282,7 +279,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_text',
         borderColor: '_border',
-        backgroundColor: { default: '_surface', [HOVER]: '_fillHover' },
+        backgroundColor: { default: '_surface', _hover: '_fillHover' },
       },
     },
     {
@@ -290,7 +287,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_accentText',
         borderColor: '_accentBorder',
-        backgroundColor: { default: '_accentSoft', [HOVER]: '_accentSoftHover' },
+        backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' },
       },
     },
     {
@@ -298,7 +295,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_infoText',
         borderColor: '_infoBorder',
-        backgroundColor: { default: '_infoSoft', [HOVER]: '_infoSoftHover' },
+        backgroundColor: { default: '_infoSoft', _hover: '_infoSoftHover' },
       },
     },
     {
@@ -306,7 +303,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_successText',
         borderColor: '_successBorder',
-        backgroundColor: { default: '_successSoft', [HOVER]: '_successSoftHover' },
+        backgroundColor: { default: '_successSoft', _hover: '_successSoftHover' },
       },
     },
     {
@@ -314,7 +311,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_warningText',
         borderColor: '_warningBorder',
-        backgroundColor: { default: '_warningSoft', [HOVER]: '_warningSoftHover' },
+        backgroundColor: { default: '_warningSoft', _hover: '_warningSoftHover' },
       },
     },
     {
@@ -322,7 +319,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_dangerText',
         borderColor: '_dangerBorder',
-        backgroundColor: { default: '_dangerSoft', [HOVER]: '_dangerSoftHover' },
+        backgroundColor: { default: '_dangerSoft', _hover: '_dangerSoftHover' },
       },
     },
     {
@@ -330,7 +327,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_text',
         borderColor: '_border',
-        backgroundColor: { default: 'transparent', [HOVER]: '_fillHover' },
+        backgroundColor: { default: 'transparent', _hover: '_fillHover' },
       },
     },
     {
@@ -338,7 +335,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_accentText',
         borderColor: '_accentBorder',
-        backgroundColor: { default: 'transparent', [HOVER]: '_accentSoft' },
+        backgroundColor: { default: 'transparent', _hover: '_accentSoft' },
       },
     },
     {
@@ -346,7 +343,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_infoText',
         borderColor: '_infoBorder',
-        backgroundColor: { default: 'transparent', [HOVER]: '_infoSoft' },
+        backgroundColor: { default: 'transparent', _hover: '_infoSoft' },
       },
     },
     {
@@ -354,7 +351,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_successText',
         borderColor: '_successBorder',
-        backgroundColor: { default: 'transparent', [HOVER]: '_successSoft' },
+        backgroundColor: { default: 'transparent', _hover: '_successSoft' },
       },
     },
     {
@@ -362,7 +359,7 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_warningText',
         borderColor: '_warningBorder',
-        backgroundColor: { default: 'transparent', [HOVER]: '_warningSoft' },
+        backgroundColor: { default: 'transparent', _hover: '_warningSoft' },
       },
     },
     {
@@ -370,46 +367,46 @@ export const buttonRecipe = css.recipe({
       root: {
         color: '_dangerText',
         borderColor: '_dangerBorder',
-        backgroundColor: { default: 'transparent', [HOVER]: '_dangerSoft' },
+        backgroundColor: { default: 'transparent', _hover: '_dangerSoft' },
       },
     },
     {
       match: { variant: 'ghost', tone: 'neutral' },
-      root: { color: '_text', backgroundColor: { default: 'transparent', [HOVER]: '_fillHover' } },
+      root: { color: '_text', backgroundColor: { default: 'transparent', _hover: '_fillHover' } },
     },
     {
       match: { variant: 'ghost', tone: 'accent' },
       root: {
         color: '_accentText',
-        backgroundColor: { default: 'transparent', [HOVER]: '_accentSoft' },
+        backgroundColor: { default: 'transparent', _hover: '_accentSoft' },
       },
     },
     {
       match: { variant: 'ghost', tone: 'info' },
       root: {
         color: '_infoText',
-        backgroundColor: { default: 'transparent', [HOVER]: '_infoSoft' },
+        backgroundColor: { default: 'transparent', _hover: '_infoSoft' },
       },
     },
     {
       match: { variant: 'ghost', tone: 'success' },
       root: {
         color: '_successText',
-        backgroundColor: { default: 'transparent', [HOVER]: '_successSoft' },
+        backgroundColor: { default: 'transparent', _hover: '_successSoft' },
       },
     },
     {
       match: { variant: 'ghost', tone: 'warning' },
       root: {
         color: '_warningText',
-        backgroundColor: { default: 'transparent', [HOVER]: '_warningSoft' },
+        backgroundColor: { default: 'transparent', _hover: '_warningSoft' },
       },
     },
     {
       match: { variant: 'ghost', tone: 'danger' },
       root: {
         color: '_dangerText',
-        backgroundColor: { default: 'transparent', [HOVER]: '_dangerSoft' },
+        backgroundColor: { default: 'transparent', _hover: '_dangerSoft' },
       },
     },
     { match: { variant: 'link', tone: 'neutral' }, root: { color: '_text' } },

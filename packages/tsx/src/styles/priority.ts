@@ -99,6 +99,16 @@ const PSEUDO_PART = /::[a-zA-Z-]+|:[a-zA-Z-]+(?:\([^)]*\))?/g;
 
 const pseudoClass = (name: string) => PSEUDO_CLASSES[name] ?? 40;
 
+/** 从 start 起的 `:where(…)` 在哪里结束（配对的右括号之后） */
+function groupEnd(key: string, start: number): number {
+  let depth = 0;
+  for (let index = start; index < key.length; index++) {
+    if (key[index] === '(') depth++;
+    else if (key[index] === ')' && --depth === 0) return index + 1;
+  }
+  return key.length;
+}
+
 /**
  * 算过的优先级：serialize 排序时每个属性、每段条件都要查，不记住时它占新建组合类耗时的四分之一。
  * 键是源码里写过的属性名、伪类与 @ 规则，数量有限，不必限制大小
@@ -117,6 +127,10 @@ function computePriority(key: string): number {
   if (key.startsWith('@supports')) return 30;
   if (key.startsWith('@media')) return 200;
   if (key.startsWith('@container')) return 300;
+  // 伪类后面接的 :where(…) 只是排除条件（_hover、_active 排除不可用），去掉它再排先后
+  const qualifier = key.indexOf(':where(');
+  if (qualifier > 0)
+    return computePriority(key.slice(0, qualifier) + key.slice(groupEnd(key, qualifier)));
   // 连写的几个伪类 / 伪元素（:hover::before）：各自相加；带括号的不拆
   const parts = key.match(PSEUDO_PART);
   if (parts && parts.length > 1 && !parts.some((part) => part.includes('('))) {

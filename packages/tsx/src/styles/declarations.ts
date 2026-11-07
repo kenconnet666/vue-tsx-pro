@@ -46,9 +46,15 @@ export function cssValue(property: string, value: Leaf): string {
  * aria / data 属性走（COMPONENTS.md §2.2），组件不必再写 `selected && styles.selected`；
  * 一个别名合并了原生、ARIA、data 几种写法，使用方不必关心组件用的是哪一种
  */
+/**
+ * 悬停、按下只在可用时：原生 disabled 的元素照样匹配 :hover、:active，有反馈会让人以为还能点。
+ * 排除条件放在 :where 里不加特异性：写成 :hover:not(…) 会比 :active 高一级，按下的样式盖不过悬停（priority.ts 排先后时也略过它）
+ */
+const ENABLED = ':where(:not(:disabled,[aria-disabled="true"],[data-disabled]))';
+
 const ALIASES = {
-  _hover: ':hover',
-  _active: ':active',
+  _hover: `:hover${ENABLED}`,
+  _active: `:active${ENABLED}`,
   _focus: ':focus',
   _focusVisible: ':focus-visible',
   _focusWithin: ':focus-within',

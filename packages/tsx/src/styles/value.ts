@@ -3,9 +3,9 @@
  * 键上的注释在悬停时显示；对应的选择器见 declarations.ts 的 CONDITIONS
  */
 export interface ConditionAliases {
-  /** 悬停：`:hover` */
+  /** 悬停：`:hover`，不可用（同 `_disabled`）时不算 */
   _hover: unknown;
-  /** 按下：`:active` */
+  /** 按下：`:active`，不可用（同 `_disabled`）时不算 */
   _active: unknown;
   /** 获得焦点：`:focus` */
   _focus: unknown;
