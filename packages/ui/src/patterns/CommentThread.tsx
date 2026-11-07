@@ -25,6 +25,7 @@ import { Icon } from '../base/Icon';
 import { Link } from '../base/Link';
 import { useFormat } from '../config/lang/format';
 import { useMessages } from '../config/lang/messages';
+import { RelativeTime } from '../date/RelativeTime';
 import { Avatar, initials } from '../display/Avatar';
 import { Empty } from '../feedback/Empty';
 import { Mentions, MentionText, type MentionsProps } from '../input/Mentions';
@@ -368,13 +369,7 @@ export const CommentThread = _component(
             <div {...css.attrs(commentStyles.header)}>
               <span {...css.attrs(commentStyles.author)}>{comment.author}</span>
               {comment.role}
-              <time
-                datetime={comment.time}
-                title={format.date(comment.time, { dateStyle: 'medium', timeStyle: 'short' })}
-                {...css.attrs(commentStyles.meta)}
-              >
-                {format.relative(comment.time, { now })}
-              </time>
+              <RelativeTime value={comment.time} now={now} sx={commentStyles.meta} />
               {comment.edited && (
                 <span {...css.attrs(commentStyles.meta)}>{messages.commentEdited}</span>
               )}

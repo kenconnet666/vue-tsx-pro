@@ -25,6 +25,11 @@
 - CodeBlock 的展开按钮焦点环画在里面，不再被外框裁掉。
 - 内容安全策略：`createUi({ nonce })` 或 Vite 的 `html.cspNonce` 让样式引擎的 `<style>` 带上 nonce；服务端渲染用 `renderStyleTag(html, { nonce })`。
 - 样式引擎新增 `css.globalRule`：登记放在最前面级联层（`vtp.base`）的基础规则。
+- 服务端渲染：RelativeTime、Countdown 把渲染时的“现在”写在根元素的 `data-now` 上，水合时先按它渲染、挂载后再换成此刻，
+  隔了几天打开静态页面不再报水合不匹配（“16天前”与“17天前”）；服务端不再起计时器。自己用 `useNow` 做的计时组件，
+  根元素写上新导出的 `nowAttrs(now.value)` 得到同样的效果。
+- CommentThread、NotificationCenter 的时间改用 RelativeTime：随时间自动更新，悬停显示完整的日期时间。
+- ProportionBar 的图例从起始边依次排开（以前两端对齐）。
 
 ## 每次发布
 

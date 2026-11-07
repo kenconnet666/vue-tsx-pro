@@ -833,7 +833,7 @@ export {
   type CalendarState,
   type CalendarStateOptions,
 } from './date/calendar-state';
-export { useNow } from './date/clock';
+export { nowAttrs, useNow } from './date/clock';
 export {
   toDateLimits,
   useDateLocale,

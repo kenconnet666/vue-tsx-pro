@@ -28,8 +28,8 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Indicator } from '../base/Indicator';
 import { StatusDot } from '../base/StatusDot';
 import { VisuallyHidden } from '../base/VisuallyHidden';
-import { useFormat } from '../config/lang/format';
 import { useMessages } from '../config/lang/messages';
+import { RelativeTime } from '../date/RelativeTime';
 import { Empty } from '../feedback/Empty';
 import { Switch, type SwitchProps } from '../input/Switch';
 import { ToggleGroup, ToggleItem, type ToggleGroupBaseProps } from '../input/ToggleGroup';
@@ -197,7 +197,6 @@ export const NotificationList = _component(
     ...rest
   }: NotificationListProps) => {
     const messages = useMessages('patterns', patternsMessages);
-    const format = useFormat();
     const router = useRouterLink();
     let type = _state('');
     let unreadOnly = _state(false);
@@ -321,13 +320,7 @@ export const NotificationList = _component(
                           </span>
                         )}
                       </span>
-                      <time
-                        datetime={item.time}
-                        title={format.date(item.time, { dateStyle: 'medium', timeStyle: 'short' })}
-                        {...css.attrs(notificationListStyles.time)}
-                      >
-                        {format.relative(item.time, { now })}
-                      </time>
+                      <RelativeTime value={item.time} now={now} sx={notificationListStyles.time} />
                     </a>
                   </li>
                 ))}

@@ -16,7 +16,7 @@ import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { toInstant } from '../utils/data/date';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { useNow } from './clock';
+import { nowAttrs, useNow } from './clock';
 import type { DateTimeInput } from './DateTime';
 
 /** 还剩多久，拆成天、时、分、秒 */
@@ -111,7 +111,12 @@ export const Countdown = _component(
           ? `${format.number(days, { style: 'unit', unit: 'day', unitDisplay: 'long' })} `
           : '';
       return (
-        <span {...mergeAttrs<'span'>({ sx: countdownStyles.root }, rest, { role: 'timer' })}>
+        <span
+          {...mergeAttrs<'span'>({ sx: countdownStyles.root }, rest, {
+            role: 'timer',
+            ...nowAttrs(now.value),
+          })}
+        >
           {children ? children(parts) : `${dayText}${clock}`}
         </span>
       );

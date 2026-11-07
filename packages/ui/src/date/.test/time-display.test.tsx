@@ -1,7 +1,8 @@
 // 显示时间的组件：DateTime、RelativeTime、Countdown，共用的时钟（useNow）与时刻换算（toInstant、relativeUnit）
 import { CalendarDateTime, parseZonedDateTime } from '@internationalized/date';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { createSSRApp, nextTick } from 'vue';
+import { renderToString } from 'vue/server-renderer';
 import { mount } from '../../utils/.test/mount';
 import { relativeUnit, toInstant } from '../../utils/data/date';
 import { Countdown, countdownParts } from '../Countdown';
@@ -96,6 +97,33 @@ describe('RelativeTime 与 Countdown（假时钟）', () => {
     vi.advanceTimersByTime(5_000);
     await nextTick();
     expect(ended).toHaveBeenCalledTimes(1);
+  });
+
+  it('服务端渲染记下“现在”：几天后水合时先按它渲染（和服务端一致、不报不匹配），挂载后换成真实的现在', async () => {
+    // 16.4 天前：服务端是“16天前”，一天后在浏览器里打开是“17天前”
+    const app = () => [
+      <RelativeTime value={new Date(NOW - 16.4 * 86_400_000)} />,
+      <Countdown to={new Date(NOW + 2 * 86_400_000)} />,
+    ];
+    const html = await renderToString(createSSRApp(app));
+    expect(html).toContain(`data-now="${NOW}"`);
+
+    vi.setSystemTime(NOW + 86_400_000);
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      createSSRApp(app).mount(container);
+      expect(warn.mock.calls.flat().join('\n')).not.toMatch(/mismatch/i);
+      expect(error.mock.calls.flat().join('\n')).not.toMatch(/mismatch/i);
+    } finally {
+      warn.mockRestore();
+      error.mockRestore();
+    }
+    await nextTick();
+    expect(container.querySelector('time')!.textContent).toBe('17天前');
+    expect(container.querySelector('[role="timer"]')!.textContent).toBe('1天 00:00:00');
   });
 
   it('countdownParts：按精度向上取整，到点才是 0', () => {

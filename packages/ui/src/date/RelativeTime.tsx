@@ -14,7 +14,7 @@ import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
 import { relativeUnit, toInstant } from '../utils/data/date';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { useNow } from './clock';
+import { nowAttrs, useNow } from './clock';
 import { hasTimeOf, machineDateTime, type DateTimeInput } from './DateTime';
 
 /** 未声明的属性落到 time 上 */
@@ -77,7 +77,12 @@ export const RelativeTime = _component(
         ? format.date(value, { dateStyle: 'medium' })
         : format.relative(value, { now: current, style });
       return (
-        <time {...mergeAttrs<'time'>({ title: full }, rest, { datetime: machineDateTime(value) })}>
+        <time
+          {...mergeAttrs<'time'>({ title: full }, rest, {
+            datetime: machineDateTime(value),
+            ...(fixedNow == null && nowAttrs(current)),
+          })}
+        >
           {text}
         </time>
       );

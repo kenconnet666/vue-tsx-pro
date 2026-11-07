@@ -32,6 +32,9 @@ export default _component(() => () => (
           天前”，随时间更新（秒级每秒，分钟级每 10 秒，更远的更慢，页面隐藏时停下）。
           <Code>threshold</Code> 以外直接写日期；悬停看完整的日期时间。<Code>format</Code> 是详略：
           <Code>long</Code>（默认）、<Code>short</Code>、<Code>narrow</Code>。
+          {
+            '服务端渲染时把渲染时的“现在”写在 data-now 上，浏览器水合时先按它画出和服务端一样的文字，挂载后再换成此刻，不会因为隔了几天打开而对不上；Countdown 同样。'
+          }
         </Example>
       </ExampleColumn>
       <ExampleColumn>
