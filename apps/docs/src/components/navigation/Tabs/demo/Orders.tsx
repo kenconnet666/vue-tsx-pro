@@ -1,17 +1,16 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Badge,
   Empty,
   Flex,
-  FlexList,
+  ItemList,
+  ItemListItem,
   Small,
   Strong,
   Tab,
   TabList,
   TabPanel,
   Tabs,
-  Text,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const orders = [
@@ -29,19 +28,6 @@ const tabs = [
   { value: 'done', label: '已完成' },
   { value: 'refund', label: '退款' },
 ];
-
-const styles = css.create({
-  // 订单号、客户、金额三列对齐
-  row: {
-    display: 'grid',
-    gridTemplateColumns: '6rem 1fr auto',
-    gap: '_md',
-    paddingBlock: '_sm',
-    borderBlockEndWidth: '_xs',
-    borderBlockEndStyle: 'solid',
-    borderBlockEndColor: '_borderMuted',
-  },
-});
 
 export default _component(() => {
   let tab = _state('all');
@@ -64,17 +50,17 @@ export default _component(() => {
       {tabs.map(({ value, label }) => (
         <TabPanel key={value} value={value}>
           {list(value).length ? (
-            <FlexList direction="column">
+            <ItemList divided>
               {list(value).map((order) => (
-                <li key={order.id}>
-                  <div {...css.attrs(styles.row)}>
-                    <Strong>{order.id}</Strong>
-                    <Text tone="muted">{order.customer}</Text>
-                    <Text>{order.amount}</Text>
-                  </div>
-                </li>
+                <ItemListItem
+                  key={order.id}
+                  title={order.customer}
+                  description={order.id}
+                  end={<Strong>{order.amount}</Strong>}
+                  href={`#order-${order.id.slice(1)}`}
+                />
               ))}
-            </FlexList>
+            </ItemList>
           ) : (
             <Empty title={`没有${label}的订单`} />
           )}

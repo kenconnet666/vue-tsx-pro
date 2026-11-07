@@ -2,9 +2,10 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
-  ButtonBase,
   Card,
   Flex,
+  ItemList,
+  ItemListItem,
   Small,
   Splitter,
   Text,
@@ -29,17 +30,6 @@ const mails = [
 
 const styles = css.create({
   frame: { height: '16rem' },
-  item: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '2px',
-    width: '100%',
-    textAlign: 'start',
-    paddingBlock: '_sm',
-    paddingInline: '_md',
-    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
-  },
-  active: { backgroundColor: '_accentSoft' },
   detail: { padding: '_md' },
 });
 
@@ -57,18 +47,19 @@ export default _component(() => {
           collapsible="end"
           _collapsed={layout.value.hidden}
           onUpdate:_collapsed={(hidden: boolean) => (layout.value = { ...layout.value, hidden })}
-          start={mails.map((item) => (
-            <ButtonBase
-              key={item.id}
-              sx={[styles.item, item.id === current && styles.active]}
-              onClick={() => (current = item.id)}
-            >
-              <Text size="sm" weight="semibold">
-                {item.title}
-              </Text>
-              <Small tone="muted">{item.from}</Small>
-            </ButtonBase>
-          ))}
+          start={
+            <ItemList inset="md" aria-label="消息">
+              {mails.map((item) => (
+                <ItemListItem
+                  key={item.id}
+                  title={item.title}
+                  description={item.from}
+                  selected={item.id === current}
+                  onSelect={() => (current = item.id)}
+                />
+              ))}
+            </ItemList>
+          }
           end={
             <Flex direction="column" gap="sm" sx={styles.detail}>
               <Text weight="semibold">{mail.title}</Text>

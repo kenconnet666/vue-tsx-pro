@@ -1,14 +1,13 @@
+// 纵向滚动的收件箱：ItemList 放在限高的 ScrollArea 里，滚动条是浮层的、不占宽度；点一条打开（选中）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Avatar,
   Card,
-  Flex,
-  FlexList,
+  ItemList,
+  ItemListItem,
   ScrollArea,
   Small,
-  Strong,
-  Text,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const senders = ['林小满', '周一航', '陈默', '许悠', '王晴', '赵浩然', '孙思远', '李雨桐'];
@@ -30,30 +29,27 @@ const messages = Array.from({ length: 24 }, (_, index) => ({
 
 const styles = css.create({
   area: { height: '20rem' },
-  item: { paddingBlock: '_sm', paddingInline: '_md' },
 });
 
-export default _component(() => () => (
-  <Card padding="none">
-    <ScrollArea sx={styles.area} propsViewport={{ 'aria-label': '收件箱' }}>
-      <FlexList direction="column">
-        {messages.map((message) => (
-          <li key={message.id}>
-            <Flex gap="md" align="center" sx={styles.item}>
-              <Avatar size="sm" name={message.sender} />
-              <Flex direction="column" grow>
-                <Flex justify="between" gap="sm">
-                  <Strong>{message.sender}</Strong>
-                  <Small tone="muted">{message.time}</Small>
-                </Flex>
-                <Text size="sm" tone="muted" truncate>
-                  {message.subject}
-                </Text>
-              </Flex>
-            </Flex>
-          </li>
-        ))}
-      </FlexList>
-    </ScrollArea>
-  </Card>
-));
+export default _component(() => {
+  let open = _state(0);
+  return () => (
+    <Card padding="none">
+      <ScrollArea sx={styles.area} propsViewport={{ 'aria-label': '收件箱' }}>
+        <ItemList divided inset="md">
+          {messages.map((message) => (
+            <ItemListItem
+              key={message.id}
+              start={<Avatar size="sm" name={message.sender} />}
+              title={message.sender}
+              description={message.subject}
+              end={<Small tone="muted">{message.time}</Small>}
+              selected={message.id === open}
+              onSelect={() => (open = message.id)}
+            />
+          ))}
+        </ItemList>
+      </ScrollArea>
+    </Card>
+  );
+});
