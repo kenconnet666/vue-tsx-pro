@@ -1,42 +1,42 @@
-// 横向的虚拟列表（一千张照片也只渲染看得见的几张）；handle 拿到滚动方法，跳到指定的一张
+// 横向的虚拟列表（一千张图纸的缩略图也只渲染看得见的几张）；handle 拿到滚动方法，跳到指定的一张
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Flex,
+  Image,
   NumberField,
   Small,
   VirtualList,
   type VirtualListHandle,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { drawings } from '../../Image/demo/drawings';
 
+// 六张示例图纸轮着用
 const photos = Array.from({ length: 1000 }, (_, index) => ({
   id: index,
-  hue: (index * 37) % 360,
+  src: drawings[index % drawings.length]!.src,
   title: `第 ${index + 1} 张`,
 }));
 
 const styles = css.create({
   list: { width: '_full', height: '8.5rem' },
   photo: {
-    display: 'grid',
-    placeItems: 'end start',
-    boxSizing: 'border-box',
+    position: 'relative',
     width: '8rem',
     height: '8rem',
     marginInlineEnd: '_sm',
-    padding: '_sm',
-    borderRadius: '_md',
-    color: 'white',
-    fontSize: '_sm',
-    fontWeight: '_semibold',
   },
-});
-
-const photoStyles = css.create({
-  hue: (hue: number) => ({
-    backgroundImage: `linear-gradient(135deg, hsl(${hue} 70% 55%), hsl(${(hue + 40) % 360} 70% 40%))`,
-  }),
+  // 序号压在图的左下角
+  caption: {
+    position: 'absolute',
+    insetInlineStart: '_xs',
+    insetBlockEnd: '_xs',
+    paddingInline: '_xs',
+    borderRadius: '_sm',
+    backgroundColor: '_surface',
+    fontSize: '_xs',
+  },
 });
 
 export default _component(() => {
@@ -55,7 +55,12 @@ export default _component(() => {
         sx={styles.list}
       >
         {(photo) => (
-          <div {...css.attrs(styles.photo, photoStyles.hue(photo.hue))}>{photo.title}</div>
+          <div {...css.attrs(styles.photo)}>
+            <Image src={photo.src} alt={photo.title} width="100%" height="100%" />
+            <span {...css.attrs(styles.caption)} aria-hidden="true">
+              {photo.title}
+            </span>
+          </div>
         )}
       </VirtualList>
       <Flex gap="sm" align="center" wrap>

@@ -7,6 +7,7 @@ import {
   Flex,
   Grid,
   H4,
+  Image,
   Paragraph,
   SHIMMER_STAGGER,
   shimmerStyles,
@@ -19,14 +20,10 @@ import {
   TextField,
   t,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { drawings } from '../../../display/Image/demo/drawings';
 
 const styles = css.create({
-  cover: {
-    display: 'block',
-    aspectRatio: '16 / 9',
-    borderRadius: '_md',
-    backgroundImage: `linear-gradient(135deg, ${t.colors.accentSoft}, ${t.colors.infoSoft})`,
-  },
+  cover: { display: 'block', aspectRatio: '16 / 9' },
   fieldLabel: { width: '4em', height: '0.875em' },
   field: {
     width: '_full',
@@ -58,7 +55,14 @@ export default _component(() => {
             </Flex>
           ) : (
             <Flex direction="column" gap="md" sx={shimmerStyles.reveal}>
-              <span {...css.attrs(styles.cover)} />
+              <Image
+                src={drawings[0]!.src}
+                alt=""
+                width="100%"
+                height="auto"
+                fit="cover"
+                propsRoot={{ sx: styles.cover }}
+              />
               <H4>设计系统的第一年</H4>
               <Paragraph tone="muted">
                 从十几个按钮样式收敛到一套

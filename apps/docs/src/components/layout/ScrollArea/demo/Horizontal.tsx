@@ -1,40 +1,49 @@
+// 横向滚动：最近打开的图纸一排排开，滚动条一直显示（type="always"），触摸板、Shift + 滚轮横着滚
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Card, Flex, FlexList, ScrollArea, Small, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  Card,
+  Flex,
+  FlexList,
+  Image,
+  ScrollArea,
+  Small,
+  Strong,
+} from '@zerodep-dev/vue-tsx-pro-ui';
+import { drawings } from '../../../display/Image/demo/drawings';
 
-const playlists = [
-  ['通勤路上', 32, 210],
-  ['深夜写代码', 48, 265],
-  ['周末早午餐', 21, 30],
-  ['跑步节拍', 40, 0],
-  ['雨天爵士', 27, 230],
-  ['专注白噪音', 12, 160],
-  ['九十年代华语', 55, 340],
-  ['电影原声', 36, 290],
-] as const;
+// 六张图纸再来一轮：内容比区域宽，才有横向滚动
+const recent = [...drawings, ...drawings].map((drawing, index) => ({
+  ...drawing,
+  key: `${drawing.code}-${index}`,
+  opened: index < 6 ? `${index + 1} 小时前` : `${index - 4} 天前`,
+}));
 
 const styles = css.create({
-  item: { flexShrink: 0, width: '9rem' },
-  // 封面色由每张歌单的色相决定
-  cover: (hue: number) => ({
-    aspectRatio: '1',
-    marginBlockEnd: '_sm',
-    borderRadius: '_md',
-    backgroundImage: `linear-gradient(135deg, oklch(70% 0.14 ${hue}), oklch(45% 0.12 ${hue + 40}))`,
-  }),
+  item: { flexShrink: 0, width: '10rem' },
+  cover: { display: 'block', marginBlockEnd: '_sm', aspectRatio: '3 / 2' },
   padded: { paddingBlockEnd: '_md' },
 });
 
 export default _component(() => () => (
-  <ScrollArea axis="x" type="always" propsViewport={{ 'aria-label': '推荐歌单' }}>
+  <ScrollArea axis="x" type="always" propsViewport={{ 'aria-label': '最近打开的图纸' }}>
     <FlexList gap="md" sx={styles.padded}>
-      {playlists.map(([name, count, hue]) => (
-        <li key={name} {...css.attrs(styles.item)}>
+      {recent.map((drawing) => (
+        <li key={drawing.key} {...css.attrs(styles.item)}>
           <Card padding="sm">
-            <div {...css.attrs(styles.cover(hue))} />
+            <Image
+              src={drawing.src}
+              alt=""
+              width="100%"
+              height="auto"
+              fit="contain"
+              propsRoot={{ sx: styles.cover }}
+            />
             <Flex direction="column">
-              <Strong>{name}</Strong>
-              <Small tone="muted">{count} 首</Small>
+              <Strong>{drawing.title}</Strong>
+              <Small tone="muted">
+                {drawing.code} · {drawing.opened}
+              </Small>
             </Flex>
           </Card>
         </li>
