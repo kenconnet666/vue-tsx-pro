@@ -16,28 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- 新子路径 `@zerodep-dev/vue-tsx-pro-ui/testing`：在自己的测试里按用户的操作驱动复合控件——`selectHarness`、
-  `cascaderHarness`、`treeSelectHarness`、`treeHarness`、`dateFieldHarness` / `datePickerHarness`、`dataTableHarness`，
-  `getControl(容器, 名称)` 按标签找控件，`setupTestingDom()` 给 happy-dom / jsdom 补上 popover 等 API 与视口大小。
-  文档站加“Testing 测试”指南。Tree 的勾选框带 `data-part="checkbox"`。
-- 组件库带命令行 `vtp-ui create <目录>`（`npx -p @zerodep-dev/vue-tsx-pro-ui vtp-ui create my-admin`）：从模板建一个
-  桌面后台——AppShell、vue-router、列表页（QueryTable）、详情页、编辑页（SchemaForm），假接口在 src/api 里。
-- 更多组件的内部节点带上 `data-scope` / `data-part`（写在部件上的宽高按 border-box 算）：Descriptions、Banner、
-  FormErrorSummary、FormSection、Carousel、QRCode、Gauge、Marquee、Watermark、AnimatedNumber、ValueChange、ImageCropper、
-  CharacterCount、Ellipsis、DiagramLanes、DiagramMinimap、ActionBar、AuthLayout、SelectionBar、Steps、Breadcrumbs、
-  PaginationBar、Tour、AsideLayout、Splitter、LoadingOverlay、SchemaForm、FloatButtonGroup。
-- 键盘聚焦时焦点环不再被容器裁掉：贴着容器边的整行与角上的按钮把环画在里面（Tabs 的标签、Listbox、Splitter 的把手、
-  Tree、容器模式的 VirtualList、NavList、Accordion 的标题、NotificationCenter 的条目、CodeBlock 的复制、SlideCaptcha 的
-  换一张、Upload 图片墙的缩略图）；Collapse 完全展开后不再裁剪内容（过渡中与收起时照旧裁）；DataTable 的单元格、
-  StatGroup 只横向裁剪；Upload 的文件名是链接时省略号在链接上。ItemList 可悬停或整条可点的条目，没写 `inset` 时两侧留 `sm`
-  （悬停底色不贴着内容，带圆角）。
-- 主题新增间距档位 `space.xxs`（`0.125em`）：组件里标题与说明之间、挨在一起的小按钮之间原来写死的 2px 换成它，跟着字号缩放；
-  自定义主题时可以覆盖。几处写死的边框、轮廓宽度换成 `borderWidths`。
-- 部件名（`data-part`）一律是小驼峰，与配方的部件键、`propsXxx` 一致：原来写成连字符的改了——CalendarBoard 的 `dayHead`、
-  `dayButton`，CalendarView 的 `weekNumber`，Diagram 的 `edgeLine`、`edgeArrow`、`edgeText`、`edgeEnd`，JsonViewer 的 `pathBar`，
-  ColorPicker 的 `eyeDropper`，Breadcrumbs 的 `collapsedItem`，AppShell 的 `headerContent`，DonutChart 的 `centerLabel`、MapChart 的
-  `areaLabels`、`pointLabels`（这三处现在也带 `data-scope`）。按 `[data-part="day-head"]` 写的样式要跟着改。
-- TreemapChart 给读屏的数据表：表头已写单位，格子里不再重复单位（同 DonutChart、FunnelChart）。
+（暂无）
 
 ## 每次发布
 
