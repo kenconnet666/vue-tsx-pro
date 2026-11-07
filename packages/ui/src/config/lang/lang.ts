@@ -379,6 +379,20 @@ export interface Lang {
   readonly ratingSummary: (value: number | null, count: number) => string;
   /** 回到顶部按钮的名称，默认“回到顶部” */
   readonly backToTop: string;
+  /** JsonViewer：对象、数组收起时的项数，默认“{count} 项” */
+  readonly jsonItems: (count: number) => string;
+  /** JsonViewer：搜索框的提示，默认“搜索键或值” */
+  readonly jsonSearch: string;
+  /** JsonViewer：全部展开，默认“全部展开” */
+  readonly jsonExpandAll: string;
+  /** JsonViewer：全部收起，默认“全部收起” */
+  readonly jsonCollapseAll: string;
+  /** JsonViewer：复制选中项的值，默认“复制值” */
+  readonly jsonCopyValue: string;
+  /** JsonViewer：复制选中项的路径，默认“复制路径” */
+  readonly jsonCopyPath: string;
+  /** JsonViewer：没有选中项时路径栏的提示，默认“选中一项后可以复制它的值与路径” */
+  readonly jsonPathHint: string;
   /** 二维码图片的默认名称（读屏），默认“二维码” */
   readonly qrCode: string;
   /** 二维码已过期（status="expired"），默认“二维码已过期” */

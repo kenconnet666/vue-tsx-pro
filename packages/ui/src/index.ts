@@ -266,6 +266,13 @@ export {
   type ItemListProps,
 } from './display/ItemList';
 export {
+  JsonViewer,
+  jsonViewerStyles,
+  type JsonViewerKind,
+  type JsonViewerNode,
+  type JsonViewerProps,
+} from './display/JsonViewer';
+export {
   Marquee,
   marqueeTrailStyles,
   type MarqueeDirections,

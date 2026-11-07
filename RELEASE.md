@@ -49,6 +49,9 @@
   放在中间（此时纠错默认 H）、`size`、`margin`（静区）、`color`、`bgColor`；`status` 有 loading、expired（`onRefresh` 刷新）、
   scanned，状态层是 role="status"。颜色跟主题，深色主题下仍是白底深色模块。也导出 `encodeQr` 拿到矩阵。
   语言包加了 `qrCode`、`qrExpired`、`qrRefresh`、`qrScanned`。
+- 新组件 JsonViewer：接口返回、日志、配置的键值树，建在 Tree 上（虚拟滚动、树的键盘、搜索过滤）；值按类型着色（代码高亮的 token），
+  bigint、Decimal 照实显示，Date 显示 ISO，Map、Set 可以展开，循环引用显示 [Circular]；`expandDepth`、`maxHeight`、`toolbar`
+  （搜索与全部展开 / 收起）；选中一项后路径栏可复制路径（`$.items[0]["unit-price"]`）与值。语言包加了 `jsonItems` 等七条。
 - 新子路径 `@zerodep-dev/vue-tsx-pro-ui/area`：全国省市区（与移动端 `/area` 同一份数据）。`areaTree({ depth })` 是三级
   （或两级、一级）的 `{ code, name, children }` 树，`{...areaAccessors}` 直接交给 Cascader、TreeSelect，`areaName`、`areaNames`
   把代码换回名称。约 100 KB，用不到的应用不打包。
