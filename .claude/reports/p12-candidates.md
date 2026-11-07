@@ -1,0 +1,259 @@
+# P12 候选（scripts/structure/p12-candidates.mjs 生成）
+
+逐条看：能换成基础组件的换；子组件该转发部件属性的加 `propsXxx`（mergePartProps 合并）；内部节点补标记或改成配方。
+有理由保留的（几百个格子为性能直接写、语义不同）在旁边注明，不必改。
+
+## 手写的基础节点（37）
+
+- packages/ui/src/navigation/NavBar.tsx:163 <a href>
+- packages/ui/src/input/Cascader.tsx:708 <button>
+- packages/ui/src/input/PeoplePicker.tsx:160 <button>
+- packages/ui/src/input/Select.tsx:494 <button>
+- packages/ui/src/input/SignaturePad.tsx:243 <svg>
+- packages/ui/src/input/ToggleGroup.tsx:282 <button>
+- packages/ui/src/input/TreeSelect.tsx:440 <button>
+- packages/ui/src/feedback/Progress.tsx:385 <svg>
+- packages/ui/src/display/Checklist.tsx:255 <button>
+- packages/ui/src/display/Ellipsis.tsx:155 <button>
+- packages/ui/src/display/Gauge.tsx:211 <svg>
+- packages/ui/src/display/Image.tsx:228 <button>
+- packages/ui/src/display/QRCode.tsx:209 <svg>
+- packages/ui/src/display/Sparkline.tsx:146 <svg>
+- packages/ui/src/display/Timeline.tsx:52 <time>
+- packages/ui/src/display/Timeline.tsx:324 <time>
+- packages/ui/src/diagram/Diagram.tsx:1331 <svg>
+- packages/ui/src/diagram/Diagram.tsx:1380 <svg>
+- packages/ui/src/diagram/DiagramMinimap.tsx:137 <svg>
+- packages/ui/src/diagram/DiagramNode.tsx:243 <svg>
+- packages/ui/src/date/CalendarBoard.tsx:361 <button>
+- packages/ui/src/date/CalendarBoard.tsx:440 <button>
+- packages/ui/src/date/CalendarView.tsx:349 <button>
+- packages/ui/src/date/CalendarView.tsx:573 <button>
+- packages/ui/src/date/DateTime.tsx:49 <time>
+- packages/ui/src/date/QuarterCalendar.tsx:236 <button>
+- packages/ui/src/date/RelativeTime.tsx:80 <time>
+- packages/ui/src/date/RelativeTime.tsx:78 format.relative
+- packages/ui/src/charts/ChordChart.tsx:181 <svg>
+- packages/ui/src/charts/DonutChart.tsx:210 <svg>
+- packages/ui/src/charts/GraphChart.tsx:671 <svg>
+- packages/ui/src/charts/MapChart.tsx:575 <svg>
+- packages/ui/src/charts/RadarChart.tsx:156 <svg>
+- packages/ui/src/charts/SankeyChart.tsx:169 <svg>
+- packages/ui/src/charts/TimelineChart.tsx:270 <svg>
+- packages/ui/src/charts/TreemapChart.tsx:198 <svg>
+- packages/ui/src/charts/XYChart.tsx:1004 <svg>
+
+## 没转发部件属性的子组件（142）
+
+- packages/ui/src/table/ColumnHeaderActions.tsx:143 <Button>
+- packages/ui/src/table/ColumnHeaderActions.tsx:104 <Checkbox>
+- packages/ui/src/table/ColumnSettings.tsx:129 <Checkbox>
+- packages/ui/src/table/DataTable.tsx:396 <ButtonBase>
+- packages/ui/src/table/DataTable.tsx:402 <Icon>
+- packages/ui/src/patterns/CommentThread.tsx:562 <Button>
+- packages/ui/src/patterns/CommentThread.tsx:536 <Icon>
+- packages/ui/src/patterns/CommentThread.tsx:538 <Link>
+- packages/ui/src/patterns/CommentThread.tsx:499 <RelativeTime>
+- packages/ui/src/patterns/DataImport.tsx:372 <Badge>
+- packages/ui/src/patterns/DataImport.tsx:325 <Button>
+- packages/ui/src/patterns/DataImport.tsx:464 <Button>
+- packages/ui/src/patterns/DataImport.tsx:471 <Button>
+- packages/ui/src/patterns/DataImport.tsx:479 <Button>
+- packages/ui/src/patterns/DataImport.tsx:290 <Icon>
+- packages/ui/src/patterns/DataImport.tsx:295 <Icon>
+- packages/ui/src/patterns/DataImport.tsx:418 <Switch>
+- packages/ui/src/patterns/FilterBar.tsx:336 <Badge>
+- packages/ui/src/patterns/FilterBar.tsx:357 <Badge>
+- packages/ui/src/patterns/FilterBar.tsx:425 <Button>
+- packages/ui/src/patterns/KanbanBoard.tsx:406 <Icon>
+- packages/ui/src/patterns/NotificationCenter.tsx:300 <Empty>
+- packages/ui/src/patterns/NotificationCenter.tsx:366 <RelativeTime>
+- packages/ui/src/patterns/QueryTable.tsx:345 <Button>
+- packages/ui/src/patterns/QueryTable.tsx:213 <IconButton>
+- packages/ui/src/patterns/QueryTable.tsx:251 <IconButton>
+- packages/ui/src/patterns/SlideCaptcha.tsx:400 <IconButton>
+- packages/ui/src/patterns/SlideCaptcha.tsx:473 <Icon>
+- packages/ui/src/patterns/SlideCaptcha.tsx:396 <Spinner>
+- packages/ui/src/overlay/CommandPalette.tsx:235 <Icon>
+- packages/ui/src/overlay/CommandPalette.tsx:271 <Icon>
+- packages/ui/src/overlay/CommandPalette.tsx:238 <Kbd>
+- packages/ui/src/overlay/Lightbox.tsx:335 <IconButton>
+- packages/ui/src/overlay/Lightbox.tsx:345 <IconButton>
+- packages/ui/src/overlay/Lightbox.tsx:352 <IconButton>
+- packages/ui/src/overlay/Lightbox.tsx:359 <IconButton>
+- packages/ui/src/overlay/Lightbox.tsx:366 <IconButton>
+- packages/ui/src/overlay/Lightbox.tsx:385 <IconButton>
+- packages/ui/src/overlay/Lightbox.tsx:432 <IconButton>
+- packages/ui/src/overlay/Lightbox.tsx:444 <IconButton>
+- packages/ui/src/navigation/Breadcrumbs.tsx:237 <Button>
+- packages/ui/src/navigation/Breadcrumbs.tsx:123 <Icon>
+- packages/ui/src/navigation/Breadcrumbs.tsx:203 <Icon>
+- packages/ui/src/navigation/NavBar.tsx:115 <Badge>
+- packages/ui/src/navigation/NavBar.tsx:142 <Icon>
+- packages/ui/src/navigation/NavBar.tsx:154 <Icon>
+- packages/ui/src/navigation/NavBar.tsx:189 <Icon>
+- packages/ui/src/navigation/NavList.tsx:247 <Badge>
+- packages/ui/src/navigation/NavList.tsx:398 <Icon>
+- packages/ui/src/navigation/Pager.tsx:98 <Icon>
+- packages/ui/src/navigation/Pager.tsx:100 <Icon>
+- packages/ui/src/navigation/Pagination.tsx:185 <Icon>
+- packages/ui/src/navigation/Steps.tsx:225 <Icon>
+- packages/ui/src/navigation/Steps.tsx:227 <Icon>
+- packages/ui/src/navigation/Steps.tsx:229 <Icon>
+- packages/ui/src/navigation/Tabs.tsx:530 <IconButton>
+- packages/ui/src/input/Cascader.tsx:589 <Icon>
+- packages/ui/src/input/Cascader.tsx:592 <Icon>
+- packages/ui/src/input/Cascader.tsx:656 <Icon>
+- packages/ui/src/input/Cascader.tsx:537 <Spinner>
+- packages/ui/src/input/Cascader.tsx:587 <Spinner>
+- packages/ui/src/input/Checkbox.tsx:360 <Checkbox>
+- packages/ui/src/input/ConditionBuilder.tsx:566 <Button>
+- packages/ui/src/input/ConditionBuilder.tsx:576 <Button>
+- packages/ui/src/input/ConditionBuilder.tsx:477 <IconButton>
+- packages/ui/src/input/ConditionBuilder.tsx:522 <IconButton>
+- packages/ui/src/input/ImageCropper.tsx:337 <IconButton>
+- packages/ui/src/input/ImageCropper.tsx:357 <IconButton>
+- packages/ui/src/input/ImageCropper.tsx:366 <IconButton>
+- packages/ui/src/input/Listbox.tsx:326 <Icon>
+- packages/ui/src/input/PeoplePicker.tsx:191 <Icon>
+- packages/ui/src/input/PeoplePickerPanel.tsx:254 <Avatar>
+- packages/ui/src/input/PeoplePickerPanel.tsx:256 <Avatar>
+- packages/ui/src/input/PeoplePickerPanel.tsx:285 <Button>
+- packages/ui/src/input/PeoplePickerPanel.tsx:407 <Button>
+- packages/ui/src/input/PeoplePickerPanel.tsx:426 <IconButton>
+- packages/ui/src/input/PeoplePickerPanel.tsx:258 <Icon>
+- packages/ui/src/input/PeoplePickerPanel.tsx:376 <Spinner>
+- packages/ui/src/input/PeoplePickerPanel.tsx:271 <Checkbox>
+- packages/ui/src/input/PeoplePickerPanel.tsx:355 <Checkbox>
+- packages/ui/src/input/Rating.tsx:138 <Icon>
+- packages/ui/src/input/Rating.tsx:144 <Icon>
+- packages/ui/src/input/SelectedTags.tsx:100 <Tag>
+- packages/ui/src/input/Transfer.tsx:171 <Checkbox>
+- packages/ui/src/input/Upload.tsx:649 <ButtonBase>
+- packages/ui/src/input/Upload.tsx:626 <Icon>
+- packages/ui/src/input/Upload.tsx:656 <Icon>
+- packages/ui/src/input/Upload.tsx:727 <Icon>
+- packages/ui/src/input/Upload.tsx:529 <Link>
+- packages/ui/src/form/Field.tsx:445 <Icon>
+- packages/ui/src/form/FormErrorSummary.tsx:118 <Icon>
+- packages/ui/src/form/SchemaForm.tsx:241 <Button>
+- packages/ui/src/form/SchemaForm.tsx:346 <Button>
+- packages/ui/src/form/SchemaForm.tsx:350 <Button>
+- packages/ui/src/form/SchemaForm.tsx:259 <IconButton>
+- packages/ui/src/form/SchemaForm.tsx:120 <Checkbox>
+- packages/ui/src/form/SchemaForm.tsx:117 <Switch>
+- packages/ui/src/feedback/ErrorBoundary.tsx:67 <Button>
+- packages/ui/src/display/Avatar.tsx:171 <Icon>
+- packages/ui/src/display/Carousel.tsx:341 <ButtonBase>
+- packages/ui/src/display/Carousel.tsx:328 <IconButton>
+- packages/ui/src/display/Checklist.tsx:235 <Icon>
+- packages/ui/src/display/Image.tsx:216 <Icon>
+- packages/ui/src/display/JsonViewer.tsx:376 <Button>
+- packages/ui/src/display/JsonViewer.tsx:385 <Button>
+- packages/ui/src/display/QRCode.tsx:166 <Icon>
+- packages/ui/src/display/QRCode.tsx:162 <Spinner>
+- packages/ui/src/display/Sortable.tsx:167 <Icon>
+- packages/ui/src/display/Stat.tsx:288 <Icon>
+- packages/ui/src/display/Stat.tsx:321 <Icon>
+- packages/ui/src/display/Stat.tsx:295 <Skeleton>
+- packages/ui/src/display/Stat.tsx:316 <Skeleton>
+- packages/ui/src/display/Timeline.tsx:384 <Avatar>
+- packages/ui/src/display/Timeline.tsx:355 <Icon>
+- packages/ui/src/display/Timeline.tsx:339 <Spinner>
+- packages/ui/src/display/Tree.tsx:707 <Icon>
+- packages/ui/src/display/Tree.tsx:743 <Icon>
+- packages/ui/src/display/Tree.tsx:750 <Icon>
+- packages/ui/src/display/Tree.tsx:704 <Spinner>
+- packages/ui/src/display/ValueChange.tsx:69 <Icon>
+- packages/ui/src/diagram/DiagramControls.tsx:83 <IconButton>
+- packages/ui/src/diagram/DiagramControls.tsx:105 <IconButton>
+- packages/ui/src/diagram/DiagramControls.tsx:113 <IconButton>
+- packages/ui/src/date/picker-popover.tsx:185 <Button>
+- packages/ui/src/date/QuarterCalendar.tsx:176 <IconButton>
+- packages/ui/src/date/QuarterCalendar.tsx:191 <IconButton>
+- packages/ui/src/charts/ChordChart.tsx:293 <Skeleton>
+- packages/ui/src/charts/DonutChart.tsx:289 <Skeleton>
+- packages/ui/src/charts/frame.tsx:280 <Empty>
+- packages/ui/src/charts/FunnelChart.tsx:154 <Skeleton>
+- packages/ui/src/charts/GraphChart.tsx:711 <Skeleton>
+- packages/ui/src/charts/MapChart.tsx:809 <IconButton>
+- packages/ui/src/charts/MapChart.tsx:831 <Skeleton>
+- packages/ui/src/charts/RadarChart.tsx:279 <Skeleton>
+- packages/ui/src/charts/SankeyChart.tsx:290 <Skeleton>
+- packages/ui/src/charts/TimelineChart.tsx:400 <Skeleton>
+- packages/ui/src/charts/TreemapChart.tsx:315 <Skeleton>
+- packages/ui/src/charts/XYChart.tsx:403 <Button>
+- packages/ui/src/charts/XYChart.tsx:287 <Skeleton>
+- packages/ui/src/charts/XYChart.tsx:294 <Skeleton>
+- packages/ui/src/base/Heading.tsx:140 <Icon>
+- packages/ui/src/base/Tag.tsx:106 <ButtonBase>
+
+## 没有部件标记的内部节点（按文件计数）（67）
+
+- packages/ui/src/charts/XYChart.tsx：20
+- packages/ui/src/charts/MapChart.tsx：19
+- packages/ui/src/charts/GraphChart.tsx：17
+- packages/ui/src/charts/FunnelChart.tsx：11
+- packages/ui/src/theme-customize/ThemeCustomizer.tsx：10
+- packages/ui/src/charts/RadarChart.tsx：10
+- packages/ui/src/charts/frame.tsx：9
+- packages/ui/src/charts/TimelineChart.tsx：7
+- packages/ui/src/charts/TreemapChart.tsx：7
+- packages/ui/src/charts/DonutChart.tsx：6
+- packages/ui/src/charts/SankeyChart.tsx：6
+- packages/ui/src/display/Sparkline.tsx：5
+- packages/ui/src/diagram/Diagram.tsx：5
+- packages/ui/src/charts/ChordChart.tsx：5
+- packages/ui/src/charts/marks.tsx：5
+- packages/ui/src/charts/plot.tsx：5
+- packages/ui/src/patterns/AppShell.tsx：4
+- packages/ui/src/patterns/QueryTable.tsx：4
+- packages/ui/src/input/Listbox.tsx：4
+- packages/ui/src/input/PeoplePickerPanel.tsx：4
+- packages/ui/src/input/Transfer.tsx：4
+- packages/ui/src/form/SchemaForm.tsx：4
+- packages/ui/src/display/FieldCompare.tsx：4
+- packages/ui/src/display/Tree.tsx：4
+- packages/ui/src/theme-customize/ThemeThumbnail.tsx：3
+- packages/ui/src/table/ColumnSettings.tsx：3
+- packages/ui/src/table/DataTableView.tsx：3
+- packages/ui/src/input/Cascader.tsx：3
+- packages/ui/src/input/PeoplePicker.tsx：3
+- packages/ui/src/input/TreeSelect.tsx：3
+- packages/ui/src/display/ItemList.tsx：3
+- packages/ui/src/table/ColumnHeaderActions.tsx：2
+- packages/ui/src/table/TreeDataTable.tsx：2
+- packages/ui/src/navigation/NavList.tsx：2
+- packages/ui/src/navigation/PageSizeSelect.tsx：2
+- packages/ui/src/layout/Splitter.tsx：2
+- packages/ui/src/input/ImageCropper.tsx：2
+- packages/ui/src/input/Rating.tsx：2
+- packages/ui/src/input/Select.tsx：2
+- packages/ui/src/input/SignaturePad.tsx：2
+- packages/ui/src/date/CalendarView.tsx：2
+- packages/ui/src/date/DatePicker.tsx：2
+- packages/ui/src/config/Provider.tsx：2
+- packages/ui/src/charts/WaterfallChart.tsx：2
+- packages/ui/src/patterns/FilterBar.tsx：1
+- packages/ui/src/patterns/StepsForm.tsx：1
+- packages/ui/src/overlay/Menu.tsx：1
+- packages/ui/src/overlay/Popconfirm.tsx：1
+- packages/ui/src/navigation/NavBar.tsx：1
+- packages/ui/src/layout/Affix.tsx：1
+- packages/ui/src/layout/AsideLayout.tsx：1
+- packages/ui/src/input/ColorField.tsx：1
+- packages/ui/src/input/ListPopover.tsx：1
+- packages/ui/src/input/OtpField.tsx：1
+- packages/ui/src/form/FormSection.tsx：1
+- packages/ui/src/feedback/LoadingBar.tsx：1
+- packages/ui/src/display/Checklist.tsx：1
+- packages/ui/src/display/JsonViewer.tsx：1
+- packages/ui/src/display/ProportionBar.tsx：1
+- packages/ui/src/display/QRCode.tsx：1
+- packages/ui/src/display/Stat.tsx：1
+- packages/ui/src/display/Timeline.tsx：1
+- packages/ui/src/display/VirtualList.tsx：1
+- packages/ui/src/diagram/DiagramMinimap.tsx：1
+- packages/ui/src/date/QuarterCalendar.tsx：1
+- packages/ui/src/code-editor/CodeEditor.tsx：1
+- packages/ui/src/charts/ScatterChart.tsx：1
