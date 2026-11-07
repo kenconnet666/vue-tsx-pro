@@ -1,15 +1,9 @@
 // CommentThread：留言与回复的结构、提及高亮、附件、相对时间；回复带“@作者 ”与 replyTo、Ctrl + Enter 发送；
 // 发送失败保留内容并提示；没有 onSend 时只读；没有留言时的提示
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { CommentThread, type CommentDraft, type CommentItem } from '../CommentThread';
-
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 const flush = async () => {
   for (let i = 0; i < 4; i++) await nextTick();

@@ -1,16 +1,9 @@
 // Popconfirm：alertdialog 的名称与说明、取消在前；确认等 Promise、返回 false 或失败时保持打开；取消（含按钮）报告 onCancel
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { nextTick, reactive } from 'vue';
 import { Button } from '../../base/Button';
 import { mount } from '../../utils/.test/mount';
 import { Popconfirm } from '../Popconfirm';
-
-// happy-dom 没有 popover 的方法
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 const flush = async () => {
   for (let i = 0; i < 4; i++) await nextTick();

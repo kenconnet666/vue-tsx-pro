@@ -1,7 +1,7 @@
 // Select：只读（自己的 readonly 或 Field 的）不能打开、不能清空；前置图标与其他输入框一样画在外壳里；
 // 多选的标签在触发按钮外（可移除、Backspace、maxTagCount），creatable 新建选项
 import { Globe } from '@lucide/icons';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { Field } from '../../form/Field';
 import { mount } from '../../utils/.test/mount';
@@ -12,13 +12,6 @@ const cities = ['北京', '上海', '广州'];
 const flush = async () => {
   for (let index = 0; index < 5; index++) await nextTick();
 };
-
-// happy-dom 没有 popover API
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 describe('Select', () => {
   it('只读：点击、按键都不打开，没有清空按钮，触发按钮带 aria-readonly；Field 的 readonly 同样生效', async () => {

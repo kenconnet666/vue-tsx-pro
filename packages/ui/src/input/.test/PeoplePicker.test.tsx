@@ -1,6 +1,6 @@
 // 人员与组织选择器：localPeopleSource（下级、搜索、角色）；面板的下钻与面包屑、点行勾选、不能选的部门点行进去、
 // 全选、max 换掉或勾满、移除与清空、搜索、“最近”；字段的对话框（确定写回、取消放弃）、Backspace、只选一个时显示名字
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { localPeopleSource, type PeopleEntry, type PeopleNode } from '../people';
@@ -45,11 +45,6 @@ const flush = async () => {
   await new Promise((resolve) => setTimeout(resolve));
 };
 
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 afterEach(() => localStorage.clear());
 
 const rows = (root: Element) => [...root.querySelectorAll<HTMLElement>('li')];

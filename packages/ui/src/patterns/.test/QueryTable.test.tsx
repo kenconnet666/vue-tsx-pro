@@ -12,9 +12,6 @@ import { QueryTable } from '../QueryTable';
 const clientHeight = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight')!;
 beforeAll(() => {
   Object.defineProperty(HTMLElement.prototype, 'clientHeight', { get: () => 400 });
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
 });
 afterAll(() => {
   Object.defineProperty(HTMLElement.prototype, 'clientHeight', clientHeight);

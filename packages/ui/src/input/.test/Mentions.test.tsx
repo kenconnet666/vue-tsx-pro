@@ -1,6 +1,6 @@
 // Mentions：@ 弹出过滤后的人员、选中写成“@名字 ”、mentions 随文字增删、Esc 关掉后这个 @ 不再弹出、邮箱里的 @ 不算；
 // mentionSegments 取最长的匹配；MentionText 高亮提及
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { nextTick, reactive } from 'vue';
 import { hasStyles, mount } from '../../utils/.test/mount';
 import {
@@ -10,13 +10,6 @@ import {
   mentionStyles,
   MentionText,
 } from '../Mentions';
-
-// happy-dom 没有 popover 的方法
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 const flush = async () => {
   for (let i = 0; i < 4; i++) await nextTick();

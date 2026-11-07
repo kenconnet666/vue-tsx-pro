@@ -1,7 +1,7 @@
 // DatePicker 与 DateRangePicker 的快捷选项：点了写回并关闭、当前值对应的那一项按下、超出范围的不可用；
 // DatePicker 的“今天”（选月份时“本月”）；DateRangePicker 的自定义快捷区间（函数时按当时算）；
 // 不可选的时间：TimeField、DateField 键入时出错，TimePicker 的列表里不可用
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { todayIso } from '../../utils/data/date';
 import { mount } from '../../utils/.test/mount';
@@ -13,13 +13,6 @@ import { QuarterCalendar } from '../QuarterCalendar';
 import { TimeField } from '../TimeField';
 import { TimePicker } from '../TimePicker';
 import type { DateRange } from '../../utils/data/date';
-
-// happy-dom 没有 popover API
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 const flush = async () => {
   for (let index = 0; index < 4; index++) await nextTick();

@@ -24,9 +24,6 @@ const offsetWidth = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offs
 beforeAll(() => {
   Object.defineProperty(HTMLElement.prototype, 'clientHeight', { get: () => 400 });
   Object.defineProperty(HTMLElement.prototype, 'offsetWidth', { get: () => 120 });
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
 });
 afterAll(() => {
   Object.defineProperty(HTMLElement.prototype, 'clientHeight', clientHeight);

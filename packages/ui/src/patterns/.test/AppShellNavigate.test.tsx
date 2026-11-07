@@ -8,8 +8,6 @@ import { AppShell } from '../AppShell';
 
 beforeAll(() => {
   const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
   proto.showModal ??= function (this: HTMLElement) {
     this.setAttribute('open', '');
   };

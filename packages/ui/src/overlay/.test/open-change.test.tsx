@@ -1,6 +1,6 @@
 // onOpenChange 的原因：Dialog 的关闭按钮、确认、Esc，父级改 open 时不通知；beforeClose 拿到原因；
 // Popover 的触发器与 light dismiss；Menu 执行一项；useDialog 的句柄（content 拿到句柄、update、close、closed）
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { defineComponent, h, nextTick } from 'vue';
 import type { OpenChangeDetails } from '../../utils/dom/open-change';
 import { mount } from '../../utils/.test/mount';
@@ -11,13 +11,6 @@ import { Popover } from '../Popover';
 const flush = async () => {
   for (let i = 0; i < 6; i++) await nextTick();
 };
-
-// happy-dom 没有 popover API
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 const reasons = (spy: ReturnType<typeof vi.fn>) =>
   spy.mock.calls.map(([open, details]) => `${open}:${details.reason}`);

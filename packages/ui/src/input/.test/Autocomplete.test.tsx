@@ -1,15 +1,8 @@
 // Autocomplete：值就是文字；选一项建议填入它的文字；没有可选的建议时不弹出；写了 name 时提交的是文字；没有展开按钮
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { nextTick, reactive } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Autocomplete } from '../Autocomplete';
-
-// happy-dom 没有 popover 的方法
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 const flush = async () => {
   for (let i = 0; i < 4; i++) await nextTick();

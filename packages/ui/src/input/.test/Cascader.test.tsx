@@ -1,6 +1,6 @@
 // Cascader：触发框显示整条路径；一列一列往下点、叶子选中后关闭；changeOnSelect 每一级都能选；
 // 键盘 ↓ → Enter；懒加载下一级；搜索整条路径
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { nextTick, reactive } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Cascader } from '../Cascader';
@@ -36,13 +36,6 @@ const accessors = {
   getLabel: (region: Region) => region.name,
   getChildren: (region: Region) => region.children,
 };
-
-// happy-dom 没有 popover API
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 const flush = async () => {
   for (let index = 0; index < 5; index++) await nextTick();

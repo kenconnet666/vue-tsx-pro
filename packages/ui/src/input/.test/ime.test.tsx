@@ -1,17 +1,11 @@
 // 输入法：组合输入中（Chrome、Firefox 的 isComposing，Safari 确认用的 keydown 的 keyCode 229）按 Enter、方向键是给输入法的，
 // TagsInput 不加标签、Combobox 不选中、Mentions 不提及（快捷键的见 utils/dom/.test/hotkeys.test.ts）；组合结束后照常
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Combobox } from '../Combobox';
 import { Mentions } from '../Mentions';
 import { TagsInput } from '../TagsInput';
-
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 const flush = async () => {
   for (let index = 0; index < 4; index++) await nextTick();

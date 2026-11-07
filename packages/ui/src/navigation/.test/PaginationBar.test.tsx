@@ -1,5 +1,5 @@
 // PaginationBar：起始边的范围文字（没有数据、自定义），页码写回 page，换每页条数回到第 1 页，跳页；只有一页时不显示跳页
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { PaginationBar } from '../PaginationBar';
@@ -7,13 +7,6 @@ import { PaginationBar } from '../PaginationBar';
 const flush = async () => {
   for (let index = 0; index < 5; index++) await nextTick();
 };
-
-// happy-dom 没有 popover API
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 describe('PaginationBar', () => {
   it('范围文字：第几到第几条、共几条；没有数据时只说共 0 条；showTotal 可以给函数', () => {

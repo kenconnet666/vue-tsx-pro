@@ -12,6 +12,7 @@ export default defineConfig({
     // 每个 Worker 只建一次 happy-dom，每个测试文件仍是新的 VM 上下文与 window（Vitest 的 improving-performance）：
     // 建环境、导入模块占了大半时间，106 个文件 37 s → 10 s
     pool: 'vmForks',
+    setupFiles: ['./src/utils/.test/setup.ts'],
     passWithNoTests: true,
   },
 });

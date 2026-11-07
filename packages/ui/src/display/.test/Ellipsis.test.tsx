@@ -1,5 +1,5 @@
 // Ellipsis：没截断时是普通文字；截断时能聚焦、有提示（expandable 时换成展开按钮），展开后显示全部
-import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Ellipsis } from '../Ellipsis';
@@ -16,12 +16,6 @@ function stubOverflow() {
   vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(100);
   vi.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(40);
 }
-
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 const flush = async () => {
   for (let i = 0; i < 4; i++) await nextTick();

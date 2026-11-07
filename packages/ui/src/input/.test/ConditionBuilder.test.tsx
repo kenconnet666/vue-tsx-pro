@@ -1,6 +1,6 @@
 // ConditionBuilder：读入条件（not 包着 any 是“都不满足”，嵌套组）、加一条并填完才写回、换字段换比较方式时值跟着变形、
 // 换满足方式、删除（删光写回 null）、父级换值时整棵重读、maxDepth 限制加组；焦点落到新加的条件上
-import { beforeAll, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import type { Condition, ConditionField } from '../condition';
@@ -23,13 +23,6 @@ const fields: ConditionField[] = [
 const flush = async () => {
   for (let index = 0; index < 5; index++) await nextTick();
 };
-
-// happy-dom 没有 popover API
-beforeAll(() => {
-  const proto = HTMLElement.prototype as unknown as Record<string, unknown>;
-  proto.showPopover ??= () => {};
-  proto.hidePopover ??= () => {};
-});
 
 /** 打开一个下拉、点它自己列表里的某一项（每个下拉的选项都在文档里，按 aria-controls 找它的列表） */
 async function choose(trigger: HTMLElement, label: string) {
