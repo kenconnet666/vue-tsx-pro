@@ -731,9 +731,12 @@ export {
 } from './input/ToggleGroup';
 export {
   Transfer,
+  transferRecipe,
   TreeTransfer,
   type TransferBaseProps,
   type TransferListProps,
+  type TransferOptions,
+  type TransferPart,
   type TransferProps,
   type TreeTransferProps,
 } from './input/Transfer';

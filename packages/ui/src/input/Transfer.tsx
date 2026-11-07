@@ -12,8 +12,7 @@
  * - TreeTransfer：左边是勾选的 Tree（父子联动、可搜索），已经移过去的节点勾上且不可用；只移叶子，value 是叶子的 key。
  * - 在 Field 里时整体是一组（role="group"，名称是 Field 的标签），两边的列表各以自己的标题为名。
  *
- * 部件：Root（div，role="group"）、Panel（section，每一边）、Header、SelectAll（Checkbox）、Title、Count、
- * Search（TextField）、List（Listbox / Tree）、Actions（中间的按钮）。
+ * 部件见 transferRecipe。
  */
 import { ChevronLeft, ChevronRight, Search } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -22,6 +21,7 @@ import type { UpdateHandlers } from '@zerodep-dev/vue-tsx-pro-tsx/jsx-runtime';
 import { useId, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Small } from '../base/Text';
+import { useComponent } from '../config/components';
 import { useLang, useTextMatcher } from '../config/context';
 import { Tree, type TreeProps } from '../display/Tree';
 import { useFieldControl } from '../form/Field';
@@ -33,19 +33,23 @@ import { Listbox, type ListboxBaseProps, type ListboxProps } from './Listbox';
 import type { MultipleSelectionProps } from '../utils/data/selection';
 import { toListboxOption, type ListboxOption, type OptionMapping } from './list-state';
 import { TextField, type TextFieldProps } from './TextField';
-import { partAttrs } from '../config/styles';
+import type { PartLayer } from '../config/styles';
 
 /** 两边的列表（可多选的 Listbox）的属性：propsList 用它 */
 export type TransferListProps<T> = ListboxBaseProps<T> & MultipleSelectionProps & OptionMapping<T>;
 
+/** Transfer 的档位（createUi / Provider 的 components.Transfer.defaults；TreeTransfer 同） */
+export interface TransferOptions {
+  /** 两边带搜索框 */
+  searchable?: boolean;
+}
+
 /** Transfer 与 TreeTransfer 共有的属性；未声明的属性落到外层 div（role="group"）上 */
-export interface TransferBaseProps extends PartProps<'div', 'role'> {
+export interface TransferBaseProps extends PartProps<'div', 'role'>, TransferOptions {
   /** 右边（已选）的值，按移过去的先后排列：父级写 _value={keys} */
   _value?: string[];
   /** 左右两边的标题，默认取语言包（可选、已选） */
   titles?: readonly [string, string];
-  /** 两边带搜索框 */
-  searchable?: boolean;
   /** 不可用：勾不了、移不了 */
   disabled?: boolean;
   /** 每一边的部件属性（section；列表的高度给它的 sx） */
@@ -85,56 +89,78 @@ export interface TreeTransferProps<T> extends TransferBaseProps {
   propsList?: Partial<TransferListProps<ListboxOption>>;
 }
 
-/** 部件的标记（data-scope="transfer"） */
-const transferPart = (part: string) => partAttrs({ name: 'Transfer' }, part);
-
-/** Transfer 的样式：root、panel、header、title、search、list、actions、actionIcon */
-const transferStyles = css.create({
-  // 窄屏时上下排，按钮换成上下箭头
-  root: {
-    display: 'grid',
-    gridTemplateColumns: {
-      default: 'minmax(0, 1fr) auto minmax(0, 1fr)',
-      '@media (max-width: 40rem)': 'minmax(0, 1fr)',
+/**
+ * Transfer 的配方（createUi / Provider 的 components.Transfer 按它定制；TreeTransfer 共用）：root（div，role="group"）、
+ * panel（section，每一边）、header、checkAll（全选的 Checkbox）、title、count、search（搜索框的外层）、searchField（TextField）、
+ * list（Listbox / Tree 的滚动区）、actions（中间的按钮）、action（IconButton）、actionIcon
+ */
+export const transferRecipe = css.recipe({
+  name: 'Transfer',
+  parts: [
+    'root',
+    'panel',
+    'header',
+    'checkAll',
+    'title',
+    'count',
+    'search',
+    'searchField',
+    'list',
+    'actions',
+    'action',
+    'actionIcon',
+  ],
+  base: {
+    // 窄屏时上下排，按钮换成上下箭头
+    root: {
+      display: 'grid',
+      gridTemplateColumns: {
+        default: 'minmax(0, 1fr) auto minmax(0, 1fr)',
+        '@media (max-width: 40rem)': 'minmax(0, 1fr)',
+      },
+      alignItems: 'stretch',
+      gap: '_md',
     },
-    alignItems: 'stretch',
-    gap: '_md',
+    panel: {
+      display: 'flex',
+      flexDirection: 'column',
+      minWidth: 0,
+      height: '20em',
+      borderWidth: '_xs',
+      borderStyle: 'solid',
+      borderColor: '_border',
+      borderRadius: '_md',
+      backgroundColor: '_surface',
+      overflow: 'hidden',
+    },
+    header: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '_sm',
+      paddingBlock: '_xs',
+      paddingInline: '_sm',
+      borderBlockEndWidth: '_xs',
+      borderBlockEndStyle: 'solid',
+      borderBlockEndColor: '_borderMuted',
+    },
+    title: { flexGrow: 1, minWidth: 0, fontWeight: '_medium' },
+    search: { padding: '_xs', flexShrink: 0 },
+    searchField: { width: '_full' },
+    // 列表占满剩下的高度，自己滚动（虚拟滚动要有确定的高度）
+    list: { flexGrow: 1, minHeight: 0, borderWidth: 0, borderRadius: 0 },
+    actions: {
+      display: 'flex',
+      flexDirection: { default: 'column', '@media (max-width: 40rem)': 'row' },
+      justifyContent: 'center',
+      gap: '_sm',
+    },
+    actionIcon: { rotate: { default: null, '@media (max-width: 40rem)': '90deg' } },
   },
-  panel: {
-    display: 'flex',
-    flexDirection: 'column',
-    minWidth: 0,
-    height: '20em',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_border',
-    borderRadius: '_md',
-    backgroundColor: '_surface',
-    overflow: 'hidden',
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '_sm',
-    paddingBlock: '_xs',
-    paddingInline: '_sm',
-    borderBlockEndWidth: '_xs',
-    borderBlockEndStyle: 'solid',
-    borderBlockEndColor: '_borderMuted',
-  },
-  title: { flexGrow: 1, minWidth: 0, fontWeight: '_medium' },
-  search: { padding: '_xs', flexShrink: 0 },
-  searchField: { width: '_full' },
-  // 列表占满剩下的高度，自己滚动（虚拟滚动要有确定的高度）
-  list: { flexGrow: 1, minHeight: 0, borderWidth: 0, borderRadius: 0 },
-  actions: {
-    display: 'flex',
-    flexDirection: { default: 'column', '@media (max-width: 40rem)': 'row' },
-    justifyContent: 'center',
-    gap: '_sm',
-  },
-  actionIcon: { rotate: { default: null, '@media (max-width: 40rem)': '90deg' } },
 });
+
+/** Transfer 的部件（createUi / Provider 的 components.Transfer.styles 按它定制） */
+export type TransferPart = (typeof transferRecipe.parts)[number];
+type TransferParts = Readonly<Record<TransferPart, PartLayer>>;
 
 interface PanelOptions {
   title: string;
@@ -157,23 +183,19 @@ interface PanelOptions {
 }
 
 /** 一边：全选框、标题、计数、搜索框与列表 */
-function renderPanel(lang: ReturnType<typeof useLang>, options: PanelOptions) {
+function renderPanel(s: TransferParts, lang: ReturnType<typeof useLang>, options: PanelOptions) {
   const visibleChecked = options.selectable.filter((key) => options.checked.includes(key));
   const all = options.selectable.length > 0 && visibleChecked.length === options.selectable.length;
   return (
     <section
-      {...mergeAttrs<'section'>(
-        { sx: transferStyles.panel, ...transferPart('panel') },
-        options.propsPanel,
-        {
-          'aria-labelledby': options.titleId,
-        },
-      )}
+      {...mergeAttrs<'section'>(s.panel, options.propsPanel, {
+        'aria-labelledby': options.titleId,
+      })}
     >
-      <div {...css.attrs(transferStyles.header)}>
+      <div {...mergeAttrs<'div'>(s.header)}>
         <Checkbox
           {...mergePartProps<CheckboxProps>(
-            { 'aria-label': lang.transferSelectAll(options.title) },
+            { ...s.checkAll, 'aria-label': lang.transferSelectAll(options.title) },
             options.propsCheckAll,
             {
               indeterminate: !all && visibleChecked.length > 0,
@@ -186,13 +208,15 @@ function renderPanel(lang: ReturnType<typeof useLang>, options: PanelOptions) {
             options.onCheckAll(next ? [...others, ...options.selectable] : others);
           }}
         />
-        <span id={options.titleId} {...css.attrs(transferStyles.title)}>
+        <span {...mergeAttrs<'span'>(s.title)} id={options.titleId}>
           {options.title}
         </span>
-        <Small tone="muted">{lang.transferCount(options.checked.length, options.total)}</Small>
+        <Small {...s.count} tone="muted">
+          {lang.transferCount(options.checked.length, options.total)}
+        </Small>
       </div>
       {options.searchable && (
-        <div {...css.attrs(transferStyles.search)}>
+        <div {...mergeAttrs<'div'>(s.search)}>
           <TextField
             {...mergePartProps<TextFieldProps>(
               {
@@ -201,7 +225,7 @@ function renderPanel(lang: ReturnType<typeof useLang>, options: PanelOptions) {
                 size: 'sm',
                 placeholder: lang.selectSearch,
                 'aria-label': `${lang.selectSearch} ${options.title}`,
-                propsRoot: { sx: transferStyles.searchField },
+                propsRoot: s.searchField,
               },
               options.propsSearch,
             )}
@@ -219,6 +243,7 @@ function renderPanel(lang: ReturnType<typeof useLang>, options: PanelOptions) {
 
 /** 中间的两个按钮 */
 function renderActions(
+  s: TransferParts,
   lang: ReturnType<typeof useLang>,
   titles: readonly [string, string],
   enabled: readonly [boolean, boolean],
@@ -226,17 +251,18 @@ function renderActions(
   propsAction: Partial<IconButtonProps> | undefined,
 ) {
   return (
-    <div {...css.attrs(transferStyles.actions)}>
+    <div {...mergeAttrs<'div'>(s.actions)}>
       {([1, 0] as const).map((to) => (
         <IconButton
           key={to}
           {...mergePartProps<IconButtonProps>(
             {
+              ...s.action,
               icon: to === 1 ? ChevronRight : ChevronLeft,
               'aria-label': lang.transferMoveTo(titles[to]),
               variant: 'soft',
               size: 'sm',
-              propsIcon: { flipInRtl: true, sx: transferStyles.actionIcon },
+              propsIcon: { ...s.actionIcon, flipInRtl: true },
             },
             propsAction,
             { disabled: !enabled[to], onClick: move[to] },
@@ -254,7 +280,7 @@ export const Transfer = _component(
     toOption,
     _value: value = _bindable<string[]>([]),
     titles,
-    searchable = false,
+    searchable,
     filter,
     disabled,
     propsPanel,
@@ -264,6 +290,7 @@ export const Transfer = _component(
     propsList,
     ...rest
   }: TransferProps<T>) => {
+    const ui = useComponent(transferRecipe, () => ({ searchable }), { searchable: false });
     const lang = useLang();
     const textMatcher = useTextMatcher();
     const field = useFieldControl(() => ({ disabled }));
@@ -313,6 +340,7 @@ export const Transfer = _component(
     }
 
     return () => {
+      const { options: o, parts: s } = ui();
       const state = field();
       const list = (side: 0 | 1) => (
         <Listbox
@@ -320,8 +348,8 @@ export const Transfer = _component(
             {
               items: shownEntries(side).map((entry) => entry.item),
               toOption: (item: T) => toListboxOption(item, toOption),
+              ...s.list,
               selectionMode: 'multiple',
-              sx: transferStyles.list,
               propsOption: (item: T) => ({
                 // 双击直接移过去
                 onDblclick: () => move(side, [toListboxOption(item, toOption).value]),
@@ -339,7 +367,7 @@ export const Transfer = _component(
         />
       );
       const panel = (side: 0 | 1) =>
-        renderPanel(lang, {
+        renderPanel(s, lang, {
           title: titleOf(side),
           titleId: `${baseId}-title-${side}`,
           selectable: shownEntries(side)
@@ -350,7 +378,7 @@ export const Transfer = _component(
           onCheckAll: (keys) => setChecked(side, keys),
           search: searches[side],
           onSearch: (text) => (searches = side === 0 ? [text, searches[1]] : [searches[0], text]),
-          searchable,
+          searchable: o.searchable,
           disabled: state.disabled,
           propsPanel,
           propsSearch,
@@ -359,7 +387,7 @@ export const Transfer = _component(
         });
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: transferStyles.root, ...transferPart('root') }, rest, {
+          {...mergeAttrs<'div'>(s.root, rest, {
             role: 'group',
             'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
             'aria-describedby': state.describedBy,
@@ -367,6 +395,7 @@ export const Transfer = _component(
         >
           {panel(0)}
           {renderActions(
+            s,
             lang,
             [titleOf(0), titleOf(1)],
             [!state.disabled && checked[1].length > 0, !state.disabled && checked[0].length > 0],
@@ -389,7 +418,7 @@ export const TreeTransfer = _component(
     getChildren,
     _value: value = _bindable<string[]>([]),
     titles,
-    searchable = false,
+    searchable,
     disabled,
     propsPanel,
     propsSearch,
@@ -399,6 +428,7 @@ export const TreeTransfer = _component(
     propsList,
     ...rest
   }: TreeTransferProps<T>) => {
+    const ui = useComponent(transferRecipe, () => ({ searchable }), { searchable: false });
     const lang = useLang();
     const textMatcher = useTextMatcher();
     const field = useFieldControl(() => ({ disabled }));
@@ -455,6 +485,7 @@ export const TreeTransfer = _component(
     }
 
     return () => {
+      const { options: o, parts: s } = ui();
       const state = field();
       const sourceChecked = checked[0];
       const tree = (
@@ -469,7 +500,7 @@ export const TreeTransfer = _component(
               // 已经移过去的叶子勾上且不可用
               isDisabled: (node: T) => state.disabled || chosen.has(getKey(node)),
               filter: searches[0],
-              propsScrollArea: { sx: transferStyles.list },
+              propsScrollArea: s.list,
             },
             propsTree,
             { 'aria-labelledby': `${baseId}-title-0` },
@@ -489,8 +520,8 @@ export const TreeTransfer = _component(
           {...mergePartProps<TransferListProps<ListboxOption>>(
             {
               items: targetOptions().filter((option) => matchesSearch(option.value, 1)),
+              ...s.list,
               selectionMode: 'multiple',
-              sx: transferStyles.list,
               propsOption: (option: ListboxOption) => ({
                 onDblclick: () => move(1, [option.value]),
               }),
@@ -507,7 +538,7 @@ export const TreeTransfer = _component(
         />
       );
       const panel = (side: 0 | 1, selectable: string[], total: number, body: VNodeChild) =>
-        renderPanel(lang, {
+        renderPanel(s, lang, {
           title: titleOf(side),
           titleId: `${baseId}-title-${side}`,
           selectable,
@@ -516,7 +547,7 @@ export const TreeTransfer = _component(
           onCheckAll: (keys) => setChecked(side, keys),
           search: searches[side],
           onSearch: (text) => (searches = side === 0 ? [text, searches[1]] : [searches[0], text]),
-          searchable,
+          searchable: o.searchable,
           disabled: state.disabled,
           propsPanel,
           propsSearch,
@@ -525,7 +556,7 @@ export const TreeTransfer = _component(
         });
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: transferStyles.root, ...transferPart('root') }, rest, {
+          {...mergeAttrs<'div'>(s.root, rest, {
             role: 'group',
             'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
             'aria-describedby': state.describedBy,
@@ -538,6 +569,7 @@ export const TreeTransfer = _component(
             tree,
           )}
           {renderActions(
+            s,
             lang,
             [titleOf(0), titleOf(1)],
             [!state.disabled && checked[1].length > 0, !state.disabled && sourceChecked.length > 0],

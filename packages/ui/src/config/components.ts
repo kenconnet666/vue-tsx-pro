@@ -43,6 +43,7 @@ import type { TabPart, TabsOptions } from '../navigation/Tabs';
 import type { StatOptions, StatPart } from '../display/Stat';
 import type { TimelineOptions, TimelinePart } from '../display/Timeline';
 import type { TourOptions, TourPart } from '../overlay/Tour';
+import type { TransferOptions, TransferPart } from '../input/Transfer';
 import type { UserButtonOptions, UserButtonPart } from '../display/UserButton';
 import { useDefaults, type ComponentDefaults, type ResolvedDefaults } from './defaults';
 import { useRecipe, type ComponentStyles, type PartLayer } from './styles';
@@ -120,6 +121,8 @@ export interface UiComponents {
   Toaster: ComponentConfig<ToasterPart, ToasterOptions>;
   /** AppShell（patterns） */
   AppShell: ComponentConfig<AppShellPart, AppShellOptions>;
+  /** Transfer、TreeTransfer */
+  Transfer: ComponentConfig<TransferPart, TransferOptions>;
   /** Dialog、AlertDialog 共用：dialog 元素与标题行、标题、关闭按钮、说明、正文、页脚 */
   Dialog: ComponentConfig<DialogPart, DialogOptions>;
   /** Drawer：同 Dialog 的部件 */

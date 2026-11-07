@@ -35,6 +35,7 @@ import { menuRecipe } from '../../overlay/Menu';
 import { navListRecipe } from '../../navigation/NavList';
 import { toasterRecipe } from '../../feedback/Toast';
 import { appShellRecipe } from '../../patterns/AppShell';
+import { transferRecipe } from '../../input/Transfer';
 import { countdownRecipe } from '../../date/Countdown';
 import { calendarRecipe } from '../../date/CalendarView';
 
@@ -69,6 +70,7 @@ describe('components', () => {
       NavList: navListRecipe,
       Toaster: toasterRecipe,
       AppShell: appShellRecipe,
+      Transfer: transferRecipe,
       UserButton: userButtonRecipe,
     } satisfies Record<ComponentName, { readonly name: string | undefined }>;
     for (const [name, recipe] of Object.entries(recipes)) expect(recipe.name).toBe(name);

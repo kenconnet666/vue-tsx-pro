@@ -53,6 +53,8 @@
   （如全站不要全屏按钮），按部件（root、header、menuButton、brand、nav、headerContent、headerMain、fullscreenButton、fullscreenExit、
   body、sidebar、sidebarScroll、sidebarContent、collapseBar、collapseButton、column、main、footer、aside、asideScroll、asideContent、
   drawer）追加样式；headerMain、column、collapseBar 等原来没有标记的节点也带上了。
+- Transfer 改成配方组件（TreeTransfer 共用）：`components.Transfer` 可以给 `searchable` 的默认值，按部件（root、panel、header、
+  checkAll、title、count、search、searchField、list、actions、action、actionIcon）追加样式；原来没有标记的节点也带上了。
 - Timeline 改成配方组件：`createUi` / `Provider` 的 `components.Timeline` 可以给 `alternate`、`size` 的默认值，按部件
   （root、item、rail、marker、line、content、title、meta、actor、time、description、toggleLine、toggleContent）追加样式。
 
