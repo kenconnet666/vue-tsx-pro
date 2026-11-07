@@ -24,6 +24,7 @@ import { TextField, type TextFieldProps } from '../input/TextField';
 import { Tooltip } from '../overlay/Tooltip';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { Tree, type TreeProps } from './Tree';
+import { partAttrs } from '../config/styles';
 
 /** 一项的类型：决定颜色与能不能展开（other 是自带 toString 的对象，circular 是循环引用） */
 export type JsonViewerKind =
@@ -213,6 +214,9 @@ export interface JsonViewerProps extends PartProps<'div'> {
   propsPathBar?: PartProps<'div'>;
 }
 
+/** 部件的标记（data-scope="json-viewer"） */
+const jsonViewerPart = (part: string) => partAttrs({ name: 'JsonViewer' }, part);
+
 /** JsonViewer 的样式：root、toolbar、search、tree、row、name、index、value、kinds、summary、pathBar、path */
 export const jsonViewerStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_xs', minWidth: 0 },
@@ -347,7 +351,7 @@ export const JsonViewer = _component(
     return () => {
       const node = current();
       return (
-        <div {...mergeAttrs<'div'>({ sx: jsonViewerStyles.root }, rest)}>
+        <div {...mergeAttrs<'div'>({ sx: jsonViewerStyles.root, ...jsonViewerPart('root') }, rest)}>
           {toolbar && (
             <div {...css.attrs(jsonViewerStyles.toolbar)}>
               <TextField
@@ -404,7 +408,12 @@ export const JsonViewer = _component(
             _expanded={expanded}
             _selected={selected}
           />
-          <div {...mergeAttrs<'div'>({ sx: jsonViewerStyles.pathBar }, propsPathBar)}>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: jsonViewerStyles.pathBar, ...jsonViewerPart('path-bar') },
+              propsPathBar,
+            )}
+          >
             {node ? (
               <>
                 <span {...css.attrs(jsonViewerStyles.path)} title={node.path}>

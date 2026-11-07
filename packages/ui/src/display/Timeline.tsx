@@ -37,6 +37,7 @@ import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { FlexOrderedList, type FlexProps } from '../layout/Flex';
+import { partAttrs } from '../config/styles';
 
 /** 时间线上的一项 */
 export interface TimelineItem {
@@ -101,6 +102,9 @@ export interface TimelineProps extends PartProps<'ol'> {
   /** 展开其余各项的按钮的部件属性 */
   propsToggle?: Partial<ButtonProps>;
 }
+
+/** 部件的标记（data-scope="timeline"） */
+const timelinePart = (part: string) => partAttrs({ name: 'Timeline' }, part);
 
 /** Timeline 的样式：root、item、marker、line、content、title、time、description 等 */
 const timelineStyles = css.create({
@@ -227,7 +231,9 @@ export const Timeline = _component(
     /** 收起的那几项所在的位置：节点列一段虚线，内容是展开、收起的按钮 */
     const toggle = (hidden: number) => (
       <li key="toggle" {...css.attrs(timelineStyles.item)}>
-        <div {...mergeAttrs<'div'>({ sx: timelineStyles.rail }, propsRail)}>
+        <div
+          {...mergeAttrs<'div'>({ sx: timelineStyles.rail, ...timelinePart('rail') }, propsRail)}
+        >
           <span {...css.attrs(timelineStyles.toggleLine)} aria-hidden="true" />
         </div>
         <div {...css.attrs(timelineStyles.toggleContent)}>
@@ -263,7 +269,11 @@ export const Timeline = _component(
       return (
         <FlexOrderedList
           {...mergePartProps<FlexProps<'ol'>>(
-            { direction: 'column', sx: [timelineStyles.root, size && fontSizeStyles[size]] },
+            {
+              direction: 'column',
+              sx: [timelineStyles.root, size && fontSizeStyles[size]],
+              ...timelinePart('root'),
+            },
             rest,
           )}
           data-alternate={alternate || undefined}
@@ -278,9 +288,13 @@ export const Timeline = _component(
             const time = (sx: SxStyles) =>
               hasContent(item.time) ? (
                 <time
-                  {...mergeAttrs<'time'>({ sx: [timelineStyles.time, sx] }, propsTime, {
-                    datetime: item.dateTime,
-                  })}
+                  {...mergeAttrs<'time'>(
+                    { sx: [timelineStyles.time, sx], ...timelinePart('time') },
+                    propsTime,
+                    {
+                      datetime: item.dateTime,
+                    },
+                  )}
                 >
                   {item.time}
                 </time>
@@ -302,6 +316,7 @@ export const Timeline = _component(
                       item.icon && timelineStyles.markerIcon,
                       timelineToneStyles[item.tone ?? 'neutral'],
                     ],
+                    ...timelinePart('marker'),
                   },
                   propsMarker,
                   { 'aria-hidden': true },
@@ -314,7 +329,10 @@ export const Timeline = _component(
               <li
                 key={item.key ?? index}
                 {...mergeAttrs<'li'>(
-                  { sx: [timelineStyles.item, alternate && timelineStyles.itemAlternate] },
+                  {
+                    sx: [timelineStyles.item, alternate && timelineStyles.itemAlternate],
+                    ...timelinePart('item'),
+                  },
                   own,
                 )}
                 data-state={item.pending ? 'pending' : undefined}
@@ -322,27 +340,49 @@ export const Timeline = _component(
               >
                 {/* 交替排布：奇数项左侧放时间，偶数项右侧放时间 */}
                 {alternate && !end && time(timelineStyles.timeOpposite)}
-                <div {...mergeAttrs<'div'>({ sx: timelineStyles.rail }, propsRail)}>
+                <div
+                  {...mergeAttrs<'div'>(
+                    { sx: timelineStyles.rail, ...timelinePart('rail') },
+                    propsRail,
+                  )}
+                >
                   {marker}
                   {!last && (
                     <span
-                      {...mergeAttrs<'span'>({ sx: timelineStyles.line }, propsLine, {
-                        'aria-hidden': true,
-                      })}
+                      {...mergeAttrs<'span'>(
+                        { sx: timelineStyles.line, ...timelinePart('line') },
+                        propsLine,
+                        {
+                          'aria-hidden': true,
+                        },
+                      )}
                     />
                   )}
                 </div>
                 <div
                   {...mergeAttrs<'div'>(
-                    { sx: [timelineStyles.content, end && timelineStyles.contentEnd] },
+                    {
+                      sx: [timelineStyles.content, end && timelineStyles.contentEnd],
+                      ...timelinePart('content'),
+                    },
                     propsContent,
                   )}
                 >
-                  <div {...mergeAttrs<'div'>({ sx: timelineStyles.title }, propsTitle)}>
+                  <div
+                    {...mergeAttrs<'div'>(
+                      { sx: timelineStyles.title, ...timelinePart('title') },
+                      propsTitle,
+                    )}
+                  >
                     {item.title}
                   </div>
                   {hasContent(item.actor) ? (
-                    <div {...mergeAttrs<'div'>({ sx: timelineStyles.meta }, propsMeta)}>
+                    <div
+                      {...mergeAttrs<'div'>(
+                        { sx: timelineStyles.meta, ...timelinePart('meta') },
+                        propsMeta,
+                      )}
+                    >
                       <span {...css.attrs(timelineStyles.actor)}>
                         {(item.avatar || typeof item.actor === 'string') && (
                           <Avatar
@@ -362,7 +402,10 @@ export const Timeline = _component(
                   )}
                   {hasContent(item.description) && (
                     <div
-                      {...mergeAttrs<'div'>({ sx: timelineStyles.description }, propsDescription)}
+                      {...mergeAttrs<'div'>(
+                        { sx: timelineStyles.description, ...timelinePart('description') },
+                        propsDescription,
+                      )}
                     >
                       {item.description}
                     </div>

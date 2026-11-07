@@ -21,6 +21,7 @@ import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { StatusDot, statusDotToneStyles } from '../base/StatusDot';
+import { partAttrs } from '../config/styles';
 
 /** 比例条的一段 */
 export interface ProportionSegment {
@@ -59,6 +60,9 @@ export interface ProportionBarProps extends PartProps<'div'> {
 }
 
 const ORDER: readonly StatusTone[] = ['accent', 'info', 'success', 'warning', 'danger', 'neutral'];
+
+/** 部件的标记（data-scope="proportion-bar"） */
+const proportionBarPart = (part: string) => partAttrs({ name: 'ProportionBar' }, part);
 
 /** ProportionBar 的样式：root、bar、sm、md、legend、legendItem、value */
 const proportionBarStyles = css.create({
@@ -100,7 +104,9 @@ export const ProportionBar = _component(
     const toneOf = (segment: ProportionSegment, index: number) =>
       segment.tone ?? ORDER[index % ORDER.length]!;
     return () => (
-      <div {...mergeAttrs<'div'>({ sx: proportionBarStyles.root }, rest)}>
+      <div
+        {...mergeAttrs<'div'>({ sx: proportionBarStyles.root, ...proportionBarPart('root') }, rest)}
+      >
         <div
           role="img"
           aria-label={`${label}：${segments

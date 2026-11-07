@@ -54,6 +54,7 @@ import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils
 import { breakpoints } from '../config/theme/tokens';
 import { focusRingStyles } from '../utils/style/styles';
 import { layoutVars } from '../utils/style/vars';
+import { partAttrs } from '../config/styles';
 
 /** 顶栏高度：也是两侧栏粘住的位置、标题跳转时让开的距离 */
 const HEADER_HEIGHT = '3rem';
@@ -160,6 +161,9 @@ export const appShellOffset = css.createTheme(layoutVars, { stickyOffset: HEADER
 
 /** 全屏时没有顶栏：标题和粘性侧栏贴着窗口顶端 */
 export const appShellFullscreenOffset = css.createTheme(layoutVars, { stickyOffset: '0px' });
+
+/** 部件的标记（data-scope="app-shell"） */
+const appShellPart = (part: string) => partAttrs({ name: 'AppShell' }, part);
 
 /** AppShell 的样式：root、header、menuButton、body、sidebar、main、aside 等（测试要用，不进入口） @internal */
 export const appShellStyles = css.create({
@@ -409,7 +413,10 @@ export const AppShell = _component(
     return () => (
       <div
         {...mergeAttrs<'div'>(
-          { sx: [appShellStyles.root, fullscreen ? appShellFullscreenOffset : appShellOffset] },
+          {
+            sx: [appShellStyles.root, fullscreen ? appShellFullscreenOffset : appShellOffset],
+            ...appShellPart('root'),
+          },
           rest,
         )}
       >
@@ -423,6 +430,7 @@ export const AppShell = _component(
                 hasContent(brand) && hasContent(sidebar) && appShellStyles.headerWithBrand,
                 fullscreen && appShellStyles.hidden,
               ],
+              ...appShellPart('header'),
             },
             propsHeader,
           )}
@@ -451,6 +459,7 @@ export const AppShell = _component(
                       collapsed() && appShellStyles.brandRailCollapsed,
                     ],
                   ],
+                  ...appShellPart('brand'),
                 },
                 propsBrand,
               )}
@@ -459,7 +468,11 @@ export const AppShell = _component(
             </div>
           )}
           {hasContent(nav) && (
-            <div {...mergeAttrs<'div'>({ sx: appShellStyles.nav }, propsNav)}>{nav}</div>
+            <div
+              {...mergeAttrs<'div'>({ sx: appShellStyles.nav, ...appShellPart('nav') }, propsNav)}
+            >
+              {nav}
+            </div>
           )}
           <div
             {...mergeAttrs<'div'>(
@@ -468,6 +481,7 @@ export const AppShell = _component(
                   appShellStyles.headerContent,
                   hasContent(nav) && appShellStyles.headerContentAfterNav,
                 ],
+                ...appShellPart('header-content'),
               },
               propsHeaderContent,
             )}
@@ -519,6 +533,7 @@ export const AppShell = _component(
                       : appShellStyles.withSidebar
                     : hasContent(aside) && appShellStyles.withAside,
               ],
+              ...appShellPart('body'),
             },
             propsBody,
           )}
@@ -533,6 +548,7 @@ export const AppShell = _component(
                     sidebarCollapsible && appShellStyles.sidebarColumn,
                     fullscreen && appShellStyles.hidden,
                   ],
+                  ...appShellPart('sidebar'),
                 },
                 propsSidebar,
               )}
@@ -586,7 +602,7 @@ export const AppShell = _component(
           <div {...css.attrs(appShellStyles.column)}>
             <main
               {...mergeAttrs<'main'>(
-                { sx: [appShellStyles.main, appShellStyles.mainGrow] },
+                { sx: [appShellStyles.main, appShellStyles.mainGrow], ...appShellPart('main') },
                 propsMain,
                 {
                   id: mainId,
@@ -597,7 +613,12 @@ export const AppShell = _component(
               {children}
             </main>
             {hasContent(footer) && (
-              <footer {...mergeAttrs<'footer'>({ sx: appShellStyles.footer }, propsFooter)}>
+              <footer
+                {...mergeAttrs<'footer'>(
+                  { sx: appShellStyles.footer, ...appShellPart('footer') },
+                  propsFooter,
+                )}
+              >
                 {footer}
               </footer>
             )}
@@ -605,7 +626,7 @@ export const AppShell = _component(
           {hasContent(aside) && (
             <aside
               {...mergeAttrs<'aside'>(
-                { sx: [appShellStyles.rail, appShellStyles.aside] },
+                { sx: [appShellStyles.rail, appShellStyles.aside], ...appShellPart('aside') },
                 propsAside,
               )}
             >
@@ -683,10 +704,17 @@ export const AppShellBrand = _component(
     const shell = AppShellContext.inject(null);
     return () => (
       <a
-        {...mergeAttrs<'a'>({ sx: [appShellBrandStyles.root, focusRingStyles.visible] }, rest, {
-          href: router.href(href),
-          onClick: (event: MouseEvent) => router.onClick(event, href),
-        })}
+        {...mergeAttrs<'a'>(
+          {
+            sx: [appShellBrandStyles.root, focusRingStyles.visible],
+            ...partAttrs({ name: 'AppShellBrand' }, 'root'),
+          },
+          rest,
+          {
+            href: router.href(href),
+            onClick: (event: MouseEvent) => router.onClick(event, href),
+          },
+        )}
       >
         {logo ??
           (icon && (

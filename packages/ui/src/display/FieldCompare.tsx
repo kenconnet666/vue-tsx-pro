@@ -20,7 +20,7 @@ import { useFormat } from '../config/lang/format';
 import { diffFields, type FieldDiff } from '../utils/data/diff';
 import { toNumber } from '../utils/data/numeric';
 import type { SortValue } from '../utils/data/collation';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { dataAttrs, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { toneStyles } from '../utils/style/typography';
 import { ValueChange } from './ValueChange';
 import { useColumnDisplay } from '../table/column-display';
@@ -32,6 +32,7 @@ import {
   type ColumnTypes,
   type DataTableColumn,
 } from '../table/columns';
+import { partAttrs } from '../config/styles';
 
 /**
  * 一个要对比的字段：写法同表格的列（key、header、type、format、statuses、empty、value），
@@ -74,6 +75,9 @@ export interface FieldCompareProps<T> extends PartProps<'div'> {
   /** 值（dd）的部件属性 */
   propsValue?: PartProps<'dd'>;
 }
+
+/** 部件的标记（data-scope="field-compare"） */
+const fieldComparePart = (part: string) => partAttrs({ name: 'FieldCompare' }, part);
 
 /** FieldCompare 的样式：list、item、label、value、before、after、arrow、unchanged、changed */
 const fieldCompareStyles = css.create({
@@ -236,16 +240,34 @@ export const FieldCompare = _component(
     };
 
     const list = (items: FieldCompareRow<T>[]) => (
-      <dl {...mergeAttrs<'dl'>({ sx: fieldCompareStyles.list }, propsList)}>
+      <dl
+        {...mergeAttrs<'dl'>(
+          { sx: fieldCompareStyles.list, ...fieldComparePart('list') },
+          propsList,
+        )}
+      >
         {items.map((row) => (
           <div
             key={row.field.key}
-            {...mergeAttrs<'div'>({ sx: fieldCompareStyles.item }, propsItem)}
+            {...mergeAttrs<'div'>(
+              { sx: fieldCompareStyles.item, ...fieldComparePart('item') },
+              propsItem,
+            )}
           >
-            <dt {...mergeAttrs<'dt'>({ sx: fieldCompareStyles.label }, propsLabel)}>
+            <dt
+              {...mergeAttrs<'dt'>(
+                { sx: fieldCompareStyles.label, ...fieldComparePart('label') },
+                propsLabel,
+              )}
+            >
               {row.field.header}
             </dt>
-            <dd {...mergeAttrs<'dd'>({ sx: fieldCompareStyles.value }, propsValue)}>
+            <dd
+              {...mergeAttrs<'dd'>(
+                { sx: fieldCompareStyles.value, ...fieldComparePart('value') },
+                propsValue,
+              )}
+            >
               <ValueChange
                 before={before != null ? shown(row, 0) : undefined}
                 after={shown(row, 1)}
@@ -260,7 +282,7 @@ export const FieldCompare = _component(
     return () => {
       const items = rows();
       return (
-        <div {...mergeAttrs<'div'>({}, rest)}>
+        <div {...mergeAttrs<'div'>({}, rest, dataAttrs(fieldComparePart('root')))}>
           {items.length === 0 ? none() : layout === 'list' ? list(items) : table(items)}
         </div>
       );

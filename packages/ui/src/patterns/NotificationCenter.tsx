@@ -40,6 +40,7 @@ import { focusRingStyles } from '../utils/style/styles';
 import type { SingleSelectionProps } from '../utils/data/selection';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { patternsMessages } from './messages';
+import { partAttrs } from '../config/styles';
 
 /** 一条通知 */
 export interface NotificationItem {
@@ -112,6 +113,9 @@ export interface NotificationListProps extends PartProps<'div', 'title'>, Notifi
   /** 列表下面那一行的部件属性 */
   propsFooter?: PartProps<'div'>;
 }
+
+/** 部件的标记（data-scope="notification-list"） */
+const notificationListPart = (part: string) => partAttrs({ name: 'NotificationList' }, part);
 
 /** NotificationList 的样式：root、head、title、filters、list、item、dot… */
 const notificationListStyles = css.create({
@@ -227,16 +231,31 @@ export const NotificationList = _component(
         </Button>
       );
       return (
-        <div {...mergeAttrs<'div'>({ sx: notificationListStyles.root }, rest)}>
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: notificationListStyles.root, ...notificationListPart('root') },
+            rest,
+          )}
+        >
           {title !== false && (
-            <div {...mergeAttrs<'div'>({ sx: notificationListStyles.head }, propsHead)}>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: notificationListStyles.head, ...notificationListPart('head') },
+                propsHead,
+              )}
+            >
               <span {...css.attrs(notificationListStyles.title)}>
                 {title ?? messages.notifications}
               </span>
               {markAll}
             </div>
           )}
-          <div {...mergeAttrs<'div'>({ sx: notificationListStyles.filters }, propsFilters)}>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: notificationListStyles.filters, ...notificationListPart('filters') },
+              propsFilters,
+            )}
+          >
             {types?.length ? (
               <ToggleGroup
                 {...mergePartProps<ToggleGroupBaseProps & SingleSelectionProps>(
@@ -272,12 +291,22 @@ export const NotificationList = _component(
             {title === false && markAll}
           </div>
           {shown.length === 0 ? (
-            <div {...mergeAttrs<'div'>({ sx: notificationListStyles.empty }, propsEmpty)}>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: notificationListStyles.empty, ...notificationListPart('empty') },
+                propsEmpty,
+              )}
+            >
               {empty ?? <Empty size="sm" title={messages.notificationsEmpty} />}
             </div>
           ) : (
             <ScrollArea {...propsScroll}>
-              <ul {...mergeAttrs<'ul'>({ sx: notificationListStyles.list }, propsList)}>
+              <ul
+                {...mergeAttrs<'ul'>(
+                  { sx: notificationListStyles.list, ...notificationListPart('list') },
+                  propsList,
+                )}
+              >
                 {shown.map((item) => (
                   <li key={item.id}>
                     <a
@@ -328,7 +357,12 @@ export const NotificationList = _component(
             </ScrollArea>
           )}
           {hasContent(footer) && (
-            <div {...mergeAttrs<'div'>({ sx: notificationListStyles.foot }, propsFooter)}>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: notificationListStyles.foot, ...notificationListPart('footer') },
+                propsFooter,
+              )}
+            >
               {footer}
             </div>
           )}

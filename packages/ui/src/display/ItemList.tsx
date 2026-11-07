@@ -25,6 +25,7 @@ import { Link, LinkUnderlineContext, type LinkProps } from '../base/Link';
 import { t } from '../config/theme/tokens';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { paddingInlineStyles, type Space } from '../utils/style/styles';
+import { partAttrs } from '../config/styles';
 
 /** 条目的疏密 */
 export interface ItemListDensities {
@@ -96,6 +97,9 @@ export interface ItemListItemProps extends PartProps<'li', 'title' | 'onSelect'>
   children?: VNodeChild;
 }
 
+/** 部件的标记（data-scope="item-list"） */
+const itemListPart = (part: string) => partAttrs({ name: 'ItemList' }, part);
+
 /** ItemList 的样式：list、item、divided、hoverable、compact、standard、body、title、description… */
 const itemListStyles = css.create({
   list: { listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column' },
@@ -165,7 +169,11 @@ export const ItemList = _component(
     ItemListContext.provide(() => ({ divided, hoverable, density, inset }));
     // 条目里的链接（标题、附件）悬停才有下划线：一列下来都带下划线太重
     LinkUnderlineContext.provide(() => 'hover');
-    return () => <ul {...mergeAttrs<'ul'>({ sx: itemListStyles.list }, rest)}>{children}</ul>;
+    return () => (
+      <ul {...mergeAttrs<'ul'>({ sx: itemListStyles.list, ...itemListPart('root') }, rest)}>
+        {children}
+      </ul>
+    );
   },
 );
 
@@ -241,6 +249,7 @@ export const ItemListItem = _component(
                 selected && itemListStyles.selected,
                 interactive && disabled && itemListStyles.disabled,
               ],
+              ...itemListPart('item'),
             },
             rest,
           )}
@@ -252,12 +261,22 @@ export const ItemListItem = _component(
           )}
           <span {...css.attrs(itemListStyles.body)}>
             {hasContent(title) && (
-              <span {...mergeAttrs<'span'>({ sx: itemListStyles.title }, propsTitle)}>
+              <span
+                {...mergeAttrs<'span'>(
+                  { sx: itemListStyles.title, ...itemListPart('title') },
+                  propsTitle,
+                )}
+              >
                 {renderTitle()}
               </span>
             )}
             {hasContent(description) && (
-              <span {...mergeAttrs<'span'>({ sx: itemListStyles.description }, propsDescription)}>
+              <span
+                {...mergeAttrs<'span'>(
+                  { sx: itemListStyles.description, ...itemListPart('description') },
+                  propsDescription,
+                )}
+              >
                 {description}
               </span>
             )}

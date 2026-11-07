@@ -48,6 +48,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 import { t } from '../config/theme/tokens';
 import { provideFieldLayout, type FieldLayout } from '../form/field-layout';
+import { partAttrs } from '../config/styles';
 
 /** 角色与提交由组件管理 */
 export type FilterBarManaged = 'role' | 'onSubmit' | 'onReset';
@@ -104,6 +105,9 @@ export interface FilterBarProps
   /** 常用的条件：Field */
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="filter-bar"） */
+const filterBarPart = (part: string) => partAttrs({ name: 'FilterBar' }, part);
 
 /** FilterBar 的样式：root、start、body、row、fields、actions、grid、advanced、summary */
 const filterBarStyles = css.create({
@@ -248,22 +252,39 @@ export const FilterBar = _component(
       const below = [...common.slice(split), ...(more != null && expanded ? childNodes(more) : [])];
       return (
         <form
-          {...mergeAttrs<'form'>({ sx: filterBarStyles.root }, rest, { role: 'search', onSubmit })}
+          {...mergeAttrs<'form'>({ sx: filterBarStyles.root, ...filterBarPart('root') }, rest, {
+            role: 'search',
+            onSubmit,
+          })}
           data-expanded={more != null ? expanded : undefined}
         >
           {start != null && (
-            <div {...mergeAttrs<'div'>({ sx: filterBarStyles.start }, propsStart)}>{start}</div>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: filterBarStyles.start, ...filterBarPart('start') },
+                propsStart,
+              )}
+            >
+              {start}
+            </div>
           )}
           <div
             {...mergeAttrs<'div'>(
-              { sx: [filterBarStyles.body, filterBarDynamicStyles.basis(minFieldWidth)] },
+              {
+                sx: [filterBarStyles.body, filterBarDynamicStyles.basis(minFieldWidth)],
+                ...filterBarPart('body'),
+              },
               propsBody,
             )}
           >
             <div
-              {...mergeAttrs<'div'>({ sx: filterBarStyles.row }, propsRow, {
-                ref: (element: unknown) => (rowElement = element as HTMLElement | null),
-              })}
+              {...mergeAttrs<'div'>(
+                { sx: filterBarStyles.row, ...filterBarPart('row') },
+                propsRow,
+                {
+                  ref: (element: unknown) => (rowElement = element as HTMLElement | null),
+                },
+              )}
             >
               <div
                 {...mergeAttrs<'div'>(
@@ -274,6 +295,7 @@ export const FilterBar = _component(
                       filterBarDynamicStyles.fill(minFieldWidth),
                       filterBarDynamicStyles.basis(minFieldWidth),
                     ],
+                    ...filterBarPart('fields'),
                   },
                   propsFields,
                 )}
@@ -281,9 +303,13 @@ export const FilterBar = _component(
                 {common.slice(0, split)}
               </div>
               <div
-                {...mergeAttrs<'div'>({ sx: filterBarStyles.actions }, propsActions, {
-                  ref: (element: unknown) => (actionsElement = element as HTMLElement | null),
-                })}
+                {...mergeAttrs<'div'>(
+                  { sx: filterBarStyles.actions, ...filterBarPart('actions') },
+                  propsActions,
+                  {
+                    ref: (element: unknown) => (actionsElement = element as HTMLElement | null),
+                  },
+                )}
               >
                 {more != null && (
                   <Button
@@ -366,7 +392,10 @@ export const FilterBar = _component(
             {below.length > 0 && (
               <div
                 {...mergeAttrs<'div'>(
-                  { sx: [filterBarStyles.grid, filterBarDynamicStyles.columns(minFieldWidth)] },
+                  {
+                    sx: [filterBarStyles.grid, filterBarDynamicStyles.columns(minFieldWidth)],
+                    ...filterBarPart('more'),
+                  },
                   propsMore,
                   { id: moreId },
                 )}

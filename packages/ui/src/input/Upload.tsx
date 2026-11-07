@@ -58,6 +58,7 @@ import { itemStyles } from '../utils/style/item-styles';
 import { FileDrop, matchesAccept, type FileDropProps } from './FileDrop';
 import { GridList, type GridProps } from '../layout/Grid';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 列表里的一个文件 */
 export interface UploadFile {
@@ -166,6 +167,9 @@ export interface UploadProps extends PartProps<'div'> {
   /** 每一项的移除按钮的部件属性；名称（语言包的 uploadRemove）、点击与不可用由组件管理 */
   propsRemove?: Omit<Partial<IconButtonProps>, 'aria-label' | 'onClick' | 'disabled'>;
 }
+
+/** 部件的标记（data-scope="upload"） */
+const uploadPart = (part: string) => partAttrs({ name: 'Upload' }, part);
 
 /** Upload 的样式：root、list、item、icon、body、name、meta、error、progress */
 const uploadStyles = css.create({
@@ -482,7 +486,10 @@ export const Upload = _component(
       return (
         <li
           key={item.id}
-          {...mergeAttrs<'li'>({ sx: [itemStyles.row, uploadStyles.item] }, own)}
+          {...mergeAttrs<'li'>(
+            { sx: [itemStyles.row, uploadStyles.item], ...uploadPart('item') },
+            own,
+          )}
           data-state={item.status}
         >
           <Icon
@@ -498,8 +505,10 @@ export const Upload = _component(
               propsIcon,
             )}
           />
-          <div {...mergeAttrs<'div'>({ sx: uploadStyles.body }, propsBody)}>
-            <span {...mergeAttrs<'span'>({ sx: uploadStyles.name }, propsName)}>
+          <div {...mergeAttrs<'div'>({ sx: uploadStyles.body, ...uploadPart('body') }, propsBody)}>
+            <span
+              {...mergeAttrs<'span'>({ sx: uploadStyles.name, ...uploadPart('name') }, propsName)}
+            >
               {item.url ? (
                 <Link href={item.url} target="_blank" underline="hover">
                   {fileName}
@@ -522,7 +531,7 @@ export const Upload = _component(
             ) : (
               <span
                 {...mergeAttrs<'span'>(
-                  { sx: [uploadStyles.meta, failed && uploadStyles.error] },
+                  { sx: [uploadStyles.meta, failed && uploadStyles.error], ...uploadPart('meta') },
                   propsMeta,
                 )}
               >
@@ -707,7 +716,11 @@ export const Upload = _component(
       const state = control();
       if (listType === 'picture')
         return (
-          <div {...mergeAttrs<'div'>({ sx: uploadStyles.root }, rest, { onPaste })}>
+          <div
+            {...mergeAttrs<'div'>({ sx: uploadStyles.root, ...uploadPart('root') }, rest, {
+              onPaste,
+            })}
+          >
             <ImageGroup sx={uploadStyles.wall}>
               {/* 列表里只有缩略图（“添加图片”与预览不是列表项）；display: contents，缩略图仍和“添加图片”排在一行 */}
               <div
@@ -748,7 +761,11 @@ export const Upload = _component(
           </div>
         );
       return (
-        <div {...mergeAttrs<'div'>({ sx: uploadStyles.root }, rest, { onPaste })}>
+        <div
+          {...mergeAttrs<'div'>({ sx: uploadStyles.root, ...uploadPart('root') }, rest, {
+            onPaste,
+          })}
+        >
           {renderDrop(false)}
           {name != null && (
             <input

@@ -33,6 +33,7 @@ import { Listbox, type ListboxBaseProps, type ListboxProps } from './Listbox';
 import type { MultipleSelectionProps } from '../utils/data/selection';
 import { toListboxOption, type ListboxOption, type OptionMapping } from './list-state';
 import { TextField, type TextFieldProps } from './TextField';
+import { partAttrs } from '../config/styles';
 
 /** 两边的列表（可多选的 Listbox）的属性：propsList 用它 */
 export type TransferListProps<T> = ListboxBaseProps<T> & MultipleSelectionProps & OptionMapping<T>;
@@ -81,6 +82,9 @@ export interface TreeTransferProps<T> extends TransferBaseProps {
   /** 右边列表的部件属性 */
   propsList?: Partial<TransferListProps<ListboxOption>>;
 }
+
+/** 部件的标记（data-scope="transfer"） */
+const transferPart = (part: string) => partAttrs({ name: 'Transfer' }, part);
 
 /** Transfer 的样式：root、panel、header、title、search、list、actions、actionIcon */
 const transferStyles = css.create({
@@ -155,9 +159,13 @@ function renderPanel(lang: ReturnType<typeof useLang>, options: PanelOptions) {
   const all = options.selectable.length > 0 && visibleChecked.length === options.selectable.length;
   return (
     <section
-      {...mergeAttrs<'section'>({ sx: transferStyles.panel }, options.propsPanel, {
-        'aria-labelledby': options.titleId,
-      })}
+      {...mergeAttrs<'section'>(
+        { sx: transferStyles.panel, ...transferPart('panel') },
+        options.propsPanel,
+        {
+          'aria-labelledby': options.titleId,
+        },
+      )}
     >
       <div {...css.attrs(transferStyles.header)}>
         <Checkbox
@@ -341,7 +349,7 @@ export const Transfer = _component(
         });
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: transferStyles.root }, rest, {
+          {...mergeAttrs<'div'>({ sx: transferStyles.root, ...transferPart('root') }, rest, {
             role: 'group',
             'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
             'aria-describedby': state.describedBy,
@@ -505,7 +513,7 @@ export const TreeTransfer = _component(
         });
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: transferStyles.root }, rest, {
+          {...mergeAttrs<'div'>({ sx: transferStyles.root, ...transferPart('root') }, rest, {
             role: 'group',
             'aria-labelledby': rest['aria-labelledby'] ?? state.labelledBy,
             'aria-describedby': state.describedBy,

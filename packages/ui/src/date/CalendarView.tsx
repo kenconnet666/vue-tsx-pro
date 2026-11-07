@@ -42,6 +42,7 @@ import { useDateLocale } from './date-locale';
 import { useLang } from '../config/context';
 import type { CalendarDate } from '@internationalized/date';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 角色由组件管理 */
 export type CalendarViewManaged = 'role';
@@ -100,6 +101,9 @@ export interface CalendarViewProps
   /** 一周的第一天（0 表示周日），与 useCalendarState 的 week 一致；不写时取语言配置 */
   firstDayOfWeek?: number;
 }
+
+/** 部件的标记（data-scope="calendar-view"） */
+const calendarViewPart = (part: string) => partAttrs({ name: 'CalendarView' }, part);
 
 /** CalendarView 的样式：root、months、month、header、heading、grid、weekday、cell、button 等 */
 export const calendarStyles = css.create({
@@ -358,6 +362,7 @@ export const CalendarView = _component(
       mergeAttrs<'table'>(
         {
           sx: [calendarStyles.grid, calendar.view !== 'day' && calendarStyles.periodGrid],
+          ...calendarViewPart('grid'),
         },
         propsGrid,
         {
@@ -385,9 +390,13 @@ export const CalendarView = _component(
             <tr>
               {showWeekNumbers && (
                 <th
-                  {...mergeAttrs<'th'>({ sx: calendarStyles.weekNumber }, propsWeekNumber, {
-                    scope: 'col',
-                  })}
+                  {...mergeAttrs<'th'>(
+                    { sx: calendarStyles.weekNumber, ...calendarViewPart('week-number') },
+                    propsWeekNumber,
+                    {
+                      scope: 'col',
+                    },
+                  )}
                 >
                   {lang.calendarWeek}
                 </th>
@@ -396,7 +405,11 @@ export const CalendarView = _component(
                 <th
                   key={index}
                   {...mergeAttrs<'th'>(
-                    { sx: calendarStyles.weekday, title: longNames[index] },
+                    {
+                      sx: calendarStyles.weekday,
+                      title: longNames[index],
+                      ...calendarViewPart('weekday'),
+                    },
                     propsWeekday,
                     {
                       scope: 'col',
@@ -413,10 +426,14 @@ export const CalendarView = _component(
               <tr key={week[0]!.toString()}>
                 {showWeekNumbers && (
                   <th
-                    {...mergeAttrs<'th'>({ sx: calendarStyles.weekNumber }, propsWeekNumber, {
-                      'aria-label': lang.calendarWeekNumber(weekOfYear(week[0]!, locale.week)),
-                      scope: 'row',
-                    })}
+                    {...mergeAttrs<'th'>(
+                      { sx: calendarStyles.weekNumber, ...calendarViewPart('week-number') },
+                      propsWeekNumber,
+                      {
+                        'aria-label': lang.calendarWeekNumber(weekOfYear(week[0]!, locale.week)),
+                        scope: 'row',
+                      },
+                    )}
                   >
                     {weekOfYear(week[0]!, locale.week)}
                   </th>
@@ -506,19 +523,36 @@ export const CalendarView = _component(
       const spacer = <span {...css.attrs(calendarStyles.spacer)} />;
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: [calendarStyles.root, size && fontSizeStyles[size]] }, rest, {
-            ref: _toRef(root),
-            role: 'group',
-          })}
+          {...mergeAttrs<'div'>(
+            {
+              sx: [calendarStyles.root, size && fontSizeStyles[size]],
+              ...calendarViewPart('root'),
+            },
+            rest,
+            {
+              ref: _toRef(root),
+              role: 'group',
+            },
+          )}
           data-view={view}
           data-disabled={disabled || undefined}
         >
-          <div {...mergeAttrs<'div'>({ sx: calendarStyles.months }, propsMonths)}>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: calendarStyles.months, ...calendarViewPart('months') },
+              propsMonths,
+            )}
+          >
             {months.map((month, index) => {
               const label = title(month);
               return (
                 <div key={month.toString()} {...css.attrs(calendarStyles.month)}>
-                  <div {...mergeAttrs<'div'>({ sx: calendarStyles.header }, propsHeader)}>
+                  <div
+                    {...mergeAttrs<'div'>(
+                      { sx: calendarStyles.header, ...calendarViewPart('header') },
+                      propsHeader,
+                    )}
+                  >
                     {index === 0 ? previous : spacer}
                     {coarser && !disabled ? (
                       <button
@@ -530,6 +564,7 @@ export const CalendarView = _component(
                               calendarStyles.heading,
                               focusRingStyles.visible,
                             ],
+                            ...calendarViewPart('heading'),
                           },
                           propsHeading,
                           {
@@ -561,7 +596,14 @@ export const CalendarView = _component(
           <VisuallyHidden aria-live="polite">{months.map(title).join('，')}</VisuallyHidden>
           {calendar.anchor && <VisuallyHidden id={hintId}>{lang.calendarPickEnd}</VisuallyHidden>}
           {hasContent(footer) && (
-            <div {...mergeAttrs<'div'>({ sx: calendarStyles.footer }, propsFooter)}>{footer}</div>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: calendarStyles.footer, ...calendarViewPart('footer') },
+                propsFooter,
+              )}
+            >
+              {footer}
+            </div>
           )}
         </div>
       );

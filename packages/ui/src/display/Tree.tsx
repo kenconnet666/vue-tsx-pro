@@ -40,7 +40,7 @@ import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { SHIMMER_STAGGER } from '../utils/style/shimmer';
 import { checkboxStyles } from '../input/Checkbox';
 import { choiceInputStyles, choiceRecipe } from '../input/choice-styles';
-import { useRecipe } from '../config/styles';
+import { partAttrs, useRecipe } from '../config/styles';
 import { toneFillStyles } from '../utils/style/tone-styles';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { toggleSelection, type SelectionModes } from '../utils/data/selection';
@@ -166,6 +166,9 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
   /** 外层滚动区域（ScrollArea）的部件属性：放进弹出层、弹性布局时给它 sx；树元素本身是它的视口 */
   propsScrollArea?: Partial<Omit<ScrollAreaProps, 'propsViewport'>>;
 }
+
+/** 部件的标记（data-scope="tree"） */
+const treePart = (part: string) => partAttrs({ name: 'Tree' }, part);
 
 /** Tree 的样式：root、sizer、row、item、toggle、checkbox、label 等 */
 const treeStyles = css.create({
@@ -656,6 +659,7 @@ export const Tree = _component(
                 dropZone === 'inside' && treeStyles.dropInside,
                 dropZone && dropZone !== 'inside' && treeStyles.positioned,
               ],
+              ...treePart('item'),
             },
             own,
             {
@@ -685,7 +689,7 @@ export const Tree = _component(
         >
           {row.depth > 0 && <span {...css.attrs(treeDynamicStyles.indent(row.depth * indent))} />}
           <span
-            {...mergeAttrs<'span'>({ sx: treeStyles.toggle }, propsToggle, {
+            {...mergeAttrs<'span'>({ sx: treeStyles.toggle, ...treePart('toggle') }, propsToggle, {
               'aria-hidden': true,
               onClick: (event: MouseEvent) => {
                 if (!row.expandable) return;
@@ -743,7 +747,10 @@ export const Tree = _component(
           {icon && <Icon icon={icon} />}
           <span
             {...mergeAttrs<'span'>(
-              { sx: [itemStyles.label, filtering?.matched.has(row.key) && treeStyles.matched] },
+              {
+                sx: [itemStyles.label, filtering?.matched.has(row.key) && treeStyles.matched],
+                ...treePart('label'),
+              },
               propsLabel,
             )}
           >
@@ -826,7 +833,7 @@ export const Tree = _component(
             {virtual.items.map((item) => (
               <div
                 key={item.key}
-                {...mergeAttrs<'div'>({ sx: treeStyles.row }, propsRow, {
+                {...mergeAttrs<'div'>({ sx: treeStyles.row, ...treePart('row') }, propsRow, {
                   ref: virtual.measure,
                   role: 'presentation',
                   sx: treeDynamicStyles.y(item.start),

@@ -47,6 +47,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { errorMessage } from '../utils/request/error-message';
 import { FilterBar, type FilterBarProps } from './FilterBar';
 import { patternsMessages } from './messages';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface QueryTableProps<T, Filters extends object> extends PartProps<'div'> {
@@ -95,6 +96,9 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
   /** 工具栏内置按钮（刷新、行高、全屏）的部件属性 */
   propsToolbarButton?: Partial<IconButtonProps>;
 }
+
+/** 部件的标记（data-scope="query-table"） */
+const queryTablePart = (part: string) => partAttrs({ name: 'QueryTable' }, part);
 
 /** QueryTable 的样式：root、rootFill、panel、panelFullscreen、panelFill、toolbarRow、toolbar、title、tools */
 const queryTableStyles = css.create({
@@ -191,7 +195,12 @@ export const QueryTable = _component(
     /** 工具栏：自己的按钮，再是刷新、行高、列设置、全屏 */
     function renderToolbar() {
       return (
-        <div {...mergeAttrs<'div'>({ sx: queryTableStyles.toolbar }, propsToolbar)}>
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: queryTableStyles.toolbar, ...queryTablePart('toolbar') },
+            propsToolbar,
+          )}
+        >
           {toolbar}
           {renderTools()}
         </div>
@@ -263,7 +272,10 @@ export const QueryTable = _component(
       return (
         <div
           {...mergeAttrs<'div'>(
-            { sx: [queryTableStyles.root, fill && queryTableStyles.rootFill] },
+            {
+              sx: [queryTableStyles.root, fill && queryTableStyles.rootFill],
+              ...queryTablePart('root'),
+            },
             rest,
           )}
         >
@@ -296,6 +308,7 @@ export const QueryTable = _component(
                   fill && queryTableStyles.panelFill,
                   fullscreen.active && queryTableStyles.panelFullscreen,
                 ],
+                ...queryTablePart('panel'),
               },
               propsPanel,
               { ref: _toRef(panel) },

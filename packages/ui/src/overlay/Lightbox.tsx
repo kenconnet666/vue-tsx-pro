@@ -35,6 +35,7 @@ import { usePanZoom } from '../utils/dom/pan-zoom';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 一张图 */
 export interface LightboxItem {
@@ -66,6 +67,9 @@ export interface LightboxProps
   /** 说明文字的部件属性 */
   propsCaption?: PartProps<'div'>;
 }
+
+/** 部件的标记（data-scope="lightbox"） */
+const lightboxPart = (part: string) => partAttrs({ name: 'Lightbox' }, part);
 
 /** Lightbox 的样式：root、toolbar、counter、viewport、content、image、side、previous、next、caption、button */
 const lightboxStyles = css.create({
@@ -309,12 +313,16 @@ export const Lightbox = _component(
       const canDownload = item && item.download !== false;
       return (
         <dialog
-          {...mergeAttrs<'dialog'>({ sx: [lightboxStyles.root, transitions.backdrop] }, rest, {
-            ref: _toRef(dialog),
-            'aria-label': lang.lightboxLabel,
-            onClose,
-            onKeydown,
-          })}
+          {...mergeAttrs<'dialog'>(
+            { sx: [lightboxStyles.root, transitions.backdrop], ...lightboxPart('root') },
+            rest,
+            {
+              ref: _toRef(dialog),
+              'aria-label': lang.lightboxLabel,
+              onClose,
+              onKeydown,
+            },
+          )}
         >
           <div {...css.attrs(lightboxStyles.toolbar)}>
             <span {...css.attrs(lightboxStyles.counter)} aria-live="polite">
@@ -379,13 +387,17 @@ export const Lightbox = _component(
             />
           </div>
           <div
-            {...mergeAttrs<'div'>({ sx: lightboxStyles.viewport }, propsViewport, {
-              ...view.viewportProps,
-              ref: _toRef(viewport),
-              tabindex: 0,
-              role: 'img',
-              'aria-label': item?.alt,
-            })}
+            {...mergeAttrs<'div'>(
+              { sx: lightboxStyles.viewport, ...lightboxPart('viewport') },
+              propsViewport,
+              {
+                ...view.viewportProps,
+                ref: _toRef(viewport),
+                tabindex: 0,
+                role: 'img',
+                'aria-label': item?.alt,
+              },
+            )}
           >
             {item && (
               <div
@@ -435,7 +447,12 @@ export const Lightbox = _component(
             />
           )}
           {item?.caption != null && (
-            <div {...mergeAttrs<'div'>({ sx: lightboxStyles.caption }, propsCaption)}>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: lightboxStyles.caption, ...lightboxPart('caption') },
+                propsCaption,
+              )}
+            >
               {item.caption}
             </div>
           )}

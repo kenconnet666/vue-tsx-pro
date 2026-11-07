@@ -47,6 +47,7 @@ import { NumberRangeField } from './NumberRangeField';
 import { Select } from './Select';
 import { TagsInput } from './TagsInput';
 import { TextField } from './TextField';
+import { partAttrs } from '../config/styles';
 
 /** 组的满足方式 */
 export interface ConditionModes {
@@ -97,6 +98,9 @@ interface GroupNode {
 }
 
 const MODES: readonly ConditionMode[] = ['all', 'any', 'none', 'notAll'];
+
+/** 部件的标记（data-scope="condition-builder"） */
+const conditionBuilderPart = (part: string) => partAttrs({ name: 'ConditionBuilder' }, part);
 
 /** ConditionBuilder 的样式：root、group、nested、header、rows、row、joiner、rule、field、op、value、actions、empty */
 const conditionBuilderStyles = css.create({
@@ -430,11 +434,15 @@ export const ConditionBuilder = _component(
       const ops = field ? operatorsOf(field) : [];
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: conditionBuilderStyles.rule }, propsRule, {
-            role: 'group',
-            'aria-label': lang.conditionRule(index + 1),
-            ...dataAttrs({ 'data-condition-rule': node.id }),
-          })}
+          {...mergeAttrs<'div'>(
+            { sx: conditionBuilderStyles.rule, ...conditionBuilderPart('rule') },
+            propsRule,
+            {
+              role: 'group',
+              'aria-label': lang.conditionRule(index + 1),
+              ...dataAttrs({ 'data-condition-rule': node.id }),
+            },
+          )}
         >
           <Select
             items={fields.map((item) => ({
@@ -485,7 +493,10 @@ export const ConditionBuilder = _component(
       return (
         <div
           {...mergeAttrs<'div'>(
-            { sx: [conditionBuilderStyles.group, nested && conditionBuilderStyles.nested] },
+            {
+              sx: [conditionBuilderStyles.group, nested && conditionBuilderStyles.nested],
+              ...conditionBuilderPart('group'),
+            },
             propsGroup,
             {
               ...(nested ? { role: 'group', 'aria-label': lang.conditionGroup } : {}),
@@ -570,10 +581,14 @@ export const ConditionBuilder = _component(
 
     return () => (
       <div
-        {...mergeAttrs<'div'>({ sx: conditionBuilderStyles.root }, rest, {
-          role: 'group',
-          ref: (target: unknown) => (element = target as HTMLElement | null),
-        })}
+        {...mergeAttrs<'div'>(
+          { sx: conditionBuilderStyles.root, ...conditionBuilderPart('root') },
+          rest,
+          {
+            role: 'group',
+            ref: (target: unknown) => (element = target as HTMLElement | null),
+          },
+        )}
       >
         {renderGroup(tree, 0)}
       </div>

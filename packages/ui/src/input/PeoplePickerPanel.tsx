@@ -39,6 +39,7 @@ import {
 } from './people';
 import { TextField, type TextFieldProps } from './TextField';
 import { ToggleGroup, ToggleItem } from './ToggleGroup';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface PeoplePickerPanelProps extends PartProps<'div'> {
@@ -66,6 +67,9 @@ type Page = 'org' | 'roles' | 'recent';
 
 /** “最近”最多记几个 */
 const RECENT_LIMIT = 20;
+
+/** 部件的标记（data-scope="people-picker-panel"） */
+const peoplePickerPanelPart = (part: string) => partAttrs({ name: 'PeoplePickerPanel' }, part);
 
 /** PeoplePickerPanel 的样式：root、grid、browse、selected、header、list、start */
 const peoplePickerPanelStyles = css.create({
@@ -296,7 +300,12 @@ export const PeoplePickerPanel = _component(
       const checkedCount = candidates.filter((entry) => selectedKeys.has(peopleKey(entry))).length;
       const height = peoplePickerPanelDynamicStyles.height(listHeight);
       return (
-        <div {...mergeAttrs<'div'>({ sx: peoplePickerPanelStyles.browse }, propsBrowse)}>
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: peoplePickerPanelStyles.browse, ...peoplePickerPanelPart('browse') },
+            propsBrowse,
+          )}
+        >
           {source.search && (
             <TextField
               {...mergePartProps<TextFieldProps>(
@@ -381,7 +390,12 @@ export const PeoplePickerPanel = _component(
 
     function renderSelected(): VNodeChild {
       return (
-        <div {...mergeAttrs<'div'>({ sx: peoplePickerPanelStyles.selected }, propsSelected)}>
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: peoplePickerPanelStyles.selected, ...peoplePickerPanelPart('selected') },
+            propsSelected,
+          )}
+        >
           <div {...css.attrs(peoplePickerPanelStyles.header)}>
             <Strong size="sm">{lang.peopleCount(value.length, max)}</Strong>
             {value.length > 0 && (
@@ -422,7 +436,12 @@ export const PeoplePickerPanel = _component(
     }
 
     return () => (
-      <div {...mergeAttrs<'div'>({ sx: peoplePickerPanelStyles.root }, rest)}>
+      <div
+        {...mergeAttrs<'div'>(
+          { sx: peoplePickerPanelStyles.root, ...peoplePickerPanelPart('root') },
+          rest,
+        )}
+      >
         <div {...css.attrs(peoplePickerPanelStyles.grid)}>
           {renderBrowse()}
           {renderSelected()}
