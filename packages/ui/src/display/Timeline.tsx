@@ -23,6 +23,7 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { LinkUnderlineContext } from '../base/Link';
 import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { ChevronDown, ChevronUp } from '@lucide/icons';
 import type { VNodeChild } from 'vue';
@@ -219,6 +220,8 @@ export const Timeline = _component(
     propsToggle,
     ...rest
   }: TimelineProps) => {
+    // 界面里的链接（指标的操作、附件、值）悬停才有下划线
+    LinkUnderlineContext.provide('hover');
     const lang = useLang();
 
     /** 收起的那几项所在的位置：节点列一段虚线，内容是展开、收起的按钮 */

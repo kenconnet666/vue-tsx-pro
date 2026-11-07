@@ -2,9 +2,36 @@ import { describe, expect, it } from 'vitest';
 import { mount } from '../../utils/.test/mount';
 import { Provider } from '../../config/Provider';
 import { enUS } from '../../config/lang/en-US';
-import { Link } from '../Link';
+import { Card } from '../../display/Card';
+import { Link, LinkUnderlineScope } from '../Link';
 
 describe('Link', () => {
+  it('下划线：容器（LinkUnderlineScope、卡片页头）给的默认是 hover，显式写的优先，正文里照旧', () => {
+    const root = mount(() => (
+      <>
+        <Link href="/a">正文</Link>
+        <Link href="/b" underline="hover">
+          显式悬停
+        </Link>
+        <LinkUnderlineScope underline="hover">
+          <Link href="/c">容器里</Link>
+          <Link href="/d" underline="always">
+            容器里显式
+          </Link>
+        </LinkUnderlineScope>
+        <Card header={<Link href="/e">页头</Link>}>
+          <Link href="/f">卡片正文</Link>
+        </Card>
+      </>
+    ));
+    const cls = (href: string) => root.querySelector(`a[href="${href}"]`)!.className;
+    expect(cls('/c')).toBe(cls('/b'));
+    expect(cls('/d')).toBe(cls('/a'));
+    expect(cls('/e')).toBe(cls('/b'));
+    expect(cls('/f')).toBe(cls('/a'));
+    expect(cls('/a')).not.toBe(cls('/b'));
+  });
+
   it('普通链接：只有 href，没有 target 与 rel', () => {
     const a = mount(() => <Link href="/orders">订单</Link>).querySelector('a')!;
     expect(a.getAttribute('href')).toBe('/orders');

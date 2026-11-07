@@ -20,6 +20,7 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { LinkUnderlineContext } from '../base/Link';
 import type { VNodeChild } from 'vue';
 import { clamp } from '../utils/data/number';
 import { CopyButton, type CopyButtonProps } from '../base/CopyButton';
@@ -174,6 +175,8 @@ export const Descriptions = _component(
     propsCopy,
     ...rest
   }: DescriptionsProps) => {
+    // 界面里的链接（指标的操作、附件、值）悬停才有下划线
+    LinkUnderlineContext.provide('hover');
     const lang = useLang();
     let list = _state.raw<HTMLElement | null>(null);
     // columns="auto"：按列表的宽度算栏数

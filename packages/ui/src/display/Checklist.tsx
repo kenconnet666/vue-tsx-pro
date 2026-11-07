@@ -23,6 +23,7 @@
 import { Ban, CircleAlert, CircleCheck, CircleDashed, CircleMinus } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { LinkUnderlineContext } from '../base/Link';
 import { useId, type VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
@@ -195,6 +196,8 @@ export const Checklist = _component(
     propsItem,
     ...rest
   }: ChecklistProps) => {
+    // 界面里的链接（指标的操作、附件、值）悬停才有下划线
+    LinkUnderlineContext.provide('hover');
     const lang = useLang();
     const id = useId();
 

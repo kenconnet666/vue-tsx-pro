@@ -91,6 +91,17 @@ describe('Upload', () => {
     expect(list[1]!.status).toBe('done');
   });
 
+  it('父级放进来的“已选择”文件（带 file）在给了 upload 时也开始上传，只上传一次', async () => {
+    let list = _state<UploadFile[]>([
+      { id: 'draft', name: 'draft.txt', size: 1, file: file('draft.txt'), status: 'selected' },
+    ]);
+    const upload = vi.fn<UploadHandler>(() => new Promise(() => {}));
+    mount(() => <Upload _value={list} multiple upload={upload} />);
+    await flush();
+    expect(upload).toHaveBeenCalledTimes(1);
+    expect(list[0]!.status).toBe('uploading');
+  });
+
   it('action：用配置的请求客户端 POST（multipart，字段名 fieldName），响应记在 response 上', async () => {
     let list = _state<UploadFile[]>([]);
     const requests: HttpRequest[] = [];

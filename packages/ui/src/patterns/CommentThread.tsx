@@ -383,7 +383,13 @@ export const CommentThread = _component(
                 {comment.attachments.map((file) => (
                   <li key={file.name} {...css.attrs(commentStyles.attachment)}>
                     <Icon icon={Paperclip} />
-                    {file.url ? <Link href={file.url}>{file.name}</Link> : file.name}
+                    {file.url ? (
+                      <Link href={file.url} underline="hover">
+                        {file.name}
+                      </Link>
+                    ) : (
+                      file.name
+                    )}
                     {file.size != null && (
                       <span {...css.attrs(commentStyles.meta)}>{format.fileSize(file.size)}</span>
                     )}

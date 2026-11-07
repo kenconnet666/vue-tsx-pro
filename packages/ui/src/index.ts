@@ -57,6 +57,8 @@ export { Kbd, type KbdProps } from './base/Kbd';
 export {
   Link,
   linkRecipe,
+  LinkUnderlineContext,
+  LinkUnderlineScope,
   type LinkOptions,
   type LinkPart,
   type LinkProps,

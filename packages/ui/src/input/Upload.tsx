@@ -383,6 +383,19 @@ export const Upload = _component(
       added.filter((item) => item.status === 'selected').forEach((item) => void start(item));
     }
 
+    // 父级放进来的待上传文件（拖到页面别处、恢复的草稿）：给了 upload 时同样开始上传
+    watch(
+      () => value,
+      (list) => {
+        if (!uploader()) return;
+        for (const item of list) {
+          if (item.status === 'selected' && item.file && !controllers.has(item.id))
+            void start(item);
+        }
+      },
+      { immediate: true },
+    );
+
     // 图片墙里选的文件的本地地址：用完（移除、卸载）回收
     const previews = new Map<string, string>();
     const previewOf = (item: UploadFile) => {
@@ -464,7 +477,7 @@ export const Upload = _component(
           <div {...mergeAttrs<'div'>({ sx: uploadStyles.body }, propsBody)}>
             <span {...mergeAttrs<'span'>({ sx: uploadStyles.name }, propsName)}>
               {item.url ? (
-                <Link href={item.url} target="_blank">
+                <Link href={item.url} target="_blank" underline="hover">
                   {fileName}
                 </Link>
               ) : (

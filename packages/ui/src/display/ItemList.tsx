@@ -21,7 +21,7 @@ import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
-import { Link, type LinkProps } from '../base/Link';
+import { Link, LinkUnderlineContext, type LinkProps } from '../base/Link';
 import { t } from '../config/theme/tokens';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { paddingInlineStyles, type Space } from '../utils/style/styles';
@@ -163,6 +163,8 @@ export const ItemList = _component(
     ...rest
   }: ItemListProps) => {
     ItemListContext.provide(() => ({ divided, hoverable, density, inset }));
+    // 条目里的链接（标题、附件）悬停才有下划线：一列下来都带下划线太重
+    LinkUnderlineContext.provide('hover');
     return () => <ul {...mergeAttrs<'ul'>({ sx: itemListStyles.list }, rest)}>{children}</ul>;
   },
 );

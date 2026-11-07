@@ -14,6 +14,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { useComponent } from '../config/components';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { LinkUnderlineScope } from '../base/Link';
 import type { VNodeChild } from 'vue';
 import type { PartLayer } from '../config/styles';
 import { t } from '../config/theme/tokens';
@@ -371,8 +372,11 @@ export const Card = _component(
       return [
         (header != null || extra != null) && (
           <div {...mergeAttrs<'div'>(s.header, propsHeader)}>
-            {header}
-            {extra}
+            {/* 页头的操作链接（“全部”）悬停才有下划线；正文里的链接照旧 */}
+            <LinkUnderlineScope underline="hover">
+              {header}
+              {extra}
+            </LinkUnderlineScope>
           </div>
         ),
         <div

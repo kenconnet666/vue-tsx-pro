@@ -5,9 +5,12 @@
  *   <Link href="https://example.com" external>帮助文档</Link>   新窗口打开，带图标与读屏提示
  *
  * 按钮样式的链接用 LinkButton。站内链接经 createUi 的 router 不刷新页面地跳转（utils/dom/link.ts）。
+ *
+ * 界面里的链接（列表的标题、卡片页头的操作、描述列表的值）一列下来都带下划线太重：这些容器用 LinkUnderlineScope
+ * 把里面的 Link 默认改成悬停才有下划线。下划线的取值：显式写的 > 所在容器给的 > defaults.Link > always。
  */
 import { ArrowUpRight } from '@lucide/icons';
-import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useComponent } from '../config/components';
 import type { VNodeChild } from 'vue';
@@ -77,15 +80,31 @@ export const linkRecipe = css.recipe({
 /** 链接的部件（createUi / Provider 的 styles.Link 按它定制） */
 export type LinkPart = (typeof linkRecipe.parts)[number];
 
+/** 所在容器给里面的 Link 的默认下划线（列表、卡片页头这类界面区域给 hover） */
+export const LinkUnderlineContext = createContext<keyof LinkUnderlines>('LinkUnderline');
+
+/** 里面的 Link 默认用这种下划线（Link 上显式写的仍然优先）：容器只想改一块区域（卡片页头）时包住那一块 */
+export const LinkUnderlineScope = _component(
+  ({ underline, children }: { underline: keyof LinkUnderlines; children?: VNodeChild }) => {
+    LinkUnderlineContext.provide(underline);
+    return () => children;
+  },
+);
+
 /** 文字链接（a）：品牌色、下划线与焦点环；external 时新窗口打开并带读屏提示 */
 export const Link = _component(
   ({ href, tone, underline, external = false, propsIcon, children, ...rest }: LinkProps) => {
     const lang = useLang();
     const router = useRouterLink();
-    const ui = useComponent(linkRecipe, () => ({ tone, underline }), {
-      tone: 'accent',
-      underline: 'always',
-    });
+    const scoped = LinkUnderlineContext.inject(null);
+    const ui = useComponent(
+      linkRecipe,
+      () => ({ tone, underline: underline ?? scoped ?? undefined }),
+      {
+        tone: 'accent',
+        underline: 'always',
+      },
+    );
     return () => {
       const {
         options: { tone: shownTone },
