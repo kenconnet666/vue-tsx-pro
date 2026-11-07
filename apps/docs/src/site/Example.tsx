@@ -11,9 +11,23 @@
  */
 import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { createFlex, dataAttrs, H2, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { SlidersHorizontal } from '@lucide/icons';
+import {
+  createFlex,
+  darkTheme,
+  dataAttrs,
+  H2,
+  IconButton,
+  lightTheme,
+  Menu,
+  MenuCheckboxItem,
+  MenuGroup,
+  Paragraph,
+  Provider,
+  type Theme,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { CodePreview, type CodePreviewAligns } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
-import { h, onBeforeUnmount, onMounted, type VNodeChild } from 'vue';
+import { h, onBeforeUnmount, onMounted, watch, type VNodeChild } from 'vue';
 import { framePath } from '../router';
 import { canvasStyles } from './canvas';
 import { EditInPlayground } from './EditInPlayground';
@@ -26,6 +40,20 @@ const styles = css.create({
   framed: { padding: 0 },
   frame: { display: 'block', width: '100%', borderStyle: 'none' },
   description: { color: '_textMuted' },
+  // 示例工具：包住示例的一层不占位；窄屏时是一块 375px 宽、虚线框住的区域；放大字号按 em 缩放
+  tools: { display: 'contents' },
+  narrow: {
+    display: 'block',
+    width: 'min(375px, 100%)',
+    alignSelf: 'center',
+    outlineWidth: '1px',
+    outlineStyle: 'dashed',
+    outlineColor: '_border',
+    outlineOffset: '0.5em',
+  },
+  large: { fontSize: '1.25em' },
+  // 反色主题：Provider 只换 token，底色要自己铺
+  inverted: { padding: '_md', borderRadius: '_md', backgroundColor: '_surface', color: '_text' },
   // 还没渲染的示例卡片：大致一张卡片的高度，补上时下面的内容少跳一点
   placeholder: {
     minHeight: '16rem',
@@ -93,6 +121,18 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
   });
   onBeforeUnmount(() => stop());
 
+  // 示例工具的开关：只影响这一个示例
+  let narrow = _state(false);
+  let rtl = _state(false);
+  let large = _state(false);
+  let invert = _state(false);
+  // 反色时用的主题：打开那一刻按页面的配色方案取相反的
+  let inverted = _state.raw<Theme | null>(null);
+  watch(
+    () => invert,
+    (on) => (inverted = on ? oppositeTheme() : null),
+  );
+
   return () => (
     <Section direction="column" gap="md">
       <H2 id={id} size="xl" anchor>
@@ -108,7 +148,12 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
       <CodePreview
         code={demo.source}
         align={align}
-        actions={<EditInPlayground code={demo.source} />}
+        actions={
+          <>
+            {frame == null && renderTools()}
+            <EditInPlayground code={demo.source} />
+          </>
+        }
         propsLayout={frame != null ? { sx: styles.framed } : undefined}
         propsPreview={{
           sx: [canvasStyles.canvas, styles.canvas],
@@ -125,9 +170,60 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
             {...css.attrs(styles.frame, frameHeight.height(frame))}
           />
         ) : (
-          h(demo.component)
+          renderDemo()
         )}
       </CodePreview>
     );
   }
+
+  /** 示例工具：窄屏、从右到左、放大字号、反色主题，看示例在这些条件下是否还对 */
+  function renderTools() {
+    const active = narrow || rtl || large || invert;
+    return (
+      <Menu
+        trigger={(props) => (
+          <IconButton
+            {...props}
+            icon={SlidersHorizontal}
+            aria-label="示例工具"
+            size="sm"
+            variant={active ? 'soft' : 'ghost'}
+            tone={active ? 'accent' : 'neutral'}
+          />
+        )}
+      >
+        <MenuGroup label="示例工具">
+          <MenuCheckboxItem _checked={narrow}>窄屏（375 px）</MenuCheckboxItem>
+          <MenuCheckboxItem _checked={rtl}>从右到左</MenuCheckboxItem>
+          <MenuCheckboxItem _checked={large}>放大字号（125%）</MenuCheckboxItem>
+          <MenuCheckboxItem _checked={invert}>反色主题</MenuCheckboxItem>
+        </MenuGroup>
+      </Menu>
+    );
+  }
+
+  /** 示例本身；开了示例工具时包一层（没开时原样，示例的排版不受影响） */
+  function renderDemo() {
+    const content = h(demo.component);
+    if (!narrow && !rtl && !large && !inverted) return content;
+    return (
+      <div
+        dir={rtl ? 'rtl' : undefined}
+        {...css.attrs(styles.tools, narrow && styles.narrow, large && styles.large)}
+      >
+        {inverted ? (
+          <Provider theme={inverted}>
+            <div {...css.attrs(styles.inverted)}>{content}</div>
+          </Provider>
+        ) : (
+          content
+        )}
+      </div>
+    );
+  }
 });
+
+/** 和页面现在相反的主题：页面是深色时给浅色，否则给深色 */
+function oppositeTheme(): Theme {
+  return getComputedStyle(document.documentElement).colorScheme === 'dark' ? lightTheme : darkTheme;
+}
