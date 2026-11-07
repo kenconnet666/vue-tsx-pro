@@ -6,7 +6,7 @@ import componentPages from 'virtual:doc-pages';
 import type { Component } from 'vue';
 import { MOBILE_SECTIONS } from '../pages/mobile/sections';
 import { PLAYGROUND_PATH } from '../playground/share';
-import type { PageMeta } from './types';
+import type { ExampleEntry, PageMeta } from './types';
 
 /** 一个页面 */
 export interface NavPage extends PageMeta {
@@ -14,6 +14,8 @@ export interface NavPage extends PageMeta {
   path: string;
   /** 页面组件（懒加载） */
   component: () => Promise<{ default: Component }>;
+  /** 页面里的示例（组件页才有）：站内搜索按示例标题与属性名也能找到 */
+  examples?: readonly ExampleEntry[];
 }
 
 /** 侧栏里的一组 */
@@ -156,6 +158,7 @@ const componentSections: NavSection[] = CATEGORIES.map(([category, label]) => ({
       ...page.meta,
       path: `/components/${kebab(page.name)}`,
       component: page.load,
+      examples: page.examples,
     })),
 })).filter((section) => section.pages.length > 0);
 

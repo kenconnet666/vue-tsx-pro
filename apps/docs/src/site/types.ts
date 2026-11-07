@@ -28,6 +28,18 @@ export interface ComponentPageEntry {
   name: string;
   /** 页面的 meta */
   meta: PageMeta;
+  /** 页面里的示例（站内搜索用） */
+  examples: readonly ExampleEntry[];
   /** 加载页面组件 */
   load: () => Promise<{ default: Component }>;
+}
+
+/** 文档页里的一个示例：锚点、标题，和说明里 <Code> 写到的标识符（属性名、函数名） */
+export interface ExampleEntry {
+  /** 锚点 */
+  id: string;
+  /** 标题 */
+  title: string;
+  /** 说明里写到的标识符：搜索时按它们也能找到这个示例 */
+  keywords: readonly string[];
 }

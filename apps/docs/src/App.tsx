@@ -17,6 +17,7 @@ import {
   Pager,
   TableOfContents,
   useHeadings,
+  useTextMatcher,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { GithubIcon } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import { AppShell, AppShellBrand, ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
@@ -52,17 +53,54 @@ const styles = css.create({
   narrowOnly: { display: { default: 'block', [breakpoints.md]: 'none' } },
 });
 
-/** 搜索面板的选项：每个页面一项，按侧栏分组 */
-const searchItems = allPages.map((page) => ({
+/** 搜索面板的一项：页面或示例；keywords 是示例说明里写到的属性名，按它们也能搜到 */
+interface SearchItem {
+  value: string;
+  label: string;
+  description: string;
+  group: string;
+  keywords: readonly string[];
+}
+
+/** 每个页面一项，按侧栏分组 */
+const pageItems: SearchItem[] = allPages.map((page) => ({
   value: page.path,
   label: page.title,
   description: page.description,
   group: sectionOf(page),
+  keywords: [],
 }));
+
+/** 页面之后是各页的示例（锚点直达那一节）：没输入时不列出，输入后才一起搜 */
+const allItems: SearchItem[] = [
+  ...pageItems,
+  ...allPages.flatMap((page) =>
+    (page.examples ?? []).map((example) => ({
+      value: `${page.path}#${example.id}`,
+      label: example.title,
+      description: page.title,
+      group: '示例',
+      keywords: example.keywords,
+    })),
+  ),
+];
 
 export const App = _component(() => {
   const route = useRoute();
   const router = useRouter();
+  const textMatcher = useTextMatcher();
+  // 搜索框里的文字：有输入时才把示例也列进来
+  let query = _state('');
+  /** 标题、简介按文字匹配（拼音也认）；属性名按包含（不分大小写） */
+  const matchesSearch = (item: SearchItem, text: string) => {
+    const match = textMatcher();
+    const lower = text.trim().toLowerCase();
+    return (
+      match(item.label, text) ||
+      match(item.description, text) ||
+      item.keywords.some((keyword) => keyword.toLowerCase().includes(lower))
+    );
+  };
   let content = _state.raw<HTMLElement | null>(null);
   // 示例里的标题（data-demo 里面）是示例内容，不进本页目录
   const headings = useHeadings(
@@ -112,7 +150,9 @@ export const App = _component(() => {
               </LinkButton>
               <div {...css.attrs(styles.tools)}>
                 <CommandPalette
-                  items={searchItems}
+                  items={query.trim() ? allItems : pageItems}
+                  _inputValue={query}
+                  filter={matchesSearch}
                   onAction={(item) => void router.push(item.value)}
                 />
                 <PropsPlaygroundButton />
