@@ -276,6 +276,7 @@ export {
   type ProportionBarProps,
   type ProportionSegment,
 } from './display/ProportionBar';
+export { QRCode, qrCodeStyles, type QRCodeProps, type QRCodeStatus } from './display/QRCode';
 export { Sortable, type SortableItemState, type SortableProps } from './display/Sortable';
 export {
   Sparkline,
@@ -1632,7 +1633,7 @@ export {
   type VisibleRange,
 } from './utils/virtual/virtualizer';
 
-// 工具：请求（HttpClient、createHttpClient、scopeHttp、useRequest）
+// 工具：请求（HttpClient、createHttpClient、scopeHttp、useRequest、useInfiniteList）
 export {
   codeText,
   errorCodeOf,
@@ -1687,6 +1688,14 @@ export {
   type WireType,
   type WireTypes,
 } from './utils/request/wire';
+
+// 工具：二维码编码（encodeQr）
+export {
+  encodeQr,
+  type QrEncodeOptions,
+  type QrErrorCorrection,
+  type QrMatrix,
+} from './utils/qr/encode';
 
 // 工具：JS 动画与动效
 export {

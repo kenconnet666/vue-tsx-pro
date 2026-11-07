@@ -45,6 +45,10 @@
   单个固定在视口的结束边底角（留出安全区），一组时竖排在一起；FloatButtonGroup 给了 `icon` 是速拨（主按钮展开、收起其余按钮，
   `_open` 双向，Esc 或点外面收起）。BackTop 现在是一个 FloatButton：悬停有提示，可以放进 FloatButtonGroup（没出现时不占位），
   位置同样留出安全区；`backTopStyles.root` 换成 `fade`（单独用时的淡入淡出）。
+- 新组件 QRCode：自带编码器（ISO/IEC 18004，UTF-8 字节模式、四档纠错、自动选版本与掩码），输出一条 path 的 SVG；`logo`
+  放在中间（此时纠错默认 H）、`size`、`margin`（静区）、`color`、`bgColor`；`status` 有 loading、expired（`onRefresh` 刷新）、
+  scanned，状态层是 role="status"。颜色跟主题，深色主题下仍是白底深色模块。也导出 `encodeQr` 拿到矩阵。
+  语言包加了 `qrCode`、`qrExpired`、`qrRefresh`、`qrScanned`。
 - 新增 `useInfiniteList`（滚动加载）：一页页取、接在后面，按 `key` 去重，记住还有没有下一页；`onRangeChange` 直接交给
   VirtualList、DataTable，离末尾不到 `threshold` 项时取下一页；`params` 变了或 `refresh()` 从第一页重来，失败时停下等重试。
   新组件 InfiniteListStatus 放在列表下方：失败时显示原因与“重试”，取完了显示“没有更多了”；语言包加了 `listNoMore`。

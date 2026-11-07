@@ -379,6 +379,14 @@ export interface Lang {
   readonly ratingSummary: (value: number | null, count: number) => string;
   /** 回到顶部按钮的名称，默认“回到顶部” */
   readonly backToTop: string;
+  /** 二维码图片的默认名称（读屏），默认“二维码” */
+  readonly qrCode: string;
+  /** 二维码已过期（status="expired"），默认“二维码已过期” */
+  readonly qrExpired: string;
+  /** 已过期时的刷新按钮，默认“刷新” */
+  readonly qrRefresh: string;
+  /** 已扫描、等手机上确认（status="scanned"），默认“已扫描，请在手机上确认” */
+  readonly qrScanned: string;
   /** 截断文字的展开按钮，默认“展开” */
   readonly ellipsisExpand: string;
   /** 截断文字的收起按钮，默认“收起” */
