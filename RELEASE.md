@@ -55,6 +55,10 @@
   drawer）追加样式；headerMain、column、collapseBar 等原来没有标记的节点也带上了。
 - Transfer 改成配方组件（TreeTransfer 共用）：`components.Transfer` 可以给 `searchable` 的默认值，按部件（root、panel、header、
   checkAll、title、count、search、searchField、list、actions、action、actionIcon）追加样式；原来没有标记的节点也带上了。
+- NotificationList、NotificationCenter 改成配方组件：`components.NotificationList` 按部件（root、head、title、markAll、filters、
+  types、unreadOnly、scroll、list、item、dot、body、itemTitle、description、time、empty、footer）追加样式，`components.NotificationCenter`
+  按部件（panel、indicator、trigger、list）追加样式。顺手修了“只看未读”没有靠结束边（样式落到了开关的 input 上）。
+- Card 的 `padding="none"` 只让正文贴边，页头、页脚仍留 sm / md 的内边距（原来文字贴着边框）。
 - Timeline 改成配方组件：`createUi` / `Provider` 的 `components.Timeline` 可以给 `alternate`、`size` 的默认值，按部件
   （root、item、rail、marker、line、content、title、meta、actor、time、description、toggleLine、toggleContent）追加样式。
 

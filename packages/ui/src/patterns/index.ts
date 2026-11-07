@@ -45,10 +45,14 @@ export {
 } from './KanbanBoard';
 export {
   NotificationCenter,
+  notificationCenterRecipe,
   NotificationList,
+  notificationListRecipe,
+  type NotificationCenterPart,
   type NotificationCenterProps,
   type NotificationItem,
   type NotificationListOptions,
+  type NotificationListPart,
   type NotificationListProps,
   type NotificationType,
 } from './NotificationCenter';
