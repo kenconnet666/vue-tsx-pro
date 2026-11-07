@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { Provider } from '../../config/Provider';
 import type { Highlighter } from '../../config/context';
-import { announced, mount } from '../../utils/.test/mount';
+import { announced, mount, styleOf } from '../../utils/.test/mount';
 import { CodeBlock, parseLineSpec } from '../CodeBlock';
 
 const pre = (root: Element) => root.querySelector('pre')!;
@@ -189,5 +189,23 @@ describe('CodeBlock 的行与折叠', () => {
     await nextTick();
     expect(icon.classList).toContain('chevron');
     expect(icon.getAttribute('class')).not.toBe(closed);
+  });
+});
+
+describe('CodeBlock 的定制（components.CodeBlock）', () => {
+  it('应用里统一显示行号、去掉外框；部件带标记；组件上写的优先', () => {
+    const root = mount(() => (
+      <Provider components={{ CodeBlock: { defaults: { lineNumbers: true, flush: true } } }}>
+        <CodeBlock code={'a\nb'} />
+        <CodeBlock code="c" lineNumbers={false} />
+      </Provider>
+    ));
+    const [first, second] = [
+      ...root.querySelectorAll('[data-scope="code-block"][data-part="root"]'),
+    ];
+    expect(first!.querySelectorAll('[data-part="lineNumber"]')).toHaveLength(2);
+    expect(second!.querySelectorAll('[data-part="lineNumber"]')).toHaveLength(0);
+    expect(first!.querySelector('pre')!.getAttribute('data-part')).toBe('pre');
+    expect(styleOf(first!).get('&|border-top-width')).toBe('0px');
   });
 });

@@ -21,6 +21,7 @@ import type { AvatarOptions, AvatarPart } from '../display/Avatar';
 import type { BadgeOptions, BadgePart } from '../base/badge-styles';
 import type { ButtonOptions, ButtonPart } from '../base/button-core';
 import type { CardOptions, CardPart } from '../display/Card';
+import type { CodeBlockOptions, CodeBlockPart } from '../base/CodeBlock';
 import type { ChoiceOptions, ChoicePart } from '../input/choice-styles';
 import type { ControlOptions, InputPart } from '../input/control';
 import type { DataTableOptions, DataTablePart } from '../table/table-styles';
@@ -81,6 +82,8 @@ export interface UiComponents {
   Indicator: ComponentConfig<IndicatorPart, IndicatorOptions>;
   /** Avatar（AvatarGroup 的“+N”也取它的外层样式） */
   Avatar: ComponentConfig<AvatarPart, AvatarOptions>;
+  /** CodeBlock（CodeGroup、示例的源码也是它） */
+  CodeBlock: ComponentConfig<CodeBlockPart, CodeBlockOptions>;
   /** Card */
   Card: ComponentConfig<CardPart, CardOptions>;
   /** Progress（条形与环形） */

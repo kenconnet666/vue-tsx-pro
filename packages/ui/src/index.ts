@@ -15,7 +15,15 @@ export {
   type PresetIconButtonProps,
 } from './base/CloseButton';
 export { Code, type CodeProps } from './base/Code';
-export { CodeBlock, parseLineSpec, type CodeBlockProps, type LineSpec } from './base/CodeBlock';
+export {
+  CodeBlock,
+  codeBlockRecipe,
+  parseLineSpec,
+  type CodeBlockOptions,
+  type CodeBlockPart,
+  type CodeBlockProps,
+  type LineSpec,
+} from './base/CodeBlock';
 export { CodeText, type CodeTextProps } from './base/CodeText';
 export { CopyButton, type CopyButtonManaged, type CopyButtonProps } from './base/CopyButton';
 export {

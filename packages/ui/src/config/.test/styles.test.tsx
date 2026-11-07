@@ -28,6 +28,7 @@ import { mount, styleOf } from '../../utils/.test/mount';
 import { Provider } from '../Provider';
 import { statRecipe } from '../../display/Stat';
 import { timelineRecipe } from '../../display/Timeline';
+import { codeBlockRecipe } from '../../base/CodeBlock';
 
 describe('components', () => {
   it('登记表的每个组件都有同名的配方', () => {
@@ -41,6 +42,7 @@ describe('components', () => {
       Indicator: indicatorRecipe,
       Avatar: avatarRecipe,
       Card: cardRecipe,
+      CodeBlock: codeBlockRecipe,
       Progress: progressRecipe,
       Empty: emptyRecipe,
       Result: resultRecipe,
