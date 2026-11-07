@@ -40,7 +40,7 @@ export {
   type DiagramMinimapPlacements,
   type DiagramMinimapProps,
 } from './DiagramMinimap';
-export { DiagramNode, type DiagramNodeProps, type DiagramNodeShapes } from './DiagramNode';
+export { DiagramNode, type DiagramNodeProps } from './DiagramNode';
 export {
   diagramInternals,
   useDiagram,
@@ -63,8 +63,11 @@ export {
   rectsIntersect,
   trimEnd,
   type DiagramGuide,
+  type DiagramNodeShape,
+  type DiagramNodeShapes,
   type DiagramPoint,
   type DiagramRect,
+  type DiagramShapeRect,
 } from './geometry';
 export {
   layoutLayers,

@@ -13,6 +13,7 @@ import { KeyboardReference } from '../../../site/KeyboardReference';
 import Editor from './demo/Editor.tsx?demo';
 import Lanes from './demo/Lanes.tsx?demo';
 import OrgChart from './demo/OrgChart.tsx?demo';
+import Process from './demo/Process.tsx?demo';
 import Selection from './demo/Selection.tsx?demo';
 
 export const meta = {
@@ -39,6 +40,18 @@ export default _component(() => () => (
           里的 <Code>DiagramControls</Code>{' '}
           是缩小、比例、放大、适应画布四个按钮。拖动空白处平移，滚轮平移，按住 Ctrl / ⌘
           滚轮或触控板捏合缩放。
+        </Example>
+        <Example id="process" title="流程图：形状、状态、退回的线" demo={Process}>
+          节点数据的 <Code>shape</Code> 定形状：<Code>circle</Code> 画开始、结束，
+          <Code>diamond</Code> 画分支与汇合，里面的 <Code>DiagramNode</Code>{' '}
+          跟着画，连线接到形状的轮廓上（圆、菱形的线接在顶点）。
+          <Code>layoutLayers</Code> 按连线分列排好位置，退回的线不交给它。状态用色调：走过的{' '}
+          <Code>success</Code>
+          ，正在处理的 <Code>accent</Code> 加 <Code>active</Code>（加粗的边框与光晕），出错的{' '}
+          <Code>danger</Code>，还没走到的 <Code>dashed</Code>
+          ；读屏从 <Code>getNodeLabel</Code> 听到名称与状态。退回的线写 <Code>fromSide</Code>、
+          <Code>toSide</Code> 为 <Code>bottom</Code>，<Code>routing="orthogonal"</Code>{' '}
+          让它从下面绕回去。不开 <Code>selectable</Code>、<Code>draggable</Code> 就是只看的图。
         </Example>
         <Example id="selection" title="选择与框选" demo={Selection}>
           <Code>selectable</Code> 让节点与连线可以点选，<Code>_selected</Code>{' '}

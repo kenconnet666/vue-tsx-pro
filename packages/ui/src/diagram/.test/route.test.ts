@@ -114,4 +114,18 @@ describe('routeEdges', () => {
     for (const id of ['to-a', 'to-b', 'to-c']) expect(orthogonal(routes.get(id)!)).toBe(true);
     expect(routeEdges(nodes, [{ id: 'x', from: 'hub', to: 'missing' }]).size).toBe(0);
   });
+
+  it('圆、菱形同一条边上的几条线都接在边的中点（形状的顶点），不沿边排开', () => {
+    const nodes = [
+      { id: 'gate', shape: 'diamond' as const, ...box(0, 100, 60, 60) },
+      { id: 'a', ...box(300, 0) },
+      { id: 'b', ...box(300, 250) },
+    ];
+    const routes = routeEdges(nodes, [
+      { id: 'to-a', from: 'gate', to: 'a' },
+      { id: 'to-b', from: 'gate', to: 'b' },
+    ]);
+    expect(routes.get('to-a')![0]).toEqual({ x: 60, y: 130 });
+    expect(routes.get('to-b')![0]).toEqual({ x: 60, y: 130 });
+  });
 });

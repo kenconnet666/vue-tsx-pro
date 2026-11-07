@@ -83,6 +83,14 @@ export const actions = defineActions({
         return result.instance.status;
       }),
   ),
+  comment: defineAction(
+    {
+      input: z.object({ instance: z.number().int(), text: z.string().trim().min(1) }),
+      permission: 'flow.use',
+    },
+    ({ instance, text }) =>
+      run(async () => void (await engine.run({ type: 'comment', instance, text }, currentActor()))),
+  ),
   withdraw: defineAction(
     { input: z.object({ instance: z.number().int() }), permission: 'flow.use' },
     ({ instance }) =>

@@ -1,10 +1,27 @@
 /**
  * 页面的 loader（只在服务端导入）：待办、我发起的、能发起的流程、实例详情。页面里用 src/client.ts 的 usePageData 取
  */
-import type { VariableDeclaration } from '@zerodep-dev/flow-ts-model';
+import type { ProcessDefinition, VariableDeclaration } from '@zerodep-dev/flow-ts-model';
 import { defineLoaders } from '@zerodep-dev/vue-tsx-pro-kit';
-import { currentActor } from './server/context.ts';
+import { currentActor, USERS } from './server/context.ts';
 import { engine } from './server/flow.ts';
+
+/** 流转记录里的人：示例的用户表里有名字的用名字 */
+const nameOf = (id: string | null) => (id ? (USERS[id]?.name ?? id) : '系统');
+
+/** 节点的名字、按钮的名字（记录里存的是标识） */
+function namesOf(definition: ProcessDefinition) {
+  const node = (id: string) => definition.nodes.find((n) => n.id === id);
+  return {
+    node: (id: string) => node(id)?.name ?? id,
+    outcome: (id: string, key: string) => {
+      const found = node(id);
+      return found?.type === 'task'
+        ? (found.outcomes.find((o) => o.key === key)?.label ?? key)
+        : key;
+    },
+  };
+}
 
 export const loaders = defineLoaders({
   '/': async () => {
@@ -57,10 +74,14 @@ export const loaders = defineLoaders({
             key: o.key,
             label: o.label,
             comment: o.comment === 'required',
+            reject: o.kind === 'reject',
           })),
         });
     }
+    const names = namesOf(detail.definition);
     return {
+      // 留言的相对时间按它算：服务端与浏览器一致
+      now: Date.now(),
       instance: {
         id,
         title: detail.instance.title,
@@ -93,11 +114,19 @@ export const loaders = defineLoaders({
         )
         .map((e) => ({
           type: e.type,
-          node: e.node,
-          actor: e.actor,
-          outcome: e.outcome,
+          node: e.node && names.node(e.node),
+          actor: nameOf(e.actor),
+          outcome: e.outcome && (e.node ? names.outcome(e.node, e.outcome) : e.outcome),
           comment: e.comment,
           at: e.at.toISOString(),
+        })),
+      comments: detail.events
+        .filter((e) => e.type === 'instance.commented')
+        .map((e, index) => ({
+          id: String(index),
+          author: nameOf(e.actor),
+          content: e.comment ?? '',
+          time: e.at.toISOString(),
         })),
       actions: mine,
       withdrawable: detail.instance.startedBy === actor.id && detail.instance.status === 'active',

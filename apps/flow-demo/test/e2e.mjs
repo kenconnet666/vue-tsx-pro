@@ -48,6 +48,13 @@ async function run(mode) {
       waitUntil: 'networkidle',
     });
   const state = () => page.getByTestId('state');
+  /** 审批单上按一个处理按钮：弹出的对话框里写意见（可以不写）再确认 */
+  const handle = async (name, comment) => {
+    await page.getByRole('button', { name, exact: true }).click();
+    const dialog = page.getByRole('dialog');
+    if (comment) await dialog.getByRole('textbox', { name: '意见' }).fill(comment);
+    await dialog.getByRole('button', { name, exact: true }).click();
+  };
 
   try {
     // 没登录：待办页 403
@@ -64,12 +71,12 @@ async function run(mode) {
     // 经理在待办里看到、同意（收件箱里的待办直接处理等于先认领）
     await signIn('bob', '/');
     await page.getByRole('list', { name: '待办列表' }).getByText('请假：回老家（5 天）').click();
-    await page.getByRole('button', { name: '同意', exact: true }).click();
+    await handle('同意');
     await state().getByText('进行中：人事备案').waitFor();
 
     // 超过 3 天：人事备案后结束
     await signIn('carol', `/instances/${instance}`);
-    await page.getByRole('button', { name: '已备案' }).click();
+    await handle('已备案');
     await state().getByText('已结束：approved').waitFor();
 
     // 1 天的：经理退回（要写意见），申请人重新提交后直接回到经理
@@ -80,13 +87,21 @@ async function run(mode) {
     await state().getByText('进行中：经理审批').waitFor();
     const second = page.url().split('/').pop();
     await signIn('bob', `/instances/${second}`);
-    await page.getByRole('button', { name: '退回修改' }).click();
-    await page.getByText('要写意见').waitFor();
-    await page.getByRole('textbox', { name: '意见' }).fill('写清楚日期');
-    await page.getByRole('button', { name: '退回修改' }).click();
+    // 退回要写意见：不写时对话框里报“必填”，写了才提交
+    await page.getByRole('button', { name: '退回修改', exact: true }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.getByRole('button', { name: '退回修改', exact: true }).click();
+    await dialog.getByText('必填').waitFor();
+    await dialog.getByRole('textbox', { name: '意见' }).fill('写清楚日期');
+    await dialog.getByRole('button', { name: '退回修改', exact: true }).click();
     await state().getByText('进行中：申请人修改').waitFor();
+    // 留言出现在“留言”页
+    await page.getByRole('tab', { name: /留言/ }).click();
+    await page.getByRole('textbox', { name: /留言/ }).fill('日期写在事由里就行');
+    await page.getByRole('button', { name: '发送' }).click();
+    await page.getByRole('tab', { name: '留言（1）' }).waitFor();
     await signIn('alice', `/instances/${second}`);
-    await page.getByRole('button', { name: '重新提交' }).click();
+    await handle('重新提交');
     await state().getByText('进行中：经理审批').waitFor();
 
     // 管理员在设计器里用报销模板，试运行看停在财务，发布后申请人在发起页看得到

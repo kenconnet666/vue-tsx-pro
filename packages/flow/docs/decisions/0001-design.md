@@ -128,10 +128,12 @@ await engine.jobs.runDue({ limit: 20 }); // Nitro 的定时任务或接入方自
 | ----------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------- |
 | `@zerodep-dev/flow-ts-model`  | `packages/flow/model`  | 定义的类型与 `defineProcess`、条件、值、图索引、选边、校验、表单权限、差异；两端通用，零运行时依赖 |
 | `@zerodep-dev/flow-ts-engine` | `packages/flow/engine` | 引擎、实体、作业、模拟器与 `createTestEngine()`；依赖 model 与 easy-query                          |
-| `@zerodep-dev/flow-ts-ui`     | `packages/flow/ui`     | 流程图、设计器、审批面板；依赖 model 与组件库（14.8）                                              |
 
-npm 上 `@zerodep-dev/flow-model`、`flow-ui` 是 `flow` 仓库的包，这里加 `-ts`（同 easy-query 的命名）。
-分层：model 不依赖 vue 与 easy-query；engine 不依赖 vue；ui 不依赖 easy-query 与 engine 的运行时（只用类型）。
+npm 上 `@zerodep-dev/flow-model` 是 `flow` 仓库的包，这里加 `-ts`（同 easy-query 的命名）。
+分层：model 不依赖 vue 与 easy-query；engine 不依赖 vue。
+
+界面没有单独的包（原来的 `packages/flow/ui` 已删）：流程图是组件库的画布（`/diagram` 的 Diagram，节点的形状、状态、退回的线都是画布的通用能力），
+设计器与审批面板是组件库拼的组合，写在文档站“流程设计与审批”一页与 `apps/flow-demo` 里，使用方照着拼；流程的增删改用 model 的函数。
 
 ## 8. 验收
 

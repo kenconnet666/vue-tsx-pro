@@ -365,6 +365,32 @@ describe('DiagramNode', () => {
     expect(hasStyles(pill!, diagramNodeStyles.dashed)).toBe(true);
     expect(hasStyles(full!, diagramNodeStyles.dashed)).toBe(false);
   });
+
+  it('形状默认取 Diagram 里节点数据的 shape，写了 shape 的以它为准；菱形画 SVG，active 标在 data-active 上', () => {
+    const shaped: Item[] = [
+      { id: 'gate', name: '金额', shape: 'diamond', x: 0, y: 0, width: 60, height: 60 },
+      { id: 'end', name: '结束', shape: 'circle', x: 200, y: 0, width: 40, height: 40 },
+    ];
+    const root = mount(() => (
+      <Diagram nodes={shaped} getNodeLabel={(item: Item) => item.name} aria-label="画布">
+        {(item: Item) =>
+          item.id === 'end' ? (
+            <DiagramNode title={item.name} shape="pill" />
+          ) : (
+            <DiagramNode title={item.name} tone="accent" active />
+          )
+        }
+      </Diagram>
+    ));
+    const gate = root.querySelector<HTMLElement>('[data-node="gate"] [data-diagram-shape]')!;
+    expect(gate.getAttribute('data-diagram-shape')).toBe('diamond');
+    expect(gate.getAttribute('data-active')).toBe('true');
+    expect(hasStyles(gate, diagramNodeStyles.diamond)).toBe(true);
+    expect(gate.querySelector('svg polygon')).not.toBeNull();
+    const end = root.querySelector('[data-node="end"] [data-diagram-shape]')!;
+    expect(end.getAttribute('data-diagram-shape')).toBe('pill');
+    expect(end.querySelector('svg')).toBeNull();
+  });
 });
 
 describe('DiagramLanes', () => {

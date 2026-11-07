@@ -143,7 +143,9 @@ export const DiagramMinimap = _component(
                   y: node.y,
                   width: node.width,
                   height: node.height,
-                  rx: Math.min(node.width, node.height) * 0.12,
+                  rx:
+                    Math.min(node.width, node.height) *
+                    (node.shape === 'pill' || node.shape === 'circle' ? 0.5 : 0.12),
                 })}
               />
             ))}

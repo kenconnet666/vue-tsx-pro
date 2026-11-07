@@ -22,6 +22,31 @@ export interface DiagramRect {
   height: number;
 }
 
+/** 节点的形状：画成什么样（DiagramNode），连线接在哪（圆、菱形的连线接在形状的边上，不接在节点框上） */
+export interface DiagramNodeShapes {
+  /** 圆角矩形，默认：任务、步骤 */
+  rect: unknown;
+  /** 胶囊形：开始、结束 */
+  pill: unknown;
+  /** 圆（节点框是正方形时是正圆）：开始、结束事件 */
+  circle: unknown;
+  /** 菱形：分支、网关 */
+  diamond: unknown;
+}
+
+/** 节点的形状 */
+export type DiagramNodeShape = keyof DiagramNodeShapes;
+
+/** 带形状的矩形：节点，连线算端点时看形状 */
+export interface DiagramShapeRect extends DiagramRect {
+  /** 形状，默认 rect */
+  shape?: DiagramNodeShape;
+}
+
+/** 形状只有一个“顶点”接线：圆、菱形每条边上的几条线都接在边的中点，不沿边排开 @internal */
+export const pointedShape = (shape: DiagramNodeShape | undefined) =>
+  shape === 'circle' || shape === 'diamond';
+
 /** 包住全部矩形与点的最小矩形；什么都没有时 undefined */
 export function boundsOf(
   rects: Iterable<DiagramRect>,
@@ -78,17 +103,25 @@ export function rectCenter(rect: DiagramRect): DiagramPoint {
   return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
 }
 
-/** 从矩形中心朝 toward 方向的射线与矩形边框的交点：两个节点之间没有路由时，直线的两端落在边框上 */
-export function borderPoint(rect: DiagramRect, toward: DiagramPoint): DiagramPoint {
+/**
+ * 从节点中心朝 toward 方向的射线与节点轮廓的交点：两个节点之间没有路由时，直线的两端落在轮廓上。
+ * 轮廓按 shape：矩形与胶囊按节点框，圆是框里的椭圆，菱形是四条边中点连成的菱形
+ */
+export function borderPoint(rect: DiagramShapeRect, toward: DiagramPoint): DiagramPoint {
   const center = rectCenter(rect);
   const dx = toward.x - center.x;
   const dy = toward.y - center.y;
   if (dx === 0 && dy === 0) return center;
-  // 射线先碰到竖边还是横边：比较两个方向上到边的比例
-  const scale = Math.min(
-    dx === 0 ? Infinity : rect.width / 2 / Math.abs(dx),
-    dy === 0 ? Infinity : rect.height / 2 / Math.abs(dy),
-  );
+  // 方向上走 1 时在两个半轴上各占的比例
+  const rx = Math.abs(dx) / (rect.width / 2);
+  const ry = Math.abs(dy) / (rect.height / 2);
+  const scale =
+    rect.shape === 'circle'
+      ? 1 / Math.hypot(rx, ry)
+      : rect.shape === 'diamond'
+        ? 1 / (rx + ry)
+        : // 射线先碰到竖边还是横边
+          1 / Math.max(rx, ry);
   return { x: center.x + dx * scale, y: center.y + dy * scale };
 }
 

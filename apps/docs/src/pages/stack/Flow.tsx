@@ -2,10 +2,17 @@
  * 全栈：流程引擎（@zerodep-dev/flow-ts-*）。定义、引擎、扩展点、试运行、流程图与设计器
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Code, CodeBlock, H2, List, ListItem, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
-import { ProcessDiagram } from '@zerodep-dev/flow-ts-ui';
+import { Code, CodeBlock, H2, Link, List, ListItem, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Diagram } from '@zerodep-dev/vue-tsx-pro-ui/diagram';
 import { templates } from '@zerodep-dev/flow-ts-model';
+import {
+  processDiagram,
+  renderStep,
+  stepLabel,
+} from '../../components/patterns/Workflow/process-diagram';
 import { DocPage } from '../../site/DocPage';
+
+const leave = processDiagram(templates.leave());
 
 const meta = {
   title: 'Flow 流程引擎',
@@ -69,7 +76,18 @@ export default _component(() => () => (
       <Code>validateProcess</Code> 校验。
     </Paragraph>
     <CodeBlock title="processes.ts" code={define} lang="ts" />
-    <ProcessDiagram definition={templates.leave()} aria-label="请假流程（模板）" />
+    <Diagram
+      nodes={leave.nodes}
+      edges={leave.edges}
+      getNodeLabel={stepLabel}
+      edgeText={(flow) => flow.text}
+      routing="orthogonal"
+      fitView
+      height="16rem"
+      aria-label="请假流程（模板）"
+    >
+      {renderStep}
+    </Diagram>
     <H2 id="engine" size="xl" anchor>
       引擎
     </H2>
@@ -103,9 +121,13 @@ export default _component(() => () => (
       流程图与设计器
     </H2>
     <Paragraph>
-      <Code>@zerodep-dev/flow-ts-ui</Code> 的 <Code>ProcessDiagram</Code>{' '}
-      画流程图（标出正在处理的与走过的），<Code>ProcessDesigner</Code>
-      像低代码一样从模板起步：一步加审批环节、金额分支，点环节改谁来处理、几个人一起审、时限与按钮，问题用业务的话列出、点一下定位，开发者“切到代码”直接改定义。完整的例子在{' '}
+      流程图、设计器、审批面板没有单独的包，都是组件库拼的：流程图是画布{' '}
+      <Link href="/components/diagram">Diagram</Link>
+      {'（开始、结束画圆，网关画菱形，正在处理的加光晕，退回的线从下面绕回），设计器与审批面板见 '}
+      <Link href="/components/workflow">流程设计与审批</Link>
+      {
+        '：从模板起步，一步加审批环节、金额分支，点环节改谁来处理、几个人一起审、时限与按钮，问题用业务的话列出、点一下定位，开发者在“代码”页直接改定义。流程的增删改是模型包的函数。接上引擎的完整例子在 '
+      }
       <Code>apps/flow-demo</Code>。
     </Paragraph>
   </DocPage>

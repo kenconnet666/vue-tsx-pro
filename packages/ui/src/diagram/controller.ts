@@ -10,7 +10,7 @@
  */
 import { shallowRef } from 'vue';
 import { fitTransform, usePanZoom, type PanZoom, type PanZoomState } from '../utils/dom/pan-zoom';
-import type { DiagramPoint, DiagramRect } from './geometry';
+import type { DiagramPoint, DiagramRect, DiagramShapeRect } from './geometry';
 
 /** useDiagram 的选项 */
 export interface DiagramOptions {
@@ -61,7 +61,7 @@ export interface DiagramInternals {
   /** 读内容的边界（画布坐标）：Diagram 交进来 */
   content: () => DiagramRect | undefined;
   /** 读节点当前的位置与大小（拖动中的按拖到的位置）：Diagram 交进来 */
-  nodes: () => readonly DiagramRect[];
+  nodes: () => readonly DiagramShapeRect[];
   /** 挑出视口要处理的事件：Diagram 按拖动方式、点在哪里交进来 */
   filter: (event: PointerEvent | WheelEvent | MouseEvent | KeyboardEvent) => boolean;
   /** 视口的事件属性：展开到视口元素上 */

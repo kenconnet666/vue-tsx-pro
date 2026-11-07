@@ -6,7 +6,14 @@
  *   3. 在格点上跑 A*：代价是长度加拐弯惩罚，状态带方向，所以同样长时选拐弯少的
  * 找不到路时退回成三段的折线（不避障）。画布有几百个节点也只取两端附近的障碍，单条线的格点在几千以内。
  */
-import { borderPoint, rectCenter, type DiagramPoint, type DiagramRect } from './geometry';
+import {
+  borderPoint,
+  pointedShape,
+  rectCenter,
+  type DiagramPoint,
+  type DiagramRect,
+  type DiagramShapeRect,
+} from './geometry';
 
 /** 节点的四条边 */
 export interface DiagramSides {
@@ -250,14 +257,14 @@ export interface RouteEdge {
 }
 
 /**
- * 一组连线一起路由：先定每条线的出、进边，同一个节点同一条边上的几条线按对端的位置排开（端口分配，线不挤在一个点），
- * 再逐条绕开全部节点。返回连线标识 → 折线点；两端节点缺了的连线不在结果里。
+ * 一组连线一起路由：先定每条线的出、进边，同一个节点同一条边上的几条线按对端的位置排开（端口分配，线不挤在一个点；
+ * 圆、菱形的线都接在边的中点，也就是形状的顶点），再逐条绕开全部节点。返回连线标识 → 折线点；两端节点缺了的连线不在结果里。
  * obstacles 不写时用 nodes 本身；拖动时只重算相连的几条线，可以把全部节点作为 obstacles 传进来
  */
 export function routeEdges(
-  nodes: readonly (DiagramRect & { id: string })[],
+  nodes: readonly (DiagramShapeRect & { id: string })[],
   edges: readonly RouteEdge[],
-  options: RouteOptions & { obstacles?: readonly (DiagramRect & { id: string })[] } = {},
+  options: RouteOptions & { obstacles?: readonly (DiagramShapeRect & { id: string })[] } = {},
 ): Map<string, DiagramPoint[]> {
   const byId = new Map(nodes.map((node) => [node.id, node]));
   const obstacles = options.obstacles ?? nodes;
@@ -290,7 +297,9 @@ export function routeEdges(
       const node = item.plan[item.end];
       const base = sidePoint(node, side);
       const span = horizontal ? node.width : node.height;
-      const offset = ((index + 1) / (sorted.length + 1) - 0.5) * span;
+      const offset = pointedShape(node.shape)
+        ? 0
+        : ((index + 1) / (sorted.length + 1) - 0.5) * span;
       points.set(
         `${item.plan.edge.id}|${item.end}`,
         horizontal ? { x: base.x + offset, y: base.y } : { x: base.x, y: base.y + offset },
@@ -313,8 +322,8 @@ export function routeEdges(
   return routes;
 }
 
-/** 两个节点之间的直线：两端落在边框上（没有路由时的默认画法） */
-export function straightRoute(from: DiagramRect, to: DiagramRect): DiagramPoint[] {
+/** 两个节点之间的直线：两端落在节点的轮廓上（没有路由时的默认画法） */
+export function straightRoute(from: DiagramShapeRect, to: DiagramShapeRect): DiagramPoint[] {
   return [borderPoint(from, rectCenter(to)), borderPoint(to, rectCenter(from))];
 }
 

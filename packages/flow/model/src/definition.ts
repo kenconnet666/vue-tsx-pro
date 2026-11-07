@@ -371,8 +371,9 @@ export interface ProcessSettings {
   readonly notify?: NotifySettings;
 }
 
-/** 布局：引擎不读 */
+/** 布局：引擎不读。设计器拖动后写入；没有位置的节点由画布按连线自动排 */
 export interface ProcessLayout {
+  /** 节点框左上角的画布坐标 */
   readonly nodes?: Readonly<Record<string, { readonly x: number; readonly y: number }>>;
   readonly edges?: Readonly<
     Record<string, { readonly points?: readonly (readonly [number, number])[] }>

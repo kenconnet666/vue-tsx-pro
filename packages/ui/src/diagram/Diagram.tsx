@@ -38,7 +38,7 @@ import { dataAttrs, mergeAttrs, type PartProps } from '../utils/props';
 import { interactionTransitions } from '../utils/style/transitions';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { diagramInternals, useDiagram, type DiagramController } from './controller';
-import { DiagramNode } from './DiagramNode';
+import { DiagramNode, DiagramNodeFrameContext } from './DiagramNode';
 import {
   alignToGuides,
   arrowHead,
@@ -51,6 +51,7 @@ import {
   rectsIntersect,
   trimEnd,
   type DiagramGuide,
+  type DiagramNodeShape,
   type DiagramPoint,
   type DiagramRect,
 } from './geometry';
@@ -61,6 +62,8 @@ import { nearestSide, routeEdges, sidePoint, straightRoute, type DiagramSide } f
 export interface DiagramNodeItem extends DiagramRect {
   /** 节点的标识：连线的 from、to 与选择里用它 */
   id: string;
+  /** 形状：里面的 DiagramNode 默认画成它，连线接到它的轮廓上（圆、菱形的线接在顶点），默认 rect */
+  shape?: DiagramNodeShape;
 }
 
 /** 画布上的一条连线 */
@@ -359,8 +362,12 @@ export const diagramStyles = css.create({
     zIndex: 2,
     display: 'grid',
     boxSizing: 'border-box',
-    // 选中、焦点的描边跟着节点的形状走（DiagramNode 的 shape）
-    borderRadius: { default: '_md', ':has(> [data-diagram-shape="pill"])': '_full' },
+    // 选中、焦点的描边跟着节点的形状走（DiagramNode 的 shape）；菱形的描边是节点框
+    borderRadius: {
+      default: '_md',
+      ':has(> [data-diagram-shape="pill"])': '_full',
+      ':has(> [data-diagram-shape="circle"])': '50%',
+    },
     outlineStyle: {
       default: 'none',
       _pressed: 'solid',
@@ -562,8 +569,14 @@ const NodeView = _component(
     part,
     portPart,
     actions,
-  }: NodeViewProps) =>
-    () => {
+  }: NodeViewProps) => {
+    // 里面的 DiagramNode 没写 shape 时用节点数据的
+    DiagramNodeFrameContext.provide({
+      get shape() {
+        return item.shape;
+      },
+    });
+    return () => {
       const state: DiagramItemState = { selected };
       const id = item.id;
       return (
@@ -619,7 +632,8 @@ const NodeView = _component(
             ))}
         </div>
       );
-    },
+    };
+  },
 );
 
 /** 连线视图的属性：折线的数组只在这条线真的变了时才换（不动的线一直是同一个数组） */

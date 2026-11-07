@@ -35,6 +35,13 @@
 - **破坏性**：ColorField 的色块不再是原生取色器，点开弹出 ColorPicker（能选透明度、各系统外观一致）；`propsSwatch` 现在是按钮
   （ButtonBase）的属性，`propsPicker` 现在是 ColorPicker 的属性；新增 `presets`、`alpha`、`propsPopover`。
 - **破坏性**：语言包 `lightboxReset` 改名 `resetView`（图片预览与裁剪共用）；新增 `cropLabel`、`cropHint`、`cropZoom`。
+- 画布（`/diagram`）能画流程图：节点数据加 `shape`（`rect`、`pill`、新增的 `circle` 与 `diamond`），里面的 DiagramNode
+  默认跟着画，连线接到形状的轮廓上（圆、菱形的几条线都接在顶点，`borderPoint`、`straightRoute`、`routeEdges` 认形状）；
+  DiagramNode 加 `active`（正在进行：加粗的边框与色调的光晕），小地图里胶囊、圆画成圆角。新导出 `DiagramNodeShape`、
+  `DiagramShapeRect`；`DiagramNodeShapes` 改从几何模块导出（名字不变）。
+- **破坏性**：`LinkUnderlineContext` 提供的值改成函数（`provide(() => 'hover')`）：LinkUnderlineScope 的 `underline` 变了，
+  里面的链接跟着变。自己提供这个上下文的照着改。
+- `useFormDialog` 的表单加了 `novalidate`：必填没填时只显示字段下的错误，不再弹浏览器自带的气泡。
 
 ## 每次发布
 

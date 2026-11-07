@@ -51,6 +51,27 @@ describe('矩形', () => {
     expect(borderPoint(box, { x: 90, y: 60 })).toEqual({ x: 70, y: 40 });
     expect(borderPoint(box, { x: 50, y: 20 })).toEqual({ x: 50, y: 20 });
   });
+
+  it('borderPoint：圆落在框里的椭圆上，菱形落在四条边中点连成的菱形上', () => {
+    const square = { x: 0, y: 0, width: 40, height: 40 };
+    const circle = borderPoint({ ...square, shape: 'circle' }, { x: 40, y: 40 });
+    expect(circle.x).toBeCloseTo(20 + 20 / Math.SQRT2);
+    expect(circle.y).toBeCloseTo(20 + 20 / Math.SQRT2);
+    // 菱形斜着出去：落在边的中间（10 + 20 = 30）
+    expect(borderPoint({ ...square, shape: 'diamond' }, { x: 40, y: 40 })).toEqual({
+      x: 30,
+      y: 30,
+    });
+    // 正对着顶点时三种形状一样
+    expect(borderPoint({ ...square, shape: 'diamond' }, { x: 100, y: 20 })).toEqual({
+      x: 40,
+      y: 20,
+    });
+    expect(borderPoint({ ...square, shape: 'circle' }, { x: 100, y: 20 })).toEqual({
+      x: 40,
+      y: 20,
+    });
+  });
 });
 
 describe('折线', () => {
