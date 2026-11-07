@@ -136,6 +136,16 @@ for (const theme of themes) {
     ...VARIANTS[variant],
   });
   await context.addInitScript((value) => localStorage.setItem('vue-tsx-pro-theme', value), theme);
+  // 随机数固定种子（mulberry32）：随机出题、随机配色的示例每次截出同样的图
+  await context.addInitScript(() => {
+    let seed = 20261020;
+    Math.random = () => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let value = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      value = (value + Math.imul(value ^ (value >>> 7), 61 | value)) ^ value;
+      return ((value ^ (value >>> 14)) >>> 0) / 4294967296;
+    };
+  });
   // 整页从右到左：解析完、页面脚本运行之前（readyState 变成 interactive）加上，组件挂载时就是从右到左
   if (variant === 'rtl')
     await context.addInitScript(() =>
@@ -160,6 +170,11 @@ for (const theme of themes) {
       await new Promise((resolve) => setTimeout(resolve, 60));
     }
     window.scrollTo(0, 0);
+    // 站点的页头（第一个 AppShell 的 header）是粘性的：整页截图里会按当时的滚动位置盖在示例上。隐藏它（保留占位）；
+    // 示例里的 AppShell 在它后面，不受影响
+    document
+      .querySelector('[data-scope="app-shell"][data-part="header"]')
+      ?.style.setProperty('visibility', 'hidden');
   });
   await page.waitForTimeout(800);
   if (which === 'page') {
