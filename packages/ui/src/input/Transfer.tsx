@@ -28,7 +28,7 @@ import { useFieldControl } from '../form/Field';
 import { checkedByStrategy, indexTree } from '../utils/data/tree';
 import { announce } from '../utils/dom/announcer';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
-import { Checkbox } from './Checkbox';
+import { Checkbox, type CheckboxProps } from './Checkbox';
 import { Listbox, type ListboxBaseProps, type ListboxProps } from './Listbox';
 import type { MultipleSelectionProps } from '../utils/data/selection';
 import { toListboxOption, type ListboxOption, type OptionMapping } from './list-state';
@@ -54,6 +54,8 @@ export interface TransferBaseProps extends PartProps<'div', 'role'> {
   propsSearch?: Partial<TextFieldProps>;
   /** 中间两个按钮的部件属性 */
   propsAction?: Partial<IconButtonProps>;
+  /** 每一边“全选”勾选框的部件属性 */
+  propsCheckAll?: Partial<CheckboxProps>;
 }
 
 /** 选项是 ListboxOption、字符串，或任意数据加 toOption */
@@ -150,6 +152,7 @@ interface PanelOptions {
   disabled: boolean;
   propsPanel?: PartProps<'section'>;
   propsSearch?: Partial<TextFieldProps>;
+  propsCheckAll?: Partial<CheckboxProps>;
   list: VNodeChild;
 }
 
@@ -169,14 +172,19 @@ function renderPanel(lang: ReturnType<typeof useLang>, options: PanelOptions) {
     >
       <div {...css.attrs(transferStyles.header)}>
         <Checkbox
+          {...mergePartProps<CheckboxProps>(
+            { 'aria-label': lang.transferSelectAll(options.title) },
+            options.propsCheckAll,
+            {
+              indeterminate: !all && visibleChecked.length > 0,
+              disabled: options.disabled || options.selectable.length === 0,
+            },
+          )}
           _checked={all}
           onUpdate:_checked={(next: boolean) => {
             const others = options.checked.filter((key) => !options.selectable.includes(key));
             options.onCheckAll(next ? [...others, ...options.selectable] : others);
           }}
-          indeterminate={!all && visibleChecked.length > 0}
-          disabled={options.disabled || options.selectable.length === 0}
-          aria-label={lang.transferSelectAll(options.title)}
         />
         <span id={options.titleId} {...css.attrs(transferStyles.title)}>
           {options.title}
@@ -251,6 +259,7 @@ export const Transfer = _component(
     disabled,
     propsPanel,
     propsSearch,
+    propsCheckAll,
     propsAction,
     propsList,
     ...rest
@@ -345,6 +354,7 @@ export const Transfer = _component(
           disabled: state.disabled,
           propsPanel,
           propsSearch,
+          propsCheckAll,
           list: list(side),
         });
       return (
@@ -383,6 +393,7 @@ export const TreeTransfer = _component(
     disabled,
     propsPanel,
     propsSearch,
+    propsCheckAll,
     propsAction,
     propsTree,
     propsList,
@@ -509,6 +520,7 @@ export const TreeTransfer = _component(
           disabled: state.disabled,
           propsPanel,
           propsSearch,
+          propsCheckAll,
           list: body,
         });
       return (

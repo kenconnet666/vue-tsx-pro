@@ -16,7 +16,7 @@ import { ChevronLeft, ChevronRight, Pause, Play } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, onScopeDispose, watch, type VNodeChild } from 'vue';
-import { ButtonBase } from '../base/ButtonBase';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { t } from '../config/theme/tokens';
@@ -58,6 +58,10 @@ export interface CarouselProps<T> extends PartProps<'section', 'role'> {
   propsNext?: Partial<IconButtonProps>;
   /** 底部控制条（暂停按钮与页点）的部件属性 */
   propsControls?: PartProps<'div'>;
+  /** 自动播放时“暂停 / 播放”按钮的部件属性 */
+  propsPause?: Partial<IconButtonProps>;
+  /** 每个页点的部件属性 */
+  propsDot?: Partial<ButtonBaseProps>;
 }
 
 /** 部件的标记（data-scope="carousel"） */
@@ -143,6 +147,8 @@ export const Carousel = _component(
     propsPrevious,
     propsNext,
     propsControls,
+    propsPause,
+    propsDot,
     'aria-label': label,
     ...rest
   }: CarouselProps<T>) => {
@@ -326,13 +332,18 @@ export const Carousel = _component(
             >
               {interval() > 0 && (
                 <IconButton
-                  icon={paused ? Play : Pause}
-                  aria-label={paused ? lang.carouselPlay : lang.carouselPause}
-                  size="sm"
-                  variant="ghost"
-                  tone="neutral"
-                  radius="full"
-                  onClick={() => (paused = !paused)}
+                  {...mergePartProps<IconButtonProps>(
+                    {
+                      icon: paused ? Play : Pause,
+                      'aria-label': paused ? lang.carouselPlay : lang.carouselPause,
+                      size: 'sm',
+                      variant: 'ghost',
+                      tone: 'neutral',
+                      radius: 'full',
+                    },
+                    propsPause,
+                    { onClick: () => (paused = !paused) },
+                  )}
                 />
               )}
               {dots &&
@@ -340,10 +351,14 @@ export const Carousel = _component(
                 Array.from({ length: pages }, (_, i) => (
                   <ButtonBase
                     key={i}
-                    sx={[carouselStyles.dot, i === index && carouselStyles.dotActive]}
-                    aria-label={lang.slideCounter(i + 1, total)}
-                    aria-current={i === index ? 'true' : undefined}
-                    onClick={() => go(i)}
+                    {...mergePartProps<ButtonBaseProps>(
+                      {
+                        sx: [carouselStyles.dot, i === index && carouselStyles.dotActive],
+                        'aria-label': lang.slideCounter(i + 1, total),
+                      },
+                      propsDot,
+                      { 'aria-current': i === index ? 'true' : undefined, onClick: () => go(i) },
+                    )}
                   />
                 ))}
             </div>

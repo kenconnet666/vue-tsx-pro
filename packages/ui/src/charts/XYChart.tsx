@@ -18,11 +18,11 @@ import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
-import { Button } from '../base/Button';
+import { Button, type ButtonProps } from '../base/Button';
 import { Slider } from '../input/Slider';
 import { svgNumber } from '../utils/data/number';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
-import type { PartProps } from '../utils/props';
+import { mergePartProps, type PartProps } from '../utils/props';
 import { alignedTicks, type AlignedAxes } from './axis-ticks';
 import {
   ChartFrame,
@@ -170,6 +170,8 @@ export interface XYChartProps<T extends object>
   zoom?: boolean;
   /** 缩放的区间 [起, 止]：类目的位置，含两端；父级可以写 _zoomRange={range}，null 是全部 */
   _zoomRange?: [number, number] | null;
+  /** 缩放后“复原”按钮的部件属性 */
+  propsZoomReset?: Partial<ButtonProps>;
 }
 
 /** 交给各种图的绘制上下文：坐标都是 SVG 里的 px */
@@ -339,6 +341,7 @@ export const XYChart = _component(
     onItemClick,
     zoom = false,
     _zoomRange: zoomRange = _bindable<[number, number] | null>(null),
+    propsZoomReset,
     kind,
     ...rest
   }: XYChartProps<T> & { kind: XYChartKind<T> }) => {
@@ -400,7 +403,11 @@ export const XYChart = _component(
             propsRoot={{ sx: xyChartStyles.zoomSlider }}
           />
           {zoomRange && (
-            <Button variant="link" size="sm" onClick={() => (zoomRange = null)}>
+            <Button
+              {...mergePartProps<ButtonProps>({ variant: 'link', size: 'sm' }, propsZoomReset, {
+                onClick: () => (zoomRange = null),
+              })}
+            >
               {lang.chartZoomReset}
             </Button>
           )}

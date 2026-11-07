@@ -36,14 +36,14 @@
 - packages/ui/src/charts/ChordChart.tsx:181 <svg>
 - packages/ui/src/charts/DonutChart.tsx:210 <svg>
 - packages/ui/src/charts/GraphChart.tsx:671 <svg>
-- packages/ui/src/charts/MapChart.tsx:575 <svg>
+- packages/ui/src/charts/MapChart.tsx:578 <svg>
 - packages/ui/src/charts/RadarChart.tsx:156 <svg>
 - packages/ui/src/charts/SankeyChart.tsx:169 <svg>
 - packages/ui/src/charts/TimelineChart.tsx:270 <svg>
 - packages/ui/src/charts/TreemapChart.tsx:198 <svg>
-- packages/ui/src/charts/XYChart.tsx:1004 <svg>
+- packages/ui/src/charts/XYChart.tsx:1011 <svg>
 
-## 没转发部件属性的子组件（90）
+## 没转发部件属性的子组件（84）
 
 - packages/ui/src/table/ColumnHeaderActions.tsx:143 <Button>
 - packages/ui/src/table/ColumnHeaderActions.tsx:104 <Checkbox>
@@ -78,7 +78,6 @@
 - packages/ui/src/navigation/Steps.tsx:225 <Icon>
 - packages/ui/src/navigation/Steps.tsx:227 <Icon>
 - packages/ui/src/navigation/Steps.tsx:229 <Icon>
-- packages/ui/src/navigation/Tabs.tsx:530 <IconButton>
 - packages/ui/src/input/Cascader.tsx:589 <Icon>
 - packages/ui/src/input/Cascader.tsx:592 <Icon>
 - packages/ui/src/input/Cascader.tsx:656 <Icon>
@@ -92,7 +91,6 @@
 - packages/ui/src/input/Rating.tsx:138 <Icon>
 - packages/ui/src/input/Rating.tsx:144 <Icon>
 - packages/ui/src/input/SelectedTags.tsx:100 <Tag>
-- packages/ui/src/input/Transfer.tsx:171 <Checkbox>
 - packages/ui/src/input/Upload.tsx:642 <Icon>
 - packages/ui/src/input/Upload.tsx:677 <Icon>
 - packages/ui/src/input/Upload.tsx:748 <Icon>
@@ -101,8 +99,6 @@
 - packages/ui/src/form/SchemaForm.tsx:128 <Checkbox>
 - packages/ui/src/form/SchemaForm.tsx:125 <Switch>
 - packages/ui/src/display/Avatar.tsx:171 <Icon>
-- packages/ui/src/display/Carousel.tsx:341 <ButtonBase>
-- packages/ui/src/display/Carousel.tsx:328 <IconButton>
 - packages/ui/src/display/Checklist.tsx:235 <Icon>
 - packages/ui/src/display/Image.tsx:216 <Icon>
 - packages/ui/src/display/QRCode.tsx:166 <Icon>
@@ -124,15 +120,13 @@
 - packages/ui/src/charts/frame.tsx:280 <Empty>
 - packages/ui/src/charts/FunnelChart.tsx:154 <Skeleton>
 - packages/ui/src/charts/GraphChart.tsx:711 <Skeleton>
-- packages/ui/src/charts/MapChart.tsx:809 <IconButton>
-- packages/ui/src/charts/MapChart.tsx:831 <Skeleton>
+- packages/ui/src/charts/MapChart.tsx:833 <Skeleton>
 - packages/ui/src/charts/RadarChart.tsx:279 <Skeleton>
 - packages/ui/src/charts/SankeyChart.tsx:290 <Skeleton>
 - packages/ui/src/charts/TimelineChart.tsx:400 <Skeleton>
 - packages/ui/src/charts/TreemapChart.tsx:315 <Skeleton>
-- packages/ui/src/charts/XYChart.tsx:403 <Button>
-- packages/ui/src/charts/XYChart.tsx:287 <Skeleton>
-- packages/ui/src/charts/XYChart.tsx:294 <Skeleton>
+- packages/ui/src/charts/XYChart.tsx:289 <Skeleton>
+- packages/ui/src/charts/XYChart.tsx:296 <Skeleton>
 - packages/ui/src/base/Heading.tsx:140 <Icon>
 - packages/ui/src/base/Tag.tsx:106 <ButtonBase>
 

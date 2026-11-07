@@ -31,7 +31,7 @@ import { Maximize, Minus, Plus } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { shallowRef, type VNodeChild } from 'vue';
-import { IconButton } from '../base/IconButton';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { colors, t } from '../config/theme/tokens';
@@ -40,7 +40,7 @@ import { svgNumber } from '../utils/data/number';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import { useReducedMotion } from '../utils/dom/media-query';
 import { usePanZoom } from '../utils/dom/pan-zoom';
-import type { PartProps } from '../utils/props';
+import { mergePartProps, type PartProps } from '../utils/props';
 import { chartTooltip, ChartFrame, useChartValueText, type ChartFrameParts } from './frame';
 import { createProjection, type MapGeoProjection, type MapProjectionName } from './geo/projection';
 import {
@@ -164,6 +164,8 @@ export interface MapChartProps extends PartProps<'div', 'role' | 'aria-busy'>, C
   onAreaClick?: (area: MapArea) => void;
   /** 点了一个地点 */
   onPointClick?: (point: MapPoint) => void;
+  /** 缩放控件（放大、缩小、适应）按钮的部件属性 */
+  propsControl?: Partial<IconButtonProps>;
 }
 
 /** 部件的标记 */
@@ -284,6 +286,7 @@ export const MapChart = _component(
     tooltip = true,
     onAreaClick,
     onPointClick,
+    propsControl,
     ...rest
   }: MapChartProps) => {
     const lang = useLang();
@@ -808,12 +811,11 @@ export const MapChart = _component(
         ).map(([icon, label, action]) => (
           <IconButton
             key={label}
-            icon={icon}
-            size="sm"
-            variant="ghost"
-            tone="neutral"
-            aria-label={label}
-            onClick={action}
+            {...mergePartProps<IconButtonProps>(
+              { icon, size: 'sm', variant: 'ghost', tone: 'neutral', 'aria-label': label },
+              propsControl,
+              { onClick: action },
+            )}
           />
         ))}
       </span>

@@ -262,6 +262,8 @@ export interface TabListProps extends PartProps<'div', TabListManaged> {
   propsBar?: PartProps<'div'>;
   /** “新建标签页”按钮的部件属性 */
   propsAdd?: Partial<IconButtonProps>;
+  /** 标签放不下时两头的滚动按钮的部件属性 */
+  propsScrollButton?: Partial<IconButtonProps>;
   children?: VNodeChild;
 }
 
@@ -328,6 +330,7 @@ export const TabList = _component(
     propsIndicator,
     propsBar,
     propsAdd,
+    propsScrollButton,
     children,
     ...rest
   }: TabListProps) => {
@@ -528,14 +531,21 @@ export const TabList = _component(
       const scrollButton = (direction: 1 | -1) =>
         overflow.overflowing && (
           <IconButton
-            icon={direction === 1 ? ChevronRight : ChevronLeft}
-            propsIcon={{ flipInRtl: true }}
-            size="sm"
-            variant="ghost"
-            tabindex={-1}
-            aria-label={direction === 1 ? lang.tabScrollNext : lang.tabScrollPrevious}
-            disabled={direction === 1 ? !overflow.end : !overflow.start}
-            onClick={() => scrollBy(direction)}
+            {...mergePartProps<IconButtonProps>(
+              {
+                icon: direction === 1 ? ChevronRight : ChevronLeft,
+                propsIcon: { flipInRtl: true },
+                size: 'sm',
+                variant: 'ghost',
+                'aria-label': direction === 1 ? lang.tabScrollNext : lang.tabScrollPrevious,
+              },
+              propsScrollButton,
+              {
+                tabindex: -1,
+                disabled: direction === 1 ? !overflow.end : !overflow.start,
+                onClick: () => scrollBy(direction),
+              },
+            )}
           />
         );
       return (
