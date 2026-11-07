@@ -197,7 +197,7 @@ export const Checklist = _component(
     ...rest
   }: ChecklistProps) => {
     // 界面里的链接（指标的操作、附件、值）悬停才有下划线
-    LinkUnderlineContext.provide('hover');
+    LinkUnderlineContext.provide(() => 'hover');
     const lang = useLang();
     const id = useId();
 

@@ -224,7 +224,7 @@ export const Stat = _component(
     ...rest
   }: StatProps) => {
     // 界面里的链接（指标的操作、附件、值）悬停才有下划线
-    LinkUnderlineContext.provide('hover');
+    LinkUnderlineContext.provide(() => 'hover');
     const grouped = StatGroupContext.inject(false);
     // 骨架防闪烁；aria-busy 按真实的 loading
     const skeleton = useDelayedLoading(() => loading);
@@ -358,7 +358,7 @@ const statGroupDynamicStyles = css.create({
 /** 一排指标：按宽度换行，同一行里指标之间一条竖线 */
 export const StatGroup = _component(
   ({ minItemWidth = '9rem', children, ...rest }: StatGroupProps) => {
-    LinkUnderlineContext.provide('hover');
+    LinkUnderlineContext.provide(() => 'hover');
     StatGroupContext.provide(true);
     return () => (
       <div

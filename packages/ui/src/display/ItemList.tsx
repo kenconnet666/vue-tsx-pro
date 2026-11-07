@@ -164,7 +164,7 @@ export const ItemList = _component(
   }: ItemListProps) => {
     ItemListContext.provide(() => ({ divided, hoverable, density, inset }));
     // 条目里的链接（标题、附件）悬停才有下划线：一列下来都带下划线太重
-    LinkUnderlineContext.provide('hover');
+    LinkUnderlineContext.provide(() => 'hover');
     return () => <ul {...mergeAttrs<'ul'>({ sx: itemListStyles.list }, rest)}>{children}</ul>;
   },
 );

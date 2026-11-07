@@ -60,7 +60,7 @@ describe('useFormDialog', () => {
     }
   });
 
-  it('渲染到 body：标题、各字段的标签；必填的没填时报错、不提交', async () => {
+  it('渲染到 body：标题、各字段的标签；必填的没填时报错（不弹浏览器的气泡）、不提交', async () => {
     const onSubmit = vi.fn();
     const dialog = await open({
       title: '退回收件箱',
@@ -74,6 +74,7 @@ describe('useFormDialog', () => {
     expect(dialog.textContent).toContain('退回收件箱');
     expect(dialog.querySelector('textarea')).not.toBeNull();
     expect(dialog.querySelectorAll('input')).toHaveLength(1);
+    expect(dialog.querySelector('form')!.noValidate).toBe(true);
     buttonOf(dialog, '退回').click();
     await settle();
     expect(dialog.textContent).toContain('必填');

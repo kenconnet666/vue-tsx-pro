@@ -80,13 +80,13 @@ export const linkRecipe = css.recipe({
 /** 链接的部件（createUi / Provider 的 styles.Link 按它定制） */
 export type LinkPart = (typeof linkRecipe.parts)[number];
 
-/** 所在容器给里面的 Link 的默认下划线（列表、卡片页头这类界面区域给 hover） */
-export const LinkUnderlineContext = createContext<keyof LinkUnderlines>('LinkUnderline');
+/** 所在容器给里面的 Link 的默认下划线（列表、卡片页头这类界面区域给 hover）：读它的函数，容器的属性变了也跟着变 */
+export const LinkUnderlineContext = createContext<() => keyof LinkUnderlines>('LinkUnderline');
 
 /** 里面的 Link 默认用这种下划线（Link 上显式写的仍然优先）：容器只想改一块区域（卡片页头）时包住那一块 */
 export const LinkUnderlineScope = _component(
   ({ underline, children }: { underline: keyof LinkUnderlines; children?: VNodeChild }) => {
-    LinkUnderlineContext.provide(underline);
+    LinkUnderlineContext.provide(() => underline);
     return () => children;
   },
 );
@@ -99,7 +99,7 @@ export const Link = _component(
     const scoped = LinkUnderlineContext.inject(null);
     const ui = useComponent(
       linkRecipe,
-      () => ({ tone, underline: underline ?? scoped ?? undefined }),
+      () => ({ tone, underline: underline ?? scoped?.() ?? undefined }),
       {
         tone: 'accent',
         underline: 'always',

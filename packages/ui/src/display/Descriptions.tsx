@@ -176,7 +176,7 @@ export const Descriptions = _component(
     ...rest
   }: DescriptionsProps) => {
     // 界面里的链接（指标的操作、附件、值）悬停才有下划线
-    LinkUnderlineContext.provide('hover');
+    LinkUnderlineContext.provide(() => 'hover');
     const lang = useLang();
     let list = _state.raw<HTMLElement | null>(null);
     // columns="auto"：按列表的宽度算栏数

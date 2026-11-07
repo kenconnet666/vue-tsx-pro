@@ -181,7 +181,8 @@ const FormDialogBody = _component(
         onConfirm={confirm}
         propsConfirm={{ type: 'submit', form: formId }}
       >
-        <form id={formId} onSubmit={(event: Event) => event.preventDefault()}>
+        {/* 与 Form 一样 novalidate：错误由 Field 显示，不弹浏览器自带的气泡 */}
+        <form id={formId} novalidate onSubmit={(event: Event) => event.preventDefault()}>
           <Flex direction="column" gap="md">
             {options.fields.map((field, index) => (
               <Field
