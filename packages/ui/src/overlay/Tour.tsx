@@ -59,13 +59,13 @@ export interface TourStep {
   placement?: FloatingPlacement;
 }
 
-/** 打开、无障碍关联由组件管理；未声明的属性落到 dialog 上 */
 /** Tour 的档位：createUi / Provider 的 components.Tour.defaults 可以给默认值 */
 export interface TourOptions {
   /** 镂空比目标大出多少（px），默认 6 */
   padding?: number;
 }
 
+/** 打开、无障碍关联由组件管理；未声明的属性落到 dialog 上 */
 export interface TourProps
   extends
     PartProps<'dialog', 'open' | 'aria-labelledby' | 'aria-describedby'>,
