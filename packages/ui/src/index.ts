@@ -572,6 +572,7 @@ export {
   type CheckboxProps,
 } from './input/Checkbox';
 export { ColorField, type ColorFieldManaged, type ColorFieldProps } from './input/ColorField';
+export { ColorPicker, colorPickerStyles, type ColorPickerProps } from './input/ColorPicker';
 export {
   Combobox,
   type ComboboxBaseProps,
@@ -1488,11 +1489,16 @@ export {
 export {
   CONTRAST_AA,
   contrastRatio,
+  formatColor,
+  hsvaToHex,
   mixColors,
   parseColor,
   readableText,
   toHex,
+  toHsva,
   withAlpha,
+  type ColorFormats,
+  type Hsva,
 } from './utils/data/color';
 export {
   calendarOf,

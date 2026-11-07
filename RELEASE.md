@@ -26,6 +26,11 @@
 - 新组件 ImageCropper（裁剪图片）：裁剪框固定在中间（`aspect`，`shape="round"` 圆形），图片在底下拖动、缩放，框里永远是图；
   工具条有缩小、缩放滑块、放大、还原；`handle` 拿到 `toCanvas`、`toBlob`、`toFile`（可以指定输出像素、类型、质量）。
   Upload 加 `transform`：选到的文件加进列表前先过一遍（弹出裁剪、压缩、改名），返回 null 不加。
+- 新组件 ColorPicker（取色器面板）：饱和度 / 明度色板（role="slider"，方向键调）、色相与不透明度滑块（Slider，渐变轨道）、
+  吸管（支持 EyeDropper 的浏览器）、HEX / RGB / HSL 输入、`presets` 与最近使用；`alpha={false}` 去掉不透明度。
+  颜色工具新增 `toHsva`、`hsvaToHex`、`formatColor`。语言包加了 `colorArea` 等八条。
+- **破坏性**：ColorField 的色块不再是原生取色器，点开弹出 ColorPicker（能选透明度、各系统外观一致）；`propsSwatch` 现在是按钮
+  （ButtonBase）的属性，`propsPicker` 现在是 ColorPicker 的属性；新增 `presets`、`alpha`、`propsPopover`。
 - **破坏性**：语言包 `lightboxReset` 改名 `resetView`（图片预览与裁剪共用）；新增 `cropLabel`、`cropHint`、`cropZoom`。
 
 ## 每次发布

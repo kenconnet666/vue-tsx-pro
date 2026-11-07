@@ -12,7 +12,7 @@ import States from './demo/States.tsx?demo';
 
 export const meta = {
   title: 'ColorField 颜色输入',
-  description: '颜色输入：色块点开原生取色器，后面可以直接输入颜色值。',
+  description: '颜色输入：色块点开取色器（ColorPicker），后面可以直接输入颜色值。',
   order: 12,
 };
 
@@ -21,7 +21,10 @@ export default _component(() => () => (
     <Examples>
       <ExampleColumn>
         <Example id="brand" title="品牌配色" demo={Brand}>
-          值是 <Code>#rrggbb</Code>，绑定后随拖动实时写回。外观、Field 关联与 TextField 相同。
+          值是 <Code>#rrggbb</Code>（有透明度时 <Code>#rrggbbaa</Code>
+          ），点色块弹出取色器，拖动时实时写回；<Code>presets</Code>{' '}
+          是取色器里的预设（这里是品牌色板），<Code>alpha={'{false}'}</Code>{' '}
+          去掉不透明度。外观、Field 关联与 TextField 相同。
         </Example>
         <Example id="formats" title="格式与透明度" demo={Formats}>
           能输入任何 CSS 颜色，失焦或回车时规范成 #hex；写不成颜色时标为无效、值不变，失焦后恢复。
@@ -38,7 +41,7 @@ export default _component(() => () => (
     <KeyboardReference
       keys={[
         ['Enter', '在文字输入框里：按当前文字解析颜色并写回；解析不了时恢复原值'],
-        ['Enter / Space', '在色块上：打开系统的取色器'],
+        ['Enter / Space', '在色块上：打开取色器（键盘操作见 ColorPicker）；Esc 关上，焦点回到色块'],
         ['Tab', '色块与文字输入框各占一个 Tab 位置'],
       ]}
     />

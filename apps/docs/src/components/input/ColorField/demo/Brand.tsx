@@ -12,6 +12,18 @@ import {
   ColorField,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
+// 品牌色板：取色器里的预设
+const palette = [
+  '#6e56cf',
+  '#3e63dd',
+  '#12a594',
+  '#e5484d',
+  '#f76b15',
+  '#ffc53d',
+  '#2f265f',
+  '#f4f0fe',
+];
+
 const styles = css.create({
   preview: {
     display: 'flex',
@@ -47,13 +59,13 @@ export default _component(() => {
     <Flex direction="column" gap="lg">
       <Grid minItemWidth="10rem" gap="md">
         <Field label="品牌色">
-          <ColorField _value={brand} />
+          <ColorField _value={brand} presets={palette} />
         </Field>
         <Field label="卡片底色">
-          <ColorField _value={background} />
+          <ColorField _value={background} presets={palette} />
         </Field>
         <Field label="文字色">
-          <ColorField _value={text} />
+          <ColorField _value={text} presets={palette} />
         </Field>
       </Grid>
       <Card padding="none">

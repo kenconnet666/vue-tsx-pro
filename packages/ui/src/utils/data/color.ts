@@ -10,7 +10,10 @@ import {
   converter,
   formatHex,
   formatHex8,
+  formatHsl,
   formatRgb,
+  modeHsl,
+  modeHsv,
   modeLrgb,
   modeRgb,
   parse,
@@ -19,10 +22,13 @@ import {
   type Rgb,
 } from 'culori/fn';
 
-// culori/fn 按需注册颜色空间：sRGB（解析 #hex、rgb()、颜色名）与线性 RGB（算相对亮度）
+// culori/fn 按需注册颜色空间：sRGB（解析 #hex、rgb()、颜色名）、线性 RGB（算相对亮度）、HSV 与 HSL（取色器、hsl() 的写法）
 useMode(modeRgb);
 useMode(modeLrgb);
+useMode(modeHsv);
+useMode(modeHsl);
 const toRgb = converter('rgb');
+const toHsvColor = converter('hsv');
 
 /** WCAG 2.2 AA 的对比度要求 */
 export const CONTRAST_AA = {
@@ -109,4 +115,49 @@ export function withAlpha(value: string, alpha: number): string {
   const color = parseColor(value);
   if (!color) throw new Error(`无法解析的颜色：${value}`);
   return formatRgb({ ...color, alpha });
+}
+
+/** 取色器用的颜色：色相 0–360、饱和度与明度 0–1、不透明度 0–1 */
+export interface Hsva {
+  /** 色相（度） */
+  h: number;
+  /** 饱和度 */
+  s: number;
+  /** 明度 */
+  v: number;
+  /** 不透明度 */
+  a: number;
+}
+
+/** 解析成 HSV（灰色没有色相，按 0）；解析不了时返回 undefined */
+export function toHsva(value: string): Hsva | undefined {
+  const color = parseColor(value);
+  if (!color) return undefined;
+  const hsv = toHsvColor(color);
+  return { h: hsv.h ?? 0, s: hsv.s, v: hsv.v, a: color.alpha ?? 1 };
+}
+
+/** HSV 写成 #rrggbb，不透明度小于 1 时 #rrggbbaa */
+export function hsvaToHex({ h, s, v, a }: Hsva): string {
+  const color = toRgb({ mode: 'hsv', h, s, v, alpha: a });
+  return a < 1 ? formatHex8(color) : formatHex(color);
+}
+
+/** 颜色的几种写法 */
+export interface ColorFormats {
+  /** #rrggbb / #rrggbbaa */
+  hex: unknown;
+  /** rgb() / rgba() */
+  rgb: unknown;
+  /** hsl() / hsla() */
+  hsl: unknown;
+}
+
+/** 按格式写出颜色；解析不了时原样返回 */
+export function formatColor(value: string, format: keyof ColorFormats): string {
+  const color = parseColor(value);
+  if (!color) return value;
+  if (format === 'rgb') return formatRgb(color);
+  if (format === 'hsl') return formatHsl(color) ?? value;
+  return (color.alpha ?? 1) < 1 ? formatHex8(color) : formatHex(color);
 }

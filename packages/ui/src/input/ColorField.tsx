@@ -1,22 +1,27 @@
 /**
- * 颜色输入：前面是色块（点开浏览器原生的取色器），后面可以直接输入颜色值。主题编辑器、品牌色设置这类地方用。
+ * 颜色输入：前面是色块（点开取色器 ColorPicker），后面可以直接输入颜色值。主题编辑器、品牌色设置这类地方用。
  *
  *   <ColorField _value={brand} aria-label="品牌色" />
+ *   <ColorField _value={brand} presets={brandColors} />          取色器里带预设
  *
  * - 值是 #rrggbb（有透明度时 #rrggbbaa）：输入 rgb()、颜色名也行，失焦或回车时规范成 #hex 写回；
  *   写不成颜色时外壳标为无效（aria-invalid），值不变，失焦后恢复成原来的值。
- * - 原生取色器不带透明度：用它选色时透明度去掉。
+ * - 色块是按钮：点开的弹出层里是 ColorPicker（色板、色相、不透明度、吸管、预设与最近使用），改动马上写回；
+ *   Esc 或点外面关上，焦点回到色块。外观在各个系统、浏览器里一样，也能选透明度（原生取色器做不到）。
  * - 接入 Field（标签、说明、错误、必填、不可用），外观同 TextField（control.tsx）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch } from 'vue';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { useLang } from '../config/context';
 import { useFieldControl } from '../form/Field';
+import { Popover, type PopoverProps, type PopoverTriggerProps } from '../overlay/Popover';
 import { parseColor, toHex } from '../utils/data/color';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { swatchStyles } from '../utils/style/swatch-styles';
 import { focusRingStyles } from '../utils/style/styles';
+import { ColorPicker, type ColorPickerProps } from './ColorPicker';
 import { controlParts, focusOnShell, useControlAppearance, type ControlOptions } from './control';
 
 /** 值、状态与无障碍关联由组件管理 */
@@ -42,15 +47,21 @@ export interface ColorFieldProps extends PartProps<'input', ColorFieldManaged>, 
   required?: boolean;
   /** 校验未通过 */
   invalid?: boolean;
+  /** 取色器里的预设颜色 */
+  presets?: readonly string[];
+  /** 取色器里有不透明度滑块，默认 true */
+  alpha?: boolean;
   /** 外壳（边框、焦点环）的部件属性 */
   propsRoot?: PartProps<'div'>;
-  /** 色块（包着原生取色器的 label）的部件属性 */
-  propsSwatch?: PartProps<'label'>;
-  /** 原生取色器（透明地盖在色块上）的部件属性；类型、取值、可用性与无障碍名称由组件管理 */
-  propsPicker?: PartProps<'input', 'type' | 'value' | 'disabled' | 'aria-label' | 'onInput'>;
+  /** 色块（打开取色器的按钮）的部件属性 */
+  propsSwatch?: Partial<ButtonBaseProps>;
+  /** 取色器（ColorPicker）的部件属性 */
+  propsPicker?: Partial<ColorPickerProps>;
+  /** 弹出层（Popover）的部件属性 */
+  propsPopover?: Partial<PopoverProps>;
 }
 
-/** ColorField 的样式：swatch、fill、picker、input */
+/** ColorField 的样式：swatch、fill、input */
 const colorFieldStyles = css.create({
   // 色块：棋盘格垫底（swatchStyles），颜色铺在上面一层
   swatch: {
@@ -60,23 +71,8 @@ const colorFieldStyles = css.create({
     height: '1.25em',
     borderRadius: '_sm',
     overflow: 'hidden',
-    // 取色器可用时才是手形；不可用、只读时随外壳（not-allowed / 文字光标）
-    cursor: { default: 'inherit', ':has(> input:enabled)': 'pointer' },
   },
   fill: { position: 'absolute', inset: 0 },
-  // 原生取色器盖满色块、完全透明：点色块就是点它，键盘也能聚焦它
-  picker: {
-    position: 'absolute',
-    inset: 0,
-    width: '_full',
-    height: '_full',
-    margin: 0,
-    padding: 0,
-    borderWidth: 0,
-    opacity: 0,
-    font: 'inherit',
-    cursor: 'inherit',
-  },
   // 等宽字体：#hex 各位对齐，改一位时不跳动
   input: { fontFamily: '_mono', fontVariantLigatures: 'none' },
 });
@@ -98,16 +94,20 @@ export const ColorField = _component(
     readonly,
     required,
     invalid,
+    presets,
+    alpha,
     id,
     propsRoot,
     propsSwatch,
     propsPicker,
+    propsPopover,
     ...rest
   }: ColorFieldProps) => {
     const lang = useLang();
     const appearance = useControlAppearance(() => ({ variant, size, radius }));
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let input = _state.raw<HTMLInputElement | null>(null);
+    let open = _state(false);
     // 正在输入的文字：写成颜色之前不写回 value
     let draft = _state(_untrack(value));
     watch(
@@ -122,46 +122,53 @@ export const ColorField = _component(
       draft = value;
     }
 
+    /** 色块：打开取色器的按钮 */
+    const swatch = (props: PopoverTriggerProps) => {
+      const state = control();
+      return (
+        <ButtonBase
+          {...mergePartProps<ButtonBaseProps>(
+            { sx: [swatchStyles.checkerboard, colorFieldStyles.swatch, focusRingStyles.visible] },
+            propsSwatch,
+            { ...props, disabled: state.disabled || state.readonly, 'aria-label': lang.colorPick },
+          )}
+        >
+          <span
+            {...css.attrs(
+              colorFieldStyles.fill,
+              swatchStyles.ring,
+              colorFieldDynamicStyles.fill(value),
+            )}
+          />
+        </ButtonBase>
+      );
+    };
+
     return () => {
       const state = control();
-      const editable = !state.disabled && !state.readonly;
       const showInvalid = state.invalid || !parsed();
       const s = controlParts(appearance(), { ...state, invalid: showInvalid });
-      // 原生取色器只认 #rrggbb
-      const opaque = toHex(value)?.slice(0, 7) ?? '#000000';
       return (
         <div
           {...mergeAttrs<'div'>(s.root, propsRoot, { onPointerdown: focusOnShell(() => input) })}
           data-invalid={showInvalid || undefined}
           data-disabled={state.disabled || undefined}
         >
-          <label
-            {...mergeAttrs<'label'>(
-              { sx: [swatchStyles.checkerboard, colorFieldStyles.swatch] },
-              propsSwatch,
+          <Popover
+            {...mergePartProps<PopoverProps>(
+              { placement: 'bottom-start', trigger: swatch },
+              propsPopover,
+              {
+                trigger: swatch,
+              },
             )}
+            _open={open}
           >
-            <span
-              {...css.attrs(
-                colorFieldStyles.fill,
-                swatchStyles.ring,
-                colorFieldDynamicStyles.fill(value),
-              )}
+            <ColorPicker
+              {...mergePartProps<ColorPickerProps>({ presets, alpha }, propsPicker)}
+              _value={value}
             />
-            <input
-              {...mergeAttrs<'input'>(
-                { sx: [colorFieldStyles.picker, focusRingStyles.visible] },
-                propsPicker,
-                {
-                  type: 'color',
-                  value: opaque,
-                  disabled: !editable,
-                  'aria-label': lang.colorPick,
-                  onInput: (event: Event) => (value = (event.target as HTMLInputElement).value),
-                },
-              )}
-            />
-          </label>
+          </Popover>
           <input
             {...mergeAttrs<'input'>(
               { ...s.input, sx: [s.input.sx, colorFieldStyles.input] },

@@ -395,6 +395,22 @@ export interface Lang {
   readonly jsonCopyPath: string;
   /** JsonViewer：没有选中项时路径栏的提示，默认“选中一项后可以复制它的值与路径” */
   readonly jsonPathHint: string;
+  /** ColorPicker：饱和度与明度的色板（读屏），默认“饱和度与明度” */
+  readonly colorArea: string;
+  /** ColorPicker：色板当前的位置：`(80, 45)` → “饱和度 80%，明度 45%” */
+  readonly colorAreaValue: (saturation: number, brightness: number) => string;
+  /** ColorPicker：色相滑块，默认“色相” */
+  readonly colorHue: string;
+  /** ColorPicker：不透明度滑块，默认“不透明度” */
+  readonly colorAlpha: string;
+  /** ColorPicker：从屏幕上取色（吸管），默认“从屏幕取色” */
+  readonly colorEyeDropper: string;
+  /** ColorPicker：颜色值的写法，默认“格式” */
+  readonly colorFormat: string;
+  /** ColorPicker：预设的颜色，默认“预设颜色” */
+  readonly colorPresets: string;
+  /** ColorPicker：最近用过的颜色，默认“最近使用” */
+  readonly colorRecent: string;
   /** Carousel：区域的默认名称，默认“轮播” */
   readonly carousel: string;
   /** Carousel：上一张，默认“上一张” */
