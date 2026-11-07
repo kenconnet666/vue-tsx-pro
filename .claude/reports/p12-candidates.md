@@ -43,35 +43,30 @@
 - packages/ui/src/charts/TreemapChart.tsx:198 <svg>
 - packages/ui/src/charts/XYChart.tsx:1004 <svg>
 
-## 没转发部件属性的子组件（108）
+## 没转发部件属性的子组件（99）
 
 - packages/ui/src/table/ColumnHeaderActions.tsx:143 <Button>
 - packages/ui/src/table/ColumnHeaderActions.tsx:104 <Checkbox>
 - packages/ui/src/table/ColumnSettings.tsx:129 <Checkbox>
 - packages/ui/src/table/DataTable.tsx:396 <ButtonBase>
 - packages/ui/src/table/DataTable.tsx:402 <Icon>
-- packages/ui/src/patterns/CommentThread.tsx:562 <Button>
-- packages/ui/src/patterns/CommentThread.tsx:536 <Icon>
-- packages/ui/src/patterns/CommentThread.tsx:538 <Link>
+- packages/ui/src/patterns/CommentThread.tsx:542 <Icon>
 - packages/ui/src/patterns/DataImport.tsx:393 <Badge>
 - packages/ui/src/patterns/DataImport.tsx:305 <Icon>
 - packages/ui/src/patterns/DataImport.tsx:310 <Icon>
-- packages/ui/src/patterns/FilterBar.tsx:336 <Badge>
-- packages/ui/src/patterns/FilterBar.tsx:357 <Badge>
-- packages/ui/src/patterns/FilterBar.tsx:425 <Button>
+- packages/ui/src/patterns/FilterBar.tsx:339 <Badge>
+- packages/ui/src/patterns/FilterBar.tsx:360 <Badge>
 - packages/ui/src/patterns/KanbanBoard.tsx:406 <Icon>
 - packages/ui/src/patterns/NotificationCenter.tsx:300 <Empty>
 - packages/ui/src/patterns/NotificationCenter.tsx:366 <RelativeTime>
 - packages/ui/src/patterns/QueryTable.tsx:345 <Button>
-- packages/ui/src/patterns/SlideCaptcha.tsx:400 <IconButton>
-- packages/ui/src/patterns/SlideCaptcha.tsx:473 <Icon>
-- packages/ui/src/patterns/SlideCaptcha.tsx:396 <Spinner>
+- packages/ui/src/patterns/SlideCaptcha.tsx:480 <Icon>
+- packages/ui/src/patterns/SlideCaptcha.tsx:399 <Spinner>
 - packages/ui/src/overlay/CommandPalette.tsx:235 <Icon>
 - packages/ui/src/overlay/CommandPalette.tsx:271 <Icon>
 - packages/ui/src/overlay/CommandPalette.tsx:238 <Kbd>
-- packages/ui/src/navigation/Breadcrumbs.tsx:237 <Button>
-- packages/ui/src/navigation/Breadcrumbs.tsx:123 <Icon>
-- packages/ui/src/navigation/Breadcrumbs.tsx:203 <Icon>
+- packages/ui/src/navigation/Breadcrumbs.tsx:126 <Icon>
+- packages/ui/src/navigation/Breadcrumbs.tsx:206 <Icon>
 - packages/ui/src/navigation/NavBar.tsx:115 <Badge>
 - packages/ui/src/navigation/NavBar.tsx:142 <Icon>
 - packages/ui/src/navigation/NavBar.tsx:154 <Icon>
@@ -91,10 +86,6 @@
 - packages/ui/src/input/Cascader.tsx:537 <Spinner>
 - packages/ui/src/input/Cascader.tsx:587 <Spinner>
 - packages/ui/src/input/Checkbox.tsx:360 <Checkbox>
-- packages/ui/src/input/ConditionBuilder.tsx:566 <Button>
-- packages/ui/src/input/ConditionBuilder.tsx:576 <Button>
-- packages/ui/src/input/ConditionBuilder.tsx:477 <IconButton>
-- packages/ui/src/input/ConditionBuilder.tsx:522 <IconButton>
 - packages/ui/src/input/ImageCropper.tsx:337 <IconButton>
 - packages/ui/src/input/ImageCropper.tsx:357 <IconButton>
 - packages/ui/src/input/ImageCropper.tsx:366 <IconButton>

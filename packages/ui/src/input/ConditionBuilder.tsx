@@ -22,14 +22,14 @@ import { Plus, Trash2, X } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, watch, type VNodeChild } from 'vue';
-import { Button } from '../base/Button';
-import { IconButton } from '../base/IconButton';
+import { Button, type ButtonProps } from '../base/Button';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Small } from '../base/Text';
 import { useLang } from '../config/context';
 import { t } from '../config/theme/tokens';
 import { DatePicker } from '../date/DatePicker';
 import { DateRangePicker } from '../date/DateRangePicker';
-import { dataAttrs, mergeAttrs, type PartProps } from '../utils/props';
+import { dataAttrs, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { TextSize } from '../utils/style/typography';
 import {
   isRuleComplete,
@@ -80,6 +80,14 @@ export interface ConditionBuilderProps extends PartProps<'div', 'role'> {
   propsGroup?: PartProps<'div'>;
   /** 每条比较的部件属性 */
   propsRule?: PartProps<'div'>;
+  /** “加一条”按钮的部件属性 */
+  propsAddRule?: Partial<ButtonProps>;
+  /** “加一组”按钮的部件属性 */
+  propsAddGroup?: Partial<ButtonProps>;
+  /** 每条比较“删除”按钮的部件属性 */
+  propsRemoveRule?: Partial<IconButtonProps>;
+  /** 嵌套组“删除整组”按钮的部件属性 */
+  propsRemoveGroup?: Partial<IconButtonProps>;
 }
 
 interface RuleNode {
@@ -251,6 +259,10 @@ export const ConditionBuilder = _component(
     disabled = false,
     propsGroup,
     propsRule,
+    propsAddRule,
+    propsAddGroup,
+    propsRemoveRule,
+    propsRemoveGroup,
     ...rest
   }: ConditionBuilderProps) => {
     const lang = useLang();
@@ -475,12 +487,11 @@ export const ConditionBuilder = _component(
             </div>
           )}
           <IconButton
-            icon={X}
-            variant="ghost"
-            size={size}
-            disabled={disabled}
-            aria-label={lang.conditionRemoveRule}
-            onClick={() => remove(parent, node)}
+            {...mergePartProps<IconButtonProps>(
+              { icon: X, variant: 'ghost', size, 'aria-label': lang.conditionRemoveRule },
+              propsRemoveRule,
+              { disabled, onClick: () => remove(parent, node) },
+            )}
           />
         </div>
       );
@@ -520,13 +531,17 @@ export const ConditionBuilder = _component(
               />
               {nested && parent && (
                 <IconButton
-                  icon={Trash2}
-                  variant="ghost"
-                  size={size}
-                  disabled={disabled}
-                  aria-label={lang.conditionRemoveGroup}
-                  onClick={() => remove(parent, node)}
-                  sx={conditionBuilderStyles.removeGroup}
+                  {...mergePartProps<IconButtonProps>(
+                    {
+                      icon: Trash2,
+                      variant: 'ghost',
+                      size,
+                      'aria-label': lang.conditionRemoveGroup,
+                      sx: conditionBuilderStyles.removeGroup,
+                    },
+                    propsRemoveGroup,
+                    { disabled, onClick: () => remove(parent, node) },
+                  )}
                 />
               )}
             </div>
@@ -564,21 +579,27 @@ export const ConditionBuilder = _component(
             data-condition-part="actions"
           >
             <Button
-              variant="ghost"
-              size={size}
-              icon={Plus}
-              disabled={disabled}
-              onClick={() => addRule(node)}
+              {...mergePartProps<ButtonProps>(
+                { variant: 'ghost', size, icon: Plus },
+                propsAddRule,
+                {
+                  disabled,
+                  onClick: () => addRule(node),
+                },
+              )}
             >
               {lang.conditionAddRule}
             </Button>
             {depth + 1 < maxDepth && (
               <Button
-                variant="ghost"
-                size={size}
-                icon={Plus}
-                disabled={disabled}
-                onClick={() => addGroup(node)}
+                {...mergePartProps<ButtonProps>(
+                  { variant: 'ghost', size, icon: Plus },
+                  propsAddGroup,
+                  {
+                    disabled,
+                    onClick: () => addGroup(node),
+                  },
+                )}
               >
                 {lang.conditionAddGroup}
               </Button>

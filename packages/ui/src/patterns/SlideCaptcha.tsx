@@ -21,12 +21,12 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch } from 'vue';
 import { Icon } from '../base/Icon';
-import { IconButton } from '../base/IconButton';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Spinner } from '../base/Spinner';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useMessages } from '../config/lang/messages';
 import { focusRingStyles } from '../utils/style/styles';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { patternsMessages } from './messages';
 
 /** 服务端给的一张拼图 */
@@ -72,6 +72,8 @@ export interface SlideCaptchaProps extends PartProps<'div'> {
   onRelease?: (result: SlideResult) => void;
   /** 点了“换一张” */
   onRefresh?: () => void;
+  /** “换一张”按钮的部件属性 */
+  propsRefresh?: Partial<IconButtonProps>;
 }
 
 /** 键盘每次移动的距离（px） */
@@ -216,6 +218,7 @@ export const SlideCaptcha = _component(
     errorText,
     onRelease,
     onRefresh,
+    propsRefresh,
     ...rest
   }: SlideCaptchaProps) => {
     const messages = useMessages('patterns', patternsMessages);
@@ -398,15 +401,19 @@ export const SlideCaptcha = _component(
               </div>
             )}
             <IconButton
-              // 贴着图的角，图为圆角裁掉了溢出：焦点环画在里面
-              sx={[slideCaptchaStyles.refresh, focusRingStyles.inset]}
-              icon={RefreshCw}
-              size="sm"
-              variant="ghost"
-              tone="neutral"
-              aria-label={messages.slideRefresh}
-              disabled={status === 'verifying'}
-              onClick={() => onRefresh?.()}
+              {...mergePartProps<IconButtonProps>(
+                {
+                  // 贴着图的角，图为圆角裁掉了溢出：焦点环画在里面
+                  sx: [slideCaptchaStyles.refresh, focusRingStyles.inset],
+                  icon: RefreshCw,
+                  size: 'sm',
+                  variant: 'ghost',
+                  tone: 'neutral',
+                  'aria-label': messages.slideRefresh,
+                },
+                propsRefresh,
+                { disabled: status === 'verifying', onClick: () => onRefresh?.() },
+              )}
             />
             {(status === 'success' || status === 'error') && (
               <div

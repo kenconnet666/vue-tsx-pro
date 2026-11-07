@@ -102,6 +102,8 @@ export interface FilterBarProps
   propsAdvancedToggle?: Partial<ButtonProps>;
   /** 高级筛选那一行（条件构造器）的部件属性 */
   propsAdvanced?: Partial<ConditionBuilderProps>;
+  /** 收起高级筛选后“清除”条件的按钮的部件属性 */
+  propsClearAdvanced?: Partial<ButtonProps>;
   /** 常用的条件：Field */
   children?: VNodeChild;
 }
@@ -205,6 +207,7 @@ export const FilterBar = _component(
     _condition: condition = _bindable<Condition | null>(null),
     propsAdvancedToggle,
     propsAdvanced,
+    propsClearAdvanced,
     children,
     ...rest
   }: FilterBarProps) => {
@@ -422,7 +425,16 @@ export const FilterBar = _component(
                 <Small tone="muted">
                   {messages.filterAdvanced}：{describeCondition(condition, conditionFields, lang)}
                 </Small>
-                <Button variant="link" size="sm" type="button" onClick={() => (condition = null)}>
+                <Button
+                  {...mergePartProps<ButtonProps>(
+                    { variant: 'link', size: 'sm' },
+                    propsClearAdvanced,
+                    {
+                      type: 'button',
+                      onClick: () => (condition = null),
+                    },
+                  )}
+                >
                   {lang.clear}
                 </Button>
               </div>

@@ -16,7 +16,7 @@ import { ChevronRight, Ellipsis } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
-import { Button } from '../base/Button';
+import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Icon, type IconData } from '../base/Icon';
 import { Link, type LinkProps } from '../base/Link';
@@ -64,6 +64,8 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
   propsExpand?: Partial<IconButtonProps>;
   /** 被折叠各级的菜单的部件属性 */
   propsMenu?: Partial<MenuProps>;
+  /** 写了 onNavigate 时，没有 href 的各级是按钮：按钮的部件属性 */
+  propsButton?: Partial<ButtonProps>;
   /** 应用内的层级导航：给了时没有 href 的各级是按钮，点了调用它（index 是在 items 里的位置） */
   onNavigate?: (item: BreadcrumbItem, index: number) => void;
 }
@@ -97,6 +99,7 @@ export const Breadcrumbs = _component(
     propsSeparator,
     propsExpand,
     propsMenu,
+    propsButton,
     onNavigate,
     ...rest
   }: BreadcrumbsProps) => {
@@ -234,7 +237,11 @@ export const Breadcrumbs = _component(
                       {label}
                     </Link>
                   ) : onNavigate ? (
-                    <Button variant="link" onClick={() => onNavigate(entry, index)}>
+                    <Button
+                      {...mergePartProps<ButtonProps>({ variant: 'link' }, propsButton, {
+                        onClick: () => onNavigate(entry, index),
+                      })}
+                    >
                       {label}
                     </Button>
                   ) : (

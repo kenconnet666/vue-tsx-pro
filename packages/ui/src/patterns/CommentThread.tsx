@@ -24,7 +24,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
-import { Link } from '../base/Link';
+import { Link, type LinkProps } from '../base/Link';
 import { Button, type ButtonProps } from '../base/Button';
 import { useFormat } from '../config/lang/format';
 import { useMessages } from '../config/lang/messages';
@@ -415,6 +415,10 @@ export interface CommentThreadProps extends PartProps<'div'> {
   propsItem?: PartProps<'li'> | ((comment: CommentItem) => PartProps<'li'>);
   /** 头像的部件属性 */
   propsAvatar?: Partial<AvatarProps>;
+  /** 附件链接的部件属性 */
+  propsAttachment?: Partial<LinkProps>;
+  /** “回复”按钮的部件属性 */
+  propsReply?: Partial<ButtonProps>;
   /** 头像右边的内容（article）的部件属性 */
   propsBody?: PartProps<'article'>;
   /** 作者、身份、时间那一行的部件属性 */
@@ -449,6 +453,8 @@ export const CommentThread = _component(
     propsList,
     propsItem,
     propsAvatar,
+    propsAttachment,
+    propsReply,
     propsBody,
     propsHeader,
     propsAuthor,
@@ -535,7 +541,12 @@ export const CommentThread = _component(
                   >
                     <Icon icon={Paperclip} />
                     {file.url ? (
-                      <Link href={file.url} underline="hover">
+                      <Link
+                        {...mergePartProps<LinkProps>(
+                          { href: file.url, underline: 'hover' },
+                          propsAttachment,
+                        )}
+                      >
                         {file.name}
                       </Link>
                     ) : (
@@ -560,10 +571,11 @@ export const CommentThread = _component(
               >
                 {onSend && (
                   <Button
-                    variant="link"
-                    tone="neutral"
-                    size="sm"
-                    onClick={() => (replying = { thread: thread.id, to: comment.author })}
+                    {...mergePartProps<ButtonProps>(
+                      { variant: 'link', tone: 'neutral', size: 'sm' },
+                      propsReply,
+                      { onClick: () => (replying = { thread: thread.id, to: comment.author }) },
+                    )}
                   >
                     {messages.commentReply}
                   </Button>
