@@ -18,6 +18,7 @@
 import type { PartStyles, Recipe, RecipeExtension } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { AlertOptions, AlertPart } from '../feedback/Alert';
 import type { AvatarOptions, AvatarPart } from '../display/Avatar';
+import type { AppShellOptions, AppShellPart } from '../patterns/AppShell';
 import type { BadgeOptions, BadgePart } from '../base/badge-styles';
 import type { ButtonOptions, ButtonPart } from '../base/button-core';
 import type { CalendarOptions, CalendarPart } from '../date/CalendarView';
@@ -117,6 +118,8 @@ export interface UiComponents {
   NavList: ComponentConfig<NavListPart, NavListOptions>;
   /** Toaster 与其中的每条通知（ToastItem） */
   Toaster: ComponentConfig<ToasterPart, ToasterOptions>;
+  /** AppShell（patterns） */
+  AppShell: ComponentConfig<AppShellPart, AppShellOptions>;
   /** Dialog、AlertDialog 共用：dialog 元素与标题行、标题、关闭按钮、说明、正文、页脚 */
   Dialog: ComponentConfig<DialogPart, DialogOptions>;
   /** Drawer：同 Dialog 的部件 */

@@ -4,7 +4,7 @@ import { Plane } from '@lucide/icons';
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { hasStyles, mount } from '../../utils/.test/mount';
-import { AppShell, AppShellBrand, appShellStyles } from '../AppShell';
+import { AppShell, AppShellBrand, appShellStateStyles } from '../AppShell';
 
 describe('AppShell', () => {
   it('brand 在顶栏的内容之前；有侧栏时品牌格与侧栏同宽对齐', () => {
@@ -17,15 +17,15 @@ describe('AppShell', () => {
     const texts = [...header.children].map((child) => child.textContent).filter(Boolean);
     expect(texts).toEqual(['采购管理平台', '页签']);
     const brand = [...header.children].find((child) => child.textContent === '采购管理平台')!;
-    expect(hasStyles(brand, appShellStyles.brandRail)).toBe(true);
-    expect(hasStyles(header, appShellStyles.headerWithBrand)).toBe(true);
+    expect(hasStyles(brand, appShellStateStyles.brandRail)).toBe(true);
+    expect(hasStyles(header, appShellStateStyles.headerWithBrand)).toBe(true);
   });
 
   it('没有侧栏：品牌格照常排在行内', () => {
     const root = mount(() => <AppShell brand={<span>品牌</span>}>正文</AppShell>);
     const header = root.querySelector('header')!;
     const brand = [...header.children].find((child) => child.textContent === '品牌')!;
-    expect(hasStyles(brand, appShellStyles.brandRail)).toBe(false);
+    expect(hasStyles(brand, appShellStateStyles.brandRail)).toBe(false);
   });
 
   it('顶栏结束边有全屏按钮：进入后隐藏顶栏和左侧栏，写回 _fullscreen；退出按钮、Esc 都能退出', async () => {
@@ -45,18 +45,18 @@ describe('AppShell', () => {
     const sidebar = root.querySelector('.sidebar')!;
     const enter = header.querySelector<HTMLButtonElement>('button[aria-label="全屏"]')!;
     expect(enter.parentElement!.lastElementChild).toBe(enter);
-    expect(hasStyles(header, appShellStyles.hidden)).toBe(false);
+    expect(hasStyles(header, appShellStateStyles.hidden)).toBe(false);
 
     enter.click();
     await nextTick();
     expect(fullscreen).toBe(true);
-    expect(hasStyles(header, appShellStyles.hidden)).toBe(true);
-    expect(hasStyles(sidebar, appShellStyles.hidden)).toBe(true);
+    expect(hasStyles(header, appShellStateStyles.hidden)).toBe(true);
+    expect(hasStyles(sidebar, appShellStateStyles.hidden)).toBe(true);
     const exit = root.querySelector<HTMLButtonElement>('button[aria-label="退出全屏"]')!;
     exit.click();
     await nextTick();
     expect(fullscreen).toBe(false);
-    expect(hasStyles(header, appShellStyles.hidden)).toBe(false);
+    expect(hasStyles(header, appShellStateStyles.hidden)).toBe(false);
     expect(root.querySelector('button[aria-label="退出全屏"]')).toBeNull();
 
     enter.click();

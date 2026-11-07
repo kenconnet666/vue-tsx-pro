@@ -54,7 +54,8 @@ import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils
 import { breakpoints } from '../config/theme/tokens';
 import { focusRingStyles } from '../utils/style/styles';
 import { layoutVars } from '../utils/style/vars';
-import { partAttrs } from '../config/styles';
+import { useComponent } from '../config/components';
+import { partAttrs, type PartLayer } from '../config/styles';
 
 /** 顶栏高度：也是两侧栏粘住的位置、标题跳转时让开的距离 */
 const HEADER_HEIGHT = '3rem';
@@ -80,8 +81,23 @@ function freshCopy(node: VNodeChild): VNodeChild {
   return copy;
 }
 
+/** AppShell 的档位（createUi / Provider 的 components.AppShell.defaults：全站的外壳开关） */
+export interface AppShellOptions {
+  /** 侧栏底部有“收起侧栏”按钮：收起后只剩图标栏（导航变紧凑，分组的子项悬停弹出） */
+  sidebarCollapsible?: boolean;
+  /**
+   * 顶栏结束边的全屏按钮：进入后不显示顶栏和左侧栏，右上角留一个退出按钮
+   * @default true
+   */
+  fullscreenable?: boolean;
+  /** 页面最前面的“跳到正文”链接，默认 true */
+  skipLink?: boolean;
+  /** 整页用浮层滚动条（PageScrollbar：不占宽度，滚动时出现），默认 true */
+  pageScrollbar?: boolean;
+}
+
 /** 未声明的属性落到外层 div 上 */
-export interface AppShellProps extends PartProps<'div'> {
+export interface AppShellProps extends PartProps<'div'>, AppShellOptions {
   /** 顶栏起始边的品牌（标志与产品名）：有侧栏时这一格与侧栏同宽，侧栏的竖线延伸到顶 */
   brand?: VNodeChild;
   /** 顶栏的内容：搜索、本页的页签、主题切换…（没写 brand 时标志也放这里） */
@@ -94,23 +110,12 @@ export interface AppShellProps extends PartProps<'div'> {
   nav?: VNodeChild;
   /** 正文下面的页脚（版权、备案号、版本） */
   footer?: VNodeChild;
-  /** 侧栏底部有“收起侧栏”按钮：收起后只剩图标栏（导航变紧凑，分组的子项悬停弹出） */
-  sidebarCollapsible?: boolean;
   /** 侧栏收起了：父级可以写 _sidebarCollapsed={x} 记住 */
   _sidebarCollapsed?: boolean;
   /** 窄屏时的侧栏抽屉是否打开：父级可以写 _sidebarOpen={x} */
   _sidebarOpen?: boolean;
-  /**
-   * 顶栏结束边的全屏按钮：进入后不显示顶栏和左侧栏，右上角留一个退出按钮
-   * @default true
-   */
-  fullscreenable?: boolean;
   /** 全屏中：父级可以写 _fullscreen={x} */
   _fullscreen?: boolean;
-  /** 页面最前面的“跳到正文”链接，默认 true */
-  skipLink?: boolean;
-  /** 整页用浮层滚动条（PageScrollbar：不占宽度，滚动时出现），默认 true */
-  pageScrollbar?: boolean;
   /** 顶栏（header）的部件属性 */
   propsHeader?: PartProps<'header'>;
   /** 品牌格（div）的部件属性 */
@@ -162,45 +167,151 @@ export const appShellOffset = css.createTheme(layoutVars, { stickyOffset: HEADER
 /** 全屏时没有顶栏：标题和粘性侧栏贴着窗口顶端 */
 export const appShellFullscreenOffset = css.createTheme(layoutVars, { stickyOffset: '0px' });
 
-/** 部件的标记（data-scope="app-shell"） */
-const appShellPart = (part: string) => partAttrs({ name: 'AppShell' }, part);
+// 两侧栏：粘在顶栏下面、占满剩下的视口高度，内容多时各自滚动，滚到头不带动页面
+const rail = {
+  position: 'sticky',
+  top: layoutVars.stickyOffset,
+  boxSizing: 'border-box',
+  height: `calc(100dvh - ${layoutVars.stickyOffset})`,
+} as const;
 
-/** AppShell 的样式：root、header、menuButton、body、sidebar、main、aside 等（测试要用，不进入口） @internal */
-export const appShellStyles = css.create({
-  // 整页的界面基准文字（同 Provider）：没有 Provider 时页面是浏览器默认的 16px，与组件的 md 档位对不上
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: '100dvh',
-    color: '_text',
-    fontSize: '_md',
-    lineHeight: '_normal',
+/**
+ * AppShell 的配方（createUi / Provider 的 components.AppShell 按它定制）：root、header、menuButton（窄屏打开抽屉）、brand、nav、
+ * headerContent、headerMain（header 的内容）、fullscreenButton、fullscreenExit、body（侧栏、正文、右栏的栅格）、sidebar、
+ * sidebarScroll、sidebarContent、collapseBar、collapseButton、column（正文与页脚）、main、footer、aside、asideScroll、
+ * asideContent、drawer。有没有侧栏与右栏、收起、全屏按布局变，叠在部件层之后（appShellStateStyles）
+ */
+export const appShellRecipe = css.recipe({
+  name: 'AppShell',
+  parts: [
+    'root',
+    'header',
+    'menuButton',
+    'brand',
+    'nav',
+    'headerContent',
+    'headerMain',
+    'fullscreenButton',
+    'fullscreenExit',
+    'body',
+    'sidebar',
+    'sidebarScroll',
+    'sidebarContent',
+    'collapseBar',
+    'collapseButton',
+    'column',
+    'main',
+    'footer',
+    'aside',
+    'asideScroll',
+    'asideContent',
+    'drawer',
+  ],
+  base: {
+    // 整页的界面基准文字（同 Provider）：没有 Provider 时页面是浏览器默认的 16px，与组件的 md 档位对不上
+    root: {
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '100dvh',
+      color: '_text',
+      fontSize: '_md',
+      lineHeight: '_normal',
+    },
+    header: {
+      position: 'sticky',
+      top: 0,
+      // 盖住滚动的正文与粘性侧栏；低于浮层（顶层渲染）与 SkipLink
+      zIndex: 10,
+      boxSizing: 'border-box',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '_md',
+      height: HEADER_HEIGHT,
+      flexShrink: 0,
+      paddingInline: '_lg',
+      borderBlockEndWidth: '_xs',
+      borderBlockEndStyle: 'solid',
+      borderBlockEndColor: '_border',
+      backgroundColor: '_surfaceTranslucent',
+      backdropFilter: 'blur(12px) saturate(1.5)',
+    },
+    menuButton: { display: { default: 'inline-flex', [breakpoints.lg]: 'none' }, flexShrink: 0 },
+    brand: { display: 'flex', alignItems: 'center', gap: '_sm', flexShrink: 0, minWidth: 0 },
+    // 顶栏的导航：占品牌与右边工具之间的位置；有导航时右边的工具按内容宽、靠结束边
+    nav: { display: 'flex', alignItems: 'center', alignSelf: 'stretch', flexGrow: 1, minWidth: 0 },
+    headerContent: { display: 'flex', alignItems: 'center', gap: '_md', flexGrow: 1, minWidth: 0 },
+    // header 的内容占满剩下的宽度，全屏按钮在最后
+    headerMain: { display: 'flex', alignItems: 'center', gap: '_md', flexGrow: 1, minWidth: 0 },
+    // 手机上不显示：顶栏放不下，iOS Safari 也不支持页面全屏
+    fullscreenButton: {
+      display: { default: 'none', [breakpoints.md]: 'inline-flex' },
+      flexShrink: 0,
+    },
+    // 全屏时的退出按钮：贴着窗口右上角（从右到左排版时是左上角），不用时淡一点，不抢正文
+    fullscreenExit: {
+      position: 'fixed',
+      top: '_sm',
+      insetInlineEnd: '_lg',
+      zIndex: 10,
+      backgroundColor: '_surfaceTranslucent',
+      opacity: { default: 0.6, _hover: 1, _focusVisible: 1 },
+    },
+    body: { display: 'grid', flexGrow: 1, gridTemplateColumns: 'minmax(0, 1fr)' },
+    sidebar: {
+      ...rail,
+      display: { default: 'none', [breakpoints.lg]: 'block' },
+      borderInlineEndWidth: '_xs',
+      borderInlineEndStyle: 'solid',
+      borderInlineEndColor: '_border',
+    },
+    // 侧栏里的滚动区域：浮层滚动条；内边距放在内容层上，滚动条贴着侧栏边缘
+    sidebarScroll: { height: '_full' },
+    sidebarContent: { paddingBlock: '_xl', paddingInline: '_md' },
+    collapseBar: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      flexShrink: 0,
+      padding: '_sm',
+      borderBlockStartWidth: '_xs',
+      borderBlockStartStyle: 'solid',
+      borderBlockStartColor: '_borderMuted',
+    },
+    // 正文那一列：正文、页脚上下排，页脚在内容少时也贴着底部
+    column: { display: 'flex', flexDirection: 'column', minWidth: 0 },
+    // 正文由 SkipLink 聚焦（tabindex=-1）：不显示焦点框
+    main: {
+      flexGrow: 1,
+      minWidth: 0,
+      paddingBlock: '_xl',
+      paddingInline: '_xl',
+      outlineStyle: 'none',
+    },
+    footer: {
+      paddingBlock: '_lg',
+      paddingInline: '_xl',
+      borderBlockStartWidth: '_xs',
+      borderBlockStartStyle: 'solid',
+      borderBlockStartColor: '_borderMuted',
+      color: '_textMuted',
+      fontSize: '_sm',
+    },
+    aside: { ...rail, display: { default: 'none', [breakpoints.xl]: 'block' } },
+    asideScroll: { height: '_full' },
+    asideContent: { paddingBlock: '_xl', paddingInline: '_lg' },
   },
-  header: {
-    position: 'sticky',
-    top: 0,
-    // 盖住滚动的正文与粘性侧栏；低于浮层（顶层渲染）与 SkipLink
-    zIndex: 10,
-    boxSizing: 'border-box',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '_md',
-    height: HEADER_HEIGHT,
-    flexShrink: 0,
-    paddingInline: '_lg',
-    borderBlockEndWidth: '_xs',
-    borderBlockEndStyle: 'solid',
-    borderBlockEndColor: '_border',
-    backgroundColor: '_surfaceTranslucent',
-    backdropFilter: 'blur(12px) saturate(1.5)',
-  },
-  menuButton: { display: { default: 'inline-flex', [breakpoints.lg]: 'none' }, flexShrink: 0 },
+});
+
+/** AppShell 的部件（createUi / Provider 的 components.AppShell.styles 按它定制） */
+export type AppShellPart = (typeof appShellRecipe.parts)[number];
+type AppShellParts = Readonly<Record<AppShellPart, PartLayer>>;
+
+/** 按布局变的样式，追加在部件层之后：有没有品牌格、侧栏、右栏，收起，全屏（测试要用，不进入口） @internal */
+export const appShellStateStyles = css.create({
   // 有品牌格与侧栏：宽屏时品牌格贴着起始边；品牌格与内容之间隔开正文的内边距，内容与正文的起始边对齐
   headerWithBrand: {
     paddingInlineStart: { default: null, [breakpoints.lg]: 0 },
     columnGap: { default: null, [breakpoints.lg]: '_xl' },
   },
-  brand: { display: 'flex', alignItems: 'center', gap: '_sm', flexShrink: 0, minWidth: 0 },
   // 宽屏时与侧栏同宽，结束边的竖线与侧栏的竖线接上
   brandRail: {
     alignSelf: { default: null, [breakpoints.lg]: 'stretch' },
@@ -211,8 +322,13 @@ export const appShellStyles = css.create({
     borderInlineEndStyle: { default: null, [breakpoints.lg]: 'solid' },
     borderInlineEndColor: { default: null, [breakpoints.lg]: '_border' },
   },
-  headerContent: { display: 'flex', alignItems: 'center', gap: '_md', flexGrow: 1, minWidth: 0 },
-  body: { display: 'grid', flexGrow: 1, gridTemplateColumns: 'minmax(0, 1fr)' },
+  // 侧栏收起成图标栏：栅格的第一列、品牌格都变窄，品牌只剩标志
+  brandRailCollapsed: {
+    width: { default: null, [breakpoints.lg]: RAIL_WIDTH },
+    justifyContent: { default: null, [breakpoints.lg]: 'center' },
+    paddingInline: { default: null, [breakpoints.lg]: '_xs' },
+  },
+  headerContentAfterNav: { flexGrow: 0, justifyContent: 'flex-end' },
   withSidebar: {
     gridTemplateColumns: { default: null, [breakpoints.lg]: `${SIDEBAR_WIDTH} minmax(0, 1fr)` },
   },
@@ -225,30 +341,6 @@ export const appShellStyles = css.create({
       [breakpoints.xl]: `${SIDEBAR_WIDTH} minmax(0, 1fr) 14rem`,
     },
   },
-  // 两侧栏：粘在顶栏下面、占满剩下的视口高度，内容多时各自滚动，滚到头不带动页面
-  rail: {
-    position: 'sticky',
-    top: layoutVars.stickyOffset,
-    boxSizing: 'border-box',
-    height: `calc(100dvh - ${layoutVars.stickyOffset})`,
-  },
-  // 侧栏里的滚动区域：浮层滚动条，滚到头不带动页面；内边距放在内容层上，滚动条贴着侧栏边缘
-  railScroll: { height: '_full' },
-  railViewport: { overscrollBehavior: 'contain' },
-  sidebar: {
-    display: { default: 'none', [breakpoints.lg]: 'block' },
-    borderInlineEndWidth: '_xs',
-    borderInlineEndStyle: 'solid',
-    borderInlineEndColor: '_border',
-  },
-  sidebarContent: { paddingBlock: '_xl', paddingInline: '_md' },
-  // 紧凑的侧栏：两边只留一点，图标居中
-  sidebarContentCompact: { paddingInline: '_xs' },
-  aside: { display: { default: 'none', [breakpoints.xl]: 'block' } },
-  asideContent: { paddingBlock: '_xl', paddingInline: '_lg' },
-  // 正文由 SkipLink 聚焦（tabindex=-1）：不显示焦点框
-  main: { minWidth: 0, paddingBlock: '_xl', paddingInline: '_xl', outlineStyle: 'none' },
-  // 侧栏收起成图标栏：栅格的第一列、品牌格都变窄，品牌只剩标志
   withSidebarCollapsed: {
     gridTemplateColumns: { default: null, [breakpoints.lg]: `${RAIL_WIDTH} minmax(0, 1fr)` },
   },
@@ -259,60 +351,19 @@ export const appShellStyles = css.create({
       [breakpoints.xl]: `${RAIL_WIDTH} minmax(0, 1fr) 14rem`,
     },
   },
-  brandRailCollapsed: {
-    width: { default: null, [breakpoints.lg]: RAIL_WIDTH },
-    justifyContent: { default: null, [breakpoints.lg]: 'center' },
-    paddingInline: { default: null, [breakpoints.lg]: '_xs' },
-  },
   // 有收起按钮的侧栏：滚动区域占满剩下的高度，按钮在最下面
   sidebarColumn: {
     display: { default: 'none', [breakpoints.lg]: 'flex' },
     flexDirection: 'column',
   },
-  sidebarScroll: { flexGrow: 1, minHeight: 0, height: 'auto' },
-  collapseBar: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    flexShrink: 0,
-    padding: '_sm',
-    borderBlockStartWidth: '_xs',
-    borderBlockStartStyle: 'solid',
-    borderBlockStartColor: '_borderMuted',
-  },
+  sidebarScrollColumn: { flexGrow: 1, minHeight: 0, height: 'auto' },
+  // 紧凑的侧栏：两边只留一点，图标居中
+  sidebarContentCompact: { paddingInline: '_xs' },
   collapseBarCollapsed: { justifyContent: 'center' },
-  // 顶栏的导航：占品牌与右边工具之间的位置；有导航时右边的工具按内容宽、靠结束边
-  nav: { display: 'flex', alignItems: 'center', alignSelf: 'stretch', flexGrow: 1, minWidth: 0 },
-  headerContentAfterNav: { flexGrow: 0, justifyContent: 'flex-end' },
-  // 正文那一列：正文、页脚上下排，页脚在内容少时也贴着底部
-  column: { display: 'flex', flexDirection: 'column', minWidth: 0 },
-  mainGrow: { flexGrow: 1 },
-  // header 的内容占满剩下的宽度，全屏按钮在最后
-  headerMain: { display: 'flex', alignItems: 'center', gap: '_md', flexGrow: 1, minWidth: 0 },
-  // 手机上不显示：顶栏放不下，iOS Safari 也不支持页面全屏
-  fullscreenButton: {
-    display: { default: 'none', [breakpoints.md]: 'inline-flex' },
-    flexShrink: 0,
-  },
+  // 侧栏的滚动区域滚到头不带动页面
+  railViewport: { overscrollBehavior: 'contain' },
   // 全屏时不显示：留在 DOM 里，退出后侧栏的滚动位置、展开的分组都还在
   hidden: { display: 'none' },
-  // 全屏时的退出按钮：贴着窗口右上角（从右到左排版时是左上角），不用时淡一点，不抢正文
-  fullscreenExit: {
-    position: 'fixed',
-    top: '_sm',
-    insetInlineEnd: '_lg',
-    zIndex: 10,
-    backgroundColor: '_surfaceTranslucent',
-    opacity: { default: 0.6, _hover: 1, _focusVisible: 1 },
-  },
-  footer: {
-    paddingBlock: '_lg',
-    paddingInline: '_xl',
-    borderBlockStartWidth: '_xs',
-    borderBlockStartStyle: 'solid',
-    borderBlockStartColor: '_borderMuted',
-    color: '_textMuted',
-    fontSize: '_sm',
-  },
 });
 
 /** 应用外壳：粘性顶栏、左侧栏、正文、右侧栏；窄屏时左侧栏收进抽屉 */
@@ -325,12 +376,12 @@ export const AppShell = _component(
     nav,
     footer,
     _sidebarOpen: sidebarOpen = _bindable(false),
-    sidebarCollapsible = false,
+    sidebarCollapsible,
     _sidebarCollapsed: sidebarCollapsed = _bindable(false),
-    fullscreenable = true,
+    fullscreenable,
     _fullscreen: fullscreen = _bindable(false),
-    skipLink = true,
-    pageScrollbar = true,
+    skipLink,
+    pageScrollbar,
     propsHeader,
     propsBrand,
     propsSidebar,
@@ -350,13 +401,18 @@ export const AppShell = _component(
     children,
     ...rest
   }: AppShellProps) => {
+    const ui = useComponent(
+      appShellRecipe,
+      () => ({ sidebarCollapsible, fullscreenable, skipLink, pageScrollbar }),
+      { sidebarCollapsible: false, fullscreenable: true, skipLink: true, pageScrollbar: true },
+    );
     const messages = useMessages('patterns', patternsMessages);
     const mainId = `${useId()}-main`;
 
     const wide = useMediaQuery(WIDE_QUERY);
     // 收起成图标栏只在宽屏（窄屏时侧栏在抽屉里，抽屉总是完整的）
     const collapsed = () =>
-      hasContent(sidebar) && sidebarCollapsible && sidebarCollapsed && wide.value;
+      hasContent(sidebar) && ui().options.sidebarCollapsible && sidebarCollapsed && wide.value;
     // 正文这一排有没有侧栏：全屏时没有
     const showSidebar = () => hasContent(sidebar) && !fullscreen;
     NavCompactContext.provide(collapsed);
@@ -410,257 +466,222 @@ export const AppShell = _component(
         void document.exitFullscreen().catch(() => undefined);
     });
 
-    return () => (
-      <div
-        {...mergeAttrs<'div'>(
-          {
-            sx: [appShellStyles.root, fullscreen ? appShellFullscreenOffset : appShellOffset],
-            ...appShellPart('root'),
-          },
-          rest,
-        )}
-      >
-        {skipLink && <SkipLink href={`#${mainId}`} />}
-        {pageScrollbar && <PageScrollbar />}
-        <header
-          {...mergeAttrs<'header'>(
-            {
-              sx: [
-                appShellStyles.header,
-                hasContent(brand) && hasContent(sidebar) && appShellStyles.headerWithBrand,
-                fullscreen && appShellStyles.hidden,
-              ],
-              ...appShellPart('header'),
-            },
-            propsHeader,
-          )}
-        >
-          {hasContent(sidebar) && (
-            <IconButton
-              {...mergePartProps<IconButtonProps>(
-                {
-                  sx: appShellStyles.menuButton,
-                  icon: MenuIcon,
-                  'aria-label': messages.navigationOpen,
-                },
-                propsMenuButton,
-                { 'aria-expanded': sidebarOpen, onClick: () => (sidebarOpen = true) },
-              )}
-            />
-          )}
-          {hasContent(brand) && (
-            <div
-              {...mergeAttrs<'div'>(
-                {
-                  sx: [
-                    appShellStyles.brand,
-                    hasContent(sidebar) && [
-                      appShellStyles.brandRail,
-                      collapsed() && appShellStyles.brandRailCollapsed,
-                    ],
-                  ],
-                  ...appShellPart('brand'),
-                },
-                propsBrand,
-              )}
-            >
-              {brand}
-            </div>
-          )}
-          {hasContent(nav) && (
-            <div
-              {...mergeAttrs<'div'>({ sx: appShellStyles.nav, ...appShellPart('nav') }, propsNav)}
-            >
-              {nav}
-            </div>
-          )}
-          <div
-            {...mergeAttrs<'div'>(
-              {
-                sx: [
-                  appShellStyles.headerContent,
-                  hasContent(nav) && appShellStyles.headerContentAfterNav,
-                ],
-                ...appShellPart('headerContent'),
-              },
-              propsHeaderContent,
-            )}
-          >
-            <div {...css.attrs(appShellStyles.headerMain)}>{header}</div>
-            {/* 放在内容格里：和顶栏的工具同一个间距，顶栏自己的列间距是给品牌格对齐用的 */}
-            {fullscreenable && (
-              <IconButton
-                {...mergePartProps<IconButtonProps>(
-                  {
-                    sx: appShellStyles.fullscreenButton,
-                    icon: Maximize,
-                    'aria-label': messages.fullscreenEnter,
-                    title: messages.fullscreenEnter,
-                  },
-                  propsFullscreenButton,
-                  { onClick: () => (fullscreen = true) },
-                )}
-              />
-            )}
-          </div>
-        </header>
-        {fullscreen && (
-          <IconButton
-            {...mergePartProps<IconButtonProps>(
-              {
-                sx: appShellStyles.fullscreenExit,
-                icon: Minimize,
-                'aria-label': messages.fullscreenExit,
-                title: messages.fullscreenExit,
-              },
-              propsFullscreenExit,
-              { onClick: () => (fullscreen = false) },
-            )}
-          />
-        )}
+    /** 正文一排的栅格列：有没有侧栏、右栏，侧栏收起了没有 */
+    function bodyColumns() {
+      const withAside = hasContent(aside);
+      if (!showSidebar()) return withAside && appShellStateStyles.withAside;
+      if (withAside)
+        return collapsed() ? appShellStateStyles.withBothCollapsed : appShellStateStyles.withBoth;
+      return collapsed()
+        ? appShellStateStyles.withSidebarCollapsed
+        : appShellStateStyles.withSidebar;
+    }
+
+    function renderSidebar(s: AppShellParts, columned: boolean) {
+      return (
         <div
           {...mergeAttrs<'div'>(
             {
+              ...s.sidebar,
               sx: [
-                appShellStyles.body,
-                showSidebar() && hasContent(aside)
-                  ? collapsed()
-                    ? appShellStyles.withBothCollapsed
-                    : appShellStyles.withBoth
-                  : showSidebar()
-                    ? collapsed()
-                      ? appShellStyles.withSidebarCollapsed
-                      : appShellStyles.withSidebar
-                    : hasContent(aside) && appShellStyles.withAside,
+                s.sidebar.sx,
+                columned && appShellStateStyles.sidebarColumn,
+                fullscreen && appShellStateStyles.hidden,
               ],
-              ...appShellPart('body'),
             },
-            propsBody,
+            propsSidebar,
           )}
         >
-          {hasContent(sidebar) && (
+          <ScrollArea
+            {...mergePartProps<ScrollAreaProps>(
+              {
+                ...s.sidebarScroll,
+                sx: [s.sidebarScroll.sx, columned && appShellStateStyles.sidebarScrollColumn],
+                propsViewport: { sx: appShellStateStyles.railViewport },
+                propsContent: {
+                  ...s.sidebarContent,
+                  sx: [
+                    s.sidebarContent.sx,
+                    collapsed() && appShellStateStyles.sidebarContentCompact,
+                  ],
+                },
+              },
+              propsSidebarScroll,
+            )}
+          >
+            {sidebar}
+          </ScrollArea>
+          {columned && (
+            <div
+              {...mergeAttrs<'div'>({
+                ...s.collapseBar,
+                sx: [s.collapseBar.sx, collapsed() && appShellStateStyles.collapseBarCollapsed],
+              })}
+            >
+              <IconButton
+                {...mergePartProps<IconButtonProps>(
+                  {
+                    ...s.collapseButton,
+                    icon: sidebarCollapsed ? PanelLeftOpen : PanelLeftClose,
+                    size: 'sm',
+                    variant: 'ghost',
+                    propsIcon: { flipInRtl: true },
+                    'aria-label': sidebarCollapsed
+                      ? messages.sidebarExpand
+                      : messages.sidebarCollapse,
+                  },
+                  propsCollapse,
+                  { onClick: () => (sidebarCollapsed = !sidebarCollapsed) },
+                )}
+              />
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return () => {
+      const { options, parts: s } = ui();
+      return (
+        <div
+          {...mergeAttrs<'div'>(
+            {
+              ...s.root,
+              sx: [s.root.sx, fullscreen ? appShellFullscreenOffset : appShellOffset],
+            },
+            rest,
+          )}
+        >
+          {options.skipLink && <SkipLink href={`#${mainId}`} />}
+          {options.pageScrollbar && <PageScrollbar />}
+          <header
+            {...mergeAttrs<'header'>(
+              {
+                ...s.header,
+                sx: [
+                  s.header.sx,
+                  hasContent(brand) && hasContent(sidebar) && appShellStateStyles.headerWithBrand,
+                  fullscreen && appShellStateStyles.hidden,
+                ],
+              },
+              propsHeader,
+            )}
+          >
+            {hasContent(sidebar) && (
+              <IconButton
+                {...mergePartProps<IconButtonProps>(
+                  { ...s.menuButton, icon: MenuIcon, 'aria-label': messages.navigationOpen },
+                  propsMenuButton,
+                  { 'aria-expanded': sidebarOpen, onClick: () => (sidebarOpen = true) },
+                )}
+              />
+            )}
+            {hasContent(brand) && (
+              <div
+                {...mergeAttrs<'div'>(
+                  {
+                    ...s.brand,
+                    sx: [
+                      s.brand.sx,
+                      hasContent(sidebar) && [
+                        appShellStateStyles.brandRail,
+                        collapsed() && appShellStateStyles.brandRailCollapsed,
+                      ],
+                    ],
+                  },
+                  propsBrand,
+                )}
+              >
+                {brand}
+              </div>
+            )}
+            {hasContent(nav) && <div {...mergeAttrs<'div'>(s.nav, propsNav)}>{nav}</div>}
             <div
               {...mergeAttrs<'div'>(
                 {
+                  ...s.headerContent,
                   sx: [
-                    appShellStyles.rail,
-                    appShellStyles.sidebar,
-                    sidebarCollapsible && appShellStyles.sidebarColumn,
-                    fullscreen && appShellStyles.hidden,
+                    s.headerContent.sx,
+                    hasContent(nav) && appShellStateStyles.headerContentAfterNav,
                   ],
-                  ...appShellPart('sidebar'),
                 },
-                propsSidebar,
+                propsHeaderContent,
               )}
             >
-              <ScrollArea
-                {...mergePartProps<ScrollAreaProps>(
-                  {
-                    sx: [
-                      appShellStyles.railScroll,
-                      sidebarCollapsible && appShellStyles.sidebarScroll,
-                    ],
-                    propsViewport: { sx: appShellStyles.railViewport },
-                    propsContent: {
-                      sx: [
-                        appShellStyles.sidebarContent,
-                        collapsed() && appShellStyles.sidebarContentCompact,
-                      ],
+              <div {...mergeAttrs<'div'>(s.headerMain)}>{header}</div>
+              {/* 放在内容格里：和顶栏的工具同一个间距，顶栏自己的列间距是给品牌格对齐用的 */}
+              {options.fullscreenable && (
+                <IconButton
+                  {...mergePartProps<IconButtonProps>(
+                    {
+                      ...s.fullscreenButton,
+                      icon: Maximize,
+                      'aria-label': messages.fullscreenEnter,
+                      title: messages.fullscreenEnter,
                     },
-                  },
-                  propsSidebarScroll,
-                )}
-              >
-                {sidebar}
-              </ScrollArea>
-              {sidebarCollapsible && (
-                <div
-                  {...css.attrs(
-                    appShellStyles.collapseBar,
-                    collapsed() && appShellStyles.collapseBarCollapsed,
+                    propsFullscreenButton,
+                    { onClick: () => (fullscreen = true) },
                   )}
-                >
-                  <IconButton
-                    {...mergePartProps<IconButtonProps>(
-                      {
-                        icon: sidebarCollapsed ? PanelLeftOpen : PanelLeftClose,
-                        size: 'sm',
-                        variant: 'ghost',
-                        propsIcon: { flipInRtl: true },
-                        'aria-label': sidebarCollapsed
-                          ? messages.sidebarExpand
-                          : messages.sidebarCollapse,
-                      },
-                      propsCollapse,
-                      { onClick: () => (sidebarCollapsed = !sidebarCollapsed) },
-                    )}
-                  />
-                </div>
+                />
               )}
             </div>
-          )}
-          <div {...css.attrs(appShellStyles.column)}>
-            <main
-              {...mergeAttrs<'main'>(
-                { sx: [appShellStyles.main, appShellStyles.mainGrow], ...appShellPart('main') },
-                propsMain,
+          </header>
+          {fullscreen && (
+            <IconButton
+              {...mergePartProps<IconButtonProps>(
                 {
-                  id: mainId,
-                  tabindex: -1,
+                  ...s.fullscreenExit,
+                  icon: Minimize,
+                  'aria-label': messages.fullscreenExit,
+                  title: messages.fullscreenExit,
                 },
+                propsFullscreenExit,
+                { onClick: () => (fullscreen = false) },
               )}
-            >
-              {children}
-            </main>
-            {hasContent(footer) && (
-              <footer
-                {...mergeAttrs<'footer'>(
-                  { sx: appShellStyles.footer, ...appShellPart('footer') },
-                  propsFooter,
-                )}
-              >
-                {footer}
-              </footer>
+            />
+          )}
+          <div {...mergeAttrs<'div'>({ ...s.body, sx: [s.body.sx, bodyColumns()] }, propsBody)}>
+            {hasContent(sidebar) && renderSidebar(s, options.sidebarCollapsible)}
+            <div {...mergeAttrs<'div'>(s.column)}>
+              <main {...mergeAttrs<'main'>(s.main, propsMain, { id: mainId, tabindex: -1 })}>
+                {children}
+              </main>
+              {hasContent(footer) && (
+                <footer {...mergeAttrs<'footer'>(s.footer, propsFooter)}>{footer}</footer>
+              )}
+            </div>
+            {hasContent(aside) && (
+              <aside {...mergeAttrs<'aside'>(s.aside, propsAside)}>
+                <ScrollArea
+                  {...mergePartProps<ScrollAreaProps>(
+                    {
+                      ...s.asideScroll,
+                      propsViewport: { sx: appShellStateStyles.railViewport },
+                      propsContent: s.asideContent,
+                    },
+                    propsAsideScroll,
+                  )}
+                >
+                  {aside}
+                </ScrollArea>
+              </aside>
             )}
           </div>
-          {hasContent(aside) && (
-            <aside
-              {...mergeAttrs<'aside'>(
-                { sx: [appShellStyles.rail, appShellStyles.aside], ...appShellPart('aside') },
-                propsAside,
+          {hasContent(sidebar) && (
+            <Drawer
+              {...mergePartProps<DrawerProps>(
+                { ...s.drawer, title: messages.navigation, side: 'start' },
+                propsDrawer,
+                { onClick: closeOnNavigate },
               )}
+              _open={sidebarOpen}
             >
-              <ScrollArea
-                {...mergePartProps<ScrollAreaProps>(
-                  {
-                    sx: appShellStyles.railScroll,
-                    propsViewport: { sx: appShellStyles.railViewport },
-                    propsContent: { sx: appShellStyles.asideContent },
-                  },
-                  propsAsideScroll,
-                )}
-              >
-                {aside}
-              </ScrollArea>
-            </aside>
+              {freshCopy(sidebar)}
+            </Drawer>
           )}
         </div>
-        {hasContent(sidebar) && (
-          <Drawer
-            {...mergePartProps<DrawerProps>(
-              { title: messages.navigation, side: 'start' },
-              propsDrawer,
-              {
-                onClick: closeOnNavigate,
-              },
-            )}
-            _open={sidebarOpen}
-          >
-            {freshCopy(sidebar)}
-          </Drawer>
-        )}
-      </div>
-    );
+      );
+    };
   },
 );
 

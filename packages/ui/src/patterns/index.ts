@@ -15,7 +15,10 @@ export {
   AppShellContext,
   appShellFullscreenOffset,
   appShellOffset,
+  appShellRecipe,
   type AppShellBrandProps,
+  type AppShellOptions,
+  type AppShellPart,
   type AppShellProps,
   type AppShellState,
 } from './AppShell';
