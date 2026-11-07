@@ -24,7 +24,10 @@ const LONGHANDS_PHYSICAL = new Set(
   ),
 );
 
-/** 伪类的优先级（不在表里的 40）；:focusWithin、:focusVisible 的驼峰写法照抄 StyleX */
+/**
+ * 伪类的优先级（不在表里的 40），数值照抄 StyleX。StyleX 的表里 :focus-within、:focus-visible 写成了驼峰（:focusWithin），
+ * 而条件别名生成的是连字符的选择器：照抄驼峰会查表落空、退回 40，排到 :hover 前面，悬停就盖掉了键盘焦点的样式
+ */
 const PSEUDO_CLASSES: Readonly<Record<string, number>> = {
   ':is': 40,
   ':where': 40,
@@ -75,9 +78,9 @@ const PSEUDO_CLASSES: Readonly<Record<string, number>> = {
   ':past': 126,
   ':future': 127,
   ':hover': 130,
-  ':focusWithin': 140,
+  ':focus-within': 140,
   ':focus': 150,
-  ':focusVisible': 160,
+  ':focus-visible': 160,
   ':active': 170,
 };
 

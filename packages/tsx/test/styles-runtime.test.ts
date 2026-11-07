@@ -72,6 +72,19 @@ describe('create 与 attrs', () => {
     expect(rules).toContain(`.${name}.${name} { color: blue; }`);
   });
 
+  it('焦点的条件排在悬停后面：键盘聚焦时悬停盖不掉焦点样式（别名与原写法都一样）', () => {
+    const styles = create({
+      handle: {
+        color: { default: 'red', _focusVisible: 'blue', _hover: 'green', _focusWithin: 'purple' },
+        backgroundColor: { default: 'white', ':focus-visible': 'black', ':hover': 'gray' },
+      },
+    });
+    const rules = rulesOf(attrs(styles.handle).class);
+    expect(rules.indexOf(':hover')).toBeLessThan(rules.indexOf(':focus-within'));
+    expect(rules.indexOf(':focus-within')).toBeLessThan(rules.indexOf(':focus-visible'));
+    expect(rules.lastIndexOf(':hover')).toBeLessThan(rules.indexOf(':focus-visible'));
+  });
+
   it('条件别名换成 aria / data 选择器；属性选择器包成 :is(…)，顶层条件块也行；写错的条件直接报错', () => {
     const styles = create({ tab: { color: { default: 'gray', _selected: 'black' } } });
     expect(rulesOf(attrs(styles.tab).class)).toContain('[aria-selected="true"]');
