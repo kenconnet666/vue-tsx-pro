@@ -15,6 +15,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { relativeFontSizes } from '../utils/style/typography';
 
 /** 角色与朝向由组件管理 */
 export type SeparatorManaged = 'role' | 'aria-orientation' | 'aria-hidden';
@@ -72,7 +73,7 @@ const separatorStyles = css.create({
     width: '_full',
     color: '_textMuted',
     // 比所在文字小一档（0.93em ≈ 默认字号下的 sm）
-    fontSize: '0.93em',
+    fontSize: relativeFontSizes.sm,
     lineHeight: '_tight',
   },
   label: { flexShrink: 0, whiteSpace: 'nowrap' },

@@ -16,7 +16,7 @@ import { useDefaults } from '../config/defaults';
 import { useRecipe, type PartLayer, type RecipeLayers } from '../config/styles';
 import { variantOf } from '../utils/style/styles';
 import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { fontSizeStyles, relativeFontSizes, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
 
 /** 勾选类控件的外观选项；可以用 createUi / Provider 的 defaults.Choice 统一改默认值 */
@@ -77,7 +77,7 @@ export const choiceRecipe = css.recipe({
     // 有说明时文字在上、说明在下
     label: { minWidth: 0, display: 'grid' },
     // 次要颜色、小一号
-    description: { color: '_textMuted', fontSize: '0.875em' },
+    description: { color: '_textMuted', fontSize: relativeFontSizes.xs },
     end: {
       display: 'flex',
       alignItems: 'center',

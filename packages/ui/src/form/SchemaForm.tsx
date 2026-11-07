@@ -48,6 +48,7 @@ import { FormSection, type FormSectionProps } from './FormSection';
 import { pickFields, schemaFields, type SchemaControls, type SchemaField } from './schema-fields';
 import type { FieldArray, FieldPath, FormController } from './useForm';
 import { partAttrs } from '../config/styles';
+import { relativeFontSizes } from '../utils/style/typography';
 
 /** 换掉字段的控件：按字段路径给出渲染函数，返回的控件放进字段（标签、错误）里，自动绑定值 */
 export type SchemaFieldRenderers<Values extends object> = {
@@ -94,7 +95,7 @@ const schemaFormPart = (part: string) => partAttrs({ name: 'SchemaForm' }, part)
 export const schemaFormStyles = css.create({
   form: { display: 'flex', flexDirection: 'column', gap: '_lg' },
   actions: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_sm' },
-  actionsStart: { flexGrow: 1, minWidth: 0, color: '_textMuted', fontSize: '0.93em' },
+  actionsStart: { flexGrow: 1, minWidth: 0, color: '_textMuted', fontSize: relativeFontSizes.sm },
   list: { display: 'flex', flexDirection: 'column', gap: '_md' },
   row: { display: 'flex', alignItems: 'flex-start', gap: '_sm' },
   rowFields: { flexGrow: 1, minWidth: 0 },

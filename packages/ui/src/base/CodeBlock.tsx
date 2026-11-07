@@ -25,6 +25,7 @@ import { ButtonBase, type ButtonBaseProps } from './ButtonBase';
 import { CopyButton, type CopyButtonProps } from './CopyButton';
 import { Icon, type IconProps } from './Icon';
 import { t } from '../config/theme/tokens';
+import { relativeFontSizes } from '../utils/style/typography';
 
 /** 行号的写法：`'1,3-5'` 或 `[1, 3, 4, 5]`（从 1 开始） */
 export type LineSpec = string | readonly number[];
@@ -122,7 +123,7 @@ const codeBlockStyles = css.create({
     backgroundColor: '_surfaceMuted',
     color: '_textMuted',
     fontFamily: '_mono',
-    fontSize: '0.85em',
+    fontSize: relativeFontSizes.xs,
   },
   title: {
     flexGrow: 1,

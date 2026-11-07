@@ -59,6 +59,7 @@ import {
 import { diagramMessages } from './messages';
 import { partAttrs } from '../config/styles';
 import { nearestSide, routeEdges, sidePoint, straightRoute, type DiagramSide } from './route';
+import { relativeFontSizes } from '../utils/style/typography';
 
 /** 画布上的一个节点：位置与大小（画布坐标），其余字段使用方自己用 */
 export interface DiagramNodeItem extends DiagramRect {
@@ -353,7 +354,7 @@ export const diagramStyles = css.create({
     zIndex: 1,
     paddingInline: '4px',
     borderRadius: '_sm',
-    fontSize: '0.85em',
+    fontSize: relativeFontSizes.xs,
     lineHeight: '_tight',
     whiteSpace: 'nowrap',
     color: '_textMuted',

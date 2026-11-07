@@ -19,6 +19,7 @@ import { useIntersectionObserver } from '../utils/dom/intersection';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import { t } from '../config/theme/tokens';
 import { partAttrs } from '../config/styles';
+import { relativeFontSizes } from '../utils/style/typography';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ActionBarProps extends PartProps<'div'> {
@@ -60,7 +61,7 @@ const actionBarStyles = css.create({
   // 盖着下面的内容：阴影提示还能往下滚
   stuck: { boxShadow: '_md', borderBlockStartColor: '_border' },
   // 说明文字比所在文字小一档（0.93em ≈ 默认字号下的 sm）
-  start: { flexGrow: 1, minWidth: 0, color: '_textMuted', fontSize: '0.93em' },
+  start: { flexGrow: 1, minWidth: 0, color: '_textMuted', fontSize: relativeFontSizes.sm },
   actions: {
     display: 'flex',
     alignItems: 'center',

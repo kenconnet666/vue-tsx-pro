@@ -17,7 +17,7 @@ import { useRecipe } from '../config/styles';
 import { childNodes } from '../utils/data/text';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { radiusStyles } from '../utils/style/styles';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { fontSizeStyles, relativeFontSizes, type TextSize } from '../utils/style/typography';
 import { AvatarGroupContext, avatarRecipe } from './Avatar';
 
 /** 角色由组件管理 */
@@ -44,7 +44,7 @@ const avatarGroupStyles = css.create({
   root: { display: 'inline-flex', alignItems: 'center' },
   more: { backgroundColor: '_fill', color: '_text' },
   // 字号缩在文字上：“+N”的圆仍和头像一样大
-  moreText: { fontSize: '0.875em', fontWeight: '_medium' },
+  moreText: { fontSize: relativeFontSizes.xs, fontWeight: '_medium' },
 });
 
 /** 头像组：叠放的头像，超过 max 的折叠成“+N” */

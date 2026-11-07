@@ -33,7 +33,7 @@ import { partAttrs } from '../config/styles';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { fontSizeStyles, relativeFontSizes, type TextSize } from '../utils/style/typography';
 
 /** 一项的状态 */
 export interface ChecklistStatuses {
@@ -141,7 +141,7 @@ export const checklistStyles = css.create({
     display: 'flex',
     alignItems: 'center',
     minHeight: '1lh',
-    fontSize: '1.125em',
+    fontSize: relativeFontSizes.lg,
   },
   // 可以勾选时的按钮：只有图标，去掉按钮的外观
   toggle: {

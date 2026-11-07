@@ -1335,6 +1335,7 @@ export {
   fontSizeStyles,
   fontWeightStyles,
   lineClampStyles,
+  relativeFontSizes,
   relativeFontSizeStyles,
   textAlignStyles,
   textStyles,

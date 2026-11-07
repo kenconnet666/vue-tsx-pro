@@ -123,13 +123,22 @@ export const fontSizeStyles = css.create({
 
 /**
  * 相对所在字号的档位（em）：组件内部的小字、标题用它，跟着根上的 size 或所在文字一起缩放。
- * 比例取主题默认字号（md 14px）下与各档的比值：sm ≈ 13px、xs ≈ 12px、lg ≈ 16px、xl ≈ 18px
+ * 比例取主题默认字号（md 14px）下与各档的比值：sm ≈ 13px、xs ≈ 12px、lg ≈ 16px、xl ≈ 18px。
+ * 写在自己的样式里时用 relativeFontSizes.sm（值），整条样式用 relativeFontSizeStyles.sm
  */
+export const relativeFontSizes = {
+  xs: '0.86em',
+  sm: '0.93em',
+  lg: '1.14em',
+  xl: '1.29em',
+} as const;
+
+/** 相对字号的样式（见 relativeFontSizes） */
 export const relativeFontSizeStyles = css.create({
-  xs: { fontSize: '0.86em' },
-  sm: { fontSize: '0.93em' },
-  lg: { fontSize: '1.14em' },
-  xl: { fontSize: '1.29em' },
+  xs: { fontSize: relativeFontSizes.xs },
+  sm: { fontSize: relativeFontSizes.sm },
+  lg: { fontSize: relativeFontSizes.lg },
+  xl: { fontSize: relativeFontSizes.xl },
 });
 
 /** 字重档位 → fontWeights token */

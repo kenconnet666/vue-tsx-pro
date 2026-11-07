@@ -16,7 +16,7 @@ import type { VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { controlParts, useControlAppearance, type ControlOptions } from './control';
 import { mergeAttrs, type PartProps } from '../utils/props';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { fontSizeStyles, relativeFontSizes, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
 
 /** 能输入的字符 */
@@ -102,7 +102,7 @@ const otpFieldStyles = css.create({
     width: '2.5em',
     height: `max(2.75em, ${t.sizes.minTarget})`,
     paddingInline: 0,
-    fontSize: '1.15em',
+    fontSize: relativeFontSizes.lg,
     fontWeight: '_semibold',
     fontVariantNumeric: 'tabular-nums',
   },

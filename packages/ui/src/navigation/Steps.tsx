@@ -20,7 +20,7 @@ import { useRouterLink } from '../utils/dom/link';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
-import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { fontSizeStyles, relativeFontSizes, type TextSize } from '../utils/style/typography';
 import { FlexOrderedList, type FlexProps } from '../layout/Flex';
 import { t } from '../config/theme/tokens';
 import { partAttrs } from '../config/styles';
@@ -131,14 +131,14 @@ export const stepsStyles = css.create({
     borderStyle: 'solid',
     borderRadius: '_full',
     // 用 em 而不是 _sm（默认字号下 13 / 14 ≈ 0.93）：随 size 缩放
-    fontSize: '0.93em',
+    fontSize: relativeFontSizes.sm,
     fontWeight: '_semibold',
     // 走到下一步时圆圈换色、连接线变色都过渡，不是一下跳过去
     transition: `background-color ${t.durations.md} ${t.easings.standard}, border-color ${t.durations.md} ${t.easings.standard}, color ${t.durations.md} ${t.easings.standard}`,
   },
   text: { display: 'grid', gap: '_xs', paddingBlockStart: '0.3em', minWidth: 0 },
   title: { fontWeight: '_medium' },
-  description: { color: '_textMuted', fontSize: '0.93em' },
+  description: { color: '_textMuted', fontSize: relativeFontSizes.sm },
   // 步骤之间的连接线：横排在标题右侧延伸
   connector: {
     flexGrow: 1,

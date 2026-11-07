@@ -828,6 +828,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [ ] 24.2 状态写法换条件别名（约 45 处 `条件 && styles.selected / disabled…`）：随 24.1 把状态样式搬进配方时一起换；
       别名展开成 `:is(…)`，优先级排在 `:hover` 前面，每处要定组合状态（已选 + 悬停、不可用 + 悬停）的先后
 - [ ] 24.3 裸值换 token：组件里的 rem / px、`fontSize: 'x.xem'`（25 处）换成 em、`relativeFontSizeStyles` 或 token，逐个对截图
+      （2026-11-08：字号做了——加 relativeFontSizes（值），0.93em、0.85 / 0.875em、1.125 / 1.15em 的 12 处改用 sm、xs、lg 档，
+      差不到 0.2px；徽标的 0.75em、等宽的 0.9em、Gauge / Result 的大号是有意的，留着。rem / px 待做）
 - [x] ~~24.4 去掉 0.11 标了 `@deprecated` 的旧写法：`createUi` / `Provider` 的 `defaults`、`styles`，改名前的旧名（Skeleton 的 `variant`、`Tone`、`Theme`…）~~（2026-11-08，16 处全删）
 - [x] ~~24.5 截图基线容器化进 CI（同 8.3）：之后外观的任何改动都由 CI 拦~~（即 P0.1：CI 的 visual 任务与上一次通过的 master 比对，只报告）
 - [x] ~~24.6 文档站的 API 小节列出配方的部件（`data-part`）与档位（`components.Xxx` 能改、能加的）：现在只列部件属性 `propsXxx`；

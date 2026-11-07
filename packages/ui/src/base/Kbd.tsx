@@ -7,6 +7,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { relativeFontSizes } from '../utils/style/typography';
 
 /** 未声明的属性落到 kbd 上 */
 export interface KbdProps extends PartProps<'kbd'> {
@@ -29,7 +30,7 @@ const kbdStyles = css.create({
     color: '_text',
     fontFamily: '_mono',
     // 相对周围文字略小：是比例不是字号档位
-    fontSize: '0.85em',
+    fontSize: relativeFontSizes.xs,
     lineHeight: '_snug',
     textAlign: 'center',
     whiteSpace: 'nowrap',

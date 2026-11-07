@@ -20,6 +20,7 @@ import { partAttrs } from '../config/styles';
 import { dataAttrs, hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { DiagramNodeShape } from './geometry';
+import { relativeFontSizes } from '../utils/style/typography';
 
 /** 未声明的属性落到外层 div 上；原生的 title 属性让给标题 */
 export interface DiagramNodeProps extends PartProps<'div', 'title'> {
@@ -111,7 +112,7 @@ export const diagramNodeStyles = css.create({
   },
   bodyStart: { textAlign: 'start' },
   title: { fontWeight: '_medium', overflowWrap: 'anywhere' },
-  description: { fontSize: '0.85em', color: '_textMuted', overflowWrap: 'anywhere' },
+  description: { fontSize: relativeFontSizes.xs, color: '_textMuted', overflowWrap: 'anywhere' },
   start: { position: 'relative', display: 'flex', flexShrink: 0 },
   end: {
     position: 'relative',
