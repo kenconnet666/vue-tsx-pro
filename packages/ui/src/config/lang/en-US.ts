@@ -176,6 +176,8 @@ export const enUS: Lang = {
   ellipsisCollapse: 'Less',
   ratingStar: (value) => (value === 1 ? '1 star' : `${value} stars`),
   ratingSummary: (value, count) => (value == null ? 'Not rated' : `${value} out of ${count} stars`),
+  errorTitle: 'Something went wrong here',
+  errorRetry: 'Try again',
   resultStatus: {
     403: {
       title: 'Access denied',

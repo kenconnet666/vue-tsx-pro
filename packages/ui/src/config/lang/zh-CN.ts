@@ -174,6 +174,8 @@ export const zhCN: Lang = {
   ellipsisCollapse: '收起',
   ratingStar: (value) => `${value} 星`,
   ratingSummary: (value, count) => (value == null ? '未评分' : `${value} 星，满分 ${count} 星`),
+  errorTitle: '这块内容出错了',
+  errorRetry: '重试',
   resultStatus: {
     403: { title: '没有访问权限', description: '这个页面需要更高的权限，可以联系管理员开通。' },
     404: { title: '找不到这个页面', description: '地址可能写错了，或者页面已经移走。' },

@@ -363,6 +363,10 @@ export interface Lang {
   readonly sortableGroupCancelled: (item: string, group: string, position: number) => string;
   /** 放到不能放的组、弹回时的播报 */
   readonly sortableRejected: (item: string, reason: string) => string;
+  /** 错误边界接住错误后的标题，默认“这块内容出错了” */
+  readonly errorTitle: string;
+  /** 错误边界的重试按钮，默认“重试” */
+  readonly errorRetry: string;
   /** 结果页的常见状态（403、404、500）的默认标题与说明 */
   readonly resultStatus: Readonly<
     Record<'403' | '404' | '500', { readonly title: string; readonly description: string }>

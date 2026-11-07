@@ -2,7 +2,7 @@
  * 代码演练场：左边改代码，右边实时看效果。
  *
  * - 编译在 Web Worker 里（组件库的 browser-compile 入口，接法见 playground/run.ts），停止输入 300ms 后重新编译
- * - 预览是独立的 Vue 应用（playground/preview.ts）：用户代码出错只在预览区报错，不影响页面
+ * - 预览是独立的 Vue 应用（playground/preview.tsx）：用户代码出错只在预览区报错，不影响页面
  * - 代码压缩后存在地址栏的 hash 里（playground/share.ts），复制链接就能分享；示例卡片的“编辑”也是这样带代码进来
  */
 import { RotateCcw } from '@lucide/icons';

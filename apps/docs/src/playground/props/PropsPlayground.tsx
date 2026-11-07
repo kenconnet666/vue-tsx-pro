@@ -10,11 +10,11 @@ import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import * as ui from '@zerodep-dev/vue-tsx-pro-ui';
 import * as patterns from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import {
-  Alert,
   Button,
   Code,
   CodeBlock,
   Combobox,
+  ErrorBoundary,
   Flex,
   IconButton,
   NumberField,
@@ -29,15 +29,7 @@ import {
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { type ApiProp } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import catalog from 'virtual:api-catalog';
-import {
-  h,
-  onErrorCaptured,
-  onMounted,
-  onUpdated,
-  watch,
-  type Component,
-  type VNodeChild,
-} from 'vue';
+import { h, onMounted, onUpdated, watch, type Component, type VNodeChild } from 'vue';
 import { EditInPlayground } from '../../site/EditInPlayground';
 import { IconGallery, iconByName } from '../../site/IconGallery';
 import { canvasStyles } from '../../site/canvas';
@@ -138,23 +130,6 @@ const pickerItems = entries.map((entry) => ({
 
 /** 组件演练场能调的组件名 */
 export const playableNames: ReadonlySet<string> = new Set(entries.map((entry) => entry.name));
-
-/** 预览出错时显示错误，不让整个面板崩掉；换组件时按 key 重建 */
-const PreviewBoundary = _component(({ children }: { children?: VNodeChild }) => {
-  let error = _state.raw<Error | null>(null);
-  onErrorCaptured((caught) => {
-    error = caught instanceof Error ? caught : new Error(String(caught));
-    return false;
-  });
-  return () =>
-    error ? (
-      <Alert tone="danger" title="预览出错">
-        {error.message}
-      </Alert>
-    ) : (
-      children
-    );
-});
 
 /** 展开成受控的绑定：值与 onUpdate 回调（values 的类型是 unknown，不能直接 _bind） */
 const model = (key: string, value: unknown, set: (next: unknown) => void) => ({
@@ -370,7 +345,8 @@ export const PropsPlayground = _component(
             <Flex direction="column" gap="md">
               <div {...css.attrs(canvasStyles.canvas, styles.canvas)}>
                 <div ref={_toRef(stage)} {...css.attrs(styles.stage, inline && styles.stageInline)}>
-                  <PreviewBoundary key={entry.name}>{renderPreview()}</PreviewBoundary>
+                  {/* 预览出错时显示错误，不让整个面板崩掉；换组件时按 key 重建 */}
+                  <ErrorBoundary key={entry.name}>{renderPreview()}</ErrorBoundary>
                 </div>
               </div>
               <CodeBlock code={source} lang="tsx" title={`${entry.name}.tsx`} />

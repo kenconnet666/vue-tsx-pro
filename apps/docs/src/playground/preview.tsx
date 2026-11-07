@@ -1,12 +1,12 @@
 /**
  * 代码演练场的预览：用户的组件挂在一个独立的 Vue 应用里，与文档站的应用互不相干。
- * 渲染、setup、事件处理、侦听器里抛出的错误都被根组件的错误边界接住（onErrorCaptured），
+ * 渲染、setup、事件处理、侦听器里抛出的错误都被根组件的错误边界（ErrorBoundary）接住，
  * 交给 onError 由页面在预览区显示，出错的组件不再渲染；文档站本身照常工作。
  * 定时器、Promise 里的错误不经过 Vue，只出现在控制台。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { ConfigContext, type UiConfig } from '@zerodep-dev/vue-tsx-pro-ui';
-import { createApp, h, onErrorCaptured, type Component } from 'vue';
+import { ConfigContext, ErrorBoundary, type UiConfig } from '@zerodep-dev/vue-tsx-pro-ui';
+import { createApp, h, type Component } from 'vue';
 
 /** mountPreview 的选项 */
 export interface PreviewOptions {
@@ -27,16 +27,13 @@ export function mountPreview(
     console.error(error);
     onError(error);
   };
-  const ErrorBoundary = _component(() => {
-    let failed = _state(false);
-    onErrorCaptured((error) => {
-      failed = true;
-      report(error);
-      return false;
-    });
-    return () => (failed ? null : h(component));
-  });
-  const app = createApp(ErrorBoundary);
+  // 出错的说明由页面显示在预览区外，这里出错后什么都不渲染
+  const Root = _component(() => () => (
+    <ErrorBoundary fallback={() => null} onError={report}>
+      {h(component)}
+    </ErrorBoundary>
+  ));
+  const app = createApp(Root);
   app.provide(ConfigContext.key, config);
   // 边界自己出错（理论上不会）时的兜底：同样只报告，不往上抛
   app.config.errorHandler = report;

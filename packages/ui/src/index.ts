@@ -311,6 +311,7 @@ export {
   type EmptyPart,
   type EmptyProps,
 } from './feedback/Empty';
+export { ErrorBoundary, type ErrorBoundaryProps } from './feedback/ErrorBoundary';
 export {
   createLoadingBar,
   LoadingBar,
