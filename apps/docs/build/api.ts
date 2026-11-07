@@ -448,8 +448,11 @@ export interface CatalogEntry {
   api: ComponentApi;
 }
 
-/** 各入口导出的组件：同一个入口同时导出了值 Xxx 与接口 XxxProps 的都算，按组件名排序 */
-export function extractCatalog(): CatalogEntry[] {
+/**
+ * 各入口导出的组件：同一个入口同时导出了值 Xxx 与接口 XxxProps 的都算，按组件名排序。
+ * 演练场的目录只要属性与内容；full 时是完整的 API（组件规格，给 C# 版本比对）
+ */
+export function extractCatalog(full = false): CatalogEntry[] {
   currentProgram();
   const entryOf = (name: string) => exported.get(name)?.entry;
   const catalog: CatalogEntry[] = [];
@@ -462,7 +465,9 @@ export function extractCatalog(): CatalogEntry[] {
     if (!path?.startsWith(src)) continue;
     const api = extractComponentApi(name);
     // 演练场只调属性与内容：部件属性、事件不进目录，数据小一半
-    const props = api.props.filter((prop) => prop.kind === 'prop' || prop.kind === 'content');
+    const props = full
+      ? api.props
+      : api.props.filter((prop) => prop.kind === 'prop' || prop.kind === 'content');
     catalog.push({
       name: component,
       entry: entryOf(component)!,
@@ -476,8 +481,8 @@ export function extractCatalog(): CatalogEntry[] {
 const PREFIX = 'virtual:api/';
 const CATALOG = 'virtual:api-catalog';
 
-/** 发给 api-worker.ts 的请求：接口名（`ButtonProps`）或整个目录；回复是模块代码 */
-export type ApiRequest = { id: number; interfaceName?: string };
+/** 发给 api-worker.ts 的请求：接口名（`ButtonProps`）或整个目录（full 时是完整的组件规格）；回复是模块代码 */
+export type ApiRequest = { id: number; interfaceName?: string; full?: boolean };
 export type ApiResponse = { id: number; code: string } | { id: number; error: string };
 
 /** 在 Worker 线程里提取 API；Worker 第一次用到时才启动 */
@@ -509,12 +514,12 @@ function apiWorker() {
   };
 
   return {
-    /** 接口的 API 数据（不传接口名时是组件目录），返回模块代码 */
-    load: (interfaceName?: string) =>
+    /** 接口的 API 数据（不传接口名时是组件目录，full 时是完整的组件规格），返回模块代码 */
+    load: (interfaceName?: string, full?: boolean) =>
       new Promise<string>((resolve, reject) => {
         const id = nextId++;
         pending.set(id, { resolve, reject });
-        current().postMessage({ id, interfaceName } satisfies ApiRequest);
+        current().postMessage({ id, interfaceName, full } satisfies ApiRequest);
       }),
     /** 源码变了：马上作废程序；连着保存几个文件时停下来半秒再在后台重建，不一次次重建 */
     invalidate: () => {
@@ -581,18 +586,22 @@ function sourceHash() {
   return hash.digest('hex').slice(0, 16);
 }
 
+/** 组件规格在站点上的路径：CSharpUi、Blazor 的 CI 取线上的这份与自己的比对 */
+export const SPEC_FILE = 'spec/components.json';
+
 /**
  * Vite 插件：`virtual:api/<接口名>` 导出那个接口的 API 数据，`virtual:api-catalog` 导出全部组件的目录（组件演练场用）；
- * 组件库源码变了重新生成
+ * 组件库源码变了重新生成。构建时另外输出组件规格（SPEC_FILE）：全部组件的属性、默认值、可选值、部件、能否定制
  */
 export function componentApi(): Plugin {
   const worker = apiWorker();
   const loaded = new Set<string>();
   let cache: ReturnType<typeof apiCache> | undefined;
-  const load = async (name: string, interfaceName?: string) => {
+  let building = false;
+  const load = async (name: string, interfaceName?: string, full?: boolean) => {
     const cached = cache?.read(name);
     if (cached !== undefined) return cached;
-    const code = await worker.load(interfaceName);
+    const code = await worker.load(interfaceName, full);
     cache?.write(name, code);
     return code;
   };
@@ -600,6 +609,18 @@ export function componentApi(): Plugin {
     name: 'docs:component-api',
     configResolved(config) {
       cache = apiCache(config.cacheDir);
+      building = config.command === 'build' && !config.build.ssr;
+    },
+    async generateBundle() {
+      if (!building) return;
+      const code = await load('spec', undefined, true);
+      const components = JSON.parse(code.replace(/^export default /, '').replace(/;\s*$/, ''));
+      const { version } = JSON.parse(readFileSync(MANIFEST, 'utf8')) as { version: string };
+      this.emitFile({
+        type: 'asset',
+        fileName: SPEC_FILE,
+        source: `${JSON.stringify({ package: '@zerodep-dev/vue-tsx-pro-ui', version, components }, null, 1)}\n`,
+      });
     },
     resolveId: (id) => (id.startsWith(PREFIX) || id === CATALOG ? `\0${id}` : undefined),
     load(id) {
