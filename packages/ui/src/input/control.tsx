@@ -276,6 +276,7 @@ export function clickOnShell(
   action: (event: MouseEvent) => void,
 ): (event: MouseEvent) => void {
   return (event) => {
-    if (main() && isShellBlank(event.target as Element, event.currentTarget as Element)) action(event);
+    if (main() && isShellBlank(event.target as Element, event.currentTarget as Element))
+      action(event);
   };
 }
