@@ -69,8 +69,7 @@ const proportionBarStyles = css.create({
   legend: {
     display: 'flex',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    columnGap: '_md',
+    columnGap: '_lg',
     rowGap: '_xs',
     margin: 0,
     padding: 0,
