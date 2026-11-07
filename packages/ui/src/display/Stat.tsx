@@ -24,11 +24,14 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { LinkUnderlineContext } from '../base/Link';
 import type { VNodeChild } from 'vue';
 import { Icon, type IconData } from '../base/Icon';
+import { useComponent } from '../config/components';
 import type { NumericFormat } from '../config/lang/format';
+import type { PartLayer } from '../config/styles';
 import { Skeleton } from '../feedback/Skeleton';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
+import { variantOf } from '../utils/style/styles';
 import { toneStyles, type TextTone } from '../utils/style/typography';
 import type { NumericValue } from '../utils/data/numeric';
 import { AnimatedNumber, type AnimatedNumberProps } from './AnimatedNumber';
@@ -37,8 +40,14 @@ import { t } from '../config/theme/tokens';
 /** 忙碌由组件按 loading 管理 */
 export type StatManaged = 'aria-busy';
 
+/** Stat 的档位：createUi / Provider 的 components.Stat.defaults 可以给默认值 */
+export interface StatOptions {
+  /** 数值的色调：超时、缺漏这类要引起注意的数用 danger、warning；不写时是正文色 */
+  tone?: TextTone;
+}
+
 /** 未声明的属性落到外层 dl 上 */
-export interface StatProps extends PartProps<'dl', StatManaged> {
+export interface StatProps extends PartProps<'dl', StatManaged>, StatOptions {
   /** 指标名 */
   label: VNodeChild;
   /** 数值：number、bigint、Decimal 按当前语言格式化并在变化时滚动；字符串原样显示（如“—”、“98.5%”） */
@@ -50,8 +59,6 @@ export interface StatProps extends PartProps<'dl', StatManaged> {
   format?: NumericFormat;
   /** 单位，跟在数值后面、字号小一档 */
   unit?: VNodeChild;
-  /** 数值的色调：超时、缺漏这类要引起注意的数用 danger、warning；不写时是正文色 */
-  tone?: TextTone;
   /** 指标名前面的图标（装饰，对读屏隐藏） */
   icon?: IconData;
   /** 变化量（环比、同比）：正数向上、负数向下；默认按百分比显示（0.12 → +12%） */
@@ -104,94 +111,121 @@ const CHANGE_FORMAT: NumericFormat = {
 /** 在 StatGroup 里：指标之间画竖线 */
 const StatGroupContext = createContext<boolean>('StatGroup');
 
-/** Stat 的样式：root、label、icon、value、number、unit、change、description、body、footer、skeleton… */
-const statStyles = css.create({
-  // 第一行是指标名与变化量（结束边），其余各占一整行。可换行的弹性布局而不是两列网格：
-  // 卡片窄时变化量换到下一行，指标名不被挤成一字一行；DOM 顺序不变（读屏仍是名称、数值、变化量）
-  root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    columnGap: '_sm',
-    rowGap: '_xs',
-    margin: 0,
-    minWidth: 0,
+/**
+ * Stat 的配方（createUi / Provider 的 components.Stat 按它定制）：root（dl）、label（dt）、icon、value（dd）、number、unit、
+ * change（dd）、changeLabel、description、body（children 的外层）、footer。数值的色调（tone）是档位
+ */
+export const statRecipe = css.recipe({
+  name: 'Stat',
+  parts: [
+    'root',
+    'label',
+    'icon',
+    'value',
+    'number',
+    'unit',
+    'change',
+    'changeLabel',
+    'description',
+    'body',
+    'footer',
+  ],
+  base: {
+    // 第一行是指标名与变化量（结束边），其余各占一整行。可换行的弹性布局而不是两列网格：
+    // 卡片窄时变化量换到下一行，指标名不被挤成一字一行；DOM 顺序不变（读屏仍是名称、数值、变化量）
+    root: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      columnGap: '_sm',
+      rowGap: '_xs',
+      margin: 0,
+      minWidth: 0,
+    },
+    // dt 里放图标与指标名：dl 的子元素只能是 dt、dd
+    label: {
+      order: 0,
+      flexGrow: 1,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '_sm',
+      minWidth: 0,
+      margin: 0,
+      color: '_textMuted',
+      fontSize: '_sm',
+    },
+    icon: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+      width: '1.75em',
+      height: '1.75em',
+      borderRadius: '_md',
+      backgroundColor: '_accentSoft',
+      color: '_accentText',
+    },
+    value: {
+      order: 2,
+      flexBasis: '100%',
+      display: 'flex',
+      alignItems: 'baseline',
+      flexWrap: 'wrap',
+      gap: '_xs',
+      margin: 0,
+    },
+    number: {
+      fontSize: '_xxl',
+      fontWeight: '_bold',
+      lineHeight: '_tight',
+      color: '_text',
+      fontVariantNumeric: 'tabular-nums',
+    },
+    unit: { color: '_textMuted', fontSize: '_xs' },
+    // 变化量在指标名那一行的结束边
+    change: {
+      order: 1,
+      display: 'flex',
+      alignItems: 'center',
+      gap: '_xs',
+      fontSize: '_xs',
+      margin: 0,
+      whiteSpace: 'nowrap',
+    },
+    changeLabel: { color: '_textMuted' },
+    description: { order: 3, flexBasis: '100%', color: '_textMuted', fontSize: '_xs', margin: 0 },
+    body: { order: 3, flexBasis: '100%', margin: 0, minWidth: 0 },
+    // 底栏：两项时分别靠两端，多了换行
+    footer: {
+      order: 3,
+      flexBasis: '100%',
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'baseline',
+      justifyContent: 'space-between',
+      columnGap: '_md',
+      rowGap: '_xs',
+      margin: 0,
+      marginBlockStart: '_xs',
+      paddingBlockStart: '_sm',
+      borderBlockStartWidth: '_xs',
+      borderBlockStartStyle: 'solid',
+      borderBlockStartColor: '_borderMuted',
+      color: '_textMuted',
+      fontSize: '_xs',
+    },
   },
-  // dt 里放图标与指标名：dl 的子元素只能是 dt、dd
-  label: {
-    order: 0,
-    flexGrow: 1,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '_sm',
-    minWidth: 0,
-    margin: 0,
-    color: '_textMuted',
-    fontSize: '_sm',
-  },
-  icon: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-    width: '1.75em',
-    height: '1.75em',
-    borderRadius: '_md',
-    backgroundColor: '_accentSoft',
-    color: '_accentText',
-  },
-  value: {
-    order: 2,
-    flexBasis: '100%',
-    display: 'flex',
-    alignItems: 'baseline',
-    flexWrap: 'wrap',
-    gap: '_xs',
-    margin: 0,
-  },
-  number: {
-    fontSize: '_xxl',
-    fontWeight: '_bold',
-    lineHeight: '_tight',
-    color: '_text',
-    fontVariantNumeric: 'tabular-nums',
-  },
-  unit: { color: '_textMuted', fontSize: '_xs' },
-  // 变化量在指标名那一行的结束边
-  change: {
-    order: 1,
-    display: 'flex',
-    alignItems: 'center',
-    gap: '_xs',
-    fontSize: '_xs',
-    margin: 0,
-    whiteSpace: 'nowrap',
-  },
-  changeLabel: { color: '_textMuted' },
-  description: { order: 3, flexBasis: '100%', color: '_textMuted', fontSize: '_xs', margin: 0 },
-  body: { order: 3, flexBasis: '100%', margin: 0, minWidth: 0 },
-  // 底栏：两项时分别靠两端，多了换行
-  footer: {
-    order: 3,
-    flexBasis: '100%',
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'baseline',
-    justifyContent: 'space-between',
-    columnGap: '_md',
-    rowGap: '_xs',
-    margin: 0,
-    marginBlockStart: '_xs',
-    paddingBlockStart: '_sm',
-    borderBlockStartWidth: '_xs',
-    borderBlockStartStyle: 'solid',
-    borderBlockStartColor: '_borderMuted',
-    color: '_textMuted',
-    fontSize: '_xs',
-  },
-  // 骨架与数值、变化量同高：加载完换成内容时不跳
-  numberSkeleton: { fontSize: '_xxl', width: '4em', height: '1.25em' },
-  changeSkeleton: { width: '6em', height: '1.5em' },
+  variants: { tone: variantOf(toneStyles, 'number') },
+});
+
+/** Stat 的部件（createUi / Provider 的 components.Stat.styles 按它定制） */
+export type StatPart = (typeof statRecipe.parts)[number];
+type StatParts = Readonly<Record<StatPart, PartLayer>>;
+
+/** 加载中的骨架：与数值、变化量同高，加载完换成内容时不跳 */
+const statSkeletonStyles = css.create({
+  number: { fontSize: '_xxl', width: '4em', height: '1.25em' },
+  change: { width: '6em', height: '1.5em' },
 });
 
 /** 统计数值：指标名、数值与单位、图标、变化量 */
@@ -226,11 +260,13 @@ export const Stat = _component(
     // 界面里的链接（指标的操作、附件、值）悬停才有下划线
     LinkUnderlineContext.provide(() => 'hover');
     const grouped = StatGroupContext.inject(false);
+    const ui = useComponent(statRecipe, () => ({ tone }));
     // 骨架防闪烁；aria-busy 按真实的 loading
     const skeleton = useDelayedLoading(() => loading);
     // 出现过骨架之后，换回数值时淡入（样式在切换的那一刻加上，动画才会播）
     let revealing = false;
     return () => {
+      const s: StatParts = ui().parts;
       if (skeleton.value) revealing = true;
       const reveal = revealing && !skeleton.value && shimmerStyles.reveal;
       const direction = change === undefined || change === 0 ? 'flat' : change > 0 ? 'up' : 'down';
@@ -238,55 +274,46 @@ export const Stat = _component(
       const changeTone = direction === 'flat' ? 'muted' : improved ? 'success' : 'danger';
       return (
         <dl
-          {...mergeAttrs<'dl'>({ sx: [statStyles.root, grouped && statGroupStyles.item] }, rest, {
-            'aria-busy': loading || undefined,
-          })}
+          {...mergeAttrs<'dl'>(
+            { ...s.root, sx: [s.root.sx, grouped && statGroupStyles.item] },
+            rest,
+            {
+              'aria-busy': loading || undefined,
+            },
+          )}
         >
-          <dt {...mergeAttrs<'dt'>({ sx: statStyles.label }, propsLabel)}>
+          <dt {...mergeAttrs<'dt'>(s.label, propsLabel)}>
             {icon && (
-              <span
-                {...mergeAttrs<'span'>({ sx: statStyles.icon }, propsIcon, { 'aria-hidden': true })}
-              >
+              <span {...mergeAttrs<'span'>(s.icon, propsIcon, { 'aria-hidden': true })}>
                 <Icon icon={icon} />
               </span>
             )}
             <span>{label}</span>
           </dt>
-          <dd {...mergeAttrs<'dd'>({ sx: [statStyles.value, reveal] }, propsValue)}>
+          <dd {...mergeAttrs<'dd'>({ ...s.value, sx: [s.value.sx, reveal] }, propsValue)}>
             {skeleton.value ? (
-              <Skeleton sx={statStyles.numberSkeleton} />
+              <Skeleton sx={statSkeletonStyles.number} />
             ) : typeof value !== 'string' ? (
               <AnimatedNumber
-                {...mergePartProps<AnimatedNumberProps>(
-                  { sx: [statStyles.number, tone && toneStyles[tone]], value },
-                  propsNumber,
-                  {
-                    value,
-                    format,
-                  },
-                )}
+                {...mergePartProps<AnimatedNumberProps>({ ...s.number, value }, propsNumber, {
+                  value,
+                  format,
+                })}
               />
             ) : (
-              <span
-                {...mergeAttrs<'span'>(
-                  { sx: [statStyles.number, tone && toneStyles[tone]] },
-                  propsNumber,
-                )}
-              >
-                {value}
-              </span>
+              <span {...mergeAttrs<'span'>(s.number, propsNumber)}>{value}</span>
             )}
             {unit != null && !skeleton.value && (
-              <span {...mergeAttrs<'span'>({ sx: statStyles.unit }, propsUnit)}>{unit}</span>
+              <span {...mergeAttrs<'span'>(s.unit, propsUnit)}>{unit}</span>
             )}
           </dd>
           {change !== undefined && (
             <dd
-              {...mergeAttrs<'dd'>({ sx: [statStyles.change, reveal] }, propsChange)}
+              {...mergeAttrs<'dd'>({ ...s.change, sx: [s.change.sx, reveal] }, propsChange)}
               data-trend={skeleton.value ? undefined : direction}
             >
               {skeleton.value ? (
-                <Skeleton sx={statStyles.changeSkeleton} />
+                <Skeleton sx={statSkeletonStyles.change} />
               ) : (
                 <>
                   <span {...css.attrs(toneStyles[changeTone])}>
@@ -299,7 +326,7 @@ export const Stat = _component(
                     <AnimatedNumber value={change} format={changeFormat} />
                   </span>
                   {changeLabel != null && (
-                    <span {...mergeAttrs<'span'>({ sx: statStyles.changeLabel }, propsChangeLabel)}>
+                    <span {...mergeAttrs<'span'>(s.changeLabel, propsChangeLabel)}>
                       {changeLabel}
                     </span>
                   )}
@@ -308,16 +335,10 @@ export const Stat = _component(
             </dd>
           )}
           {hasContent(description) && (
-            <dd {...mergeAttrs<'dd'>({ sx: statStyles.description }, propsDescription)}>
-              {description}
-            </dd>
+            <dd {...mergeAttrs<'dd'>(s.description, propsDescription)}>{description}</dd>
           )}
-          {hasContent(children) && (
-            <dd {...mergeAttrs<'dd'>({ sx: statStyles.body }, propsBody)}>{children}</dd>
-          )}
-          {hasContent(footer) && (
-            <dd {...mergeAttrs<'dd'>({ sx: statStyles.footer }, propsFooter)}>{footer}</dd>
-          )}
+          {hasContent(children) && <dd {...mergeAttrs<'dd'>(s.body, propsBody)}>{children}</dd>}
+          {hasContent(footer) && <dd {...mergeAttrs<'dd'>(s.footer, propsFooter)}>{footer}</dd>}
         </dl>
       );
     };

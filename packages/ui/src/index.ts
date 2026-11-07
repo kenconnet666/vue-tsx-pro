@@ -295,8 +295,11 @@ export {
 export {
   Stat,
   StatGroup,
+  statRecipe,
   type StatGroupProps,
   type StatManaged,
+  type StatOptions,
+  type StatPart,
   type StatProps,
 } from './display/Stat';
 export {

@@ -26,6 +26,7 @@ import type { ComponentName } from '../components';
 import { Tab, TabList, Tabs } from '../../navigation/Tabs';
 import { mount, styleOf } from '../../utils/.test/mount';
 import { Provider } from '../Provider';
+import { statRecipe } from '../../display/Stat';
 import { timelineRecipe } from '../../display/Timeline';
 
 describe('components', () => {
@@ -49,6 +50,7 @@ describe('components', () => {
       Choice: choiceRecipe,
       DataTable: dataTableRecipe,
       Table: tableRecipe,
+      Stat: statRecipe,
       Timeline: timelineRecipe,
     } satisfies Record<ComponentName, { readonly name: string | undefined }>;
     for (const [name, recipe] of Object.entries(recipes)) expect(recipe.name).toBe(name);

@@ -37,6 +37,8 @@
   `dayButton`，CalendarView 的 `weekNumber`，Diagram 的 `edgeLine`、`edgeArrow`、`edgeText`、`edgeEnd`，JsonViewer 的 `pathBar`，
   ColorPicker 的 `eyeDropper`，Breadcrumbs 的 `collapsedItem`，AppShell 的 `headerContent`，DonutChart 的 `centerLabel`、MapChart 的
   `areaLabels`、`pointLabels`（这三处现在也带 `data-scope`）。按 `[data-part="day-head"]` 写的样式要跟着改。
+- Stat 改成配方组件：各部件带 `data-scope="stat"` 标记（原来没有），`components.Stat` 可以给 `tone` 的默认值、按部件
+  （root、label、icon、value、number、unit、change、changeLabel、description、body、footer）与色调档位追加样式。
 - Timeline 改成配方组件：`createUi` / `Provider` 的 `components.Timeline` 可以给 `alternate`、`size` 的默认值，按部件
   （root、item、rail、marker、line、content、title、meta、actor、time、description、toggleLine、toggleContent）追加样式。
 - TreemapChart 给读屏的数据表：表头已写单位，格子里不再重复单位（同 DonutChart、FunnelChart）。
