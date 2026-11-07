@@ -10,7 +10,7 @@ const styles = css.create({
 });
 
 export default _component(() => () => (
-  <Grid minItemWidth="12em" gap="md">
+  <Grid minItemWidth="12em" balanced gap="md">
     <Card sx={styles.center}>
       <Gauge
         value={0.82}

@@ -3,7 +3,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Button, Card, Empty, Grid, Link, Text } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
-  <Grid minItemWidth="14em" gap="md">
+  <Grid minItemWidth="14em" balanced gap="md">
     <Card>
       <Empty
         icon={Inbox}

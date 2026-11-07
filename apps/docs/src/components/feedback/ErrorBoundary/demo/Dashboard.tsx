@@ -27,7 +27,7 @@ export default _component(() => {
   let reports = _state(0);
   let version = _state(0);
   return () => (
-    <Grid minItemWidth="16rem" gap="md">
+    <Grid minItemWidth="16rem" balanced gap="md">
       <Card>
         <ErrorBoundary key={version} onError={() => reports++}>
           <Revenue />

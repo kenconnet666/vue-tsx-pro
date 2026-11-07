@@ -10,7 +10,7 @@ const plants = [
 
 export default _component(() => () => (
   <Flex direction="column" gap="lg">
-    <Grid minItemWidth="9rem" gap="md">
+    <Grid minItemWidth="9rem" balanced gap="md">
       {plants.map((plant) => (
         <Card key={plant.name}>
           <Flex direction="column" align="center" gap="xs">

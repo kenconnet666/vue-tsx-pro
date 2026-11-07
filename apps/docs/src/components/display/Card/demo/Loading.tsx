@@ -17,7 +17,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Switch _checked={loading}>加载中</Switch>
-      <Grid minItemWidth="11em" gap="md">
+      <Grid minItemWidth="11em" balanced gap="md">
         {paddings.map((padding) => (
           <Card
             key={padding}

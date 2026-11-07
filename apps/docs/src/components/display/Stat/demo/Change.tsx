@@ -2,7 +2,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Card, Grid, Stat } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
-  <Grid minItemWidth="12em" gap="md">
+  <Grid minItemWidth="12em" balanced gap="md">
     <Card>
       <Stat label="订单数" value={1284} change={0.123} changeLabel="较上月" />
     </Card>

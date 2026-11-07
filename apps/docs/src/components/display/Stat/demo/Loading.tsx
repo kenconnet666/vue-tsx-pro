@@ -7,7 +7,7 @@ export default _component(() => {
   return () => (
     <Flex direction="column" gap="md">
       <Switch _checked={loading}>加载中</Switch>
-      <Grid minItemWidth="12em" gap="md">
+      <Grid minItemWidth="12em" balanced gap="md">
         <Card>
           <Stat label="项目总数" value={6} unit="项" icon={ClipboardList} loading={loading} />
         </Card>

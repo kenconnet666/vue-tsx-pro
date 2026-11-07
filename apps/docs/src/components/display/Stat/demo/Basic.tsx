@@ -13,7 +13,7 @@ const expected = new Decimal('10875000');
 const actual = new Decimal('9103600.35');
 
 export default _component(() => () => (
-  <Grid minItemWidth="14em" gap="md">
+  <Grid minItemWidth="14em" balanced gap="md">
     <Card>
       <Stat label="项目总数" value={6} unit="项" icon={ClipboardList} />
     </Card>

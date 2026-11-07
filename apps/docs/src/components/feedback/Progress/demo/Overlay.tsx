@@ -29,7 +29,7 @@ export default _component(() => {
       <LoadingOverlay loading={saving} blur={blur} label="正在保存">
         <Card>
           <Flex direction="column" gap="md">
-            <Grid minItemWidth="12em" gap="md">
+            <Grid minItemWidth="12em" balanced gap="md">
               <Field label="项目名称">
                 <TextField _value={name} disabled={saving} />
               </Field>

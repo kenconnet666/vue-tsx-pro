@@ -42,7 +42,7 @@ export default _component(() => {
 
   return () => (
     <ClientOnly>
-      <Grid minItemWidth="14rem" gap="md">
+      <Grid minItemWidth="14rem" balanced gap="md">
         <Card padding="md">
           <Flex direction="column" gap="sm">
             <Small tone="muted">双十一抢购距开始</Small>

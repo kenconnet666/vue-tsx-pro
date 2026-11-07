@@ -9,7 +9,7 @@ const variants = [
 ] as const;
 
 export default _component(() => () => (
-  <Grid minItemWidth="13em" gap="md">
+  <Grid minItemWidth="13em" balanced gap="md">
     {variants.map(([variant, description]) => (
       <Card key={variant} variant={variant}>
         <Strong>{variant}</Strong>

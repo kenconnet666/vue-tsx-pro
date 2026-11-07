@@ -8,7 +8,7 @@ const visits = [820, 932, 901, 934, 1290, 1330, 1320, 1180, 1420, 1510, 1490, 16
 const overdue = [6, 4, 7, 3, 2, 5, 1, 0, 2, 1, 3, 1];
 
 export default _component(() => () => (
-  <Grid minItemWidth="14em" gap="md">
+  <Grid minItemWidth="14em" balanced gap="md">
     <Card>
       <Stat label="实际销售" value={360} unit="万元" change={0.333} changeLabel="较上月">
         <Sparkline data={savings} label="近 12 个月实际销售" valueFormat={{ suffix: '万元' }} />

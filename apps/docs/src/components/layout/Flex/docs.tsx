@@ -40,6 +40,11 @@ export default _component(() => () => (
           <Code>minItemWidth</Code>{' '}
           给每项的最小宽度，容器多宽就放几列，不需要断点；项目少于放得下的列数时各项拉宽占满（auto-fit）。这里用
           GridList：渲染为 ul，子元素用 li，读屏念“列表，6 项”。
+          {
+            '商品这类会越来越多的列表，最后一行不满是正常的；一排指标卡、一组入口这类固定几项的，加 '
+          }
+          <Code>balanced</Code> 按项数取列数，最后一行最多空一格（4 项不排成 3 + 1，6 项不排成 4 +
+          2）。
         </Example>
         <Example id="labelled-separator" title="带文字的分隔线" demo={LabelledSeparators}>
           Separator 里写文字：默认居中，两边各一段线；<Code>labelAlign="start"</Code>{' '}

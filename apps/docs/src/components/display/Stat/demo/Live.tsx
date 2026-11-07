@@ -1,23 +1,17 @@
+// 实时指标：每 2 秒推一个新值，数值滚动到新值，变化量与上一次比较；下面是最近 12 次的柱，最新的一根实色
 import { Activity, Gauge, ShoppingCart, Users } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Card, Flex, Grid, Small, Stat, Switch, type IconData } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  Card,
+  Flex,
+  Grid,
+  Small,
+  Sparkline,
+  Stat,
+  Switch,
+  type IconData,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { onScopeDispose } from 'vue';
-
-const styles = css.create({
-  // 迷你趋势：最近 12 次的柱，最新的一根用强调色
-  trend: { display: 'flex', alignItems: 'flex-end', gap: '2px', height: '2rem' },
-  bar: {
-    flexGrow: 1,
-    borderRadius: '1px',
-    backgroundColor: '_accentSoftHover',
-    transitionProperty: 'height',
-    transitionDuration: '_durations.md',
-    transitionTimingFunction: '_easings.standard',
-  },
-  latest: { backgroundColor: '_accent' },
-  height: (percent: string) => ({ height: percent }),
-});
 
 interface Metric {
   label: string;
@@ -57,37 +51,31 @@ export default _component(() => {
         <Switch _checked={running}>每 2 秒刷新</Switch>
         <Small tone="muted">数值滚动到新值，变化量与上一次比较</Small>
       </Flex>
-      <Grid minItemWidth="15em" gap="md">
+      <Grid minItemWidth="15em" gap="md" balanced>
         {metrics.map(({ label, icon, unit, history }) => {
           const value = history.at(-1)!;
           const previous = history.at(-2)!;
-          const max = Math.max(...history);
           const min = Math.min(...history);
+          const max = Math.max(...history);
           return (
             <Card key={label}>
-              <Flex direction="column" gap="md">
-                <Stat
-                  label={label}
-                  icon={icon}
-                  value={value}
-                  unit={unit}
-                  change={previous ? (value - previous) / previous : 0}
-                  changeLabel="较上次"
-                  invertChange={label === '平均延迟'}
+              <Stat
+                label={label}
+                icon={icon}
+                value={value}
+                unit={unit}
+                change={previous ? (value - previous) / previous : 0}
+                changeLabel="较上次"
+                invertChange={label === '平均延迟'}
+              >
+                {/* 柱默认从 0 起；值都在几千上下时从略低于最小值的地方起，起伏才看得出 */}
+                <Sparkline
+                  data={history}
+                  type="bar"
+                  domain={[min - (max - min) / 3, undefined]}
+                  label={`最近 12 次${label}`}
                 />
-                <div {...css.attrs(styles.trend)} aria-hidden="true">
-                  {history.map((point, index) => (
-                    <span
-                      key={index}
-                      {...css.attrs(
-                        styles.bar,
-                        index === history.length - 1 && styles.latest,
-                        styles.height(`${25 + ((point - min) / (max - min || 1)) * 75}%`),
-                      )}
-                    />
-                  ))}
-                </div>
-              </Flex>
+              </Stat>
             </Card>
           );
         })}
