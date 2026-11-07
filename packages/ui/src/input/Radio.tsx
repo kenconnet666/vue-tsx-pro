@@ -24,6 +24,8 @@ import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
 import { useRecipe } from '../config/styles';
 import {
+  choiceCardDynamicStyles,
+  choiceCardStyles,
   choiceInputStyles,
   choiceParts,
   choiceRecipe,
@@ -52,6 +54,8 @@ export interface RadioGroupState {
   readonly size: TextSize | undefined;
   /** 选中时的色调 */
   readonly tone: StatusTone;
+  /** 卡片外观 */
+  readonly card: boolean;
   /** 选中一个值 */
   select(value: string): void;
 }
@@ -77,8 +81,12 @@ export interface RadioGroupBaseProps<T> extends PartProps<'div', 'role'> {
   size?: TextSize;
   /** 选中时的色调（与 Button、Badge 等同一套），默认 accent；可以用 defaults.Choice 统一改 */
   tone?: StatusTone;
-  /** 排列方向，默认 vertical */
+  /** 排列方向，默认 vertical；卡片外观横排时按宽度分列 */
   orientation?: keyof ChoiceOrientations;
+  /** 卡片外观：每项是一张带边框的卡片，选中时边框与底色换成色调色（套餐、配送方式）；组里的 Radio 都跟着 */
+  card?: boolean;
+  /** 卡片外观横排时每张的最小宽度（CSS 长度），放得下几张就几列 */
+  minItemWidth?: string;
   /** 各项：ListboxOption（值、文字、说明、不可用）、字符串，或任意数据加 toOption；写了 children 时不用 */
   items?: readonly T[];
   /** Radio；不写时按 items 生成 */
@@ -100,6 +108,8 @@ export const RadioGroup = _component(
     size,
     tone,
     orientation = 'vertical',
+    card = false,
+    minItemWidth = '14em',
     id,
     items,
     toOption,
@@ -134,22 +144,38 @@ export const RadioGroup = _component(
       get tone() {
         return appearance().tone;
       },
+      get card() {
+        return card;
+      },
       select: (next) => (value = next),
     });
 
     return () => {
       const state = control();
+      const group = appearance().recipe({ orientation, card }).group;
       return (
         <div
-          {...mergeAttrs<'div'>(appearance().recipe({ orientation }).group, rest, {
-            id: state.id,
-            role: 'radiogroup',
-            'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
-            'aria-describedby': state.describedBy,
-            'aria-invalid': state.invalid || undefined,
-            'aria-required': state.required || undefined,
-            'aria-readonly': state.readonly || undefined,
-          })}
+          {...mergeAttrs<'div'>(
+            {
+              ...group,
+              sx: [
+                group.sx,
+                card &&
+                  orientation === 'horizontal' &&
+                  choiceCardDynamicStyles.columns(minItemWidth),
+              ],
+            },
+            rest,
+            {
+              id: state.id,
+              role: 'radiogroup',
+              'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
+              'aria-describedby': state.describedBy,
+              'aria-invalid': state.invalid || undefined,
+              'aria-required': state.required || undefined,
+              'aria-readonly': state.readonly || undefined,
+            },
+          )}
           data-orientation={orientation}
           data-disabled={state.disabled || undefined}
           data-readonly={state.readonly || undefined}
@@ -183,6 +209,12 @@ export interface RadioProps extends PartProps<'input', RadioManaged> {
   value: string;
   /** 这一项不可用 */
   disabled?: boolean;
+  /** 卡片外观；不写时跟随 RadioGroup 的 card */
+  card?: boolean;
+  /** 结束边的内容（价格、标记），卡片外观时常用 */
+  end?: VNodeChild;
+  /** 结束边内容外层的部件属性 */
+  propsEnd?: PartProps<'span'>;
   /** 外层 label 的部件属性 */
   propsRoot?: PartProps<'label'>;
   /** 叠放层的部件属性 */
@@ -218,6 +250,9 @@ export const Radio = _component(
   ({
     value,
     disabled,
+    card,
+    end,
+    propsEnd,
     propsRoot,
     propsControl,
     propsIndicator,
@@ -233,13 +268,17 @@ export const Radio = _component(
     return () => {
       const checked = group.value === value;
       const off = disabled ?? group.disabled;
+      const asCard = card ?? group.card;
       const s = choiceParts(
         { size: group.size, tone: group.tone, recipe },
-        { disabled: off, readonly: group.readonly },
+        { disabled: off, readonly: group.readonly, card: asCard },
       );
       return (
         <label
-          {...mergeAttrs<'label'>(s.root, propsRoot)}
+          {...mergeAttrs<'label'>(
+            { ...s.root, sx: [s.root.sx, asCard && checked && choiceCardStyles.checked] },
+            propsRoot,
+          )}
           data-state={checked ? 'checked' : 'unchecked'}
           data-disabled={off || undefined}
           data-readonly={group.readonly || undefined}
@@ -302,6 +341,7 @@ export const Radio = _component(
               )}
             </span>
           )}
+          {hasContent(end) && <span {...mergeAttrs<'span'>(s.end, propsEnd)}>{end}</span>}
         </label>
       );
     };

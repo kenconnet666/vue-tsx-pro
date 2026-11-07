@@ -32,12 +32,12 @@ export interface ChoiceOptions {
 
 /**
  * 勾选类控件的配方：部件 root（外层 label，整块可点）、control（叠放层）、input（原生 input）、
- * indicator（标记：对勾、圆点、开关滑块）、label（文字）、description（文字下方的说明）、group（复选组、单选组）。
- * 档位是外层的只读、不可用与组的排列方向；勾选、出错见 choiceInputStyles
+ * indicator（标记：对勾、圆点、开关滑块）、label（文字）、description（文字下方的说明）、end（结束边的内容：价格、标记）、
+ * group（复选组、单选组）。档位是外层的只读、不可用、卡片外观与组的排列方向；勾选、出错见 choiceInputStyles、choiceCardStyles
  */
 export const choiceRecipe = css.recipe({
   name: 'Choice',
-  parts: ['root', 'control', 'input', 'indicator', 'label', 'description', 'group'],
+  parts: ['root', 'control', 'input', 'indicator', 'label', 'description', 'end', 'group'],
   base: {
     // 控件与文字一行，整块可点；点击区域不小于 24px（WCAG 2.5.8）
     root: {
@@ -78,6 +78,13 @@ export const choiceRecipe = css.recipe({
     label: { minWidth: 0, display: 'grid' },
     // 次要颜色、小一号
     description: { color: '_textMuted', fontSize: '0.875em' },
+    end: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '_xs',
+      flexShrink: 0,
+      marginInlineStart: 'auto',
+    },
   },
   variants: {
     // 只读：外观照常（看得清选了什么），只是不像能点
@@ -87,6 +94,27 @@ export const choiceRecipe = css.recipe({
       vertical: { group: { display: 'flex', flexDirection: 'column', gap: '_xs' } },
       horizontal: {
         group: { display: 'flex', flexWrap: 'wrap', columnGap: '_lg', rowGap: '_xs' },
+      },
+    },
+    // 卡片外观：整块是一张带边框的卡片（套餐、配送方式、模板）；组排成栅格（排在 orientation 后面，盖过它的 flex）。
+    // 选中时的边框与底色见 choiceCardStyles
+    card: {
+      true: {
+        root: {
+          display: 'flex',
+          width: '_full',
+          gap: '_sm',
+          paddingBlock: '_md',
+          paddingInline: '_md',
+          borderWidth: '_xs',
+          borderStyle: 'solid',
+          borderColor: { default: '_border', _hover: '_borderStrong' },
+          borderRadius: '_md',
+          backgroundColor: '_surface',
+          transition: `background-color ${t.durations.sm} ${t.easings.standard}, border-color ${t.durations.sm} ${t.easings.standard}`,
+        },
+        label: { flexGrow: 1 },
+        group: { display: 'grid', gap: '_sm' },
       },
     },
     // 色调经变量传给方框、圆点、轨道（toneFillStyles）；字号不写时继承
@@ -108,6 +136,27 @@ export const choiceInputStyles = css.create({
   /** 已勾选（或部分勾选）：色调的实底色，见 choiceParts */
   checked: { borderColor: 'var(--tone-fill)', backgroundColor: 'var(--tone-fill)' },
   invalid: { borderColor: '_danger', outlineColor: '_danger' },
+});
+
+/**
+ * 卡片外观的状态样式：选中时边框与浅底换成色调色；横排的组按宽度分列
+ * @internal 组件之间共用，不进入口
+ */
+export const choiceCardStyles = css.create({
+  checked: {
+    borderColor: 'var(--tone-fill)',
+    backgroundColor: `color-mix(in oklab, var(--tone-fill) 8%, ${t.colors.surface})`,
+  },
+});
+
+/**
+ * 卡片外观横排时按宽度分列：每张不窄于 minItemWidth
+ * @internal 组件之间共用，不进入口
+ */
+export const choiceCardDynamicStyles = css.create({
+  columns: (minItemWidth: string) => ({
+    gridTemplateColumns: `repeat(auto-fill, minmax(min(${minItemWidth}, 100%), 1fr))`,
+  }),
 });
 
 /** 合并后的外观：tone 总有值，size 不写时继承字号 */
@@ -132,9 +181,9 @@ export type ChoiceParts = {
 /** 外观与状态 → 各部件的默认层（配方里有色调、字号与状态） */
 export function choiceParts(
   { size, tone, recipe }: ChoiceAppearance,
-  { disabled, readonly }: { disabled: boolean; readonly: boolean },
+  { disabled, readonly, card = false }: { disabled: boolean; readonly: boolean; card?: boolean },
 ): ChoiceParts {
-  return recipe({ readonly, disabled, tone, size });
+  return recipe({ readonly, disabled, card, tone, size });
 }
 
 const ARROW_KEYS = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);

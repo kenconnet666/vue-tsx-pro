@@ -36,6 +36,8 @@ import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
 import { useRecipe } from '../config/styles';
 import {
+  choiceCardDynamicStyles,
+  choiceCardStyles,
   choiceInputStyles,
   choiceParts,
   choiceRecipe,
@@ -57,6 +59,8 @@ export interface CheckboxGroupState {
   readonly readonly: boolean;
   /** 整组校验未通过 */
   readonly invalid: boolean;
+  /** 卡片外观 */
+  readonly card: boolean;
   /** 勾选或取消一个值 */
   toggle(value: string): void;
 }
@@ -88,6 +92,12 @@ export interface CheckboxProps extends PartProps<'input', CheckboxManaged> {
   size?: TextSize;
   /** 选中时的色调（与 Button、Badge 等同一套），默认 accent；可以用 defaults.Choice 统一改 */
   tone?: StatusTone;
+  /** 卡片外观：整块是一张带边框的卡片，勾选时边框与底色换成色调色；在复选组里不写时跟随组的 card */
+  card?: boolean;
+  /** 结束边的内容（价格、标记），卡片外观时常用 */
+  end?: VNodeChild;
+  /** 结束边内容外层的部件属性 */
+  propsEnd?: PartProps<'span'>;
   /** 外层 label 的部件属性 */
   propsRoot?: PartProps<'label'>;
   /** 叠放层的部件属性 */
@@ -123,6 +133,9 @@ export const Checkbox = _component(
     invalid,
     size,
     tone,
+    card,
+    end,
+    propsEnd,
     id,
     propsRoot,
     propsControl,
@@ -163,10 +176,14 @@ export const Checkbox = _component(
       const locked = readonly ?? group?.readonly ?? field?.readonly ?? false;
       const bad = invalid ?? group?.invalid ?? field?.invalid ?? false;
       const marked = isChecked || indeterminate;
-      const s = choiceParts(appearance(), { disabled: off, readonly: locked });
+      const asCard = card ?? group?.card ?? false;
+      const s = choiceParts(appearance(), { disabled: off, readonly: locked, card: asCard });
       return (
         <label
-          {...mergeAttrs<'label'>(s.root, propsRoot)}
+          {...mergeAttrs<'label'>(
+            { ...s.root, sx: [s.root.sx, asCard && marked && choiceCardStyles.checked] },
+            propsRoot,
+          )}
           data-state={indeterminate ? 'indeterminate' : isChecked ? 'checked' : 'unchecked'}
           data-disabled={off || undefined}
           data-readonly={locked || undefined}
@@ -232,6 +249,7 @@ export const Checkbox = _component(
               )}
             </span>
           )}
+          {hasContent(end) && <span {...mergeAttrs<'span'>(s.end, propsEnd)}>{end}</span>}
         </label>
       );
     };
@@ -250,8 +268,12 @@ export interface CheckboxGroupBaseProps<T> extends PartProps<'div', 'role'> {
   readonly?: boolean;
   /** 校验未通过（如“至少选一项”） */
   invalid?: boolean;
-  /** 排列方向，默认 vertical */
+  /** 排列方向，默认 vertical；卡片外观横排时按宽度分列 */
   orientation?: keyof ChoiceOrientations;
+  /** 卡片外观：每项是一张带边框的卡片，勾选时边框与底色换成色调色；组里的 Checkbox 都跟着 */
+  card?: boolean;
+  /** 卡片外观横排时每张的最小宽度（CSS 长度），放得下几张就几列 */
+  minItemWidth?: string;
   /** 各项：ListboxOption（值、文字、说明、不可用）、字符串，或任意数据加 toOption；写了 children 时不用 */
   items?: readonly T[];
   /** Checkbox；不写时按 items 生成 */
@@ -270,6 +292,8 @@ export const CheckboxGroup = _component(
     readonly,
     invalid,
     orientation = 'vertical',
+    card = false,
+    minItemWidth = '14em',
     id,
     items,
     toOption,
@@ -294,6 +318,9 @@ export const CheckboxGroup = _component(
       get invalid() {
         return control().invalid;
       },
+      get card() {
+        return card;
+      },
       toggle(item) {
         value = [...toggleSelection(value, item, { mode: 'multiple' })];
       },
@@ -301,14 +328,27 @@ export const CheckboxGroup = _component(
 
     return () => {
       const state = control();
+      const group = recipe({ orientation, card }).group;
       return (
         <div
-          {...mergeAttrs<'div'>(recipe({ orientation }).group, rest, {
-            id: state.id,
-            role: 'group',
-            'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
-            'aria-describedby': state.describedBy,
-          })}
+          {...mergeAttrs<'div'>(
+            {
+              ...group,
+              sx: [
+                group.sx,
+                card &&
+                  orientation === 'horizontal' &&
+                  choiceCardDynamicStyles.columns(minItemWidth),
+              ],
+            },
+            rest,
+            {
+              id: state.id,
+              role: 'group',
+              'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
+              'aria-describedby': state.describedBy,
+            },
+          )}
           data-orientation={orientation}
           data-disabled={state.disabled || undefined}
           data-readonly={state.readonly || undefined}

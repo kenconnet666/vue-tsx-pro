@@ -84,6 +84,50 @@ describe('RadioGroup', () => {
   });
 });
 
+describe('卡片外观（card）', () => {
+  it('组的 card 交给每一项；选中的卡片换成选中样式；end 在文字后面，单项写的 card 优先', async () => {
+    let plan = _state<string | null>('basic');
+    const root = mount(() => (
+      <RadioGroup _value={plan} card orientation="horizontal" aria-label="套餐">
+        <Radio value="basic" end="¥0">
+          基础版
+        </Radio>
+        <Radio value="pro" end="¥99" description="团队协作">
+          专业版
+        </Radio>
+        <Radio value="plain" card={false}>
+          不要卡片
+        </Radio>
+      </RadioGroup>
+    ));
+    const [basic, pro, plain] = [...root.querySelectorAll('label')];
+    // 卡片与普通的外层样式不同；选中与没选中的卡片样式不同
+    expect(basic!.className).not.toBe(plain!.className);
+    expect(basic!.className).not.toBe(pro!.className);
+    expect(pro!.textContent).toBe('专业版团队协作¥99');
+    await click(pro!.querySelector('input')!);
+    expect(plan).toBe('pro');
+    const cardClass = (label: Element) => label.className;
+    expect(cardClass(root.querySelectorAll('label')[1]!)).not.toBe(cardClass(basic!));
+  });
+
+  it('复选组也一样：勾选的卡片换成选中样式，值照常写回', async () => {
+    let features = _state<string[]>([]);
+    const root = mount(() => (
+      <CheckboxGroup _value={features} card aria-label="功能">
+        <Checkbox value="sso">单点登录</Checkbox>
+        <Checkbox value="audit">审计日志</Checkbox>
+      </CheckboxGroup>
+    ));
+    const [sso, audit] = [...root.querySelectorAll('label')];
+    const before = sso!.className;
+    expect(before).toBe(audit!.className);
+    await click(sso!.querySelector('input')!);
+    expect(features).toEqual(['sso']);
+    expect(root.querySelectorAll('label')[0]!.className).not.toBe(before);
+  });
+});
+
 describe('Switch', () => {
   it('role="switch" 的原生 checkbox；在 Field 里时 for 指向它', async () => {
     let on = _state(false);

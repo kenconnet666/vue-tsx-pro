@@ -884,6 +884,7 @@ export const DataTableView = _component(
       invalid: false,
       size: undefined,
       tone: 'accent',
+      card: false,
       select: (key) => onToggleRow?.(key),
     });
     // 遍历全部行：放在派生里，滚动时的重新渲染不必再算一遍；全选只看能勾选的行
