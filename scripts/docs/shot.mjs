@@ -58,6 +58,14 @@ const markOpen = (page) =>
 
 /** 截一个示例：换成页面坐标，卡片与新打开的顶层合起来 */
 async function shoot(page, id, file) {
+  // 无限循环的动画（转圈、扫光、进度条的流动）停在第一帧：每次截到同一帧；有限的过渡不动（弹层还在展开）
+  await page.evaluate(() => {
+    for (const animation of document.getAnimations())
+      if (animation.effect?.getComputedTiming().iterations === Infinity) {
+        animation.pause();
+        animation.currentTime = 0;
+      }
+  });
   const clip = await page.evaluate(
     ([id, opened]) => {
       const rects = [
