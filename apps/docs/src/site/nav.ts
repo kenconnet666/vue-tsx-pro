@@ -85,6 +85,13 @@ const guide: NavSection = {
       component: () => import('../pages/guide/Theming'),
     },
     {
+      path: '/guide/accessibility',
+      title: 'Accessibility 无障碍',
+      description:
+        '键盘、读屏、对比度、减少动态效果、从右到左：组件库默认做到的，怎样检查，使用方要补上的名称',
+      component: () => import('../pages/guide/Accessibility'),
+    },
+    {
       path: '/guide/data',
       title: 'Data 请求与数据',
       description:
