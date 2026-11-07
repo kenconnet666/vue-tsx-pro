@@ -557,7 +557,12 @@ export {
 
 // 输入
 export { Autocomplete, type AutocompleteProps } from './input/Autocomplete';
-export { Cascader, cascaderStyles, type CascaderProps } from './input/Cascader';
+export {
+  Cascader,
+  cascaderStyles,
+  type CascaderOptionPart,
+  type CascaderProps,
+} from './input/Cascader';
 export { CharacterCount, type CharacterCountProps } from './input/CharacterCount';
 export {
   Checkbox,

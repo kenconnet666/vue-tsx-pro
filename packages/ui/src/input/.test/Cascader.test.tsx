@@ -193,4 +193,22 @@ describe('Cascader', () => {
     await flush();
     expect(path).toEqual(['zj', 'hz', 'bj']);
   });
+
+  it('部件：选项可以按节点给部件属性，列、选项、文字带 data-part', async () => {
+    const root = mount(() => (
+      <Cascader
+        items={regions}
+        {...accessors}
+        aria-label="地区"
+        propsOption={(region) => ({ 'data-code': region.code }) as never}
+      />
+    ));
+    root.querySelector<HTMLButtonElement>('button[role="combobox"]')!.click();
+    await flush();
+    expect(option(0, '浙江').getAttribute('data-code')).toBe('zj');
+    expect(option(0, '浙江').getAttribute('data-part')).toBe('option');
+    expect(column(0).getAttribute('data-part')).toBe('column');
+    expect(document.querySelector('[data-scope="cascader"][data-part="label"]')).not.toBeNull();
+    expect(document.querySelector('[data-scope="cascader"][data-part="popover"]')).not.toBeNull();
+  });
 });

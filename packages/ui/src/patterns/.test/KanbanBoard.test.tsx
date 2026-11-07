@@ -157,4 +157,44 @@ describe('KanbanBoard', () => {
     expect(onReject).not.toHaveBeenCalled();
     expect(live()).toContain('处理中');
   });
+
+  it('部件：列、卡片可以按列、按卡片给部件属性，各层带 data-part', () => {
+    const root = mount(() => (
+      <KanbanBoard
+        aria-label="看板"
+        columns={columns}
+        items={[{ id: 'a', title: '写文档', stage: 'todo' }]}
+        getKey={(card) => card.id}
+        getColumn={(card) => card.stage}
+        onMove={() => {}}
+        propsColumn={(column) => ({ 'data-column': column.key }) as never}
+        propsCard={(card) => ({ 'data-card': card.id }) as never}
+        propsCount={{ variant: 'outline' }}
+        propsHandle={{ class: 'my-handle' }}
+      >
+        {(card) => <span>{card.title}</span>}
+      </KanbanBoard>
+    ));
+    expect(root.querySelector('section')!.getAttribute('data-column')).toBe('todo');
+    expect(root.querySelector('[data-part="card"]')!.getAttribute('data-card')).toBe('a');
+    expect(root.querySelector('[data-part="handle"]')!.classList.contains('my-handle')).toBe(true);
+    const parts = new Set(
+      [...root.querySelectorAll('[data-scope="kanban-board"]')].map((node) =>
+        node.getAttribute('data-part'),
+      ),
+    );
+    for (const part of [
+      'root',
+      'board',
+      'column',
+      'header',
+      'title',
+      'count',
+      'list',
+      'empty',
+      'card',
+      'handle',
+    ])
+      expect(parts.has(part)).toBe(true);
+  });
 });

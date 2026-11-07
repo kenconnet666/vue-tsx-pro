@@ -24,21 +24,26 @@
  * - 键盘：每张卡片有把手按钮，空格 / Enter 拿起，← / → 换列（从右到左排版下镜像），↑ / ↓ 调整位置，
  *   空格 / Enter 放下，Esc 取消；每一步都有读屏播报（aria-live）。
  * 列多时整块横向滚动（ScrollArea），每列里的卡片多时列自己竖向滚动。
+ *
+ * 部件（data-scope="kanban-board"）：Root（div）、Board（各列的横排）、Column（section，可以按列计算）、Header、Title、
+ * Count（Badge）、Reason（不能放的原因）、List（ul）、Empty、Card（li，可以按卡片计算）、Handle（ButtonBase）、
+ * Indicator（插入线）、Ghost（跟着指针的影子卡）。
  */
 import { GripVertical } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
-import { Badge } from '../base/Badge';
+import { Badge, type BadgeProps } from '../base/Badge';
 import { useMessages } from '../config/lang/messages';
 import { patternsMessages } from './messages';
-import { ButtonBase } from '../base/ButtonBase';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
+import { partAttrs } from '../config/styles';
 import { ScrollArea } from '../layout/ScrollArea';
 import { useSortable } from '../utils/dom/sortable';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { t } from '../config/theme/tokens';
 
@@ -92,6 +97,24 @@ export interface KanbanBoardProps<T> extends PartProps<'div'> {
   empty?: VNodeChild;
   /** 卡片的内容 */
   children: (item: T, state: KanbanCardState) => VNodeChild;
+  /** 各列横排那一层的部件属性 */
+  propsBoard?: PartProps<'div'>;
+  /** 每一列（section）的部件属性，可以按列计算 */
+  propsColumn?: PartProps<'section'> | ((column: KanbanColumn) => PartProps<'section'>);
+  /** 列头（名称与数量）的部件属性 */
+  propsHeader?: PartProps<'div'>;
+  /** 列头数量（Badge）的部件属性 */
+  propsCount?: Partial<BadgeProps>;
+  /** 不能放时列头下面的原因的部件属性 */
+  propsReason?: PartProps<'div'>;
+  /** 卡片列表（ul）的部件属性 */
+  propsList?: PartProps<'ul'>;
+  /** 空列的提示的部件属性 */
+  propsEmpty?: PartProps<'li'>;
+  /** 每张卡片（li）的部件属性，可以按卡片计算 */
+  propsCard?: PartProps<'li'> | ((item: T, state: KanbanCardState) => PartProps<'li'>);
+  /** 卡片的拖动把手（ButtonBase）的部件属性 */
+  propsHandle?: Partial<ButtonBaseProps>;
 }
 
 /** KanbanBoard 的样式：board、column、header、list、card、handle… */
@@ -181,6 +204,9 @@ const kanbanBoardDynamicStyles = css.create({
   ghost: (left: number, top: number, width: number) => ({ left, top, width }),
 });
 
+/** 部件的标记（data-scope="kanban-board"） */
+const kanbanPart = (part: string) => partAttrs({ name: 'KanbanBoard' }, part);
+
 /** 看板 */
 export const KanbanBoard = _component(
   <T,>({
@@ -197,6 +223,15 @@ export const KanbanBoard = _component(
     columnHeight = '70vh',
     empty,
     children,
+    propsBoard,
+    propsColumn,
+    propsHeader,
+    propsCount,
+    propsReason,
+    propsList,
+    propsEmpty,
+    propsCard,
+    propsHandle,
     ...rest
   }: KanbanBoardProps<T>) => {
     const lang = useLang();
@@ -238,11 +273,17 @@ export const KanbanBoard = _component(
       const draggedItem = dragging === undefined ? undefined : itemOf(dragging);
       const draggedFrom = draggedItem === undefined ? undefined : getColumn(draggedItem);
       return (
-        <div {...mergeAttrs<'div'>({}, rest, { role: 'group' })}>
+        <div {...mergeAttrs<'div'>({}, rest, { role: 'group', ...kanbanPart('root') })}>
           <ScrollArea axis="x">
             <div
-              ref={(element: unknown) => (board = element instanceof HTMLElement ? element : null)}
-              {...css.attrs(kanbanBoardStyles.board)}
+              {...mergeAttrs<'div'>(
+                { sx: kanbanBoardStyles.board, ...kanbanPart('board') },
+                propsBoard,
+                {
+                  ref: (element: unknown) =>
+                    (board = element instanceof HTMLElement ? element : null),
+                },
+              )}
             >
               {columns.map((column) => {
                 const cards = items.filter((item) => getColumn(item) === column.key);
@@ -258,33 +299,71 @@ export const KanbanBoard = _component(
                       kanbanBoardStyles.indicator,
                       reason != null && kanbanBoardStyles.indicatorDenied,
                     )}
+                    {...kanbanPart('indicator')}
                   />
                 );
                 return (
                   <section
                     key={column.key}
-                    aria-labelledby={headingId}
-                    {...sortable.groupProps(column.key)}
-                    {...css.attrs(
-                      kanbanBoardStyles.column,
-                      kanbanBoardDynamicStyles.width(columnWidth),
-                      over && (reason ? kanbanBoardStyles.denied : kanbanBoardStyles.allowed),
+                    {...mergeAttrs<'section'>(
+                      {
+                        sx: [
+                          kanbanBoardStyles.column,
+                          kanbanBoardDynamicStyles.width(columnWidth),
+                          over && (reason ? kanbanBoardStyles.denied : kanbanBoardStyles.allowed),
+                        ],
+                        ...kanbanPart('column'),
+                      },
+                      typeof propsColumn === 'function' ? propsColumn(column) : propsColumn,
+                      { 'aria-labelledby': headingId, ...sortable.groupProps(column.key) },
                     )}
                   >
-                    <div {...css.attrs(kanbanBoardStyles.header)}>
-                      <span id={headingId}>{column.label}</span>
+                    <div
+                      {...mergeAttrs<'div'>(
+                        { sx: kanbanBoardStyles.header, ...kanbanPart('header') },
+                        propsHeader,
+                      )}
+                    >
+                      <span id={headingId} {...kanbanPart('title')}>
+                        {column.label}
+                      </span>
                       <Badge
-                        radius="full"
-                        tone={cards.length > 0 ? (column.tone ?? 'neutral') : 'neutral'}
+                        {...mergePartProps<BadgeProps>(
+                          {
+                            radius: 'full',
+                            tone: cards.length > 0 ? (column.tone ?? 'neutral') : 'neutral',
+                            ...kanbanPart('count'),
+                          },
+                          propsCount,
+                        )}
                       >
                         {cards.length}
                       </Badge>
                     </div>
-                    {reason && <div {...css.attrs(kanbanBoardStyles.reason)}>{reason}</div>}
+                    {reason && (
+                      <div
+                        {...mergeAttrs<'div'>(
+                          { sx: kanbanBoardStyles.reason, ...kanbanPart('reason') },
+                          propsReason,
+                        )}
+                      >
+                        {reason}
+                      </div>
+                    )}
                     <ScrollArea sx={kanbanBoardDynamicStyles.height(columnHeight)}>
-                      <ul {...css.attrs(kanbanBoardStyles.list)}>
+                      <ul
+                        {...mergeAttrs<'ul'>(
+                          { sx: kanbanBoardStyles.list, ...kanbanPart('list') },
+                          propsList,
+                        )}
+                      >
                         {cards.length === 0 && !over && (
-                          <li {...css.attrs(kanbanBoardStyles.empty)}>
+                          <li
+                            {...mergeAttrs<'li'>(
+                              { sx: kanbanBoardStyles.empty, ...kanbanPart('empty') },
+                              propsEmpty,
+                            )}
+                          >
                             {empty ?? messages.kanbanEmpty}
                           </li>
                         )}
@@ -292,24 +371,37 @@ export const KanbanBoard = _component(
                           const key = getKey(item);
                           const active = dragging === key;
                           const { onPointerdown: _, ...handle } = sortable.handleProps(key);
+                          const state = { dragging: active };
                           const card = (
                             <li
                               key={key}
-                              {...sortable.itemProps(key)}
-                              {...css.attrs(
-                                kanbanBoardStyles.card,
-                                active && ghost && kanbanBoardStyles.placeholder,
-                                active && !ghost && kanbanBoardStyles.lifted,
+                              {...mergeAttrs<'li'>(
+                                {
+                                  sx: [
+                                    kanbanBoardStyles.card,
+                                    active && ghost && kanbanBoardStyles.placeholder,
+                                    active && !ghost && kanbanBoardStyles.lifted,
+                                  ],
+                                  ...kanbanPart('card'),
+                                },
+                                typeof propsCard === 'function'
+                                  ? propsCard(item, state)
+                                  : propsCard,
+                                {
+                                  ...sortable.itemProps(key),
+                                  onPointerdown: (event: PointerEvent) => onPointerdown(event, key),
+                                },
                               )}
                               data-state={active ? 'dragging' : undefined}
-                              onPointerdown={(event: PointerEvent) => onPointerdown(event, key)}
                             >
-                              <div>{children(item, { dragging: active })}</div>
+                              <div>{children(item, state)}</div>
                               <ButtonBase
-                                {...handle}
+                                {...mergePartProps<ButtonBaseProps>(
+                                  { sx: kanbanBoardStyles.handle, ...kanbanPart('handle') },
+                                  propsHandle,
+                                  { ...handle, 'aria-label': lang.sortableHandle(labelOf(item)) },
+                                )}
                                 data-handle=""
-                                sx={kanbanBoardStyles.handle}
-                                aria-label={lang.sortableHandle(labelOf(item))}
                               >
                                 <Icon icon={GripVertical} />
                               </ButtonBase>
@@ -333,6 +425,7 @@ export const KanbanBoard = _component(
                 kanbanBoardStyles.ghost,
                 kanbanBoardDynamicStyles.ghost(ghost.left, ghost.top, ghost.width),
               )}
+              {...kanbanPart('ghost')}
             >
               <div>{children(ghostItem, { dragging: true })}</div>
             </div>

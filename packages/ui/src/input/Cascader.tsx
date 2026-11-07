@@ -15,7 +15,8 @@
  * - 懒加载：hasChildren 声明有下一级，进入时 loadChildren 取回来放进数据里（数据要是响应式的），期间显示转圈；
  *   打开时沿着已选的路径逐级取回来，已选的那一列看得见。
  *
- * 部件：Root（外壳）、Trigger（button，主元素）、Value、Clear、Chevron、Popover、Search（TextField）、Column（每一列）、Option。
+ * 部件：Root（外壳）、Trigger（button，主元素）、Value、Clear、Chevron、Popover、Search（TextField）、Columns（各列的横排）、
+ * Column（每一列）、Option（可以按选项计算）、Label（选项的文字）、Empty（没有匹配、加载中）。
  */
 import { Check, ChevronDown, ChevronRight, Search } from '@lucide/icons';
 import { OverlayScrollbar, ScrollArea } from '../layout/ScrollArea';
@@ -27,6 +28,7 @@ import { buttonBaseStyles } from '../base/button-core';
 import { Icon, type IconProps } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
 import { useLang, useTextMatcher } from '../config/context';
+import { partAttrs } from '../config/styles';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import { isExpandable } from '../utils/data/tree';
@@ -119,7 +121,18 @@ export interface CascaderProps<T>
   propsSearch?: Partial<TextFieldProps>;
   /** 每一列的部件属性 */
   propsColumn?: PartProps<'div', 'role' | 'id' | 'tabindex'>;
+  /** 每个选项的部件属性，可以按选项计算（搜索结果里是路径末端的节点） */
+  propsOption?: CascaderOptionPart | ((node: T) => CascaderOptionPart);
 }
+
+/** 选项的部件属性：角色、选中、展开由组件管 */
+export type CascaderOptionPart = PartProps<
+  'div',
+  'id' | 'role' | 'aria-selected' | 'aria-disabled' | 'aria-haspopup' | 'aria-expanded'
+>;
+
+/** 部件的标记（data-scope="cascader"） */
+const cascaderPart = (part: string) => partAttrs({ name: 'Cascader' }, part);
 
 /** Cascader 的样式：columns、column、option、onPath、chevron、results */
 export const cascaderStyles = css.create({
@@ -202,6 +215,7 @@ export const Cascader = _component(
     propsPopover,
     propsSearch,
     propsColumn,
+    propsOption,
     ...rest
   }: CascaderProps<T>) => {
     let columnsFrame = _state.raw<HTMLElement | null>(null);
@@ -479,6 +493,9 @@ export const Cascader = _component(
       else void show(event);
     }
 
+    const optionPart = (node: T) =>
+      typeof propsOption === 'function' ? propsOption(node) : propsOption;
+
     /** 一列选项 */
     function renderColumn(
       level: number,
@@ -499,20 +516,24 @@ export const Cascader = _component(
           key={level}
           focusable={false}
           sx={cascaderStyles.column}
-          propsViewport={mergeProps<'div'>({ sx: cascaderStyles.columnViewport }, propsColumn, {
-            id: columnId(level),
-            role: 'listbox',
-            tabindex: -1,
-            ...label(),
-            'aria-activedescendant': activeIndex >= 0 ? optionId(level, activeIndex) : undefined,
-            'aria-busy': parent && loading.has(parent) ? true : undefined,
-            onKeydown: (event: KeyboardEvent) => onColumnKeydown(level, event),
-            onFocus: () => onColumnFocus(level),
-            onBlur: () => (focusedColumn = focusedColumn === level ? null : focusedColumn),
-          })}
+          propsViewport={mergeProps<'div'>(
+            { sx: cascaderStyles.columnViewport, ...cascaderPart('column') },
+            propsColumn,
+            {
+              id: columnId(level),
+              role: 'listbox',
+              tabindex: -1,
+              ...label(),
+              'aria-activedescendant': activeIndex >= 0 ? optionId(level, activeIndex) : undefined,
+              'aria-busy': parent && loading.has(parent) ? true : undefined,
+              onKeydown: (event: KeyboardEvent) => onColumnKeydown(level, event),
+              onFocus: () => onColumnFocus(level),
+              onBlur: () => (focusedColumn = focusedColumn === level ? null : focusedColumn),
+            },
+          )}
         >
           {parent && loading.has(parent) && list.length === 0 && (
-            <div {...css.attrs(cascaderStyles.empty)}>
+            <div {...css.attrs(cascaderStyles.empty)} {...cascaderPart('empty')}>
               <Spinner label={lang.loading} />
             </div>
           )}
@@ -525,32 +546,42 @@ export const Cascader = _component(
             return (
               <div
                 key={key}
-                id={optionId(level, index)}
-                role="option"
-                aria-selected={selected}
-                aria-disabled={off || undefined}
-                aria-haspopup={branch ? 'listbox' : undefined}
-                aria-expanded={branch ? active && columns.length > level + 1 : undefined}
-                {...css.attrs(
-                  itemStyles.row,
-                  itemStyles.hoverable,
-                  active && cascaderStyles.onPath,
-                  // 列有焦点时它的高亮项画焦点环（列本身不画）
-                  active && focused && focusRingStyles.virtual,
-                  selected && itemStyles.selected,
-                  off && itemStyles.disabled,
+                {...mergeAttrs<'div'>(
+                  {
+                    sx: [
+                      itemStyles.row,
+                      itemStyles.hoverable,
+                      active && cascaderStyles.onPath,
+                      // 列有焦点时它的高亮项画焦点环（列本身不画）
+                      active && focused && focusRingStyles.virtual,
+                      selected && itemStyles.selected,
+                      off && itemStyles.disabled,
+                    ],
+                    ...cascaderPart('option'),
+                  },
+                  optionPart(node),
+                  {
+                    id: optionId(level, index),
+                    role: 'option',
+                    'aria-selected': selected,
+                    'aria-disabled': off || undefined,
+                    'aria-haspopup': branch ? 'listbox' : undefined,
+                    'aria-expanded': branch ? active && columns.length > level + 1 : undefined,
+                    // 焦点留在列上
+                    onPointerdown: (event: PointerEvent) => event.preventDefault(),
+                    onClick: (event: MouseEvent) => {
+                      panel?.querySelector<HTMLElement>(`#${CSS.escape(columnId(level))}`)?.focus();
+                      onOptionClick(level, node, key, event);
+                    },
+                  },
                 )}
-                // 焦点留在列上
-                onPointerdown={(event: PointerEvent) => event.preventDefault()}
-                onClick={(event: MouseEvent) => {
-                  panel?.querySelector<HTMLElement>(`#${CSS.escape(columnId(level))}`)?.focus();
-                  onOptionClick(level, node, key, event);
-                }}
                 data-state={selected ? 'checked' : 'unchecked'}
                 data-active={active || undefined}
                 data-disabled={off || undefined}
               >
-                <span {...css.attrs(itemStyles.label)}>{getLabel(node)}</span>
+                <span {...css.attrs(itemStyles.label)} {...cascaderPart('label')}>
+                  {getLabel(node)}
+                </span>
                 {branch ? (
                   loading.has(node) ? (
                     <Spinner size="sm" />
@@ -574,39 +605,54 @@ export const Cascader = _component(
         <ScrollArea
           focusable={false}
           sx={[cascaderStyles.column, cascaderStyles.results]}
-          propsViewport={mergeProps<'div'>({ sx: cascaderStyles.columnViewport }, propsColumn, {
-            id: columnId(0),
-            role: 'listbox',
-            tabindex: -1,
-            'aria-label': lang.selectSearch,
-          })}
+          propsViewport={mergeProps<'div'>(
+            { sx: cascaderStyles.columnViewport, ...cascaderPart('column') },
+            propsColumn,
+            {
+              id: columnId(0),
+              role: 'listbox',
+              tabindex: -1,
+              'aria-label': lang.selectSearch,
+            },
+          )}
         >
           {list.length === 0 && (
-            <div {...css.attrs(cascaderStyles.empty)}>{lang.selectNoMatch}</div>
+            <div {...css.attrs(cascaderStyles.empty)} {...cascaderPart('empty')}>
+              {lang.selectNoMatch}
+            </div>
           )}
           {list.map((item, index) => {
             const selected = item.keys.join('\u0000') === chosen;
             return (
               <div
                 key={item.keys.join('\u0000')}
-                id={optionId(0, index)}
-                role="option"
-                aria-selected={selected}
-                aria-disabled={item.disabled || undefined}
-                {...css.attrs(
-                  itemStyles.row,
-                  itemStyles.hoverable,
-                  index === hit && itemStyles.highlighted,
-                  selected && itemStyles.selected,
-                  item.disabled && itemStyles.disabled,
+                {...mergeAttrs<'div'>(
+                  {
+                    sx: [
+                      itemStyles.row,
+                      itemStyles.hoverable,
+                      index === hit && itemStyles.highlighted,
+                      selected && itemStyles.selected,
+                      item.disabled && itemStyles.disabled,
+                    ],
+                    ...cascaderPart('option'),
+                  },
+                  optionPart(item.nodes.at(-1)!),
+                  {
+                    id: optionId(0, index),
+                    role: 'option',
+                    'aria-selected': selected,
+                    'aria-disabled': item.disabled || undefined,
+                    onPointerdown: (event: PointerEvent) => event.preventDefault(),
+                    onPointermove: () => !item.disabled && (hit = index),
+                    onClick: (event: MouseEvent) =>
+                      !item.disabled && pick(item.keys, item.nodes.at(-1)!, true, event),
+                  },
                 )}
-                onPointerdown={(event: PointerEvent) => event.preventDefault()}
-                onPointermove={() => !item.disabled && (hit = index)}
-                onClick={(event: MouseEvent) =>
-                  !item.disabled && pick(item.keys, item.nodes.at(-1)!, true, event)
-                }
               >
-                <span {...css.attrs(itemStyles.label)}>{item.label}</span>
+                <span {...css.attrs(itemStyles.label)} {...cascaderPart('label')}>
+                  {item.label}
+                </span>
                 {selected && <Icon icon={Check} sx={cascaderStyles.check} />}
               </div>
             );
@@ -707,6 +753,7 @@ export const Cascader = _component(
                   floatingStyles.scrollPanel,
                   listPopoverStyles.panel,
                 ],
+                ...cascaderPart('popover'),
               },
               propsPopover,
               { ref: _toRef(panel), popover: 'auto', onToggle: onPanelToggle },
@@ -739,7 +786,11 @@ export const Cascader = _component(
             )}
             {open && (
               <div ref={_toRef(columnsFrame)} {...css.attrs(cascaderStyles.columnsFrame)}>
-                <div ref={_toRef(columnsScroller)} {...css.attrs(cascaderStyles.columns)}>
+                <div
+                  ref={_toRef(columnsScroller)}
+                  {...css.attrs(cascaderStyles.columns)}
+                  {...cascaderPart('columns')}
+                >
                   {list
                     ? renderHits(list)
                     : columns.map((column, level) =>
