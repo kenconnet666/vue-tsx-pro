@@ -58,3 +58,35 @@ it('ColorPicker：色板上 ←→ 改饱和度、↑↓ 改明度；输入 rgb(
   await nextTick();
   expect(color).toBe('#0080ff');
 });
+
+it('ColorPicker 的部件：各层带 data-part，部件属性合并到对应的节点上', () => {
+  const root = mount(() => (
+    <ColorPicker
+      _value="#3e63dd"
+      presets={['#ff0000']}
+      propsArea={{ class: 'my-area' }}
+      propsSwatch={{ class: 'my-swatch' }}
+      propsHue={{ size: 'md' }}
+    />
+  ));
+  expect(root.querySelector('[data-part="area"]')!.classList.contains('my-area')).toBe(true);
+  expect(root.querySelector('[data-part="swatch"]')!.classList.contains('my-swatch')).toBe(true);
+  const parts = new Set(
+    [...root.querySelectorAll('[data-scope="color-picker"]')].map((node) =>
+      node.getAttribute('data-part'),
+    ),
+  );
+  for (const part of [
+    'root',
+    'area',
+    'thumb',
+    'hue',
+    'alpha',
+    'preview',
+    'format',
+    'input',
+    'swatches',
+    'swatch',
+  ])
+    expect(parts.has(part)).toBe(true);
+});

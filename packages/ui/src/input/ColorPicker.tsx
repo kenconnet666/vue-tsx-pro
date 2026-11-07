@@ -10,15 +10,17 @@
  * - 色相、不透明度是 Slider（同一套键盘与读屏），轨道画成渐变。
  * - 吸管只在支持 EyeDropper 的浏览器里出现（Chromium）；格式在 hex、rgb、hsl 之间切，输入框里写任何 CSS 颜色都认。
  * - 最近使用：同一个页面里的取色器共用，最多 8 个，拖完一次、选了预设、取了色、输入后记下。
- * 部件：Root（div）、Area（色板）、Thumb、Hue、Alpha（Slider）、Input（TextField）、Presets、Swatch。
+ * 部件（data-scope="color-picker"）：Root（div）、Area（色板）、Thumb、EyeDropper（IconButton）、Hue、Alpha（Slider）、
+ * Preview、Format（ToggleGroup）、Input（TextField）、Swatches（预设、最近使用的一排）、Swatch（ButtonBase）。
  */
 import { Pipette } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, shallowRef, watch } from 'vue';
-import { ButtonBase } from '../base/ButtonBase';
-import { IconButton } from '../base/IconButton';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
+import { partAttrs } from '../config/styles';
 import { t } from '../config/theme/tokens';
 import { useFieldControl } from '../form/Field';
 import {
@@ -31,12 +33,12 @@ import {
 } from '../utils/data/color';
 import { clamp } from '../utils/data/number';
 import { startMove } from '../utils/dom/move';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { swatchStyles } from '../utils/style/swatch-styles';
 import { focusRingStyles } from '../utils/style/styles';
-import { Slider } from './Slider';
-import { TextField } from './TextField';
-import { ToggleGroup, ToggleItem } from './ToggleGroup';
+import { Slider, type SliderProps } from './Slider';
+import { TextField, type TextFieldProps } from './TextField';
+import { ToggleGroup, ToggleItem, type ToggleGroupBaseProps } from './ToggleGroup';
 
 /** 未声明的属性落到根元素（div）上 */
 export interface ColorPickerProps extends PartProps<'div'> {
@@ -52,7 +54,30 @@ export interface ColorPickerProps extends PartProps<'div'> {
   format?: keyof ColorFormats;
   /** 不可用（不写时取 Field 的） */
   disabled?: boolean;
+  /** 饱和度 / 明度色板的部件属性 */
+  propsArea?: PartProps<'div'>;
+  /** 色板上的把手（role="slider"）的部件属性 */
+  propsThumb?: PartProps<'div', 'role' | 'tabindex'>;
+  /** 吸管按钮的部件属性 */
+  propsEyeDropper?: Partial<IconButtonProps>;
+  /** 色相滑块的部件属性 */
+  propsHue?: Partial<SliderProps>;
+  /** 不透明度滑块的部件属性 */
+  propsAlpha?: Partial<SliderProps>;
+  /** 当前颜色的预览块的部件属性 */
+  propsPreview?: PartProps<'span'>;
+  /** 写法切换（HEX / RGB / HSL）的部件属性 */
+  propsFormat?: Partial<ToggleGroupBaseProps>;
+  /** 颜色输入框的部件属性 */
+  propsInput?: Partial<TextFieldProps>;
+  /** 一排颜色（预设、最近使用）的部件属性 */
+  propsSwatches?: PartProps<'div'>;
+  /** 每一格颜色的部件属性 */
+  propsSwatch?: Partial<ButtonBaseProps>;
 }
+
+/** 部件的标记（data-scope="color-picker"） */
+const pickerPart = (part: string) => partAttrs({ name: 'ColorPicker' }, part);
 
 /** 同一个页面里的取色器共用的最近使用（最新的在前） */
 const recentColors = shallowRef<string[]>([]);
@@ -123,13 +148,22 @@ const colorPickerDynamicStyles = css.create({
 });
 
 /** 一格颜色（预设、最近使用）：棋盘格上叠颜色，点了选它 */
-const swatch = (color: string, selected: boolean, onPick: () => void) => (
+const swatch = (
+  color: string,
+  selected: boolean,
+  onPick: () => void,
+  part: Partial<ButtonBaseProps> | undefined,
+) => (
   <ButtonBase
     key={color}
-    sx={[swatchStyles.checkerboard, colorPickerStyles.swatch, focusRingStyles.visible]}
-    aria-label={color}
-    aria-pressed={selected}
-    onClick={onPick}
+    {...mergePartProps<ButtonBaseProps>(
+      {
+        sx: [swatchStyles.checkerboard, colorPickerStyles.swatch, focusRingStyles.visible],
+        ...pickerPart('swatch'),
+      },
+      part,
+      { 'aria-label': color, 'aria-pressed': selected, onClick: onPick },
+    )}
   >
     <span
       {...css.attrs(
@@ -151,6 +185,16 @@ export const ColorPicker = _component(
     recent = true,
     format: initialFormat = 'hex',
     disabled,
+    propsArea,
+    propsThumb,
+    propsEyeDropper,
+    propsHue,
+    propsAlpha,
+    propsPreview,
+    propsFormat,
+    propsInput,
+    propsSwatches,
+    propsSwatch,
     ...rest
   }: ColorPickerProps) => {
     const lang = useLang();
@@ -270,93 +314,130 @@ export const ColorPicker = _component(
             <div {...css.attrs(colorPickerStyles.label)} aria-hidden="true">
               {title}
             </div>
-            <div {...css.attrs(colorPickerStyles.swatches)}>
-              {colors.map((color) => swatch(color, toHex(color) === hex(), () => pick(color)))}
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: colorPickerStyles.swatches, ...pickerPart('swatches') },
+                propsSwatches,
+              )}
+            >
+              {colors.map((color) =>
+                swatch(color, toHex(color) === hex(), () => pick(color), propsSwatch),
+              )}
             </div>
           </div>
         );
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: colorPickerStyles.root }, rest)}
+          {...mergeAttrs<'div'>({ sx: colorPickerStyles.root, ...pickerPart('root') }, rest)}
           data-disabled={state.disabled || undefined}
         >
           <div
-            ref={_toRef(area)}
-            {...css.attrs(
-              colorPickerStyles.area,
-              colorPickerDynamicStyles.area(hsvaToHex({ h: hsva.h, s: 1, v: 1, a: 1 })),
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  colorPickerStyles.area,
+                  colorPickerDynamicStyles.area(hsvaToHex({ h: hsva.h, s: 1, v: 1, a: 1 })),
+                ],
+                ...pickerPart('area'),
+              },
+              propsArea,
+              { ref: _toRef(area), onPointerdown: onAreaPointerdown },
             )}
-            onPointerdown={onAreaPointerdown}
           >
             <div
+              {...mergeAttrs<'div'>(
+                {
+                  sx: [
+                    colorPickerStyles.thumb,
+                    focusRingStyles.visible,
+                    colorPickerDynamicStyles.thumb(
+                      `${hsva.s * 100}%`,
+                      `${(1 - hsva.v) * 100}%`,
+                      opaque,
+                    ),
+                  ],
+                  ...pickerPart('thumb'),
+                },
+                propsThumb,
+                {
+                  'aria-label': lang.colorArea,
+                  'aria-valuemin': 0,
+                  'aria-valuemax': 100,
+                  'aria-valuenow': percent(hsva.s),
+                  'aria-valuetext': lang.colorAreaValue(percent(hsva.s), percent(hsva.v)),
+                  'aria-disabled': state.disabled || undefined,
+                  onKeydown: onThumbKeydown,
+                  onKeyup: () => remember(hex()),
+                },
+              )}
               role="slider"
               tabindex={state.disabled ? -1 : 0}
-              aria-label={lang.colorArea}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-valuenow={percent(hsva.s)}
-              aria-valuetext={lang.colorAreaValue(percent(hsva.s), percent(hsva.v))}
-              aria-disabled={state.disabled || undefined}
-              {...css.attrs(
-                colorPickerStyles.thumb,
-                focusRingStyles.visible,
-                colorPickerDynamicStyles.thumb(
-                  `${hsva.s * 100}%`,
-                  `${(1 - hsva.v) * 100}%`,
-                  opaque,
-                ),
-              )}
-              onKeydown={onThumbKeydown}
-              onKeyup={() => remember(hex())}
             />
           </div>
           <div {...css.attrs(colorPickerStyles.row)}>
             {eyeDropper && (
               <IconButton
-                icon={Pipette}
-                aria-label={lang.colorEyeDropper}
-                size="sm"
-                variant="ghost"
-                tone="neutral"
-                disabled={state.disabled}
-                onClick={() => void sample()}
+                {...mergePartProps<IconButtonProps>(
+                  {
+                    icon: Pipette,
+                    'aria-label': lang.colorEyeDropper,
+                    size: 'sm',
+                    variant: 'ghost',
+                    tone: 'neutral',
+                    ...pickerPart('eye-dropper'),
+                  },
+                  propsEyeDropper,
+                  { disabled: state.disabled, onClick: () => void sample() },
+                )}
               />
             )}
             <div {...css.attrs(colorPickerStyles.sliders)}>
               <Slider
+                {...mergePartProps<SliderProps>(
+                  {
+                    size: 'sm',
+                    'aria-label': lang.colorHue,
+                    valueText: (hue) => `${String(hue)}°`,
+                    propsTrack: { sx: [colorPickerStyles.track, colorPickerStyles.hue] },
+                    propsRange: { sx: colorPickerStyles.hiddenRange },
+                    ...pickerPart('hue'),
+                  },
+                  propsHue,
+                  { min: 0, max: 360, step: 1, disabled: state.disabled },
+                )}
                 _value={Math.round(hsva.h)}
-                min={0}
-                max={360}
-                step={1}
-                size="sm"
-                disabled={state.disabled}
-                aria-label={lang.colorHue}
-                valueText={(hue) => `${hue}°`}
-                propsTrack={{ sx: [colorPickerStyles.track, colorPickerStyles.hue] }}
-                propsRange={{ sx: colorPickerStyles.hiddenRange }}
                 onUpdate:_value={(hue: number) => set({ ...hsva, h: hue })}
               />
               {alpha && (
                 <Slider
+                  {...mergePartProps<SliderProps>(
+                    {
+                      size: 'sm',
+                      'aria-label': lang.colorAlpha,
+                      valueText: (value) => `${String(value)}%`,
+                      propsTrack: {
+                        sx: [colorPickerStyles.track, colorPickerDynamicStyles.alpha(opaque)],
+                      },
+                      propsRange: { sx: colorPickerStyles.hiddenRange },
+                      ...pickerPart('alpha'),
+                    },
+                    propsAlpha,
+                    { min: 0, max: 100, step: 1, disabled: state.disabled },
+                  )}
                   _value={percent(hsva.a)}
-                  min={0}
-                  max={100}
-                  step={1}
-                  size="sm"
-                  disabled={state.disabled}
-                  aria-label={lang.colorAlpha}
-                  valueText={(value) => `${value}%`}
-                  propsTrack={{
-                    sx: [colorPickerStyles.track, colorPickerDynamicStyles.alpha(opaque)],
-                  }}
-                  propsRange={{ sx: colorPickerStyles.hiddenRange }}
                   onUpdate:_value={(next: number) => set({ ...hsva, a: next / 100 })}
                 />
               )}
             </div>
             <span
-              aria-hidden="true"
-              {...css.attrs(swatchStyles.checkerboard, colorPickerStyles.preview)}
+              {...mergeAttrs<'span'>(
+                {
+                  sx: [swatchStyles.checkerboard, colorPickerStyles.preview],
+                  ...pickerPart('preview'),
+                },
+                propsPreview,
+                { 'aria-hidden': 'true' },
+              )}
             >
               <span
                 {...css.attrs(
@@ -369,21 +450,35 @@ export const ColorPicker = _component(
             </span>
           </div>
           <div {...css.attrs(colorPickerStyles.row)}>
-            <ToggleGroup _value={format} required size="xs" aria-label={lang.colorFormat}>
+            <ToggleGroup
+              {...mergePartProps<ToggleGroupBaseProps>(
+                { size: 'xs', 'aria-label': lang.colorFormat, ...pickerPart('format') },
+                propsFormat,
+                { required: true },
+              )}
+              _value={format}
+            >
               <ToggleItem value="hex">HEX</ToggleItem>
               <ToggleItem value="rgb">RGB</ToggleItem>
               <ToggleItem value="hsl">HSL</ToggleItem>
             </ToggleGroup>
             <TextField
+              {...mergePartProps<TextFieldProps>(
+                {
+                  size: 'sm',
+                  'aria-label': lang.colorFormat,
+                  spellcheck: false,
+                  propsRoot: { sx: colorPickerStyles.input, ...pickerPart('input') },
+                },
+                propsInput,
+                {
+                  disabled: state.disabled,
+                  onInput: () => (typing = true),
+                  onBlur: commitDraft,
+                  onKeydown: (event: KeyboardEvent) => event.key === 'Enter' && commitDraft(),
+                },
+              )}
               _value={draft}
-              size="sm"
-              disabled={state.disabled}
-              aria-label={lang.colorFormat}
-              spellcheck={false}
-              propsRoot={{ sx: colorPickerStyles.input }}
-              onInput={() => (typing = true)}
-              onBlur={commitDraft}
-              onKeydown={(event: KeyboardEvent) => event.key === 'Enter' && commitDraft()}
             />
           </div>
           {presets && swatchRow(lang.colorPresets, presets)}

@@ -87,4 +87,43 @@ describe('CalendarBoard', () => {
     expect(cell(root, '2026-10-03').querySelector('i')!.textContent).toBe('周末 2026-10-03');
     expect(cell(root, '2026-10-05').querySelector('i')).toBeNull();
   });
+
+  it('部件：日程可以按条给部件属性，页头、表格、格子、日期数字、更多都带 data-part', () => {
+    const root = mount(() => (
+      <CalendarBoard
+        events={items}
+        getEventDate={(item) => item.date}
+        getEventLabel={(item) => item.title}
+        _month="2026-10"
+        aria-label="日程"
+        propsEvent={(item) => ({ 'data-title': item.title }) as never}
+        propsHeader={{ class: 'my-header' }}
+        propsPrevious={{ variant: 'ghost' }}
+      />
+    ));
+    expect(root.querySelector('[data-title="周会"]')!.getAttribute('data-part')).toBe('event');
+    expect(root.querySelector('[data-part="header"]')!.classList.contains('my-header')).toBe(true);
+    const parts = new Set(
+      [...root.querySelectorAll('[data-scope="calendar-board"]')].map((node) =>
+        node.getAttribute('data-part'),
+      ),
+    );
+    for (const part of [
+      'root',
+      'header',
+      'title',
+      'today',
+      'previous',
+      'next',
+      'grid',
+      'weekday',
+      'cell',
+      'day-head',
+      'day-button',
+      'events',
+      'event',
+      'more',
+    ])
+      expect(parts.has(part)).toBe(true);
+  });
 });

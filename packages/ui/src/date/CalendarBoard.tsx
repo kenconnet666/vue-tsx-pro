@@ -19,8 +19,8 @@
  *   格子里的日程可以是链接、按钮，Tab 照常进去。
  * - 页头：标题（翻页时播报）、toolbar（筛选、视图切换）、“今天”、上个月 / 下个月；month 可以双向绑定（翻页写回）。
  *
- * 部件：Root（div，role="group"）、Header、Title、Today、Previous、Next、Grid（table）、Weekday、Cell（td）、
- * DayButton（日期数字）、Note、Events（ul）、Event、More。
+ * 部件（data-scope="calendar-board"）：Root（div，role="group"）、Header、Title、Today、Previous、Next、Grid（table）、
+ * Weekday、Cell（td）、DayHead、DayButton（日期数字）、Note、Events（ul）、Event、More。
  */
 import { ChevronLeft, ChevronRight } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -29,9 +29,10 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId, watch, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { buttonBaseStyles } from '../base/button-core';
-import { IconButton } from '../base/IconButton';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
+import { partAttrs } from '../config/styles';
 import { useFormat } from '../config/lang/format';
 import { t } from '../config/theme/tokens';
 import { isSameDate, monthGrid, weekdayNames } from '../utils/data/date';
@@ -93,7 +94,32 @@ export interface CalendarBoardProps<T = unknown> extends PartProps<'div', 'role'
   propsToday?: Partial<ButtonProps>;
   /** 每格（td）的部件属性，可以按日期给 */
   propsCell?: PartProps<'td', 'role' | 'aria-selected'> | ((date: string) => PartProps<'td'>);
+  /** 页头（标题、工具栏、今天、翻页）的部件属性 */
+  propsHeader?: PartProps<'div'>;
+  /** 标题（年月）的部件属性 */
+  propsTitle?: PartProps<'span', 'id'>;
+  /** 上个月按钮的部件属性 */
+  propsPrevious?: Partial<IconButtonProps>;
+  /** 下个月按钮的部件属性 */
+  propsNext?: Partial<IconButtonProps>;
+  /** 月历表格（table）的部件属性 */
+  propsGrid?: PartProps<'table', 'role'>;
+  /** 星期几的表头格（th）的部件属性 */
+  propsWeekday?: PartProps<'th'>;
+  /** 日期数字（按钮）的部件属性 */
+  propsDayButton?: PartProps<'button', 'type' | 'tabindex'>;
+  /** 日期旁的小字的部件属性 */
+  propsNote?: PartProps<'span'>;
+  /** 一天的日程列表（ul）的部件属性 */
+  propsEvents?: PartProps<'ul'>;
+  /** 默认画法的一条日程的部件属性，可以按日程计算 */
+  propsEvent?: PartProps<'span'> | ((event: T) => PartProps<'span'>);
+  /** “还有 N 项”按钮的部件属性 */
+  propsMore?: PartProps<'button', 'type'>;
 }
+
+/** 部件的标记（data-scope="calendar-board"） */
+const boardPart = (part: string) => partAttrs({ name: 'CalendarBoard' }, part);
 
 /** CalendarBoard 的样式 */
 const calendarBoardStyles = css.create({
@@ -207,6 +233,17 @@ export const CalendarBoard = _component(
     readonly = false,
     propsToday,
     propsCell,
+    propsHeader,
+    propsTitle,
+    propsPrevious,
+    propsNext,
+    propsGrid,
+    propsWeekday,
+    propsDayButton,
+    propsNote,
+    propsEvents,
+    propsEvent,
+    propsMore,
     ...rest
   }: CalendarBoardProps<T>) => {
     const lang = useLang();
@@ -306,6 +343,7 @@ export const CalendarBoard = _component(
                 state.disabled && calendarBoardStyles.disabled,
                 readonly && calendarBoardStyles.readonly,
               ],
+              ...boardPart('cell'),
             },
             own,
             {
@@ -319,49 +357,77 @@ export const CalendarBoard = _component(
           data-today={state.today || undefined}
           data-outside={state.outside || undefined}
         >
-          <div {...css.attrs(calendarBoardStyles.dayHead)}>
+          <div {...css.attrs(calendarBoardStyles.dayHead)} {...boardPart('day-head')}>
             <button
+              {...mergeAttrs<'button'>(
+                {
+                  sx: [
+                    buttonBaseStyles.root,
+                    interactionTransitions.colors,
+                    calendarBoardStyles.day,
+                    focusRingStyles.tight,
+                    state.today && calendarBoardStyles.today,
+                  ],
+                  ...boardPart('day-button'),
+                },
+                propsDayButton,
+                {
+                  'aria-label': [
+                    state.today ? lang.calendarToday(label) : label,
+                    list.length > 0 ? lang.calendarBoardCount(list.length) : null,
+                  ]
+                    .filter(Boolean)
+                    .join('，'),
+                  'aria-disabled': state.disabled || undefined,
+                  onClick: (event: MouseEvent) => {
+                    event.stopPropagation();
+                    if (!state.disabled) calendar.activate(day);
+                  },
+                  onFocus: () => {
+                    if (!state.focused) calendar.focus(day);
+                  },
+                },
+              )}
               type="button"
               tabindex={state.focused && !state.outside ? 0 : -1}
-              aria-label={[
-                state.today ? lang.calendarToday(label) : label,
-                list.length > 0 ? lang.calendarBoardCount(list.length) : null,
-              ]
-                .filter(Boolean)
-                .join('，')}
-              aria-disabled={state.disabled || undefined}
-              {...css.attrs(
-                buttonBaseStyles.root,
-                interactionTransitions.colors,
-                calendarBoardStyles.day,
-                focusRingStyles.tight,
-                state.today && calendarBoardStyles.today,
-              )}
               data-day=""
               data-focused={(state.focused && !state.outside) || undefined}
-              onClick={(event: MouseEvent) => {
-                event.stopPropagation();
-                if (!state.disabled) calendar.activate(day);
-              }}
-              onFocus={() => {
-                if (!state.focused) calendar.focus(day);
-              }}
             >
               {locale.dayNumber(day)}
             </button>
-            {getDayNote && <span {...css.attrs(calendarBoardStyles.note)}>{getDayNote(iso)}</span>}
+            {getDayNote && (
+              <span
+                {...mergeAttrs<'span'>(
+                  { sx: calendarBoardStyles.note, ...boardPart('note') },
+                  propsNote,
+                )}
+              >
+                {getDayNote(iso)}
+              </span>
+            )}
           </div>
           {shown.length > 0 && (
-            <ul {...css.attrs(calendarBoardStyles.events)}>
+            <ul
+              {...mergeAttrs<'ul'>(
+                { sx: calendarBoardStyles.events, ...boardPart('events') },
+                propsEvents,
+              )}
+            >
               {shown.map((event, index) => (
                 <li key={getEventKey?.(event) ?? index}>
                   {renderEvent ? (
                     renderEvent(event, iso)
                   ) : (
                     <span
-                      {...css.attrs(
-                        calendarBoardStyles.event,
-                        statusToneSx('soft', getEventTone?.(event) ?? 'accent'),
+                      {...mergeAttrs<'span'>(
+                        {
+                          sx: [
+                            calendarBoardStyles.event,
+                            statusToneSx('soft', getEventTone?.(event) ?? 'accent'),
+                          ],
+                          ...boardPart('event'),
+                        },
+                        typeof propsEvent === 'function' ? propsEvent(event) : propsEvent,
                       )}
                     >
                       {getEventLabel?.(event) ?? ''}
@@ -372,17 +438,25 @@ export const CalendarBoard = _component(
               {list.length > shown.length && (
                 <li>
                   <button
-                    type="button"
-                    {...css.attrs(
-                      buttonBaseStyles.root,
-                      interactionTransitions.colors,
-                      calendarBoardStyles.more,
-                      focusRingStyles.tight,
+                    {...mergeAttrs<'button'>(
+                      {
+                        sx: [
+                          buttonBaseStyles.root,
+                          interactionTransitions.colors,
+                          calendarBoardStyles.more,
+                          focusRingStyles.tight,
+                        ],
+                        ...boardPart('more'),
+                      },
+                      propsMore,
+                      {
+                        onClick: (event: MouseEvent) => {
+                          event.stopPropagation();
+                          calendar.activate(day);
+                        },
+                      },
                     )}
-                    onClick={(event: MouseEvent) => {
-                      event.stopPropagation();
-                      calendar.activate(day);
-                    }}
+                    type="button"
                   >
                     {lang.calendarBoardMore(list.length - shown.length)}
                   </button>
@@ -405,19 +479,30 @@ export const CalendarBoard = _component(
       });
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: calendarBoardStyles.root }, rest, {
+          {...mergeAttrs<'div'>({ sx: calendarBoardStyles.root, ...boardPart('root') }, rest, {
             ref: _toRef(root),
             role: 'group',
           })}
         >
-          <div {...css.attrs(calendarBoardStyles.header)}>
-            <span id={titleId} {...css.attrs(calendarBoardStyles.title)}>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: calendarBoardStyles.header, ...boardPart('header') },
+              propsHeader,
+            )}
+          >
+            <span
+              {...mergeAttrs<'span'>(
+                { sx: calendarBoardStyles.title, ...boardPart('title') },
+                propsTitle,
+                { id: titleId },
+              )}
+            >
               {title}
             </span>
             {toolbar}
             <Button
               {...mergePartProps<ButtonProps>(
-                { size: 'sm', variant: 'soft', tone: 'neutral' },
+                { size: 'sm', variant: 'soft', tone: 'neutral', ...boardPart('today') },
                 propsToday,
                 {
                   onClick: () => {
@@ -432,33 +517,61 @@ export const CalendarBoard = _component(
               {lang.dateRangePreset.today}
             </Button>
             <IconButton
-              icon={ChevronLeft}
-              aria-label={lang.calendarPreviousMonth}
-              propsIcon={{ flipInRtl: true }}
-              size="sm"
-              disabled={!calendar.canTurnPage(-1)}
-              onClick={() => calendar.turnPage(-1)}
+              {...mergePartProps<IconButtonProps>(
+                {
+                  icon: ChevronLeft,
+                  'aria-label': lang.calendarPreviousMonth,
+                  propsIcon: { flipInRtl: true },
+                  size: 'sm',
+                  ...boardPart('previous'),
+                },
+                propsPrevious,
+                {
+                  disabled: !calendar.canTurnPage(-1),
+                  onClick: () => calendar.turnPage(-1),
+                },
+              )}
             />
             <IconButton
-              icon={ChevronRight}
-              aria-label={lang.calendarNextMonth}
-              propsIcon={{ flipInRtl: true }}
-              size="sm"
-              disabled={!calendar.canTurnPage(1)}
-              onClick={() => calendar.turnPage(1)}
+              {...mergePartProps<IconButtonProps>(
+                {
+                  icon: ChevronRight,
+                  'aria-label': lang.calendarNextMonth,
+                  propsIcon: { flipInRtl: true },
+                  size: 'sm',
+                  ...boardPart('next'),
+                },
+                propsNext,
+                {
+                  disabled: !calendar.canTurnPage(1),
+                  onClick: () => calendar.turnPage(1),
+                },
+              )}
             />
           </div>
           <table
-            {...css.attrs(calendarBoardStyles.grid)}
+            {...mergeAttrs<'table'>(
+              { sx: calendarBoardStyles.grid, ...boardPart('grid') },
+              propsGrid,
+              {
+                'aria-labelledby': titleId,
+                onKeydown,
+                onPointerleave: () => calendar.hover(null),
+              },
+            )}
             role="grid"
-            aria-labelledby={titleId}
-            onKeydown={onKeydown}
-            onPointerleave={() => calendar.hover(null)}
           >
             <thead>
               <tr>
                 {names.map((name) => (
-                  <th key={name} scope="col" {...css.attrs(calendarBoardStyles.weekday)}>
+                  <th
+                    key={name}
+                    {...mergeAttrs<'th'>(
+                      { sx: calendarBoardStyles.weekday, ...boardPart('weekday') },
+                      propsWeekday,
+                      { scope: 'col' },
+                    )}
+                  >
                     {name}
                   </th>
                 ))}
