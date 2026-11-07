@@ -337,8 +337,9 @@ export interface StatGroupProps extends PartProps<'div'> {
 
 /** StatGroup 的样式：root、item */
 const statGroupStyles = css.create({
-  // 每个指标的起始边一条竖线；整组往起始方向挪一条线的位置，每行第一个的竖线藏到外面（overflow 裁掉）
-  root: { display: 'grid', rowGap: '_md', overflow: 'hidden' },
+  // 每个指标的起始边一条竖线；整组往起始方向挪一条线的位置，每行第一个的竖线藏到外面（横向裁掉；
+  // clip 不像 hidden 会把纵向变成 auto，最后一行的链接的焦点环不被裁）
+  root: { display: 'grid', rowGap: '_md', overflowX: 'clip' },
   item: {
     paddingInline: '_md',
     marginInlineStart: `calc(-1 * ${t.borderWidths.xs})`,

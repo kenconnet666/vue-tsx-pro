@@ -398,7 +398,8 @@ export const SlideCaptcha = _component(
               </div>
             )}
             <IconButton
-              sx={slideCaptchaStyles.refresh}
+              // 贴着图的角，图为圆角裁掉了溢出：焦点环画在里面
+              sx={[slideCaptchaStyles.refresh, focusRingStyles.inset]}
               icon={RefreshCw}
               size="sm"
               variant="ghost"

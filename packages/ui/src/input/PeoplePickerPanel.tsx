@@ -89,7 +89,8 @@ const peoplePickerPanelStyles = css.create({
     flexDirection: 'column',
     gap: '_sm',
     minWidth: 0,
-    padding: '_sm',
+    // 左右不留：列表自己留（滚动条贴着边，行尾按钮的焦点环不被滚动区域裁掉），表头跟它对齐
+    paddingBlock: '_sm',
     backgroundColor: '_surfaceMuted',
     borderWidth: '_xs',
     borderStyle: 'solid',
@@ -102,7 +103,10 @@ const peoplePickerPanelStyles = css.create({
     justifyContent: 'space-between',
     gap: '_sm',
     minHeight: '2em',
+    paddingInline: '_sm',
   },
+  // 与列表里条目的勾选框对齐（可悬停的条目两侧留 sm）
+  selectAll: { paddingInline: '_sm' },
   list: { minWidth: 0 },
   listViewport: { outlineStyle: 'none' },
   start: { display: 'flex', alignItems: 'center', gap: '_sm' },
@@ -353,6 +357,7 @@ export const PeoplePickerPanel = _component(
               indeterminate={checkedCount > 0 && checkedCount < candidates.length}
               onUpdate:_checked={() => toggleAll(items)}
               size="sm"
+              sx={peoplePickerPanelStyles.selectAll}
             >
               {lang.peopleSelectAll}
             </Checkbox>
@@ -410,7 +415,7 @@ export const PeoplePickerPanel = _component(
             {value.length === 0 ? (
               <Small sx={peoplePickerPanelStyles.status}>{lang.peopleNothingSelected}</Small>
             ) : (
-              <ItemList density="compact" aria-label={lang.peopleSelected}>
+              <ItemList density="compact" inset="sm" aria-label={lang.peopleSelected}>
                 {value.map((entry) => (
                   <ItemListItem
                     key={peopleKey(entry)}

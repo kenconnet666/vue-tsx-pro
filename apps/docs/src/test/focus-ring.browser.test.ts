@@ -1,15 +1,13 @@
 /**
  * 焦点环没有被裁（计划 P0.3）：示例里每个可聚焦的元素，用键盘的方式聚焦后按 outline 的宽度与偏移算出焦点环的范围，
  * 检查它没有被 overflow 不是 visible 的祖先裁掉（CodeBlock 的“展开全部”曾被外框整圈裁掉）。被裁的改用
- * focusRingStyles.inset（画在里面）或给容器留出余量。元素本身就在容器外（滚走了）的不算。
- * 已知的还没修的记在 focus-ring-baseline.json（示例与元素）：出现基线外的才失败，修好的从基线删掉。
+ * focusRingStyles.inset（画在里面）、只在需要的方向裁（overflowX: 'clip'）或给容器留出余量。元素本身就在容器外（滚走了）的不算。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { createUi, lightTheme } from '@zerodep-dev/vue-tsx-pro-ui';
 import { afterEach, beforeAll, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { createApp, h, type App, type Component } from 'vue';
-import baseline from './focus-ring-baseline.json';
 import { demoLoaders, loadDemos } from './demos';
 
 const loaded = new Map<string, Component>();
@@ -105,9 +103,7 @@ it.each(categories)(
       const clipper = clipperOf(element, host);
       if (!clipper) continue;
       const demo = element.closest('[data-demo]')?.getAttribute('data-demo');
-      const key = `${demo}：${describe(element)}`;
-      if (!(baseline as string[]).includes(key))
-        clipped.push(`${key}（被 ${describe(clipper)} 裁掉）`);
+      clipped.push(`${demo}：${describe(element)}（被 ${describe(clipper)} 裁掉）`);
     }
     expect(clipped).toEqual([]);
   },

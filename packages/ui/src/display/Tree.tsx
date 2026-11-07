@@ -813,7 +813,8 @@ export const Tree = _component(
           {...mergePartProps<ScrollAreaProps>({}, propsScrollArea)}
           focusable={false}
           propsViewport={
-            mergeProps<'div'>({ sx: [treeStyles.root, focusRingStyles.visible] }, rest, {
+            // 树元素是滚动区域的视口，外面一圈会被滚动区域裁掉：焦点环画在里面
+            mergeProps<'div'>({ sx: [treeStyles.root, focusRingStyles.inset] }, rest, {
               ref: _toRef(root),
               id: prefix(),
               role: 'tree',

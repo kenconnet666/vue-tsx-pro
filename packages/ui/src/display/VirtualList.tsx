@@ -197,7 +197,8 @@ export const VirtualList = _component(
         {
           sx: [
             virtualListStyles.root,
-            isContainer && [virtualListStyles.container, focusRingStyles.visible],
+            // 容器模式下列表是滚动区域的视口，外面一圈会被裁掉：焦点环画在里面
+            isContainer && [virtualListStyles.container, focusRingStyles.inset],
           ],
         },
         rest,

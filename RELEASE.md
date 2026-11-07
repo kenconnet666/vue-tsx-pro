@@ -26,6 +26,11 @@
   FormErrorSummary、FormSection、Carousel、QRCode、Gauge、Marquee、Watermark、AnimatedNumber、ValueChange、ImageCropper、
   CharacterCount、Ellipsis、DiagramLanes、DiagramMinimap、ActionBar、AuthLayout、SelectionBar、Steps、Breadcrumbs、
   PaginationBar、Tour、AsideLayout、Splitter、LoadingOverlay、SchemaForm、FloatButtonGroup。
+- 键盘聚焦时焦点环不再被容器裁掉：贴着容器边的整行与角上的按钮把环画在里面（Tabs 的标签、Listbox、Splitter 的把手、
+  Tree、容器模式的 VirtualList、NavList、Accordion 的标题、NotificationCenter 的条目、CodeBlock 的复制、SlideCaptcha 的
+  换一张、Upload 图片墙的缩略图）；Collapse 完全展开后不再裁剪内容（过渡中与收起时照旧裁）；DataTable 的单元格、
+  StatGroup 只横向裁剪；Upload 的文件名是链接时省略号在链接上。ItemList 可悬停或整条可点的条目，没写 `inset` 时两侧留 `sm`
+  （悬停底色不贴着内容，带圆角）。
 
 ## 每次发布
 

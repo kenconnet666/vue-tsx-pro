@@ -8,7 +8,7 @@
  *   </ItemList>
  *
  * divided 在条目之间画线；hoverable 悬停时着底色；inset 是条目两侧的内边距（放在弹出层、
- * 卡片正文里时与容器的内边距对齐）。标题与说明默认单行省略不了时换行；align="start" 让起始边、结束边贴着第一行。
+ * 卡片正文里时与容器的内边距对齐；悬停着底色、整条可点的条目不写时留 sm，底色与焦点环不贴着内容）。标题与说明默认单行省略不了时换行；align="start" 让起始边、结束边贴着第一行。
  *
  * 整条可点：写 href（标题是链接，走路由适配）或 onSelect（标题是按钮），标题伸展盖住整条，点哪里都一样；
  * 结束边的操作叠在上面照常可点。selected 是正在看的一条（主从视图左边的列表、收件箱）：底色换成选中色，
@@ -56,7 +56,10 @@ export interface ItemListProps extends PartProps<'ul'> {
    * @default 'standard'
    */
   density?: keyof ItemListDensities;
-  /** 条目两侧的内边距（与弹出层、卡片的内边距对齐） */
+  /**
+   * 条目两侧的内边距（与弹出层、卡片的内边距对齐）
+   * @default hoverable 或整条可点时 'sm'，否则不留
+   */
   inset?: Space;
   /** ItemListItem */
   children?: VNodeChild;
@@ -115,7 +118,7 @@ const itemListStyles = css.create({
     borderBlockEndStyle: 'solid',
     borderBlockEndColor: '_borderMuted',
   },
-  hoverable: { backgroundColor: { default: null, _hover: '_fillHover' } },
+  hoverable: { backgroundColor: { default: null, _hover: '_fillHover' }, borderRadius: '_sm' },
   compact: { paddingBlock: '_xs' },
   standard: { paddingBlock: '_sm' },
   // 没有 start 时第一列宽度为 0、不留间距
@@ -233,6 +236,7 @@ export const ItemListItem = _component(
     return () => {
       const { divided, hoverable, density, inset } = look();
       const interactive = href != null || onSelect != null;
+      const gutter = inset ?? (hoverable || interactive ? 'sm' : undefined);
       return (
         <li
           {...mergeAttrs<'li'>(
@@ -244,7 +248,7 @@ export const ItemListItem = _component(
                 align === 'start' && itemListStyles.alignStart,
                 divided && itemListStyles.divided,
                 hoverable && itemListStyles.hoverable,
-                inset && paddingInlineStyles[inset],
+                gutter && paddingInlineStyles[gutter],
                 interactive && itemListStyles.interactive,
                 selected && itemListStyles.selected,
                 interactive && disabled && itemListStyles.disabled,

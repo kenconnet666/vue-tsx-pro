@@ -311,7 +311,8 @@ export const NotificationList = _component(
                   <li key={item.id}>
                     <a
                       {...mergeAttrs<'a'>(
-                        { sx: [notificationListStyles.item, focusRingStyles.visible] },
+                        // 整行贴着滚动区域的边：焦点环画在里面，画在外面会被裁掉
+                        { sx: [notificationListStyles.item, focusRingStyles.inset] },
                         typeof propsItem === 'function' ? propsItem(item) : propsItem,
                         {
                           href: item.href ? router.href(item.href) : undefined,

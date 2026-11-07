@@ -138,14 +138,14 @@ const codeBlockStyles = css.create({
     paddingInlineEnd: `calc(${t.space.md} + max(${t.sizes.control}, ${t.sizes.minTarget}))`,
   },
   // 不透明的底色：横向滚动的长行从按钮下面经过时，字不和图标叠在一起
-  // 焦点环画在里面：按钮贴着外框的角，外框为圆角裁掉了溢出
   copy: {
     position: 'absolute',
     top: '_space.xs',
     insetInlineEnd: '_space.xs',
     backgroundColor: { default: '_surface', _hover: '_fill' },
-    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
   },
+  // 复制按钮（右上角或标题栏里）贴着外框，外框为圆角裁掉了溢出：焦点环画在里面
+  copyRing: { outlineOffset: `calc(-1 * ${t.borderWidths.sm})` },
   root: {
     boxSizing: 'border-box',
     margin: 0,
@@ -320,7 +320,12 @@ export const CodeBlock = _component(
       const copyButton = (inHeader: boolean) => (
         <CopyButton
           {...mergePartProps<CopyButtonProps>(
-            { sx: !inHeader && codeBlockStyles.copy, size: 'sm', tone: 'neutral', value: code },
+            {
+              sx: [!inHeader && codeBlockStyles.copy, codeBlockStyles.copyRing],
+              size: 'sm',
+              tone: 'neutral',
+              value: code,
+            },
             propsCopy,
           )}
         />

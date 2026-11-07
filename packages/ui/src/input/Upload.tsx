@@ -55,6 +55,7 @@ import { errorCodeText } from '../utils/request/error-message';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
+import { focusRingStyles } from '../utils/style/styles';
 import { FileDrop, matchesAccept, type FileDropProps } from './FileDrop';
 import { GridList, type GridProps } from '../layout/Grid';
 import { t } from '../config/theme/tokens';
@@ -185,6 +186,15 @@ const uploadStyles = css.create({
   icon: { flexShrink: 0, color: '_textMuted' },
   body: { display: 'grid', gap: '_xs', flexGrow: 1, minWidth: 0 },
   name: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  // 名字是链接时省略号在链接自己身上：外层裁掉溢出会连链接的焦点环一起裁掉
+  nameLinked: { overflow: 'visible' },
+  nameLink: {
+    display: 'inline-block',
+    maxWidth: '_full',
+    verticalAlign: 'top',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
   meta: { fontSize: '_sm', color: '_textMuted' },
   error: { color: '_dangerText' },
   done: { color: '_successText' },
@@ -507,10 +517,16 @@ export const Upload = _component(
           />
           <div {...mergeAttrs<'div'>({ sx: uploadStyles.body, ...uploadPart('body') }, propsBody)}>
             <span
-              {...mergeAttrs<'span'>({ sx: uploadStyles.name, ...uploadPart('name') }, propsName)}
+              {...mergeAttrs<'span'>(
+                {
+                  sx: [uploadStyles.name, !!item.url && uploadStyles.nameLinked],
+                  ...uploadPart('name'),
+                },
+                propsName,
+              )}
             >
               {item.url ? (
-                <Link href={item.url} target="_blank" underline="hover">
+                <Link href={item.url} target="_blank" underline="hover" sx={uploadStyles.nameLink}>
                   {fileName}
                 </Link>
               ) : (
@@ -602,6 +618,8 @@ export const Upload = _component(
               height={thumbnailSize - 2}
               radius="none"
               preview={{ caption: item.name, download: item.name }}
+              // 缩略图占满整格，格子为圆角裁掉了溢出：焦点环画在里面
+              propsRoot={{ sx: focusRingStyles.inset }}
             />
           ) : (
             <div {...css.attrs(uploadStyles.placeholder)}>

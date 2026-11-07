@@ -60,7 +60,8 @@ export const tablePartStyles = css.create({
     fontWeight: '_medium',
     textAlign: 'start',
     whiteSpace: 'nowrap',
-    overflow: 'hidden',
+    // 只为省略号横向裁掉；clip 不像 hidden 会把纵向变成 auto，紧凑行里按钮的焦点环上下不被裁
+    overflowX: 'clip',
     textOverflow: 'ellipsis',
   },
   // 数字等宽：金额、数量、日期上下对齐（文字不受影响）
@@ -72,7 +73,8 @@ export const tablePartStyles = css.create({
     borderBottomStyle: 'solid',
     borderBottomColor: '_borderMuted',
     backgroundColor: 'inherit',
-    overflow: 'hidden',
+    // 同表头格：只横向裁掉
+    overflowX: 'clip',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     verticalAlign: 'middle',
@@ -363,7 +365,7 @@ export const dataTableStateStyles = css.create({
   // 单击就能编辑的格
   clickToEdit: { cursor: 'text' },
   // 编辑中的格：编辑器贴满格子，上下内边距收小
-  editingCell: { paddingBlock: '_none', overflow: 'visible' },
+  editingCell: { paddingBlock: '_none', overflowX: 'visible' },
   // 校验没过的格：红色内描边；聚焦时仍是焦点环
   invalidCell: {
     boxShadow: {

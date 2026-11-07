@@ -19,6 +19,7 @@ import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconProps } from '../base/Icon';
 import { selectedValues, toggleSelection, type SelectionProps } from '../utils/data/selection';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { focusRingStyles } from '../utils/style/styles';
 import { disclosureStyles } from '../utils/style/transitions';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { Collapse, type CollapseProps } from './Collapse';
@@ -64,7 +65,7 @@ const accordionStyles = css.create({
     borderBottomColor: '_borderMuted',
   },
   heading: { margin: 0, fontSize: 'inherit', fontWeight: 'inherit' },
-  // 去掉按钮默认外观、焦点环、波纹、颜色过渡由 ButtonBase 给出
+  // 去掉按钮默认外观、波纹、颜色过渡由 ButtonBase 给出；焦点环画在里面（整行宽，放进不留内边距的卡片时会被裁掉）
   trigger: {
     display: 'flex',
     alignItems: 'center',
@@ -208,7 +209,13 @@ export const AccordionItem = _component(
       const trigger = (
         <ButtonBase
           {...mergePartProps<ButtonBaseProps>(
-            { sx: [accordionStyles.trigger, off && accordionStyles.triggerDisabled] },
+            {
+              sx: [
+                accordionStyles.trigger,
+                focusRingStyles.inset,
+                off && accordionStyles.triggerDisabled,
+              ],
+            },
             propsTrigger,
             {
               id: triggerId,
