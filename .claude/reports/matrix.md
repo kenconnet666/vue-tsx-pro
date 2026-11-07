@@ -59,7 +59,7 @@
 | Dialog | overlay/Dialog.tsx |  |  |  |  |  |
 | Drawer | overlay/Drawer.tsx |  |  |  |  |  |
 | HoverCard | overlay/HoverCard.tsx | ✗ |  |  |  |  |
-| Lightbox | overlay/Lightbox.tsx |  |  |  | ✗ |  |
+| Lightbox | overlay/Lightbox.tsx |  |  |  |  |  |
 | Menu | overlay/Menu.tsx |  |  |  |  |  |
 | MenuItem | overlay/Menu.tsx |  |  |  |  |  |
 | MenuLinkItem | overlay/Menu.tsx |  |  |  |  |  |
@@ -126,7 +126,7 @@
 | NumberField | input/NumberField.tsx |  |  |  |  |  |
 | NumberRangeField | input/NumberRangeField.tsx |  |  |  |  |  |
 | OtpField | input/OtpField.tsx |  |  |  |  |  |
-| PeoplePicker | input/PeoplePicker.tsx |  |  |  | ✗ |  |
+| PeoplePicker | input/PeoplePicker.tsx |  |  |  |  |  |
 | PeoplePickerPanel | input/PeoplePickerPanel.tsx |  |  |  |  |  |
 | RadioGroup | input/Radio.tsx |  |  |  |  |  |
 | Radio | input/Radio.tsx |  |  |  |  |  |
@@ -163,7 +163,7 @@
 | Result | feedback/Result.tsx |  |  |  |  |  |
 | Skeleton | feedback/Skeleton.tsx |  |  |  |  |  |
 | SkeletonText | feedback/SkeletonText.tsx |  |  |  |  |  |
-| ToastItem | feedback/Toast.tsx | ✗ |  |  | ✗ |  |
+| ToastItem | feedback/Toast.tsx | ✗ |  |  |  |  |
 | Toaster | feedback/Toast.tsx | ✗ |  |  |  |  |
 | CodeGroup | docs-kit/CodeGroup.tsx |  |  |  |  |  |
 | CodePreview | docs-kit/CodePreview.tsx |  |  |  |  |  |
@@ -204,21 +204,21 @@
 | ValueChange | display/ValueChange.tsx |  |  |  |  |  |
 | VirtualList | display/VirtualList.tsx |  |  |  |  |  |
 | Watermark | display/Watermark.tsx |  |  |  |  |  |
-| Diagram | diagram/Diagram.tsx |  |  |  | ✗ | ✗ |
+| Diagram | diagram/Diagram.tsx |  |  |  |  | ✗ |
 | DiagramControls | diagram/DiagramControls.tsx |  |  |  |  |  |
 | DiagramLanes | diagram/DiagramLanes.tsx |  |  |  |  |  |
 | DiagramMinimap | diagram/DiagramMinimap.tsx |  |  |  |  |  |
 | DiagramNode | diagram/DiagramNode.tsx |  |  |  |  |  |
 | Calendar | date/Calendar.tsx |  |  |  |  | ✗ |
-| CalendarBoard | date/CalendarBoard.tsx |  |  |  | ✗ | ✗ |
-| CalendarView | date/CalendarView.tsx | ✗ |  |  | ✗ |  |
+| CalendarBoard | date/CalendarBoard.tsx |  |  |  |  | ✗ |
+| CalendarView | date/CalendarView.tsx | ✗ |  |  |  |  |
 | Countdown | date/Countdown.tsx |  |  |  |  |  |
 | DateField | date/DateField.tsx |  |  |  |  |  |
 | DatePicker | date/DatePicker.tsx |  |  |  |  |  |
 | DateRangePicker | date/DateRangePicker.tsx |  |  |  |  | ✗ |
 | DateSegmentGroup | date/DateSegmentGroup.tsx | ✗ |  |  |  |  |
 | DateTime | date/DateTime.tsx |  |  |  |  |  |
-| QuarterCalendar | date/QuarterCalendar.tsx |  |  |  | ✗ |  |
+| QuarterCalendar | date/QuarterCalendar.tsx |  |  |  |  |  |
 | RangeCalendar | date/RangeCalendar.tsx |  |  |  |  | ✗ |
 | RelativeTime | date/RelativeTime.tsx |  |  |  |  |  |
 | SegmentedField | date/SegmentedField.tsx | ✗ |  |  |  |  |
