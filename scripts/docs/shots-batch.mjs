@@ -28,7 +28,6 @@ const kebab = (name) => name.replace(/(?<=[a-z0-9])([A-Z])/g, '-$1').toLowerCase
 const COMMON = [
   'button',
   'badge',
-  'icon-button',
   'text',
   'card',
   'tabs',

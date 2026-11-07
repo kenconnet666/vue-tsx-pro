@@ -1,6 +1,7 @@
 /** 文档站的路由：首页、指南与组件页（来自 site/nav）、找不到页面 */
 import { createRouter, createWebHistory, type Router, type RouterHistory } from 'vue-router';
 import { allPages } from './site/nav';
+import { redirects } from './site/redirects';
 
 /** 整页示例的地址（示例卡片里 iframe 的 src） */
 export const framePath = (demoPath: string) => `${import.meta.env.BASE_URL}frame/${demoPath}`;
@@ -53,6 +54,8 @@ export function createDocsRouter(
         component: () => import('./pages/bench/StyleUpdates'),
         meta: { title: '样式更新基准' },
       },
+      // 合并、挪走了的页：跳到新页的对应小节
+      ...Object.entries(redirects).map(([path, redirect]) => ({ path, redirect })),
       // 整页示例：示例卡片里的 iframe 打开它，不套站点外壳（见 isFrame）
       { path: '/frame/:path(.*)', component: () => import('./pages/Frame'), meta: { title: '' } },
       {
