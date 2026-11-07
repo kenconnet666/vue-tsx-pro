@@ -45,10 +45,25 @@ async function connectPage() {
     });
 }
 
+/**
+ * 界面树：uiautomator 等不到界面空闲（动画、输入法刚弹起）时 dump 会失败，CI 上时有时无，隔两秒重试几次
+ */
+async function dumpUi() {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      adb('shell', 'uiautomator', 'dump', '/sdcard/ui.xml');
+      return adb('shell', 'cat', '/sdcard/ui.xml');
+    } catch (error) {
+      if (attempt === 5) throw error;
+      console.log(`uiautomator dump 失败（第 ${attempt} 次），重试`);
+      await sleep(2000);
+    }
+  }
+}
+
 /** WebView 在屏幕上的左上角 */
-function webviewOrigin() {
-  adb('shell', 'uiautomator', 'dump', '/sdcard/ui.xml');
-  const tree = adb('shell', 'cat', '/sdcard/ui.xml');
+async function webviewOrigin() {
+  const tree = await dumpUi();
   writeFileSync('android-ui.xml', tree);
   const match = /class="android\.webkit\.WebView"[^>]*bounds="\[(\d+),(\d+)\]/.exec(tree);
   if (!match) fail('界面树里找不到 WebView（见 android-ui.xml）');
@@ -79,7 +94,7 @@ const before = await evaluate(`(() => {
 if (!before) fail('表单页上找不到输入框');
 await sleep(500);
 
-const origin = webviewOrigin();
+const origin = await webviewOrigin();
 adb(
   'shell',
   'input',
