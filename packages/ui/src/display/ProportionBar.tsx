@@ -67,7 +67,7 @@ const proportionBarPart = (part: string) => partAttrs({ name: 'ProportionBar' },
 /** ProportionBar 的样式：root、bar、sm、md、legend、legendItem、value */
 const proportionBarStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
-  bar: { display: 'flex', gap: '2px', borderRadius: '_full', overflow: 'hidden' },
+  bar: { display: 'flex', gap: '_borderWidths.sm', borderRadius: '_full', overflow: 'hidden' },
   sm: { height: '0.5rem' },
   md: { height: '0.75rem' },
   legend: {

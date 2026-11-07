@@ -184,7 +184,7 @@ const kanbanBoardStyles = css.create({
   },
   // 键盘拿起：高亮边框
   lifted: { borderColor: '_accent', boxShadow: '_md' },
-  handle: { color: '_textMuted', borderRadius: '_sm', padding: '2px', cursor: 'grab' },
+  handle: { color: '_textMuted', borderRadius: '_sm', padding: '_xxs', cursor: 'grab' },
   empty: { color: '_textMuted', fontSize: '_xs', paddingBlock: '_sm', textAlign: 'center' },
   // 拖到别的列时的落点：卡片之间的一条线
   indicator: {

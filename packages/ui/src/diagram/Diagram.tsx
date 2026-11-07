@@ -352,7 +352,7 @@ export const diagramStyles = css.create({
     left: 0,
     top: 0,
     zIndex: 1,
-    paddingInline: '4px',
+    paddingInline: '_xs',
     borderRadius: '_sm',
     fontSize: relativeFontSizes.xs,
     lineHeight: '_tight',

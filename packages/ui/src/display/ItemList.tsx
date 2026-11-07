@@ -125,7 +125,7 @@ const itemListStyles = css.create({
   noStart: { gridTemplateColumns: 'minmax(0, 1fr) auto' },
   // 色点、小图标贴着第一行的中线
   startAligned: { display: 'flex', alignItems: 'center', minHeight: '1lh' },
-  body: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 },
+  body: { display: 'flex', flexDirection: 'column', gap: '_xxs', minWidth: 0 },
   title: { minWidth: 0, overflowWrap: 'anywhere' },
   description: { color: '_textMuted', fontSize: '_xs', minWidth: 0, overflowWrap: 'anywhere' },
   end: { display: 'flex', alignItems: 'center', gap: '_xs', justifySelf: 'end' },

@@ -615,6 +615,11 @@ export const tokenCatalog: readonly TokenGroupEntry[] = [
         description: '`0`',
       },
       {
+        name: 'xxs',
+        value: '0.125em',
+        description: '`0.125em`：紧挨着的两行（标题与说明）、挨在一起的小按钮之间',
+      },
+      {
         name: 'xs',
         value: '0.25em',
         description: '`0.25em`：图标与文字之间、控件的上下内边距',

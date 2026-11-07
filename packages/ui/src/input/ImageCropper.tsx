@@ -107,7 +107,7 @@ export const imageCropperStyles = css.create({
   frame: {
     position: 'absolute',
     boxShadow: '0 0 0 9999px rgb(0 0 0 / 0.5)',
-    outlineWidth: '1px',
+    outlineWidth: '_xs',
     outlineStyle: 'solid',
     outlineColor: 'rgb(255 255 255 / 0.8)',
     pointerEvents: 'none',

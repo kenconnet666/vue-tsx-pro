@@ -331,6 +331,8 @@ export const letterSpacings = css.defineVars('vtp-letter-spacings', {
 export const space = css.defineVars('vtp-space', {
   /** `0` */
   none: '0',
+  /** `0.125em`：紧挨着的两行（标题与说明）、挨在一起的小按钮之间 */
+  xxs: '0.125em',
   /** `0.25em`：图标与文字之间、控件的上下内边距 */
   xs: '0.25em',
   /** `0.5em`：控件内部元素之间 */

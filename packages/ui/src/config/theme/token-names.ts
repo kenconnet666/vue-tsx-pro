@@ -1314,6 +1314,12 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
      */
     _none: unknown;
     /**
+     * `0.125em`：紧挨着的两行（标题与说明）、挨在一起的小按钮之间
+     *
+     * `space.xxs`
+     */
+    _xxs: unknown;
+    /**
      * `0.25em`：图标与文字之间、控件的上下内边距
      *
      * `space.xs`
@@ -1352,6 +1358,12 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
      * `space.none`
      */
     '_space.none': unknown;
+    /**
+     * `0.125em`：紧挨着的两行（标题与说明）、挨在一起的小按钮之间
+     *
+     * `space.xxs`
+     */
+    '_space.xxs': unknown;
     /**
      * `0.25em`：图标与文字之间、控件的上下内边距
      *

@@ -155,7 +155,7 @@ export const checklistStyles = css.create({
     borderRadius: '_full',
     cursor: { default: 'pointer', ':disabled': 'default' },
   },
-  body: { display: 'grid', gap: '2px', minWidth: 0 },
+  body: { display: 'grid', gap: '_xxs', minWidth: 0 },
   label: { color: '_text', overflowWrap: 'anywhere' },
   labelPending: { color: '_textMuted' },
   labelSkipped: { color: '_textMuted', textDecorationLine: 'line-through' },
@@ -165,7 +165,7 @@ export const checklistStyles = css.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     columnGap: '_sm',
-    rowGap: '2px',
+    rowGap: '_xxs',
     fontSize: '_sm',
     color: '_textMuted',
   },
@@ -181,7 +181,7 @@ export const checklistStyles = css.create({
     listStyle: 'none',
   },
   inlineItem: { display: 'inline-flex', alignItems: 'center', gap: '_xs', whiteSpace: 'nowrap' },
-  icons: { display: 'inline-flex', alignItems: 'center', gap: '2px' },
+  icons: { display: 'inline-flex', alignItems: 'center', gap: '_xxs' },
 });
 
 /** 各状态的图标与颜色 */

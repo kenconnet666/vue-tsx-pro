@@ -251,7 +251,7 @@ const uploadStyles = css.create({
     top: '_xs',
     insetInlineEnd: '_xs',
     display: 'flex',
-    gap: '2px',
+    gap: '_xxs',
   },
   action: {
     backgroundColor: {

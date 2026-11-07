@@ -161,7 +161,7 @@ const notificationListStyles = css.create({
   },
   // 未读的色点贴着标题的第一行
   dot: { display: 'flex', alignItems: 'center', height: '1lh', alignSelf: 'start' },
-  body: { display: 'flex', flexDirection: 'column', gap: '2px', minWidth: 0 },
+  body: { display: 'flex', flexDirection: 'column', gap: '_xxs', minWidth: 0 },
   itemTitle: { fontSize: '_sm' },
   itemTitleUnread: { fontWeight: '_semibold' },
   muted: { color: '_textMuted', fontSize: '_xs' },

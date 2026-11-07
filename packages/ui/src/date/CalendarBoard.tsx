@@ -185,7 +185,7 @@ const calendarBoardStyles = css.create({
   events: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '2px',
+    gap: '_xxs',
     marginBlock: '_xs',
     marginInline: 0,
     padding: 0,

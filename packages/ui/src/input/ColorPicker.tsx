@@ -105,7 +105,7 @@ export const colorPickerStyles = css.create({
     height: '1em',
     translate: '-50% -50%',
     borderRadius: '_full',
-    borderWidth: '2px',
+    borderWidth: '_sm',
     borderStyle: 'solid',
     borderColor: '#fff',
     boxShadow: '0 0 0 1px rgb(0 0 0 / 0.3), inset 0 0 0 1px rgb(0 0 0 / 0.3)',

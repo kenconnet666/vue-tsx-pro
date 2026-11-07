@@ -44,8 +44,8 @@ const diagramControlsStyles = css.create({
   root: {
     position: 'absolute',
     pointerEvents: 'auto',
-    gap: '2px',
-    padding: '2px',
+    gap: '_xxs',
+    padding: '_xxs',
     backgroundColor: '_surface',
     borderWidth: '_xs',
     borderStyle: 'solid',
