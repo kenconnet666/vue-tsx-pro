@@ -40,6 +40,8 @@
 - CodeBlock 改成配方组件：各部件带 `data-scope="code-block"` 标记（原来没有），`components.CodeBlock` 可以给 `wrap`、`copyable`、
   `lineNumbers`、`maxLines`、`flush` 的默认值（如全站显示行号），按部件（root、header、title、body、pre、code、line、lineNumber）
   追加样式。
+- Tour 改成配方组件：`components.Tour` 可以给 `padding`（镂空比目标大出多少）的默认值，按部件（root、spotlight、panel、cover、
+  content）追加样式。
 - Stat 改成配方组件：各部件带 `data-scope="stat"` 标记（原来没有），`components.Stat` 可以给 `tone` 的默认值、按部件
   （root、label、icon、value、number、unit、change、changeLabel、description、body、footer）与色调档位追加样式。
 - Timeline 改成配方组件：`createUi` / `Provider` 的 `components.Timeline` 可以给 `alternate`、`size` 的默认值，按部件

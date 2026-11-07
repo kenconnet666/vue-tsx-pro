@@ -493,7 +493,14 @@ export {
 export { Popconfirm, type PopconfirmProps } from './overlay/Popconfirm';
 export { Popover, type PopoverProps, type PopoverTriggerProps } from './overlay/Popover';
 export { Tooltip, type TooltipProps, type TooltipTriggerProps } from './overlay/Tooltip';
-export { Tour, type TourProps, type TourStep } from './overlay/Tour';
+export {
+  Tour,
+  tourRecipe,
+  type TourOptions,
+  type TourPart,
+  type TourProps,
+  type TourStep,
+} from './overlay/Tour';
 export {
   useDetachedDialog,
   useDetachedOverlay,
