@@ -17,7 +17,7 @@ import { ChevronsDownUp, ChevronsUpDown, Search } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch } from 'vue';
-import { Button } from '../base/Button';
+import { Button, type ButtonProps } from '../base/Button';
 import { CopyButton } from '../base/CopyButton';
 import { useLang } from '../config/context';
 import { TextField, type TextFieldProps } from '../input/TextField';
@@ -212,6 +212,10 @@ export interface JsonViewerProps extends PartProps<'div'> {
   propsTree?: Partial<TreeProps<JsonViewerNode>>;
   /** 路径栏的部件属性 */
   propsPathBar?: PartProps<'div'>;
+  /** “全部展开”按钮的部件属性 */
+  propsExpandAll?: Partial<ButtonProps>;
+  /** “全部收起”按钮的部件属性 */
+  propsCollapseAll?: Partial<ButtonProps>;
 }
 
 /** 部件的标记（data-scope="json-viewer"） */
@@ -282,6 +286,8 @@ export const JsonViewer = _component(
     propsSearch,
     propsTree,
     propsPathBar,
+    propsExpandAll,
+    propsCollapseAll,
     'aria-label': label,
     ...rest
   }: JsonViewerProps) => {
@@ -374,20 +380,20 @@ export const JsonViewer = _component(
                 _value={query}
               />
               <Button
-                size="sm"
-                variant="ghost"
-                tone="neutral"
-                icon={ChevronsUpDown}
-                onClick={() => (expanded = containersTo(Infinity))}
+                {...mergePartProps<ButtonProps>(
+                  { size: 'sm', variant: 'ghost', tone: 'neutral', icon: ChevronsUpDown },
+                  propsExpandAll,
+                  { onClick: () => (expanded = containersTo(Infinity)) },
+                )}
               >
                 {lang.jsonExpandAll}
               </Button>
               <Button
-                size="sm"
-                variant="ghost"
-                tone="neutral"
-                icon={ChevronsDownUp}
-                onClick={() => (expanded = [])}
+                {...mergePartProps<ButtonProps>(
+                  { size: 'sm', variant: 'ghost', tone: 'neutral', icon: ChevronsDownUp },
+                  propsCollapseAll,
+                  { onClick: () => (expanded = []) },
+                )}
               >
                 {lang.jsonCollapseAll}
               </Button>

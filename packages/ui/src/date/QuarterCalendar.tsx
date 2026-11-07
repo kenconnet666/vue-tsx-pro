@@ -17,12 +17,12 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId } from 'vue';
 import { buttonBaseStyles } from '../base/button-core';
-import { IconButton } from '../base/IconButton';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { VisuallyHidden, visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { toIsoQuarter, type DateRange } from '../utils/data/date';
 import { isRtl } from '../utils/dom/direction';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { interactionTransitions } from '../utils/style/transitions';
 import { useComponent } from '../config/components';
@@ -46,6 +46,10 @@ export interface QuarterCalendarProps extends PartProps<'div', 'role'> {
   readonly?: boolean;
   /** 选好了（单选选了一个，区间选了结束）：日期选择器据此关闭弹层 */
   onPick?: () => void;
+  /** 上一年按钮的部件属性 */
+  propsPrevious?: Omit<Partial<IconButtonProps>, 'disabled' | 'onClick'>;
+  /** 下一年按钮的部件属性 */
+  propsNext?: Omit<Partial<IconButtonProps>, 'disabled' | 'onClick'>;
 }
 
 const quarterKey = (year: number, quarter: number) =>
@@ -66,6 +70,8 @@ export const QuarterCalendar = _component(
     disabled = false,
     readonly = false,
     onPick,
+    propsPrevious,
+    propsNext,
     ...rest
   }: QuarterCalendarProps) => {
     const lang = useLang();
@@ -174,11 +180,15 @@ export const QuarterCalendar = _component(
         >
           <div {...mergeAttrs<'div'>(s.header)}>
             <IconButton
-              icon={ChevronLeft}
-              aria-label={lang.calendarPreviousYear}
-              propsIcon={{ flipInRtl: true }}
-              disabled={disabled}
-              onClick={() => (year -= 1)}
+              {...mergePartProps<IconButtonProps>(
+                {
+                  icon: ChevronLeft,
+                  'aria-label': lang.calendarPreviousYear,
+                  propsIcon: { flipInRtl: true },
+                },
+                propsPrevious,
+                { disabled, onClick: () => (year -= 1) },
+              )}
             />
             <span
               {...mergeAttrs<'span'>({
@@ -189,11 +199,15 @@ export const QuarterCalendar = _component(
               {lang.calendarYear(year)}
             </span>
             <IconButton
-              icon={ChevronRight}
-              aria-label={lang.calendarNextYear}
-              propsIcon={{ flipInRtl: true }}
-              disabled={disabled}
-              onClick={() => (year += 1)}
+              {...mergePartProps<IconButtonProps>(
+                {
+                  icon: ChevronRight,
+                  'aria-label': lang.calendarNextYear,
+                  propsIcon: { flipInRtl: true },
+                },
+                propsNext,
+                { disabled, onClick: () => (year += 1) },
+              )}
             />
           </div>
           <table

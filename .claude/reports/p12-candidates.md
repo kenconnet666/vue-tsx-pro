@@ -30,7 +30,7 @@
 - packages/ui/src/date/CalendarView.tsx:349 <button>
 - packages/ui/src/date/CalendarView.tsx:573 <button>
 - packages/ui/src/date/DateTime.tsx:49 <time>
-- packages/ui/src/date/QuarterCalendar.tsx:236 <button>
+- packages/ui/src/date/QuarterCalendar.tsx:250 <button>
 - packages/ui/src/date/RelativeTime.tsx:80 <time>
 - packages/ui/src/date/RelativeTime.tsx:78 format.relative
 - packages/ui/src/charts/ChordChart.tsx:181 <svg>
@@ -43,7 +43,7 @@
 - packages/ui/src/charts/TreemapChart.tsx:198 <svg>
 - packages/ui/src/charts/XYChart.tsx:1004 <svg>
 
-## 没转发部件属性的子组件（99）
+## 没转发部件属性的子组件（90）
 
 - packages/ui/src/table/ColumnHeaderActions.tsx:143 <Button>
 - packages/ui/src/table/ColumnHeaderActions.tsx:104 <Checkbox>
@@ -59,7 +59,6 @@
 - packages/ui/src/patterns/KanbanBoard.tsx:406 <Icon>
 - packages/ui/src/patterns/NotificationCenter.tsx:300 <Empty>
 - packages/ui/src/patterns/NotificationCenter.tsx:366 <RelativeTime>
-- packages/ui/src/patterns/QueryTable.tsx:345 <Button>
 - packages/ui/src/patterns/SlideCaptcha.tsx:480 <Icon>
 - packages/ui/src/patterns/SlideCaptcha.tsx:399 <Spinner>
 - packages/ui/src/overlay/CommandPalette.tsx:235 <Icon>
@@ -86,9 +85,6 @@
 - packages/ui/src/input/Cascader.tsx:537 <Spinner>
 - packages/ui/src/input/Cascader.tsx:587 <Spinner>
 - packages/ui/src/input/Checkbox.tsx:360 <Checkbox>
-- packages/ui/src/input/ImageCropper.tsx:337 <IconButton>
-- packages/ui/src/input/ImageCropper.tsx:357 <IconButton>
-- packages/ui/src/input/ImageCropper.tsx:366 <IconButton>
 - packages/ui/src/input/Listbox.tsx:326 <Icon>
 - packages/ui/src/input/PeoplePicker.tsx:191 <Icon>
 - packages/ui/src/input/PeoplePickerPanel.tsx:283 <Icon>
@@ -104,14 +100,11 @@
 - packages/ui/src/form/FormErrorSummary.tsx:118 <Icon>
 - packages/ui/src/form/SchemaForm.tsx:128 <Checkbox>
 - packages/ui/src/form/SchemaForm.tsx:125 <Switch>
-- packages/ui/src/feedback/ErrorBoundary.tsx:67 <Button>
 - packages/ui/src/display/Avatar.tsx:171 <Icon>
 - packages/ui/src/display/Carousel.tsx:341 <ButtonBase>
 - packages/ui/src/display/Carousel.tsx:328 <IconButton>
 - packages/ui/src/display/Checklist.tsx:235 <Icon>
 - packages/ui/src/display/Image.tsx:216 <Icon>
-- packages/ui/src/display/JsonViewer.tsx:376 <Button>
-- packages/ui/src/display/JsonViewer.tsx:385 <Button>
 - packages/ui/src/display/QRCode.tsx:166 <Icon>
 - packages/ui/src/display/QRCode.tsx:162 <Spinner>
 - packages/ui/src/display/Sortable.tsx:167 <Icon>
@@ -126,8 +119,6 @@
 - packages/ui/src/display/Tree.tsx:704 <Spinner>
 - packages/ui/src/display/ValueChange.tsx:69 <Icon>
 - packages/ui/src/date/picker-popover.tsx:185 <Button>
-- packages/ui/src/date/QuarterCalendar.tsx:176 <IconButton>
-- packages/ui/src/date/QuarterCalendar.tsx:191 <IconButton>
 - packages/ui/src/charts/ChordChart.tsx:293 <Skeleton>
 - packages/ui/src/charts/DonutChart.tsx:289 <Skeleton>
 - packages/ui/src/charts/frame.tsx:280 <Empty>

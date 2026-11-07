@@ -14,11 +14,11 @@ import { RotateCcw, ZoomIn, ZoomOut } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, watch } from 'vue';
-import { IconButton } from '../base/IconButton';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useResizeObserver } from '../utils/dom/resize';
 import { usePanZoom, type PanZoomRegion } from '../utils/dom/pan-zoom';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { Slider } from './Slider';
 import { partAttrs } from '../config/styles';
@@ -79,6 +79,8 @@ export interface ImageCropperProps extends PartProps<'div'> {
   propsViewport?: PartProps<'div', 'role' | 'tabindex'>;
   /** 工具条的部件属性 */
   propsToolbar?: PartProps<'div'>;
+  /** 工具栏按钮（缩小、放大、复原）的部件属性 */
+  propsButton?: Partial<IconButtonProps>;
 }
 
 /** 部件的标记（data-scope="image-cropper"） */
@@ -140,6 +142,7 @@ export const ImageCropper = _component(
     handle,
     propsViewport,
     propsToolbar,
+    propsButton,
     'aria-label': label,
     ...rest
   }: ImageCropperProps) => {
@@ -335,13 +338,17 @@ export const ImageCropper = _component(
             )}
           >
             <IconButton
-              icon={ZoomOut}
-              aria-label={lang.zoomOut}
-              size="sm"
-              variant="ghost"
-              tone="neutral"
-              disabled={zoom <= 1.001}
-              onClick={() => view.zoomOut()}
+              {...mergePartProps<IconButtonProps>(
+                {
+                  icon: ZoomOut,
+                  'aria-label': lang.zoomOut,
+                  size: 'sm',
+                  variant: 'ghost',
+                  tone: 'neutral',
+                },
+                propsButton,
+                { disabled: zoom <= 1.001, onClick: () => view.zoomOut() },
+              )}
             />
             <Slider
               _value={zoom}
@@ -355,21 +362,30 @@ export const ImageCropper = _component(
               onUpdate:_value={(value: number) => view.zoomTo(coverScale() * value)}
             />
             <IconButton
-              icon={ZoomIn}
-              aria-label={lang.zoomIn}
-              size="sm"
-              variant="ghost"
-              tone="neutral"
-              disabled={zoom >= maxZoom - 0.001}
-              onClick={() => view.zoomIn()}
+              {...mergePartProps<IconButtonProps>(
+                {
+                  icon: ZoomIn,
+                  'aria-label': lang.zoomIn,
+                  size: 'sm',
+                  variant: 'ghost',
+                  tone: 'neutral',
+                },
+                propsButton,
+                { disabled: zoom >= maxZoom - 0.001, onClick: () => view.zoomIn() },
+              )}
             />
             <IconButton
-              icon={RotateCcw}
-              aria-label={lang.resetView}
-              size="sm"
-              variant="ghost"
-              tone="neutral"
-              onClick={() => view.reset()}
+              {...mergePartProps<IconButtonProps>(
+                {
+                  icon: RotateCcw,
+                  'aria-label': lang.resetView,
+                  size: 'sm',
+                  variant: 'ghost',
+                  tone: 'neutral',
+                },
+                propsButton,
+                { onClick: () => view.reset() },
+              )}
             />
           </div>
         </div>

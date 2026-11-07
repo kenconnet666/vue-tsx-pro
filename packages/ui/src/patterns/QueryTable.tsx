@@ -26,7 +26,7 @@ import { Maximize, Minimize, RefreshCw, Rows3 } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { reactive, shallowRef, type Ref, type VNodeChild } from 'vue';
-import { Button } from '../base/Button';
+import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { useMessages } from '../config/lang/messages';
@@ -95,6 +95,8 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
   propsError?: Partial<AlertProps>;
   /** 工具栏内置按钮（刷新、行高、全屏）的部件属性 */
   propsToolbarButton?: Partial<IconButtonProps>;
+  /** 加载出错时“重试”按钮的部件属性 */
+  propsRetry?: Partial<ButtonProps>;
 }
 
 /** 部件的标记（data-scope="query-table"） */
@@ -159,6 +161,7 @@ export const QueryTable = _component(
     propsPagination,
     propsError,
     propsToolbarButton,
+    propsRetry,
     ...rest
   }: QueryTableProps<T, Filters>) => {
     const messages = useMessages('patterns', patternsMessages);
@@ -343,10 +346,11 @@ export const QueryTable = _component(
                     live: 'assertive',
                     action: (
                       <Button
-                        size="sm"
-                        variant="outline"
-                        tone="danger"
-                        onClick={() => void query.refresh()}
+                        {...mergePartProps<ButtonProps>(
+                          { size: 'sm', variant: 'outline', tone: 'danger' },
+                          propsRetry,
+                          { onClick: () => void query.refresh() },
+                        )}
                       >
                         {messages.queryTableRetry}
                       </Button>

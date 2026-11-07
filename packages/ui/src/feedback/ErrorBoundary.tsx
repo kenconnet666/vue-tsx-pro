@@ -10,7 +10,7 @@
 import { RotateCcw } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { onErrorCaptured, watch, type VNodeChild } from 'vue';
-import { Button } from '../base/Button';
+import { Button, type ButtonProps } from '../base/Button';
 import { useLang } from '../config/context';
 import { mergePartProps } from '../utils/props';
 import { Result, type ResultProps } from './Result';
@@ -25,6 +25,8 @@ export interface ErrorBoundaryProps {
   resetKeys?: readonly unknown[];
   /** 默认出错提示（Result）的部件属性 */
   propsFallback?: Partial<ResultProps>;
+  /** 默认出错提示里“重试”按钮的部件属性 */
+  propsRetry?: Partial<ButtonProps>;
   children?: VNodeChild;
 }
 
@@ -34,7 +36,7 @@ const changed = (next: readonly unknown[], previous: readonly unknown[]) =>
 
 /** 错误边界：里面出错时只把这一块换成出错提示，可以重试 */
 export const ErrorBoundary = _component(
-  ({ fallback, onError, resetKeys, propsFallback, children }: ErrorBoundaryProps) => {
+  ({ fallback, onError, resetKeys, propsFallback, propsRetry, children }: ErrorBoundaryProps) => {
     const lang = useLang();
     let error = _state.raw<Error | null>(null);
     const retry = () => (error = null);
@@ -64,7 +66,13 @@ export const ErrorBoundary = _component(
               title: lang.errorTitle,
               description: error.message,
               action: (
-                <Button size="sm" variant="soft" tone="neutral" icon={RotateCcw} onClick={retry}>
+                <Button
+                  {...mergePartProps<ButtonProps>(
+                    { size: 'sm', variant: 'soft', tone: 'neutral', icon: RotateCcw },
+                    propsRetry,
+                    { onClick: retry },
+                  )}
+                >
                   {lang.errorRetry}
                 </Button>
               ),
