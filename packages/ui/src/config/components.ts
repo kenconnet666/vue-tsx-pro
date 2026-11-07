@@ -33,6 +33,7 @@ import type { ProgressOptions, ProgressPart } from '../feedback/Progress';
 import type { ResultOptions, ResultPart } from '../feedback/Result';
 import type { TablePart } from '../table/Table';
 import type { TabPart, TabsOptions } from '../navigation/Tabs';
+import type { TimelineOptions, TimelinePart } from '../display/Timeline';
 import { useDefaults, type ComponentDefaults, type ResolvedDefaults } from './defaults';
 import { useRecipe, type ComponentStyles, type PartLayer } from './styles';
 
@@ -87,6 +88,8 @@ export interface UiComponents {
   Empty: ComponentConfig<EmptyPart, EmptyOptions>;
   /** Result */
   Result: ComponentConfig<ResultPart, ResultOptions>;
+  /** Timeline */
+  Timeline: ComponentConfig<TimelinePart, TimelineOptions>;
   /** Dialog、AlertDialog 共用：dialog 元素与标题行、标题、关闭按钮、说明、正文、页脚 */
   Dialog: ComponentConfig<DialogPart, DialogOptions>;
   /** Drawer：同 Dialog 的部件 */

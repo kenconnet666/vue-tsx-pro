@@ -26,6 +26,7 @@ import type { ComponentName } from '../components';
 import { Tab, TabList, Tabs } from '../../navigation/Tabs';
 import { mount, styleOf } from '../../utils/.test/mount';
 import { Provider } from '../Provider';
+import { timelineRecipe } from '../../display/Timeline';
 
 describe('components', () => {
   it('登记表的每个组件都有同名的配方', () => {
@@ -48,6 +49,7 @@ describe('components', () => {
       Choice: choiceRecipe,
       DataTable: dataTableRecipe,
       Table: tableRecipe,
+      Timeline: timelineRecipe,
     } satisfies Record<ComponentName, { readonly name: string | undefined }>;
     for (const [name, recipe] of Object.entries(recipes)) expect(recipe.name).toBe(name);
   });

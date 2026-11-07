@@ -299,7 +299,14 @@ export {
   type StatManaged,
   type StatProps,
 } from './display/Stat';
-export { Timeline, type TimelineItem, type TimelineProps } from './display/Timeline';
+export {
+  Timeline,
+  timelineRecipe,
+  type TimelineItem,
+  type TimelineOptions,
+  type TimelinePart,
+  type TimelineProps,
+} from './display/Timeline';
 export { Tree, type TreeItemRenderState, type TreeMove, type TreeProps } from './display/Tree';
 export { ValueChange, type ValueChangeProps } from './display/ValueChange';
 export {
