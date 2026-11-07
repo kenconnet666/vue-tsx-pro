@@ -2,19 +2,19 @@
 import { Plane, Search } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Avatar, Button, Flex, Icon, Small, Strong, TextField } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  Avatar,
+  Button,
+  Card,
+  Flex,
+  Icon,
+  Small,
+  Strong,
+  TextField,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { NotificationCenter, type NotificationItem } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const styles = css.create({
-  bar: {
-    paddingBlock: '_sm',
-    paddingInline: '_md',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_border',
-    borderRadius: '_lg',
-    backgroundColor: '_surface',
-  },
   brand: { color: '_accentText' },
   search: { flexGrow: 1, maxWidth: '20em', marginInlineStart: 'auto' },
 });
@@ -72,28 +72,30 @@ export default _component(() => {
     (items = items.map((item) => (ids.includes(item.id) ? { ...item, read: true } : item)));
   return () => (
     <Flex direction="column" gap="md">
-      <Flex align="center" gap="md" sx={styles.bar}>
-        <Icon icon={Plane} sx={styles.brand} />
-        <Strong>采购管理平台</Strong>
-        <TextField icon={Search} size="sm" placeholder="搜索编号、名称" sx={styles.search} />
-        <NotificationCenter
-          items={items}
-          types={[
-            { key: 'todo', label: '待办' },
-            { key: 'returned', label: '退回' },
-            { key: 'remind', label: '催办' },
-          ]}
-          now={NOW}
-          onRead={read}
-          onItemClick={(item) => (clicked = item.title)}
-          footer={
-            <Button size="sm" variant="link" onClick={() => (items = seed())}>
-              恢复演示数据
-            </Button>
-          }
-        />
-        <Avatar name="林小满" size="sm" />
-      </Flex>
+      <Card padding="sm">
+        <Flex align="center" gap="md">
+          <Icon icon={Plane} sx={styles.brand} />
+          <Strong>采购管理平台</Strong>
+          <TextField icon={Search} size="sm" placeholder="搜索编号、名称" sx={styles.search} />
+          <NotificationCenter
+            items={items}
+            types={[
+              { key: 'todo', label: '待办' },
+              { key: 'returned', label: '退回' },
+              { key: 'remind', label: '催办' },
+            ]}
+            now={NOW}
+            onRead={read}
+            onItemClick={(item) => (clicked = item.title)}
+            footer={
+              <Button size="sm" variant="link" onClick={() => (items = seed())}>
+                恢复演示数据
+              </Button>
+            }
+          />
+          <Avatar name="林小满" size="sm" />
+        </Flex>
+      </Card>
       <Small tone="muted">
         {clicked
           ? `点了：${clicked}`

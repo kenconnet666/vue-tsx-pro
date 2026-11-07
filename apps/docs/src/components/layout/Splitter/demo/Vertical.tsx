@@ -1,16 +1,10 @@
 // 上下排列：上面编辑、下面预览；上栏可以收起，比例范围 30%–70%
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Small, Splitter, Textarea } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Card, Small, Splitter, Textarea } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({
-  frame: {
-    height: '18rem',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_border',
-    borderRadius: '_md',
-  },
+  frame: { height: '18rem' },
   pane: { padding: '_sm', height: '100%', boxSizing: 'border-box' },
   // 编辑框占满上栏：外壳撑满，文字区随外壳拉伸（fixed：高度不随内容变）
   editor: { width: '100%', height: '100%' },
@@ -21,24 +15,26 @@ export default _component(() => {
   let text = _state('改进方案：\n1. 卡箍改用铝合金\n2. 合并两件支架，减少紧固件');
   let size = _state(50);
   return () => (
-    <Splitter
-      sx={styles.frame}
-      orientation="vertical"
-      _size={size}
-      minSize={30}
-      maxSize={70}
-      collapsible="start"
-      start={
-        <div {...css.attrs(styles.pane)}>
-          <Textarea _value={text} aria-label="方案" fixed propsRoot={{ sx: styles.editor }} />
-        </div>
-      }
-      end={
-        <div {...css.attrs(styles.pane)}>
-          <Small tone="muted">预览（上栏 {size}%）</Small>
-          <div {...css.attrs(styles.preview)}>{text}</div>
-        </div>
-      }
-    />
+    <Card variant="outline" padding="none" radius="md">
+      <Splitter
+        sx={styles.frame}
+        orientation="vertical"
+        _size={size}
+        minSize={30}
+        maxSize={70}
+        collapsible="start"
+        start={
+          <div {...css.attrs(styles.pane)}>
+            <Textarea _value={text} aria-label="方案" fixed propsRoot={{ sx: styles.editor }} />
+          </div>
+        }
+        end={
+          <div {...css.attrs(styles.pane)}>
+            <Small tone="muted">预览（上栏 {size}%）</Small>
+            <div {...css.attrs(styles.preview)}>{text}</div>
+          </div>
+        }
+      />
+    </Card>
   );
 });

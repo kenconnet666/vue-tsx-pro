@@ -2,6 +2,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
+  Card,
   Descriptions,
   NavItem,
   NavList,
@@ -18,15 +19,7 @@ const parts = [
 ];
 
 const styles = css.create({
-  root: {
-    display: 'flex',
-    height: '12rem',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_border',
-    borderRadius: '_md',
-    overflow: 'hidden',
-  },
+  body: { display: 'flex', height: '12rem' },
   // 手柄是 position: absolute，量的是这个面板的宽度
   panel: {
     position: 'relative',
@@ -57,7 +50,7 @@ export default _component(() => {
   return () => {
     const part = parts.find((item) => item.no === current)!;
     return (
-      <div {...css.attrs(styles.root)}>
+      <Card variant="outline" padding="none" radius="md" propsBody={{ sx: styles.body }}>
         <div {...css.attrs(styles.panel, styles.width(width))}>
           <NavList aria-label="零件">
             {parts.map((item) => (
@@ -97,7 +90,7 @@ export default _component(() => {
           />
           <Small tone="muted">拖动列表的右边、聚焦后按 ← / →，或双击回到 220 px</Small>
         </div>
-      </div>
+      </Card>
     );
   };
 });

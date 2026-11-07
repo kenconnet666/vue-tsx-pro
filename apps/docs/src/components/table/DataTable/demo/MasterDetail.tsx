@@ -3,6 +3,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
+  Card,
   DataTable,
   Descriptions,
   Empty,
@@ -40,13 +41,7 @@ const todos: Todo[] = [
 ];
 
 const styles = css.create({
-  frame: {
-    height: '18rem',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_border',
-    borderRadius: '_md',
-  },
+  frame: { height: '18rem' },
   table: { height: '100%', maxHeight: 'none' },
   detail: { padding: '_md' },
   empty: { display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' },
@@ -76,41 +71,43 @@ export default _component(() => {
   return () => {
     const current = todos.find((row) => row.id === active);
     return (
-      <Splitter
-        sx={styles.frame}
-        _size={55}
-        start={
-          <DataTable
-            aria-label="待办"
-            rows={todos}
-            columns={columns}
-            getKey={(row) => row.id}
-            activeKey={active}
-            onRowClick={(row) => (active = row.id)}
-            density="compact"
-            propsRoot={{ sx: styles.table }}
-          />
-        }
-        end={
-          current ? (
-            <Descriptions
-              sx={styles.detail}
-              size="sm"
-              columns={1}
-              items={[
-                { label: '编号', value: current.code },
-                { label: '名称', value: current.name },
-                { label: '环节', value: current.node },
-                { label: '截止', value: current.due },
-              ]}
+      <Card variant="outline" padding="none" radius="md">
+        <Splitter
+          sx={styles.frame}
+          _size={55}
+          start={
+            <DataTable
+              aria-label="待办"
+              rows={todos}
+              columns={columns}
+              getKey={(row) => row.id}
+              activeKey={active}
+              onRowClick={(row) => (active = row.id)}
+              density="compact"
+              propsRoot={{ sx: styles.table }}
             />
-          ) : (
-            <div {...css.attrs(styles.empty)}>
-              <Empty size="sm" title="选一条看详情" />
-            </div>
-          )
-        }
-      />
+          }
+          end={
+            current ? (
+              <Descriptions
+                sx={styles.detail}
+                size="sm"
+                columns={1}
+                items={[
+                  { label: '编号', value: current.code },
+                  { label: '名称', value: current.name },
+                  { label: '环节', value: current.node },
+                  { label: '截止', value: current.due },
+                ]}
+              />
+            ) : (
+              <div {...css.attrs(styles.empty)}>
+                <Empty size="sm" title="选一条看详情" />
+              </div>
+            )
+          }
+        />
+      </Card>
     );
   };
 });
