@@ -69,7 +69,8 @@ describe('选择框外壳的指针', () => {
   });
 
   it('ColorField 不可用时色块不是手形', () => {
-    expect(cursorOf('.color-disabled label')).toBe('not-allowed');
+    // 色块是打开取色器的按钮（ButtonBase），不可用时随按钮是 not-allowed
+    expect(cursorOf('.color-disabled button')).toBe('not-allowed');
   });
 });
 

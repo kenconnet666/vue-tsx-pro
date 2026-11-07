@@ -738,7 +738,7 @@ export interface Lang {
   readonly themeMono: string;
   /** 主题：青瓷，默认“青瓷” */
   readonly themeCeladon: string;
-  /** ColorField 色块（原生取色器）的名称，默认“选择颜色” */
+  /** ColorField 色块（打开取色器的按钮）的名称，默认“选择颜色” */
   readonly colorPick: string;
   /** 翻页导航（上一篇、下一篇）的名称，默认“翻页” */
   readonly pagerLabel: string;
