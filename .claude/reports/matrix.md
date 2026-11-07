@@ -55,23 +55,23 @@
 | ThemeSwitcher | patterns/ThemeSwitcher.tsx | ✗ |  |  |  |  |
 | AlertDialog | overlay/AlertDialog.tsx |  |  |  |  |  |
 | CommandPalette | overlay/CommandPalette.tsx |  |  |  |  |  |
-| ContextMenu | overlay/ContextMenu.tsx | ✗ |  |  |  |  |
+| ContextMenu | overlay/ContextMenu.tsx |  |  |  |  |  |
 | Dialog | overlay/Dialog.tsx |  |  |  |  |  |
 | Drawer | overlay/Drawer.tsx |  |  |  |  |  |
-| HoverCard | overlay/HoverCard.tsx | ✗ |  |  |  |  |
+| HoverCard | overlay/HoverCard.tsx |  |  |  |  |  |
 | Lightbox | overlay/Lightbox.tsx |  |  |  |  |  |
 | Menu | overlay/Menu.tsx |  |  |  |  |  |
 | MenuItem | overlay/Menu.tsx |  |  |  |  |  |
 | MenuLinkItem | overlay/Menu.tsx |  |  |  |  |  |
 | MenuCheckboxItem | overlay/Menu.tsx |  |  |  |  |  |
-| MenuGroup | overlay/Menu.tsx | ✗ |  |  |  |  |
-| MenuRadioGroup | overlay/Menu.tsx | ✗ |  |  |  |  |
-| MenuRadioItem | overlay/Menu.tsx | ✗ |  |  |  |  |
-| MenuSub | overlay/Menu.tsx | ✗ |  |  |  |  |
+| MenuGroup | overlay/Menu.tsx |  |  |  |  |  |
+| MenuRadioGroup | overlay/Menu.tsx |  |  |  |  |  |
+| MenuRadioItem | overlay/Menu.tsx |  |  |  |  |  |
+| MenuSub | overlay/Menu.tsx |  |  |  |  |  |
 | ModalCore | overlay/ModalCore.tsx | ✗ |  |  |  |  |
 | Popconfirm | overlay/Popconfirm.tsx |  |  |  |  |  |
 | Popover | overlay/Popover.tsx |  |  |  |  |  |
-| Tooltip | overlay/Tooltip.tsx | ✗ |  |  |  |  |
+| Tooltip | overlay/Tooltip.tsx |  |  |  |  |  |
 | Tour | overlay/Tour.tsx |  |  |  |  |  |
 | Breadcrumbs | navigation/Breadcrumbs.tsx |  |  |  |  |  |
 | NavBar | navigation/NavBar.tsx |  |  |  |  |  |
