@@ -113,6 +113,7 @@ export const ProportionBar = _component(
             .map((segment) => `${segment.label} ${segment.value}`)
             .join('，')}`}
           {...css.attrs(proportionBarStyles.bar, proportionBarStyles[size])}
+          {...proportionBarPart('bar')}
         >
           {segments.map(
             (segment, index) =>
@@ -130,12 +131,18 @@ export const ProportionBar = _component(
           )}
         </div>
         {legend && (
-          <ul {...css.attrs(proportionBarStyles.legend)}>
+          <ul {...css.attrs(proportionBarStyles.legend)} {...proportionBarPart('legend')}>
             {segments.map((segment, index) => (
-              <li key={segment.key} {...css.attrs(proportionBarStyles.legendItem)}>
+              <li
+                key={segment.key}
+                {...css.attrs(proportionBarStyles.legendItem)}
+                {...proportionBarPart('legend-item')}
+              >
                 <StatusDot size="md" tone={toneOf(segment, index)} color={segment.color} />
                 <span>{segment.label}</span>
-                <span {...css.attrs(proportionBarStyles.value)}>{valueText(segment)}</span>
+                <span {...css.attrs(proportionBarStyles.value)} {...proportionBarPart('value')}>
+                  {valueText(segment)}
+                </span>
                 {legendExtra?.(segment)}
               </li>
             ))}

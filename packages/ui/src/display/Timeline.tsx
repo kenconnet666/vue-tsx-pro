@@ -230,13 +230,17 @@ export const Timeline = _component(
 
     /** 收起的那几项所在的位置：节点列一段虚线，内容是展开、收起的按钮 */
     const toggle = (hidden: number) => (
-      <li key="toggle" {...css.attrs(timelineStyles.item)}>
+      <li key="toggle" {...css.attrs(timelineStyles.item)} {...timelinePart('item')}>
         <div
           {...mergeAttrs<'div'>({ sx: timelineStyles.rail, ...timelinePart('rail') }, propsRail)}
         >
-          <span {...css.attrs(timelineStyles.toggleLine)} aria-hidden="true" />
+          <span
+            {...css.attrs(timelineStyles.toggleLine)}
+            {...timelinePart('toggle-line')}
+            aria-hidden="true"
+          />
         </div>
-        <div {...css.attrs(timelineStyles.toggleContent)}>
+        <div {...css.attrs(timelineStyles.toggleContent)} {...timelinePart('toggle-content')}>
           <Button
             {...mergePartProps<ButtonProps>(
               {
@@ -383,7 +387,7 @@ export const Timeline = _component(
                         propsMeta,
                       )}
                     >
-                      <span {...css.attrs(timelineStyles.actor)}>
+                      <span {...css.attrs(timelineStyles.actor)} {...timelinePart('actor')}>
                         {(item.avatar || typeof item.actor === 'string') && (
                           <Avatar
                             src={item.avatar}

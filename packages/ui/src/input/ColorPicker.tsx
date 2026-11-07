@@ -172,6 +172,7 @@ const swatch = (
         swatchStyles.ring,
         colorPickerDynamicStyles.fill(color),
       )}
+      {...pickerPart('swatch')}
     />
   </ButtonBase>
 );
@@ -311,7 +312,11 @@ export const ColorPicker = _component(
       const swatchRow = (title: string, colors: readonly string[]) =>
         colors.length > 0 && (
           <div role="group" aria-label={title}>
-            <div {...css.attrs(colorPickerStyles.label)} aria-hidden="true">
+            <div
+              {...css.attrs(colorPickerStyles.label)}
+              {...pickerPart('label')}
+              aria-hidden="true"
+            >
               {title}
             </div>
             <div
@@ -374,7 +379,7 @@ export const ColorPicker = _component(
               tabindex={state.disabled ? -1 : 0}
             />
           </div>
-          <div {...css.attrs(colorPickerStyles.row)}>
+          <div {...css.attrs(colorPickerStyles.row)} {...pickerPart('tools')}>
             {eyeDropper && (
               <IconButton
                 {...mergePartProps<IconButtonProps>(
@@ -391,7 +396,7 @@ export const ColorPicker = _component(
                 )}
               />
             )}
-            <div {...css.attrs(colorPickerStyles.sliders)}>
+            <div {...css.attrs(colorPickerStyles.sliders)} {...pickerPart('sliders')}>
               <Slider
                 {...mergePartProps<SliderProps>(
                   {
@@ -446,10 +451,11 @@ export const ColorPicker = _component(
                   swatchStyles.ring,
                   colorPickerDynamicStyles.fill(hex()),
                 )}
+                {...pickerPart('preview')}
               />
             </span>
           </div>
-          <div {...css.attrs(colorPickerStyles.row)}>
+          <div {...css.attrs(colorPickerStyles.row)} {...pickerPart('fields')}>
             <ToggleGroup
               {...mergePartProps<ToggleGroupBaseProps>(
                 { size: 'xs', 'aria-label': lang.colorFormat, ...pickerPart('format') },

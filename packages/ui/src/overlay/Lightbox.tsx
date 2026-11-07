@@ -324,8 +324,12 @@ export const Lightbox = _component(
             },
           )}
         >
-          <div {...css.attrs(lightboxStyles.toolbar)}>
-            <span {...css.attrs(lightboxStyles.counter)} aria-live="polite">
+          <div {...css.attrs(lightboxStyles.toolbar)} {...lightboxPart('toolbar')}>
+            <span
+              {...css.attrs(lightboxStyles.counter)}
+              {...lightboxPart('counter')}
+              aria-live="polite"
+            >
               {total > 1 ? lang.slideCounter(index + 1, total) : ''}
             </span>
             <IconButton
@@ -335,7 +339,7 @@ export const Lightbox = _component(
                 onClick: () => view.zoomOut(),
               })}
             />
-            <span {...css.attrs(lightboxStyles.zoom)} aria-hidden="true">
+            <span {...css.attrs(lightboxStyles.zoom)} {...lightboxPart('zoom')} aria-hidden="true">
               {Math.round(view.scale * 100)}%
             </span>
             <IconButton
@@ -407,6 +411,7 @@ export const Lightbox = _component(
                   lightboxDynamicStyles.transform(view.transform),
                   lightboxDynamicStyles.box(width, height),
                 )}
+                {...lightboxPart('content')}
               >
                 <img
                   key={item.src}
@@ -418,6 +423,7 @@ export const Lightbox = _component(
                     lightboxStyles.image,
                     natural && lightboxDynamicStyles.image(natural.width, natural.height, rotation),
                   )}
+                  {...lightboxPart('image')}
                 />
               </div>
             )}

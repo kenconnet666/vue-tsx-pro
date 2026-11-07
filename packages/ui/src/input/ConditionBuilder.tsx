@@ -470,7 +470,7 @@ export const ConditionBuilder = _component(
             propsRoot={{ sx: conditionBuilderStyles.op }}
           />
           {field && node.op && valueShape(node.op) !== 'none' && (
-            <div {...css.attrs(conditionBuilderStyles.value)}>
+            <div {...css.attrs(conditionBuilderStyles.value)} {...conditionBuilderPart('value')}>
               {renderValue(node, field, node.op)}
             </div>
           )}
@@ -505,7 +505,7 @@ export const ConditionBuilder = _component(
           )}
         >
           {(node.children.length > 0 || nested) && (
-            <div {...css.attrs(conditionBuilderStyles.header)}>
+            <div {...css.attrs(conditionBuilderStyles.header)} {...conditionBuilderPart('header')}>
               <Select
                 items={MODES.map((mode) => ({ value: mode, label: lang.conditionModes[mode] }))}
                 _value={node.mode}
@@ -534,10 +534,18 @@ export const ConditionBuilder = _component(
           {node.children.length === 0 ? (
             !nested && <Small sx={conditionBuilderStyles.empty}>{lang.conditionEmpty}</Small>
           ) : (
-            <div {...css.attrs(conditionBuilderStyles.rows)}>
+            <div {...css.attrs(conditionBuilderStyles.rows)} {...conditionBuilderPart('rows')}>
               {node.children.map((child, index) => (
-                <div key={child.id} {...css.attrs(conditionBuilderStyles.row)}>
-                  <span {...css.attrs(conditionBuilderStyles.joiner)} aria-hidden="true">
+                <div
+                  key={child.id}
+                  {...css.attrs(conditionBuilderStyles.row)}
+                  {...conditionBuilderPart('row')}
+                >
+                  <span
+                    {...css.attrs(conditionBuilderStyles.joiner)}
+                    {...conditionBuilderPart('joiner')}
+                    aria-hidden="true"
+                  >
                     {index > 0 ? joiner : ''}
                   </span>
                   {child.kind === 'rule'
@@ -552,6 +560,7 @@ export const ConditionBuilder = _component(
               conditionBuilderStyles.actions,
               node.children.length === 0 && conditionBuilderStyles.actionsRoot,
             )}
+            {...conditionBuilderPart('actions')}
             data-condition-part="actions"
           >
             <Button

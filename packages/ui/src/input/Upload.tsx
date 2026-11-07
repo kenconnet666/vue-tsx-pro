@@ -622,13 +622,13 @@ export const Upload = _component(
               propsRoot={{ sx: focusRingStyles.inset }}
             />
           ) : (
-            <div {...css.attrs(uploadStyles.placeholder)}>
+            <div {...css.attrs(uploadStyles.placeholder)} {...uploadPart('placeholder')}>
               <Icon icon={failed ? CircleAlert : FileIcon} sx={failed && uploadStyles.error} />
               {item.name}
             </div>
           )}
           {item.status === 'uploading' && (
-            <div {...css.attrs(uploadStyles.overlay)}>
+            <div {...css.attrs(uploadStyles.overlay)} {...uploadPart('overlay')}>
               <Progress
                 {...mergePartProps<ProgressProps>({ size: 'xs' }, propsProgress, {
                   value: item.progress == null ? null : Math.round(item.progress * 100),
@@ -638,13 +638,13 @@ export const Upload = _component(
             </div>
           )}
           {failed && src && !item.rejected && (
-            <div {...css.attrs(uploadStyles.overlay)} title={item.error}>
+            <div {...css.attrs(uploadStyles.overlay)} {...uploadPart('overlay')} title={item.error}>
               {item.error}
             </div>
           )}
           {item.status === 'done' && <VisuallyHidden>{lang.uploadDone}</VisuallyHidden>}
           {!state.readonly && (
-            <div {...css.attrs(uploadStyles.actions)}>
+            <div {...css.attrs(uploadStyles.actions)} {...uploadPart('actions')}>
               {sortable && (
                 <ButtonBase
                   sx={uploadStyles.handle}
@@ -747,13 +747,14 @@ export const Upload = _component(
                 // 状态变化（失败、完成）由读屏播报
                 aria-live="polite"
                 {...css.attrs(uploadStyles.wallList)}
+                {...uploadPart('wall-list')}
               >
                 {value.map(renderCard)}
               </div>
               {renderDrop(true)}
             </ImageGroup>
             {pasteable && !state.readonly && (
-              <span {...css.attrs(uploadStyles.meta)}>
+              <span {...css.attrs(uploadStyles.meta)} {...uploadPart('hint')}>
                 {[description, description != null && ' · ', lang.uploadPasteHint]}
               </span>
             )}

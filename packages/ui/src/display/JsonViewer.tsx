@@ -332,17 +332,22 @@ export const JsonViewer = _component(
       const container = CONTAINERS.has(node.kind);
       const kindStyle = KIND_STYLES[node.kind];
       return (
-        <span {...css.attrs(jsonViewerStyles.row)}>
+        <span {...css.attrs(jsonViewerStyles.row)} {...jsonViewerPart('row')}>
           <span
             {...css.attrs(/^\d+$/.test(node.name) ? jsonViewerStyles.index : jsonViewerStyles.name)}
           >
             {node.name}:
           </span>
-          <span {...css.attrs(jsonViewerStyles.value, kindStyle && jsonViewerStyles[kindStyle])}>
+          <span
+            {...css.attrs(jsonViewerStyles.value, kindStyle && jsonViewerStyles[kindStyle])}
+            {...jsonViewerPart('value')}
+          >
             {display(node)}
           </span>
           {container && (
-            <span {...css.attrs(jsonViewerStyles.summary)}>{lang.jsonItems(sizeOf(node))}</span>
+            <span {...css.attrs(jsonViewerStyles.summary)} {...jsonViewerPart('summary')}>
+              {lang.jsonItems(sizeOf(node))}
+            </span>
           )}
         </span>
       );
@@ -353,7 +358,7 @@ export const JsonViewer = _component(
       return (
         <div {...mergeAttrs<'div'>({ sx: jsonViewerStyles.root, ...jsonViewerPart('root') }, rest)}>
           {toolbar && (
-            <div {...css.attrs(jsonViewerStyles.toolbar)}>
+            <div {...css.attrs(jsonViewerStyles.toolbar)} {...jsonViewerPart('toolbar')}>
               <TextField
                 {...mergePartProps<TextFieldProps>(
                   {
@@ -416,7 +421,11 @@ export const JsonViewer = _component(
           >
             {node ? (
               <>
-                <span {...css.attrs(jsonViewerStyles.path)} title={node.path}>
+                <span
+                  {...css.attrs(jsonViewerStyles.path)}
+                  {...jsonViewerPart('path')}
+                  title={node.path}
+                >
                   {node.path}
                 </span>
                 {/* 两个按钮图标一样：悬停、聚焦时提示各复制什么 */}

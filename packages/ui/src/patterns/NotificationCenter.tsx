@@ -244,7 +244,7 @@ export const NotificationList = _component(
                 propsHead,
               )}
             >
-              <span {...css.attrs(notificationListStyles.title)}>
+              <span {...css.attrs(notificationListStyles.title)} {...notificationListPart('title')}>
                 {title ?? messages.notifications}
               </span>
               {markAll}
@@ -312,7 +312,10 @@ export const NotificationList = _component(
                     <a
                       {...mergeAttrs<'a'>(
                         // 整行贴着滚动区域的边：焦点环画在里面，画在外面会被裁掉
-                        { sx: [notificationListStyles.item, focusRingStyles.inset] },
+                        {
+                          sx: [notificationListStyles.item, focusRingStyles.inset],
+                          ...notificationListPart('item'),
+                        },
                         typeof propsItem === 'function' ? propsItem(item) : propsItem,
                         {
                           href: item.href ? router.href(item.href) : undefined,
@@ -329,15 +332,22 @@ export const NotificationList = _component(
                       )}
                       data-state={item.read ? 'read' : 'unread'}
                     >
-                      <span {...css.attrs(notificationListStyles.dot)}>
+                      <span
+                        {...css.attrs(notificationListStyles.dot)}
+                        {...notificationListPart('dot')}
+                      >
                         {!item.read && <StatusDot tone={item.tone ?? 'accent'} />}
                       </span>
-                      <span {...css.attrs(notificationListStyles.body)}>
+                      <span
+                        {...css.attrs(notificationListStyles.body)}
+                        {...notificationListPart('body')}
+                      >
                         <span
                           {...css.attrs(
                             notificationListStyles.itemTitle,
                             !item.read && notificationListStyles.itemTitleUnread,
                           )}
+                          {...notificationListPart('item-title')}
                         >
                           {!item.read && (
                             <VisuallyHidden>{messages.notificationUnreadMark} </VisuallyHidden>
@@ -345,7 +355,10 @@ export const NotificationList = _component(
                           {item.title}
                         </span>
                         {item.description && (
-                          <span {...css.attrs(notificationListStyles.muted)}>
+                          <span
+                            {...css.attrs(notificationListStyles.muted)}
+                            {...notificationListPart('description')}
+                          >
                             {item.description}
                           </span>
                         )}
