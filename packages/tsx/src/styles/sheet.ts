@@ -52,6 +52,25 @@ let sheet: CSSStyleSheet | null | undefined;
 /** 样式表认 @layer（浏览器都认；happy-dom 不认，插不带层的规则） */
 let layered = true;
 
+/** 样式标签的 nonce（内容安全策略）：setStyleNonce 设的，没设时读 Vite 约定的 `<meta property="csp-nonce">` */
+let nonce: string | undefined;
+
+/**
+ * 内容安全策略（CSP）的 nonce：页面的 style-src 不允许 'unsafe-inline' 时，引擎建的 `<style>` 要带上它浏览器才认。
+ * 要在第一条样式插入之前设（createUi 的 nonce 选项会设）：浏览器只在 `<style>` 进入页面时查 nonce，之后经 CSSOM 加规则不受限。
+ * Vite 配了 `html.cspNonce` 时自动读到，不必再设
+ */
+export function setStyleNonce(value: string | undefined): void {
+  nonce = value;
+}
+
+/** 浏览器把 nonce 属性藏起来（getAttribute 读到空串），要读 .nonce；不支持 .nonce 的环境退回读属性 */
+function metaNonce(): string | undefined {
+  if (typeof document === 'undefined') return undefined;
+  const meta = document.querySelector<HTMLMetaElement>('meta[property="csp-nonce"]');
+  return meta?.nonce || meta?.getAttribute('nonce') || undefined;
+}
+
 /**
  * 引擎自己的样式表：放在 head 最前面，宿主页面后加载的同等特异性的 CSS 能盖过组件库。
  * 服务端渲染输出过这张表（renderStyleTag）时直接接管它：表里已有的规则按 data-names 登记，不再重复插入
@@ -76,6 +95,8 @@ function styleSheet(): CSSStyleSheet | null {
   }
   const element = document.createElement('style');
   element.dataset.vueTsxPro = '';
+  const value = nonce ?? metaNonce();
+  if (value) element.nonce = value;
   document.head.prepend(element);
   sheet = element.sheet;
   try {
@@ -148,11 +169,12 @@ export function isInserted(name: string): boolean {
  * 包括 class 里出现的引擎类名（组合类、主题类、标记）、这些规则引用的关键帧，以及全部变量组（:root 上的默认值）与基础规则。
  * 类名按内容哈希，同样的样式在所有请求里同名，所以不必按请求隔离：渲染完按 HTML 取用到的就行。
  * 客户端接管这张表，data-names 里的规则不再重复插入。
- * `include`：HTML 里没出现也要带上的类名（防闪烁脚本会换到 <html> 上的主题类）
+ * `include`：HTML 里没出现也要带上的类名（防闪烁脚本会换到 <html> 上的主题类）；
+ * `nonce`：这次响应的内容安全策略 nonce（每个请求不同，所以按次传，不用 setStyleNonce）
  */
 export function renderStyleTag(
   html: string,
-  options: { include?: readonly string[] } = {},
+  options: { include?: readonly string[]; nonce?: string } = {},
 ): string {
   const used = new Set(options.include?.filter((name) => inserted.has(name)));
   for (const match of html.matchAll(/\bclass="([^"]*)"/g)) {
@@ -171,7 +193,8 @@ export function renderStyleTag(
   // 层的顺序写在最前面：客户端接管这张表，之后插的规则按同样的顺序分层
   const css = [LAYER_ORDER, ...names.flatMap((name) => inserted.get(name)!.texts)].join('\n');
   // 规则原文里不会有 </style>；防御性地转义，免得用户的样式值截断标签
-  return `<style data-vue-tsx-pro data-names="${names.join(' ')}">${css.replaceAll('</', '<\\/')}</style>`;
+  const nonceAttr = options.nonce ? ` nonce="${options.nonce.replaceAll('"', '&quot;')}"` : '';
+  return `<style data-vue-tsx-pro${nonceAttr} data-names="${names.join(' ')}">${css.replaceAll('</', '<\\/')}</style>`;
 }
 
 /** 已插入的全部规则原文，一条一行，最前面是层的顺序（小程序的构建、测试断言用） */

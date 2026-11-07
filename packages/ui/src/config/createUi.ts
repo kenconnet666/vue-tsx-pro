@@ -63,6 +63,11 @@ export interface UiOptions {
    * AppShell 贴满窗口、四周不留 8px 的白边；配合 themeBootScript 时接手它写的行内颜色
    */
   paintDocument?: boolean;
+  /**
+   * 内容安全策略（CSP）的 nonce：页面的 style-src 不允许 'unsafe-inline' 时，样式引擎建的 `<style>` 带上它。
+   * Vite 配了 `html.cspNonce` 时样式引擎自动读到，不必再写；服务端渲染时把每个请求的 nonce 交给 renderStyleTag
+   */
+  nonce?: string;
 }
 
 /** paintDocument 时页面根元素的样式 */
@@ -158,6 +163,7 @@ export function createUi(options: UiOptions = {}): UiPlugin {
       };
     },
     install(app) {
+      if (options.nonce) css.setStyleNonce(options.nonce);
       const configured = splitComponents(options.components);
       const scope = effectScope();
       app.onUnmount(() => scope.stop());

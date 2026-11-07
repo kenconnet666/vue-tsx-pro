@@ -35,7 +35,7 @@ export {
   type RecipeExtension,
   type VariantSelection,
 } from './recipe';
-export { CONDITIONS as conditions, renderStyleTag, styleText } from './runtime';
+export { CONDITIONS as conditions, renderStyleTag, setStyleNonce, styleText } from './runtime';
 /**
  * @deprecated 给工具链用的，改从 `@zerodep-dev/vue-tsx-pro-tsx/styles/internal` 导入。留一个版本：
  * 旧版编译器生成的热更新包装、磁盘上的编译缓存、正在运行的开发服务器都还从这里导入 hotStyles

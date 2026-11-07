@@ -40,3 +40,9 @@ it('include 带上 HTML 里没出现的类（防闪烁脚本要换上的主题�
   expect(/data-names="([^"]*)"/.exec(tag)![1]!.split(' ')).toContain(theme);
   expect(tag).not.toContain('xnothing');
 });
+
+it('nonce：带上这次响应的内容安全策略 nonce，引号转义', () => {
+  expect(renderStyleTag('<div></div>', { nonce: 'r4nd"om' })).toMatch(
+    /^<style data-vue-tsx-pro nonce="r4nd&quot;om" data-names="/,
+  );
+});

@@ -417,6 +417,10 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`，编译器改写成 `css.
   `data-theme-classes` 记下现在的主题类，`createUi` 接管时据此去掉，不留下旧主题的类。全部 12 套内置主题约多 35 KB（未压缩），只有亮暗两套约多 3 KB。
 - **必须输出样式表**：客户端靠 `<style data-vue-tsx-pro>` 判断页面是服务端渲染的。不输出时动态样式的类两边对不上（这种页面首屏本来也没有样式），渲染器都要调 `renderStyleTag`。
 - **验证**：文档站构建时预渲染全部页面（`apps/docs/build/prerender.ts`），`scripts/docs/hydration.mjs` 逐页打开、收集水合不一致的警告。
+- **内容安全策略**（2026-11-07）：页面的 style-src 不允许 `'unsafe-inline'` 时，`<style>` 要带 nonce。服务端每个请求一个 nonce，
+  交给 `renderStyleTag(html, { nonce })`；客户端引擎自己建表时用 `setStyleNonce`（`createUi({ nonce })` 会调）设的，没设时读 Vite `html.cspNonce`
+  写的 `<meta property="csp-nonce">`。之后经 CSSOM 插规则不受 CSP 限制。服务端输出的行内 `style`（动态样式的变量）仍要 `'unsafe-hashes'`
+  或放宽 style-src-attr，客户端经 CSSOM 设的行内样式不受限。
 
 ## 11. 分段输出与级联层（2026-11-06）
 
@@ -425,7 +429,8 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`，编译器改写成 `css.
 
 - **段**：`css.layers(组…)` 每组各合成一个类。组件库在两处分：配方有扩展（`createUi` / `Provider` 的定制）时组件自己的一段、每层扩展一段；
   `mergeProps` 在使用方写了 `sx` 时组件的、使用方的、受管的各一段。没有定制、没有 `sx` 的元素仍是一个类，类名与以前相同。
-- **层**：样式表开头声明 `@layer vtp.vars, vtp.s0 … vtp.s7`；变量组与主题在 `vtp.vars`，第 k 段在 `vtp.s{k}`，后面的段不论特异性都盖过前面的段。
+- **层**：样式表开头声明 `@layer vtp.base, vtp.vars, vtp.s0 … vtp.s7`；`css.globalRule` 登记的基础规则在 `vtp.base`（2026-11-07：
+  组件库用它给部件统一 `box-sizing: border-box`，SSR 总会带上），变量组与主题在 `vtp.vars`，第 k 段在 `vtp.s{k}`，后面的段不论特异性都盖过前面的段。
   宿主不分层的 CSS 盖过整个组件库。超过 8 段的并进最后一段。
 - **语义不变**：第 k 段（k > 0）输出它改到的属性所在的属性族（`familyOf`：按名字第一段分，`inset` / `top`、`gap` / `row-gap`、`place` / `align` 等例外）
   在前 k + 1 段合并后的完整取值，含它没改的条件值；所以每个属性族最高的那一层里总有这一族完整的合并结果，层里排出的规则与单个组合类相同。
