@@ -43,7 +43,7 @@
 - packages/ui/src/charts/TreemapChart.tsx:198 <svg>
 - packages/ui/src/charts/XYChart.tsx:1004 <svg>
 
-## 没转发部件属性的子组件（119）
+## 没转发部件属性的子组件（114）
 
 - packages/ui/src/table/ColumnHeaderActions.tsx:143 <Button>
 - packages/ui/src/table/ColumnHeaderActions.tsx:104 <Checkbox>
@@ -53,14 +53,9 @@
 - packages/ui/src/patterns/CommentThread.tsx:562 <Button>
 - packages/ui/src/patterns/CommentThread.tsx:536 <Icon>
 - packages/ui/src/patterns/CommentThread.tsx:538 <Link>
-- packages/ui/src/patterns/DataImport.tsx:372 <Badge>
-- packages/ui/src/patterns/DataImport.tsx:325 <Button>
-- packages/ui/src/patterns/DataImport.tsx:464 <Button>
-- packages/ui/src/patterns/DataImport.tsx:471 <Button>
-- packages/ui/src/patterns/DataImport.tsx:479 <Button>
-- packages/ui/src/patterns/DataImport.tsx:290 <Icon>
-- packages/ui/src/patterns/DataImport.tsx:295 <Icon>
-- packages/ui/src/patterns/DataImport.tsx:418 <Switch>
+- packages/ui/src/patterns/DataImport.tsx:393 <Badge>
+- packages/ui/src/patterns/DataImport.tsx:305 <Icon>
+- packages/ui/src/patterns/DataImport.tsx:310 <Icon>
 - packages/ui/src/patterns/FilterBar.tsx:336 <Badge>
 - packages/ui/src/patterns/FilterBar.tsx:357 <Badge>
 - packages/ui/src/patterns/FilterBar.tsx:425 <Button>

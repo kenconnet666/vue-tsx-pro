@@ -33,7 +33,7 @@ import { useMessages } from '../config/lang/messages';
 import { Alert } from '../feedback/Alert';
 import { FileDrop, type FileDropProps } from '../input/FileDrop';
 import { Select } from '../input/Select';
-import { Switch } from '../input/Switch';
+import { Switch, type SwitchProps } from '../input/Switch';
 import { Flex, type FlexProps } from '../layout/Flex';
 import { Steps, type StepsProps } from '../navigation/Steps';
 import type { DataTableColumn } from '../table/columns';
@@ -97,6 +97,16 @@ export interface DataImportProps<Row> extends PartProps<'div'> {
   propsActions?: Partial<FlexProps>;
   /** 导入按钮的部件属性 */
   propsSubmit?: Partial<ButtonProps>;
+  /** “下载模板”按钮的部件属性 */
+  propsTemplate?: Partial<ButtonProps>;
+  /** “上一步”按钮的部件属性 */
+  propsPrevious?: Partial<ButtonProps>;
+  /** “下一步”（对好列、去预览）按钮的部件属性 */
+  propsNext?: Partial<ButtonProps>;
+  /** 导入完成后“再导入一次”按钮的部件属性 */
+  propsAgain?: Partial<ButtonProps>;
+  /** 预览里“只看有错的行”开关的部件属性 */
+  propsOnlyErrors?: Partial<SwitchProps>;
 }
 
 /** DataImport 的样式：root、previewTable、validIcon、invalidIcon */
@@ -149,6 +159,11 @@ export const DataImport = _component(
     propsPreview,
     propsActions,
     propsSubmit,
+    propsTemplate,
+    propsPrevious,
+    propsNext,
+    propsAgain,
+    propsOnlyErrors,
     ...rest
   }: DataImportProps<Row>) => {
     const messages = useMessages('patterns', patternsMessages);
@@ -322,7 +337,13 @@ export const DataImport = _component(
           {parseError && <Alert tone="danger">{parseError}</Alert>}
           {onTemplate && (
             <Flex justify="end">
-              <Button size="sm" variant="ghost" icon={Download} onClick={onTemplate}>
+              <Button
+                {...mergePartProps<ButtonProps>(
+                  { size: 'sm', variant: 'ghost', icon: Download },
+                  propsTemplate,
+                  { onClick: onTemplate },
+                )}
+              >
                 {messages.dataImportTemplate}
               </Button>
             </Flex>
@@ -416,6 +437,7 @@ export const DataImport = _component(
             <Small>{messages.dataImportSummary(total, valid, invalid)}</Small>
             {invalid > 0 && (
               <Switch
+                {...mergePartProps<SwitchProps>({}, propsOnlyErrors)}
                 _checked={onlyErrors}
                 onUpdate:_checked={(value: boolean) => (onlyErrors = value)}
               >
@@ -461,7 +483,11 @@ export const DataImport = _component(
           {step === 2 && renderPreview()}
           {step === 3 && (
             <Alert tone="success" title={messages.dataImportDone(imported)}>
-              <Button size="sm" variant="soft" onClick={restart}>
+              <Button
+                {...mergePartProps<ButtonProps>({ size: 'sm', variant: 'soft' }, propsAgain, {
+                  onClick: restart,
+                })}
+              >
                 {messages.dataImportAgain}
               </Button>
             </Alert>
@@ -469,14 +495,23 @@ export const DataImport = _component(
           {(step === 1 || step === 2) && (
             <Flex {...mergePartProps<FlexProps>({ justify: 'end', gap: 'sm' }, propsActions)}>
               <Button
-                variant="ghost"
-                tone="neutral"
-                onClick={() => (step === 1 ? restart() : (step = 1))}
+                {...mergePartProps<ButtonProps>(
+                  { variant: 'ghost', tone: 'neutral' },
+                  propsPrevious,
+                  {
+                    onClick: () => (step === 1 ? restart() : (step = 1)),
+                  },
+                )}
               >
                 {messages.stepsFormPrevious}
               </Button>
               {step === 1 ? (
-                <Button disabled={unmapped().length > 0} onClick={preview}>
+                <Button
+                  {...mergePartProps<ButtonProps>({}, propsNext, {
+                    disabled: unmapped().length > 0,
+                    onClick: preview,
+                  })}
+                >
                   {messages.stepsFormNext}
                 </Button>
               ) : (
