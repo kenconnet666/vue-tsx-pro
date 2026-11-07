@@ -21,6 +21,7 @@ import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
 import { FormContext } from './Form';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface FormErrorSummaryProps extends PartProps<'div', 'title'> {
@@ -33,6 +34,9 @@ export interface FormErrorSummaryProps extends PartProps<'div', 'title'> {
   /** 每一项链接的部件属性 */
   propsLink?: PartProps<'a'>;
 }
+
+/** 部件的标记（data-scope="form-error-summary"） */
+const formErrorSummaryPart = (part: string) => partAttrs({ name: 'FormErrorSummary' }, part);
 
 /** FormErrorSummary 的样式：root、title、list、link */
 const formErrorSummaryStyles = css.create({
@@ -93,7 +97,10 @@ export const FormErrorSummary = _component(
       return (
         <div
           {...mergeAttrs<'div'>(
-            { sx: [formErrorSummaryStyles.root, focusRingStyles.visible] },
+            {
+              sx: [formErrorSummaryStyles.root, focusRingStyles.visible],
+              ...formErrorSummaryPart('root'),
+            },
             rest,
             {
               // 提交失败时 Form 把焦点移到这里
@@ -102,19 +109,33 @@ export const FormErrorSummary = _component(
           )}
           data-form-error-summary=""
         >
-          <div {...mergeAttrs<'div'>({ sx: formErrorSummaryStyles.title }, propsTitle)}>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: formErrorSummaryStyles.title, ...formErrorSummaryPart('title') },
+              propsTitle,
+            )}
+          >
             <Icon icon={statusIcons.danger} />
             {title ? title(list.length) : lang.formErrorSummary(list.length)}
           </div>
-          <ul {...mergeAttrs<'ul'>({ sx: formErrorSummaryStyles.list }, propsList)}>
+          <ul
+            {...mergeAttrs<'ul'>(
+              { sx: formErrorSummaryStyles.list, ...formErrorSummaryPart('list') },
+              propsList,
+            )}
+          >
             {list.map((item) => (
               <li key={item.path}>
                 {item.controlId ? (
                   <a
-                    {...mergeAttrs<'a'>({ sx: formErrorSummaryStyles.link }, propsLink, {
-                      href: `#${item.controlId}`,
-                      onClick: (event: MouseEvent) => jump(event, item.controlId),
-                    })}
+                    {...mergeAttrs<'a'>(
+                      { sx: formErrorSummaryStyles.link, ...formErrorSummaryPart('link') },
+                      propsLink,
+                      {
+                        href: `#${item.controlId}`,
+                        onClick: (event: MouseEvent) => jump(event, item.controlId),
+                      },
+                    )}
                   >
                     {item.label ? lang.formErrorItem(item.label, item.message) : item.message}
                   </a>

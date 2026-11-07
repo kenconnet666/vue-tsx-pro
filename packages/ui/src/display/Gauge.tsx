@@ -20,6 +20,7 @@ import { toNumber, type NumericValue } from '../utils/data/numeric';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
+import { partAttrs } from '../config/styles';
 
 /** 外圈的一段区间：从上一段的终点（第一段从 min）到 to */
 export interface GaugeBand {
@@ -62,6 +63,9 @@ export interface GaugeProps extends PartProps<'div', GaugeManaged> {
   /** 名称的部件属性 */
   propsLabel?: PartProps<'span'>;
 }
+
+/** 部件的标记（data-scope="gauge"） */
+const gaugePart = (part: string) => partAttrs({ name: 'Gauge' }, part);
 
 /** Gauge 的样式 */
 const gaugeStyles = css.create({
@@ -190,6 +194,7 @@ export const Gauge = _component(
             {
               sx: [gaugeStyles.root, size && fontSizeStyles[size], gaugeToneStyles[color]],
               'aria-label': name,
+              ...gaugePart('root'),
             },
             rest,
             {
@@ -224,9 +229,13 @@ export const Gauge = _component(
               )}
             </svg>
             <span
-              {...mergeAttrs<'span'>({ sx: gaugeStyles.center }, propsValue, {
-                'aria-hidden': true,
-              })}
+              {...mergeAttrs<'span'>(
+                { sx: gaugeStyles.center, ...gaugePart('value') },
+                propsValue,
+                {
+                  'aria-hidden': true,
+                },
+              )}
             >
               {valueLabel ?? spoken}
             </span>
@@ -236,7 +245,11 @@ export const Gauge = _component(
             <span>{format.number(max, valueFormat)}</span>
           </div>
           {hasContent(label) && (
-            <span {...mergeAttrs<'span'>({ sx: gaugeStyles.label }, propsLabel)}>{label}</span>
+            <span
+              {...mergeAttrs<'span'>({ sx: gaugeStyles.label, ...gaugePart('label') }, propsLabel)}
+            >
+              {label}
+            </span>
           )}
         </div>
       );

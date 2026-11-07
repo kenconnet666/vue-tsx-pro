@@ -23,6 +23,7 @@ import { statusIcons } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { FlexOrderedList, type FlexProps } from '../layout/Flex';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 步骤条方向 */
 export interface StepsOrientations {
@@ -92,6 +93,9 @@ export interface StepsProps extends PartProps<'ol'> {
   /** 步骤之间连接线的部件属性 */
   propsConnector?: PartProps<'span'>;
 }
+
+/** 部件的标记（data-scope="steps"） */
+const stepsPart = (part: string) => partAttrs({ name: 'Steps' }, part);
 
 /** Steps 的样式：item、itemVertical、trigger、link、indicator、text、title、description、connector 等 */
 export const stepsStyles = css.create({
@@ -208,10 +212,14 @@ export const Steps = _component(
             const own = typeof propsItem === 'function' ? propsItem(item, index) : propsItem;
             const content = [
               <span
-                {...mergeAttrs<'span'>({ sx: stepsStyles.indicator }, propsIndicator, {
-                  sx: stepsStateStyles[state],
-                  'aria-hidden': true,
-                })}
+                {...mergeAttrs<'span'>(
+                  { sx: stepsStyles.indicator, ...stepsPart('indicator') },
+                  propsIndicator,
+                  {
+                    sx: stepsStateStyles[state],
+                    'aria-hidden': true,
+                  },
+                )}
               >
                 {state === 'complete' ? (
                   <Icon icon={Check} />
@@ -223,14 +231,26 @@ export const Steps = _component(
                   index + 1
                 )}
               </span>,
-              <span {...mergeAttrs<'span'>({ sx: stepsStyles.text }, propsText)}>
-                <span {...mergeAttrs<'span'>({ sx: stepsStyles.title }, propsTitle)}>
+              <span
+                {...mergeAttrs<'span'>({ sx: stepsStyles.text, ...stepsPart('text') }, propsText)}
+              >
+                <span
+                  {...mergeAttrs<'span'>(
+                    { sx: stepsStyles.title, ...stepsPart('title') },
+                    propsTitle,
+                  )}
+                >
                   {item.title}
                   {/* 当前步骤由 aria-current 念出，其余的状态补一句文字：不只靠颜色与图标 */}
                   {state !== 'current' && <VisuallyHidden>{lang.stepState(state)}</VisuallyHidden>}
                 </span>
                 {item.description != null && (
-                  <span {...mergeAttrs<'span'>({ sx: stepsStyles.description }, propsDescription)}>
+                  <span
+                    {...mergeAttrs<'span'>(
+                      { sx: stepsStyles.description, ...stepsPart('description') },
+                      propsDescription,
+                    )}
+                  >
                     {item.description}
                   </span>
                 )}
@@ -243,7 +263,10 @@ export const Steps = _component(
               <li
                 key={item.key ?? index}
                 {...mergeAttrs<'li'>(
-                  { sx: [stepsStyles.item, vertical && stepsStyles.itemVertical] },
+                  {
+                    sx: [stepsStyles.item, vertical && stepsStyles.itemVertical],
+                    ...stepsPart('item'),
+                  },
                   own,
                   { 'aria-current': state === 'current' ? 'step' : undefined },
                 )}
@@ -252,7 +275,10 @@ export const Steps = _component(
                 {link ? (
                   <a
                     {...mergeAttrs<'a'>(
-                      { sx: [stepsStyles.trigger, stepsStyles.link, focusRingStyles.visible] },
+                      {
+                        sx: [stepsStyles.trigger, stepsStyles.link, focusRingStyles.visible],
+                        ...stepsPart('trigger'),
+                      },
                       propsTrigger,
                       {
                         href: router.href(item.href!),
@@ -276,7 +302,10 @@ export const Steps = _component(
                 {index < items.length - 1 && (
                   <span
                     {...mergeAttrs<'span'>(
-                      { sx: [stepsStyles.connector, vertical && stepsStyles.connectorVertical] },
+                      {
+                        sx: [stepsStyles.connector, vertical && stepsStyles.connectorVertical],
+                        ...stepsPart('connector'),
+                      },
                       propsConnector,
                       {
                         sx: state === 'complete' && stepsStyles.connectorDone,

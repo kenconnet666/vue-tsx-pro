@@ -18,6 +18,7 @@ import type { VNodeChild } from 'vue';
 import { useIntersectionObserver } from '../utils/dom/intersection';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ActionBarProps extends PartProps<'div'> {
@@ -35,6 +36,9 @@ export interface ActionBarProps extends PartProps<'div'> {
   /** 按钮：靠结束边排开 */
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="action-bar"） */
+const actionBarPart = (part: string) => partAttrs({ name: 'ActionBar' }, part);
 
 /** ActionBar 的样式：root、sticky、stuck、start、actions */
 const actionBarStyles = css.create({
@@ -88,6 +92,7 @@ export const ActionBar = _component(
               sticky && actionBarStyles.sticky,
               sticky && stuck && actionBarStyles.stuck,
             ],
+            ...actionBarPart('root'),
           },
           rest,
           { ref: _toRef(root) },
@@ -95,9 +100,23 @@ export const ActionBar = _component(
         data-stuck={(sticky && stuck) || undefined}
       >
         {hasContent(start) && (
-          <div {...mergeAttrs<'div'>({ sx: actionBarStyles.start }, propsStart)}>{start}</div>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: actionBarStyles.start, ...actionBarPart('start') },
+              propsStart,
+            )}
+          >
+            {start}
+          </div>
         )}
-        <div {...mergeAttrs<'div'>({ sx: actionBarStyles.actions }, propsActions)}>{children}</div>
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: actionBarStyles.actions, ...actionBarPart('actions') },
+            propsActions,
+          )}
+        >
+          {children}
+        </div>
       </div>
     );
   },

@@ -30,6 +30,7 @@ import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils
 import { disclosureStyles } from '../utils/style/transitions';
 import { layoutVars } from '../utils/style/vars';
 import { provideFieldLayout, type FieldLayout } from './field-layout';
+import { partAttrs } from '../config/styles';
 
 /** 角色与关联由组件管理；原生的 title 属性让给标题内容 */
 export type FormSectionManaged = 'role' | 'title' | 'aria-labelledby' | 'aria-describedby';
@@ -71,6 +72,9 @@ export interface FormSectionProps extends PartProps<'div', FormSectionManaged>, 
   /** 字段 */
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="form-section"） */
+const formSectionPart = (part: string) => partAttrs({ name: 'FormSection' }, part);
 
 /** FormSection 的样式：root、header、headerText、heading、trigger、chevron、description、extra、body、singleColumn */
 const formSectionStyles = css.create({
@@ -211,6 +215,7 @@ export const FormSection = _component(
                 formSectionStyles.body,
                 columns > 1 && formSectionColumnStyles.columns(columns, minColumnWidth),
               ],
+              ...formSectionPart('body'),
             },
             propsBody,
             { ref: grid.ref, ...(collapsible ? {} : { id: ids.body }) },
@@ -221,7 +226,7 @@ export const FormSection = _component(
       );
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: formSectionStyles.root }, rest, {
+          {...mergeAttrs<'div'>({ sx: formSectionStyles.root, ...formSectionPart('root') }, rest, {
             role: hasContent(title) ? 'group' : undefined,
             'aria-labelledby': hasContent(title) ? ids.title : undefined,
             'aria-describedby': hasContent(description) ? ids.description : undefined,
@@ -229,7 +234,12 @@ export const FormSection = _component(
           data-state={collapsible ? state : undefined}
         >
           {(title != null || extra != null) && (
-            <div {...mergeAttrs<'div'>({ sx: formSectionStyles.header }, propsHeader)}>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: formSectionStyles.header, ...formSectionPart('header') },
+                propsHeader,
+              )}
+            >
               <div {...css.attrs(formSectionStyles.headerText)}>
                 {hasContent(title) &&
                   h(
@@ -250,7 +260,12 @@ export const FormSection = _component(
                 )}
               </div>
               {hasContent(extra) && (
-                <div {...mergeAttrs<'div'>({ sx: formSectionStyles.extra }, propsExtra)}>
+                <div
+                  {...mergeAttrs<'div'>(
+                    { sx: formSectionStyles.extra, ...formSectionPart('extra') },
+                    propsExtra,
+                  )}
+                >
                   {extra}
                 </div>
               )}

@@ -14,6 +14,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted, watch, type VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface WatermarkProps extends PartProps<'div'> {
@@ -39,6 +40,9 @@ export interface WatermarkProps extends PartProps<'div'> {
   propsLayer?: PartProps<'div'>;
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="watermark"） */
+const watermarkPart = (part: string) => partAttrs({ name: 'Watermark' }, part);
 
 /** Watermark 的样式：root、layer、fullscreen（测试要用，不进入口） @internal */
 export const watermarkStyles = css.create({
@@ -162,6 +166,7 @@ export const Watermark = _component(
                 tile &&
                   watermarkTileStyles.tile(`url(${tile.url})`, `${tile.width}px ${tile.height}px`),
               ],
+              ...watermarkPart('layer'),
             },
             propsLayer,
           )}
@@ -171,7 +176,7 @@ export const Watermark = _component(
       // 整页且没有包着内容：只渲染那一层
       if (fullscreen && children == null) return layer;
       return (
-        <div {...mergeAttrs<'div'>({ sx: watermarkStyles.root }, rest)}>
+        <div {...mergeAttrs<'div'>({ sx: watermarkStyles.root, ...watermarkPart('root') }, rest)}>
           {children}
           {layer}
         </div>

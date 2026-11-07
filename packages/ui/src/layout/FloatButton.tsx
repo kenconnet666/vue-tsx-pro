@@ -24,6 +24,7 @@ import { t } from '../config/theme/tokens';
 import { Tooltip } from '../overlay/Tooltip';
 import { useEventListener } from '../utils/dom/event-listener';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { partAttrs } from '../config/styles';
 
 /** 在 FloatButtonGroup 里：按钮跟着组排，不再自己固定在角落 */
 export const FloatButtonGroupContext = createContext<boolean>('FloatButtonGroup');
@@ -35,6 +36,9 @@ const corner = {
   insetBlockEnd: `calc(${t.space.lg} + env(safe-area-inset-bottom, 0px))`,
   zIndex: 20,
 } as const;
+
+/** 部件的标记（data-scope="float-button-group"） */
+const floatButtonGroupPart = (part: string) => partAttrs({ name: 'FloatButtonGroup' }, part);
 
 /** FloatButton、FloatButtonGroup 的样式：corner、button、group、actions、hidden */
 export const floatButtonStyles = css.create({
@@ -153,20 +157,27 @@ export const FloatButtonGroup = _component(
 
     return () => (
       <div
-        {...mergeAttrs<'div'>({ sx: floatButtonStyles.group }, rest, {
-          ref: _toRef(root),
-          role: 'group',
-          'aria-label': icon ? undefined : label,
-          onKeydown: (event: KeyboardEvent) => {
-            if (icon && open && event.key === 'Escape') close(true);
+        {...mergeAttrs<'div'>(
+          { sx: floatButtonStyles.group, ...floatButtonGroupPart('root') },
+          rest,
+          {
+            ref: _toRef(root),
+            role: 'group',
+            'aria-label': icon ? undefined : label,
+            onKeydown: (event: KeyboardEvent) => {
+              if (icon && open && event.key === 'Escape') close(true);
+            },
           },
-        })}
+        )}
       >
         {icon ? (
           <>
             <div
               {...mergeAttrs<'div'>(
-                { sx: [floatButtonStyles.actions, !open && floatButtonStyles.hidden] },
+                {
+                  sx: [floatButtonStyles.actions, !open && floatButtonStyles.hidden],
+                  ...floatButtonGroupPart('actions'),
+                },
                 propsActions,
                 { id: actionsId },
               )}

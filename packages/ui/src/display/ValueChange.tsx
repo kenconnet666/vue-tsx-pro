@@ -15,6 +15,7 @@ import { Icon, type IconProps } from '../base/Icon';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 span 上 */
 export interface ValueChangeProps extends PartProps<'span'> {
@@ -29,6 +30,9 @@ export interface ValueChangeProps extends PartProps<'span'> {
   /** 新值（ins）的部件属性 */
   propsAfter?: PartProps<'ins'>;
 }
+
+/** 部件的标记（data-scope="value-change"） */
+const valueChangePart = (part: string) => partAttrs({ name: 'ValueChange' }, part);
 
 /** ValueChange 的样式：root、before、arrow、after */
 const valueChangeStyles = css.create({
@@ -49,10 +53,17 @@ export const ValueChange = _component(
   ({ before, after, propsBefore, propsArrow, propsAfter, ...rest }: ValueChangeProps) => {
     const lang = useLang();
     return () => (
-      <span {...mergeAttrs<'span'>({ sx: valueChangeStyles.root }, rest)}>
+      <span
+        {...mergeAttrs<'span'>({ sx: valueChangeStyles.root, ...valueChangePart('root') }, rest)}
+      >
         {before != null && (
           <>
-            <del {...mergeAttrs<'del'>({ sx: valueChangeStyles.before }, propsBefore)}>
+            <del
+              {...mergeAttrs<'del'>(
+                { sx: valueChangeStyles.before, ...valueChangePart('before') },
+                propsBefore,
+              )}
+            >
               {before}
             </del>
             <Icon
@@ -62,7 +73,14 @@ export const ValueChange = _component(
             <VisuallyHidden>{lang.fieldCompareTo}</VisuallyHidden>
           </>
         )}
-        <ins {...mergeAttrs<'ins'>({ sx: valueChangeStyles.after }, propsAfter)}>{after}</ins>
+        <ins
+          {...mergeAttrs<'ins'>(
+            { sx: valueChangeStyles.after, ...valueChangePart('after') },
+            propsAfter,
+          )}
+        >
+          {after}
+        </ins>
       </span>
     );
   },

@@ -20,6 +20,7 @@ import { useReducedMotion } from '../utils/dom/media-query';
 import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles, gapStyles, type Space, type StyleTable } from '../utils/style/styles';
+import { partAttrs } from '../config/styles';
 
 /** 滚动方向 */
 export interface MarqueeDirections {
@@ -63,6 +64,9 @@ const scrollY = css.keyframes({
   from: { transform: 'none' },
   to: { transform: 'translateY(-50%)' },
 });
+
+/** 部件的标记（data-scope="marquee"） */
+const marqueePart = (part: string) => partAttrs({ name: 'Marquee' }, part);
 
 /** Marquee 的样式：root、vertical、fade、track、trackVertical、reverse、pausable、paused、group */
 const marqueeStyles = css.create({
@@ -169,6 +173,7 @@ export const Marquee = _component(
               marqueeTrailStyles[vertical() ? 'block' : 'inline'][gap],
               copy && marqueeStyles.copy,
             ],
+            ...marqueePart('group'),
           },
           propsGroup,
           copy ? { 'aria-hidden': true, inert: true } : { ref: _toRef(group) },
@@ -190,6 +195,7 @@ export const Marquee = _component(
             ],
             role: 'marquee',
             tabindex: reducedMotion.value ? 0 : undefined,
+            ...marqueePart('root'),
           },
           rest,
         )}
@@ -207,6 +213,7 @@ export const Marquee = _component(
                 paused && marqueeStyles.paused,
                 marqueeDynamicStyles.duration(Math.max(length, 1) / Math.max(speed, 1)),
               ],
+              ...marqueePart('track'),
             },
             propsTrack,
           )}

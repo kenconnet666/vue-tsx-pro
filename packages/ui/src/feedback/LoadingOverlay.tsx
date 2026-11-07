@@ -18,6 +18,7 @@ import { usePresence } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { presenceStyles } from '../utils/style/transitions';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 忙碌由组件按 loading 管理 */
 export type LoadingOverlayManaged = 'aria-busy';
@@ -36,6 +37,9 @@ export interface LoadingOverlayProps extends PartProps<'div', LoadingOverlayMana
   propsSpinner?: Partial<SpinnerProps>;
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="loading-overlay"） */
+const loadingOverlayPart = (part: string) => partAttrs({ name: 'LoadingOverlay' }, part);
 
 /** LoadingOverlay 的样式：root、overlay、blur、spinner */
 const loadingOverlayStyles = css.create({
@@ -73,9 +77,13 @@ export const LoadingOverlay = _component(
 
     return () => (
       <div
-        {...mergeAttrs<'div'>({ sx: loadingOverlayStyles.root }, rest, {
-          'aria-busy': loading || undefined,
-        })}
+        {...mergeAttrs<'div'>(
+          { sx: loadingOverlayStyles.root, ...loadingOverlayPart('root') },
+          rest,
+          {
+            'aria-busy': loading || undefined,
+          },
+        )}
       >
         {children}
         {presence.mounted && (
@@ -87,6 +95,7 @@ export const LoadingOverlay = _component(
                   blur && loadingOverlayStyles.blur,
                   presence.state === 'closed' && presenceStyles.leaving,
                 ],
+                ...loadingOverlayPart('overlay'),
               },
               propsOverlay,
               { ref: presence.ref },
