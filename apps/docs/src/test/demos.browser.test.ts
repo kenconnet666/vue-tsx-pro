@@ -62,42 +62,36 @@ async function settle() {
 const NATIVE_CONTROLS = 'input:not([type="hidden"]), button, select, textarea';
 
 /**
- * 没继承字体的原生控件。浏览器给 input、button、select、textarea 的是自己的字体（Chromium 是 13.333px 的系统字体），
+ * 字体没人管的原生控件。浏览器给 input、button、select、textarea 的是自己的字体（Chromium 是 13.333px 的系统字体），
  * 不随外层；控件里按 em 定的尺寸（勾选框、开关的轨道）就按它算，和旁边的文字对不上。
- * 和同类型的裸控件比：字号或字体与浏览器默认的一样、外层却不一样，就是没写 font: inherit。
+ * 不能拿浏览器默认的字号比：WebKit 的按钮默认 13px，和 sm 档按钮自己写的一样。改为在最先声明（优先级最低）的层里
+ * 给原生控件一个特殊的字号和字体：算出来还是它，说明组件的样式没写 font: inherit，也没写别的字体。
  * 视觉上隐藏的（hidden、VisuallyHidden 的 1px）看不到字，不管
  */
 function uninheritedFonts(root: HTMLElement): string[] {
-  const defaults = new Map<string, { fontSize: string; fontFamily: string }>();
-  function browserDefault(control: HTMLElement) {
-    const kind = control instanceof HTMLInputElement ? `input[${control.type}]` : control.localName;
-    let font = defaults.get(kind);
-    if (!font) {
-      const bare = document.createElement(control.localName);
-      if (control instanceof HTMLInputElement) bare.setAttribute('type', control.type);
-      document.body.append(bare);
-      const { fontSize, fontFamily } = getComputedStyle(bare);
-      bare.remove();
-      defaults.set(kind, (font = { fontSize, fontFamily }));
-    }
-    return { kind, ...font };
+  const controls = [...root.querySelectorAll<HTMLElement>(NATIVE_CONTROLS)].filter((control) => {
+    const { width, height } = control.getBoundingClientRect();
+    return width > 1 && height > 1;
+  });
+  const probe = document.createElement('style');
+  probe.textContent = `@layer font-probe { :where(${NATIVE_CONTROLS}) { font-size: 77px; font-family: font-probe; } }`;
+  document.head.prepend(probe);
+  try {
+    return controls
+      .filter((control) => {
+        const { fontSize, fontFamily } = getComputedStyle(control);
+        return fontSize === '77px' || fontFamily.includes('font-probe');
+      })
+      .map((control) => {
+        const kind =
+          control instanceof HTMLInputElement ? `input[${control.type}]` : control.localName;
+        const scope = control.closest('[data-scope]');
+        const part = control.dataset.part ?? scope?.getAttribute('data-part') ?? '-';
+        return `font-inherit: ${kind} in ${scope?.getAttribute('data-scope') ?? '-'}/${part}`;
+      });
+  } finally {
+    probe.remove();
   }
-  return [...root.querySelectorAll<HTMLElement>(NATIVE_CONTROLS)]
-    .filter((control) => {
-      const { width, height } = control.getBoundingClientRect();
-      return width > 1 && height > 1;
-    })
-    .flatMap((control) => {
-      const own = getComputedStyle(control);
-      const outer = getComputedStyle(control.parentElement!);
-      const bare = browserDefault(control);
-      const keepsDefault = (property: 'fontSize' | 'fontFamily') =>
-        own[property] === bare[property] && outer[property] !== bare[property];
-      if (!keepsDefault('fontSize') && !keepsDefault('fontFamily')) return [];
-      const scope = control.closest('[data-scope]');
-      const part = control.dataset.part ?? scope?.getAttribute('data-part') ?? '-';
-      return [`font-inherit: ${bare.kind} in ${scope?.getAttribute('data-scope') ?? '-'}/${part}`];
-    });
 }
 
 /** 把 render 挂到 tag 元素里，返回 axe 违规（规则与元素）与没继承字体的原生控件 */
