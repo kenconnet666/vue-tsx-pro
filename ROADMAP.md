@@ -888,6 +888,10 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [ ] P12 组件之间层层合并、层层转发（用户加，贯穿 P2.5 与之后的组件改动）：上层覆盖下层，组合组件转发里面每层的部件属性；
       手写的节点换成基础组件，用得多的样式与行为抽成组件或工具，差不多的实现合并成一份保持一致；先用脚本列候选，逐个组件过，
       顺手修发现的问题
+      （2026-11-08：scripts/structure/p12-candidates.mjs 列候选，报告在 .claude/reports/p12-candidates.md。没转发部件属性的子组件
+      173 → 84：Timeline、PeoplePickerPanel、DataImport、SchemaForm、Upload、ConditionBuilder、Breadcrumbs、CommentThread、
+      FilterBar、SlideCaptcha、QueryTable、JsonViewer、ImageCropper、ErrorBoundary、QuarterCalendar、Carousel、TabList、Transfer、
+      XY 图、MapChart 补了按钮、勾选框、链接、头像的 propsXxx；剩下的多是按钮里的小图标、骨架、加载指示）
 
 ## 已知局限（有意的取舍，写在文档里）
 
