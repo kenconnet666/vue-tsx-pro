@@ -226,7 +226,7 @@
 | TimePicker | date/TimePicker.tsx |  |  |  |  | ✗ |
 | Provider | config/Provider.tsx |  |  |  |  |  |
 | ConfigScope | config/Provider.tsx | ✗ |  |  |  |  |
-| CodeEditor | code-editor/CodeEditor.tsx | ✗ | ✗ |  |  |  |
+| CodeEditor | code-editor/CodeEditor.tsx | ✗ |  |  |  |  |
 | AreaChart | charts/AreaChart.tsx |  |  |  |  | ✗ |
 | BarChart | charts/BarChart.tsx |  |  |  |  | ✗ |
 | ChordChart | charts/ChordChart.tsx |  |  |  |  |  |
@@ -252,7 +252,7 @@
 | ButtonBase | base/ButtonBase.tsx | ✗ |  |  |  |  |
 | ButtonGroup | base/ButtonGroup.tsx |  |  |  |  |  |
 | Can | base/Can.tsx |  |  |  |  |  |
-| ClientOnly | base/ClientOnly.tsx |  | ✗ |  |  |  |
+| ClientOnly | base/ClientOnly.tsx |  |  |  |  |  |
 | Code | base/Code.tsx |  |  |  |  |  |
 | CodeBlock | base/CodeBlock.tsx |  |  |  |  |  |
 | CodeText | base/CodeText.tsx |  |  |  |  |  |
