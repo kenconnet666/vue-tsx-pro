@@ -2,6 +2,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/BadgeProps';
 import statusBadgeApi from 'virtual:api/StatusBadgeProps';
+import dotApi from 'virtual:api/StatusDotProps';
 import tagApi from 'virtual:api/TagProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -10,6 +11,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import InContext from './demo/InContext.tsx?demo';
 import Matrix from './demo/Matrix.tsx?demo';
 import Shapes from './demo/Shapes.tsx?demo';
+import StatusDots from './demo/StatusDots.tsx?demo';
 import Statuses from './demo/Statuses.tsx?demo';
 import TagBasic from './demo/TagBasic.tsx?demo';
 import TagRemovable from './demo/TagRemovable.tsx?demo';
@@ -17,7 +19,7 @@ import TagRemovable from './demo/TagRemovable.tsx?demo';
 export const meta = {
   title: 'Badge 标记',
   description:
-    '状态、计数、分类等短文字（Badge），可以移除的标签（Tag）：四种样式 × 六种色调，可带图标。',
+    '状态、计数、分类等短文字（Badge），可以移除的标签（Tag），比 Badge 更轻的状态色点（StatusDot）：四种样式 × 六种色调，可带图标。',
   order: 5,
 };
 
@@ -25,7 +27,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Badge, createStatusMap, StatusBadge, Tag } from '@zerodep-dev/vue-tsx-pro-ui';"
+    imports="import { Badge, createStatusMap, StatusBadge, StatusDot, Tag } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -42,6 +44,10 @@ export default _component(() => () => (
           状态列用胶囊形的 soft 标记：颜色区分状态，文字说明状态，不只靠颜色。
           <Code>StatusBadge</Code> 的名字与色调取自状态映射，文字前一个同色的圆点（Badge 的{' '}
           <Code>dot</Code>）。
+        </Example>
+        <Example id="status-dot" title="状态色点" demo={StatusDots}>
+          <Code>StatusDot</Code> 比 Badge 轻，标出未读、新到、退回、图例。色调与 Badge 同名，
+          <Code>color</Code> 给任意颜色；点本身就是信息时写 <Code>label</Code>，否则对读屏隐藏。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
@@ -61,6 +67,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, statusBadgeApi, tagApi]} />
+    <ApiReference api={[api, statusBadgeApi, tagApi, dotApi]} />
   </DocPage>
 ));

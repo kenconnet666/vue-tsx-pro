@@ -1,5 +1,6 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code, CodeBlock } from '@zerodep-dev/vue-tsx-pro-ui';
+import canApi from 'virtual:api/CanProps';
 import scopeApi from 'virtual:api/ConfigScopeProps';
 import api from 'virtual:api/ProviderProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -7,14 +8,15 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Locales from './demo/Locales.tsx?demo';
+import Permissions from './demo/Permissions.tsx?demo';
 import Rtl from './demo/Rtl.tsx?demo';
 import Scoped from './demo/Scoped.tsx?demo';
 import Services from './demo/Services.tsx?demo';
 
 export const meta = {
-  title: 'Provider 配置',
+  title: 'Provider 配置与权限',
   description:
-    '主题、语言包、组件默认值、路由适配：应用级用 createUi 一次装好，局部用 Provider 覆盖；useFormat 按当前语言格式化数字、金额与日期。',
+    '主题、语言包、组件默认值、路由适配、权限：应用级用 createUi 一次装好，局部用 Provider 覆盖；useFormat 按当前语言格式化数字、金额与日期，Can 按权限点显示界面。',
   order: 1,
 };
 
@@ -36,7 +38,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { ConfigScope, createUi, Provider, useFormat } from '@zerodep-dev/vue-tsx-pro-ui';"
+    imports="import { Can, ConfigScope, createUi, Provider, useCan, useFormat } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <CodeBlock code={setup} lang="ts" title="main.ts" />
     <Example id="scoped" title="局部主题与默认值" demo={Scoped}>
@@ -50,6 +52,17 @@ export default _component(() => () => (
           语言包里是组件的全部文字与格式习惯（币种、一周从哪天开始、时区）；
           <Code>defineLang(zhCN, {'{…}'})</Code> 改其中几项。<Code>useFormat()</Code>{' '}
           按当前语言格式化，字符串与 Decimal 按十进制原样格式化，金额不丢精度。
+        </Example>
+        <Example id="permissions" title="权限：按角色显示按钮" demo={Permissions}>
+          组件库不知道权限从哪来（后端返回的权限点、角色…），应用在 <Code>createUi</Code> 或{' '}
+          <Code>Provider</Code> 的 <Code>permissions</Code> 里接入一个{' '}
+          <Code>{'(权限点) => boolean'}</Code>
+          ，在渲染时读响应式状态，登录、退出、换角色后界面随之更新。<Code>Can</Code> 的{' '}
+          <Code>permission</Code> 给数组时有其中任意一个就算有；<Code>fallback</Code>{' '}
+          是没有权限时显示的内容。要自己判断（禁用按钮、过滤菜单项）时用 <Code>useCan()</Code>。
+          {
+            '没接入 permissions 时一律放行，没有权限体系的应用不受影响。这只控制界面，不是安全边界：接口上的权限校验才是。'
+          }
         </Example>
       </ExampleColumn>
       <ExampleColumn>
@@ -66,6 +79,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, scopeApi]} />
+    <ApiReference api={[api, scopeApi, canApi]} />
   </DocPage>
 ));

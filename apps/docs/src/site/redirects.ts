@@ -9,4 +9,6 @@ export const redirects: Readonly<Record<string, string>> = {
   '/components/value-change': '/components/field-compare#value-change',
   '/components/resize-handle': '/components/splitter#resize-handle',
   '/components/form-section': '/components/form#sections',
+  '/components/list': '/components/text#lists',
+  '/components/can': '/components/provider#permissions',
 };

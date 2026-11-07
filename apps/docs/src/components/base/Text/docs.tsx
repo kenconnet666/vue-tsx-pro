@@ -4,7 +4,10 @@ import blockquoteApi from 'virtual:api/BlockquoteProps';
 import headingApi from 'virtual:api/HeadingProps';
 import kbdApi from 'virtual:api/KbdProps';
 import linkApi from 'virtual:api/LinkProps';
+import listItemApi from 'virtual:api/ListItemProps';
+import listApi from 'virtual:api/ListProps';
 import markApi from 'virtual:api/MarkProps';
+import orderedListApi from 'virtual:api/OrderedListProps';
 import api from 'virtual:api/TextProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
@@ -13,15 +16,17 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Headings from './demo/Headings.tsx?demo';
 import Inline from './demo/Inline.tsx?demo';
 import Links from './demo/Links.tsx?demo';
+import ListIcons from './demo/ListIcons.tsx?demo';
+import Lists from './demo/Lists.tsx?demo';
 import Numeric from './demo/Numeric.tsx?demo';
 import Overflow from './demo/Overflow.tsx?demo';
 import Scale from './demo/Scale.tsx?demo';
 import Tones from './demo/Tones.tsx?demo';
 
 export const meta = {
-  title: 'Text 文字',
+  title: 'Text 文字与列表',
   description:
-    '正文、链接与标题：字号、字重、色调、截断与换行；Paragraph、Strong、Em、Small、Link、Mark、Kbd、Blockquote、H1–H6。',
+    '正文、链接、标题与列表：字号、字重、色调、截断与换行；Paragraph、Strong、Em、Small、Link、Mark、Kbd、Blockquote、H1–H6，正文里的 List、OrderedList。',
   order: 0,
 };
 
@@ -29,7 +34,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Text, Paragraph, Strong, Em, Small, Link, Mark, Kbd, Blockquote, H1, H2 } from '@zerodep-dev/vue-tsx-pro-ui';"
+    imports="import { Text, Paragraph, Strong, Em, Small, Link, Mark, Kbd, Blockquote, H1, H2, List, ListItem, OrderedList } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -44,6 +49,16 @@ export default _component(() => () => (
         <Example id="overflow" title="截断与换行" demo={Overflow}>
           <Code>truncate</Code> 单行省略，<Code>lineClamp</Code> 限制行数；<Code>wrap</Code> 的
           pretty 避免最后一行只剩一个字（Paragraph 默认），balance 让标题各行长度均衡。
+        </Example>
+        <Example id="lists" title="列表：无序、有序与嵌套" demo={Lists}>
+          正文里的列表：<Code>List</Code> 是圆点，<Code>OrderedList</Code> 是编号，
+          <Code>start</Code>、<Code>reversed</Code> 这些原生属性照常可用；嵌套的列表紧贴上一项。
+          <Code>spacing</Code> 改项与项之间的间距。界面里的列表（待办、通知）用
+          ItemList，导航、步骤这类结构用 FlexList。
+        </Example>
+        <Example id="list-icons" title="图标代替圆点" demo={ListIcons}>
+          <Code>icon</Code> 让每项前面画一个图标（功能清单的对勾），<Code>propsIcon</Code> 改颜色；
+          <Code>ListItem</Code> 的 <Code>icon</Code> 逐项覆盖。图标是装饰，读屏照常念“列表，几项”。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
@@ -67,6 +82,18 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, headingApi, linkApi, markApi, kbdApi, blockquoteApi]} />
+    <ApiReference
+      api={[
+        api,
+        headingApi,
+        linkApi,
+        markApi,
+        kbdApi,
+        blockquoteApi,
+        listApi,
+        orderedListApi,
+        listItemApi,
+      ]}
+    />
   </DocPage>
 ));
