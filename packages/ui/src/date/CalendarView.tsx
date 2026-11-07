@@ -42,7 +42,9 @@ import { useDateLocale } from './date-locale';
 import { useLang } from '../config/context';
 import type { CalendarDate } from '@internationalized/date';
 import { t } from '../config/theme/tokens';
-import { partAttrs } from '../config/styles';
+import { useComponent } from '../config/components';
+import type { PartLayer } from '../config/styles';
+import { variantOf } from '../utils/style/styles';
 
 /** 角色由组件管理 */
 export type CalendarViewManaged = 'role';
@@ -50,14 +52,18 @@ export type CalendarViewManaged = 'role';
 /** 按项给的部件属性：固定的对象，或按这一格的日期（ISO）与状态返回 */
 export type CalendarItemProps<P> = P | ((date: string, cell: CalendarCellState) => P);
 
-/** 日历界面的外观与内容选项：Calendar、RangeCalendar、日期选择器原样转交 */
-export interface CalendarViewOptions {
+/** 日历的档位：createUi / Provider 的 components.Calendar.defaults 可以给默认值（如全站显示周数） */
+export interface CalendarOptions {
   /** 字号档位，格子随之缩放；不写时继承上下文字号 */
   size?: TextSize;
   /** 在每行前显示一年里的第几周 */
   showWeekNumbers?: boolean;
   /** 总是 6 行（翻页时高度不跳），默认 true */
   fixedWeeks?: boolean;
+}
+
+/** 日历界面的外观与内容选项：Calendar、RangeCalendar、日期选择器原样转交 */
+export interface CalendarViewOptions extends CalendarOptions {
   /** 不可用：不能翻页、不能选 */
   disabled?: boolean;
   /**
@@ -102,60 +108,102 @@ export interface CalendarViewProps
   firstDayOfWeek?: number;
 }
 
-/** 部件的标记（data-scope="calendar-view"） */
-const calendarViewPart = (part: string) => partAttrs({ name: 'CalendarView' }, part);
+/**
+ * 日历的配方（createUi / Provider 的 components.Calendar 按它定制；Calendar、RangeCalendar、日期选择器的弹层、
+ * QuarterCalendar 共用）：root、months（并排的几个月）、month、header、heading（标题）、grid（table）、weekday、
+ * weekNumber、cell（td）、cellButton（格子里的按钮）、footer。字号（size）是档位
+ */
+export const calendarRecipe = css.recipe({
+  name: 'Calendar',
+  parts: [
+    'root',
+    'months',
+    'month',
+    'header',
+    'heading',
+    'grid',
+    'weekday',
+    'weekNumber',
+    'cell',
+    'cellButton',
+    'footer',
+  ],
+  base: {
+    root: {
+      display: 'inline-flex',
+      flexDirection: 'column',
+      gap: '_sm',
+      color: '_text',
+      lineHeight: '_normal',
+      userSelect: 'none',
+    },
+    months: { display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '_xl' },
+    month: { display: 'flex', flexDirection: 'column', gap: '_xs' },
+    header: {
+      display: 'grid',
+      gridTemplateColumns: `max(${t.sizes.control}, ${t.sizes.minTarget}) 1fr max(${t.sizes.control}, ${t.sizes.minTarget})`,
+      alignItems: 'center',
+      gap: '_xs',
+    },
+    heading: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifySelf: 'center',
+      minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
+      paddingInline: '_sm',
+      borderRadius: '_md',
+      fontWeight: '_medium',
+      backgroundColor: { default: 'transparent', _hover: '_fillHover' },
+    },
+    grid: { borderCollapse: 'collapse', borderSpacing: 0 },
+    weekday: {
+      paddingBlock: '_xs',
+      paddingInline: 0,
+      color: '_textMuted',
+      fontWeight: '_normal',
+      textAlign: 'center',
+    },
+    weekNumber: {
+      paddingInlineEnd: '_xs',
+      color: '_textMuted',
+      fontWeight: '_normal',
+      textAlign: 'center',
+    },
+    cell: { padding: 0, textAlign: 'center' },
+    cellButton: {
+      display: 'inline-flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: `max(2.25em, ${t.sizes.minTarget})`,
+      height: `max(2.25em, ${t.sizes.minTarget})`,
+      borderRadius: '_md',
+      fontVariantNumeric: 'tabular-nums',
+      backgroundColor: { default: 'transparent', _hover: '_fillHover' },
+    },
+    footer: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_sm' },
+  },
+  variants: { size: variantOf(fontSizeStyles, 'root') },
+});
 
-/** CalendarView 的样式：root、months、month、header、heading、grid、weekday、cell、button 等 */
-export const calendarStyles = css.create({
-  root: {
-    display: 'inline-flex',
-    flexDirection: 'column',
-    gap: '_sm',
-    color: '_text',
-    lineHeight: '_normal',
-    userSelect: 'none',
-  },
-  months: { display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '_xl' },
-  month: { display: 'flex', flexDirection: 'column', gap: '_xs' },
-  header: {
-    display: 'grid',
-    gridTemplateColumns: `max(${t.sizes.control}, ${t.sizes.minTarget}) 1fr max(${t.sizes.control}, ${t.sizes.minTarget})`,
-    alignItems: 'center',
-    gap: '_xs',
-  },
+/** 日历的部件（createUi / Provider 的 components.Calendar.styles 按它定制） */
+export type CalendarPart = (typeof calendarRecipe.parts)[number];
+/** 日历各部件的层（样式与标记）：CalendarView、QuarterCalendar 渲染时用 @internal */
+export type CalendarParts = Readonly<Record<CalendarPart, PartLayer>>;
+
+/**
+ * 随状态叠在部件层之后的样式：占位、不能点的标题、月份年份视图、区间的一条、格子的状态（今天、已选、月外、不可选……）
+ * @internal CalendarView、QuarterCalendar 共用
+ */
+export const calendarStateStyles = css.create({
   // 占住按钮的位置：并排几个月时中间的月没有翻页按钮，标题仍居中
   spacer: { width: `max(${t.sizes.control}, ${t.sizes.minTarget})` },
-  heading: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifySelf: 'center',
-    minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
-    paddingInline: '_sm',
-    borderRadius: '_md',
-    fontWeight: '_medium',
-    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
-  },
   headingStatic: {
     cursor: 'default',
     backgroundColor: { default: 'transparent', _hover: 'transparent' },
   },
-  grid: { borderCollapse: 'collapse', borderSpacing: 0 },
   // 月份、年份视图：一行 3 格，与日期网格同宽
   periodGrid: { width: `calc(7 * max(2.25em, ${t.sizes.minTarget}))` },
-  weekday: {
-    paddingBlock: '_xs',
-    paddingInline: 0,
-    color: '_textMuted',
-    fontWeight: '_normal',
-    textAlign: 'center',
-  },
-  weekNumber: {
-    paddingInlineEnd: '_xs',
-    color: '_textMuted',
-    fontWeight: '_normal',
-    textAlign: 'center',
-  },
-  cell: { padding: 0, textAlign: 'center' },
   // 区间的底色画在 td 上，相邻的格连成一条；两端与每行的首尾是圆的
   inRange: {
     backgroundColor: '_accentSoft',
@@ -166,17 +214,6 @@ export const calendarStyles = css.create({
   },
   rangeStart: { borderStartStartRadius: '_md', borderEndStartRadius: '_md' },
   rangeEnd: { borderStartEndRadius: '_md', borderEndEndRadius: '_md' },
-  button: {
-    display: 'inline-flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: `max(2.25em, ${t.sizes.minTarget})`,
-    height: `max(2.25em, ${t.sizes.minTarget})`,
-    borderRadius: '_md',
-    fontVariantNumeric: 'tabular-nums',
-    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
-  },
   periodButton: { width: '_full', height: `max(3em, ${t.sizes.minTarget})` },
   outside: { color: '_textMuted' },
   today: {
@@ -199,7 +236,6 @@ export const calendarStyles = css.create({
     cursor: 'not-allowed',
     backgroundColor: { default: 'transparent', _hover: 'transparent' },
   },
-  footer: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '_sm' },
 });
 
 /** 网格行列：月份、年份视图一行 3 格 */
@@ -223,8 +259,8 @@ export const CalendarView = _component(
     calendar,
     firstDayOfWeek,
     size,
-    showWeekNumbers = false,
-    fixedWeeks = true,
+    showWeekNumbers,
+    fixedWeeks,
     disabled = false,
     children,
     footer,
@@ -244,6 +280,10 @@ export const CalendarView = _component(
     const format = useFormat();
     const locale = useDateLocale(() => ({ firstDayOfWeek }));
     const lang = useLang();
+    const ui = useComponent(calendarRecipe, () => ({ size, showWeekNumbers, fixedWeeks }), {
+      showWeekNumbers: false,
+      fixedWeeks: true,
+    });
     const id = useId();
     const hintId = `${id}-hint`;
     let root = _state.raw<HTMLElement | null>(null);
@@ -270,6 +310,7 @@ export const CalendarView = _component(
      * 默认内容只是日期数字，不重复念。kind 为 period 时是月份、年份格
      */
     function cell(
+      s: CalendarParts,
       date: CalendarDate,
       month: CalendarDate | undefined,
       label: string,
@@ -288,11 +329,12 @@ export const CalendarView = _component(
           key={iso}
           {...mergeAttrs<'td'>(
             {
+              ...s.cell,
               sx: [
-                calendarStyles.cell,
-                state.inRange && calendarStyles.inRange,
-                state.rangeStart && calendarStyles.rangeStart,
-                state.rangeEnd && calendarStyles.rangeEnd,
+                s.cell.sx,
+                state.inRange && calendarStateStyles.inRange,
+                state.rangeStart && calendarStateStyles.rangeStart,
+                state.rangeEnd && calendarStateStyles.rangeEnd,
               ],
             },
             resolve(propsCell, iso, state),
@@ -307,18 +349,19 @@ export const CalendarView = _component(
           <button
             {...mergeAttrs<'button'>(
               {
+                ...s.cellButton,
                 sx: [
                   buttonBaseStyles.root,
                   interactionTransitions.colors,
-                  calendarStyles.button,
-                  period && calendarStyles.periodButton,
+                  s.cellButton.sx,
+                  period && calendarStateStyles.periodButton,
                   focusRingStyles.tight,
-                  state.outside && calendarStyles.outside,
-                  state.today && calendarStyles.today,
-                  state.unavailable && calendarStyles.unavailable,
-                  state.inRange && !ends && calendarStyles.middle,
-                  marked && calendarStyles.selected,
-                  off && calendarStyles.disabled,
+                  state.outside && calendarStateStyles.outside,
+                  state.today && calendarStateStyles.today,
+                  state.unavailable && calendarStateStyles.unavailable,
+                  state.inRange && !ends && calendarStateStyles.middle,
+                  marked && calendarStateStyles.selected,
+                  off && calendarStateStyles.disabled,
                 ],
                 'aria-describedby': calendar.anchor ? hintId : undefined,
               },
@@ -358,12 +401,9 @@ export const CalendarView = _component(
       );
     }
 
-    const gridAttrs = (label: string) =>
+    const gridAttrs = (s: CalendarParts, label: string) =>
       mergeAttrs<'table'>(
-        {
-          sx: [calendarStyles.grid, calendar.view !== 'day' && calendarStyles.periodGrid],
-          ...calendarViewPart('grid'),
-        },
+        { ...s.grid, sx: [s.grid.sx, calendar.view !== 'day' && calendarStateStyles.periodGrid] },
         propsGrid,
         {
           'aria-label': label,
@@ -374,7 +414,12 @@ export const CalendarView = _component(
         },
       );
 
-    function dayGrid(month: CalendarDate, single: boolean) {
+    function dayGrid(
+      s: CalendarParts,
+      { showWeekNumbers, fixedWeeks }: { showWeekNumbers: boolean; fixedWeeks: boolean },
+      month: CalendarDate,
+      single: boolean,
+    ) {
       const weeks = monthGrid(month, { ...locale.week, fixedWeeks });
       const names = weekdayNames(locale.locale, {
         firstDayOfWeek: locale.week.firstDayOfWeek,
@@ -385,18 +430,14 @@ export const CalendarView = _component(
         format: 'long',
       });
       return (
-        <table {...gridAttrs(title(month))}>
+        <table {...gridAttrs(s, title(month))}>
           <thead aria-hidden="true">
             <tr>
               {showWeekNumbers && (
                 <th
-                  {...mergeAttrs<'th'>(
-                    { sx: calendarStyles.weekNumber, ...calendarViewPart('weekNumber') },
-                    propsWeekNumber,
-                    {
-                      scope: 'col',
-                    },
-                  )}
+                  {...mergeAttrs<'th'>(s.weekNumber, propsWeekNumber, {
+                    scope: 'col',
+                  })}
                 >
                   {lang.calendarWeek}
                 </th>
@@ -404,17 +445,9 @@ export const CalendarView = _component(
               {names.map((name, index) => (
                 <th
                   key={index}
-                  {...mergeAttrs<'th'>(
-                    {
-                      sx: calendarStyles.weekday,
-                      title: longNames[index],
-                      ...calendarViewPart('weekday'),
-                    },
-                    propsWeekday,
-                    {
-                      scope: 'col',
-                    },
-                  )}
+                  {...mergeAttrs<'th'>({ ...s.weekday, title: longNames[index] }, propsWeekday, {
+                    scope: 'col',
+                  })}
                 >
                   {name}
                 </th>
@@ -426,14 +459,10 @@ export const CalendarView = _component(
               <tr key={week[0]!.toString()}>
                 {showWeekNumbers && (
                   <th
-                    {...mergeAttrs<'th'>(
-                      { sx: calendarStyles.weekNumber, ...calendarViewPart('weekNumber') },
-                      propsWeekNumber,
-                      {
-                        'aria-label': lang.calendarWeekNumber(weekOfYear(week[0]!, locale.week)),
-                        scope: 'row',
-                      },
-                    )}
+                    {...mergeAttrs<'th'>(s.weekNumber, propsWeekNumber, {
+                      'aria-label': lang.calendarWeekNumber(weekOfYear(week[0]!, locale.week)),
+                      scope: 'row',
+                    })}
                   >
                     {weekOfYear(week[0]!, locale.week)}
                   </th>
@@ -442,8 +471,9 @@ export const CalendarView = _component(
                   const outside = date.month !== month.month;
                   // 并排几个月时补齐的日期留空：同一天不在两张网格里重复出现
                   if (outside && !single)
-                    return <td key={date.toString()} {...css.attrs(calendarStyles.cell)} />;
+                    return <td key={date.toString()} {...mergeAttrs<'td'>(s.cell)} />;
                   return cell(
+                    s,
                     date,
                     month,
                     format.date(date, { dateStyle: 'full' }),
@@ -460,17 +490,18 @@ export const CalendarView = _component(
       );
     }
 
-    function periodGrid() {
+    function periodGrid(s: CalendarParts) {
       const page = calendar.page;
       const month = calendar.view === 'month';
       const items = month ? monthsOfYear(page) : yearsOfDecade(page);
       return (
-        <table {...gridAttrs(title(page))}>
+        <table {...gridAttrs(s, title(page))}>
           <tbody>
             {chunk(items, 3).map((row) => (
               <tr key={row[0]!.toString()}>
                 {row.map((date) =>
                   cell(
+                    s,
                     date,
                     undefined,
                     month
@@ -490,6 +521,7 @@ export const CalendarView = _component(
     }
 
     return () => {
+      const { options, parts: s } = ui();
       const view = calendar.view;
       const months = calendar.months;
       const coarser = view === 'day' ? 'month' : view === 'month' ? 'year' : undefined;
@@ -520,51 +552,34 @@ export const CalendarView = _component(
           )}
         />
       );
-      const spacer = <span {...css.attrs(calendarStyles.spacer)} />;
+      const spacer = <span {...css.attrs(calendarStateStyles.spacer)} />;
       return (
         <div
-          {...mergeAttrs<'div'>(
-            {
-              sx: [calendarStyles.root, size && fontSizeStyles[size]],
-              ...calendarViewPart('root'),
-            },
-            rest,
-            {
-              ref: _toRef(root),
-              role: 'group',
-            },
-          )}
+          {...mergeAttrs<'div'>(s.root, rest, {
+            ref: _toRef(root),
+            role: 'group',
+          })}
           data-view={view}
           data-disabled={disabled || undefined}
         >
-          <div
-            {...mergeAttrs<'div'>(
-              { sx: calendarStyles.months, ...calendarViewPart('months') },
-              propsMonths,
-            )}
-          >
+          <div {...mergeAttrs<'div'>(s.months, propsMonths)}>
             {months.map((month, index) => {
               const label = title(month);
               return (
-                <div key={month.toString()} {...css.attrs(calendarStyles.month)}>
-                  <div
-                    {...mergeAttrs<'div'>(
-                      { sx: calendarStyles.header, ...calendarViewPart('header') },
-                      propsHeader,
-                    )}
-                  >
+                <div key={month.toString()} {...mergeAttrs<'div'>(s.month)}>
+                  <div {...mergeAttrs<'div'>(s.header, propsHeader)}>
                     {index === 0 ? previous : spacer}
                     {coarser && !disabled ? (
                       <button
                         {...mergeAttrs<'button'>(
                           {
+                            ...s.heading,
                             sx: [
                               buttonBaseStyles.root,
                               interactionTransitions.colors,
-                              calendarStyles.heading,
+                              s.heading.sx,
                               focusRingStyles.visible,
                             ],
-                            ...calendarViewPart('heading'),
                           },
                           propsHeading,
                           {
@@ -581,13 +596,18 @@ export const CalendarView = _component(
                       </button>
                     ) : (
                       // 已经是最粗的视图（或不可用）：标题只是文字
-                      <span {...css.attrs(calendarStyles.heading, calendarStyles.headingStatic)}>
+                      <span
+                        {...mergeAttrs<'span'>({
+                          ...s.heading,
+                          sx: [s.heading.sx, calendarStateStyles.headingStatic],
+                        })}
+                      >
                         {label}
                       </span>
                     )}
                     {index === months.length - 1 ? next : spacer}
                   </div>
-                  {view === 'day' ? dayGrid(month, months.length === 1) : periodGrid()}
+                  {view === 'day' ? dayGrid(s, options, month, months.length === 1) : periodGrid(s)}
                 </div>
               );
             })}
@@ -595,16 +615,7 @@ export const CalendarView = _component(
           {/* 翻页、换视图时播报新的标题；不放在标题按钮上，免得聚焦按钮时重复念 */}
           <VisuallyHidden aria-live="polite">{months.map(title).join('，')}</VisuallyHidden>
           {calendar.anchor && <VisuallyHidden id={hintId}>{lang.calendarPickEnd}</VisuallyHidden>}
-          {hasContent(footer) && (
-            <div
-              {...mergeAttrs<'div'>(
-                { sx: calendarStyles.footer, ...calendarViewPart('footer') },
-                propsFooter,
-              )}
-            >
-              {footer}
-            </div>
-          )}
+          {hasContent(footer) && <div {...mergeAttrs<'div'>(s.footer, propsFooter)}>{footer}</div>}
         </div>
       );
     };

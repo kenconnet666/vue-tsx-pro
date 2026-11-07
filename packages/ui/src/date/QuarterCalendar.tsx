@@ -5,7 +5,8 @@
  *   <QuarterCalendar _value={quarter} aria-label="考核季度" />               // '2026-Q4'
  *   <QuarterCalendar mode="range" _value={range} aria-label="对比区间" />    // { start: '2026-Q1', end: '2026-Q3' }
  *
- * 外观与 Calendar 的月份视图一致（同一套 calendarStyles）：一行四格，区间连成一条，本季度带描边。
+ * 外观与 Calendar 的月份视图一致（同一个配方 calendarRecipe，components.Calendar 的定制也作用在这里）：一行四格，
+ * 区间连成一条，本季度带描边。
  * 焦点在当前季度上（roving tabindex）：←→ 移动（到头时换年；从右到左排版时反过来），Home / End 到第一、第四季度，
  * Page Up / Down 换年，Enter / 空格选中；区间选到一半时悬停预览，Esc 取消。整段在 min–max 之外的季度不可用。
  *
@@ -24,8 +25,8 @@ import { isRtl } from '../utils/dom/direction';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { interactionTransitions } from '../utils/style/transitions';
-import { calendarStyles } from './CalendarView';
-import { partAttrs } from '../config/styles';
+import { useComponent } from '../config/components';
+import { calendarRecipe, calendarStateStyles } from './CalendarView';
 import { isPeriodDisabled } from './DateField';
 import { toDateLimits, useDateLocale, type DateInput } from './date-locale';
 
@@ -55,9 +56,6 @@ const quarterOf = (key: string) => Number(key.slice(6));
 const ordered = (a: string, b: string): DateRange<string> =>
   a <= b ? { start: a, end: b } : { start: b, end: a };
 
-/** 部件的标记（与 CalendarView 同名的部件：root、header、heading、grid） */
-const quarterCalendarPart = (part: string) => partAttrs({ name: 'QuarterCalendar' }, part);
-
 /** 季度面板：四个季度一页，单选或区间 */
 export const QuarterCalendar = _component(
   ({
@@ -71,6 +69,7 @@ export const QuarterCalendar = _component(
     ...rest
   }: QuarterCalendarProps) => {
     const lang = useLang();
+    const ui = useComponent(calendarRecipe, () => ({}));
     const locale = useDateLocale();
     const hintId = useId();
     const limits = _derived(toDateLimits(locale, { min, max }));
@@ -160,19 +159,20 @@ export const QuarterCalendar = _component(
     }
 
     return () => {
+      const s = ui().parts;
       const preview = range();
       const today = current();
       const heading = String(year);
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: calendarStyles.root, ...quarterCalendarPart('root') }, rest, {
+          {...mergeAttrs<'div'>(s.root, rest, {
             ref: _toRef(root),
             role: 'group',
           })}
           data-view="quarter"
           data-disabled={disabled || undefined}
         >
-          <div {...css.attrs(calendarStyles.header)} {...quarterCalendarPart('header')}>
+          <div {...mergeAttrs<'div'>(s.header)}>
             <IconButton
               icon={ChevronLeft}
               aria-label={lang.calendarPreviousYear}
@@ -181,8 +181,10 @@ export const QuarterCalendar = _component(
               onClick={() => (year -= 1)}
             />
             <span
-              {...css.attrs(calendarStyles.heading, calendarStyles.headingStatic)}
-              {...quarterCalendarPart('heading')}
+              {...mergeAttrs<'span'>({
+                ...s.heading,
+                sx: [s.heading.sx, calendarStateStyles.headingStatic],
+              })}
             >
               {lang.calendarYear(year)}
             </span>
@@ -195,8 +197,10 @@ export const QuarterCalendar = _component(
             />
           </div>
           <table
-            {...css.attrs(calendarStyles.grid, calendarStyles.periodGrid)}
-            {...quarterCalendarPart('grid')}
+            {...mergeAttrs<'table'>({
+              ...s.grid,
+              sx: [s.grid.sx, calendarStateStyles.periodGrid],
+            })}
             role="grid"
             aria-label={lang.calendarYear(year)}
             aria-multiselectable={mode === 'range' || undefined}
@@ -217,29 +221,37 @@ export const QuarterCalendar = _component(
                       role="gridcell"
                       aria-selected={selected}
                       aria-disabled={disabledHere || undefined}
-                      {...css.attrs(
-                        calendarStyles.cell,
-                        inRange && calendarStyles.inRange,
-                        preview != null && key === preview.start && calendarStyles.rangeStart,
-                        preview != null && key === preview.end && calendarStyles.rangeEnd,
-                      )}
+                      {...mergeAttrs<'td'>({
+                        ...s.cell,
+                        sx: [
+                          s.cell.sx,
+                          inRange && calendarStateStyles.inRange,
+                          preview != null &&
+                            key === preview.start &&
+                            calendarStateStyles.rangeStart,
+                          preview != null && key === preview.end && calendarStateStyles.rangeEnd,
+                        ],
+                      })}
                     >
                       <button
                         type="button"
                         tabindex={isFocused ? 0 : -1}
                         aria-disabled={disabledHere || undefined}
                         aria-describedby={anchor ? hintId : undefined}
-                        {...css.attrs(
-                          buttonBaseStyles.root,
-                          interactionTransitions.colors,
-                          calendarStyles.button,
-                          calendarStyles.periodButton,
-                          focusRingStyles.tight,
-                          key === today && calendarStyles.today,
-                          inRange && !ends && calendarStyles.middle,
-                          (mode === 'range' ? ends : selected) && calendarStyles.selected,
-                          disabledHere && calendarStyles.disabled,
-                        )}
+                        {...mergeAttrs<'button'>({
+                          ...s.cellButton,
+                          sx: [
+                            buttonBaseStyles.root,
+                            interactionTransitions.colors,
+                            s.cellButton.sx,
+                            calendarStateStyles.periodButton,
+                            focusRingStyles.tight,
+                            key === today && calendarStateStyles.today,
+                            inRange && !ends && calendarStateStyles.middle,
+                            (mode === 'range' ? ends : selected) && calendarStateStyles.selected,
+                            disabledHere && calendarStateStyles.disabled,
+                          ],
+                        })}
                         data-quarter={key}
                         data-focused={isFocused || undefined}
                         data-selected={selected || undefined}

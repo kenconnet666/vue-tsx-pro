@@ -6,6 +6,7 @@ import { enUS } from '../../config/lang/en-US';
 import { mount } from '../../utils/.test/mount';
 import type { DateRange } from '../../utils/data/date';
 import { Calendar } from '../Calendar';
+import { QuarterCalendar } from '../QuarterCalendar';
 import { RangeCalendar } from '../RangeCalendar';
 
 // 今天固定为 2026-10-20（周二）
@@ -230,5 +231,26 @@ describe('RangeCalendar', () => {
     button(root, '2026-10-20').click();
     await nextTick();
     expect(value).toBeNull();
+  });
+});
+
+describe('日历的定制（components.Calendar）', () => {
+  it('应用里统一显示周数；CalendarView 与 QuarterCalendar 的部件同在 data-scope="calendar" 下', () => {
+    const root = mount(() => (
+      <Provider components={{ Calendar: { defaults: { showWeekNumbers: true } } }}>
+        <Calendar _value="2026-11-08" aria-label="日期" />
+        <Calendar _value="2026-11-08" showWeekNumbers={false} aria-label="不显示周数" />
+        <QuarterCalendar _value="2026-Q4" aria-label="季度" />
+      </Provider>
+    ));
+    const [withWeeks, plain, quarter] = [
+      ...root.querySelectorAll<HTMLElement>('[data-scope="calendar"][data-part="root"]'),
+    ];
+    expect(withWeeks!.querySelectorAll('[data-part="weekNumber"]').length).toBeGreaterThan(0);
+    expect(plain!.querySelectorAll('[data-part="weekNumber"]')).toHaveLength(0);
+    expect(quarter!.dataset.view).toBe('quarter');
+    expect(
+      quarter!.querySelectorAll('[data-scope="calendar"][data-part="cellButton"]'),
+    ).toHaveLength(4);
   });
 });

@@ -30,6 +30,7 @@ import { statRecipe } from '../../display/Stat';
 import { timelineRecipe } from '../../display/Timeline';
 import { codeBlockRecipe } from '../../base/CodeBlock';
 import { tourRecipe } from '../../overlay/Tour';
+import { calendarRecipe } from '../../date/CalendarView';
 
 describe('components', () => {
   it('登记表的每个组件都有同名的配方', () => {
@@ -42,6 +43,7 @@ describe('components', () => {
       Link: linkRecipe,
       Indicator: indicatorRecipe,
       Avatar: avatarRecipe,
+      Calendar: calendarRecipe,
       Card: cardRecipe,
       CodeBlock: codeBlockRecipe,
       Progress: progressRecipe,

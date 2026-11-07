@@ -1,5 +1,4 @@
 {
-  "CalendarView": ["unit"],
   "ChartFrame": ["unit"],
   "ChartTooltipBox": ["unit"],
   "CodeEditor": ["unit"],

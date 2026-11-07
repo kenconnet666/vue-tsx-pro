@@ -16,6 +16,10 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
+- 日历改成配方组件 `Calendar`（CalendarView 渲染的 Calendar、RangeCalendar、日期选择器的弹层，以及 QuarterCalendar 共用）：
+  `components.Calendar` 可以给 `size`、`showWeekNumbers`、`fixedWeeks` 的默认值（如全站显示周数），按部件（root、months、month、
+  header、heading、grid、weekday、weekNumber、cell、cellButton、footer）追加样式。部件标记的 `data-scope` 从 `calendar-view`、
+  `quarter-calendar` 统一成 `calendar`，格子与格子里的按钮也带上了标记。
 - CodeBlock 改成配方组件：各部件带 `data-scope="code-block"` 标记（原来没有），`components.CodeBlock` 可以给 `wrap`、`copyable`、
   `lineNumbers`、`maxLines`、`flush` 的默认值（如全站显示行号），按部件（root、header、title、body、pre、code、line、lineNumber）
   追加样式。

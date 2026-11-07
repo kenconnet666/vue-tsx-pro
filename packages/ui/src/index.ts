@@ -831,9 +831,11 @@ export {
   type CalendarBoardProps,
 } from './date/CalendarBoard';
 export {
-  calendarStyles,
+  calendarRecipe,
   CalendarView,
   type CalendarItemProps,
+  type CalendarOptions,
+  type CalendarPart,
   type CalendarViewManaged,
   type CalendarViewOptions,
   type CalendarViewProps,

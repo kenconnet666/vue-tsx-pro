@@ -211,7 +211,7 @@
 | DiagramNode | diagram/DiagramNode.tsx |  |  |  |  |  |
 | Calendar | date/Calendar.tsx |  |  |  |  |  |
 | CalendarBoard | date/CalendarBoard.tsx |  |  |  |  |  |
-| CalendarView | date/CalendarView.tsx | ✗ |  |  |  |  |
+| CalendarView | date/CalendarView.tsx |  |  |  |  |  |
 | Countdown | date/Countdown.tsx |  |  |  |  |  |
 | DateField | date/DateField.tsx |  |  |  |  |  |
 | DatePicker | date/DatePicker.tsx |  |  |  |  |  |

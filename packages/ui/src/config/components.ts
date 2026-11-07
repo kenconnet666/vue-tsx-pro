@@ -20,6 +20,7 @@ import type { AlertOptions, AlertPart } from '../feedback/Alert';
 import type { AvatarOptions, AvatarPart } from '../display/Avatar';
 import type { BadgeOptions, BadgePart } from '../base/badge-styles';
 import type { ButtonOptions, ButtonPart } from '../base/button-core';
+import type { CalendarOptions, CalendarPart } from '../date/CalendarView';
 import type { CardOptions, CardPart } from '../display/Card';
 import type { CodeBlockOptions, CodeBlockPart } from '../base/CodeBlock';
 import type { ChoiceOptions, ChoicePart } from '../input/choice-styles';
@@ -85,6 +86,8 @@ export interface UiComponents {
   Avatar: ComponentConfig<AvatarPart, AvatarOptions>;
   /** CodeBlock（CodeGroup、示例的源码也是它） */
   CodeBlock: ComponentConfig<CodeBlockPart, CodeBlockOptions>;
+  /** Calendar（CalendarView：Calendar、RangeCalendar、日期选择器的弹层；QuarterCalendar 也取它的样式） */
+  Calendar: ComponentConfig<CalendarPart, CalendarOptions>;
   /** Card */
   Card: ComponentConfig<CardPart, CardOptions>;
   /** Progress（条形与环形） */
