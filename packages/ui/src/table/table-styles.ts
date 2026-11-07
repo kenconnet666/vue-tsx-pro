@@ -221,9 +221,9 @@ export const dataTableRecipe = css.recipe({
     selectRadio: choiceInCell,
     detailToggleCell: { paddingInline: 0, textAlign: 'center', textOverflow: 'clip' },
     detailToggle: {
-      width: '1.5rem',
-      height: '1.5rem',
-      minHeight: '1.5rem',
+      width: '_minTarget',
+      height: '_minTarget',
+      minHeight: '_minTarget',
       marginBlock: '-0.1875rem',
     },
     leading: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },

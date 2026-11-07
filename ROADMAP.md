@@ -827,9 +827,11 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       部件多却没有配方的改成配方并在 `UiComponents` 登记（AppShell、Transfer、NavList、NotificationCenter、FilterBar、Upload、Timeline、CalendarView、CodeBlock、Tour、Stat、Menu、Toast）
 - [ ] 24.2 状态写法换条件别名（约 45 处 `条件 && styles.selected / disabled…`）：随 24.1 把状态样式搬进配方时一起换；
       别名展开成 `:is(…)`，优先级排在 `:hover` 前面，每处要定组合状态（已选 + 悬停、不可用 + 悬停）的先后
-- [ ] 24.3 裸值换 token：组件里的 rem / px、`fontSize: 'x.xem'`（25 处）换成 em、`relativeFontSizeStyles` 或 token，逐个对截图
+- [x] ~~24.3 裸值换 token：组件里的 rem / px、`fontSize: 'x.xem'`（25 处）换成 em、`relativeFontSizeStyles` 或 token，逐个对截图~~
       （2026-11-08：字号做了——加 relativeFontSizes（值），0.93em、0.85 / 0.875em、1.125 / 1.15em 的 12 处改用 sm、xs、lg 档，
-      差不到 0.2px；徽标的 0.75em、等宽的 0.9em、Gauge / Result 的大号是有意的，留着。rem / px 待做）
+      差不到 0.2px；徽标的 0.75em、等宽的 0.9em、Gauge / Result 的大号是有意的，留着。px：主题加 `space.xxs`（0.125em），
+      十来处写死的 2px 间距换成它，边框、轮廓宽度换 borderWidths，表格展开按钮用 minTarget。留下的是有意的：容器与面板的宽高
+      （rem，同 sizes 的约定）、状态点与比例条的固定尺寸、SVG 里的把手、抖动动画的位移、读屏专用的隐藏写法）
 - [x] ~~24.4 去掉 0.11 标了 `@deprecated` 的旧写法：`createUi` / `Provider` 的 `defaults`、`styles`，改名前的旧名（Skeleton 的 `variant`、`Tone`、`Theme`…）~~（2026-11-08，16 处全删）
 - [x] ~~24.5 截图基线容器化进 CI（同 8.3）：之后外观的任何改动都由 CI 拦~~（即 P0.1：CI 的 visual 任务与上一次通过的 master 比对，只报告）
 - [x] ~~24.6 文档站的 API 小节列出配方的部件（`data-part`）与档位（`components.Xxx` 能改、能加的）：现在只列部件属性 `propsXxx`；
