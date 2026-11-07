@@ -844,7 +844,7 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       3D 9 → 5 页，旧地址跳到新页的小节）、示例改用组件库（进行中：Stat、ScrollArea、DateTime、Splitter、Tabs、Card 外框、MapChart、ButtonBase、ThemeSwitcher 已改）、逐页问题（进行中：QueryTable、FilterBar、Card、Code、Timeline、NavList、Flex、Icon、Tree、Upload、链接下划线已改）、文档站功能（组件选择指南、整页模板、示例工具、搜索、无障碍一节）
 - [ ] P2.5 逐个组件精修样式（随 P2 的页面顺序）
 - [ ] P3 组件补缺：~~ChoiceCard~~（单选、复选的 card）、~~ItemList 可选中的行~~、ColorPicker、ImageCropper、Carousel、Dialog 拖动、~~Tag 的 `selected`~~、`useInfiniteList`、
-      QRCode（自己写编码器）、省市区数据、Transfer 虚拟滚动、选文件夹、FloatButton 组、JsonViewer、SignaturePad、DataTable 横向虚拟化
+      QRCode（自己写编码器）、省市区数据、~~Transfer 虚拟滚动~~（两侧本来就是 Listbox）、~~选文件夹~~、FloatButton 组、JsonViewer、SignaturePad、DataTable 横向虚拟化
 - [ ] P4 按 schema 生成表单（第一步）与 QueryTable 的查询条件
 - [ ] P5 阶段 24（含 24.4 直接删旧写法）
 - [ ] P6 `/testing` 测试辅助、桌面端 `create` 模板

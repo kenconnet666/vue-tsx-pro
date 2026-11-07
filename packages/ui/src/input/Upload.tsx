@@ -111,6 +111,8 @@ export interface UploadProps extends PartProps<'div'> {
   accept?: string;
   /** 可以选多个；不写时新文件替换旧的 */
   multiple?: boolean;
+  /** 选文件夹（同 FileDrop 的 directory）：里面的文件都加进来，列表里显示相对路径；隐含 multiple */
+  directory?: boolean;
   /** 单个文件的大小上限（字节） */
   maxSize?: number;
   /** 最多几个文件，超出的不加进来 */
@@ -281,6 +283,7 @@ export const Upload = _component(
     fieldName = 'file',
     accept,
     multiple = false,
+    directory = false,
     maxSize,
     maxFiles,
     name,
@@ -365,7 +368,9 @@ export const Upload = _component(
 
     function add(files: File[], rejectedType = false) {
       const entries = files.map((file): UploadFile => {
-        const base = { id: `upload-${++nextId}`, name: file.name, size: file.size, file };
+        // 选文件夹时显示相对路径（报告/附录/图 1.png），看得出文件在哪一层
+        const name = file.webkitRelativePath || file.name;
+        const base = { id: `upload-${++nextId}`, name, size: file.size, file };
         if (rejectedType) {
           return { ...base, status: 'error', error: lang.fileTypeRejected, rejected: true };
         }
@@ -375,10 +380,12 @@ export const Upload = _component(
         }
         return { ...base, status: 'selected' };
       });
-      if (!multiple) value.forEach((item) => controllers.get(item.id)?.abort());
-      const kept = multiple ? value : [];
+      // 选文件夹隐含多选
+      const many = multiple || directory;
+      if (!many) value.forEach((item) => controllers.get(item.id)?.abort());
+      const kept = many ? value : [];
       const room = maxFiles == null ? entries.length : Math.max(0, maxFiles - kept.length);
-      const added = (multiple ? entries : entries.slice(-1)).slice(0, room);
+      const added = (many ? entries : entries.slice(-1)).slice(0, room);
       value = [...kept, ...added];
       added.filter((item) => item.status === 'selected').forEach((item) => void start(item));
     }
@@ -642,13 +649,14 @@ export const Upload = _component(
     /** 选文件的区域：列表模式在上方，图片墙模式是最后一格 */
     function renderDrop(picture: boolean) {
       const state = control();
-      const full = maxFiles != null && multiple && value.length >= maxFiles;
+      const full = maxFiles != null && (multiple || directory) && value.length >= maxFiles;
       if (state.readonly || (picture && full)) return null;
       const hint = pasteable ? lang.uploadPasteHint : undefined;
       const props = mergePartProps<FileDropProps>(
         {
           accept,
           multiple,
+          directory,
           disabled: state.disabled,
           invalid: state.invalid,
           // 选好的文件不在这个输入框里（它选完就清空）：已有文件时不再原生必填，免得表单交不了

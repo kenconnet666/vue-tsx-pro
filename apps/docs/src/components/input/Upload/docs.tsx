@@ -7,6 +7,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import Folder from './demo/Folder.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Photos from './demo/Photos.tsx?demo';
 import Resume from './demo/Resume.tsx?demo';
@@ -56,6 +57,12 @@ export default _component(() => () => (
         <Example id="file-drop" title="FileDrop" demo={Import}>
           只负责选文件：点击、聚焦后按 Enter / 空格、或把文件拖进来。选到的经 <Code>onFiles</Code>{' '}
           交出去；拖放不受 accept 限制，不合格的经 <Code>onReject</Code> 交出去。
+        </Example>
+        <Example id="folder" title="上传整个文件夹" demo={Folder}>
+          <Code>directory</Code>{' '}
+          {'时对话框里选文件夹（webkitdirectory），拖进来的文件夹也递归读出里面的文件；各文件的 '}
+          <Code>webkitRelativePath</Code> 是相对路径（拖进来的也补上），列表里显示它。FileDrop
+          同样有这个属性。
         </Example>
       </ExampleColumn>
     </Examples>

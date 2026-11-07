@@ -34,7 +34,55 @@ describe('matchesAccept', () => {
   });
 });
 
+/** 假的文件系统条目：文件夹的 readEntries 第一次给出全部子条目，第二次给空 */
+const fileEntry = (path: string) => ({
+  isFile: true,
+  isDirectory: false,
+  fullPath: path,
+  file: (resolve: (file: File) => void) => resolve(file(path.split('/').at(-1)!)),
+});
+const dirEntry = (path: string, children: object[]) => ({
+  isFile: false,
+  isDirectory: true,
+  fullPath: path,
+  createReader: () => {
+    let done = false;
+    return {
+      readEntries: (resolve: (entries: object[]) => void) =>
+        resolve(done ? [] : ((done = true), children)),
+    };
+  },
+});
+
 describe('FileDrop', () => {
+  it('directory：对话框选文件夹（webkitdirectory、多选）；拖进来的文件夹递归读出文件，补上相对路径', async () => {
+    const onFiles = vi.fn();
+    const root = mount(() => <FileDrop directory onFiles={onFiles} />);
+    const input = root.querySelector('input')!;
+    expect([input.hasAttribute('webkitdirectory'), input.multiple]).toEqual([true, true]);
+    const tree = dirEntry('/报告', [
+      fileEntry('/报告/正文.pdf'),
+      dirEntry('/报告/附图', [fileEntry('/报告/附图/图 1.png')]),
+    ]);
+    const label = root.querySelector('label')!;
+    const dataTransfer = {
+      types: ['Files'],
+      files: [],
+      items: [{ kind: 'file', webkitGetAsEntry: () => tree }],
+      dropEffect: 'none',
+    };
+    for (const type of ['dragenter', 'drop']) {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'dataTransfer', { value: dataTransfer });
+      label.dispatchEvent(event);
+    }
+    await vi.waitFor(() => expect(onFiles).toHaveBeenCalledTimes(1));
+    expect(onFiles.mock.calls[0]![0].map((item: File) => item.webkitRelativePath)).toEqual([
+      '报告/正文.pdf',
+      '报告/附图/图 1.png',
+    ]);
+  });
+
   it('拖进来的文件按 accept 分成接受与拒绝两份；单选时只取第一个', () => {
     const onFiles = vi.fn();
     const onReject = vi.fn();

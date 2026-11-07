@@ -36,6 +36,42 @@ export function matchesAccept(file: File, accept: string | undefined): boolean {
   });
 }
 
+/** 拖进来的条目（文件或文件夹）；浏览器不支持 webkitGetAsEntry 时为空，退回 dataTransfer.files */
+function droppedEntries(data: DataTransfer | null): FileSystemEntry[] {
+  return [...(data?.items ?? [])]
+    .filter((item) => item.kind === 'file')
+    .map((item) => item.webkitGetAsEntry?.())
+    .filter((entry): entry is FileSystemEntry => entry != null);
+}
+
+/** 读出条目里的全部文件：文件夹递归往下，文件补上相对路径（webkitRelativePath，与选文件夹对话框一致） */
+async function filesOfEntries(entries: readonly FileSystemEntry[]): Promise<File[]> {
+  const files: File[] = [];
+  const visit = async (entry: FileSystemEntry): Promise<void> => {
+    if (entry.isFile) {
+      const file = await new Promise<File>((resolve, reject) =>
+        (entry as FileSystemFileEntry).file(resolve, reject),
+      );
+      Object.defineProperty(file, 'webkitRelativePath', {
+        value: entry.fullPath.replace(/^\//, ''),
+      });
+      files.push(file);
+      return;
+    }
+    const reader = (entry as FileSystemDirectoryEntry).createReader();
+    // readEntries 一次最多给 100 个：读到空为止
+    for (;;) {
+      const batch = await new Promise<FileSystemEntry[]>((resolve, reject) =>
+        reader.readEntries(resolve, reject),
+      );
+      if (batch.length === 0) break;
+      for (const child of batch) await visit(child);
+    }
+  };
+  for (const entry of entries) await visit(entry);
+  return files;
+}
+
 /** 文件、不可用、必填由组件管理；未声明的属性落到 input 上，外层 label 用 propsRoot */
 export interface FileDropProps extends PartProps<
   'input',
@@ -45,6 +81,11 @@ export interface FileDropProps extends PartProps<
   accept?: string;
   /** 可以选多个 */
   multiple?: boolean;
+  /**
+   * 选文件夹：对话框里选整个文件夹（webkitdirectory），拖进来的文件夹递归读出里面的文件；
+   * 各文件的 webkitRelativePath 是“文件夹/子文件夹/文件名”（拖进来的也补上）
+   */
+  directory?: boolean;
   /** 不可用 */
   disabled?: boolean;
   /** 必填 */
@@ -106,6 +147,7 @@ export const FileDrop = _component(
   ({
     accept,
     multiple = false,
+    directory = false,
     disabled,
     required,
     readonly,
@@ -128,11 +170,11 @@ export const FileDrop = _component(
     // dragenter / dragleave 在子元素之间也会触发：计数，回到 0 才算离开
     let depth = 0;
 
-    function deliver(list: FileList | null | undefined) {
+    function deliver(list: FileList | readonly File[] | null | undefined) {
       const files = [...(list ?? [])];
       const accepted = files.filter((file) => matchesAccept(file, accept));
       const rejected = files.filter((file) => !accepted.includes(file));
-      const taken = multiple ? accepted : accepted.slice(0, 1);
+      const taken = multiple || directory ? accepted : accepted.slice(0, 1);
       if (taken.length > 0) onFiles?.(taken);
       if (rejected.length > 0) onReject?.(rejected);
     }
@@ -169,7 +211,10 @@ export const FileDrop = _component(
         event.preventDefault();
         depth = 0;
         dragging = false;
-        deliver(event.dataTransfer?.files);
+        // 拖进来的是文件夹：递归读出里面的文件（条目要在 drop 事件里同步取，之后 dataTransfer 就清空了）
+        const entries = directory ? droppedEntries(event.dataTransfer) : [];
+        if (entries.length > 0) void filesOfEntries(entries).then(deliver);
+        else deliver(event.dataTransfer?.files);
       },
     };
 
@@ -200,7 +245,9 @@ export const FileDrop = _component(
               type: 'file',
               id: field.id,
               accept,
-              multiple,
+              multiple: multiple || directory,
+              // 选整个文件夹：各文件的 webkitRelativePath 是“文件夹/子文件夹/文件名”（Vue 的类型里没有这个属性）
+              ...(directory && ({ webkitdirectory: '' } as PartProps<'input'>)),
               disabled: field.disabled || field.readonly,
               required: field.required,
               'aria-invalid': field.invalid || undefined,
