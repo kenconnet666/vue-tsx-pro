@@ -39,6 +39,7 @@
 - 单选、复选的卡片外观：RadioGroup、CheckboxGroup（以及单个 Radio、Checkbox）加 `card`，每项是一张卡片、整块可点，
   选中时边框与底色换成色调色；横排时按 `minItemWidth`（默认 14em）分列。Radio、Checkbox 加 `end`（结束边：价格、标记）与 `propsEnd`，
   勾选类的配方多一个 `end` 部件。
+- Dialog 加 `draggable`：按住标题栏拖动（标题栏上的按钮照常点），不超出窗口，每次打开回到正中；位移用 `translate`。
 - 可选中的 Tag：写了 `_selected` 时整个标签是按钮（`aria-pressed`），点一下切换；没选中时有描边，选中时实底色加对勾，
   不写色调时用 accent、字号默认 sm。筛选条件的一排标签用它。
 - ItemListItem 整条可点：`href`（标题是 Link，走路由适配）或 `onSelect`（标题是 ButtonBase），标题伸展盖住整条，结束边的操作叠在上面照常可点；

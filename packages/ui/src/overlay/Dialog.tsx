@@ -18,6 +18,11 @@ import {
   type DetachedOverlayHandle,
   type DetachedOverlayOptions,
 } from './detached';
+import { watch } from 'vue';
+import type { FlexProps } from '../layout/Flex';
+import { clamp } from '../utils/data/number';
+import { startMove } from '../utils/dom/move';
+import { mergeProps } from '../utils/props';
 import { transitions } from '../utils/style/transitions';
 import { ModalCore, modalPartStyles, type ModalProps } from './ModalCore';
 import { t } from '../config/theme/tokens';
@@ -35,7 +40,21 @@ export interface DialogOptions {
 }
 
 /** 未声明的属性落到 dialog 上 */
-export interface DialogProps extends ModalProps, DialogOptions {}
+export interface DialogProps extends ModalProps, DialogOptions {
+  /** 可以拖动：按住标题栏把对话框挪开（看被挡住的内容），不超出窗口；每次打开回到正中 */
+  draggable?: boolean;
+}
+
+/** 拖动的样式：标题栏是把手（移动指针、触摸拖动不滚动页面）；位移用 translate，不和进场动画的 transform 打架 */
+const dialogDragStyles = css.create({
+  handle: { cursor: 'move', userSelect: 'none', touchAction: 'none' },
+});
+const dialogDragDynamicStyles = css.create({
+  offset: (x: number, y: number) => ({ translate: `${x}px ${y}px` }),
+});
+
+/** 不能从标题栏上的这些元素开始拖（关闭按钮等照常点） */
+const NOT_A_HANDLE = 'button, a, input, select, textarea, [contenteditable]';
 
 /**
  * 对话框的配方（Dialog、AlertDialog 共用）：部件同 ModalCore（base 并进了 modalPartStyles）；
@@ -71,10 +90,56 @@ export type DialogPart = (typeof dialogRecipe.parts)[number];
 
 /** 模态对话框：居中显示，淡入放大 */
 export const Dialog = _component(
-  ({ _open: open = _bindable(false), size, ...rest }: DialogProps) => {
+  ({
+    _open: open = _bindable(false),
+    size,
+    draggable = false,
+    propsHeader,
+    ...rest
+  }: DialogProps) => {
     const ui = useComponent(dialogRecipe, () => ({ size }), { size: 'xs' });
+    let offset = _state({ x: 0, y: 0 });
+    watch(
+      () => open,
+      (now) => {
+        if (now) offset = { x: 0, y: 0 };
+      },
+    );
+
+    function drag(event: PointerEvent) {
+      const header = event.currentTarget as Element;
+      const panel = header.closest('dialog');
+      if (!panel || (event.target as Element).closest(NOT_A_HANDLE)) return;
+      // 按下时整块还能往四边挪多少：拖到哪都不超出窗口
+      const rect = panel.getBoundingClientRect();
+      const start = offset;
+      const x = [start.x - rect.left, start.x + window.innerWidth - rect.right] as const;
+      const y = [start.y - rect.top, start.y + window.innerHeight - rect.bottom] as const;
+      startMove(event, {
+        onMove: ({ deltaX, deltaY }) =>
+          (offset = { x: clamp(start.x + deltaX, ...x), y: clamp(start.y + deltaY, ...y) }),
+      });
+    }
+
     return () => (
-      <ModalCore {...rest} parts={ui().parts} panelSx={transitions.scale} _open={open} />
+      <ModalCore
+        {...mergeProps<Partial<ModalProps>>(
+          { sx: draggable && dialogDragDynamicStyles.offset(offset.x, offset.y) },
+          rest,
+        )}
+        title={rest.title}
+        propsHeader={
+          draggable
+            ? mergeProps<Partial<FlexProps>>(
+                { sx: dialogDragStyles.handle, onPointerdown: drag },
+                propsHeader,
+              )
+            : propsHeader
+        }
+        parts={ui().parts}
+        panelSx={transitions.scale}
+        _open={open}
+      />
     );
   },
 );

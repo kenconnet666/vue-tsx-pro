@@ -8,6 +8,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Confirm from './demo/Confirm.tsx?demo';
+import Draggable from './demo/Draggable.tsx?demo';
 import Imperative from './demo/Imperative.tsx?demo';
 import Import from './demo/Import.tsx?demo';
 import Profile from './demo/Profile.tsx?demo';
@@ -67,6 +68,13 @@ export default _component(() => () => (
           <Code>dismissible={'{false}'}</Code> 让点遮罩不关闭——任务进行中别被误关；<Kbd>Esc</Kbd>{' '}
           仍然可以关（浏览器的约定），关闭时原生 dialog 发出 <Code>close</Code> 事件，在{' '}
           <Code>onClose</Code> 里收尾。
+        </Example>
+        <Example id="draggable" title="可以拖动" demo={Draggable}>
+          <Code>draggable</Code>{' '}
+          {
+            '时按住标题栏能把对话框挪开（核对数据时看后面被挡住的内容），拖到哪都不超出窗口，下次打开回到正中；标题栏上的关闭按钮照常点。位移用 '
+          }
+          <Code>translate</Code>，不影响进场动画。
         </Example>
       </ExampleColumn>
     </Examples>
