@@ -47,7 +47,7 @@
 | FilterBar | patterns/FilterBar.tsx |  |  |  |  |  |
 | FormDialog | patterns/FormDialog.tsx |  |  |  |  |  |
 | KanbanBoard | patterns/KanbanBoard.tsx |  |  |  |  |  |
-| NotificationList | patterns/NotificationCenter.tsx | ✗ |  |  |  |  |
+| NotificationList | patterns/NotificationCenter.tsx |  |  |  |  |  |
 | NotificationCenter | patterns/NotificationCenter.tsx |  |  |  |  |  |
 | QueryTable | patterns/QueryTable.tsx |  |  |  |  |  |
 | SlideCaptcha | patterns/SlideCaptcha.tsx |  |  |  |  |  |
@@ -145,7 +145,7 @@
 | TreeTransfer | input/Transfer.tsx |  |  |  |  |  |
 | TreeSelect | input/TreeSelect.tsx |  |  |  |  |  |
 | Upload | input/Upload.tsx |  |  |  |  |  |
-| Label | form/Field.tsx | ✗ |  |  |  |  |
+| Label | form/Field.tsx |  |  |  |  |  |
 | Field | form/Field.tsx |  |  |  |  |  |
 | Form | form/Form.tsx |  |  |  |  |  |
 | FormErrorSummary | form/FormErrorSummary.tsx |  |  |  |  |  |
@@ -163,8 +163,8 @@
 | Result | feedback/Result.tsx |  |  |  |  |  |
 | Skeleton | feedback/Skeleton.tsx |  |  |  |  |  |
 | SkeletonText | feedback/SkeletonText.tsx |  |  |  |  |  |
-| ToastItem | feedback/Toast.tsx | ✗ |  |  |  |  |
-| Toaster | feedback/Toast.tsx | ✗ |  |  |  |  |
+| ToastItem | feedback/Toast.tsx |  |  |  |  |  |
+| Toaster | feedback/Toast.tsx |  |  |  |  |  |
 | CodeGroup | docs-kit/CodeGroup.tsx |  |  |  |  |  |
 | CodePreview | docs-kit/CodePreview.tsx |  |  |  |  |  |
 | ColorSwatch | docs-kit/ColorSwatch.tsx |  |  |  |  |  |
@@ -225,7 +225,7 @@
 | TimeField | date/TimeField.tsx |  |  |  |  |  |
 | TimePicker | date/TimePicker.tsx |  |  |  |  |  |
 | Provider | config/Provider.tsx |  |  |  |  |  |
-| ConfigScope | config/Provider.tsx | ✗ |  |  |  |  |
+| ConfigScope | config/Provider.tsx |  |  |  |  |  |
 | CodeEditor | code-editor/CodeEditor.tsx | ✗ |  |  |  |  |
 | AreaChart | charts/AreaChart.tsx |  |  |  |  |  |
 | BarChart | charts/BarChart.tsx |  |  |  |  |  |
@@ -249,7 +249,7 @@
 | StatusBadge | base/Badge.tsx |  |  |  |  |  |
 | Blockquote | base/Blockquote.tsx |  |  |  |  |  |
 | Button | base/Button.tsx |  |  |  |  |  |
-| ButtonBase | base/ButtonBase.tsx | ✗ |  |  |  |  |
+| ButtonBase | base/ButtonBase.tsx |  |  |  |  |  |
 | ButtonGroup | base/ButtonGroup.tsx |  |  |  |  |  |
 | Can | base/Can.tsx |  |  |  |  |  |
 | ClientOnly | base/ClientOnly.tsx |  |  |  |  |  |

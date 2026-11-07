@@ -2,9 +2,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { CalendarDate } from '@internationalized/date';
 import Decimal from 'decimal.js';
-import { createApp, nextTick, ref, type App, type VNodeChild } from 'vue';
+import { createApp, nextTick, ref, Teleport, type App, type VNodeChild } from 'vue';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
+  ConfigScope,
   createUi,
   darkTheme,
   defineLang,
@@ -48,6 +49,26 @@ const Texts = _component(() => {
       {lang.confirm}/{lang.timeZone ?? '-'}/{lang.paginationTotal(3)}
     </i>
   );
+});
+
+describe('ConfigScope', () => {
+  it('传送出 Provider 的内容重新带上主题、语言与文字方向', () => {
+    mount(() => (
+      <Provider theme={darkTheme} lang={{ ...enUS, direction: 'rtl' }}>
+        <Teleport to="body">
+          <ConfigScope>
+            <span id="moved">x</span>
+          </ConfigScope>
+        </Teleport>
+      </Provider>
+    ));
+    const scope = document.getElementById('moved')!.parentElement!;
+    expect([scope.dataset.theme, scope.getAttribute('lang'), scope.getAttribute('dir')]).toEqual([
+      'dark',
+      'en-US',
+      'rtl',
+    ]);
+  });
 });
 
 describe('Provider', () => {

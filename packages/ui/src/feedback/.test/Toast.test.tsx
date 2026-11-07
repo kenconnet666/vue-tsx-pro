@@ -1,6 +1,9 @@
-// 通知控制器：计时、暂停、更新、promise；显示区域的交互在浏览器测试里（apps/host-demo/test/feedback.browser.test.ts）
+// 通知控制器：计时、暂停、更新、promise；显示区域（Toaster、ToastItem）的名称与播报、Esc 关闭。
+// 指针、滑动、焦点的交互在浏览器测试里（apps/host-demo/test/feedback.browser.test.ts）
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createToaster } from '../Toast';
+import { nextTick } from 'vue';
+import { mount } from '../../utils/.test/mount';
+import { createToaster, Toaster } from '../Toast';
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
@@ -168,5 +171,25 @@ describe('createToaster', () => {
     toaster.dismiss(b);
     vi.advanceTimersByTime(1000);
     expect(reasons).toEqual(['b:dismissed', 'a:timeout']);
+  });
+});
+
+describe('Toaster、ToastItem', () => {
+  it('区域是带名称的 landmark，列表礼貌播报；重要的通知立即播报；焦点在通知里时 Esc 关掉它', async () => {
+    const toaster = createToaster();
+    mount(() => <Toaster controller={toaster} />);
+    const saved = toaster.success('已保存');
+    toaster.error('发送失败');
+    await nextTick();
+    const region = document.querySelector<HTMLElement>('section[aria-label]')!;
+    expect(region.getAttribute('aria-label')).toBe('通知');
+    expect(region.querySelector('[aria-live="polite"]')).not.toBeNull();
+    const items = [...region.querySelectorAll<HTMLElement>('li')];
+    const item = (text: string) => items.find((element) => element.textContent?.includes(text))!;
+    expect(item('发送失败').getAttribute('aria-live')).toBe('assertive');
+    expect(item('已保存').hasAttribute('aria-live')).toBe(false);
+
+    item('已保存').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(closing(toaster, saved)).toBe(true);
   });
 });

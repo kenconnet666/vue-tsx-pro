@@ -2,7 +2,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
-import { NotificationCenter, type NotificationItem } from '../NotificationCenter';
+import { NotificationCenter, NotificationList, type NotificationItem } from '../NotificationCenter';
 
 const NOW = Date.parse('2026-10-21T10:00:00+08:00');
 const items: NotificationItem[] = [
@@ -87,5 +87,35 @@ describe('NotificationCenter', () => {
       .click();
     await nextTick();
     expect(document.body.textContent).toContain('没有通知');
+  });
+});
+
+describe('NotificationList', () => {
+  it('放在页面里（不用铃铛）：有 href 的是链接，没有的是按钮，Enter 与点击一样报告读过了', async () => {
+    const read: string[][] = [];
+    const root = mount(() => (
+      <NotificationList
+        items={[
+          ...items,
+          {
+            id: '4',
+            title: '查看报表',
+            time: '2026-10-21T09:50:00+08:00',
+            read: false,
+            href: '/reports',
+          },
+        ]}
+        now={NOW}
+        onRead={(ids) => read.push(ids)}
+      />
+    ));
+    const link = [...root.querySelectorAll<HTMLElement>('li > a[href]')];
+    const buttons = [...root.querySelectorAll<HTMLElement>('li > [role="button"]')];
+    expect(link.map((item) => item.textContent?.includes('查看报表'))).toEqual([true]);
+    expect(buttons).toHaveLength(3);
+    const todo = buttons.find((item) => item.textContent?.includes('资料审核'))!;
+    todo.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await nextTick();
+    expect(read).toEqual([['1']]);
   });
 });
