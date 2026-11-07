@@ -89,7 +89,7 @@ const otpFieldStyles = css.create({
     appearance: 'none',
     color: 'transparent',
     caretColor: 'transparent',
-    fontSize: '1em',
+    font: 'inherit',
     letterSpacing: '-0.5em',
     cursor: 'text',
     '::selection': { backgroundColor: 'transparent' },

@@ -108,6 +108,7 @@
 - **默认继承上下文字号**；`size` 只用来覆盖，取值为五档 `'xs' | 'sm' | 'md' | 'lg' | 'xl'`（对应主题的 `fontSizes` 同名档位）或具体像素数字。
 - `size` 不是字号的例外（名字沿用业界的习惯，档位各自写在类型上）：Container、Dialog、Drawer 的 `size` 是宽度档；StatusDot、ProportionBar 的 `size` 是圆点的直径、横条的粗细，只有两档。新组件的宽度用 `width`，不再占用 `size`。
 - 只有组件根元素设字号，内部部件不再改字号，避免 em 层层嵌套后越缩越小；部件需要不同字号时用主题里的比例变量。
+- 原生 `input`、`button`、`select`、`textarea` 不继承字体（浏览器给的是自己的，Chromium 是 13.333px）：样式里写 `font: 'inherit'`，否则它上面的 em 按浏览器的字号算，和旁边的文字对不上。按钮用 `ButtonBase` / `buttonBaseStyles`，文字输入用输入框配方的 `input` 部件，都已写好；文档站的示例测试（`demos.browser.test.ts`）在三种浏览器里逐个检查看得见的原生控件。
 - 例外用 px：边框宽度、焦点环宽度与偏移、分隔线。这些 px 必须经主题的 `borderWidths` token（短写 `'_xs'`；表外属性写 `'_borderWidths.xs'`；夹在值里写 `t.borderWidths.xs`，负偏移 `` `calc(-1 * ${t.borderWidths.sm})` ``），不写死数字：主题把线改粗时一起变。
 - 可点击区域不小于 24px（WCAG 2.5.8）：如 `min-height: max(2em, 24px)`。
 - 单行控件的高度用 `sizes.control`（`max(${t.sizes.control}, ${t.sizes.minTarget})`）：字号的 2.25 倍取整到 4px 网格，xs 档是 2 倍，五档依次 24 / 28 / 32 / 36 / 40px；整数像素的边框在 1 倍屏上不发虚。档位的控件高度跟着 `fontSizeStyles` 走，组件只要用字号档位。

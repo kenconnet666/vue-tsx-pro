@@ -74,6 +74,7 @@ const colorFieldStyles = css.create({
     padding: 0,
     borderWidth: 0,
     opacity: 0,
+    font: 'inherit',
     cursor: 'inherit',
   },
   // 等宽字体：#hex 各位对齐，改一位时不跳动

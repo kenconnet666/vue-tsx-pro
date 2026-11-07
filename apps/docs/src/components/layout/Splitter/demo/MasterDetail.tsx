@@ -1,7 +1,14 @@
 // 左列表、右详情：拖分隔条调比例（双击回到初始比例），右栏可以收起；比例记在浏览器里
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Flex, Small, Splitter, Text, usePersistentState } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  ButtonBase,
+  Flex,
+  Small,
+  Splitter,
+  Text,
+  usePersistentState,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const mails = [
   {
@@ -35,10 +42,7 @@ const styles = css.create({
     textAlign: 'start',
     paddingBlock: '_sm',
     paddingInline: '_md',
-    borderWidth: 0,
     backgroundColor: { default: 'transparent', _hover: '_fillHover' },
-    cursor: 'pointer',
-    color: 'inherit',
   },
   active: { backgroundColor: '_accentSoft' },
   detail: { padding: '_md' },
@@ -58,17 +62,16 @@ export default _component(() => {
         _collapsed={layout.value.hidden}
         onUpdate:_collapsed={(hidden: boolean) => (layout.value = { ...layout.value, hidden })}
         start={mails.map((item) => (
-          <button
+          <ButtonBase
             key={item.id}
-            type="button"
-            {...css.attrs(styles.item, item.id === current && styles.active)}
+            sx={[styles.item, item.id === current && styles.active]}
             onClick={() => (current = item.id)}
           >
             <Text size="sm" weight="semibold">
               {item.title}
             </Text>
             <Small tone="muted">{item.from}</Small>
-          </button>
+          </ButtonBase>
         ))}
         end={
           <Flex direction="column" gap="sm" sx={styles.detail}>

@@ -57,12 +57,14 @@ export const choiceRecipe = css.recipe({
       flexShrink: 0,
       minHeight: '1.5em',
     },
-    // 去掉浏览器外观，由各组件给出形状；焦点环用 focusRingStyles.tight（排在它后面）
+    // 去掉浏览器外观，由各组件给出形状；焦点环用 focusRingStyles.tight（排在它后面）。
+    // 字体继承外层：浏览器给 input 的是自己的字号（13.333px），方框、轨道的 em 会按它算，和文字、滑块对不上
     input: {
       gridArea: '1 / 1',
       appearance: 'none',
       boxSizing: 'border-box',
       margin: 0,
+      font: 'inherit',
       borderWidth: '_sm',
       borderStyle: 'solid',
       borderColor: '_borderStrong',
