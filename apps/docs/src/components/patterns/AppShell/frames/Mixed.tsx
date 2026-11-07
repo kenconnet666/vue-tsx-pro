@@ -18,12 +18,14 @@ import {
   Flex,
   Grid,
   H1,
+  ItemList,
+  ItemListItem,
   NavBar,
   NavItem,
   NavList,
-  Paragraph,
   Small,
   Stat,
+  Strong,
   type NavBarItem,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { AppShell, AppShellBrand } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
@@ -79,6 +81,13 @@ const modules: NavBarItem[] = [
   { label: '文档', href: '#docs', icon: FileText },
 ];
 
+// 侧栏底部的按钮把侧栏收成图标栏，二级导航只剩图标，悬停看名称；右上角的按钮进入全屏
+const todos = [
+  ['审核供应商资质：华辰精密', '采购部 · 林小满', '今天'],
+  ['确认报价：线束卡箍二期', '商务部 · 周一航', '明天'],
+  ['复核对账单：九月', '财务部 · 陈默', '周五'],
+];
+
 export default _component(() => {
   let current = _state('home');
   let collapsed = _state(false);
@@ -123,17 +132,25 @@ export default _component(() => {
     >
       <Flex direction="column" gap="md">
         <H1>{title()}</H1>
-        <Grid minItemWidth="10rem" gap="md">
+        <Grid minItemWidth="10rem" gap="md" balanced>
           {(stats[current] ?? []).map(([label, value, unit]) => (
             <Card key={label}>
               <Stat label={label} value={value} unit={unit} />
             </Card>
           ))}
         </Grid>
-        <Card>
-          <Paragraph>
-            点左边的二级导航换页；侧栏底部的按钮把侧栏收成图标栏，二级导航只剩图标，悬停看名称；右上角的按钮进入全屏。
-          </Paragraph>
+        <Card header={<Strong>待我处理</Strong>} padding="sm">
+          <ItemList divided inset="sm">
+            {todos.map(([title, from, due]) => (
+              <ItemListItem
+                key={title}
+                title={title}
+                description={from}
+                end={<Small tone="muted">{due}</Small>}
+                href={`#todo-${encodeURIComponent(title)}`}
+              />
+            ))}
+          </ItemList>
         </Card>
       </Flex>
     </AppShell>

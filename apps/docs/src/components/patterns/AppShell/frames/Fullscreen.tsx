@@ -1,8 +1,78 @@
 // 全屏：点顶栏右上角的按钮，顶栏和左侧栏都收起来，正文占满窗口；右上角的按钮或 Esc 退出
 import { Box, FileText, House, Users } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Card, Flex, H1, NavItem, NavList, Paragraph, Small } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  ColumnTable,
+  Flex,
+  H1,
+  NavItem,
+  NavList,
+  Small,
+  type DataTableColumn,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { AppShell, AppShellBrand } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+
+// 全屏多用来对着一张大表工作：正文是一张合同台账
+interface Contract {
+  id: string;
+  supplier: string;
+  owner: string;
+  amount: number;
+  signed: string;
+  status: string;
+}
+
+const contracts: Contract[] = [
+  {
+    id: 'HT-2026-031',
+    supplier: '华辰精密',
+    owner: '林小满',
+    amount: 128000,
+    signed: '2026-10-08',
+    status: '执行中',
+  },
+  {
+    id: 'HT-2026-030',
+    supplier: '青禾线缆',
+    owner: '周一航',
+    amount: 86500,
+    signed: '2026-10-02',
+    status: '执行中',
+  },
+  {
+    id: 'HT-2026-029',
+    supplier: '北辰电子',
+    owner: '陈默',
+    amount: 245300,
+    signed: '2026-09-25',
+    status: '待验收',
+  },
+  {
+    id: 'HT-2026-028',
+    supplier: '恒通紧固件',
+    owner: '许悠',
+    amount: 6800,
+    signed: '2026-09-18',
+    status: '已完成',
+  },
+  {
+    id: 'HT-2026-027',
+    supplier: '远山钣金',
+    owner: '王晴',
+    amount: 57200,
+    signed: '2026-09-11',
+    status: '已完成',
+  },
+];
+
+const columns: DataTableColumn<Contract>[] = [
+  { key: 'id', header: '合同编号', width: 130 },
+  { key: 'supplier', header: '供应商' },
+  { key: 'owner', header: '负责人', width: 90 },
+  { key: 'amount', header: '金额（元）', type: 'number', width: 120 },
+  { key: 'signed', header: '签订日期', width: 120 },
+  { key: 'status', header: '状态', width: 90 },
+];
 
 export default _component(() => {
   let fullscreen = _state(false);
@@ -30,13 +100,13 @@ export default _component(() => {
       }
     >
       <Flex direction="column" gap="md">
-        <H1>{fullscreen ? '只看正文' : '工作台'}</H1>
-        <Card>
-          <Paragraph>
-            看大屏、演示、对着一张大表工作时用全屏：顶栏和左侧栏都不占地方。右上角的按钮或 Esc
-            退出。
-          </Paragraph>
-        </Card>
+        <H1>{fullscreen ? '合同台账（全屏）' : '合同台账'}</H1>
+        <ColumnTable
+          rows={contracts}
+          columns={columns}
+          getKey={(contract) => contract.id}
+          aria-label="合同台账"
+        />
       </Flex>
     </AppShell>
   );

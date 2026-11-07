@@ -134,7 +134,7 @@ export default _component(() => {
             时显示右侧栏。
           </Paragraph>
         </Flex>
-        <Grid minItemWidth="11rem" gap="md">
+        <Grid minItemWidth="11rem" gap="md" balanced>
           <Card>
             <Stat label="今日销售额" value={48_210} unit="元" change={0.124} />
           </Card>
