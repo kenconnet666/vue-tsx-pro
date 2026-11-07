@@ -43,7 +43,7 @@
 - packages/ui/src/charts/TreemapChart.tsx:198 <svg>
 - packages/ui/src/charts/XYChart.tsx:1004 <svg>
 
-## 没转发部件属性的子组件（140）
+## 没转发部件属性的子组件（119）
 
 - packages/ui/src/table/ColumnHeaderActions.tsx:143 <Button>
 - packages/ui/src/table/ColumnHeaderActions.tsx:104 <Checkbox>
@@ -53,7 +53,6 @@
 - packages/ui/src/patterns/CommentThread.tsx:562 <Button>
 - packages/ui/src/patterns/CommentThread.tsx:536 <Icon>
 - packages/ui/src/patterns/CommentThread.tsx:538 <Link>
-- packages/ui/src/patterns/CommentThread.tsx:499 <RelativeTime>
 - packages/ui/src/patterns/DataImport.tsx:372 <Badge>
 - packages/ui/src/patterns/DataImport.tsx:325 <Button>
 - packages/ui/src/patterns/DataImport.tsx:464 <Button>
@@ -69,22 +68,12 @@
 - packages/ui/src/patterns/NotificationCenter.tsx:300 <Empty>
 - packages/ui/src/patterns/NotificationCenter.tsx:366 <RelativeTime>
 - packages/ui/src/patterns/QueryTable.tsx:345 <Button>
-- packages/ui/src/patterns/QueryTable.tsx:213 <IconButton>
-- packages/ui/src/patterns/QueryTable.tsx:251 <IconButton>
 - packages/ui/src/patterns/SlideCaptcha.tsx:400 <IconButton>
 - packages/ui/src/patterns/SlideCaptcha.tsx:473 <Icon>
 - packages/ui/src/patterns/SlideCaptcha.tsx:396 <Spinner>
 - packages/ui/src/overlay/CommandPalette.tsx:235 <Icon>
 - packages/ui/src/overlay/CommandPalette.tsx:271 <Icon>
 - packages/ui/src/overlay/CommandPalette.tsx:238 <Kbd>
-- packages/ui/src/overlay/Lightbox.tsx:335 <IconButton>
-- packages/ui/src/overlay/Lightbox.tsx:345 <IconButton>
-- packages/ui/src/overlay/Lightbox.tsx:352 <IconButton>
-- packages/ui/src/overlay/Lightbox.tsx:359 <IconButton>
-- packages/ui/src/overlay/Lightbox.tsx:366 <IconButton>
-- packages/ui/src/overlay/Lightbox.tsx:385 <IconButton>
-- packages/ui/src/overlay/Lightbox.tsx:432 <IconButton>
-- packages/ui/src/overlay/Lightbox.tsx:444 <IconButton>
 - packages/ui/src/navigation/Breadcrumbs.tsx:237 <Button>
 - packages/ui/src/navigation/Breadcrumbs.tsx:123 <Icon>
 - packages/ui/src/navigation/Breadcrumbs.tsx:203 <Icon>
@@ -116,15 +105,8 @@
 - packages/ui/src/input/ImageCropper.tsx:366 <IconButton>
 - packages/ui/src/input/Listbox.tsx:326 <Icon>
 - packages/ui/src/input/PeoplePicker.tsx:191 <Icon>
-- packages/ui/src/input/PeoplePickerPanel.tsx:254 <Avatar>
-- packages/ui/src/input/PeoplePickerPanel.tsx:256 <Avatar>
-- packages/ui/src/input/PeoplePickerPanel.tsx:285 <Button>
-- packages/ui/src/input/PeoplePickerPanel.tsx:407 <Button>
-- packages/ui/src/input/PeoplePickerPanel.tsx:426 <IconButton>
-- packages/ui/src/input/PeoplePickerPanel.tsx:258 <Icon>
-- packages/ui/src/input/PeoplePickerPanel.tsx:376 <Spinner>
-- packages/ui/src/input/PeoplePickerPanel.tsx:271 <Checkbox>
-- packages/ui/src/input/PeoplePickerPanel.tsx:355 <Checkbox>
+- packages/ui/src/input/PeoplePickerPanel.tsx:283 <Icon>
+- packages/ui/src/input/PeoplePickerPanel.tsx:412 <Spinner>
 - packages/ui/src/input/Rating.tsx:138 <Icon>
 - packages/ui/src/input/Rating.tsx:144 <Icon>
 - packages/ui/src/input/SelectedTags.tsx:100 <Tag>
@@ -163,9 +145,6 @@
 - packages/ui/src/display/Tree.tsx:750 <Icon>
 - packages/ui/src/display/Tree.tsx:704 <Spinner>
 - packages/ui/src/display/ValueChange.tsx:69 <Icon>
-- packages/ui/src/diagram/DiagramControls.tsx:83 <IconButton>
-- packages/ui/src/diagram/DiagramControls.tsx:105 <IconButton>
-- packages/ui/src/diagram/DiagramControls.tsx:113 <IconButton>
 - packages/ui/src/date/picker-popover.tsx:185 <Button>
 - packages/ui/src/date/QuarterCalendar.tsx:176 <IconButton>
 - packages/ui/src/date/QuarterCalendar.tsx:191 <IconButton>

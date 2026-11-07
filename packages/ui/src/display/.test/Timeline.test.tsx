@@ -143,10 +143,10 @@ it('操作人头像、进行中的加载指示也转发部件属性（P12：使�
     <Timeline
       items={[{ title: '提交', actor: '林小满' }]}
       pending="审批中"
-      propsAvatar={{ class: 'avatar-x', 'data-x': 'a' }}
+      propsAvatar={{ class: 'avatar-x', id: 'actor-avatar' }}
       propsPending={{ class: 'pending-x' }}
     />
   ));
-  expect(root.querySelector('.avatar-x')!.getAttribute('data-x')).toBe('a');
+  expect(root.querySelector('.avatar-x')!.id).toBe('actor-avatar');
   expect(root.querySelector('.pending-x')).not.toBeNull();
 });

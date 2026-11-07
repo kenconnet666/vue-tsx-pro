@@ -220,3 +220,19 @@ describe('PeoplePicker', () => {
     expect(root.querySelector('[aria-hidden="true"] button')).toBeNull();
   });
 });
+
+describe('PeoplePickerPanel 的部件属性（P12）', () => {
+  it('头像、行勾选框、下级、全选、移除按钮都转发部件属性', async () => {
+    const { root } = panel({
+      types: ['user', 'department'],
+      propsAvatar: { class: 'p-avatar' },
+      propsCheckbox: { class: 'p-check' },
+      propsDrill: { class: 'p-drill' },
+      propsSelectAll: { class: 'p-all' },
+      propsRemove: { class: 'p-remove' },
+    });
+    await flush();
+    for (const name of ['p-avatar', 'p-check', 'p-drill', 'p-all'])
+      expect(root.querySelector(`.${name}`), name).not.toBeNull();
+  });
+});

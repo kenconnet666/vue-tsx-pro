@@ -78,7 +78,9 @@ for (const file of files) {
     for (const match of text.matchAll(new RegExp(`<${name}[\\s/>]`, 'g'))) {
       if (inComment(text, match.index)) continue;
       const tag = openingTag(text, match.index);
-      if (/mergePartProps|\{\.\.\.(props|rest|own|part|trigger)\b/.test(tag)) continue;
+      // 经 mergePartProps 合并、展开现成的 props，或展开一个合并好的辅助函数（button({…})）都算转发了
+      if (/mergePartProps|\{\.\.\.(props|rest|own|part|trigger)\b|\{\.\.\.\w+\(/.test(tag))
+        continue;
       unforwarded.push(`${file}:${lineOf(text, match.index)} <${name}>`);
     }
   }

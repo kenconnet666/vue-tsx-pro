@@ -17,19 +17,19 @@ import { ScrollArea } from '../layout/ScrollArea';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, ref, watch, type Ref, type VNodeChild } from 'vue';
-import { Button } from '../base/Button';
+import { Button, type ButtonProps } from '../base/Button';
 import { Icon } from '../base/Icon';
-import { IconButton } from '../base/IconButton';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Spinner } from '../base/Spinner';
 import { Small, Strong } from '../base/Text';
 import { useLang } from '../config/context';
-import { Avatar } from '../display/Avatar';
+import { Avatar, type AvatarProps } from '../display/Avatar';
 import { ItemList, ItemListItem } from '../display/ItemList';
 import { Breadcrumbs } from '../navigation/Breadcrumbs';
 import { usePersistentState } from '../utils/dom/storage';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { useRequest } from '../utils/request/use-request';
-import { Checkbox } from './Checkbox';
+import { Checkbox, type CheckboxProps } from './Checkbox';
 import {
   peopleKey,
   toPeopleValue,
@@ -61,6 +61,18 @@ export interface PeoplePickerPanelProps extends PartProps<'div'> {
   propsSelected?: PartProps<'div'>;
   /** 搜索框的部件属性 */
   propsSearch?: Partial<TextFieldProps>;
+  /** 行首的头像（人员是头像，部门、角色是图标）的部件属性 */
+  propsAvatar?: Partial<AvatarProps>;
+  /** 每一行的勾选框的部件属性 */
+  propsCheckbox?: Partial<CheckboxProps>;
+  /** “全选”勾选框的部件属性 */
+  propsSelectAll?: Partial<CheckboxProps>;
+  /** 部门行“下级”按钮的部件属性 */
+  propsDrill?: Partial<ButtonProps>;
+  /** 已选一侧“清空”按钮的部件属性 */
+  propsClear?: Partial<ButtonProps>;
+  /** 已选的每一项“移除”按钮的部件属性 */
+  propsRemove?: Partial<IconButtonProps>;
 }
 
 type Page = 'org' | 'roles' | 'recent';
@@ -130,6 +142,12 @@ export const PeoplePickerPanel = _component(
     propsBrowse,
     propsSelected,
     propsSearch,
+    propsAvatar,
+    propsCheckbox,
+    propsSelectAll,
+    propsDrill,
+    propsClear,
+    propsRemove,
     ...rest
   }: PeoplePickerPanelProps) => {
     const lang = useLang();
@@ -251,11 +269,21 @@ export const PeoplePickerPanel = _component(
     /** 行首的圆形标记：人员是头像，部门、角色是图标 */
     const badge = (entry: PeopleEntry): VNodeChild =>
       entry.type === 'user' ? (
-        <Avatar name={entry.name} src={entry.avatar} size="sm" />
+        <Avatar
+          {...mergePartProps<AvatarProps>(
+            { name: entry.name, src: entry.avatar, size: 'sm' },
+            propsAvatar,
+          )}
+        />
       ) : (
         <Avatar
-          size="sm"
-          fallback={<Icon icon={entry.type === 'department' ? Building : BriefcaseBusiness} />}
+          {...mergePartProps<AvatarProps>(
+            {
+              size: 'sm',
+              fallback: <Icon icon={entry.type === 'department' ? Building : BriefcaseBusiness} />,
+            },
+            propsAvatar,
+          )}
         />
       );
 
@@ -269,10 +297,11 @@ export const PeoplePickerPanel = _component(
             <span {...css.attrs(peoplePickerPanelStyles.start)}>
               {pickable(entry) && (
                 <Checkbox
+                  {...mergePartProps<CheckboxProps>({ 'aria-label': entry.name }, propsCheckbox, {
+                    disabled: !checked && full(),
+                  })}
                   _checked={checked}
                   onUpdate:_checked={() => toggle(entry)}
-                  disabled={!checked && full()}
-                  aria-label={entry.name}
                 />
               )}
               {badge(entry)}
@@ -283,11 +312,16 @@ export const PeoplePickerPanel = _component(
           end={
             drillable(entry) && (
               <Button
-                variant="ghost"
-                size="sm"
-                iconEnd={ChevronRight}
-                aria-label={lang.peopleOpen(entry.name)}
-                onClick={() => open(entry)}
+                {...mergePartProps<ButtonProps>(
+                  {
+                    variant: 'ghost',
+                    size: 'sm',
+                    iconEnd: ChevronRight,
+                    'aria-label': lang.peopleOpen(entry.name),
+                  },
+                  propsDrill,
+                  { onClick: () => open(entry) },
+                )}
               >
                 {lang.peopleChildren}
               </Button>
@@ -353,11 +387,13 @@ export const PeoplePickerPanel = _component(
           )}
           {max !== 1 && candidates.length > 1 && (
             <Checkbox
+              {...mergePartProps<CheckboxProps>(
+                { size: 'sm', sx: peoplePickerPanelStyles.selectAll },
+                propsSelectAll,
+                { indeterminate: checkedCount > 0 && checkedCount < candidates.length },
+              )}
               _checked={checkedCount === candidates.length}
-              indeterminate={checkedCount > 0 && checkedCount < candidates.length}
               onUpdate:_checked={() => toggleAll(items)}
-              size="sm"
-              sx={peoplePickerPanelStyles.selectAll}
             >
               {lang.peopleSelectAll}
             </Checkbox>
@@ -404,7 +440,11 @@ export const PeoplePickerPanel = _component(
           <div {...css.attrs(peoplePickerPanelStyles.header)}>
             <Strong size="sm">{lang.peopleCount(value.length, max)}</Strong>
             {value.length > 0 && (
-              <Button variant="link" size="sm" onClick={() => (value = [])}>
+              <Button
+                {...mergePartProps<ButtonProps>({ variant: 'link', size: 'sm' }, propsClear, {
+                  onClick: () => (value = []),
+                })}
+              >
                 {lang.clear}
               </Button>
             )}
@@ -424,11 +464,16 @@ export const PeoplePickerPanel = _component(
                     description={entry.description ?? lang.peopleTypes[entry.type]}
                     end={
                       <IconButton
-                        icon={X}
-                        variant="ghost"
-                        size="sm"
-                        aria-label={lang.peopleRemove(entry.name)}
-                        onClick={() => toggle(entry)}
+                        {...mergePartProps<IconButtonProps>(
+                          {
+                            icon: X,
+                            variant: 'ghost',
+                            size: 'sm',
+                            'aria-label': lang.peopleRemove(entry.name),
+                          },
+                          propsRemove,
+                          { onClick: () => toggle(entry) },
+                        )}
                       />
                     }
                   />
