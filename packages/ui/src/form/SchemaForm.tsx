@@ -47,6 +47,7 @@ import { FormErrorSummary } from './FormErrorSummary';
 import { FormSection, type FormSectionProps } from './FormSection';
 import { pickFields, schemaFields, type SchemaControls, type SchemaField } from './schema-fields';
 import type { FieldArray, FieldPath, FormController } from './useForm';
+import { partAttrs } from '../config/styles';
 
 /** 换掉字段的控件：按字段路径给出渲染函数，返回的控件放进字段（标签、错误）里，自动绑定值 */
 export type SchemaFieldRenderers<Values extends object> = {
@@ -85,6 +86,9 @@ export interface SchemaFormProps<Values extends object> extends SchemaFieldsProp
   /** 按钮那一行起始边的内容：提交结果、说明 */
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="schema-form"） */
+const schemaFormPart = (part: string) => partAttrs({ name: 'SchemaForm' }, part);
 
 /** SchemaFields、SchemaForm 的样式：表单、按钮那一行、列表、列表的一行（字段与删除按钮） @internal */
 export const schemaFormStyles = css.create({
@@ -328,7 +332,12 @@ export const SchemaForm = _component(
       <Form {...mergePartProps<FormProps>({ controller, sx: schemaFormStyles.form }, propsForm)}>
         <FormErrorSummary />
         <SchemaFields controller={controller} {...fields} />
-        <div {...mergeAttrs<'div'>({ sx: schemaFormStyles.actions }, propsActions)}>
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: schemaFormStyles.actions, ...schemaFormPart('actions') },
+            propsActions,
+          )}
+        >
           <div {...css.attrs(schemaFormStyles.actionsStart)} aria-live="polite">
             {children}
           </div>

@@ -16,6 +16,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { breakpoints } from '../config/theme/tokens';
 import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface AuthLayoutProps extends PartProps<'div'> {
@@ -32,6 +33,9 @@ export interface AuthLayoutProps extends PartProps<'div'> {
   /** 表单 */
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="auth-layout"） */
+const authLayoutPart = (part: string) => partAttrs({ name: 'AuthLayout' }, part);
 
 /** AuthLayout 的样式：root、split、hero、main、tools */
 const authLayoutStyles = css.create({
@@ -71,16 +75,38 @@ export const AuthLayout = _component(
     () => (
       <div
         {...mergeAttrs<'div'>(
-          { sx: [authLayoutStyles.root, hasContent(hero) && authLayoutStyles.split] },
+          {
+            sx: [authLayoutStyles.root, hasContent(hero) && authLayoutStyles.split],
+            ...authLayoutPart('root'),
+          },
           rest,
         )}
       >
         {hasContent(hero) && (
-          <div {...mergeAttrs<'div'>({ sx: authLayoutStyles.hero }, propsHero)}>{hero}</div>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: authLayoutStyles.hero, ...authLayoutPart('hero') },
+              propsHero,
+            )}
+          >
+            {hero}
+          </div>
         )}
-        <main {...mergeAttrs<'main'>({ sx: authLayoutStyles.main }, propsMain)}>
+        <main
+          {...mergeAttrs<'main'>(
+            { sx: authLayoutStyles.main, ...authLayoutPart('main') },
+            propsMain,
+          )}
+        >
           {hasContent(tools) && (
-            <div {...mergeAttrs<'div'>({ sx: authLayoutStyles.tools }, propsTools)}>{tools}</div>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: authLayoutStyles.tools, ...authLayoutPart('tools') },
+                propsTools,
+              )}
+            >
+              {tools}
+            </div>
           )}
           {children}
         </main>

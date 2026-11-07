@@ -5,7 +5,8 @@
  * - 每个 prop 的类型、必填、说明（JSDoc）、`@default` 标签；
  * - 档位类的类型（`keyof ButtonVariants`、`TextSize`）展开成可选值，每个值带上接口里那个键的注释；
  * - 组件实现的参数解构里的默认值（`type = 'button'`）与 `_bindable(…)`（可以 `_bind` 双向绑定）；
- * - 接口自己的注释（“未声明的属性落到 button 上”）。
+ * - 接口自己的注释（“未声明的属性落到 button 上”）；
+ * - 部件的标记（源码里的 partAttrs、部件辅助函数、配方的 parts）与能不能在 components 里定制（UiComponents 的键与注释）。
  * 只列组件库里声明的 prop；继承来的原生属性与通用的 sx 不逐条列出。
  *
  * 用 TypeScript 7 的程序化 API（typescript/sync）：程序与检查器在 tsc 子进程里，这里同步调用。程序只建一次，
@@ -66,6 +67,9 @@ const ui = resolve(dirname(fileURLToPath(import.meta.url)), '../../../packages/u
 const src = join(ui, 'src').split('\\').join('/');
 /** 部件属性的通用部分（sx）声明在这里：不逐条列出 */
 const PART_PROPS_FILE = `${src}/utils/props.ts`;
+
+/** 组件的定制登记在这里（UiComponents）：键是配方名，注释里写了共用它的组件 */
+const COMPONENTS_FILE = `${src}/config/components.ts`;
 
 /** 组件库的 package.json：入口登记在它的 exports 里 */
 const MANIFEST = join(ui, 'package.json').split('\\').join('/');
@@ -324,6 +328,67 @@ function unionDoc(declarations: Node[], checker: Checker): string {
 }
 
 /** 一个 Props 接口的 API 数据，默认值从对应组件的参数里读 */
+/** 组件名 → 连字符小写（data-scope 的写法，同 partAttrs） */
+const kebab = (name: string) =>
+  name.replace(/[A-Z]/g, (c, index: number) => (index ? `-${c.toLowerCase()}` : c.toLowerCase()));
+
+/** 能在 components 里定制的组件：组件名 → UiComponents 的键（注释里列了共用同一个配方的组件） */
+function customizableNames(): Map<string, string> {
+  const text = readFileSync(COMPONENTS_FILE, 'utf8');
+  const body = text.slice(text.indexOf('export interface UiComponents'));
+  const names = new Map<string, string>();
+  for (const match of body.matchAll(/\/\*\*([^*]*)\*\/\s*\n\s*(\w+): ComponentConfig/g)) {
+    const key = match[2]!;
+    names.set(key, key);
+    for (const name of match[1]!.match(/[A-Z][A-Za-z]+/g) ?? []) names.set(name, key);
+  }
+  return names;
+}
+
+/** 配方名 → 它的部件（`css.recipe({ name: 'Button', parts: ['root', …] })`），在整个组件库的源码里找 */
+let recipeParts: Map<string, string[]> | undefined;
+function recipePartsOf(name: string): string[] | undefined {
+  if (!recipeParts) {
+    recipeParts = new Map();
+    for (const file of globSync(`${src}/**/*.{ts,tsx}`)) {
+      const text = readFileSync(file, 'utf8');
+      for (const match of text.matchAll(
+        /name:\s*'(\w+)',(?:\s*\/\/[^\n]*)*\s*parts:\s*\[([^\]]*)\]/g,
+      )) {
+        recipeParts.set(
+          match[1]!,
+          [...match[2]!.matchAll(/'([\w-]+)'/g)].map((part) => part[1]!),
+        );
+      }
+    }
+  }
+  return recipeParts.get(name);
+}
+
+/**
+ * 组件的部件标记：组件所在文件里给这个组件名打的标记（partAttrs({ name }, 'x')、部件辅助函数 xxxPart('x')），
+ * 再加上同名配方的部件；都没有时是 undefined
+ */
+function partsOf(component: string, file: string | undefined, recipe: string | undefined) {
+  const names = new Set<string>();
+  if (file) {
+    const text = readFileSync(file, 'utf8');
+    const helpers = new Map<string, string>();
+    for (const match of text.matchAll(
+      /const (\w+) = \(part: string\) => partAttrs\(\{ name: '(\w+)' \}, part\)/g,
+    ))
+      helpers.set(match[1]!, match[2]!);
+    for (const match of text.matchAll(/(\w+)\('([\w-]+)'\)/g))
+      if (helpers.get(match[1]!) === component) names.add(match[2]!);
+    for (const match of text.matchAll(/partAttrs\(\{ name: '(\w+)' \}, '([\w-]+)'\)/g))
+      if (match[1] === component) names.add(match[2]!);
+  }
+  const fromRecipe = recipePartsOf(recipe ?? component);
+  if (fromRecipe) for (const part of fromRecipe) names.add(part);
+  if (names.size === 0) return undefined;
+  return { scope: kebab(recipe && fromRecipe ? recipe : component), names: [...names] };
+}
+
 export function extractComponentApi(interfaceName: string): ComponentApi {
   const checker = currentChecker();
   const symbol = exportedSymbol(interfaceName);
@@ -362,11 +427,16 @@ export function extractComponentApi(interfaceName: string): ComponentApi {
   });
   // 说明取组件自己的注释（“按钮（button）：样式、色调…”），没有时才用接口的（“未声明的属性落到…上”这类）
   const componentDoc = componentSymbol(component);
+  const customizable = customizableNames().get(component);
+  const declaration = componentDoc && declarationOf(componentDoc, isVariableDeclaration);
+  const parts = partsOf(component, declaration && fileOf(declaration), customizable);
   return {
     name: interfaceName,
     component,
     description: (componentDoc && docOf(componentDoc, checker)) || docOf(symbol, checker),
     props,
+    ...(parts ? { parts } : {}),
+    ...(customizable ? { customizable } : {}),
   };
 }
 
@@ -378,8 +448,11 @@ export interface CatalogEntry {
   api: ComponentApi;
 }
 
-/** 各入口导出的组件：同一个入口同时导出了值 Xxx 与接口 XxxProps 的都算，按组件名排序 */
-export function extractCatalog(): CatalogEntry[] {
+/**
+ * 各入口导出的组件：同一个入口同时导出了值 Xxx 与接口 XxxProps 的都算，按组件名排序。
+ * 演练场的目录只要属性与内容；full 时是完整的 API（组件规格，给 C# 版本比对）
+ */
+export function extractCatalog(full = false): CatalogEntry[] {
   currentProgram();
   const entryOf = (name: string) => exported.get(name)?.entry;
   const catalog: CatalogEntry[] = [];
@@ -392,7 +465,9 @@ export function extractCatalog(): CatalogEntry[] {
     if (!path?.startsWith(src)) continue;
     const api = extractComponentApi(name);
     // 演练场只调属性与内容：部件属性、事件不进目录，数据小一半
-    const props = api.props.filter((prop) => prop.kind === 'prop' || prop.kind === 'content');
+    const props = full
+      ? api.props
+      : api.props.filter((prop) => prop.kind === 'prop' || prop.kind === 'content');
     catalog.push({
       name: component,
       entry: entryOf(component)!,
@@ -406,8 +481,8 @@ export function extractCatalog(): CatalogEntry[] {
 const PREFIX = 'virtual:api/';
 const CATALOG = 'virtual:api-catalog';
 
-/** 发给 api-worker.ts 的请求：接口名（`ButtonProps`）或整个目录；回复是模块代码 */
-export type ApiRequest = { id: number; interfaceName?: string };
+/** 发给 api-worker.ts 的请求：接口名（`ButtonProps`）或整个目录（full 时是完整的组件规格）；回复是模块代码 */
+export type ApiRequest = { id: number; interfaceName?: string; full?: boolean };
 export type ApiResponse = { id: number; code: string } | { id: number; error: string };
 
 /** 在 Worker 线程里提取 API；Worker 第一次用到时才启动 */
@@ -439,12 +514,12 @@ function apiWorker() {
   };
 
   return {
-    /** 接口的 API 数据（不传接口名时是组件目录），返回模块代码 */
-    load: (interfaceName?: string) =>
+    /** 接口的 API 数据（不传接口名时是组件目录，full 时是完整的组件规格），返回模块代码 */
+    load: (interfaceName?: string, full?: boolean) =>
       new Promise<string>((resolve, reject) => {
         const id = nextId++;
         pending.set(id, { resolve, reject });
-        current().postMessage({ id, interfaceName } satisfies ApiRequest);
+        current().postMessage({ id, interfaceName, full } satisfies ApiRequest);
       }),
     /** 源码变了：马上作废程序；连着保存几个文件时停下来半秒再在后台重建，不一次次重建 */
     invalidate: () => {
@@ -511,18 +586,22 @@ function sourceHash() {
   return hash.digest('hex').slice(0, 16);
 }
 
+/** 组件规格在站点上的路径：CSharpUi、Blazor 的 CI 取线上的这份与自己的比对 */
+export const SPEC_FILE = 'spec/components.json';
+
 /**
  * Vite 插件：`virtual:api/<接口名>` 导出那个接口的 API 数据，`virtual:api-catalog` 导出全部组件的目录（组件演练场用）；
- * 组件库源码变了重新生成
+ * 组件库源码变了重新生成。构建时另外输出组件规格（SPEC_FILE）：全部组件的属性、默认值、可选值、部件、能否定制
  */
 export function componentApi(): Plugin {
   const worker = apiWorker();
   const loaded = new Set<string>();
   let cache: ReturnType<typeof apiCache> | undefined;
-  const load = async (name: string, interfaceName?: string) => {
+  let building = false;
+  const load = async (name: string, interfaceName?: string, full?: boolean) => {
     const cached = cache?.read(name);
     if (cached !== undefined) return cached;
-    const code = await worker.load(interfaceName);
+    const code = await worker.load(interfaceName, full);
     cache?.write(name, code);
     return code;
   };
@@ -530,6 +609,18 @@ export function componentApi(): Plugin {
     name: 'docs:component-api',
     configResolved(config) {
       cache = apiCache(config.cacheDir);
+      building = config.command === 'build' && !config.build.ssr;
+    },
+    async generateBundle() {
+      if (!building) return;
+      const code = await load('spec', undefined, true);
+      const components = JSON.parse(code.replace(/^export default /, '').replace(/;\s*$/, ''));
+      const { version } = JSON.parse(readFileSync(MANIFEST, 'utf8')) as { version: string };
+      this.emitFile({
+        type: 'asset',
+        fileName: SPEC_FILE,
+        source: `${JSON.stringify({ package: '@zerodep-dev/vue-tsx-pro-ui', version, components }, null, 1)}\n`,
+      });
     },
     resolveId: (id) => (id.startsWith(PREFIX) || id === CATALOG ? `\0${id}` : undefined),
     load(id) {

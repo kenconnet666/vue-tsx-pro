@@ -13,6 +13,7 @@ import { mergeAttrs, type PartProps } from '../utils/props';
 import { diagramInternals } from './controller';
 import { DiagramContext } from './Diagram';
 import { boundsOf } from './geometry';
+import { partAttrs } from '../config/styles';
 
 /** 小地图放在画布的哪个角 */
 export interface DiagramMinimapPlacements {
@@ -39,6 +40,9 @@ export interface DiagramMinimapProps extends PartProps<'div'> {
   /** 视口框的部件属性 */
   propsViewport?: PartProps<'rect'>;
 }
+
+/** 部件的标记（data-scope="diagram-minimap"） */
+const diagramMinimapPart = (part: string) => partAttrs({ name: 'DiagramMinimap' }, part);
 
 /** DiagramMinimap 的样式 */
 const diagramMinimapStyles = css.create({
@@ -122,7 +126,10 @@ export const DiagramMinimap = _component(
       return (
         <div
           {...mergeAttrs<'div'>(
-            { sx: [diagramMinimapStyles.root, diagramMinimapStyles[placement]] },
+            {
+              sx: [diagramMinimapStyles.root, diagramMinimapStyles[placement]],
+              ...diagramMinimapPart('root'),
+            },
             rest,
             { 'aria-hidden': 'true', onPointerdown },
           )}
@@ -138,26 +145,34 @@ export const DiagramMinimap = _component(
             {nodes.map((node, index) => (
               <rect
                 key={index}
-                {...mergeAttrs<'rect'>({ sx: diagramMinimapStyles.node }, propsNode, {
-                  x: node.x,
-                  y: node.y,
-                  width: node.width,
-                  height: node.height,
-                  rx:
-                    Math.min(node.width, node.height) *
-                    (node.shape === 'pill' || node.shape === 'circle' ? 0.5 : 0.12),
-                })}
+                {...mergeAttrs<'rect'>(
+                  { sx: diagramMinimapStyles.node, ...diagramMinimapPart('node') },
+                  propsNode,
+                  {
+                    x: node.x,
+                    y: node.y,
+                    width: node.width,
+                    height: node.height,
+                    rx:
+                      Math.min(node.width, node.height) *
+                      (node.shape === 'pill' || node.shape === 'circle' ? 0.5 : 0.12),
+                  },
+                )}
               />
             ))}
             <rect
-              {...mergeAttrs<'rect'>({ sx: diagramMinimapStyles.viewport }, propsViewport, {
-                x: view.x,
-                y: view.y,
-                width: view.width,
-                height: view.height,
-                // 小地图按比例缩得很小，描边不跟着缩
-                'vector-effect': 'non-scaling-stroke',
-              })}
+              {...mergeAttrs<'rect'>(
+                { sx: diagramMinimapStyles.viewport, ...diagramMinimapPart('viewport') },
+                propsViewport,
+                {
+                  x: view.x,
+                  y: view.y,
+                  width: view.width,
+                  height: view.height,
+                  // 小地图按比例缩得很小，描边不跟着缩
+                  'vector-effect': 'non-scaling-stroke',
+                },
+              )}
             />
           </svg>
         </div>

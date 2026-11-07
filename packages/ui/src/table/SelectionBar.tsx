@@ -18,6 +18,7 @@ import { announce } from '../utils/dom/announcer';
 import { usePresence } from '../utils/motion/presence';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { presenceStyles } from '../utils/style/transitions';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface SelectionBarProps extends PartProps<'div'> {
@@ -36,6 +37,9 @@ export interface SelectionBarProps extends PartProps<'div'> {
   /** 批量操作的按钮 */
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="selection-bar"） */
+const selectionBarPart = (part: string) => partAttrs({ name: 'SelectionBar' }, part);
 
 /** SelectionBar 的样式：root、count、actions */
 const selectionBarStyles = css.create({
@@ -96,13 +100,19 @@ export const SelectionBar = _component(
                   presenceStyles.fade,
                   presence.state === 'closed' && presenceStyles.leaving,
                 ],
+                ...selectionBarPart('root'),
               },
               rest,
               { ref: presence.ref },
             )}
             data-state={presence.state}
           >
-            <span {...mergeAttrs<'span'>({ sx: selectionBarStyles.count }, propsCount)}>
+            <span
+              {...mergeAttrs<'span'>(
+                { sx: selectionBarStyles.count, ...selectionBarPart('count') },
+                propsCount,
+              )}
+            >
               {label ?? lang.tableSelectedCount(shownCount)}
             </span>
             <Button
@@ -112,7 +122,12 @@ export const SelectionBar = _component(
             >
               {lang.tableClearSelection}
             </Button>
-            <div {...mergeAttrs<'div'>({ sx: selectionBarStyles.actions }, propsActions)}>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: selectionBarStyles.actions, ...selectionBarPart('actions') },
+                propsActions,
+              )}
+            >
               {children}
             </div>
           </div>

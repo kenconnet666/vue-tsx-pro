@@ -13,6 +13,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import type { DiagramRect } from './geometry';
+import { partAttrs } from '../config/styles';
 
 /** 一条泳道 */
 export interface DiagramLane {
@@ -54,6 +55,9 @@ export function lanesExtent(
   const height = lanes.reduce((sum, lane) => sum + (lane.size ?? laneSize), 0);
   return { x, y, width, height };
 }
+
+/** 部件的标记（data-scope="diagram-lanes"） */
+const diagramLanesPart = (part: string) => partAttrs({ name: 'DiagramLanes' }, part);
 
 /** DiagramLanes 的样式：root、lane、header */
 const diagramLanesStyles = css.create({
@@ -120,6 +124,7 @@ export const DiagramLanes = _component(
               diagramLanesDynamicStyles.at(x, y),
               diagramLanesDynamicStyles.width(width),
             ],
+            ...diagramLanesPart('root'),
           },
           rest,
         )}
@@ -133,13 +138,17 @@ export const DiagramLanes = _component(
                   diagramLanesStyles.lane,
                   diagramLanesDynamicStyles.height(lane.size ?? laneSize),
                 ],
+                ...diagramLanesPart('lane'),
               },
               propsLane,
             )}
           >
             <div
               {...mergeAttrs<'div'>(
-                { sx: [diagramLanesStyles.header, diagramLanesDynamicStyles.width(header)] },
+                {
+                  sx: [diagramLanesStyles.header, diagramLanesDynamicStyles.width(header)],
+                  ...diagramLanesPart('header'),
+                },
                 propsHeader,
               )}
             >

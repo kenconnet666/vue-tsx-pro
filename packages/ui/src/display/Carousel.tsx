@@ -24,6 +24,7 @@ import { isRtl } from '../utils/dom/direction';
 import { useReducedMotion } from '../utils/dom/media-query';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到根元素（section）上；aria-label 是轮播的名称 */
 export interface CarouselProps<T> extends PartProps<'section', 'role'> {
@@ -58,6 +59,9 @@ export interface CarouselProps<T> extends PartProps<'section', 'role'> {
   /** 底部控制条（暂停按钮与页点）的部件属性 */
   propsControls?: PartProps<'div'>;
 }
+
+/** 部件的标记（data-scope="carousel"） */
+const carouselPart = (part: string) => partAttrs({ name: 'Carousel' }, part);
 
 /** Carousel 的样式：root、viewport、slide、arrow、previous、next、controls、dot、dotActive */
 export const carouselStyles = css.create({
@@ -263,7 +267,7 @@ export const Carousel = _component(
       const showControls = (dots && pages > 1) || interval() > 0;
       return (
         <section
-          {...mergeAttrs<'section'>({ sx: carouselStyles.root }, rest, {
+          {...mergeAttrs<'section'>({ sx: carouselStyles.root, ...carouselPart('root') }, rest, {
             'aria-roledescription': 'carousel',
             'aria-label': label ?? lang.carousel,
             onPointerenter: (event: PointerEvent) =>
@@ -280,6 +284,7 @@ export const Carousel = _component(
             {...mergeAttrs<'div'>(
               {
                 sx: [carouselStyles.viewport, focusRingStyles.visible, carouselSizeStyles.gap(gap)],
+                ...carouselPart('viewport'),
               },
               propsViewport,
               {
@@ -295,7 +300,10 @@ export const Carousel = _component(
               <div
                 key={getKey ? getKey(item, i) : i}
                 {...mergeAttrs<'div'>(
-                  { sx: [carouselStyles.slide, carouselSizeStyles.slide(slidesPerView, gap)] },
+                  {
+                    sx: [carouselStyles.slide, carouselSizeStyles.slide(slidesPerView, gap)],
+                    ...carouselPart('slide'),
+                  },
                   propsSlide,
                   {
                     role: 'group',
@@ -310,7 +318,12 @@ export const Carousel = _component(
           </div>
           {arrows && pages > 1 && [arrow(-1), arrow(1)]}
           {showControls && (
-            <div {...mergeAttrs<'div'>({ sx: carouselStyles.controls }, propsControls)}>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: carouselStyles.controls, ...carouselPart('controls') },
+                propsControls,
+              )}
+            >
               {interval() > 0 && (
                 <IconButton
                   icon={paused ? Play : Pause}

@@ -716,7 +716,10 @@ export const Tree = _component(
             <span
               {...mergeAttrs<'span'>(
                 // 勾选框的实底色取色调变量（同 Checkbox 的 choiceParts）
-                { sx: [box.control.sx, toneFillStyles.accent, treeStyles.checkbox] },
+                {
+                  sx: [box.control.sx, toneFillStyles.accent, treeStyles.checkbox],
+                  ...treePart('checkbox'),
+                },
                 propsCheckbox,
                 {
                   'aria-hidden': true,

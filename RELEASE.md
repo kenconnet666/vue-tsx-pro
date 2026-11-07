@@ -16,7 +16,16 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- 新子路径 `@zerodep-dev/vue-tsx-pro-ui/testing`：在自己的测试里按用户的操作驱动复合控件——`selectHarness`、
+  `cascaderHarness`、`treeSelectHarness`、`treeHarness`、`dateFieldHarness` / `datePickerHarness`、`dataTableHarness`，
+  `getControl(容器, 名称)` 按标签找控件，`setupTestingDom()` 给 happy-dom / jsdom 补上 popover 等 API 与视口大小。
+  文档站加“Testing 测试”指南。Tree 的勾选框带 `data-part="checkbox"`。
+- 组件库带命令行 `vtp-ui create <目录>`（`npx -p @zerodep-dev/vue-tsx-pro-ui vtp-ui create my-admin`）：从模板建一个
+  桌面后台——AppShell、vue-router、列表页（QueryTable）、详情页、编辑页（SchemaForm），假接口在 src/api 里。
+- 更多组件的内部节点带上 `data-scope` / `data-part`（写在部件上的宽高按 border-box 算）：Descriptions、Banner、
+  FormErrorSummary、FormSection、Carousel、QRCode、Gauge、Marquee、Watermark、AnimatedNumber、ValueChange、ImageCropper、
+  CharacterCount、Ellipsis、DiagramLanes、DiagramMinimap、ActionBar、AuthLayout、SelectionBar、Steps、Breadcrumbs、
+  PaginationBar、Tour、AsideLayout、Splitter、LoadingOverlay、SchemaForm、FloatButtonGroup。
 
 ## 每次发布
 

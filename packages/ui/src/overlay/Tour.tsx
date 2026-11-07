@@ -43,6 +43,7 @@ import {
 import { openModalDialog } from '../utils/dom/overlay';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 引导的一步 */
 export interface TourStep {
@@ -92,6 +93,9 @@ export interface TourProps
   /** 下一步（最后一步是完成）按钮的部件属性；点击由组件管理，可以设 disabled（完成某个操作后才能继续） */
   propsNext?: Omit<Partial<ButtonProps>, 'onClick'>;
 }
+
+/** 部件的标记（data-scope="tour"） */
+const tourPart = (part: string) => partAttrs({ name: 'Tour' }, part);
 
 /** Tour 的样式：root、spotlight、dimmed、panel、cover、title、content、footer、progress */
 const tourStyles = css.create({
@@ -303,7 +307,7 @@ export const Tour = _component(
       const currentStep = step();
       return (
         <dialog
-          {...mergeAttrs<'dialog'>({ sx: tourStyles.root }, rest, {
+          {...mergeAttrs<'dialog'>({ sx: tourStyles.root, ...tourPart('root') }, rest, {
             ref: _toRef(dialog),
             'aria-labelledby': titleId,
             'aria-describedby': currentStep?.content != null ? contentId : undefined,
@@ -321,6 +325,7 @@ export const Tour = _component(
                     ? tourDynamicStyles.rect(rect.left, rect.top, rect.width, rect.height)
                     : tourStyles.dimmed,
                 ],
+                ...tourPart('spotlight'),
               },
               propsSpotlight,
               { 'aria-hidden': true },
@@ -336,13 +341,16 @@ export const Tour = _component(
                     tourStyles.panel,
                     !rect && tourStyles.centered,
                   ],
+                  ...tourPart('panel'),
                 },
                 propsPanel,
                 { ref: _toRef(panel), tabindex: -1 },
               )}
             >
               {currentStep.cover != null && (
-                <div {...mergeAttrs<'div'>({ sx: tourStyles.cover }, propsCover)}>
+                <div
+                  {...mergeAttrs<'div'>({ sx: tourStyles.cover, ...tourPart('cover') }, propsCover)}
+                >
                   {currentStep.cover}
                 </div>
               )}
@@ -355,9 +363,13 @@ export const Tour = _component(
               </H2>
               {currentStep.content != null && (
                 <div
-                  {...mergeAttrs<'div'>({ sx: tourStyles.content }, propsContent, {
-                    id: contentId,
-                  })}
+                  {...mergeAttrs<'div'>(
+                    { sx: tourStyles.content, ...tourPart('content') },
+                    propsContent,
+                    {
+                      id: contentId,
+                    },
+                  )}
                 >
                   {currentStep.content}
                 </div>

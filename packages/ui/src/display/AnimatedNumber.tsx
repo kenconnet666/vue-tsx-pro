@@ -15,8 +15,9 @@ import { VisuallyHidden, type VisuallyHiddenProps } from '../base/VisuallyHidden
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { compareNumeric, numericText, toNumber, type NumericValue } from '../utils/data/numeric';
 import { useTween, type TweenOptions } from '../utils/motion/tween';
-import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { dataAttrs, hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { toneStyles, type TextTone } from '../utils/style/typography';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 span 上；原生的 prefix 属性（RDFa）让给前缀内容 */
 export interface AnimatedNumberProps extends PartProps<'span', 'prefix'> {
@@ -48,6 +49,9 @@ export interface AnimatedNumberProps extends PartProps<'span', 'prefix'> {
   /** 给读屏的终值文字的部件属性 */
   propsLabel?: Partial<VisuallyHiddenProps>;
 }
+
+/** 部件的标记（data-scope="animated-number"） */
+const animatedNumberPart = (part: string) => partAttrs({ name: 'AnimatedNumber' }, part);
 
 /** AnimatedNumber 的样式：root */
 const animatedNumberStyles = css.create({
@@ -112,15 +116,22 @@ export const AnimatedNumber = _component(
       return (
         <span
           {...mergeAttrs<'span'>(
-            { sx: [animatedNumberStyles.root, color && toneStyles[color]] },
+            {
+              sx: [animatedNumberStyles.root, color && toneStyles[color]],
+              ...animatedNumberPart('root'),
+            },
             rest,
             { ref: (element: unknown) => (root = element as HTMLElement | null) },
           )}
           data-trend={trend ? direction : undefined}
         >
-          {hasContent(prefix) && <span {...mergeAttrs<'span'>({}, propsPrefix)}>{prefix}</span>}
+          {hasContent(prefix) && (
+            <span {...mergeAttrs<'span'>(dataAttrs(animatedNumberPart('prefix')), propsPrefix)}>
+              {prefix}
+            </span>
+          )}
           <span
-            {...mergeAttrs<'span'>({}, propsValue, {
+            {...mergeAttrs<'span'>(dataAttrs(animatedNumberPart('value')), propsValue, {
               'aria-hidden': true,
               ref: _toRef(valueElement),
             })}
@@ -130,7 +141,11 @@ export const AnimatedNumber = _component(
           <VisuallyHidden {...mergePartProps<VisuallyHiddenProps>({}, propsLabel)}>
             {text(value)}
           </VisuallyHidden>
-          {hasContent(suffix) && <span {...mergeAttrs<'span'>({}, propsSuffix)}>{suffix}</span>}
+          {hasContent(suffix) && (
+            <span {...mergeAttrs<'span'>(dataAttrs(animatedNumberPart('suffix')), propsSuffix)}>
+              {suffix}
+            </span>
+          )}
         </span>
       );
     };

@@ -19,6 +19,7 @@ import { batchLayout } from '../utils/dom/layout-batch';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { lineClampStyles, textStyles } from '../utils/style/typography';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 span 上 */
 export interface EllipsisProps extends PartProps<'span'> {
@@ -37,6 +38,9 @@ export interface EllipsisProps extends PartProps<'span'> {
   /** 文字 */
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="ellipsis"） */
+const ellipsisPart = (part: string) => partAttrs({ name: 'Ellipsis' }, part);
 
 /** Ellipsis 的样式：root、multiline、text、toggle */
 const ellipsisStyles = css.create({
@@ -114,6 +118,7 @@ export const Ellipsis = _component(
                     : textStyles.truncate),
                 showTooltip && focusRingStyles.visible,
               ],
+              ...ellipsisPart('text'),
             },
             propsText,
             {
@@ -130,7 +135,10 @@ export const Ellipsis = _component(
       return (
         <span
           {...mergeAttrs<'span'>(
-            { sx: [ellipsisStyles.root, lines > 1 && ellipsisStyles.multiline] },
+            {
+              sx: [ellipsisStyles.root, lines > 1 && ellipsisStyles.multiline],
+              ...ellipsisPart('root'),
+            },
             rest,
           )}
           data-truncated={truncated || undefined}
@@ -145,11 +153,15 @@ export const Ellipsis = _component(
           )}
           {expandable && (truncated || expanded) && (
             <button
-              {...mergeAttrs<'button'>({ sx: ellipsisStyles.toggle }, propsToggle, {
-                type: 'button',
-                'aria-expanded': expanded,
-                onClick: () => (expanded = !expanded),
-              })}
+              {...mergeAttrs<'button'>(
+                { sx: ellipsisStyles.toggle, ...ellipsisPart('toggle') },
+                propsToggle,
+                {
+                  type: 'button',
+                  'aria-expanded': expanded,
+                  onClick: () => (expanded = !expanded),
+                },
+              )}
             >
               {expanded ? lang.ellipsisCollapse : lang.ellipsisExpand}
             </button>

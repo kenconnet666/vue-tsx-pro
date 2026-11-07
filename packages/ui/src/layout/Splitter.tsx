@@ -24,6 +24,7 @@ import { startMove } from '../utils/dom/move';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { ScrollArea, type ScrollAreaProps } from './ScrollArea';
 import { focusRingStyles } from '../utils/style/styles';
+import { partAttrs } from '../config/styles';
 
 /** 两栏的排法 */
 export interface SplitterOrientations {
@@ -81,6 +82,9 @@ export interface SplitterProps extends PartProps<'div'> {
 
 /** 键盘每按一次调多少（百分比） */
 const STEP = 5;
+
+/** 部件的标记（data-scope="splitter"） */
+const splitterPart = (part: string) => partAttrs({ name: 'Splitter' }, part);
 
 /** Splitter 的样式：root、pane、handle、line、toggle… */
 const splitterStyles = css.create({
@@ -242,6 +246,7 @@ export const Splitter = _component(
                   ? splitterDynamicStyles.columns(template)
                   : splitterDynamicStyles.rows(template),
               ],
+              ...splitterPart('root'),
             },
             rest,
             { ref: (element: unknown) => (root = element as HTMLElement | null) },
@@ -250,10 +255,14 @@ export const Splitter = _component(
           data-collapsed={collapsed ? collapsible : undefined}
         >
           <div
-            {...mergeAttrs<'div'>({ sx: splitterStyles.pane }, propsStart, {
-              id: `${id}-start`,
-              hidden: hideStart || undefined,
-            })}
+            {...mergeAttrs<'div'>(
+              { sx: splitterStyles.pane, ...splitterPart('start') },
+              propsStart,
+              {
+                id: `${id}-start`,
+                hidden: hideStart || undefined,
+              },
+            )}
           >
             {pane(start)}
           </div>
@@ -271,6 +280,7 @@ export const Splitter = _component(
                     horizontal() ? splitterStyles.handleHorizontal : splitterStyles.handleVertical,
                     focusRingStyles.visible,
                   ],
+                  ...splitterPart('handle'),
                 },
                 propsHandle,
                 {
@@ -319,7 +329,7 @@ export const Splitter = _component(
             )}
           </div>
           <div
-            {...mergeAttrs<'div'>({ sx: splitterStyles.pane }, propsEnd, {
+            {...mergeAttrs<'div'>({ sx: splitterStyles.pane, ...splitterPart('end') }, propsEnd, {
               id: `${id}-end`,
               hidden: hideEnd || undefined,
             })}

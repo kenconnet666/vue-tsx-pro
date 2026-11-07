@@ -24,6 +24,7 @@ import { useLang } from '../config/context';
 import { Menu, MenuItem, MenuLinkItem, type MenuProps } from '../overlay/Menu';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { FlexOrderedList, type FlexProps } from '../layout/Flex';
+import { partAttrs } from '../config/styles';
 
 /** 一级路径 */
 export interface BreadcrumbItem {
@@ -67,6 +68,9 @@ export interface BreadcrumbsProps extends PartProps<'nav'> {
   onNavigate?: (item: BreadcrumbItem, index: number) => void;
 }
 
+/** 部件的标记（data-scope="breadcrumbs"） */
+const breadcrumbsPart = (part: string) => partAttrs({ name: 'Breadcrumbs' }, part);
+
 /** Breadcrumbs 的样式：list、item、current、separator、label、expand */
 const breadcrumbsStyles = css.create({
   // 横排、换行、间距由 FlexOrderedList 给
@@ -108,16 +112,25 @@ export const Breadcrumbs = _component(
       // 每处各生成一个节点：同一个 VNode 不能放在多个位置
       const sep = () => (
         <span
-          {...mergeAttrs<'span'>({ sx: breadcrumbsStyles.separator }, propsSeparator, {
-            'aria-hidden': true,
-          })}
+          {...mergeAttrs<'span'>(
+            { sx: breadcrumbsStyles.separator, ...breadcrumbsPart('separator') },
+            propsSeparator,
+            {
+              'aria-hidden': true,
+            },
+          )}
         >
           {separator ?? <Icon icon={ChevronRight} flipInRtl />}
         </span>
       );
 
       return (
-        <nav {...mergeAttrs<'nav'>({ 'aria-label': lang.breadcrumbs }, rest)}>
+        <nav
+          {...mergeAttrs<'nav'>(
+            { 'aria-label': lang.breadcrumbs, ...breadcrumbsPart('root') },
+            rest,
+          )}
+        >
           <FlexOrderedList
             {...mergePartProps<FlexProps<'ol'>>(
               { wrap: true, align: 'center', gap: 'xs', sx: breadcrumbsStyles.list },
@@ -129,7 +142,10 @@ export const Breadcrumbs = _component(
                 return (
                   <li
                     key="collapsed"
-                    {...mergeAttrs<'li'>({ sx: breadcrumbsStyles.item }, propsCollapsedItem)}
+                    {...mergeAttrs<'li'>(
+                      { sx: breadcrumbsStyles.item, ...breadcrumbsPart('collapsed-item') },
+                      propsCollapsedItem,
+                    )}
                   >
                     <Menu
                       {...mergePartProps<MenuProps>(
@@ -178,7 +194,12 @@ export const Breadcrumbs = _component(
               const index = items.indexOf(entry);
               const own = typeof propsItem === 'function' ? propsItem(entry, index) : propsItem;
               const label = (
-                <span {...mergeAttrs<'span'>({ sx: breadcrumbsStyles.label }, propsLabel)}>
+                <span
+                  {...mergeAttrs<'span'>(
+                    { sx: breadcrumbsStyles.label, ...breadcrumbsPart('label') },
+                    propsLabel,
+                  )}
+                >
                   {entry.icon && <Icon icon={entry.icon} />}
                   {entry.label}
                 </span>
@@ -186,13 +207,20 @@ export const Breadcrumbs = _component(
               return (
                 <li
                   key={entry.key ?? entry.href ?? index}
-                  {...mergeAttrs<'li'>({ sx: breadcrumbsStyles.item }, own)}
+                  {...mergeAttrs<'li'>(
+                    { sx: breadcrumbsStyles.item, ...breadcrumbsPart('item') },
+                    own,
+                  )}
                 >
                   {index === last ? (
                     <span
-                      {...mergeAttrs<'span'>({ sx: breadcrumbsStyles.current }, propsCurrent, {
-                        'aria-current': onNavigate ? 'location' : 'page',
-                      })}
+                      {...mergeAttrs<'span'>(
+                        { sx: breadcrumbsStyles.current, ...breadcrumbsPart('current') },
+                        propsCurrent,
+                        {
+                          'aria-current': onNavigate ? 'location' : 'page',
+                        },
+                      )}
                     >
                       {label}
                     </span>

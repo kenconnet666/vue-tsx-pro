@@ -30,6 +30,7 @@ import { useResizeObserver } from '../utils/dom/resize';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 描述列表里的一项 */
 export interface DescriptionItem {
@@ -88,6 +89,9 @@ export interface DescriptionsProps extends PartProps<'div', 'title'> {
   /** 复制按钮的部件属性 */
   propsCopy?: Partial<CopyButtonProps>;
 }
+
+/** 部件的标记（data-scope="descriptions"） */
+const descriptionsPart = (part: string) => partAttrs({ name: 'Descriptions' }, part);
 
 /** Descriptions 的样式：root、title、list、item、label、value 与各排列、边框 */
 const descriptionsStyles = css.create({
@@ -197,13 +201,23 @@ export const Descriptions = _component(
     return () => (
       <div
         {...mergeAttrs<'div'>(
-          { sx: [descriptionsStyles.root, size && fontSizeStyles[size]] },
+          {
+            sx: [descriptionsStyles.root, size && fontSizeStyles[size]],
+            ...descriptionsPart('root'),
+          },
           rest,
         )}
         data-layout={layout}
       >
         {hasContent(title) && (
-          <div {...mergeAttrs<'div'>({ sx: descriptionsStyles.title }, propsTitle)}>{title}</div>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: descriptionsStyles.title, ...descriptionsPart('title') },
+              propsTitle,
+            )}
+          >
+            {title}
+          </div>
         )}
         <dl
           {...mergeAttrs<'dl'>(
@@ -217,6 +231,7 @@ export const Descriptions = _component(
                     : descriptionsGridStyles.columns(count()),
                 bordered && descriptionsStyles.listBordered,
               ],
+              ...descriptionsPart('list'),
             },
             propsList,
             { ref: _toRef(list) },
@@ -244,6 +259,7 @@ export const Descriptions = _component(
                           ? descriptionsGridStyles.autoSpan(span)
                           : descriptionsGridStyles.span(span)),
                     ],
+                    ...descriptionsPart('item'),
                   },
                   own,
                 )}
@@ -258,6 +274,7 @@ export const Descriptions = _component(
                           descriptionsStyles.labelBordered,
                         ],
                       ],
+                      ...descriptionsPart('label'),
                     },
                     propsLabel,
                   )}
@@ -272,6 +289,7 @@ export const Descriptions = _component(
                         bordered && descriptionsStyles.cellBordered,
                         item.copyable && descriptionsStyles.valueCopyable,
                       ],
+                      ...descriptionsPart('value'),
                     },
                     propsValue,
                   )}

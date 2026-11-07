@@ -21,6 +21,7 @@ import { usePanZoom, type PanZoomRegion } from '../utils/dom/pan-zoom';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { Slider } from './Slider';
+import { partAttrs } from '../config/styles';
 
 /** 输出的选项：像素大小（只写一边时按宽高比算另一边；都不写时按图片原本的像素） */
 export interface ImageCropOutput {
@@ -79,6 +80,9 @@ export interface ImageCropperProps extends PartProps<'div'> {
   /** 工具条的部件属性 */
   propsToolbar?: PartProps<'div'>;
 }
+
+/** 部件的标记（data-scope="image-cropper"） */
+const imageCropperPart = (part: string) => partAttrs({ name: 'ImageCropper' }, part);
 
 /** ImageCropper 的样式：root、viewport、image、frame、round、toolbar、slider */
 export const imageCropperStyles = css.create({
@@ -276,7 +280,9 @@ export const ImageCropper = _component(
       const box = frame();
       const zoom = view.scale / coverScale();
       return (
-        <div {...mergeAttrs<'div'>({ sx: imageCropperStyles.root }, rest)}>
+        <div
+          {...mergeAttrs<'div'>({ sx: imageCropperStyles.root, ...imageCropperPart('root') }, rest)}
+        >
           <div
             {...mergeAttrs<'div'>(
               {
@@ -285,6 +291,7 @@ export const ImageCropper = _component(
                   imageCropperSizeStyles.height(height),
                   focusRingStyles.visible,
                 ],
+                ...imageCropperPart('viewport'),
               },
               propsViewport,
               {
@@ -321,7 +328,12 @@ export const ImageCropper = _component(
           <span id={hintId} hidden>
             {lang.cropHint}
           </span>
-          <div {...mergeAttrs<'div'>({ sx: imageCropperStyles.toolbar }, propsToolbar)}>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: imageCropperStyles.toolbar, ...imageCropperPart('toolbar') },
+              propsToolbar,
+            )}
+          >
             <IconButton
               icon={ZoomOut}
               aria-label={lang.zoomOut}

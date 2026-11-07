@@ -13,10 +13,10 @@ parentPort!.on('message', (message: ApiRequest | 'invalidate' | 'warm') => {
   // 只标记、只建程序：不顺手提取整个组件目录，页面要的单个接口不用排在它后面
   if (message === 'invalidate') return invalidateProgram();
   if (message === 'warm') return warmProgram();
-  const { id, interfaceName } = message;
+  const { id, interfaceName, full } = message;
   let response: ApiResponse;
   try {
-    const data = interfaceName ? extractComponentApi(interfaceName) : extractCatalog();
+    const data = interfaceName ? extractComponentApi(interfaceName) : extractCatalog(full);
     response = { id, code: `export default ${JSON.stringify(data)};\n` };
   } catch (error) {
     response = {

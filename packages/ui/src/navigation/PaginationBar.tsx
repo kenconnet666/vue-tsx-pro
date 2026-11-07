@@ -20,6 +20,7 @@ import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { PageJump, type PageJumpProps } from './PageJump';
 import { PageSizeSelect, type PageSizeSelectProps } from './PageSizeSelect';
 import { Pagination, type PaginationProps } from './Pagination';
+import { partAttrs } from '../config/styles';
 
 /** 当前页显示的是哪几条 */
 export interface PageRange {
@@ -60,6 +61,9 @@ export interface PaginationBarProps extends PartProps<'div'> {
   /** 跳页（PageJump）的部件属性 */
   propsJump?: Partial<PageJumpProps>;
 }
+
+/** 部件的标记（data-scope="pagination-bar"） */
+const paginationBarPart = (part: string) => partAttrs({ name: 'PaginationBar' }, part);
 
 /** PaginationBar 的样式：root、total、controls、jump */
 const paginationBarStyles = css.create({
@@ -130,16 +134,31 @@ export const PaginationBar = _component(
             ? lang.paginationTotal(0)
             : lang.paginationRange(range.from, range.to, range.total);
       return (
-        <span {...mergeAttrs<'span'>({ sx: paginationBarStyles.total }, propsTotal)}>
+        <span
+          {...mergeAttrs<'span'>(
+            { sx: paginationBarStyles.total, ...paginationBarPart('total') },
+            propsTotal,
+          )}
+        >
           {content}
         </span>
       );
     }
 
     return () => (
-      <div {...mergeAttrs<'div'>({ sx: [paginationBarStyles.root, fontSizeStyles[size]] }, rest)}>
+      <div
+        {...mergeAttrs<'div'>(
+          { sx: [paginationBarStyles.root, fontSizeStyles[size]], ...paginationBarPart('root') },
+          rest,
+        )}
+      >
         {renderTotal()}
-        <div {...mergeAttrs<'div'>({ sx: paginationBarStyles.controls }, propsControls)}>
+        <div
+          {...mergeAttrs<'div'>(
+            { sx: paginationBarStyles.controls, ...paginationBarPart('controls') },
+            propsControls,
+          )}
+        >
           <Pagination
             {...mergePartProps<PaginationProps>({ size }, propsPagination)}
             _page={page}

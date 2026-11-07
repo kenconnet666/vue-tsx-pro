@@ -10,7 +10,8 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { VisuallyHidden, type VisuallyHiddenProps } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
-import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { dataAttrs, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到 span 上；id 给输入框的 aria-describedby 关联 */
 export interface CharacterCountProps extends PartProps<'span'> {
@@ -23,6 +24,9 @@ export interface CharacterCountProps extends PartProps<'span'> {
   /** 给读屏的完整句子的部件属性 */
   propsLabel?: Partial<VisuallyHiddenProps>;
 }
+
+/** 部件的标记（data-scope="character-count"） */
+const characterCountPart = (part: string) => partAttrs({ name: 'CharacterCount' }, part);
 
 /** CharacterCount 的样式：root、over */
 const characterCountStyles = css.create({
@@ -45,12 +49,19 @@ export const CharacterCount = _component(
       return (
         <span
           {...mergeAttrs<'span'>(
-            { sx: [characterCountStyles.root, over && characterCountStyles.over] },
+            {
+              sx: [characterCountStyles.root, over && characterCountStyles.over],
+              ...characterCountPart('root'),
+            },
             rest,
           )}
           data-over={over || undefined}
         >
-          <span {...mergeAttrs<'span'>({}, propsValue, { 'aria-hidden': true })}>
+          <span
+            {...mergeAttrs<'span'>(dataAttrs(characterCountPart('value')), propsValue, {
+              'aria-hidden': true,
+            })}
+          >
             {max == null ? count : `${count} / ${max}`}
           </span>
           <VisuallyHidden {...mergePartProps<VisuallyHiddenProps>({}, propsLabel)}>

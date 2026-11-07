@@ -38,6 +38,11 @@
       "types": "./dist/area/index.d.ts",
       "default": "./dist/area/index.js"
     },
+    "./testing": {
+      "@vue-tsx-pro/source": "./src/testing/index.ts",
+      "types": "./dist/testing/index.d.ts",
+      "default": "./dist/testing/index.js"
+    },
     "./shiki": {
       "@vue-tsx-pro/source": "./src/config/shiki.ts",
       "types": "./dist/config/shiki.d.ts",
@@ -115,8 +120,13 @@
     },
     "./package.json": "./package.json"
   },
+  "bin": {
+    "vtp-ui": "./bin/vtp-ui.mjs"
+  },
   "files": [
-    "dist"
+    "dist",
+    "bin",
+    "template"
   ],
   "scripts": {
     "build": "vite build --configLoader native && tsc -p tsconfig.build.json",

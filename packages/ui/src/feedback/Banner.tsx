@@ -23,6 +23,7 @@ import { presenceStyles } from '../utils/style/transitions';
 import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/style/typography';
 import type { AlertLives } from './Alert';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 横幅的样式 */
 export interface BannerVariants {
@@ -66,6 +67,9 @@ export interface BannerProps extends PartProps<'div', BannerManaged> {
   /** 正文 */
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="banner"） */
+const bannerPart = (part: string) => partAttrs({ name: 'Banner' }, part);
 
 /** Banner 的样式：root、icon、content、title、action、close */
 const bannerStyles = css.create({
@@ -138,6 +142,7 @@ export const Banner = _component(
                 size && fontSizeStyles[size],
                 dismissible.dismissing && presenceStyles.leaving,
               ],
+              ...bannerPart('root'),
             },
             rest,
             { ref: dismissible.ref, role: ROLES[live] },
@@ -150,16 +155,33 @@ export const Banner = _component(
               {...mergePartProps<IconProps>({ icon: shownIcon, sx: bannerStyles.icon }, propsIcon)}
             />
           )}
-          <div {...mergeAttrs<'div'>({ sx: bannerStyles.content }, propsContent)}>
+          <div
+            {...mergeAttrs<'div'>(
+              { sx: bannerStyles.content, ...bannerPart('content') },
+              propsContent,
+            )}
+          >
             {hasContent(title) && (
-              <strong {...mergeAttrs<'strong'>({ sx: bannerStyles.title }, propsTitle)}>
+              <strong
+                {...mergeAttrs<'strong'>(
+                  { sx: bannerStyles.title, ...bannerPart('title') },
+                  propsTitle,
+                )}
+              >
                 {title}
               </strong>
             )}
             {children}
           </div>
           {hasContent(action) && (
-            <div {...mergeAttrs<'div'>({ sx: bannerStyles.action }, propsAction)}>{action}</div>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: bannerStyles.action, ...bannerPart('action') },
+                propsAction,
+              )}
+            >
+              {action}
+            </div>
           )}
           {onClose && (
             <CloseButton

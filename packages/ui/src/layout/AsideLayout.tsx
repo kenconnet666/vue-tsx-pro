@@ -16,6 +16,7 @@ import { mergeAttrs, type PartProps } from '../utils/props';
 import { gapStyles, type Space } from '../utils/style/styles';
 import { space } from '../config/theme/tokens';
 import { layoutVars } from '../utils/style/vars';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface AsideLayoutProps extends PartProps<'div'> {
@@ -45,6 +46,9 @@ export interface AsideLayoutProps extends PartProps<'div'> {
   /** 主栏的内容 */
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="aside-layout"） */
+const asideLayoutPart = (part: string) => partAttrs({ name: 'AsideLayout' }, part);
 
 /** AsideLayout 的样式：root、grid、column、sticky */
 const asideLayoutStyles = css.create({
@@ -82,7 +86,7 @@ export const AsideLayout = _component(
     ...rest
   }: AsideLayoutProps) =>
     () => (
-      <div {...mergeAttrs<'div'>({ sx: asideLayoutStyles.root }, rest)}>
+      <div {...mergeAttrs<'div'>({ sx: asideLayoutStyles.root, ...asideLayoutPart('root') }, rest)}>
         <div
           {...css.attrs(
             asideLayoutStyles.grid,
@@ -91,7 +95,10 @@ export const AsideLayout = _component(
           )}
         >
           <div
-            {...mergeAttrs<'div'>({ sx: [asideLayoutStyles.column, gapStyles[gap]] }, propsMain)}
+            {...mergeAttrs<'div'>(
+              { sx: [asideLayoutStyles.column, gapStyles[gap]], ...asideLayoutPart('main') },
+              propsMain,
+            )}
           >
             {children}
           </div>
@@ -99,6 +106,7 @@ export const AsideLayout = _component(
             {...mergeAttrs<'aside'>(
               {
                 sx: [asideLayoutStyles.column, gapStyles[gap], sticky && asideLayoutStyles.sticky],
+                ...asideLayoutPart('aside'),
               },
               propsAside,
               { 'aria-label': asideLabel },

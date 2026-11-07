@@ -23,6 +23,7 @@ import { useLang } from '../config/context';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { encodeQr, type QrErrorCorrection } from '../utils/qr/encode';
 import { paperBackground, paperInk, paperStyles } from '../utils/style/paper';
+import { partAttrs } from '../config/styles';
 
 /** 二维码的状态 */
 export type QRCodeStatus = 'active' | 'loading' | 'expired' | 'scanned';
@@ -58,6 +59,9 @@ export interface QRCodeProps extends PartProps<'div', 'role'> {
   /** 刷新按钮的部件属性 */
   propsRefresh?: Partial<ButtonProps>;
 }
+
+/** 部件的标记（data-scope="q-r-code"） */
+const qRCodePart = (part: string) => partAttrs({ name: 'QRCode' }, part);
 
 /** QRCode 的样式：root、code、logo、logoImage、overlay、overlayShown */
 export const qrCodeStyles = css.create({
@@ -197,12 +201,13 @@ export const QRCode = _component(
                 (color != null || bgColor != null) &&
                   qrCodeSizeStyles.colors(color ?? paperInk, bgColor ?? paperBackground),
               ],
+              ...qRCodePart('root'),
             },
             rest,
           )}
         >
           <svg
-            {...mergeAttrs<'svg'>({ sx: qrCodeStyles.code }, propsCode, {
+            {...mergeAttrs<'svg'>({ sx: qrCodeStyles.code, ...qRCodePart('code') }, propsCode, {
               role: 'img',
               'aria-label': label ?? lang.qrCode,
               viewBox: `0 0 ${extent} ${extent}`,
@@ -216,6 +221,7 @@ export const QRCode = _component(
                 {
                   sx: [qrCodeStyles.logo, qrCodeSizeStyles.logo(`${logoSize * 100}%`)],
                   'aria-hidden': true,
+                  ...qRCodePart('logo'),
                 },
                 propsLogo,
               )}
@@ -229,7 +235,10 @@ export const QRCode = _component(
           )}
           <div
             {...mergeAttrs<'div'>(
-              { sx: [qrCodeStyles.overlay, shown != null && qrCodeStyles.overlayShown] },
+              {
+                sx: [qrCodeStyles.overlay, shown != null && qrCodeStyles.overlayShown],
+                ...qRCodePart('overlay'),
+              },
               propsOverlay,
               { role: 'status' },
             )}
