@@ -36,6 +36,7 @@ import { navListRecipe } from '../../navigation/NavList';
 import { toasterRecipe } from '../../feedback/Toast';
 import { appShellRecipe } from '../../patterns/AppShell';
 import { transferRecipe } from '../../input/Transfer';
+import { filterBarRecipe } from '../../patterns/FilterBar';
 import {
   notificationCenterRecipe,
   notificationListRecipe,
@@ -75,6 +76,7 @@ describe('components', () => {
       Toaster: toasterRecipe,
       AppShell: appShellRecipe,
       Transfer: transferRecipe,
+      FilterBar: filterBarRecipe,
       NotificationList: notificationListRecipe,
       NotificationCenter: notificationCenterRecipe,
       UserButton: userButtonRecipe,

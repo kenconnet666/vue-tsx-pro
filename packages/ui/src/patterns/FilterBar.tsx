@@ -29,6 +29,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { Badge } from '../base/Badge';
 import { Small } from '../base/Text';
+import { useComponent } from '../config/components';
 import { useLang } from '../config/context';
 import { useMessages } from '../config/lang/messages';
 import {
@@ -48,14 +49,18 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 import { t } from '../config/theme/tokens';
 import { provideFieldLayout, type FieldLayout } from '../form/field-layout';
-import { partAttrs } from '../config/styles';
 
 /** 角色与提交由组件管理 */
 export type FilterBarManaged = 'role' | 'onSubmit' | 'onReset';
 
+/** FilterBar 的档位（createUi / Provider 的 components.FilterBar.defaults：全站查询栏的标签位置、条件宽度） */
+export interface FilterBarOptions extends Pick<FieldLayout, 'labelPlacement' | 'labelWidth'> {
+  /** 每个条件的最小宽度（CSS 长度），默认 `'14em'` */
+  minFieldWidth?: string;
+}
+
 /** 未声明的属性落到 form 上 */
-export interface FilterBarProps
-  extends PartProps<'form', FilterBarManaged>, Pick<FieldLayout, 'labelPlacement' | 'labelWidth'> {
+export interface FilterBarProps extends PartProps<'form', FilterBarManaged>, FilterBarOptions {
   /** 点“查询”或在输入框里按回车 */
   onSearch?: () => void;
   /** 点“重置”：清空条件由使用方做（通常 Object.assign 回初始值，再查询一次） */
@@ -68,8 +73,6 @@ export interface FilterBarProps
   _expanded?: boolean;
   /** 收起的条件里已经填了几项：大于 0 时显示在“展开”旁边 */
   moreActive?: number;
-  /** 每个条件的最小宽度（CSS 长度），默认 `'14em'` */
-  minFieldWidth?: string;
   /** 按钮区额外的按钮：放在“重置”前面（如“导出筛选结果”） */
   actions?: VNodeChild;
   /** 第一排起始边的内容：在条件前面（QueryTable 的标题） */
@@ -108,57 +111,86 @@ export interface FilterBarProps
   children?: VNodeChild;
 }
 
-/** 部件的标记（data-scope="filter-bar"） */
-const filterBarPart = (part: string) => partAttrs({ name: 'FilterBar' }, part);
-
-/** FilterBar 的样式：root、start、body、row、fields、actions、grid、advanced、summary */
-const filterBarStyles = css.create({
-  // start（标题）单独一列，其余都在它右边：展开的条件与第一排的条件左边对齐。窄到放不下时标题自己一行
-  root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    columnGap: '_xl',
-    rowGap: '_md',
-    minWidth: 0,
+/**
+ * FilterBar 的配方（createUi / Provider 的 components.FilterBar 按它定制；QueryTable 的查询栏也是它）：root（form）、start、
+ * body（start 右边那一列）、row（第一排）、fields（常用条件的栅格）、actions（按钮区）、toggle（展开收起）、advancedToggle、
+ * reset、search、more（展开的条件的栅格）、advanced（条件构造器）、summary（收起后的高级筛选摘要）、clearAdvanced
+ */
+export const filterBarRecipe = css.recipe({
+  name: 'FilterBar',
+  parts: [
+    'root',
+    'start',
+    'body',
+    'row',
+    'fields',
+    'actions',
+    'toggle',
+    'advancedToggle',
+    'reset',
+    'search',
+    'more',
+    'advanced',
+    'summary',
+    'clearAdvanced',
+  ],
+  base: {
+    // start（标题）单独一列，其余都在它右边：展开的条件与第一排的条件左边对齐。窄到放不下时标题自己一行
+    root: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'flex-start',
+      columnGap: '_xl',
+      rowGap: '_md',
+      minWidth: 0,
+    },
+    // 标题和按钮都与第一行的控件一样高、居中对齐
+    start: { display: 'flex', alignItems: 'center', minHeight: t.sizes.control, flexShrink: 0 },
+    // 第一排在上，展开的条件、高级筛选与它的摘要各占一行排在下面
+    body: { display: 'flex', flexDirection: 'column', gap: '_md', flexGrow: 1, minWidth: 0 },
+    // 第一排：条件、按钮区；窄到一个条件也放不下时按钮区换到下一行
+    row: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'flex-start',
+      columnGap: '_xl',
+      rowGap: '_md',
+      minWidth: 0,
+    },
+    // 第一排与第二排起的条件都是栅格：每格不窄于 minFieldWidth，放得下几格就几格；第一排的分剩下的宽度、铺满
+    fields: {
+      display: 'grid',
+      columnGap: '_xl',
+      rowGap: '_md',
+      alignItems: 'start',
+      flexGrow: 1,
+      minWidth: 0,
+    },
+    actions: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      gap: '_sm',
+      minHeight: t.sizes.control,
+      flexShrink: 0,
+      marginInlineStart: 'auto',
+    },
+    more: { display: 'grid', columnGap: '_xl', rowGap: '_md', alignItems: 'start' },
+    advanced: {
+      padding: '_md',
+      backgroundColor: '_surfaceMuted',
+      borderWidth: '_xs',
+      borderStyle: 'solid',
+      borderColor: '_borderMuted',
+      borderRadius: '_md',
+    },
+    summary: { display: 'flex', alignItems: 'baseline', gap: '_sm', minWidth: 0 },
   },
-  // 第一排在上，展开的条件、高级筛选与它的摘要各占一行排在下面
-  body: { display: 'flex', flexDirection: 'column', gap: '_md', flexGrow: 1, minWidth: 0 },
-  // 第一排：条件、按钮区；窄到一个条件也放不下时按钮区换到下一行
-  row: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'flex-start',
-    columnGap: '_xl',
-    rowGap: '_md',
-    minWidth: 0,
-  },
-  // 标题和按钮都与第一行的控件一样高、居中对齐
-  start: { display: 'flex', alignItems: 'center', minHeight: t.sizes.control, flexShrink: 0 },
-  // 第一排的条件分剩下的宽度、铺满（auto-fit：空列收起），至少放得下一格
-  fields: { flexGrow: 1, minWidth: 0 },
-  actions: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    gap: '_sm',
-    minHeight: t.sizes.control,
-    flexShrink: 0,
-    marginInlineStart: 'auto',
-  },
-  // 第一排与第二排起的条件都是栅格：每格不窄于 minFieldWidth，放得下几格就几格
-  grid: { display: 'grid', columnGap: '_xl', rowGap: '_md', alignItems: 'start' },
-  advanced: {
-    padding: '_md',
-    backgroundColor: '_surfaceMuted',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_borderMuted',
-    borderRadius: '_md',
-  },
-  summary: { display: 'flex', alignItems: 'baseline', gap: '_sm', minWidth: 0 },
 });
+
+/** FilterBar 的部件（createUi / Provider 的 components.FilterBar.styles 按它定制） */
+export type FilterBarPart = (typeof filterBarRecipe.parts)[number];
 
 /** FilterBar 的样式：columns（第二排起，空列留着、各排对齐）、fill（第一排，空列收起、铺满）、basis（至少一格宽） */
 const filterBarDynamicStyles = css.create({
@@ -188,12 +220,12 @@ export const FilterBar = _component(
     more,
     _expanded: expanded = _bindable(false),
     moreActive = 0,
-    minFieldWidth = '14em',
+    minFieldWidth,
     actions,
     start,
     end,
-    labelPlacement = 'start',
-    labelWidth = 'auto',
+    labelPlacement,
+    labelWidth,
     propsBody,
     propsRow,
     propsStart,
@@ -211,6 +243,12 @@ export const FilterBar = _component(
     children,
     ...rest
   }: FilterBarProps) => {
+    const ui = useComponent(
+      filterBarRecipe,
+      () => ({ labelPlacement, labelWidth, minFieldWidth }),
+      { labelPlacement: 'start', labelWidth: 'auto', minFieldWidth: '14em' },
+    );
+    const options = () => ui().options;
     const messages = useMessages('patterns', patternsMessages);
     const lang = useLang();
     const moreId = useId();
@@ -227,7 +265,10 @@ export const FilterBar = _component(
               (sum, child) => sum + countRules(child),
               0,
             );
-    provideFieldLayout(() => ({ labelPlacement, labelWidth }));
+    provideFieldLayout(() => {
+      const { labelPlacement, labelWidth } = options();
+      return { labelPlacement, labelWidth };
+    });
 
     // 第一排放得下几个条件：量出来之前（服务端渲染、第一次渲染）常用条件都在第一排
     let rowElement = _state.raw<HTMLElement | null>(null);
@@ -238,7 +279,7 @@ export const FilterBar = _component(
       // 改第一排的条件会改布局：放到下一帧，不在 ResizeObserver 的回调里同步改（会报 loop）
       () =>
         requestAnimationFrame(() => {
-          const minWidth = rowElement && lengthToPx(minFieldWidth, rowElement);
+          const minWidth = rowElement && lengthToPx(options().minFieldWidth, rowElement);
           if (rowElement && actionsElement && minWidth)
             capacity = firstRowCapacity(rowElement, actionsElement, minWidth);
         }),
@@ -250,55 +291,39 @@ export const FilterBar = _component(
     }
 
     return () => {
+      const { options: o, parts: s } = ui();
       const common = childNodes(children);
       const split = capacity != null && capacity < common.length ? capacity : common.length;
       const below = [...common.slice(split), ...(more != null && expanded ? childNodes(more) : [])];
       return (
         <form
-          {...mergeAttrs<'form'>({ sx: filterBarStyles.root, ...filterBarPart('root') }, rest, {
+          {...mergeAttrs<'form'>(s.root, rest, {
             role: 'search',
             onSubmit,
           })}
           data-expanded={more != null ? expanded : undefined}
         >
-          {start != null && (
-            <div
-              {...mergeAttrs<'div'>(
-                { sx: filterBarStyles.start, ...filterBarPart('start') },
-                propsStart,
-              )}
-            >
-              {start}
-            </div>
-          )}
+          {start != null && <div {...mergeAttrs<'div'>(s.start, propsStart)}>{start}</div>}
           <div
             {...mergeAttrs<'div'>(
-              {
-                sx: [filterBarStyles.body, filterBarDynamicStyles.basis(minFieldWidth)],
-                ...filterBarPart('body'),
-              },
+              { ...s.body, sx: [s.body.sx, filterBarDynamicStyles.basis(o.minFieldWidth)] },
               propsBody,
             )}
           >
             <div
-              {...mergeAttrs<'div'>(
-                { sx: filterBarStyles.row, ...filterBarPart('row') },
-                propsRow,
-                {
-                  ref: (element: unknown) => (rowElement = element as HTMLElement | null),
-                },
-              )}
+              {...mergeAttrs<'div'>(s.row, propsRow, {
+                ref: (element: unknown) => (rowElement = element as HTMLElement | null),
+              })}
             >
               <div
                 {...mergeAttrs<'div'>(
                   {
+                    ...s.fields,
                     sx: [
-                      filterBarStyles.grid,
-                      filterBarStyles.fields,
-                      filterBarDynamicStyles.fill(minFieldWidth),
-                      filterBarDynamicStyles.basis(minFieldWidth),
+                      s.fields.sx,
+                      filterBarDynamicStyles.fill(o.minFieldWidth),
+                      filterBarDynamicStyles.basis(o.minFieldWidth),
                     ],
-                    ...filterBarPart('fields'),
                   },
                   propsFields,
                 )}
@@ -306,18 +331,15 @@ export const FilterBar = _component(
                 {common.slice(0, split)}
               </div>
               <div
-                {...mergeAttrs<'div'>(
-                  { sx: filterBarStyles.actions, ...filterBarPart('actions') },
-                  propsActions,
-                  {
-                    ref: (element: unknown) => (actionsElement = element as HTMLElement | null),
-                  },
-                )}
+                {...mergeAttrs<'div'>(s.actions, propsActions, {
+                  ref: (element: unknown) => (actionsElement = element as HTMLElement | null),
+                })}
               >
                 {more != null && (
                   <Button
                     {...mergePartProps<ButtonProps>(
                       {
+                        ...s.toggle,
                         variant: 'ghost',
                         tone: 'neutral',
                         iconEnd: ChevronDown,
@@ -345,7 +367,7 @@ export const FilterBar = _component(
                 {conditionFields && (
                   <Button
                     {...mergePartProps<ButtonProps>(
-                      { variant: 'ghost', tone: 'neutral', icon: ListFilter },
+                      { ...s.advancedToggle, variant: 'ghost', tone: 'neutral', icon: ListFilter },
                       propsAdvancedToggle,
                       {
                         type: 'button',
@@ -366,7 +388,7 @@ export const FilterBar = _component(
                 {actions}
                 <Button
                   {...mergePartProps<ButtonProps>(
-                    { variant: 'outline', tone: 'neutral' },
+                    { ...s.reset, variant: 'outline', tone: 'neutral' },
                     propsReset,
                     {
                       type: 'button',
@@ -380,7 +402,9 @@ export const FilterBar = _component(
                   {messages.filterReset}
                 </Button>
                 <Button
-                  {...mergePartProps<ButtonProps>({ loading }, propsSearch, { type: 'submit' })}
+                  {...mergePartProps<ButtonProps>({ ...s.search, loading }, propsSearch, {
+                    type: 'submit',
+                  })}
                 >
                   {messages.filterSearch}
                 </Button>
@@ -395,10 +419,7 @@ export const FilterBar = _component(
             {below.length > 0 && (
               <div
                 {...mergeAttrs<'div'>(
-                  {
-                    sx: [filterBarStyles.grid, filterBarDynamicStyles.columns(minFieldWidth)],
-                    ...filterBarPart('more'),
-                  },
+                  { ...s.more, sx: [s.more.sx, filterBarDynamicStyles.columns(o.minFieldWidth)] },
                   propsMore,
                   { id: moreId },
                 )}
@@ -409,11 +430,7 @@ export const FilterBar = _component(
             {conditionFields && advancedOpen && (
               <ConditionBuilder
                 {...mergePartProps<ConditionBuilderProps>(
-                  {
-                    fields: conditionFields,
-                    sx: filterBarStyles.advanced,
-                    'aria-label': messages.filterAdvanced,
-                  },
+                  { ...s.advanced, fields: conditionFields, 'aria-label': messages.filterAdvanced },
                   propsAdvanced,
                   { id: advancedId },
                 )}
@@ -421,13 +438,13 @@ export const FilterBar = _component(
               />
             )}
             {conditionFields && !advancedOpen && condition && (
-              <div {...css.attrs(filterBarStyles.summary)}>
+              <div {...mergeAttrs<'div'>(s.summary)}>
                 <Small tone="muted">
                   {messages.filterAdvanced}：{describeCondition(condition, conditionFields, lang)}
                 </Small>
                 <Button
                   {...mergePartProps<ButtonProps>(
-                    { variant: 'link', size: 'sm' },
+                    { ...s.clearAdvanced, variant: 'link', size: 'sm' },
                     propsClearAdvanced,
                     {
                       type: 'button',

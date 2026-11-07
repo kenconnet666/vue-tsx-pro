@@ -59,6 +59,9 @@
   types、unreadOnly、scroll、list、item、dot、body、itemTitle、description、time、empty、footer）追加样式，`components.NotificationCenter`
   按部件（panel、indicator、trigger、list）追加样式。顺手修了“只看未读”没有靠结束边（样式落到了开关的 input 上）。
 - Card 的 `padding="none"` 只让正文贴边，页头、页脚仍留 sm / md 的内边距（原来文字贴着边框）。
+- FilterBar 改成配方组件（QueryTable 的查询栏也是它）：`components.FilterBar` 可以给 `labelPlacement`、`labelWidth`、`minFieldWidth`
+  的默认值（全站查询栏的标签位置、条件宽度），按部件（root、start、body、row、fields、actions、toggle、advancedToggle、reset、search、
+  more、advanced、summary、clearAdvanced）追加样式。
 - Timeline 改成配方组件：`createUi` / `Provider` 的 `components.Timeline` 可以给 `alternate`、`size` 的默认值，按部件
   （root、item、rail、marker、line、content、title、meta、actor、time、description、toggleLine、toggleContent）追加样式。
 
