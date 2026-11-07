@@ -20,7 +20,7 @@
 - packages/ui/src/display/QRCode.tsx:209 <svg>
 - packages/ui/src/display/Sparkline.tsx:146 <svg>
 - packages/ui/src/display/Timeline.tsx:52 <time>
-- packages/ui/src/display/Timeline.tsx:324 <time>
+- packages/ui/src/display/Timeline.tsx:330 <time>
 - packages/ui/src/diagram/Diagram.tsx:1331 <svg>
 - packages/ui/src/diagram/Diagram.tsx:1380 <svg>
 - packages/ui/src/diagram/DiagramMinimap.tsx:137 <svg>
@@ -43,7 +43,7 @@
 - packages/ui/src/charts/TreemapChart.tsx:198 <svg>
 - packages/ui/src/charts/XYChart.tsx:1004 <svg>
 
-## 没转发部件属性的子组件（142）
+## 没转发部件属性的子组件（140）
 
 - packages/ui/src/table/ColumnHeaderActions.tsx:143 <Button>
 - packages/ui/src/table/ColumnHeaderActions.tsx:104 <Checkbox>
@@ -157,9 +157,7 @@
 - packages/ui/src/display/Stat.tsx:321 <Icon>
 - packages/ui/src/display/Stat.tsx:295 <Skeleton>
 - packages/ui/src/display/Stat.tsx:316 <Skeleton>
-- packages/ui/src/display/Timeline.tsx:384 <Avatar>
-- packages/ui/src/display/Timeline.tsx:355 <Icon>
-- packages/ui/src/display/Timeline.tsx:339 <Spinner>
+- packages/ui/src/display/Timeline.tsx:366 <Icon>
 - packages/ui/src/display/Tree.tsx:707 <Icon>
 - packages/ui/src/display/Tree.tsx:743 <Icon>
 - packages/ui/src/display/Tree.tsx:750 <Icon>

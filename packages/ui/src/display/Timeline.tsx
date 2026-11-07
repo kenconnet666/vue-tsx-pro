@@ -29,10 +29,10 @@ import { ChevronDown, ChevronUp } from '@lucide/icons';
 import type { VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { Icon, type IconData } from '../base/Icon';
-import { Spinner } from '../base/Spinner';
+import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useComponent } from '../config/components';
 import { useLang } from '../config/context';
-import { Avatar, initials } from './Avatar';
+import { Avatar, initials, type AvatarProps } from './Avatar';
 import { Collapsible, type CollapsibleProps } from './Collapsible';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { PartLayer } from '../config/styles';
@@ -107,6 +107,10 @@ export interface TimelineProps extends PartProps<'ol'>, TimelineOptions {
   propsDetails?: Partial<CollapsibleProps>;
   /** 展开其余各项的按钮的部件属性 */
   propsToggle?: Partial<ButtonProps>;
+  /** 操作人头像（Avatar）的部件属性 */
+  propsAvatar?: Partial<AvatarProps>;
+  /** 进行中那一项的加载指示（Spinner）的部件属性 */
+  propsPending?: Partial<SpinnerProps>;
 }
 
 /**
@@ -262,6 +266,8 @@ export const Timeline = _component(
     propsDescription,
     propsDetails,
     propsToggle,
+    propsAvatar,
+    propsPending,
     ...rest
   }: TimelineProps) => {
     // 界面里的链接（指标的操作、附件、值）悬停才有下划线
@@ -336,7 +342,12 @@ export const Timeline = _component(
               ? hasContent(item.time) && time(timelineStateStyles.timeInline)
               : time(null);
             const marker = item.pending ? (
-              <Spinner sx={[timelineStateStyles.pending, timelineToneStyles.accent]} />
+              <Spinner
+                {...mergePartProps<SpinnerProps>(
+                  { sx: [timelineStateStyles.pending, timelineToneStyles.accent] },
+                  propsPending,
+                )}
+              />
             ) : (
               <span
                 {...mergeAttrs<'span'>(
@@ -382,11 +393,15 @@ export const Timeline = _component(
                       <span {...mergeAttrs<'span'>(s.actor)}>
                         {(item.avatar || typeof item.actor === 'string') && (
                           <Avatar
-                            src={item.avatar}
-                            fallback={
-                              typeof item.actor === 'string' ? initials(item.actor) : undefined
-                            }
-                            sx={timelineStateStyles.avatar}
+                            {...mergePartProps<AvatarProps>(
+                              {
+                                src: item.avatar,
+                                fallback:
+                                  typeof item.actor === 'string' ? initials(item.actor) : undefined,
+                                sx: timelineStateStyles.avatar,
+                              },
+                              propsAvatar,
+                            )}
                           />
                         )}
                         {item.actor}
