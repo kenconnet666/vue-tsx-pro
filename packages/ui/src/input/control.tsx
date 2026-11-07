@@ -243,19 +243,25 @@ export function controlParts(
   return { ...parts, root: { ...parts.root, sx: [parts.root.sx, attachedStyles[attached]] } };
 }
 
-/** 点在外壳的空白处（内边距、图标、标签上）：不是主元素本身，也不是框里的按钮 */
-function isShellBlank(target: Element, element: HTMLElement): boolean {
-  return target !== element && !element.contains(target) && !target.closest('button');
+const FOCUSABLE = 'input, textarea, select, button, [tabindex], [contenteditable]';
+
+/**
+ * 点在外壳的空白处（内边距、图标、标签、分段之间的分隔符上）：不在外壳里任何可聚焦的元素上——
+ * 主元素、框里的按钮、日期的各个分段都算可聚焦，点它们由浏览器照常聚焦
+ */
+function isShellBlank(target: Element, shell: Element): boolean {
+  const focusable = target.closest(FOCUSABLE);
+  return focusable == null || focusable === shell || !shell.contains(focusable);
 }
 
 /**
- * 外壳的 onPointerdown：点在外壳的空白处时把焦点交给主元素（input、触发按钮），不让浏览器把焦点放到别处；
- * 点在主元素或框里的按钮上时照常
+ * 外壳的 onPointerdown：点在外壳的空白处时把焦点交给主元素（input、触发按钮、第一个没填的分段），不让浏览器把焦点放到别处；
+ * 点在外壳里可聚焦的元素上时照常
  */
 export function focusOnShell(main: () => HTMLElement | null): (event: PointerEvent) => void {
   return (event) => {
     const element = main();
-    if (!element || !isShellBlank(event.target as Element, element)) return;
+    if (!element || !isShellBlank(event.target as Element, event.currentTarget as Element)) return;
     event.preventDefault();
     element.focus();
   };
@@ -270,7 +276,6 @@ export function clickOnShell(
   action: (event: MouseEvent) => void,
 ): (event: MouseEvent) => void {
   return (event) => {
-    const element = main();
-    if (element && isShellBlank(event.target as Element, element)) action(event);
+    if (main() && isShellBlank(event.target as Element, event.currentTarget as Element)) action(event);
   };
 }

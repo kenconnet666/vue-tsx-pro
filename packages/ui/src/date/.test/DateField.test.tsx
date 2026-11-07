@@ -76,6 +76,24 @@ describe('DateField', () => {
     expect(text(root)).toBe('2026/03/15');
   });
 
+  it('指针点在某一段上由浏览器聚焦那一段；点在分隔符、外壳空白处时焦点去第一个没填的段', () => {
+    const root = mount(() => <DateField aria-label="日期" />);
+    const down = (target: Element) => {
+      const event = new PointerEvent('pointerdown', { bubbles: true, cancelable: true });
+      target.dispatchEvent(event);
+      return event.defaultPrevented;
+    };
+    segment(root, 'year').focus();
+    // 点“月”：不拦，焦点不被抢回“年”
+    expect(down(segment(root, 'month'))).toBe(false);
+    expect(document.activeElement).toBe(segment(root, 'year'));
+    segment(root, 'day').focus();
+    const literal = segment(root, 'year').nextElementSibling!;
+    expect(literal.getAttribute('role')).not.toBe('spinbutton');
+    expect(down(literal)).toBe(true);
+    expect(document.activeElement).toBe(segment(root, 'year'));
+  });
+
   it('↑↓ 加减并回绕；Backspace 删空后写回 null', async () => {
     let value = _state<string | null>('2026-12-31');
     const root = mount(() => <DateField _value={value} aria-label="日期" />);
