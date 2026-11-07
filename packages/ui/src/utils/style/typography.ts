@@ -76,11 +76,6 @@ export interface TextTones {
 /** 文字色调：六个状态色加 muted、inherit（状态类组件的色调见 StatusTone） */
 export type TextTone = keyof TextTones;
 
-/** @deprecated 改名为 TextTones */
-export type Tones = TextTones;
-/** @deprecated 改名为 TextTone */
-export type Tone = TextTone;
-
 /** 文字的水平对齐（text-align），按书写方向 */
 export interface TextAligns {
   /** 对齐起始边：从左到右排版时靠左 */

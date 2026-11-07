@@ -10,8 +10,8 @@ import {
   type UiRouter,
 } from './context';
 import { splitComponents, type ComponentsOptions } from './components';
-import { mergeDefaults, type ComponentDefaults } from './defaults';
-import { mergeStyles, type ComponentStyles } from './styles';
+import { mergeDefaults } from './defaults';
+import { mergeStyles } from './styles';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
 import type { WorkCalendar } from '../utils/data/workdays';
@@ -33,10 +33,6 @@ export interface ProviderProps {
    * 追加在上层的定制之后：`{ Button: { defaults: { radius: 'full' }, styles: { root: { letterSpacing: '1px' } } } }`（见 components.ts）
    */
   components?: ComponentsOptions;
-  /** @deprecated 改用 `components` 里各组件的 `defaults`：`{ Button: { defaults: { … } } }` */
-  defaults?: ComponentDefaults;
-  /** @deprecated 改用 `components` 里各组件的 `styles`（原 `base`）与 `variants` */
-  styles?: ComponentStyles;
   /** 路由适配；不写时沿用上层配置 */
   router?: UiRouter;
   /** 权限判断；不写时沿用上层配置 */
@@ -73,8 +69,6 @@ export const Provider = _component(
     highlighter,
     textMatcher,
     components,
-    defaults,
-    styles,
     router,
     permissions,
     http,
@@ -87,12 +81,8 @@ export const Provider = _component(
     const currentTheme = _derived(theme ? resolveTheme(theme, prefersDark.value) : parent.theme);
     const currentLang = _derived(lang ? defineLang(parent.lang, lang) : parent.lang);
     const configured = _derived(splitComponents(components));
-    const currentDefaults = _derived(
-      mergeDefaults(mergeDefaults(parent.defaults, defaults), configured?.defaults),
-    );
-    const currentStyles = _derived(
-      mergeStyles(mergeStyles(parent.styles, styles), configured?.styles),
-    );
+    const currentDefaults = _derived(mergeDefaults(parent.defaults, configured?.defaults));
+    const currentStyles = _derived(mergeStyles(parent.styles, configured?.styles));
     ConfigContext.provide({
       get theme() {
         return currentTheme;

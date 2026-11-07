@@ -48,12 +48,10 @@ export type VariantSelection<V> = {
 };
 
 /** 组合档位的条件：几个档位同时取这些值时追加样式 */
-type CompoundCondition<V> =
-  | { match: VariantSelection<V> }
-  | {
-      /** @deprecated 改名为 match（与 css.when.* 的关系条件分开） */
-      when: VariantSelection<V>;
-    };
+interface CompoundCondition<V> {
+  /** 这些档位同时取这些值 */
+  match: VariantSelection<V>;
+}
 
 /** 配方的定义 */
 export interface RecipeConfig<P extends string, V extends Variants<P>, N extends string = string> {
@@ -268,8 +266,8 @@ function build<P extends string, V extends Variants<P>>(
   const segments = new Map<string, Record<P, Compiled>>([['base', compile<P>(base)]]);
   variantSegments(variants, segments);
   const conditions = compound.map((entry) => {
-    const { match, when, ...styles } = entry as { match?: object; when?: object };
-    return { styles, match: (match ?? when ?? {}) as Record<string, unknown> };
+    const { match, ...styles } = entry as { match?: object };
+    return { styles, match: (match ?? {}) as Record<string, unknown> };
   });
   conditions.forEach(({ styles }, index) => segments.set(`compound\0${index}`, compile<P>(styles)));
   return {

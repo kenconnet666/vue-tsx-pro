@@ -122,14 +122,18 @@ describe('useDefaults', () => {
     const el = mount(
       () => (
         <>
-          <Provider defaults={{ DataTable: { density: 'comfortable' } }}>
+          <Provider components={{ DataTable: { defaults: { density: 'comfortable' } } }}>
             <Probe variant="ghost" />
           </Provider>
           <Probe />
         </>
       ),
       (app) =>
-        app.use(createUi({ defaults: { DataTable: { density: 'compact', striped: true } } })),
+        app.use(
+          createUi({
+            components: { DataTable: { defaults: { density: 'compact', striped: true } } },
+          }),
+        ),
     );
     const [inner, outer] = [...el.querySelectorAll('i')].map((i) => JSON.parse(i.textContent!));
     expect(inner).toEqual({ density: 'comfortable', variant: 'ghost', striped: true });
@@ -164,12 +168,12 @@ describe('useDefaults', () => {
     const el = mount(() => (
       <>
         <Provider
-          defaults={{
-            Link: { tone: 'neutral', underline: 'none' },
-            Progress: { tone: 'success', radius: 'none' },
-            Indicator: { tone: 'accent' },
-            Empty: { size: 'sm' },
-            Result: { size: 'lg' },
+          components={{
+            Link: { defaults: { tone: 'neutral', underline: 'none' } },
+            Progress: { defaults: { tone: 'success', radius: 'none' } },
+            Indicator: { defaults: { tone: 'accent' } },
+            Empty: { defaults: { size: 'sm' } },
+            Result: { defaults: { size: 'lg' } },
           }}
         >
           {samples('defaults')}

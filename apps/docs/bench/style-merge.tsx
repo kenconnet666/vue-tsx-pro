@@ -11,14 +11,7 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css, styleText, type SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import {
-  Button,
-  createUi,
-  darkTheme,
-  lightTheme,
-  Provider,
-  type ComponentStyles,
-} from '@zerodep-dev/vue-tsx-pro-ui';
+import { Button, createUi, darkTheme, lightTheme, Provider } from '@zerodep-dev/vue-tsx-pro-ui';
 import { createApp, nextTick } from 'vue';
 import {
   buttonBaseStyles,
@@ -56,11 +49,9 @@ const comboOf = (i: number, shift: number) => ({
 const sxKindOf = (i: number, explode: boolean) =>
   explode ? Math.floor(i / 108) % SX_KINDS : i % SX_KINDS;
 
-/* ───────── 定制层：引擎组是 Provider 的 styles 与 sx，原生组是作用域类与使用方的类 ───────── */
+/* ───────── 定制层：引擎组是 Provider 的 components 与 sx，原生组是作用域类与使用方的类 ───────── */
 
-const customStyles: ComponentStyles = {
-  Button: { base: { root: { letterSpacing: '0.02em', paddingInline: '_xl' } } },
-};
+const customButton = { root: { letterSpacing: '0.02em', paddingInline: '_xl' } } as const;
 const sxStyles = css.create(
   Object.fromEntries(
     Array.from({ length: SX_KINDS }, (_, k) => [`s${k}`, { marginInlineEnd: k + 1 }]),
@@ -72,7 +63,7 @@ const sxOf = (k: number) => (sxStyles as Record<string, SxStyles>)[`s${k}`];
 
 function liteSx(variant: Variant, tone: StatusTone, size: Size, custom: boolean, sx: SxStyles) {
   const recipe = custom
-    ? buttonRecipe({ variant, tone }, customStyles.Button)
+    ? buttonRecipe({ variant, tone }, { base: customButton })
     : buttonRecipe({ variant, tone });
   return css.attrs(
     buttonBaseStyles.root,
@@ -257,7 +248,7 @@ const Bench = _component(() => {
   return () => (
     <Provider theme={dark ? darkTheme : lightTheme}>
       {!show ? null : layer ? (
-        <Provider styles={customStyles}>
+        <Provider components={{ Button: { styles: customButton } }}>
           <div class="nb-scope">{list()}</div>
         </Provider>
       ) : (

@@ -33,9 +33,6 @@ export interface WaveGridTypes {
   dots: unknown;
 }
 
-/** @deprecated 改名为 WaveGridTypes */
-export type WaveGridVariants = WaveGridTypes;
-
 /** 未声明的属性落到外层 div 上 */
 export interface WaveGridProps extends EffectProps {
   /**
@@ -43,8 +40,6 @@ export interface WaveGridProps extends EffectProps {
    * @default 'grid'
    */
   type?: keyof WaveGridTypes;
-  /** @deprecated 改名为 type（variant 只表示外观变体，见 COMPONENTS.md §1 的词表） */
-  variant?: keyof WaveGridTypes;
   /** 色板（token 或 CSS 颜色，2–6 个），按高度取色；变了会重建 */
   palette?: readonly string[];
   /**
@@ -130,7 +125,6 @@ function gridGeometry(cells: number, type: keyof WaveGridTypes) {
 export const WaveGrid = _component(
   ({
     type,
-    variant,
     palette = WAVE_GRID_PALETTE,
     speed = 1,
     amplitude = 1,
@@ -138,7 +132,7 @@ export const WaveGrid = _component(
     ...rest
   }: WaveGridProps) => {
     return () => {
-      const kind = type ?? variant ?? 'grid';
+      const kind = type ?? 'grid';
       return (
         <EffectSurface
           {...rest}

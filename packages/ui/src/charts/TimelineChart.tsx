@@ -69,13 +69,10 @@ export interface TimelineChartSeries {
   color?: ChartColor;
   /** bar 实心的条（默认）；track 宽而浅的轨道，画在下面（计划）。同 ComboChart 系列的 type */
   type?: 'bar' | 'track';
-  /** @deprecated 改名为 type */
-  variant?: 'bar' | 'track';
 }
 
 /** 系列画成轨道（计划） */
-const isTrack = (series: TimelineChartSeries | undefined) =>
-  (series?.type ?? series?.variant) === 'track';
+const isTrack = (series: TimelineChartSeries | undefined) => series?.type === 'track';
 
 /** 时间轴上的一条竖线：里程碑、截止日 */
 export interface TimelineChartMarker {

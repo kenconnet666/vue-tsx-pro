@@ -32,9 +32,6 @@ export interface SkeletonShapes {
   image: unknown;
 }
 
-/** @deprecated 改名为 SkeletonShapes */
-export type SkeletonVariants = SkeletonShapes;
-
 /** 未声明的属性落到占位的 span 上（加载完成后不渲染它，只渲染内容） */
 export interface SkeletonProps extends PartProps<'span', 'aria-hidden' | 'inert'> {
   /**
@@ -44,8 +41,6 @@ export interface SkeletonProps extends PartProps<'span', 'aria-hidden' | 'inert'
   loading?: boolean;
   /** 形状；不写时大小由包着的内容或 sx 决定 */
   shape?: keyof SkeletonShapes;
-  /** @deprecated 改名为 shape（variant 只表示外观变体，见 COMPONENTS.md §1 的词表） */
-  variant?: keyof SkeletonShapes;
   /** 扫光的延迟（毫秒）：几块骨架依次扫过、连成一道波时用（SkeletonText 的各行就是这样错开的） */
   delay?: number;
   /** 包着内容的那一层（不可见、只用来撑出大小）的部件属性 */
@@ -98,15 +93,11 @@ const skeletonShapeStyles = css.create({
   image: { display: 'block', width: '_full', aspectRatio: '16 / 9', borderRadius: '_md' },
 });
 
-/** @deprecated 改名为 skeletonShapeStyles */
-export const skeletonVariantStyles = skeletonShapeStyles;
-
 /** 骨架屏：加载时占位并扫光，包着内容时与内容一样大 */
 export const Skeleton = _component(
-  ({ loading = true, shape, variant, delay, propsContent, children, ...rest }: SkeletonProps) =>
+  ({ loading = true, shape, delay, propsContent, children, ...rest }: SkeletonProps) =>
     () => {
       if (!loading) return children;
-      const shown = shape ?? variant;
       const wrapping = children != null;
       return (
         <span
@@ -116,7 +107,7 @@ export const Skeleton = _component(
                 skeletonStyles.root,
                 skeletonStyles.surface,
                 shimmerStyles.wave,
-                shown && skeletonShapeStyles[shown],
+                shape && skeletonShapeStyles[shape],
                 !!delay && shimmerStyles.delay(`${delay}ms`),
                 wrapping && skeletonStyles.wrapping,
               ],

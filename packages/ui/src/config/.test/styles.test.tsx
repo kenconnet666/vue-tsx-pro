@@ -75,37 +75,16 @@ describe('components', () => {
     expect(styleOf(inner!).get('&|letter-spacing')).toBe('3px');
     expect(styleOf(inner!).get('&|border-top-style')).toBe('dashed');
   });
-
-  it('旧的 defaults / styles 照样生效；styles.Tab 当作 Tabs', () => {
-    const host = mount(() => (
-      <Provider
-        defaults={{ Badge: { variant: 'outline' } }}
-        styles={{ Tab: { base: { root: { letterSpacing: '2px' } } } }}
-      >
-        <Badge>标记</Badge>
-        <Tabs _value="a">
-          <TabList aria-label="标签">
-            <Tab value="a">A</Tab>
-          </TabList>
-        </Tabs>
-      </Provider>
-    ));
-    expect(host.querySelector('[data-scope="badge"]')!.className).toBe(
-      mount(() => <Badge variant="outline">标记</Badge>).querySelector('[data-scope="badge"]')!
-        .className,
-    );
-    expect(styleOf(host.querySelector('[role="tab"]')!).get('&|letter-spacing')).toBe('2px');
-  });
 });
 
 describe('组件的主题定制', () => {
-  it('Provider 的 styles 追加在组件自己的样式之后；内层排在外层之后', () => {
+  it('Provider 的 components 里的 styles 追加在组件自己的样式之后；内层排在外层之后', () => {
     const host = mount(() => (
       <Provider
-        styles={{ Button: { base: { root: { letterSpacing: '1px', fontStyle: 'italic' } } } }}
+        components={{ Button: { styles: { root: { letterSpacing: '1px', fontStyle: 'italic' } } } }}
       >
         <Button>外层</Button>
-        <Provider styles={{ Button: { base: { root: { letterSpacing: '3px' } } } }}>
+        <Provider components={{ Button: { styles: { root: { letterSpacing: '3px' } } } }}>
           <Button>内层</Button>
         </Provider>
       </Provider>
@@ -116,13 +95,15 @@ describe('组件的主题定制', () => {
     expect(styleOf(inner!).get('&|font-style')).toBe('italic');
   });
 
-  it('新增的档位取值：扩展了档位接口后在 styles 里给样式', () => {
+  it('新增的档位取值：扩展了档位接口后在 components 的 variants 里给样式', () => {
     // 使用方会扩展 ButtonVariants 接口；测试里不扩展（会漏到整个包的类型里），直接断言
     const variant = 'brand' as never;
     const host = mount(() => (
       <Provider
-        styles={{
-          Button: { variants: { variant: { brand: { root: { color: 'rgb(1, 2, 3)' } } } } },
+        components={{
+          Button: {
+            variants: { variant: { brand: { root: { color: 'rgb(1, 2, 3)' } } } } as never,
+          },
         }}
       >
         <Button variant={variant}>品牌</Button>
@@ -131,11 +112,11 @@ describe('组件的主题定制', () => {
     expect(styleOf(host.querySelector('button')!).get('&|color')).toBe('rgb(1, 2, 3)');
   });
 
-  it('档位与 Provider 的 styles 变了，样式跟着变（配方按实例记住上一次的结果）', async () => {
+  it('档位与 Provider 的 components 变了，样式跟着变（配方按实例记住上一次的结果）', async () => {
     const variant = ref<'solid' | 'link'>('solid');
     const spacing = ref('1px');
     const host = mount(() => (
-      <Provider styles={{ Button: { base: { root: { letterSpacing: spacing.value } } } }}>
+      <Provider components={{ Button: { styles: { root: { letterSpacing: spacing.value } } } }}>
         <Button variant={variant.value}>按钮</Button>
       </Provider>
     ));

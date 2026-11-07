@@ -64,7 +64,6 @@ export {
   WaveGrid,
   type WaveGridProps,
   type WaveGridTypes,
-  type WaveGridVariants,
 } from './effects/WaveGrid';
 export {
   Globe,

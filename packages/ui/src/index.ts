@@ -370,11 +370,9 @@ export {
 export {
   Skeleton,
   skeletonStyles,
-  skeletonVariantStyles,
   type SkeletonProps,
   type SkeletonShapeProps,
   type SkeletonShapes,
-  type SkeletonVariants,
 } from './feedback/Skeleton';
 export { SkeletonText, type SkeletonTextProps } from './feedback/SkeletonText';
 export {
@@ -1349,8 +1347,6 @@ export {
   type TextTones,
   type TextWrap,
   type TextWraps,
-  type Tone,
-  type Tones,
 } from './utils/style/typography';
 
 // 工具：焦点、漫游焦点、弹层、定位、拖动、波纹、路由链接、快捷键、剪贴板

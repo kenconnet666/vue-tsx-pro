@@ -20,8 +20,7 @@ import {
   type UiRouter,
 } from './context';
 import { splitComponents, type ComponentsOptions } from './components';
-import { mergeDefaults, type ComponentDefaults } from './defaults';
-import { mergeStyles, type ComponentStyles } from './styles';
+import { mergeStyles } from './styles';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
 import type { WorkCalendar } from '../utils/data/workdays';
@@ -43,10 +42,6 @@ export interface UiOptions {
    * `{ Button: { defaults: { variant: 'outline' }, styles: { root: { letterSpacing: '0.02em' } } } }`
    */
   components?: ComponentsOptions;
-  /** @deprecated 改用 `components` 里各组件的 `defaults`：`{ Button: { defaults: { variant: 'outline' } } }` */
-  defaults?: ComponentDefaults;
-  /** @deprecated 改用 `components` 里各组件的 `styles`（原 `base`）与 `variants` */
-  styles?: ComponentStyles;
   /** 路由适配：站内链接不刷新页面地跳转、导航组件判断当前页（见 UiRouter） */
   router?: UiRouter;
   /** 权限判断：`(权限点) => 用户有没有`，Can、useCan 据此控制按钮等界面；不写时一律放行（见 UiPermissions） */
@@ -182,8 +177,8 @@ export function createUi(options: UiOptions = {}): UiPlugin {
           },
           highlighter: options.highlighter,
           textMatcher: options.textMatcher,
-          defaults: mergeDefaults(options.defaults ?? {}, configured?.defaults),
-          styles: mergeStyles(mergeStyles({}, options.styles), configured?.styles),
+          defaults: configured?.defaults ?? {},
+          styles: mergeStyles({}, configured?.styles),
           router: options.router,
           permissions: options.permissions,
           http: options.http,

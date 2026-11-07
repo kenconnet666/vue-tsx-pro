@@ -78,7 +78,7 @@ describe('Button', () => {
     const root = mount(() => (
       <>
         <Button class="plain">a</Button>
-        <Provider defaults={{ Button: { variant: 'outline' } }}>
+        <Provider components={{ Button: { defaults: { variant: 'outline' } } }}>
           <Button class="configured">b</Button>
           <Button class="explicit" variant="solid">
             c

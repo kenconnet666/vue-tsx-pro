@@ -47,6 +47,12 @@
   换控件（键有类型检查），`pick` / `omit` 只生成一部分。配套 `emptyValues(schema)`（空白的初始值）、`schemaFields`（字段描述）、
   `schemaFilters`（查询栏的条件，值读写传进去的对象）、`schemaConditionFields`（高级筛选的字段）。表单控制器加 `schema`。
   语言包加 `formSubmit`、`formReset`、`formAddRow`、`formRemoveRow`。
+- **破坏性**：删掉标了 `@deprecated` 的旧写法（没有过渡）：`createUi` / `Provider` 的 `defaults`、`styles`（改用
+  `components: { Button: { defaults, styles, variants } }`，`styles` 即原来的 `base`），`styles.Tab`（写 `Tabs`）；
+  Skeleton 的 `variant`、`SkeletonVariants`、`skeletonVariantStyles`（改 `shape`、`SkeletonShapes`、`skeletonShapeStyles`）；
+  WaveGrid 的 `variant`、`WaveGridVariants`（改 `type`、`WaveGridTypes`）；TimelineChart 系列的 `variant`（改 `type`）；
+  `Tones`、`Tone`（改 `TextTones`、`TextTone`）；tsx 的 `Theme`（改 `VarTheme`）、配方组合档位的 `when`（改 `match`），
+  `@zerodep-dev/vue-tsx-pro-tsx/styles` 不再转出 `hotStyles`、`inlineStyle`、`ConditionMatcher`（在 `styles/internal`）。
 - 字段约束认 `z.iso.datetime({ local: true })`：输入框不再把它当普通文字。
 - `useFormDialog` 的表单加了 `novalidate`：必填没填时只显示字段下的错误，不再弹浏览器自带的气泡。
 

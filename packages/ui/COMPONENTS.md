@@ -509,7 +509,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
   - **CloseButton / ClearButton**：同一个工厂生成的预设，图标来自 Lucide（X、CircleX），名称取语言包。
   - 部件：`propsContent`、`propsIcon`、`propsIconEnd`、`propsSpinner`。
   - 实底按钮悬停时混入黑色加深（不用 accentHover / dangerHover），白字对比度只升不降。
-- **组件默认值** `config/defaults.ts`：`createUi({ defaults })` / `<Provider defaults>`，优先级：显式 prop > 最近的 Provider > createUi > 组件自己的默认；只收外观类选项。按钮家族经 `useButtonAppearance` 统一合并。
+- **组件默认值** `config/defaults.ts`：`createUi({ components: { Button: { defaults } } })` / `<Provider components>`，优先级：显式 prop > 最近的 Provider > createUi > 组件自己的默认；只收外观类选项。按钮家族经 `useButtonAppearance` 统一合并。
 - **路由适配** `UiRouter`（参考 React Aria 的 RouterProvider）：`navigate(href)`、`isActive(href)`；组件渲染真正的 `<a href>`，只拦普通左键点击的同源链接（`utils/dom/link.ts` 的 `useRouterLink`）。vue-router 用子路径 `@zerodep-dev/vue-tsx-pro-ui/vue-router` 的 `vueRouterAdapter(router, { match })`。
 - **波纹** `utils/dom/ripple.ts`：按下处扩散、松开淡出，键盘 Enter / 空格从中心扩散，纯 CSS 动画，时长取 durations（减少动态效果时没有扩散过程）。默认开启，`createUi({ ripple })` / `<Provider ripple>` 全局开关，组件的 `ripple` prop 单独覆盖（`useRipple`）。
 - **Spinner**：Lucide 的 LoaderCircle 加旋转；有 `label` 时 `role="status"`。旋转不随 durations 变为 0（它本身就是信息），减少动态效果时转慢。

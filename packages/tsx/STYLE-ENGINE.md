@@ -191,7 +191,7 @@ return () => <button {...s().root}>{icon && <Icon {...s().icon} icon={icon} />}<
 ```
 
 - 档位的类型从 `XxxVariants` 接口来（接口上的中文注释照旧给 API 表与悬停提示用），配方的键必须对得上；
-  使用方用接口扩展加档位（如 `size: 'xl'`）后，在 `createUi({ defaults: { Button: { variants: { size: { xl: {…} } } } } })` 里给样式。
+  使用方用接口扩展加档位（如 `size: 'xl'`）后，在 `createUi({ components: { Button: { variants: { size: { xl: {…} } } } } })` 里给样式。
 - 合并顺序固定：配方的基础 < 档位 < 组合档位 < Provider 里的主题覆盖 < 部件属性的 `sx`（按属性键合并，后写的赢）。
 - 每个部件自动带 `data-scope="button" data-part="icon"`，使用方的全局 CSS、测试都能稳定地选中部件，不依赖哈希类名。
 
@@ -386,7 +386,7 @@ sx 组的 hot 是条件类（`item.hot && styles.hot`，编译器改写成 `css.
 §4.6 里计划的组件层，这一轮补齐并用到组件库里：
 
 - **配方带名字、可扩展**：`css.recipe({ name, … })`，调用时可以追加扩展（`base` 与档位的样式排在配方之后，扩展能给新的档位取值），
-  按扩展对象缓存。组件库的 `useRecipe(recipe)` 把 `createUi({ styles })` / `<Provider styles>` 的定制按层（外层在前）交给配方，
+  按扩展对象缓存。组件库的 `useRecipe(recipe)` 把 `createUi({ components })` / `<Provider components>` 里各组件的 `styles`、`variants` 按层（外层在前）交给配方，
   渲染时得到每个部件的默认层 `{ sx, data-scope, data-part }`，直接交给 `mergeAttrs`。组件的外观档位与部件都走配方：
   Button、Badge / Tag、Tab、Alert、Link、Indicator、Avatar、Card、Progress、Empty、Result、Dialog / AlertDialog、Drawer、
   输入框外壳、勾选类、表格。Dialog、Drawer 的配方并进了 ModalCore 的共有部件（标题行、标题、关闭按钮、说明、正文、页脚）。

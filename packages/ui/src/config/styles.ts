@@ -13,10 +13,7 @@ import type { ComponentName, PartOf } from './components';
 import { useConfig } from './context';
 
 /** 可以定制样式的组件与它们的部件：从 UiComponents（components.ts）推出 */
-export type ComponentStyles = { [Name in ComponentName]?: RecipeExtension<PartOf<Name>> } & {
-  /** @deprecated 改名为 Tabs（配方名与 useDefaults 的名字统一） */
-  Tab?: RecipeExtension<PartOf<'Tabs'>>;
-};
+export type ComponentStyles = { [Name in ComponentName]?: RecipeExtension<PartOf<Name>> };
 
 /** 各层的定制：外层在前，组件按顺序交给配方（内层排在后面、盖过外层） @internal */
 export type StyleLayers = {
@@ -27,8 +24,7 @@ export type StyleLayers = {
 export function mergeStyles(outer: StyleLayers, inner: ComponentStyles | undefined): StyleLayers {
   if (!inner) return outer;
   const merged: Record<string, readonly unknown[] | undefined> = { ...outer };
-  for (const [key, extension] of Object.entries(inner)) {
-    const name = key === 'Tab' ? 'Tabs' : key;
+  for (const [name, extension] of Object.entries(inner)) {
     if (extension) merged[name] = [...(merged[name] ?? []), extension];
   }
   return merged as StyleLayers;

@@ -13,7 +13,7 @@ describe('Badge', () => {
     const square = mount(() => <Badge radius="none">待启动</Badge>).firstElementChild!;
     expect(hasStyles(square, radiusStyles.none)).toBe(true);
     const fromDefaults = mount(() => (
-      <Provider defaults={{ Badge: { radius: 'none' } }}>
+      <Provider components={{ Badge: { defaults: { radius: 'none' } } }}>
         <Badge>验证中</Badge>
       </Provider>
     )).querySelector('span')!;
@@ -41,7 +41,7 @@ describe('Badge', () => {
     const root = mount(() => (
       <>
         <Badge class="a">a</Badge>
-        <Provider defaults={{ Badge: { tone: 'success' } }}>
+        <Provider components={{ Badge: { defaults: { tone: 'success' } } }}>
           <Badge class="b">b</Badge>
         </Provider>
       </>

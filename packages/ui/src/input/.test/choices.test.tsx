@@ -233,7 +233,7 @@ describe('色调', () => {
         <RadioGroup tone="warning">
           <Radio value="x">c</Radio>
         </RadioGroup>
-        <Provider defaults={{ Choice: { tone: 'danger' } }}>
+        <Provider components={{ Choice: { defaults: { tone: 'danger' } } }}>
           <Checkbox>d</Checkbox>
           <Checkbox tone="info">e</Checkbox>
         </Provider>
