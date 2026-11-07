@@ -254,6 +254,11 @@ export {
   type ImageProps,
 } from './display/Image';
 export {
+  InfiniteListStatus,
+  infiniteListStatusStyles,
+  type InfiniteListStatusProps,
+} from './display/InfiniteListStatus';
+export {
   ItemList,
   ItemListItem,
   type ItemListDensities,
@@ -1661,6 +1666,12 @@ export {
   type AutosaveOptions,
   type AutosaveStatus,
 } from './utils/request/use-autosave';
+export {
+  useInfiniteList,
+  type InfiniteListOptions,
+  type InfiniteListState,
+  type InfinitePage,
+} from './utils/request/use-infinite-list';
 export {
   useRequest,
   type RequestCache,

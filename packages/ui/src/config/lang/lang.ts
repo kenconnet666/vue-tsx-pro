@@ -236,8 +236,10 @@ export interface Lang {
   readonly tableSelectedCount: (count: number) => string;
   /** 选项列表：输入搜索词后给读屏播报的结果条数，默认“{count} 个选项” */
   readonly listResultCount: (count: number) => string;
-  /** 远程选项（Select、Combobox、TreeSelect 的 load）加载失败时列表里的提示，默认“加载失败，请重试” */
+  /** 远程选项（Select、Combobox、TreeSelect 的 load）、滚动加载的列表（InfiniteListStatus）加载失败时的提示，默认“加载失败，请重试” */
   readonly listLoadFailed: string;
+  /** 滚动加载的列表取完了（InfiniteListStatus），默认“没有更多了” */
+  readonly listNoMore: string;
   /** 批量操作栏里取消全部选择的按钮，默认“取消选择” */
   readonly tableClearSelection: string;
   /** 详情列的列标题（只给读屏），默认“详情” */

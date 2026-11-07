@@ -78,7 +78,8 @@ const guide: NavSection = {
     {
       path: '/guide/data',
       title: 'Data 请求与数据',
-      description: '配置请求客户端、换成 axios 或 ky，useRequest 管加载、出错、防抖与取消',
+      description:
+        '配置请求客户端、换成 axios 或 ky，useRequest 管加载、出错、防抖与取消，useInfiniteList 管滚动加载',
       component: () => import('../pages/guide/Data'),
     },
     {

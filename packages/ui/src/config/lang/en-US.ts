@@ -122,6 +122,7 @@ export const enUS: Lang = {
   tableSelectedCount: (count) => `${count} selected`,
   listResultCount: (count) => (count === 1 ? '1 option' : `${count} options`),
   listLoadFailed: 'Failed to load. Try again.',
+  listNoMore: 'No more items',
   tableClearSelection: 'Clear selection',
   tableDetails: 'Details',
   tableRowDetails: (row) => `Details of ${row}`,

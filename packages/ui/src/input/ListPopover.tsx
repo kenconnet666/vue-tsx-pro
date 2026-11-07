@@ -34,8 +34,8 @@ export interface ListPopoverProps<T> {
   labelledBy?: string;
   /** 列表的名称：没有外部标签时用这段文字（aria-label） */
   label?: string;
-  /** 加载中：列表换成骨架行 */
-  loading?: boolean;
+  /** 加载中：列表换成骨架行；'more'（远程分页取下一页）时骨架接在末尾 */
+  loading?: boolean | 'more';
   /** 点选了一项 */
   onPick?: (value: string) => void;
   /** 列表的组件自己给的属性（list、id、渲染方式…），使用方的 propsListbox 可以覆盖 */

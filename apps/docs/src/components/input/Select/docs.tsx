@@ -11,6 +11,7 @@ import Appearance from './demo/Appearance.tsx?demo';
 import Assign from './demo/Assign.tsx?demo';
 import Members from './demo/Members.tsx?demo';
 import Searchable from './demo/Searchable.tsx?demo';
+import Suppliers from './demo/Suppliers.tsx?demo';
 import Tags from './demo/Tags.tsx?demo';
 
 export const meta = {
@@ -58,6 +59,13 @@ export default _component(() => () => (
           是第一次结果之前的选项（编辑页放上已选的那几项）。
           <Code>renderValue</Code> 自定义触发框里的已选内容（这里是头像叠放加名字），返回 null
           时显示占位文字；分组来自选项的 <Code>group</Code>。
+        </Example>
+        <Example id="paged" title="远程搜索与分页" demo={Suppliers}>
+          选项太多、要分页取时，<Code>load</Code> 的第三个参数是第几页（从 1 开始），返回{' '}
+          <Code>{'{ items, next }'}</Code>
+          ：滚到列表末尾时带着 next 取下一页，已有的选项留着、骨架接在后面；没有更多时不给
+          next。换了搜索词从第一页重来，翻页时重复的项不会出现两次。和{' '}
+          <Link href="/guide/data#infinite-list">useInfiniteList</Link> 是同一套。
         </Example>
         <Example id="appearance" title="图标、外观与状态" demo={Appearance}>
           <Code>icon</Code>、<Code>variant</Code>、<Code>size</Code>、<Code>radius</Code>{' '}

@@ -1,8 +1,16 @@
-// 滚动加载：onRangeChange 报告可见行的范围，离末尾不到 10 行时取下一页；取的时候 loading，骨架接在末尾。
-// estimateRowHeight 是行高的估计（这里内容会换行，估高一些滚动条更准）
+// 滚动加载：useInfiniteList 管页码、是否还有更多与失败重试，onRangeChange 交给表格，离末尾不到 10 行时取下一页；
+// 取的时候 loading，骨架接在末尾。estimateRowHeight 是行高的估计（这里内容会换行，估高一些滚动条更准）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { DataTable, Flex, Small, type DataTableColumn } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  DataTable,
+  Flex,
+  InfiniteListStatus,
+  Small,
+  useInfiniteList,
+  type DataTableColumn,
+  type InfinitePage,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 interface Event {
   id: number;
@@ -20,19 +28,16 @@ const messages = [
 ];
 
 /** 模拟接口：第 page 页的事件，400ms 后返回 */
-const fetchPage = (page: number) =>
-  new Promise<Event[]>((resolve) =>
-    setTimeout(
-      () =>
-        resolve(
-          Array.from({ length: PAGE }, (_, index) => {
-            const id = page * PAGE + index + 1;
-            const minutes = String(id % 60).padStart(2, '0');
-            return { id, at: `10:${minutes}`, message: messages[id % messages.length]! };
-          }),
-        ),
-      400,
-    ),
+const fetchPage = (page = 0) =>
+  new Promise<InfinitePage<Event, number>>((resolve) =>
+    setTimeout(() => {
+      const items = Array.from({ length: PAGE }, (_, index) => {
+        const id = page * PAGE + index + 1;
+        const minutes = String(id % 60).padStart(2, '0');
+        return { id, at: `10:${minutes}`, message: messages[id % messages.length]! };
+      });
+      resolve({ items, next: (page + 1) * PAGE < TOTAL ? page + 1 : undefined });
+    }, 400),
   );
 
 const columns: DataTableColumn<Event>[] = [
@@ -44,33 +49,23 @@ const columns: DataTableColumn<Event>[] = [
 const styles = css.create({ table: { height: '18rem' } });
 
 export default _component(() => {
-  let rows = _state.raw<Event[]>([]);
-  let loading = _state(false);
-
-  async function loadMore() {
-    if (loading || rows.length >= TOTAL) return;
-    loading = true;
-    rows = [...rows, ...(await fetchPage(rows.length / PAGE))];
-    loading = false;
-  }
-  void loadMore();
+  const events = useInfiniteList(fetchPage, { key: (event) => event.id, threshold: 10 });
 
   return () => (
     <Flex direction="column" gap="sm">
       <DataTable
-        rows={rows}
+        rows={events.items}
         columns={columns}
         getKey={(event) => String(event.id)}
-        loading={loading}
+        loading={events.loading}
         estimateRowHeight={44}
-        onRangeChange={({ endIndex }) => {
-          if (endIndex >= rows.length - 10) void loadMore();
-        }}
+        onRangeChange={events.onRangeChange}
         aria-label="事件流"
         propsRoot={{ sx: styles.table }}
       />
+      <InfiniteListStatus list={events} />
       <Small tone="muted">
-        已加载 {rows.length} / {TOTAL} 条
+        已加载 {events.items.length} / {TOTAL} 条
       </Small>
     </Flex>
   );

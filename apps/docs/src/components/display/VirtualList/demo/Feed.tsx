@@ -1,13 +1,16 @@
+// 运行日志：useInfiniteList 一页页取，滚到最后几行时取下一页；第 3 页第一次会失败，列表下方出现“重试”
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Card,
   Flex,
+  InfiniteListStatus,
   Small,
   Text,
+  useInfiniteList,
   VirtualList,
+  type InfinitePage,
   type TextTone,
-  type VisibleRange,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const levels = ['INFO', 'WARN', 'INFO', 'ERROR', 'INFO', 'DEBUG'] as const;
@@ -26,15 +29,14 @@ const messages = [
   '定时任务 report:daily 开始执行，预计耗时 3 分钟，完成后会把结果推送到运营群',
 ];
 
-const pageOf = (start: number) =>
-  Array.from({ length: 30 }, (_, offset) => {
-    const index = start + offset;
-    return {
-      id: index,
-      level: levels[index % levels.length]!,
-      message: messages[index % messages.length]!,
-    };
-  });
+interface LogEntry {
+  id: number;
+  level: (typeof levels)[number];
+  message: string;
+}
+
+const PAGE = 30;
+const PAGES = 5;
 
 const styles = css.create({
   list: { height: '22rem' },
@@ -44,31 +46,37 @@ const styles = css.create({
 });
 
 export default _component(() => {
-  let entries = _state<ReturnType<typeof pageOf>>([]);
-  let loading = _state(false);
-
-  const loadMore = () => {
-    if (loading) return;
-    loading = true;
-    setTimeout(() => {
-      entries = [...entries, ...pageOf(entries.length)];
-      loading = false;
-    }, 900);
-  };
-  // 滚到最后几行时自动取下一页
-  const onRangeChange = ({ endIndex }: VisibleRange) => {
-    if (endIndex >= entries.length - 5) loadMore();
-  };
-  loadMore();
+  let failed = false;
+  /** 假的日志接口：第 page 页，900 ms 后返回；第 3 页第一次失败 */
+  const fetchLogs = (page = 1) =>
+    new Promise<InfinitePage<LogEntry, number>>((resolve, reject) =>
+      setTimeout(() => {
+        if (page === 3 && !failed) {
+          failed = true;
+          reject(new Error('网关超时'));
+          return;
+        }
+        const items = Array.from({ length: PAGE }, (_, offset) => {
+          const index = (page - 1) * PAGE + offset;
+          return {
+            id: index,
+            level: levels[index % levels.length]!,
+            message: messages[index % messages.length]!,
+          };
+        });
+        resolve({ items, next: page < PAGES ? page + 1 : undefined });
+      }, 900),
+    );
+  const logs = useInfiniteList(fetchLogs, { key: (entry) => entry.id });
 
   return () => (
     <Card padding="none">
       <VirtualList
-        items={entries}
+        items={logs.items}
         getKey={(entry) => entry.id}
         estimateSize={32}
-        loading={loading}
-        onRangeChange={onRangeChange}
+        loading={logs.loading}
+        onRangeChange={logs.onRangeChange}
         aria-label="运行日志"
         sx={styles.list}
       >
@@ -81,8 +89,9 @@ export default _component(() => {
           </Flex>
         )}
       </VirtualList>
+      <InfiniteListStatus list={logs} />
       <Small tone="muted" sx={styles.padded}>
-        已加载 {entries.length} 条
+        已加载 {logs.items.length} / {PAGE * PAGES} 条
       </Small>
     </Card>
   );

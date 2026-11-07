@@ -151,7 +151,8 @@ export default _component(() => () => (
         <Example id="infinite" title="滚动加载" demo={Infinite}>
           <Code>onRangeChange</Code>{' '}
           报告可见行的范围（不含预渲染的行），离末尾不远时取下一页；取的时候 <Code>loading</Code>
-          ，已有数据所以只在表头下方显示进度条。内容会换行时给 <Code>estimateRowHeight</Code>{' '}
+          ，已有数据所以骨架接在末尾。页码、去重与失败重试交给 <Code>useInfiniteList</Code>
+          ，它的 onRangeChange 直接交给表格。内容会换行时给 <Code>estimateRowHeight</Code>{' '}
           一个接近的估计，滚动条更准。
         </Example>
       </ExampleColumn>

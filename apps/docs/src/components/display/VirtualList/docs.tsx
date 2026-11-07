@@ -29,7 +29,9 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="feed" title="滚动加载" demo={Feed}>
           <Code>onRangeChange</Code> 报告可见范围，接近末尾时取下一页。<Code>loading</Code>{' '}
-          时只用骨架：没有数据时铺几行，已有数据（取下一页）时接在末尾。
+          时只用骨架：没有数据时铺几行，已有数据（取下一页）时接在末尾。页码、去重、是否还有更多与失败重试交给{' '}
+          <Code>useInfiniteList</Code>，列表下方的 <Code>InfiniteListStatus</Code>{' '}
+          显示“重试”与“没有更多了”（这里第 3 页第一次会失败）。
         </Example>
         <Example id="horizontal" title="横向与跳到指定项" demo={Horizontal}>
           <Code>horizontal</Code> 横向排列与滚动（给宽度），<Code>estimateSize</Code> 是估计的宽度；

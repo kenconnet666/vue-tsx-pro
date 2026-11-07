@@ -80,7 +80,10 @@ export interface ComboboxBaseProps<T>
   _open?: boolean;
   /** 过滤：默认按显示文字包含输入（忽略大小写与重音）；函数自定义；false 不过滤（异步搜索） */
   filter?: false | ((item: T, query: string) => boolean);
-  /** 远程选项：打开时与输入停下 300 ms 后按输入调用，结果代替 items；只采用最后一次，被顶掉的请求 signal 中止 */
+  /**
+   * 远程选项：打开时与输入停下 300 ms 后按输入调用，结果代替 items；只采用最后一次，被顶掉的请求 signal 中止。
+   * 分页：第三个参数是第几页，返回 { items, next } 时滚到列表末尾取下一页（同 Select）
+   */
   load?: OptionsLoader<T>;
   /** 允许输入不在选项里的文字：失焦时保留，value 为 null */
   allowCustomValue?: boolean;
@@ -193,6 +196,7 @@ export const Combobox = _component(
       query: () => query,
       open: () => open,
       items: () => items,
+      key: (item) => optionOf(item).value,
     });
     const list = useListState({
       // 有 load 或 filter={false} 时由服务端按输入过滤
@@ -295,7 +299,7 @@ export const Combobox = _component(
 
     // 列表是否真的弹出：hideEmpty 时没有可选的项（也不在加载）就不弹
     const shown = () =>
-      open && (!hideEmpty || list.options.length > 0 || loading || remote.loading());
+      open && (!hideEmpty || list.options.length > 0 || loading || remote.loading() !== false);
 
     // 弹层贴着外壳、与它同宽；焦点一直在输入框上，关闭时不用归还
     const { onToggle } = useAnchoredPopover(
@@ -396,6 +400,7 @@ export const Combobox = _component(
               id: listId,
               renderOption: children,
               empty: remote.failure() ?? empty,
+              onRangeChange: remote.onRangeChange,
             }}
             propsListbox={propsListbox}
             propsPopover={propsPopover}

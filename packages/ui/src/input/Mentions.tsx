@@ -44,7 +44,7 @@ export interface MentionsBaseProps<T>
   extends Omit<TextareaProps, MentionsManaged>, OpenChangeProps {
   /** 可以提及的人（ListboxOption、字符串，或任意数据加 toOption）；有 load 时是第一次结果之前的选项 */
   items?: readonly T[];
-  /** 远程搜索：按 @ 后面的文字调用，停下 300 ms 后请求，只采用最后一次 */
+  /** 远程搜索：按 @ 后面的文字调用，停下 300 ms 后请求，只采用最后一次；返回 { items, next } 时分页（同 Select） */
   load?: OptionsLoader<T>;
   /** 文字里提到的选项的值：父级写 _mentions={x}，随文字更新 */
   _mentions?: string[];
@@ -220,6 +220,7 @@ export const Mentions = _component(
       query: () => query,
       open: () => open,
       items: () => items,
+      key: (item) => optionOf(item).value,
     });
     const list = useListState({
       items: () =>
@@ -386,6 +387,7 @@ export const Mentions = _component(
             id: listId,
             renderOption: children,
             empty: remote.failure() ?? empty ?? lang.mentionsEmpty,
+            onRangeChange: remote.onRangeChange,
           }}
           propsListbox={propsListbox}
           propsPopover={mergePartProps<PartProps<'div', 'id' | 'popover'>>(

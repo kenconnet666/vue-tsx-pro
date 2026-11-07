@@ -1,6 +1,6 @@
 /**
  * 指南：请求与数据。配置请求客户端（拆后端的包装、加令牌）、换成 axios 或 ky、useRequest 的行为（演示连着内存里的假接口）、
- * 出错与取消
+ * 服务端分页、滚动加载、出错与取消
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
@@ -9,6 +9,7 @@ import {
   CodeBlock,
   Flex,
   H2,
+  Link,
   List,
   ListItem,
   Paragraph,
@@ -70,6 +71,22 @@ const cities = useRequest((province, signal) => http.get<City[]>('/cities', { qu
 
 // 全栈框架（kit）里：服务端的写入经 SSE 推来改了的表名
 listenInvalidation((tags) => (tags ? cache.invalidateTag(tags) : cache.invalidatePrefix('')));`;
+
+const infiniteList = `import { InfiniteListStatus, useHttp, useInfiniteList, VirtualList } from '@zerodep-dev/vue-tsx-pro-ui';
+
+const http = useHttp();
+const orders = useInfiniteList(
+  async (page = 1, { keyword }, signal) => {
+    const result = await http.get<Page<Order>>('/orders', { query: { keyword, page, pageSize: 20 }, signal });
+    return { items: result.rows, next: page * 20 < result.total ? page + 1 : undefined };
+  },
+  { params: () => ({ keyword }), debounce: 300, key: (order) => order.id },
+);
+
+<VirtualList items={orders.items} loading={orders.loading} onRangeChange={orders.onRangeChange} getKey={(order) => order.id}>
+  {(order) => <OrderRow order={order} />}
+</VirtualList>
+<InfiniteListStatus list={orders} />`;
 
 const errors = `import { defineLang, HttpError, isAbortError, useErrorMessage, zhCN } from '@zerodep-dev/vue-tsx-pro-ui';
 
@@ -200,6 +217,46 @@ export default _component(() => () => (
       <CodePreview code={SupplierTable.source}>
         {h(Provider, { http: demoHttp }, () => h(SupplierTable.component))}
       </CodePreview>
+    </Flex>
+    <Flex direction="column" gap="md">
+      <H2 id="infinite-list" size="xl" anchor>
+        滚动加载：useInfiniteList
+      </H2>
+      <Paragraph>
+        动态、日志、长列表往下滚接着取的那种列表交给 <Code>useInfiniteList</Code>
+        ：一页一页取、接在已有的后面，按 <Code>key</Code>{' '}
+        {
+          '去掉重复的项（翻页期间有新数据插进来时，下一页开头会和上一页结尾重复），记住还有没有下一页。fetcher 拿到上一页给的游标（页码、偏移、服务端的 cursor，第一页时是 undefined），返回 '
+        }
+        <Code>{'{ items, next }'}</Code>，没有下一页时不给 next。
+      </Paragraph>
+      <List>
+        <ListItem>
+          <Code>onRangeChange</Code> 直接交给 VirtualList、DataTable：可见范围离末尾不到{' '}
+          <Code>threshold</Code>（默认 5）项时取下一页，正在取、取完了时不取；
+          <Code>loading</Code> 交给它们，骨架接在末尾。
+        </ListItem>
+        <ListItem>
+          失败时停下：列表下方放 <Code>InfiniteListStatus</Code>
+          {'，显示出错原因与“重试”，取完了显示“没有更多了”；再滚动、或调用 '}
+          <Code>loadMore()</Code> 也会接着取。
+        </ListItem>
+        <ListItem>
+          <Code>params</Code> 变了（<Code>debounce</Code> 之后）、调用 <Code>refresh()</Code>{' '}
+          时从第一页重来：先清空、取消进行中的，只采用最后一次的结果。
+        </ListItem>
+        <ListItem>
+          Select、Combobox、Mentions 的远程选项是同一套：<Code>load</Code> 返回{' '}
+          <Code>{'{ items, next }'}</Code> 时滚到列表末尾取下一页（见{' '}
+          <Link href="/components/select#paged">Select 的远程搜索与分页</Link>）。
+        </ListItem>
+      </List>
+      <CodeBlock title="orders.tsx" code={infiniteList} lang="tsx" />
+      <Paragraph>
+        能动的例子在 <Link href="/components/virtual-list#feed">VirtualList 的滚动加载</Link>（第 3
+        页第一次失败，试试重试）与{' '}
+        <Link href="/components/data-table#infinite">DataTable 的滚动加载</Link>。
+      </Paragraph>
     </Flex>
     <Flex direction="column" gap="md">
       <H2 id="errors" size="xl" anchor>

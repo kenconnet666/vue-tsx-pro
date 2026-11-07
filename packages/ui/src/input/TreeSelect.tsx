@@ -65,7 +65,7 @@ import {
   type ControlOptions,
 } from './control';
 import { listPopoverStyles } from './ListPopover';
-import { useRemoteItems, type OptionsLoader } from './remote-items';
+import { useRemoteItems } from './remote-items';
 import { selectStyles, type SelectManaged } from './Select';
 import { SelectedTags, type SelectedTagsProps } from './SelectedTags';
 import { TextField, type TextFieldProps } from './TextField';
@@ -113,7 +113,7 @@ export interface TreeSelectProps<T>
   /** 搜索框里的文字：打开时清空；父级写 _search={x} 拿到它（自己发请求时） */
   _search?: string;
   /** 远程搜索：打开时与搜索词停下 300 ms 后调用，返回命中的节点连同祖先（顶层节点），结果代替 items */
-  load?: OptionsLoader<T>;
+  load?: (query: string, signal: AbortSignal) => Promise<readonly T[]>;
   /** 表单提交时的 name（用隐藏的 input） */
   name?: string;
   /** 不可用 */
@@ -207,6 +207,7 @@ export const TreeSelect = _component(
       query: () => search,
       open: () => open,
       items: () => items,
+      key: (node) => getKey(node),
     });
     let expanded = _state<string[]>([]);
     let shell = _state.raw<HTMLElement | null>(null);
@@ -364,7 +365,7 @@ export const TreeSelect = _component(
           hasChildren,
           filter: treeFilter(),
           loadChildren,
-          loading: remote.loading(),
+          loading: remote.loading() !== false,
           empty: remote.failure() ?? (search.trim() ? lang.selectNoMatch : undefined),
           isDisabled,
           propsScrollArea: { sx: treeSelectStyles.tree },

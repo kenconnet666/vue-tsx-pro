@@ -45,6 +45,12 @@
   单个固定在视口的结束边底角（留出安全区），一组时竖排在一起；FloatButtonGroup 给了 `icon` 是速拨（主按钮展开、收起其余按钮，
   `_open` 双向，Esc 或点外面收起）。BackTop 现在是一个 FloatButton：悬停有提示，可以放进 FloatButtonGroup（没出现时不占位），
   位置同样留出安全区；`backTopStyles.root` 换成 `fade`（单独用时的淡入淡出）。
+- 新增 `useInfiniteList`（滚动加载）：一页页取、接在后面，按 `key` 去重，记住还有没有下一页；`onRangeChange` 直接交给
+  VirtualList、DataTable，离末尾不到 `threshold` 项时取下一页；`params` 变了或 `refresh()` 从第一页重来，失败时停下等重试。
+  新组件 InfiniteListStatus 放在列表下方：失败时显示原因与“重试”，取完了显示“没有更多了”；语言包加了 `listNoMore`。
+- 远程选项可以分页：Select、Combobox、Mentions 的 `load` 多了第三个参数（第几页，从 1 开始），返回 `{ items, next }` 时
+  滚到列表末尾取下一页，已有的选项留着、骨架接在后面，重复的值只留一个。ListboxView 的 `loading` 可以是 `'more'`（骨架接在末尾），
+  新增 `onRangeChange`。TreeSelect 的 `load` 只收数组。
 - Dialog 加 `draggable`：按住标题栏拖动（标题栏上的按钮照常点），不超出窗口，每次打开回到正中；位移用 `translate`。
 - 可选中的 Tag：写了 `_selected` 时整个标签是按钮（`aria-pressed`），点一下切换；没选中时有描边，选中时实底色加对勾，
   不写色调时用 accent、字号默认 sm。筛选条件的一排标签用它。

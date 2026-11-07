@@ -13,7 +13,7 @@
  * 虚拟滚动（useVirtualizer）：高亮项总在渲染范围里（aria-activedescendant 才指得到），键盘移动时滚进可见范围；
  * 选项带 aria-setsize / aria-posinset，读屏知道总数与位置。分组标题只是视觉上的一行（各行独立定位，没法用
  * role="group" 包住组里的选项），组名经 aria-describedby 交给组里的每个选项。
- * loading：选项换成骨架行（首次加载与刷新一样，不再另加进度条）；列表带 aria-busy。
+ * loading：选项换成骨架行（首次加载与刷新一样，不再另加进度条）；'more'（远程分页取下一页）时骨架接在已有的选项后面；列表带 aria-busy。
  *
  * 部件：Root（div，role="listbox"）、GroupLabel、Option（div，role="option"）、Check（已选标记）、Skeleton（加载中的占位行）。
  */
@@ -42,7 +42,7 @@ import { ScrollArea } from '../layout/ScrollArea';
 import { selectedValues, type SelectionProps } from '../utils/data/selection';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
-import { defaultRangeExtractor } from '../utils/virtual/virtualizer';
+import { defaultRangeExtractor, type VisibleRange } from '../utils/virtual/virtualizer';
 import { useFieldControl } from '../form/Field';
 import {
   handleListKeydown,
@@ -77,8 +77,10 @@ export interface ListboxViewProps<T> extends PartProps<'div', 'role'> {
   multiple?: boolean;
   /** 滚动容器：Select、Combobox 的弹出层；不给时列表自己滚动（ScrollArea 的浮层滚动条，最高 20em，用 sx 改） */
   scroller?: HTMLElement | null;
-  /** 加载中：选项换成骨架行 */
-  loading?: boolean;
+  /** 加载中：true 时选项换成骨架行；'more'（远程分页取下一页）时已有的选项留着，骨架接在末尾 */
+  loading?: boolean | 'more';
+  /** 可见范围变化（行号含分组标题）：远程分页时接近末尾取下一页 */
+  onRangeChange?: (range: VisibleRange) => void;
   /** 选项的估计高度（px），默认 36；渲染后以实际高度为准 */
   estimateSize?: number;
   /** 自定义选项内容：拿到 items 里的原始数据 */
@@ -110,8 +112,9 @@ type Row<T> =
       groupId: string | undefined;
     };
 
-/** 加载中显示几行骨架 */
+/** 加载中显示几行骨架：没有选项时铺几行，远程分页取下一页时接在末尾几行 */
 const SKELETON_ROWS = 4;
+const MORE_SKELETON_ROWS = 2;
 
 /** Listbox 的样式：root、scroll、sizer、row、groupLabel、content 等 */
 /** 列表本身的部件标记（data-scope="listbox" data-part="root"）：使用方的全局样式能选中它，也让它和别的部件一样 border-box */
@@ -153,6 +156,7 @@ export const ListboxView = _component(
     multiple = false,
     scroller,
     loading = false,
+    onRangeChange,
     estimateSize = 36,
     renderOption,
     empty,
@@ -166,7 +170,7 @@ export const ListboxView = _component(
   }: ListboxViewProps<T>) => {
     const lang = useLang();
     // 骨架防闪烁；aria-busy 按真实的 loading
-    const indicator = useDelayedLoading(() => loading);
+    const indicator = useDelayedLoading(() => loading !== false);
     let root = _state.raw<HTMLElement | null>(null);
     let sizer = _state.raw<HTMLElement | null>(null);
 
@@ -220,6 +224,7 @@ export const ListboxView = _component(
         estimateSize: (index: number) => (current[index]?.kind === 'group' ? 30 : size),
         getItemKey: (index: number) => current[index]!.key,
         overscan: 6,
+        onRangeChange,
         rangeExtractor: (range) => {
           const indices = defaultRangeExtractor(range);
           if (active >= 0 && !indices.includes(active)) {
@@ -339,21 +344,28 @@ export const ListboxView = _component(
       );
     }
 
+    const skeletonRows = (count: number) =>
+      Array.from({ length: count }, (_, index) => (
+        <Skeleton
+          key={`skeleton-${index}`}
+          {...mergePartProps<SkeletonProps>(
+            {
+              sx: [listboxStyles.skeleton, listboxPositionStyles.width(`${85 - index * 15}%`)],
+              delay: index * SHIMMER_STAGGER,
+            },
+            propsSkeleton,
+          )}
+        />
+      ));
+
+    // 骨架在加载结束后还会多留一会儿（防闪烁）：这期间按最后一次加载的方式（换掉选项还是接在末尾）显示
+    let lastLoading: true | 'more' = true;
+
     function renderBody() {
-      if (indicator.value) {
-        return Array.from({ length: SKELETON_ROWS }, (_, index) => (
-          <Skeleton
-            key={index}
-            {...mergePartProps<SkeletonProps>(
-              {
-                sx: [listboxStyles.skeleton, listboxPositionStyles.width(`${85 - index * 15}%`)],
-                delay: index * SHIMMER_STAGGER,
-              },
-              propsSkeleton,
-            )}
-          />
-        ));
-      }
+      if (loading !== false) lastLoading = loading;
+      // 远程分页取下一页：已有的选项留着，骨架接在末尾
+      const appending = lastLoading === 'more' && rows.length > 0;
+      if (indicator.value && !appending) return skeletonRows(SKELETON_ROWS);
       if (rows.length === 0) {
         // 加载刚开始、骨架还没到显示的时候（防闪烁）：先空着
         if (loading) return null;
@@ -368,8 +380,9 @@ export const ListboxView = _component(
           )
         );
       }
-      return (
+      const options = (
         <div
+          key="options"
           ref={_toRef(sizer)}
           role="presentation"
           {...css.attrs(listboxStyles.sizer, listboxPositionStyles.height(virtual.total))}
@@ -403,6 +416,7 @@ export const ListboxView = _component(
           })}
         </div>
       );
+      return indicator.value ? [options, ...skeletonRows(MORE_SKELETON_ROWS)] : options;
     }
 
     return () => {
@@ -419,7 +433,7 @@ export const ListboxView = _component(
           id,
           role: 'listbox',
           'aria-multiselectable': multiple || undefined,
-          'aria-busy': loading || undefined,
+          'aria-busy': loading !== false || undefined,
         },
       );
       const body = renderBody();

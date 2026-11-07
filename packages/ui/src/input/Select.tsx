@@ -109,7 +109,10 @@ export interface SelectBaseProps<T>
   filter?: false | ((item: T, query: string) => boolean);
   /** 搜索框里的文字：打开时清空；父级写 _search={x} 拿到它（自己发请求时） */
   _search?: string;
-  /** 远程选项：打开时与搜索词停下 300 ms 后调用，结果代替 items；只采用最后一次，被顶掉的请求 signal 中止 */
+  /**
+   * 远程选项：打开时与搜索词停下 300 ms 后调用，结果代替 items；只采用最后一次，被顶掉的请求 signal 中止。
+   * 分页：第三个参数是第几页，返回 { items, next } 时滚到列表末尾取下一页（next 是下一页的页码，没有了不给）
+   */
   load?: OptionsLoader<T>;
   /**
    * 可以新建选项（自带搜索框）：输入的文字没有对应的选项时，列表末尾多一项“新建“…””，选中后值就是这段文字。
@@ -264,6 +267,7 @@ export const Select = _component(
       query: () => search,
       open: () => open,
       items: () => items,
+      key: (item) => optionOf(item).value,
     });
     // 本地过滤：有 load 或 filter={false} 时交给服务端
     const localFilter = () => !load && filter !== false;
@@ -570,6 +574,7 @@ export const Select = _component(
               list,
               id: listId,
               empty: remote.failure() ?? (search ? lang.selectNoMatch : empty),
+              onRangeChange: remote.onRangeChange,
               renderOption:
                 children &&
                 ((item: T | Creation, state: OptionRenderState) =>

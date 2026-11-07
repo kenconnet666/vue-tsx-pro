@@ -120,6 +120,7 @@ export const zhCN: Lang = {
   tableSelectedCount: (count) => `已选 ${count} 项`,
   listResultCount: (count) => `${count} 个选项`,
   listLoadFailed: '加载失败，请重试',
+  listNoMore: '没有更多了',
   tableClearSelection: '取消选择',
   tableDetails: '详情',
   tableRowDetails: (row) => `${row} 的详情`,
