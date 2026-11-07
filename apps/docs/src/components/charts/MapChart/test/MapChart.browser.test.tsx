@@ -37,7 +37,7 @@ it('省份分 5 档着色，图例是 5 个色块，地点写上名字，地图�
   expect(bins).toHaveLength(5);
   // 地点的名字在画完之后的下一帧排好
   const svg = features[0]!.ownerSVGElement!;
-  await until(() => svg.querySelector('[data-part="point-labels"] text'));
+  await until(() => svg.querySelector('[data-part="pointLabels"] text'));
   for (const label of ['上海总仓', '西安仓', '成都仓']) expect(svg.textContent).toContain(label);
   // 区域的形状在第一帧之后才画出来
   await until(() => fillRatio(root) > 0.9);
@@ -92,7 +92,7 @@ it('流向画成连线，每条一根', async () => {
 it('挤在一起的地点：名字互不重叠、不压地点，挤的画引线', async () => {
   const root = mount(Sites);
   const labels = await until(() => {
-    const texts = [...root.querySelectorAll<SVGTextElement>('[data-part="point-labels"] text')];
+    const texts = [...root.querySelectorAll<SVGTextElement>('[data-part="pointLabels"] text')];
     return texts.length > 0 && texts;
   });
   // 用 getBBox（SVG 坐标、不含描边）：Firefox 的 getBoundingClientRect 把名字的光晕、标记的描边也算进去，Chromium 不算
@@ -120,5 +120,5 @@ it('挤在一起的地点：名字互不重叠、不压地点，挤的画引线'
   expect(labels.filter((text) => delta.includes(text.textContent!)).length).toBeGreaterThanOrEqual(
     5,
   );
-  expect(root.querySelectorAll('[data-part="point-labels"] line').length).toBeGreaterThan(0);
+  expect(root.querySelectorAll('[data-part="pointLabels"] line').length).toBeGreaterThan(0);
 });

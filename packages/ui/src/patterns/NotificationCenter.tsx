@@ -347,7 +347,7 @@ export const NotificationList = _component(
                             notificationListStyles.itemTitle,
                             !item.read && notificationListStyles.itemTitleUnread,
                           )}
-                          {...notificationListPart('item-title')}
+                          {...notificationListPart('itemTitle')}
                         >
                           {!item.read && (
                             <VisuallyHidden>{messages.notificationUnreadMark} </VisuallyHidden>

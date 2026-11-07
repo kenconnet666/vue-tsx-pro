@@ -143,7 +143,7 @@ export const Breadcrumbs = _component(
                   <li
                     key="collapsed"
                     {...mergeAttrs<'li'>(
-                      { sx: breadcrumbsStyles.item, ...breadcrumbsPart('collapsed-item') },
+                      { sx: breadcrumbsStyles.item, ...breadcrumbsPart('collapsedItem') },
                       propsCollapsedItem,
                     )}
                   >

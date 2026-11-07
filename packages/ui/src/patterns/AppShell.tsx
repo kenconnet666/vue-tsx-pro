@@ -481,7 +481,7 @@ export const AppShell = _component(
                   appShellStyles.headerContent,
                   hasContent(nav) && appShellStyles.headerContentAfterNav,
                 ],
-                ...appShellPart('header-content'),
+                ...appShellPart('headerContent'),
               },
               propsHeaderContent,
             )}

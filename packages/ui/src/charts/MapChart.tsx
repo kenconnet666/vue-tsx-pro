@@ -49,6 +49,7 @@ import {
   topologyFeatures,
   type MapTopology,
 } from './geo/topojson';
+import { partAttrs } from '../config/styles';
 import { placeLabels, rectsOverlap, type LabelRect } from './label-layout';
 import { ChartTooltipBox, chartSvgStyles, pointerIn, usePlotArea, type ChartTip } from './plot';
 import { resolveColor, type ChartColor } from './series';
@@ -164,6 +165,9 @@ export interface MapChartProps extends PartProps<'div', 'role' | 'aria-busy'>, C
   /** 点了一个地点 */
   onPointClick?: (point: MapPoint) => void;
 }
+
+/** 部件的标记 */
+const mapChartPart = (part: string) => partAttrs({ name: 'MapChart' }, part);
 
 /** MapChart 的样式 */
 const mapChartStyles = css.create({
@@ -659,7 +663,7 @@ export const MapChart = _component(
               />
             ))}
           </g>
-          <g data-part="area-labels" {...css.attrs(chartSvgStyles.noPointer)}>
+          <g {...css.attrs(chartSvgStyles.noPointer)} {...mapChartPart('areaLabels')}>
             {labels.areas.map((item) => (
               <text
                 key={item.label}
@@ -673,7 +677,7 @@ export const MapChart = _component(
               </text>
             ))}
           </g>
-          <g data-part="point-labels" {...css.attrs(chartSvgStyles.noPointer)}>
+          <g {...css.attrs(chartSvgStyles.noPointer)} {...mapChartPart('pointLabels')}>
             {labels.points.map(({ placement, anchor, item }) => {
               if (!placement) return null;
               const { box, leader } = placement;

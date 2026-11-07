@@ -357,7 +357,7 @@ export const CalendarBoard = _component(
           data-today={state.today || undefined}
           data-outside={state.outside || undefined}
         >
-          <div {...css.attrs(calendarBoardStyles.dayHead)} {...boardPart('day-head')}>
+          <div {...css.attrs(calendarBoardStyles.dayHead)} {...boardPart('dayHead')}>
             <button
               {...mergeAttrs<'button'>(
                 {
@@ -368,7 +368,7 @@ export const CalendarBoard = _component(
                     focusRingStyles.tight,
                     state.today && calendarBoardStyles.today,
                   ],
-                  ...boardPart('day-button'),
+                  ...boardPart('dayButton'),
                 },
                 propsDayButton,
                 {

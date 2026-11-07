@@ -420,9 +420,9 @@ describe('部件', () => {
       'node',
       'edges',
       'edge',
-      'edge-line',
-      'edge-arrow',
-      'edge-text',
+      'edgeLine',
+      'edgeArrow',
+      'edgeText',
     ])
       expect(parts('diagram').has(part)).toBe(true);
     for (const part of ['root', 'body', 'title', 'description'])

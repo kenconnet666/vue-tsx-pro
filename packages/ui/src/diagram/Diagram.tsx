@@ -707,11 +707,11 @@ const EdgeView = _component(
           )}
         >
           {selectable && <path d={path} {...css.attrs(diagramStyles.edgeHit)} />}
-          <path d={path} {...css.attrs(diagramStyles.edgeLine)} {...diagramPart('edge-line')} />
+          <path d={path} {...css.attrs(diagramStyles.edgeLine)} {...diagramPart('edgeLine')} />
           <polygon
             points={arrowHead(points, ARROW)}
             {...css.attrs(diagramStyles.edgeArrow)}
-            {...diagramPart('edge-arrow')}
+            {...diagramPart('edgeArrow')}
           />
         </g>
       );
@@ -744,7 +744,7 @@ const EdgeTextView = _component(
                 item.tone && edgeTextToneStyles[item.tone],
                 diagramDynamicStyles.at(x, y),
               ],
-              ...diagramPart('edge-text'),
+              ...diagramPart('edgeText'),
             },
             partOf(part, item as never, state),
             { 'aria-hidden': 'true' },
@@ -1409,7 +1409,7 @@ export const Diagram = _component(
                         cy={at.y}
                         r={5}
                         {...css.attrs(diagramStyles.edgeEnd)}
-                        {...diagramPart('edge-end')}
+                        {...diagramPart('edgeEnd')}
                         data-diagram-end={end}
                         onPointerdown={(event: PointerEvent) =>
                           actions.endDown(edge.id, end, event)

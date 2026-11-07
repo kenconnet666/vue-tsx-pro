@@ -389,7 +389,7 @@ export const ColorPicker = _component(
                     size: 'sm',
                     variant: 'ghost',
                     tone: 'neutral',
-                    ...pickerPart('eye-dropper'),
+                    ...pickerPart('eyeDropper'),
                   },
                   propsEyeDropper,
                   { disabled: state.disabled, onClick: () => void sample() },

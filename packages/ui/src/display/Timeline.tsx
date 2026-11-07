@@ -236,11 +236,11 @@ export const Timeline = _component(
         >
           <span
             {...css.attrs(timelineStyles.toggleLine)}
-            {...timelinePart('toggle-line')}
+            {...timelinePart('toggleLine')}
             aria-hidden="true"
           />
         </div>
-        <div {...css.attrs(timelineStyles.toggleContent)} {...timelinePart('toggle-content')}>
+        <div {...css.attrs(timelineStyles.toggleContent)} {...timelinePart('toggleContent')}>
           <Button
             {...mergePartProps<ButtonProps>(
               {

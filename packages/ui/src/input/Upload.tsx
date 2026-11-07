@@ -747,7 +747,7 @@ export const Upload = _component(
                 // 状态变化（失败、完成）由读屏播报
                 aria-live="polite"
                 {...css.attrs(uploadStyles.wallList)}
-                {...uploadPart('wall-list')}
+                {...uploadPart('wallList')}
               >
                 {value.map(renderCard)}
               </div>

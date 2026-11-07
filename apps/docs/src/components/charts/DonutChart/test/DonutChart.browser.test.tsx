@@ -9,7 +9,7 @@ import Sources from '../demo/Sources';
 const segments = (root: Element) =>
   [...root.querySelectorAll('[data-part="segment"]')].filter((path) => path.getAttribute('d'));
 const center = (root: Element) =>
-  [...root.querySelectorAll('[data-part="center-label"] text')]
+  [...root.querySelectorAll('[data-part="centerLabel"] text')]
     .map((text) => text.textContent)
     .filter(Boolean)
     .join(' ');

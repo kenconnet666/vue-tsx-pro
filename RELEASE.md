@@ -33,6 +33,10 @@
   （悬停底色不贴着内容，带圆角）。
 - 主题新增间距档位 `space.xxs`（`0.125em`）：组件里标题与说明之间、挨在一起的小按钮之间原来写死的 2px 换成它，跟着字号缩放；
   自定义主题时可以覆盖。几处写死的边框、轮廓宽度换成 `borderWidths`。
+- 部件名（`data-part`）一律是小驼峰，与配方的部件键、`propsXxx` 一致：原来写成连字符的改了——CalendarBoard 的 `dayHead`、
+  `dayButton`，CalendarView 的 `weekNumber`，Diagram 的 `edgeLine`、`edgeArrow`、`edgeText`、`edgeEnd`，JsonViewer 的 `pathBar`，
+  ColorPicker 的 `eyeDropper`，Breadcrumbs 的 `collapsedItem`，AppShell 的 `headerContent`，DonutChart 的 `centerLabel`、MapChart 的
+  `areaLabels`、`pointLabels`（这三处现在也带 `data-scope`）。按 `[data-part="day-head"]` 写的样式要跟着改。
 - TreemapChart 给读屏的数据表：表头已写单位，格子里不再重复单位（同 DonutChart、FunnelChart）。
 
 ## 每次发布

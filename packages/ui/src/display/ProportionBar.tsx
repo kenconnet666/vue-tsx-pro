@@ -136,7 +136,7 @@ export const ProportionBar = _component(
               <li
                 key={segment.key}
                 {...css.attrs(proportionBarStyles.legendItem)}
-                {...proportionBarPart('legend-item')}
+                {...proportionBarPart('legendItem')}
               >
                 <StatusDot size="md" tone={toneOf(segment, index)} color={segment.color} />
                 <span>{segment.label}</span>

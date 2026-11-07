@@ -391,7 +391,7 @@ export const CalendarView = _component(
               {showWeekNumbers && (
                 <th
                   {...mergeAttrs<'th'>(
-                    { sx: calendarStyles.weekNumber, ...calendarViewPart('week-number') },
+                    { sx: calendarStyles.weekNumber, ...calendarViewPart('weekNumber') },
                     propsWeekNumber,
                     {
                       scope: 'col',
@@ -427,7 +427,7 @@ export const CalendarView = _component(
                 {showWeekNumbers && (
                   <th
                     {...mergeAttrs<'th'>(
-                      { sx: calendarStyles.weekNumber, ...calendarViewPart('week-number') },
+                      { sx: calendarStyles.weekNumber, ...calendarViewPart('weekNumber') },
                       propsWeekNumber,
                       {
                         'aria-label': lang.calendarWeekNumber(weekOfYear(week[0]!, locale.week)),

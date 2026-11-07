@@ -15,6 +15,7 @@ import { useFormat, type NumericFormat } from '../config/lang/format';
 import { Skeleton } from '../feedback/Skeleton';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import type { PartProps } from '../utils/props';
+import { partAttrs } from '../config/styles';
 import { t } from '../config/theme/tokens';
 import { svgNumber } from '../utils/data/number';
 import { ChartFrame, chartTooltip, useChartValueText, type ChartFrameParts } from './frame';
@@ -76,6 +77,9 @@ export interface DonutChartProps<T extends object>
    */
   onItemClick?: (row: T, index: number) => void;
 }
+
+/** 部件的标记 */
+const donutChartPart = (part: string) => partAttrs({ name: 'DonutChart' }, part);
 
 /** DonutChart 的样式：skeleton、扇区、中间的文字 */
 const donutChartStyles = css.create({
@@ -241,7 +245,7 @@ export const DonutChart = _component(
               ))}
             </g>
             {center !== undefined && (
-              <g data-part="center-label" {...css.attrs(chartSvgStyles.noPointer)}>
+              <g {...css.attrs(chartSvgStyles.noPointer)} {...donutChartPart('centerLabel')}>
                 <text y={-2} text-anchor="middle" {...css.attrs(donutChartStyles.centerValue)}>
                   {center}
                 </text>

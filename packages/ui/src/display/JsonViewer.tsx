@@ -415,7 +415,7 @@ export const JsonViewer = _component(
           />
           <div
             {...mergeAttrs<'div'>(
-              { sx: jsonViewerStyles.pathBar, ...jsonViewerPart('path-bar') },
+              { sx: jsonViewerStyles.pathBar, ...jsonViewerPart('pathBar') },
               propsPathBar,
             )}
           >
