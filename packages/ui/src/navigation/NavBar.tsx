@@ -27,9 +27,10 @@ import { useLang } from '../config/context';
 import { Menu, MenuGroup, MenuLinkItem } from '../overlay/Menu';
 import { useRouterLink } from '../utils/dom/link';
 import { useOverflowItems } from '../utils/dom/overflow';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { dataAttrs, mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 横向导航的一项：有 href 是链接，有 children 是下拉菜单（一层） */
 export interface NavBarItem {
@@ -54,6 +55,9 @@ export interface NavBarProps extends PartProps<'nav'> {
   /** 列表（ul）的部件属性 */
   propsList?: PartProps<'ul'>;
 }
+
+/** 部件的标记（data-scope="nav-bar"） */
+const navBarPart = (part: string) => partAttrs({ name: 'NavBar' }, part);
 
 /** NavBar 的样式：list、item、link、current、badge、more */
 export const navBarStyles = css.create({
@@ -200,18 +204,23 @@ export const NavBar = _component(({ items, propsList, ...rest }: NavBarProps) =>
   }
 
   return () => (
-    <nav {...mergeAttrs<'nav'>({}, rest)}>
-      <ul {...mergeAttrs<'ul'>({ sx: navBarStyles.list }, propsList, { ref: _toRef(list) })}>
+    <nav {...mergeAttrs<'nav'>(dataAttrs(navBarPart('root')), rest)}>
+      <ul
+        {...mergeAttrs<'ul'>({ sx: navBarStyles.list, ...navBarPart('list') }, propsList, {
+          ref: _toRef(list),
+        })}
+      >
         {items.map((item, index) => (
           <li
             key={item.href ?? item.label}
             {...css.attrs(navBarStyles.item)}
+            {...navBarPart('item')}
             {...overflow.itemProps(index)}
           >
             {renderItem(item)}
           </li>
         ))}
-        <li {...css.attrs(navBarStyles.item)} {...overflow.restProps()}>
+        <li {...css.attrs(navBarStyles.item)} {...navBarPart('item')} {...overflow.restProps()}>
           {renderMore()}
         </li>
       </ul>

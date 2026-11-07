@@ -25,6 +25,7 @@ import { mergeAttrs, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { interactionTransitions } from '../utils/style/transitions';
 import { calendarStyles } from './CalendarView';
+import { partAttrs } from '../config/styles';
 import { isPeriodDisabled } from './DateField';
 import { toDateLimits, useDateLocale, type DateInput } from './date-locale';
 
@@ -53,6 +54,9 @@ const quarterOf = (key: string) => Number(key.slice(6));
 /** 两个季度排好序（'YYYY-Qn' 按字符串比较就是先后） */
 const ordered = (a: string, b: string): DateRange<string> =>
   a <= b ? { start: a, end: b } : { start: b, end: a };
+
+/** 部件的标记（与 CalendarView 同名的部件：root、header、heading、grid） */
+const quarterCalendarPart = (part: string) => partAttrs({ name: 'QuarterCalendar' }, part);
 
 /** 季度面板：四个季度一页，单选或区间 */
 export const QuarterCalendar = _component(
@@ -161,14 +165,14 @@ export const QuarterCalendar = _component(
       const heading = String(year);
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: calendarStyles.root }, rest, {
+          {...mergeAttrs<'div'>({ sx: calendarStyles.root, ...quarterCalendarPart('root') }, rest, {
             ref: _toRef(root),
             role: 'group',
           })}
           data-view="quarter"
           data-disabled={disabled || undefined}
         >
-          <div {...css.attrs(calendarStyles.header)}>
+          <div {...css.attrs(calendarStyles.header)} {...quarterCalendarPart('header')}>
             <IconButton
               icon={ChevronLeft}
               aria-label={lang.calendarPreviousYear}
@@ -176,7 +180,10 @@ export const QuarterCalendar = _component(
               disabled={disabled}
               onClick={() => (year -= 1)}
             />
-            <span {...css.attrs(calendarStyles.heading, calendarStyles.headingStatic)}>
+            <span
+              {...css.attrs(calendarStyles.heading, calendarStyles.headingStatic)}
+              {...quarterCalendarPart('heading')}
+            >
               {lang.calendarYear(year)}
             </span>
             <IconButton
@@ -189,6 +196,7 @@ export const QuarterCalendar = _component(
           </div>
           <table
             {...css.attrs(calendarStyles.grid, calendarStyles.periodGrid)}
+            {...quarterCalendarPart('grid')}
             role="grid"
             aria-label={lang.calendarYear(year)}
             aria-multiselectable={mode === 'range' || undefined}

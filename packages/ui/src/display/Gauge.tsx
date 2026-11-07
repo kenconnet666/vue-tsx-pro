@@ -207,11 +207,24 @@ export const Gauge = _component(
             },
           )}
         >
-          <div {...css.attrs(gaugeStyles.dial)}>
-            <svg {...css.attrs(gaugeStyles.svg)} viewBox="0 -4 200 108" aria-hidden="true">
-              <path d={arc(0, 1, RADIUS)} {...css.attrs(gaugeStyles.track)} />
+          <div {...css.attrs(gaugeStyles.dial)} {...gaugePart('dial')}>
+            <svg
+              {...css.attrs(gaugeStyles.svg)}
+              {...gaugePart('svg')}
+              viewBox="0 -4 200 108"
+              aria-hidden="true"
+            >
+              <path
+                d={arc(0, 1, RADIUS)}
+                {...css.attrs(gaugeStyles.track)}
+                {...gaugePart('track')}
+              />
               {fraction > 0 && (
-                <path d={arc(0, fraction, RADIUS)} {...css.attrs(gaugeStyles.value)} />
+                <path
+                  d={arc(0, fraction, RADIUS)}
+                  {...css.attrs(gaugeStyles.value)}
+                  {...gaugePart('value')}
+                />
               )}
               {(bands ?? []).map((item, position) => {
                 const from = fractionOf(position === 0 ? min : bands![position - 1]!.to);
@@ -221,11 +234,16 @@ export const Gauge = _component(
                     key={position}
                     d={arc(from, to, BAND_RADIUS)}
                     {...css.attrs(gaugeStyles.band, bandColors[item.tone])}
+                    {...gaugePart('band')}
                   />
                 ) : null;
               })}
               {target !== undefined && (
-                <line {...tick(fractionOf(target))} {...css.attrs(gaugeStyles.target)} />
+                <line
+                  {...tick(fractionOf(target))}
+                  {...css.attrs(gaugeStyles.target)}
+                  {...gaugePart('target')}
+                />
               )}
             </svg>
             <span
@@ -240,7 +258,7 @@ export const Gauge = _component(
               {valueLabel ?? spoken}
             </span>
           </div>
-          <div {...css.attrs(gaugeStyles.ends)} aria-hidden="true">
+          <div {...css.attrs(gaugeStyles.ends)} {...gaugePart('ends')} aria-hidden="true">
             <span>{format.number(min, valueFormat)}</span>
             <span>{format.number(max, valueFormat)}</span>
           </div>

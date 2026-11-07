@@ -23,6 +23,7 @@ import { focusRingStyles } from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 角色由组件管理 */
 export type RatingManaged = 'role';
@@ -52,6 +53,9 @@ export interface RatingProps extends PartProps<'div', RatingManaged> {
   /** 每颗星的部件属性 */
   propsStar?: PartProps<'span'>;
 }
+
+/** 部件的标记（data-scope="rating"） */
+const ratingPart = (part: string) => partAttrs({ name: 'Rating' }, part);
 
 /** Rating 的样式：root、star、readonly、icon、empty、fill、clip、clipIcon、whole、startHalf、endHalf、disabled */
 const ratingStyles = css.create({
@@ -133,7 +137,10 @@ export const Rating = _component(
     const starIcon = (percent: number) => [
       <Icon icon={icon} sx={[ratingStyles.icon, ratingStyles.empty]} />,
       percent > 0 && (
-        <span {...css.attrs(ratingStyles.clip, ratingClipStyles.width(`${percent}%`))}>
+        <span
+          {...css.attrs(ratingStyles.clip, ratingClipStyles.width(`${percent}%`))}
+          {...ratingPart('clip')}
+        >
           <Icon
             icon={icon}
             sx={[ratingStyles.clipIcon, ratingStyles.fill, ratingToneStyles[tone]]}
@@ -153,6 +160,7 @@ export const Rating = _component(
               {
                 sx: [ratingStyles.root, size && fontSizeStyles[size]],
                 'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
+                ...ratingPart('root'),
               },
               rest,
               { id: state.id, role: 'img', 'aria-label': lang.ratingSummary(value, count) },
@@ -163,7 +171,7 @@ export const Rating = _component(
                 key={index}
                 aria-hidden="true"
                 {...mergeAttrs<'span'>(
-                  { sx: [ratingStyles.star, ratingStyles.readonly] },
+                  { sx: [ratingStyles.star, ratingStyles.readonly], ...ratingPart('star') },
                   propsStar,
                 )}
               >
@@ -199,6 +207,7 @@ export const Rating = _component(
                 state.disabled && ratingStyles.disabled,
               ],
               'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
+              ...ratingPart('root'),
             },
             rest,
             {
@@ -216,6 +225,7 @@ export const Rating = _component(
               {...mergeAttrs<'span'>(
                 {
                   sx: [ratingStyles.star, focusRingStyles.within],
+                  ...ratingPart('star'),
                 },
                 propsStar,
               )}
