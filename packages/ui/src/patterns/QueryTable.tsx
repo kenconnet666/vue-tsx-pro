@@ -1,8 +1,8 @@
 /**
  * 查询表格（列表页的整块）：查询栏（FilterBar）+ 工具栏（标题、自己的按钮、刷新、行高、列设置、全屏）+ 批量操作栏 + 数据表格 + 分页栏。
- * 有查询栏时工具栏并进查询栏那一行，压成一行：标题 条件 查询 重置 展开 … 自己的按钮 刷新 行高 列设置 全屏；
- * 条件多时把不常用的放进 moreFilters，点“展开”后更多条件排在这一行下面。没有查询栏、或全屏（全屏的只有表格那一块）时，
- * 工具栏是表格上方单独的一行。fill 时整块占满到窗口底边（ViewportFill），行多了在表格里滚动，分页留在一屏里。
+ * 查询栏单独一块（条件与查询、重置在同一个栅格里，按钮贴在最后一行的结束边）；工具栏是表格上方的一行，标题在起始边、按钮在结束边，
+ * 全屏时随表格一起（同 ProTable 的查询表单与表格工具栏）。条件多时把不常用的放进 moreFilters，点“展开”才显示。
+ * fill 时整块占满到窗口底边（ViewportFill），行多了在表格里滚动，分页留在一屏里。
  * 状态都在 useTableQuery 里（服务端分页、排序、条件）。同 Ant Design ProComponents 的 ProTable。
  *
  *   const tasks = useTableQuery(fetchTasks, { filters: { keyword: '', status: '' }, pageSize: 20 });
@@ -96,7 +96,7 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
   propsToolbarButton?: Partial<IconButtonProps>;
 }
 
-/** QueryTable 的样式：root、rootFill、panel、panelFullscreen、panelFill、toolbar、title、tools、titleInline、toolbarInline */
+/** QueryTable 的样式：root、rootFill、panel、panelFullscreen、panelFill、toolbar、title、tools */
 const queryTableStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
   panel: {
@@ -114,9 +114,6 @@ const queryTableStyles = css.create({
   toolbar: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '_sm' },
   title: { flexGrow: 1, minWidth: 0, fontWeight: '_semibold', fontSize: '_lg' },
   tools: { display: 'flex', alignItems: 'center', gap: '_xs' },
-  // 并进查询栏那一行时：标题不撑开，按钮靠在一起
-  titleInline: { flexShrink: 0, fontWeight: '_semibold', fontSize: '_lg' },
-  toolbarInline: { display: 'flex', alignItems: 'center', gap: '_sm' },
 });
 
 /** 存在浏览器里（给了 persistKey）或只在这次打开里有效的状态 */
@@ -257,23 +254,7 @@ export const QueryTable = _component(
                 // 一页上可能有几个查询栏：各有名称，search 地标才分得清
                 { 'aria-label': messages.queryTableSearch(title) },
                 propsFilterBar,
-                {
-                  onSearch: search,
-                  onReset: reset,
-                  more: moreFilters?.(draft),
-                  // 全屏时只有表格那一块（查询栏不在里面），工具栏要留在表格上方，所以不并进来
-                  start: fullscreen.active ? undefined : (
-                    <div {...css.attrs(queryTableStyles.titleInline)}>{title}</div>
-                  ),
-                  end: fullscreen.active ? undefined : (
-                    <div
-                      {...mergeAttrs<'div'>({ sx: queryTableStyles.toolbarInline }, propsToolbar)}
-                    >
-                      {toolbar}
-                      {renderTools()}
-                    </div>
-                  ),
-                },
+                { onSearch: search, onReset: reset, more: moreFilters?.(draft) },
               )}
             >
               {filters(draft)}
@@ -292,13 +273,11 @@ export const QueryTable = _component(
               { ref: _toRef(panel) },
             )}
           >
-            {(!filters || fullscreen.active) && (
-              <div {...mergeAttrs<'div'>({ sx: queryTableStyles.toolbar }, propsToolbar)}>
-                <div {...css.attrs(queryTableStyles.title)}>{title}</div>
-                {toolbar}
-                {renderTools()}
-              </div>
-            )}
+            <div {...mergeAttrs<'div'>({ sx: queryTableStyles.toolbar }, propsToolbar)}>
+              <div {...css.attrs(queryTableStyles.title)}>{title}</div>
+              {toolbar}
+              {renderTools()}
+            </div>
             {selectionMode === 'multiple' && (
               <SelectionBar
                 {...mergePartProps<SelectionBarProps>(

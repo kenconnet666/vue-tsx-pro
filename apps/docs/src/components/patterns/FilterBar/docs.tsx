@@ -21,10 +21,11 @@ export default _component(() => () => (
     imports="import { FilterBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"
   >
     <Example id="tasks" title="项目任务的查询" demo={Tasks}>
-      条件是 Field，排成栅格：每格不窄于 <Code>minFieldWidth</Code>（默认
-      16em），栅格多宽就放几格。按钮区在栅格的结束边，宽度随按钮、不折行，和条件的最后一行对齐；
-      <Code>actions</Code>{' '}
-      里再加按钮也不会挤成两行，容器放不下时按钮区整体换到下一行。标签默认在起始边、宽度随文字（
+      条件是 Field，排成栅格：每格不窄于 <Code>minFieldWidth</Code>（默认 16em），栅格多宽就放几格。
+      {
+        '按钮区是栅格的最后一格，贴在最后一行的结束边、和条件同一行，那一行放不下才换到下一行（同 ProComponents 的 QueryFilter）；'
+      }
+      <Code>actions</Code> 里再加按钮时量出宽度跨几格，不挤成两行。标签默认在起始边、宽度随文字（
       <Code>labelWidth</Code> 默认 auto，控件紧跟着标签；条件多、要几行对齐时写固定宽度）。
       <Code>more</Code> 是不常用的条件，默认收起；<Code>moreActive</Code>{' '}
       是收起的条件里已经填了几项，显示在“展开”旁边，免得忘了还有条件生效。外层是{' '}

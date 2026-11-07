@@ -6,8 +6,8 @@
  *     <Field label="任务类别"><Select … /></Field>
  *   </FilterBar>
  *
- * 条件排成栅格：每格不窄于 minFieldWidth，栅格多宽就放几格；按钮区在栅格的结束边，宽度随按钮、不折行，
- * 和条件的最后一行对齐（按钮再多也不会在一格里挤成两行）；容器太窄放不下时，按钮区整体换到下一行、靠结束边。
+ * 条件排成栅格：每格不窄于 minFieldWidth，栅格多宽就放几格。按钮区是栅格的最后一格，贴在最后一行的结束边，和条件在同一行；
+ * 最后一行放不下时换到下一行（同 Ant Design ProComponents 的 QueryFilter）。按钮区宽度随按钮、不折行，比一格宽时量出来跨几格。
  * 默认标签在起始边、宽度随文字（labelWidth 为 auto：控件紧跟着标签，不留空白；要几行对齐时写固定宽度）。在输入框里按回车就是查询（原生表单提交）。
  * more 收起时不渲染；moreActive 是收起的条件里已经填了几项，显示在“展开”旁边，免得忘了还有条件生效。
  *
@@ -17,10 +17,7 @@
  *
  *   <FilterBar onSearch={search} onReset={reset} conditionFields={fields} _condition={condition}>…</FilterBar>
  *
- * start、end 是整行两头的内容（标题在条件前面，工具栏的按钮在查询、重置后面）：QueryTable 用它们把标题与工具栏并进查询栏这一行，
- * 压成一行；点“展开”后更多的条件排在这一行下面，start、end 仍在第一行。
- *
- * 部件：Root（form）、Start、Fields（条件的栅格）、Field 们、More（收起的条件，display: contents）、Actions（div）、End、
+ * 部件：Root（form）、Fields（条件的栅格）、Field 们、More（收起的条件，display: contents）、Actions（div，栅格的最后一格）、
  * Search、Reset（Button）、Toggle（展开收起的 Button）、AdvancedToggle（高级筛选的 Button）、Advanced（条件构造器那一行）。
  */
 import { ChevronDown, ListFilter } from '@lucide/icons';
@@ -40,6 +37,7 @@ import {
 import { ConditionBuilder, type ConditionBuilderProps } from '../input/ConditionBuilder';
 import { patternsMessages } from './messages';
 import { Button, type ButtonProps } from '../base/Button';
+import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
 import { t } from '../config/theme/tokens';
@@ -65,16 +63,8 @@ export interface FilterBarProps
   moreActive?: number;
   /** 每个条件的最小宽度（CSS 长度），默认 `'16em'` */
   minFieldWidth?: string;
-  /** 整行起始边的内容：在条件前面（QueryTable 的标题）；对齐第一行 */
-  start?: VNodeChild;
-  /** 整行结束边的内容：在查询、重置后面（QueryTable 的工具栏按钮）；对齐第一行，展开更多条件时也不往下掉 */
-  end?: VNodeChild;
   /** 结束边额外的按钮：放在“重置”前面（如“导出筛选结果”） */
   actions?: VNodeChild;
-  /** start 外层的部件属性 */
-  propsStart?: PartProps<'div'>;
-  /** end 外层的部件属性 */
-  propsEnd?: PartProps<'div'>;
   /** 条件栅格的部件属性 */
   propsFields?: PartProps<'div'>;
   /** 按钮区的部件属性 */
@@ -99,54 +89,35 @@ export interface FilterBarProps
   children?: VNodeChild;
 }
 
-/** FilterBar 的样式：root、start、end、fields、more、actions */
+/** FilterBar 的样式：root、fields、more、actions、advanced、summary */
 const filterBarStyles = css.create({
-  // 条件栅格与按钮区并排；放不下时按钮区换行
-  root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'flex-end',
-    columnGap: '_xl',
-    rowGap: '_md',
-  },
-  // 两头的内容和第一行的控件一样高、对齐第一行：展开更多条件时（按钮区落到最后一行）它们仍在第一行
-  start: {
-    display: 'flex',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    minHeight: t.sizes.control,
-    flexShrink: 0,
-  },
-  end: {
-    display: 'flex',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
-    minHeight: t.sizes.control,
-    flexShrink: 0,
-    gap: '_sm',
-  },
+  // 条件栅格（按钮区在里面）在上，高级筛选与它的摘要各占一行排在下面
+  root: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
   fields: {
     display: 'grid',
     columnGap: '_xl',
     rowGap: '_md',
     alignItems: 'start',
-    flexGrow: 1,
     minWidth: 0,
   },
   // 收起的条件直接是栅格的格子
   more: { display: 'contents' },
-  // 宽度随按钮、不折行；换到下一行时也靠结束边
+  // 栅格的最后一格，结束线是栅格的最后一条线：跟在最后一个条件后面时落在同一行的结束边，那一行放不下就到下一行
+  // （定了列的格子按行往下找空位）。宽度随按钮，和控件的底边对齐；窄到一行放不下时按钮换行
   actions: {
+    gridColumnEnd: '-1',
+    justifySelf: 'end',
+    alignSelf: 'end',
     display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
     alignItems: 'center',
     gap: '_sm',
-    flexShrink: 0,
-    marginInlineStart: 'auto',
+    width: 'max-content',
+    maxWidth: '_full',
+    minHeight: t.sizes.control,
   },
-  // 展开后箭头朝上
-  // 高级筛选与它的摘要各占一整行，排在条件与按钮下面
   advanced: {
-    flexBasis: '100%',
     padding: '_md',
     backgroundColor: '_surfaceMuted',
     borderWidth: '_xs',
@@ -154,16 +125,30 @@ const filterBarStyles = css.create({
     borderColor: '_borderMuted',
     borderRadius: '_md',
   },
-  summary: { flexBasis: '100%', display: 'flex', alignItems: 'baseline', gap: '_sm', minWidth: 0 },
+  summary: { display: 'flex', alignItems: 'baseline', gap: '_sm', minWidth: 0 },
 });
 
-/** FilterBar 的样式：columns（每格的最小宽度；栅格本身至少放得下一格） */
-const filterBarColumnStyles = css.create({
+/** FilterBar 的样式：columns（每格的最小宽度）、actionsSpan（按钮区跨几格） */
+const filterBarDynamicStyles = css.create({
   columns: (minWidth: string) => ({
-    flexBasis: minWidth,
     gridTemplateColumns: `repeat(auto-fill, minmax(min(${minWidth}, 100%), 1fr))`,
   }),
+  actionsSpan: (span: number) => ({ gridColumnStart: `span ${span}` }),
 });
+
+/** 按钮区要跨几格：按钮本来的宽度（各按钮加间距）比一格宽时多跨几格，最多一整行 */
+function actionsSpanOf(fields: HTMLElement, actions: HTMLElement): number {
+  const style = getComputedStyle(fields);
+  const tracks = style.gridTemplateColumns.split(' ').map(parseFloat);
+  const column = tracks[0];
+  if (!column) return 1;
+  const gap = parseFloat(style.columnGap) || 0;
+  const buttons = [...actions.children];
+  const width =
+    buttons.reduce((sum, button) => sum + button.getBoundingClientRect().width, 0) +
+    gap * Math.max(buttons.length - 1, 0);
+  return Math.min(tracks.length, Math.max(1, Math.ceil((width + gap) / (column + gap))));
+}
 
 /** 查询栏：筛选条件的栅格，查询、重置，不常用的条件可以展开收起 */
 export const FilterBar = _component(
@@ -175,13 +160,9 @@ export const FilterBar = _component(
     _expanded: expanded = _bindable(false),
     moreActive = 0,
     minFieldWidth = '16em',
-    start,
-    end,
     actions,
     labelPlacement = 'start',
     labelWidth = 'auto',
-    propsStart,
-    propsEnd,
     propsFields,
     propsActions,
     propsSearch,
@@ -213,6 +194,19 @@ export const FilterBar = _component(
             );
     provideFieldLayout(() => ({ labelPlacement, labelWidth }));
 
+    let fieldsElement = _state.raw<HTMLElement | null>(null);
+    let actionsElement = _state.raw<HTMLElement | null>(null);
+    let actionsSpan = _state(1);
+    // 改跨度会改布局：放到下一帧，不在 ResizeObserver 的回调里同步改（会报 loop）
+    useResizeObserver(
+      () => [fieldsElement, actionsElement],
+      () =>
+        requestAnimationFrame(() => {
+          if (fieldsElement && actionsElement)
+            actionsSpan = actionsSpanOf(fieldsElement, actionsElement);
+        }),
+    );
+
     function onSubmit(event: Event) {
       event.preventDefault();
       onSearch?.();
@@ -223,13 +217,11 @@ export const FilterBar = _component(
         {...mergeAttrs<'form'>({ sx: filterBarStyles.root }, rest, { role: 'search', onSubmit })}
         data-expanded={more != null ? expanded : undefined}
       >
-        {start != null && (
-          <div {...mergeAttrs<'div'>({ sx: filterBarStyles.start }, propsStart)}>{start}</div>
-        )}
         <div
           {...mergeAttrs<'div'>(
-            { sx: [filterBarStyles.fields, filterBarColumnStyles.columns(minFieldWidth)] },
+            { sx: [filterBarStyles.fields, filterBarDynamicStyles.columns(minFieldWidth)] },
             propsFields,
+            { ref: (element: unknown) => (fieldsElement = element as HTMLElement | null) },
           )}
         >
           {children}
@@ -238,76 +230,84 @@ export const FilterBar = _component(
               {more}
             </div>
           )}
-        </div>
-        <div {...mergeAttrs<'div'>({ sx: filterBarStyles.actions }, propsActions)}>
-          {more != null && (
-            <Button
-              {...mergePartProps<ButtonProps>(
-                {
-                  variant: 'ghost',
-                  tone: 'neutral',
-                  iconEnd: ChevronDown,
-                  propsIconEnd: {
-                    sx: [disclosureStyles.icon, expanded && disclosureStyles.flip],
-                  },
-                },
-                propsToggle,
-                {
-                  type: 'button',
-                  'aria-expanded': expanded,
-                  'aria-controls': expanded ? moreId : undefined,
-                  onClick: () => (expanded = !expanded),
-                },
-              )}
-            >
-              {expanded ? messages.filterCollapse : messages.filterExpand}
-              {!expanded && moreActive > 0 && (
-                <Badge tone="accent" radius="full">
-                  {messages.filterActive(moreActive)}
-                </Badge>
-              )}
-            </Button>
-          )}
-          {conditionFields && (
-            <Button
-              {...mergePartProps<ButtonProps>(
-                { variant: 'ghost', tone: 'neutral', icon: ListFilter },
-                propsAdvancedToggle,
-                {
-                  type: 'button',
-                  'aria-expanded': advancedOpen,
-                  'aria-controls': advancedOpen ? advancedId : undefined,
-                  onClick: () => (advancedOpen = !advancedOpen),
-                },
-              )}
-            >
-              {messages.filterAdvanced}
-              {!advancedOpen && condition && (
-                <Badge tone="accent" radius="full">
-                  {messages.filterActive(countRules(condition))}
-                </Badge>
-              )}
-            </Button>
-          )}
-          {actions}
-          <Button
-            {...mergePartProps<ButtonProps>({ variant: 'outline', tone: 'neutral' }, propsReset, {
-              type: 'button',
-              onClick: () => {
-                if (conditionFields) condition = null;
-                onReset?.();
+          <div
+            {...mergeAttrs<'div'>(
+              {
+                sx: [
+                  filterBarStyles.actions,
+                  actionsSpan > 1 && filterBarDynamicStyles.actionsSpan(actionsSpan),
+                ],
               },
-            })}
+              propsActions,
+              { ref: (element: unknown) => (actionsElement = element as HTMLElement | null) },
+            )}
           >
-            {messages.filterReset}
-          </Button>
-          <Button {...mergePartProps<ButtonProps>({ loading }, propsSearch, { type: 'submit' })}>
-            {messages.filterSearch}
-          </Button>
+            {more != null && (
+              <Button
+                {...mergePartProps<ButtonProps>(
+                  {
+                    variant: 'ghost',
+                    tone: 'neutral',
+                    iconEnd: ChevronDown,
+                    propsIconEnd: {
+                      sx: [disclosureStyles.icon, expanded && disclosureStyles.flip],
+                    },
+                  },
+                  propsToggle,
+                  {
+                    type: 'button',
+                    'aria-expanded': expanded,
+                    'aria-controls': expanded ? moreId : undefined,
+                    onClick: () => (expanded = !expanded),
+                  },
+                )}
+              >
+                {expanded ? messages.filterCollapse : messages.filterExpand}
+                {!expanded && moreActive > 0 && (
+                  <Badge tone="accent" radius="full">
+                    {messages.filterActive(moreActive)}
+                  </Badge>
+                )}
+              </Button>
+            )}
+            {conditionFields && (
+              <Button
+                {...mergePartProps<ButtonProps>(
+                  { variant: 'ghost', tone: 'neutral', icon: ListFilter },
+                  propsAdvancedToggle,
+                  {
+                    type: 'button',
+                    'aria-expanded': advancedOpen,
+                    'aria-controls': advancedOpen ? advancedId : undefined,
+                    onClick: () => (advancedOpen = !advancedOpen),
+                  },
+                )}
+              >
+                {messages.filterAdvanced}
+                {!advancedOpen && condition && (
+                  <Badge tone="accent" radius="full">
+                    {messages.filterActive(countRules(condition))}
+                  </Badge>
+                )}
+              </Button>
+            )}
+            {actions}
+            <Button
+              {...mergePartProps<ButtonProps>({ variant: 'outline', tone: 'neutral' }, propsReset, {
+                type: 'button',
+                onClick: () => {
+                  if (conditionFields) condition = null;
+                  onReset?.();
+                },
+              })}
+            >
+              {messages.filterReset}
+            </Button>
+            <Button {...mergePartProps<ButtonProps>({ loading }, propsSearch, { type: 'submit' })}>
+              {messages.filterSearch}
+            </Button>
+          </div>
         </div>
-        {end != null && (
-          <div {...mergeAttrs<'div'>({ sx: filterBarStyles.end }, propsEnd)}>{end}</div>
-        )}
         {conditionFields && advancedOpen && (
           <ConditionBuilder
             {...mergePartProps<ConditionBuilderProps>(
