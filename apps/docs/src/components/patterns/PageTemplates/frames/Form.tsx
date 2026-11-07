@@ -41,7 +41,7 @@ export default _component(() => {
           <Paragraph tone="muted">提交后先由部门经理审批，金额超过 5 万元时加签财务。</Paragraph>
         </Flex>
         <form {...css.attrs(styles.form)} onSubmit={(event: Event) => event.preventDefault()}>
-          <FormSection title="基本信息" columns={2}>
+          <FormSection title="基本信息" columns={2} headingLevel={2}>
             <Field label="申请标题" required>
               <TextField _value={title} placeholder="例如：二号线导轨更换" />
             </Field>
@@ -55,7 +55,7 @@ export default _component(() => {
               <NumberField _value={budget} min={0} step={1000} />
             </Field>
           </FormSection>
-          <FormSection title="交付" columns={2}>
+          <FormSection title="交付" columns={2} headingLevel={2}>
             <Field label="期望到货">
               <DatePicker />
             </Field>
@@ -71,7 +71,7 @@ export default _component(() => {
               </Field>
             </GridItem>
           </FormSection>
-          <FormSection title="附件">
+          <FormSection title="附件" headingLevel={2}>
             <Upload _value={files} multiple description="报价单、图纸，单个不超过 20 MB" />
           </FormSection>
           <ActionBar start="草稿每 30 秒自动保存">
