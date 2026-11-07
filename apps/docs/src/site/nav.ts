@@ -64,6 +64,13 @@ const guide: NavSection = {
       component: () => import('../pages/guide/GettingStarted'),
     },
     {
+      path: '/guide/choosing',
+      title: 'Choosing 选组件',
+      description:
+        '按要做的事找组件：从选项里选、输入、浮层、反馈、展示数据、布局与导航，写清楚相近的组件差在哪',
+      component: () => import('../pages/guide/Choosing'),
+    },
+    {
       path: '/guide/styling',
       title: 'Styling 写样式',
       description: 'css.create、attrs 与 sx，主题 token，状态跟着 DOM 走，随状态变的样式与定制组件',
