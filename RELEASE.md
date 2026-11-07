@@ -62,6 +62,9 @@
 - FilterBar 改成配方组件（QueryTable 的查询栏也是它）：`components.FilterBar` 可以给 `labelPlacement`、`labelWidth`、`minFieldWidth`
   的默认值（全站查询栏的标签位置、条件宽度），按部件（root、start、body、row、fields、actions、toggle、advancedToggle、reset、search、
   more、advanced、summary、clearAdvanced）追加样式。
+- Upload 改成配方组件：`components.Upload` 可以给 `listType`、`thumbnailSize`、`sortable`、`pasteable` 的默认值，按部件（root、drop、
+  hint、list、item、icon、body、name、link、progress、meta、retry、remove、wall、wallList、card、image、placeholder、overlay、actions、
+  handle）追加样式；drop、list、card、image、retry、remove 等原来没有标记的也带上了。
 - Timeline 改成配方组件：`createUi` / `Provider` 的 `components.Timeline` 可以给 `alternate`、`size` 的默认值，按部件
   （root、item、rail、marker、line、content、title、meta、actor、time、description、toggleLine、toggleContent）追加样式。
 

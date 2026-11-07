@@ -59,7 +59,8 @@ import { focusRingStyles } from '../utils/style/styles';
 import { FileDrop, matchesAccept, type FileDropProps } from './FileDrop';
 import { GridList, type GridProps } from '../layout/Grid';
 import { t } from '../config/theme/tokens';
-import { partAttrs } from '../config/styles';
+import { useComponent } from '../config/components';
+import type { PartLayer } from '../config/styles';
 
 /** 列表里的一个文件 */
 export interface UploadFile {
@@ -99,8 +100,20 @@ export interface UploadListTypes {
   picture: unknown;
 }
 
+/** Upload 的档位（createUi / Provider 的 components.Upload.defaults） */
+export interface UploadOptions {
+  /** 列表的样子：text 一行一个文件（默认），picture 是图片墙 */
+  listType?: keyof UploadListTypes;
+  /** 图片墙里缩略图的边长（px），默认 104 */
+  thumbnailSize?: number;
+  /** 拖动把手（或聚焦后用键盘）调整文件的顺序（图片墙） */
+  sortable?: boolean;
+  /** 焦点在组件里时 Ctrl + V 把剪贴板里的图片、文件加进来 */
+  pasteable?: boolean;
+}
+
 /** 未声明的属性落到外层 div 上 */
-export interface UploadProps extends PartProps<'div'> {
+export interface UploadProps extends PartProps<'div'>, UploadOptions {
   /** 文件列表：父级写 _value={list} */
   _value?: UploadFile[];
   /** 怎样上传一个文件；不写时用 action，都没有时只选文件、不上传 */
@@ -136,14 +149,6 @@ export interface UploadProps extends PartProps<'div'> {
   required?: boolean;
   /** 选择区域里提示文字下面的说明（大小、类型限制） */
   description?: FileDropProps['description'];
-  /** 列表的样子：text 一行一个文件（默认），picture 是图片墙 */
-  listType?: keyof UploadListTypes;
-  /** 图片墙里缩略图的边长（px），默认 104 */
-  thumbnailSize?: number;
-  /** 拖动把手（或聚焦后用键盘）调整文件的顺序（图片墙） */
-  sortable?: boolean;
-  /** 焦点在组件里时 Ctrl + V 把剪贴板里的图片、文件加进来 */
-  pasteable?: boolean;
   /** 选择区域（FileDrop）的部件属性 */
   propsDrop?: Partial<FileDropProps>;
   /** 列表的部件属性 */
@@ -173,107 +178,147 @@ export interface UploadProps extends PartProps<'div'> {
   propsHandle?: Partial<ButtonBaseProps>;
 }
 
-/** 部件的标记（data-scope="upload"） */
-const uploadPart = (part: string) => partAttrs({ name: 'Upload' }, part);
+// 图片墙上的小按钮：半透明表面色底，文字跟着主题，深浅主题里都读得清（白底配主题文字色在深色主题里只有约 1.2:1）
+const translucentSurface = `color-mix(in oklab, ${t.colors.surface} 85%, transparent)`;
 
-/** Upload 的样式：root、list、item、icon、body、name、meta、error、progress */
-const uploadStyles = css.create({
-  root: { display: 'grid', gap: '_sm' },
-  item: {
-    cursor: 'default',
-    gap: '_sm',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_borderMuted',
-    borderRadius: '_md',
+/**
+ * Upload 的配方（createUi / Provider 的 components.Upload 按它定制）：root、drop（FileDrop）、hint（粘贴的提示）。
+ * 列表：list、item、icon、body、name、link（有地址时的文件名）、progress、meta、retry、remove。
+ * 图片墙：wall、wallList、card（一格）、image、placeholder（不是图片时）、overlay（进度、错误）、actions、handle（拖动把手）。
+ * 失败、完成、文件名是链接、图片墙里的按钮与“添加图片”那一格按项叠在部件层之后（uploadStateStyles）
+ */
+export const uploadRecipe = css.recipe({
+  name: 'Upload',
+  parts: [
+    'root',
+    'drop',
+    'hint',
+    'list',
+    'item',
+    'icon',
+    'body',
+    'name',
+    'link',
+    'progress',
+    'meta',
+    'retry',
+    'remove',
+    'wall',
+    'wallList',
+    'card',
+    'image',
+    'placeholder',
+    'overlay',
+    'actions',
+    'handle',
+  ],
+  base: {
+    root: { display: 'grid', gap: '_sm' },
+    hint: { fontSize: '_sm', color: '_textMuted' },
+    item: [
+      itemStyles.row,
+      {
+        cursor: 'default',
+        gap: '_sm',
+        borderWidth: '_xs',
+        borderStyle: 'solid',
+        borderColor: '_borderMuted',
+        borderRadius: '_md',
+      },
+    ],
+    icon: { flexShrink: 0, color: '_textMuted' },
+    body: { display: 'grid', gap: '_xs', flexGrow: 1, minWidth: 0 },
+    name: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+    link: {
+      display: 'inline-block',
+      maxWidth: '_full',
+      verticalAlign: 'top',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+    },
+    progress: { width: '_full' },
+    meta: { fontSize: '_sm', color: '_textMuted' },
+    // 图片墙：缩略图与“添加图片”一样大，排成一行、放不下换行
+    wall: { display: 'flex', flexWrap: 'wrap', gap: '_sm' },
+    wallList: { display: 'contents' },
+    card: {
+      position: 'relative',
+      boxSizing: 'border-box',
+      flexShrink: 0,
+      borderWidth: '_xs',
+      borderStyle: 'solid',
+      borderColor: '_borderMuted',
+      borderRadius: '_md',
+      overflow: 'hidden',
+      backgroundColor: '_fill',
+    },
+    // 缩略图占满整格，格子为圆角裁掉了溢出：焦点环画在里面
+    image: [focusRingStyles.inset],
+    placeholder: {
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '_xs',
+      width: '_full',
+      height: '_full',
+      padding: '_xs',
+      boxSizing: 'border-box',
+      color: '_textMuted',
+      fontSize: '_xs',
+      textAlign: 'center',
+      overflowWrap: 'anywhere',
+    },
+    // 上传中、失败：盖在缩略图上
+    overlay: {
+      position: 'absolute',
+      insetInline: 0,
+      bottom: 0,
+      display: 'flex',
+      flexDirection: 'column',
+      gap: '_xs',
+      padding: '_xs',
+      backgroundColor: '_scrim',
+      color: '_onScrim',
+      fontSize: '_xs',
+    },
+    // 右上角的把手、重试、移除
+    actions: {
+      position: 'absolute',
+      top: '_xs',
+      insetInlineEnd: '_xs',
+      display: 'flex',
+      gap: '_xxs',
+    },
+    handle: {
+      display: 'grid',
+      placeItems: 'center',
+      width: '1.75em',
+      height: '1.75em',
+      borderRadius: '_sm',
+      color: '_text',
+      backgroundColor: translucentSurface,
+      cursor: { default: 'grab', _active: 'grabbing' },
+      touchAction: 'none',
+    },
   },
-  icon: { flexShrink: 0, color: '_textMuted' },
-  body: { display: 'grid', gap: '_xs', flexGrow: 1, minWidth: 0 },
-  name: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-  // 名字是链接时省略号在链接自己身上：外层裁掉溢出会连链接的焦点环一起裁掉
-  nameLinked: { overflow: 'visible' },
-  nameLink: {
-    display: 'inline-block',
-    maxWidth: '_full',
-    verticalAlign: 'top',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-  },
-  meta: { fontSize: '_sm', color: '_textMuted' },
+});
+
+/** Upload 的部件（createUi / Provider 的 components.Upload.styles 按它定制） */
+export type UploadPart = (typeof uploadRecipe.parts)[number];
+type UploadParts = Readonly<Record<UploadPart, PartLayer>>;
+
+/** 按项变的样式，追加在部件层之后 */
+const uploadStateStyles = css.create({
   error: { color: '_dangerText' },
   done: { color: '_successText' },
-  progress: { width: '_full' },
-  // 图片墙：缩略图与“添加图片”一样大，排成一行、放不下换行
-  wall: { display: 'flex', flexWrap: 'wrap', gap: '_sm' },
-  wallList: { display: 'contents' },
-  card: {
-    position: 'relative',
-    boxSizing: 'border-box',
-    flexShrink: 0,
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_borderMuted',
-    borderRadius: '_md',
-    overflow: 'hidden',
-    backgroundColor: '_fill',
-  },
+  // 名字是链接时省略号在链接自己身上：外层裁掉溢出会连链接的焦点环一起裁掉
+  nameLinked: { overflow: 'visible' },
   cardError: { borderColor: '_danger' },
   // 选文件的那一格：同样大小，图标与文字居中
   addCard: { padding: '_xs', gap: '_xs', textAlign: 'center', fontSize: '_sm' },
-  // 上传中、失败：盖在缩略图上
-  overlay: {
-    position: 'absolute',
-    insetInline: 0,
-    bottom: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_xs',
-    padding: '_xs',
-    backgroundColor: '_scrim',
-    color: '_onScrim',
-    fontSize: '_xs',
-  },
-  placeholder: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '_xs',
-    width: '_full',
-    height: '_full',
-    padding: '_xs',
-    boxSizing: 'border-box',
-    color: '_textMuted',
-    fontSize: '_xs',
-    textAlign: 'center',
-    overflowWrap: 'anywhere',
-  },
-  // 右上角的把手、重试、移除：半透明表面色底上的小按钮，文字跟着主题，深浅主题里都读得清
-  // （白底配主题文字色在深色主题里只有约 1.2:1）
-  actions: {
-    position: 'absolute',
-    top: '_xs',
-    insetInlineEnd: '_xs',
-    display: 'flex',
-    gap: '_xxs',
-  },
-  action: {
-    backgroundColor: {
-      default: `color-mix(in oklab, ${t.colors.surface} 85%, transparent)`,
-      _hover: '_surface',
-    },
-  },
-  handle: {
-    display: 'grid',
-    placeItems: 'center',
-    width: '1.75em',
-    height: '1.75em',
-    borderRadius: '_sm',
-    color: '_text',
-    backgroundColor: `color-mix(in oklab, ${t.colors.surface} 85%, transparent)`,
-    cursor: { default: 'grab', _active: 'grabbing' },
-    touchAction: 'none',
-  },
+  // 图片墙上的重试、移除
+  onThumbnail: { backgroundColor: { default: translucentSurface, _hover: '_surface' } },
 });
 
 /** Upload 的动态样式：缩略图的边长 */
@@ -316,10 +361,10 @@ export const Upload = _component(
     invalid,
     required,
     description,
-    listType = 'text',
-    thumbnailSize = 104,
-    sortable = false,
-    pasteable = false,
+    listType,
+    thumbnailSize,
+    sortable,
+    pasteable,
     propsDrop,
     propsList,
     propsItem,
@@ -334,6 +379,12 @@ export const Upload = _component(
     propsHandle,
     ...rest
   }: UploadProps) => {
+    const ui = useComponent(
+      uploadRecipe,
+      () => ({ listType, thumbnailSize, sortable, pasteable }),
+      { listType: 'text', thumbnailSize: 104, sortable: false, pasteable: false },
+    );
+    const options = () => ui().options;
     const lang = useLang();
     const format = useFormat();
     // delegate：里面的 FileDrop 照常从 Field 拿 id、说明与标签
@@ -470,13 +521,13 @@ export const Upload = _component(
       onChange: (next) => (value = next),
       container: () => wall,
       orientation: () => 'horizontal',
-      disabled: () => !sortable || control().readonly || control().disabled,
+      disabled: () => !options().sortable || control().readonly || control().disabled,
     });
 
     /** 粘贴：剪贴板里的文件（截图是 image/png）按 accept 分开，不符合的照常列出、带错误 */
     function onPaste(event: ClipboardEvent) {
       const state = control();
-      if (!pasteable || state.disabled || state.readonly) return;
+      if (!options().pasteable || state.disabled || state.readonly) return;
       const files = [...(event.clipboardData?.files ?? [])];
       if (files.length === 0) return;
       event.preventDefault();
@@ -494,52 +545,38 @@ export const Upload = _component(
       hidden.files = transfer.files;
     });
 
-    function renderItem(item: UploadFile) {
+    function renderItem(s: UploadParts, item: UploadFile) {
       const state = control();
       const own = typeof propsItem === 'function' ? propsItem(item) : propsItem;
       const fileName = item.name;
       const failed = item.status === 'error';
       return (
-        <li
-          key={item.id}
-          {...mergeAttrs<'li'>(
-            { sx: [itemStyles.row, uploadStyles.item], ...uploadPart('item') },
-            own,
-          )}
-          data-state={item.status}
-        >
+        <li key={item.id} {...mergeAttrs<'li'>(s.item, own)} data-state={item.status}>
           <Icon
             {...mergePartProps<IconProps>(
               {
+                ...s.icon,
                 icon: failed ? CircleAlert : item.status === 'done' ? CircleCheck : FileIcon,
                 sx: [
-                  uploadStyles.icon,
-                  failed && uploadStyles.error,
-                  item.status === 'done' && uploadStyles.done,
+                  s.icon.sx,
+                  failed && uploadStateStyles.error,
+                  item.status === 'done' && uploadStateStyles.done,
                 ],
               },
               propsIcon,
             )}
           />
-          <div {...mergeAttrs<'div'>({ sx: uploadStyles.body, ...uploadPart('body') }, propsBody)}>
+          <div {...mergeAttrs<'div'>(s.body, propsBody)}>
             <span
               {...mergeAttrs<'span'>(
-                {
-                  sx: [uploadStyles.name, !!item.url && uploadStyles.nameLinked],
-                  ...uploadPart('name'),
-                },
+                { ...s.name, sx: [s.name.sx, !!item.url && uploadStateStyles.nameLinked] },
                 propsName,
               )}
             >
               {item.url ? (
                 <Link
                   {...mergePartProps<LinkProps>(
-                    {
-                      href: item.url,
-                      target: '_blank',
-                      underline: 'hover',
-                      sx: uploadStyles.nameLink,
-                    },
+                    { ...s.link, href: item.url, target: '_blank', underline: 'hover' },
                     propsLink,
                   )}
                 >
@@ -551,19 +588,15 @@ export const Upload = _component(
             </span>
             {item.status === 'uploading' ? (
               <Progress
-                {...mergePartProps<ProgressProps>(
-                  { size: 'xs', sx: uploadStyles.progress },
-                  propsProgress,
-                  {
-                    value: item.progress == null ? null : Math.round(item.progress * 100),
-                    'aria-label': fileName,
-                  },
-                )}
+                {...mergePartProps<ProgressProps>({ ...s.progress, size: 'xs' }, propsProgress, {
+                  value: item.progress == null ? null : Math.round(item.progress * 100),
+                  'aria-label': fileName,
+                })}
               />
             ) : (
               <span
                 {...mergeAttrs<'span'>(
-                  { sx: [uploadStyles.meta, failed && uploadStyles.error], ...uploadPart('meta') },
+                  { ...s.meta, sx: [s.meta.sx, failed && uploadStateStyles.error] },
                   propsMeta,
                 )}
               >
@@ -576,6 +609,7 @@ export const Upload = _component(
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {
+                  ...s.retry,
                   icon: RotateCw,
                   variant: 'ghost',
                   size: 'sm',
@@ -591,6 +625,7 @@ export const Upload = _component(
             <IconButton
               {...mergePartProps<IconButtonProps>(
                 {
+                  ...s.remove,
                   icon: X,
                   variant: 'ghost',
                   size: 'sm',
@@ -606,8 +641,9 @@ export const Upload = _component(
     }
 
     /** 图片墙的一格：缩略图（点开看大图）、上传进度或错误、把手、重试与移除 */
-    function renderCard(item: UploadFile) {
+    function renderCard(s: UploadParts, item: UploadFile) {
       const state = control();
+      const { thumbnailSize: size, sortable: canSort } = options();
       const failed = item.status === 'error';
       const src = previewOf(item);
       return (
@@ -615,10 +651,11 @@ export const Upload = _component(
           key={item.id}
           {...mergeAttrs<'div'>(
             {
+              ...s.card,
               sx: [
-                uploadStyles.card,
-                uploadDynamicStyles.square(thumbnailSize),
-                failed && uploadStyles.cardError,
+                s.card.sx,
+                uploadDynamicStyles.square(size),
+                failed && uploadStateStyles.cardError,
               ],
             },
             sortableWall.itemProps(item.id),
@@ -630,23 +667,22 @@ export const Upload = _component(
             <Image
               src={src}
               alt={item.name}
-              width={thumbnailSize - 2}
-              height={thumbnailSize - 2}
+              width={size - 2}
+              height={size - 2}
               radius="none"
               preview={{ caption: item.name, download: item.name }}
-              // 缩略图占满整格，格子为圆角裁掉了溢出：焦点环画在里面
-              propsRoot={{ sx: focusRingStyles.inset }}
+              propsRoot={s.image}
             />
           ) : (
-            <div {...css.attrs(uploadStyles.placeholder)} {...uploadPart('placeholder')}>
-              <Icon icon={failed ? CircleAlert : FileIcon} sx={failed && uploadStyles.error} />
+            <div {...mergeAttrs<'div'>(s.placeholder)}>
+              <Icon icon={failed ? CircleAlert : FileIcon} sx={failed && uploadStateStyles.error} />
               {item.name}
             </div>
           )}
           {item.status === 'uploading' && (
-            <div {...css.attrs(uploadStyles.overlay)} {...uploadPart('overlay')}>
+            <div {...mergeAttrs<'div'>(s.overlay)}>
               <Progress
-                {...mergePartProps<ProgressProps>({ size: 'xs' }, propsProgress, {
+                {...mergePartProps<ProgressProps>({ ...s.progress, size: 'xs' }, propsProgress, {
                   value: item.progress == null ? null : Math.round(item.progress * 100),
                   'aria-label': item.name,
                 })}
@@ -654,18 +690,18 @@ export const Upload = _component(
             </div>
           )}
           {failed && src && !item.rejected && (
-            <div {...css.attrs(uploadStyles.overlay)} {...uploadPart('overlay')} title={item.error}>
+            <div {...mergeAttrs<'div'>(s.overlay)} title={item.error}>
               {item.error}
             </div>
           )}
           {item.status === 'done' && <VisuallyHidden>{lang.uploadDone}</VisuallyHidden>}
           {!state.readonly && (
-            <div {...css.attrs(uploadStyles.actions)} {...uploadPart('actions')}>
-              {sortable && (
+            <div {...mergeAttrs<'div'>(s.actions)}>
+              {canSort && (
                 <ButtonBase
                   {...mergePartProps<ButtonBaseProps>(
                     {
-                      sx: uploadStyles.handle,
+                      ...s.handle,
                       ripple: false,
                       'aria-label': lang.sortableHandle(item.name),
                     },
@@ -681,10 +717,11 @@ export const Upload = _component(
                 <IconButton
                   {...mergePartProps<IconButtonProps>(
                     {
+                      ...s.retry,
                       icon: RotateCw,
                       variant: 'ghost',
                       size: 'xs',
-                      sx: uploadStyles.action,
+                      sx: [s.retry.sx, uploadStateStyles.onThumbnail],
                       'aria-label': lang.uploadRetry(item.name),
                     },
                     propsRetry,
@@ -695,10 +732,11 @@ export const Upload = _component(
               <IconButton
                 {...mergePartProps<IconButtonProps>(
                   {
+                    ...s.remove,
                     icon: X,
                     variant: 'ghost',
                     size: 'xs',
-                    sx: uploadStyles.action,
+                    sx: [s.remove.sx, uploadStateStyles.onThumbnail],
                     'aria-label': lang.uploadRemove(item.name),
                   },
                   propsRemove,
@@ -712,13 +750,15 @@ export const Upload = _component(
     }
 
     /** 选文件的区域：列表模式在上方，图片墙模式是最后一格 */
-    function renderDrop(picture: boolean) {
+    function renderDrop(s: UploadParts, picture: boolean) {
       const state = control();
+      const { thumbnailSize: size, pasteable: canPaste } = options();
       const full = maxFiles != null && (multiple || directory) && value.length >= maxFiles;
       if (state.readonly || (picture && full)) return null;
-      const hint = pasteable ? lang.uploadPasteHint : undefined;
+      const hint = canPaste ? lang.uploadPasteHint : undefined;
       const props = mergePartProps<FileDropProps>(
         {
+          ...s.drop,
           accept,
           multiple,
           directory,
@@ -732,7 +772,7 @@ export const Upload = _component(
               ? [description, description != null && ' · ', hint]
               : description,
           propsRoot: picture
-            ? { sx: [uploadStyles.addCard, uploadDynamicStyles.square(thumbnailSize)] }
+            ? { sx: [uploadStateStyles.addCard, uploadDynamicStyles.square(size)] }
             : undefined,
         },
         propsDrop,
@@ -752,34 +792,30 @@ export const Upload = _component(
     }
 
     return () => {
+      const { options: o, parts: s } = ui();
       const state = control();
-      if (listType === 'picture')
+      if (o.listType === 'picture')
         return (
-          <div
-            {...mergeAttrs<'div'>({ sx: uploadStyles.root, ...uploadPart('root') }, rest, {
-              onPaste,
-            })}
-          >
-            <ImageGroup sx={uploadStyles.wall}>
+          <div {...mergeAttrs<'div'>(s.root, rest, { onPaste })}>
+            <ImageGroup {...s.wall}>
               {/* 列表里只有缩略图（“添加图片”与预览不是列表项）；display: contents，缩略图仍和“添加图片”排在一行 */}
               <div
                 ref={_toRef(wall)}
                 role="list"
                 // 状态变化（失败、完成）由读屏播报
                 aria-live="polite"
-                {...css.attrs(uploadStyles.wallList)}
-                {...uploadPart('wallList')}
+                {...mergeAttrs<'div'>(s.wallList)}
               >
-                {value.map(renderCard)}
+                {value.map((item) => renderCard(s, item))}
               </div>
-              {renderDrop(true)}
+              {renderDrop(s, true)}
             </ImageGroup>
-            {pasteable && !state.readonly && (
-              <span {...css.attrs(uploadStyles.meta)} {...uploadPart('hint')}>
+            {o.pasteable && !state.readonly && (
+              <span {...mergeAttrs<'span'>(s.hint)}>
                 {[description, description != null && ' · ', lang.uploadPasteHint]}
               </span>
             )}
-            {sortable && (
+            {o.sortable && (
               <>
                 <VisuallyHidden id={sortableWall.instructionsId}>
                   {lang.sortableInstructions}
@@ -801,12 +837,8 @@ export const Upload = _component(
           </div>
         );
       return (
-        <div
-          {...mergeAttrs<'div'>({ sx: uploadStyles.root, ...uploadPart('root') }, rest, {
-            onPaste,
-          })}
-        >
-          {renderDrop(false)}
+        <div {...mergeAttrs<'div'>(s.root, rest, { onPaste })}>
+          {renderDrop(s, false)}
           {name != null && (
             <input
               ref={_toRef(hidden)}
@@ -821,10 +853,10 @@ export const Upload = _component(
           {value.length > 0 && (
             // 状态变化（失败、完成）由读屏播报
             <GridList
-              {...mergePartProps<GridProps<'ul'>>({ gap: 'xs' }, propsList)}
+              {...mergePartProps<GridProps<'ul'>>({ ...s.list, gap: 'xs' }, propsList)}
               aria-live="polite"
             >
-              {value.map(renderItem)}
+              {value.map((item) => renderItem(s, item))}
             </GridList>
           )}
         </div>

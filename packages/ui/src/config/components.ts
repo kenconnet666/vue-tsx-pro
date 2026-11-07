@@ -46,6 +46,7 @@ import type { StatOptions, StatPart } from '../display/Stat';
 import type { TimelineOptions, TimelinePart } from '../display/Timeline';
 import type { TourOptions, TourPart } from '../overlay/Tour';
 import type { TransferOptions, TransferPart } from '../input/Transfer';
+import type { UploadOptions, UploadPart } from '../input/Upload';
 import type { UserButtonOptions, UserButtonPart } from '../display/UserButton';
 import { useDefaults, type ComponentDefaults, type ResolvedDefaults } from './defaults';
 import { useRecipe, type ComponentStyles, type PartLayer } from './styles';
@@ -131,6 +132,8 @@ export interface UiComponents {
   NotificationCenter: ComponentConfig<NotificationCenterPart, Record<never, never>>;
   /** FilterBar（patterns；QueryTable 的查询栏也是它） */
   FilterBar: ComponentConfig<FilterBarPart, FilterBarOptions>;
+  /** Upload（列表与图片墙） */
+  Upload: ComponentConfig<UploadPart, UploadOptions>;
   /** Dialog、AlertDialog 共用：dialog 元素与标题行、标题、关闭按钮、说明、正文、页脚 */
   Dialog: ComponentConfig<DialogPart, DialogOptions>;
   /** Drawer：同 Dialog 的部件 */
