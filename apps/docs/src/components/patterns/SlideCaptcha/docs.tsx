@@ -5,6 +5,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import Basic from './demo/Basic.tsx?demo';
 
 export const meta = {
@@ -33,6 +34,16 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['→ / ←', '滑块往前 / 往回挪 2px（从右到左排版时反过来）'],
+        ['Home / End', '滑块到起点 / 终点'],
+        ['Enter / Space', '松手：交出位置与轨迹，等判定'],
+      ]}
+    >
+      滑块是 slider，读屏念出当前的位置；判定中与通过后不可用、离开 Tab
+      顺序，结果经礼貌的实时区域念出。
+    </KeyboardReference>
     <ApiReference api={api} />
   </DocPage>
 ));

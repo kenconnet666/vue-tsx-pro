@@ -4,6 +4,7 @@ import api from 'virtual:api/ModelViewerProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import Objects from './demo/Objects.tsx?demo';
 import Angles from './demo/Angles.tsx?demo';
 import Product from './demo/Product.tsx?demo';
@@ -41,6 +42,15 @@ export default _component(() => () => (
       <Code>resolution</Code>；<Code>paused</Code> 停住自转，没有 WebGL 时显示 <Code>fallback</Code>
       。
     </Example>
+    <KeyboardReference
+      keys={[
+        ['← / →', '左右转 15°（绕竖轴）'],
+        ['↑ / ↓', '上下转 15°（俯仰，到头为止）'],
+        ['+ / -', '写了 zoom 时：拉近 / 推远'],
+      ]}
+    >
+      能操作（controls，默认打开）时整块可以 Tab 聚焦；写了 alt 时它是带名称的图像，读屏念出 alt。
+    </KeyboardReference>
     <ApiReference api={api} />
   </DocPage>
 ));

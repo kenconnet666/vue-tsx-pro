@@ -7,6 +7,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import Inbox from './demo/Inbox.tsx?demo';
 import TopBar from './demo/TopBar.tsx?demo';
 import Widget from './demo/Widget.tsx?demo';
@@ -52,6 +53,17 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
+    <KeyboardReference
+      keys={[
+        ['Enter / Space', '在铃铛上：打开通知面板'],
+        ['Tab', '在类型筛选、“只看未读”、“全部已读”与各条通知之间移动'],
+        ['Enter', '在通知上：标为已读，有 href 时去那里'],
+        ['Space', '没有 href 的通知（按钮）：同 Enter'],
+        ['Esc', '关闭面板，焦点回到铃铛'],
+      ]}
+    >
+      铃铛的名称带着未读数；每条通知是链接（有 href）或按钮，未读的在标题前念出“未读”。
+    </KeyboardReference>
     <ApiReference api={[api, listApi, itemApi]} />
   </DocPage>
 ));

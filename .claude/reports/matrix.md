@@ -4,7 +4,7 @@
 
 | 组件 | 文件 | 单元测试 | 文档 | 键盘一节 | 浏览器测试 | 类型测试 |
 | --- | --- | --- | --- | --- | --- | --- |
-| ModelViewer | three/model/ModelViewer.tsx |  |  | ✗ | ✗ |  |
+| ModelViewer | three/model/ModelViewer.tsx |  |  |  |  |  |
 | Globe | three/globe/Globe.tsx |  |  |  |  |  |
 | Confetti | three/effects/Confetti.tsx |  |  |  |  |  |
 | ParticleField | three/effects/ParticleField.tsx |  |  |  |  |  |
@@ -47,10 +47,10 @@
 | FilterBar | patterns/FilterBar.tsx |  |  |  |  |  |
 | FormDialog | patterns/FormDialog.tsx |  |  |  |  |  |
 | KanbanBoard | patterns/KanbanBoard.tsx |  |  |  |  |  |
-| NotificationList | patterns/NotificationCenter.tsx | ✗ |  | ✗ | ✗ |  |
+| NotificationList | patterns/NotificationCenter.tsx | ✗ |  |  |  |  |
 | NotificationCenter | patterns/NotificationCenter.tsx |  |  |  |  |  |
 | QueryTable | patterns/QueryTable.tsx |  |  |  |  | ✗ |
-| SlideCaptcha | patterns/SlideCaptcha.tsx |  |  | ✗ | ✗ |  |
+| SlideCaptcha | patterns/SlideCaptcha.tsx |  |  |  |  |  |
 | StepsForm | patterns/StepsForm.tsx |  |  |  |  |  |
 | ThemeSwitcher | patterns/ThemeSwitcher.tsx | ✗ |  |  |  | ✗ |
 | AlertDialog | overlay/AlertDialog.tsx |  |  |  |  |  |
