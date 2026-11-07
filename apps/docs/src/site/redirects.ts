@@ -11,4 +11,7 @@ export const redirects: Readonly<Record<string, string>> = {
   '/components/form-section': '/components/form#sections',
   '/components/list': '/components/text#lists',
   '/components/can': '/components/provider#permissions',
+  '/components/nav-menu': '/components/nav-list#menu',
+  '/components/nav-bar': '/components/nav-list#nav-bar',
+  '/components/viewport-fill': '/components/aside-layout#viewport-fill',
 };
