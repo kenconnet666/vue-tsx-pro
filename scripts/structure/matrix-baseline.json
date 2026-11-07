@@ -1,13 +1,11 @@
 {
   "CalendarView": ["unit"],
-  "Carousel": ["unit"],
   "ChartFrame": ["unit"],
   "ChartTooltipBox": ["unit"],
   "CodeEditor": ["unit"],
   "ColumnFilterButton": ["unit"],
   "ColumnMenuButton": ["unit"],
   "ColumnResizer": ["unit"],
-  "ColumnSettings": ["unit"],
   "CommentComposer": ["unit"],
   "DataTableDetailRow": ["unit", "types"],
   "DataTableRow": ["unit", "types"],
@@ -21,12 +19,10 @@
   "ModalCore": ["unit"],
   "OverlayScrollbar": ["unit"],
   "PageScrollbar": ["unit"],
-  "RadarChart": ["unit"],
   "SegmentedField": ["unit"],
   "SelectedTags": ["unit"],
   "SignaturePad": ["unit"],
   "ThemeSwitcher": ["unit"],
   "ThemeThumbnail": ["unit"],
-  "TreemapChart": ["unit"],
   "XYChart": ["unit", "types"]
 }

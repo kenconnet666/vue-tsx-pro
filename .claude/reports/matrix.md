@@ -19,7 +19,7 @@
 | ColumnFilterButton | table/ColumnHeaderActions.tsx | ✗ |  |  |  |  |
 | ColumnMenuButton | table/ColumnHeaderActions.tsx | ✗ |  |  |  |  |
 | ColumnResizer | table/ColumnResizer.tsx | ✗ |  |  |  |  |
-| ColumnSettings | table/ColumnSettings.tsx | ✗ |  |  |  |  |
+| ColumnSettings | table/ColumnSettings.tsx |  |  |  |  |  |
 | ColumnTable | table/ColumnTable.tsx |  |  |  |  |  |
 | DataTable | table/DataTable.tsx |  |  |  |  |  |
 | DataTableRow | table/DataTableView.tsx | ✗ |  |  |  | ✗ |
@@ -178,7 +178,7 @@
 | Avatar | display/Avatar.tsx |  |  |  |  |  |
 | AvatarGroup | display/AvatarGroup.tsx |  |  |  |  |  |
 | Card | display/Card.tsx |  |  |  |  |  |
-| Carousel | display/Carousel.tsx | ✗ |  |  |  |  |
+| Carousel | display/Carousel.tsx |  |  |  |  |  |
 | Checklist | display/Checklist.tsx |  |  |  |  |  |
 | Collapse | display/Collapse.tsx |  |  |  |  |  |
 | Collapsible | display/Collapsible.tsx |  |  |  |  |  |
@@ -238,11 +238,11 @@
 | LineChart | charts/LineChart.tsx |  |  |  |  |  |
 | MapChart | charts/MapChart.tsx | ✗ |  |  |  |  |
 | ChartTooltipBox | charts/plot.tsx | ✗ |  |  |  |  |
-| RadarChart | charts/RadarChart.tsx | ✗ |  |  |  |  |
+| RadarChart | charts/RadarChart.tsx |  |  |  |  |  |
 | SankeyChart | charts/SankeyChart.tsx |  |  |  |  |  |
 | ScatterChart | charts/ScatterChart.tsx |  |  |  |  |  |
 | TimelineChart | charts/TimelineChart.tsx |  |  |  |  |  |
-| TreemapChart | charts/TreemapChart.tsx | ✗ |  |  |  |  |
+| TreemapChart | charts/TreemapChart.tsx |  |  |  |  |  |
 | WaterfallChart | charts/WaterfallChart.tsx |  |  |  |  |  |
 | XYChart | charts/XYChart.tsx | ✗ |  |  |  | ✗ |
 | Badge | base/Badge.tsx |  |  |  |  |  |
