@@ -1,92 +1,68 @@
-// FilterBar 在真实浏览器里：按钮区是栅格的最后一格，贴在最后一行的结束边；最后一行满了才换到下一行；按钮多时跨几格
+// FilterBar 在真实浏览器里：第一排是 start、常用条件与全部按钮（查询后面接 end），按钮都在这一排的结束边；
+// 展开的条件从第二排起，左边和第一排的条件对齐；窄到放不下时按钮区整体换到下一行
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Button, Field, TextField } from '@zerodep-dev/vue-tsx-pro-ui';
 import { FilterBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { expect, it } from 'vitest';
 import { mount } from '../../../../test/mount';
 
-const fields = (count: number) =>
-  Array.from({ length: count }, (_, index) => (
-    <Field key={index} label={`条件${index + 1}`}>
+const fields = (names: string[]) =>
+  names.map((name) => (
+    <Field key={name} label={name}>
       <TextField />
     </Field>
   ));
 
-/** 按钮区与各条件的位置：几行、按钮区在哪一行、离结束边多远 */
-function layout(root: Element) {
-  const form = root.querySelector('form')!;
-  const actions = [...form.querySelectorAll('button')].at(-1)!.parentElement!;
-  const grid = actions.parentElement!.getBoundingClientRect();
-  const box = actions.getBoundingClientRect();
-  const tops = [...form.querySelectorAll('input')].map((input) =>
-    Math.round(input.getBoundingClientRect().top),
-  );
-  const lastRowTop = Math.max(...tops);
-  const input = [...form.querySelectorAll('input')].at(-1)!.getBoundingClientRect();
-  return {
-    rows: new Set(tops).size,
-    // 按钮区和最后一个条件的控件在同一行（底边对齐）
-    sameRowAsLast: Math.abs(box.bottom - input.bottom) < 2 && lastRowTop === Math.round(input.top),
-    belowLast: box.top >= input.bottom,
-    endGap: Math.abs(grid.right - box.right),
-  };
-}
+const top = (element: Element) => Math.round(element.getBoundingClientRect().top);
 
-it('6 个条件、一行放 4 个：按钮区在第二行的结束边，和第 5、6 个条件同一行', async () => {
+function render(width: string) {
   const root = mount(
     _component(() => () => (
-      <div style="width: 70rem">
-        <FilterBar>{fields(6)}</FilterBar>
-      </div>
-    )),
-  );
-  await expect.poll(() => layout(root).rows).toBe(2);
-  const result = layout(root);
-  expect(result.sameRowAsLast).toBe(true);
-  expect(result.endGap).toBeLessThan(1);
-});
-
-it('4 个条件正好占满一行：按钮区换到下一行，仍贴着结束边', async () => {
-  const root = mount(
-    _component(() => () => (
-      <div style="width: 70rem">
-        <FilterBar>{fields(4)}</FilterBar>
-      </div>
-    )),
-  );
-  await expect.poll(() => layout(root).belowLast).toBe(true);
-  expect(layout(root).endGap).toBeLessThan(1);
-});
-
-it('按钮比一格宽时跨几格，不和条件重叠', async () => {
-  const root = mount(
-    _component(() => () => (
-      <div style="width: 70rem">
+      <div style={`width: ${width}`}>
         <FilterBar
-          more={fields(1)}
-          actions={
-            <>
-              <Button variant="outline">导出筛选结果</Button>
-              <Button variant="outline">保存为常用</Button>
-            </>
-          }
+          start={<strong>采购单</strong>}
+          more={fields(['采购员', '下单日期', '金额'])}
+          end={<Button variant="outline">新建</Button>}
         >
-          {fields(3)}
+          {fields(['关键字', '品类'])}
         </FilterBar>
       </div>
     )),
   );
   const form = root.querySelector('form')!;
-  const actions = [...form.querySelectorAll('button')].at(-1)!.parentElement!;
-  // 按钮在一行里，没有被挤成两行
-  const rows = () =>
-    new Set([...actions.children].map((button) => Math.round(button.getBoundingClientRect().top)))
-      .size;
-  await expect.poll(rows).toBe(1);
-  const input = form.querySelectorAll('input')[2]!;
-  const cell = [...actions.parentElement!.children]
-    .find((child) => child.contains(input))!
-    .getBoundingClientRect();
-  const box = actions.getBoundingClientRect();
-  expect(box.left >= cell.right - 1 || box.top >= cell.bottom).toBe(true);
+  const button = (name: string) =>
+    [...form.querySelectorAll('button')].find((item) => item.textContent?.startsWith(name));
+  const label = (name: string) =>
+    [...form.querySelectorAll('label')].find((item) => item.textContent === name)!;
+  return { form, button: (name: string) => button(name)!, label, find: button };
+}
+
+it('第一排：标题、常用条件、展开、重置、查询、end 都在同一排，按钮靠结束边', async () => {
+  const { form, button, label } = render('80rem');
+  const row = () => top(form.querySelector('input')!);
+  await expect.poll(() => top(button('新建'))).toBe(top(button('查询')));
+  for (const name of ['展开', '重置', '查询', '新建']) {
+    expect(Math.abs(top(button(name)) - row())).toBeLessThan(2);
+  }
+  expect(top(label('品类'))).toBe(top(label('关键字')));
+  const end = form.getBoundingClientRect().right - button('新建').getBoundingClientRect().right;
+  expect(Math.abs(end)).toBeLessThan(1);
+});
+
+it('展开后更多的条件从第二排起，左边和第一排的条件对齐（不在标题下面）', async () => {
+  const { button, label, find } = render('80rem');
+  button('展开').click();
+  await expect.poll(() => find('收起') != null).toBe(true);
+  await expect.poll(() => top(label('采购员')) > top(label('关键字'))).toBe(true);
+  const first = label('关键字').getBoundingClientRect().left;
+  expect(Math.abs(label('采购员').getBoundingClientRect().left - first)).toBeLessThan(2);
+  // 按钮仍在第一排
+  expect(top(button('查询'))).toBeLessThan(top(label('采购员')));
+});
+
+it('窄到条件与按钮放不下一排时，按钮区整体换到下一行，按钮仍在一行', async () => {
+  const { form, button } = render('30rem');
+  await expect.poll(() => top(button('查询')) > top(form.querySelector('input')!)).toBe(true);
+  expect(top(button('重置'))).toBe(top(button('查询')));
+  expect(top(button('新建'))).toBe(top(button('查询')));
 });

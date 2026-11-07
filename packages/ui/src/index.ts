@@ -1348,6 +1348,7 @@ export {
 export { useHoverLayer, type HoverLayer, type HoverLayerOptions } from './utils/dom/hover-layer';
 export { useIntersectionObserver, type IntersectionOptions } from './utils/dom/intersection';
 export { batchLayout } from './utils/dom/layout-batch';
+export { lengthToPx } from './utils/dom/length';
 export {
   externalLinkAttrs,
   shouldRouteClick,

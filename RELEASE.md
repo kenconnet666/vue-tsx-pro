@@ -32,9 +32,10 @@
 - ProportionBar 的图例从起始边依次排开（以前两端对齐）。
 - Grid、GridList 新增 `balanced`（和 `minItemWidth` 一起用）：按项数取列数，最后一行最多空一格，4 项不排成 3 + 1。
   `provideGridColumns` 的返回值改成 `{ ref, columns }`（以前直接是 ref）。
-- FilterBar 的按钮区改成条件栅格的最后一格：贴在最后一行的结束边、和条件同一行，那一行放不下才换行，按钮多时跨几格。
-  **破坏性**：删掉 `start`、`end`、`propsStart`、`propsEnd`（只有 QueryTable 用来把标题、工具栏压进查询栏那一行）。
-  QueryTable 的查询栏单独一块，标题与工具栏一直是表格上方的一行。
+- FilterBar 重排：第一排是 `start`、条件与全部按钮（展开、重置、查询，再隔一条竖线是 `end`），按钮在结束边；按剩下的宽度
+  量出放得下几个条件，这几个铺满第一排，放不下的与展开的条件从第二排起排成整行的栅格。`minFieldWidth` 默认改成 14em；
+  新增部件属性 `propsBody`、`propsRow`；`propsMore` 现在是第二排起那个栅格。QueryTable 的标题与工具栏按钮并进查询栏第一排，
+  所有按钮在同一排。
 - 静态 Table 新增 `stickyHeader`（外层限高、竖向滚动时表头吸顶），TableHeaderCell、TableCell 新增 `sticky`（第一列固定在起始边）。
 - Sparkline 的柱（`type="bar"`）在 `showLast` 时最新的一根实色、前面的淡下去。**破坏性**：删掉已废弃的 `variant` 属性与
   `SparklineVariants` 类型，改用 `type` 与 `SparklineTypes`。

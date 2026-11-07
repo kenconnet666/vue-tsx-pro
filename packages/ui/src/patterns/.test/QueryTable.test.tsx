@@ -135,7 +135,7 @@ describe('QueryTable', () => {
     expect(root.textContent).toContain('批量作废 o2');
   });
 
-  it('有查询栏时查询栏单独一块（只有条件与查询、重置），标题、自己的按钮、刷新在表格上方的工具栏', async () => {
+  it('有查询栏时标题、自己的按钮、刷新并进查询栏的第一排，按钮都在查询后面；表格上方没有单独的工具栏', async () => {
     const query = fakeQuery();
     const root = mount(() => (
       <QueryTable
@@ -153,21 +153,16 @@ describe('QueryTable', () => {
     ));
     await flush();
     const form = root.querySelector('form')!;
-    expect(form.textContent).not.toContain('采购单');
-    expect([...form.querySelectorAll('button')].map((button) => button.textContent)).toEqual([
-      '重置',
-      '查询',
-    ]);
-    const refresh = root.querySelector('button[aria-label="刷新"]')!;
-    expect(form.contains(refresh)).toBe(false);
-    const toolbar = refresh.closest('div')!.parentElement!;
-    expect(toolbar.textContent).toContain('采购单');
-    expect(toolbar.textContent).toContain('新建');
-    // 工具栏在表格前面
-    expect(
-      toolbar.compareDocumentPosition(root.querySelector('table')!) &
-        Node.DOCUMENT_POSITION_FOLLOWING,
-    ).toBeTruthy();
+    expect(form.textContent).toContain('采购单');
+    const buttons = [...form.querySelectorAll('button')];
+    const names = buttons.map((button) => button.getAttribute('aria-label') ?? button.textContent);
+    expect(names.slice(0, 4)).toEqual(['重置', '查询', '新建', '刷新']);
+    // 查询按钮与工具栏按钮在同一个按钮区里
+    const search = buttons.find((button) => button.textContent === '查询')!;
+    const refresh = form.querySelector('button[aria-label="刷新"]')!;
+    expect(search.closest('[class]')!.parentElement!.contains(refresh)).toBe(true);
+    // 标题只出现一次：表格上方没有再画一行工具栏
+    expect(root.querySelectorAll('button[aria-label="刷新"]')).toHaveLength(1);
   });
 
   it('没有查询栏时，工具栏是表格上方单独的一行', async () => {

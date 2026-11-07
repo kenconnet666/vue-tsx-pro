@@ -27,10 +27,10 @@ export default _component(() => () => (
       <Code>filters</Code> 拿到草稿，控件绑定它的字段，点“查询”（或在输入框里回车）才交给{' '}
       <Code>query.search</Code>；“重置”回到 <Code>blankFilters</Code>
       （不写时是一开始的条件）并查询；
-      <Code>moreFilters</Code> 是收起的条件。查询栏单独一块，工具栏是表格上方的一行：起始边是{' '}
-      <Code>title</Code>（也是表格的名称），
-      <Code>toolbar</Code>{' '}
-      放自己的按钮，结尾是刷新、行高、列设置（勾选显示、拖动排序、重置）与全屏。列标题带列菜单（固定、前后移动、隐藏），列宽可以拖动；
+      <Code>moreFilters</Code>{' '}
+      是收起的条件。有查询栏时标题与工具栏并进查询栏的第一排，按钮都在这一排：起始边是{' '}
+      <Code>title</Code>（也是表格的名称），重置、查询后面隔一条竖线是 <Code>toolbar</Code>
+      （自己的按钮），结尾是刷新、行高、列设置（勾选显示、拖动排序、重置）与全屏。列标题带列菜单（固定、前后移动、隐藏），列宽可以拖动；
       <Code>persistKey</Code> 把列设置与行高记在浏览器里。<Code>selectionMode="multiple"</Code>{' '}
       时勾选后出现批量操作栏，
       <Code>batchActions</Code> 拿到已选的 key 给出按钮。列设置也可以单独用：

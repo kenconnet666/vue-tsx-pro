@@ -12,6 +12,7 @@ import { _component, type TsxComponent } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { inject, provide, type InjectionKey, type VNodeChild } from 'vue';
 import { childNodes } from '../utils/data/text';
+import { lengthToPx } from '../utils/dom/length';
 import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
@@ -118,16 +119,6 @@ const gridFlowStyles = css.create({
 
 // 网格现在实际有几列；null 是不知道（没有固定列数，也量不出来），GridItem 照写的 span 跨
 const gridColumnsKey: InjectionKey<() => number | null> = Symbol('GridColumns');
-
-/** CSS 长度换成 px：认 px、em（按元素的字号）、rem；别的单位（calc、%）返回 null */
-function lengthToPx(length: string, element: Element): number | null {
-  const match = /^(\d*\.?\d+)(px|r?em)$/.exec(length.trim());
-  if (!match) return null;
-  const value = Number(match[1]);
-  if (match[2] === 'px') return value;
-  const from = match[2] === 'rem' ? document.documentElement : element;
-  return value * parseFloat(getComputedStyle(from).fontSize);
-}
 
 /** 放得下 fits 列、共 count 项时排几列：最后一行最多空一格（4 项、3 列 → 2 列；6 项、4 列 → 3 列） */
 export function balancedColumns(count: number, fits: number): number {

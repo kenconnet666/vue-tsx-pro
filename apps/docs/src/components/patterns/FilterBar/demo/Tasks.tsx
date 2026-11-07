@@ -8,6 +8,7 @@ import {
   DatePicker,
   Field,
   Flex,
+  GridItem,
   RadioGroup,
   Radio,
   Select,
@@ -128,13 +129,16 @@ export default _component(() => {
                   clearable
                 />
               </Field>
-              <Field label="涉构型更改">
-                <RadioGroup _value={query.config} orientation="horizontal">
-                  <Radio value="any">不限</Radio>
-                  <Radio value="yes">是</Radio>
-                  <Radio value="no">否</Radio>
-                </RadioGroup>
-              </Field>
+              {/* 一排单选比一格宽：跨两格，不折行 */}
+              <GridItem span={2}>
+                <Field label="涉构型更改">
+                  <RadioGroup _value={query.config} orientation="horizontal">
+                    <Radio value="any">不限</Radio>
+                    <Radio value="yes">是</Radio>
+                    <Radio value="no">否</Radio>
+                  </RadioGroup>
+                </Field>
+              </GridItem>
             </>
           }
         >
