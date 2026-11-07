@@ -352,7 +352,7 @@ export const Lightbox = _component(
               })}
             />
             <IconButton
-              {...button({ icon: Undo2, 'aria-label': lang.lightboxReset, onClick: reset })}
+              {...button({ icon: Undo2, 'aria-label': lang.resetView, onClick: reset })}
             />
             {canDownload && (
               <IconLinkButton

@@ -590,6 +590,15 @@ export {
   type ControlGroupProps,
 } from './input/ControlGroup';
 export { FileDrop, matchesAccept, type FileDropProps } from './input/FileDrop';
+export {
+  ImageCropper,
+  imageCropperStyles,
+  type ImageCropFormat,
+  type ImageCropOutput,
+  type ImageCropperHandle,
+  type ImageCropperProps,
+  type ImageCropShapes,
+} from './input/ImageCropper';
 export { ListPopover, type ListPopoverManaged, type ListPopoverProps } from './input/ListPopover';
 export {
   activeOptionId,

@@ -21,8 +21,12 @@
   WAI-ARIA 轮播模式（区域、每张 role="group"、不自动播放时 aria-live="polite"）。
 - **破坏性**：语言包合并重复的条目：`lightboxZoomIn` 与 `chartZoomIn` 合成 `zoomIn`，`lightboxZoomOut` 与 `chartZoomOut`
   合成 `zoomOut`，`lightboxCounter` 改名 `slideCounter`（图片预览的计数与轮播共用）。自定义的语言包照着改名。
-- `usePanZoom` 加 `frame`（平移按视口里的一块限制，如裁剪框）与 `cover`（缩放下限是内容盖满 frame 的比例）；
-  `clampPan` 的第二个参数可以带 x、y（视口里的一块）。
+- `usePanZoom` 加 `frame`（平移按视口里的一块限制，如裁剪框）与 `cover`（缩放下限是内容盖满 frame 的比例），
+  `min`、`max` 可以写成函数；`clampPan` 的第二个参数可以带 x、y（视口里的一块）。
+- 新组件 ImageCropper（裁剪图片）：裁剪框固定在中间（`aspect`，`shape="round"` 圆形），图片在底下拖动、缩放，框里永远是图；
+  工具条有缩小、缩放滑块、放大、还原；`handle` 拿到 `toCanvas`、`toBlob`、`toFile`（可以指定输出像素、类型、质量）。
+  Upload 加 `transform`：选到的文件加进列表前先过一遍（弹出裁剪、压缩、改名），返回 null 不加。
+- **破坏性**：语言包 `lightboxReset` 改名 `resetView`（图片预览与裁剪共用）；新增 `cropLabel`、`cropHint`、`cropZoom`。
 
 ## 每次发布
 

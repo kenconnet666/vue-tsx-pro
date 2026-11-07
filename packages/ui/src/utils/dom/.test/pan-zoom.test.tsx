@@ -24,6 +24,15 @@ describe('计算', () => {
       scale: 1,
     });
   });
+  it('clampPan：按视口里的一块（裁剪框）限制，内容盖住它', () => {
+    const frame = { x: 20, y: 10, width: 60, height: 60 };
+    // 内容 100 × 100：左边不能越过框的左边（20），右边不能退进框的右边（80）
+    expect(clampPan({ x: 50, y: -90, scale: 1 }, frame, { width: 100, height: 100 })).toEqual({
+      x: 20,
+      y: -30,
+      scale: 1,
+    });
+  });
 });
 
 function render(options: Partial<PanZoomOptions> = {}) {
@@ -107,6 +116,23 @@ describe('usePanZoom', () => {
     // 内容不从原点开始：平移把它的左上角挪进来
     expect(view().fit({ x: 100, y: -40, width: 100, height: 50 }, 10)).toBe(1);
     expect(view()).toMatchObject({ x: -50, y: 65, scale: 1 });
+  });
+
+  it('cover：缩小不到盖不满裁剪框，拖动也不露出框外的空白', () => {
+    const { element, view } = render({
+      bounds: () => ({ width: 200, height: 100 }),
+      frame: () => ({ x: 25, y: 25, width: 50, height: 50 }),
+      cover: true,
+      min: 0.1,
+    });
+    // 盖满 50 × 50 的框：高度 100 至少缩到 0.5
+    for (let i = 0; i < 10; i++)
+      element.dispatchEvent(new KeyboardEvent('keydown', { key: '-', bubbles: true }));
+    expect(view().scale).toBe(0.5);
+    element.dispatchEvent(pointer('pointerdown', 0, 0));
+    element.dispatchEvent(pointer('pointermove', 500, 500));
+    element.dispatchEvent(pointer('pointerup', 500, 500));
+    expect(view()).toMatchObject({ x: 25, y: 25 });
   });
 
   it('filter 挑掉的事件不处理：按住 Shift 拖动、按键都不平移', async () => {

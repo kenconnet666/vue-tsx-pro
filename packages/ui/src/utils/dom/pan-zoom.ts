@@ -47,10 +47,10 @@ export interface PanZoomWheelModes {
 export interface PanZoomOptions {
   /** 接收拖动、滚轮的视口（元素或组件实例） */
   viewport: () => unknown;
-  /** 最小缩放，默认 0.25 */
-  min?: number;
-  /** 最大缩放，默认 4 */
-  max?: number;
+  /** 最小缩放，默认 0.25；随内容变的（裁剪图片：按图片大小算）写成函数 */
+  min?: number | (() => number);
+  /** 最大缩放，默认 4；可以写成函数 */
+  max?: number | (() => number);
   /** 每一档缩放的倍数（按钮、键盘、双击），默认 1.25 */
   step?: number;
   /** 初始状态，默认 { x: 0, y: 0, scale: 1 }；reset 回到它 */
@@ -185,8 +185,10 @@ const KEY_PAN = 40;
 
 /** 平移与缩放的状态与事件（在 setup 里调用） */
 export function usePanZoom(options: PanZoomOptions): PanZoom {
-  const min = options.min ?? 0.25;
-  const max = options.max ?? 4;
+  const read = (value: number | (() => number) | undefined, fallback: number) =>
+    typeof value === 'function' ? value() : (value ?? fallback);
+  const minOf = () => read(options.min, 0.25);
+  const maxOf = () => read(options.max, 4);
   const step = options.step ?? 1.25;
   const initial = () => options.initial?.() ?? { x: 0, y: 0, scale: 1 };
   const state = shallowRef<PanZoomState>(initial());
@@ -217,9 +219,9 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
   /** 缩放下限：cover 时还要盖满 frame */
   function minScale() {
     const content = options.bounds?.();
-    if (!options.cover || !content?.width || !content.height) return min;
+    if (!options.cover || !content?.width || !content.height) return minOf();
     const { width, height } = region();
-    return Math.max(min, width / content.width, height / content.height);
+    return Math.max(minOf(), width / content.width, height / content.height);
   }
 
   function apply(next: PanZoomState) {
@@ -228,12 +230,12 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
       state.value = next;
       return;
     }
-    const scale = clamp(next.scale, minScale(), Math.max(max, minScale()));
+    const scale = clamp(next.scale, minScale(), Math.max(maxOf(), minScale()));
     state.value = clampPan({ ...next, scale }, region(), content);
   }
 
   function zoomTo(scale: number, origin: Point = center()) {
-    const next = clamp(scale, minScale(), Math.max(max, minScale()));
+    const next = clamp(scale, minScale(), Math.max(maxOf(), minScale()));
     if (next === state.value.scale) return;
     apply(zoomAround(state.value, next, origin));
   }
@@ -291,7 +293,7 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
     const scale = clamp(
       (pinch.state.scale * distance) / pinch.distance,
       minScale(),
-      Math.max(max, minScale()),
+      Math.max(maxOf(), minScale()),
     );
     apply(zoomAround(pinch.state, scale, { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }));
   }
@@ -359,7 +361,7 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
     panTo: (x, y) => apply({ ...state.value, x, y }),
     reset: () => apply(initial()),
     fit(content, padding = 0) {
-      state.value = fitTransform(viewportSize(), content, { padding, min, max });
+      state.value = fitTransform(viewportSize(), content, { padding, min: minOf(), max: maxOf() });
       return state.value.scale;
     },
     viewportProps,

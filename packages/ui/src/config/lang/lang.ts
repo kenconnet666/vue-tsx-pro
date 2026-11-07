@@ -87,14 +87,20 @@ export interface Lang {
   readonly zoomOut: string;
   /** 第几张（图片预览的计数、轮播每一张与页点的名称）：`(2, 5)` → “第 2 张，共 5 张” */
   readonly slideCounter: (index: number, total: number) => string;
+  /** 回到初始的大小、位置与方向（图片预览、裁剪图片共用），默认“还原” */
+  readonly resetView: string;
+  /** 裁剪图片：区域的名称，默认“裁剪图片” */
+  readonly cropLabel: string;
+  /** 裁剪图片：操作说明（读屏），默认“拖动移动图片，滚轮或 + − 缩放，方向键微调” */
+  readonly cropHint: string;
+  /** 裁剪图片：缩放滑块的名称，默认“缩放” */
+  readonly cropZoom: string;
   /** 图片预览（Lightbox）的名称，默认“图片预览” */
   readonly lightboxLabel: string;
   /** 图片预览：向左旋转，默认“向左旋转” */
   readonly lightboxRotateLeft: string;
   /** 图片预览：向右旋转，默认“向右旋转” */
   readonly lightboxRotateRight: string;
-  /** 图片预览：回到初始的大小、位置与方向，默认“还原” */
-  readonly lightboxReset: string;
   /** 图片预览：下载，默认“下载” */
   readonly lightboxDownload: string;
   /** 图片预览：上一张，默认“上一张” */

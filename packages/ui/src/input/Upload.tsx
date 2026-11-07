@@ -117,6 +117,11 @@ export interface UploadProps extends PartProps<'div'> {
   maxSize?: number;
   /** 最多几个文件，超出的不加进来 */
   maxFiles?: number;
+  /**
+   * 选到的文件加进列表之前先过一遍：裁剪图片（弹出 ImageCropper）、压缩、改名；返回 null 不加这个文件。
+   * 选了几个时依次处理（一个一个弹出裁剪）；类型不对的文件不经过它
+   */
+  transform?: (file: File) => File | null | undefined | Promise<File | null | undefined>;
   /** 原生表单提交时的字段名：写了才有隐藏的 file input */
   name?: string;
   /** 不可用 */
@@ -286,6 +291,7 @@ export const Upload = _component(
     directory = false,
     maxSize,
     maxFiles,
+    transform,
     name,
     disabled,
     readonly,
@@ -390,6 +396,17 @@ export const Upload = _component(
       added.filter((item) => item.status === 'selected').forEach((item) => void start(item));
     }
 
+    /** 选到的（类型对的）文件：先经过 transform，再加进列表 */
+    async function receive(files: File[]) {
+      if (!transform) return add(files);
+      const results: File[] = [];
+      for (const file of files) {
+        const next = await transform(file);
+        if (next) results.push(next);
+      }
+      if (results.length) add(results);
+    }
+
     // 父级放进来的待上传文件（拖到页面别处、恢复的草稿）：给了 upload 时同样开始上传
     watch(
       () => value,
@@ -445,7 +462,7 @@ export const Upload = _component(
       event.preventDefault();
       const accepted = files.filter((file) => matchesAccept(file, accept));
       const rejected = files.filter((file) => !matchesAccept(file, accept));
-      if (accepted.length) add(accepted);
+      if (accepted.length) void receive(accepted);
       if (rejected.length) add(rejected, true);
     }
 
@@ -672,7 +689,7 @@ export const Upload = _component(
         },
         propsDrop,
         {
-          onFiles: (files: File[]) => add(files),
+          onFiles: (files: File[]) => void receive(files),
           onReject: (files: File[]) => add(files, true),
         },
       );
