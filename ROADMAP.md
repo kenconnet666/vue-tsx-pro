@@ -812,9 +812,10 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] 23.6 实测：两个实例共用 PG 与 Redis，一个写入后另一个的本机层、Redis 与浏览器都变新；PG 的监听连接被断开后重连并 reset；
       全栈示例接上失效推送，端到端测试里一个页面添加待办、另一个页面的缓存数据自动刷新
 
-## 阶段 24：样式体系改造的收尾（0.12）
+## 阶段 24：样式体系改造的收尾
 
-0.11 发了样式体系改造的破坏性部分与文档（见附 D），这里是只加不破的后半段，按目录逐批做，每批截图零差异再合。
+0.11 发了样式体系改造的破坏性部分与文档（见附 D），这里是后半段，按目录逐批做，每批截图零差异再合。2026-11-07 起并进阶段 25 的 P5 执行：
+还没有使用方，24.4 的旧写法直接删、不留过渡（[计划](.claude/reports/plan-2026-11-07.md) §0）。
 计划与取舍记在 [.claude/reports/style-overhaul-plan.md](.claude/reports/style-overhaul-plan.md) §5、§11。
 
 - [ ] 24.1 部件补齐：约 190 个用 `css.attrs` 直接取样式的内部节点补 `propsXxx` 与 `data-part`（CommentThread、Checklist、Cascader、CalendarBoard…）；
@@ -827,13 +828,33 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [ ] 24.6 文档站的 API 小节列出配方的部件（`data-part`）与档位（`components.Xxx` 能改、能加的）：现在只列部件属性 `propsXxx`；
       从 `css.recipe` 的定义提取，24.1 补齐部件后一起做
 
+## 阶段 25：文档站整改、组件补缺与发布流程（2026-11-07 计划）
+
+依据与每项的做法、取舍在 [.claude/reports/plan-2026-11-07.md](.claude/reports/plan-2026-11-07.md)（用户 2026-11-07 审定，无人值守执行）。
+还没有使用方：旧 API 直接删，不分版本线，每批做完 CI 绿了就从 master 发一版，文档不写具体版本号。下游（CSharpUi、Blazor）每批通知，
+整个阶段完成后请它们整体跟进。
+
+- [ ] P1.0 下游报的问题：样式引擎焦点伪类的优先级查表落空；DateField / DateRangePicker 点后面的段焦点被抢到第一段
+- [ ] P0 安全网：截图回归进 CI（亮、暗全量，从右到左、高对比、手机宽度覆盖常用组件，浮层截打开后的状态）；box-sizing 统一（`:where([data-part])`）
+- [ ] P1 CSP nonce、ErrorBoundary、过时文档
+- [ ] P7 发布流程：changesets、CI 发布（`release` 环境，令牌已就位）、体积预算、peer 区间
+- [ ] P2 文档站整改：信息架构（合并、挪动、旧地址重定向）、示例改用组件库、逐页问题、文档站功能（组件选择指南、整页模板、示例工具、搜索、无障碍一节）
+- [ ] P2.5 逐个组件精修样式（随 P2 的页面顺序）
+- [ ] P3 组件补缺：ChoiceCard、ItemList 可选中的行、ColorPicker、ImageCropper、Carousel、Dialog 拖动、Tag 的 `selected`、`useInfiniteList`、
+      QRCode（自己写编码器）、省市区数据、Transfer 虚拟滚动、选文件夹、FloatButton 组、JsonViewer、SignaturePad、DataTable 横向虚拟化
+- [ ] P4 按 schema 生成表单（第一步）与 QueryTable 的查询条件
+- [ ] P5 阶段 24（含 24.4 直接删旧写法）
+- [ ] P6 `/testing` 测试辅助、桌面端 `create` 模板
+- [ ] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计
+- [ ] P10 组件规格 JSON 给下游比对、下游问题用 GitHub issue 跟踪
+
 ## 已知局限（有意的取舍，写在文档里）
 
 - VirtualList 不支持从右到左时的横向滚动（scrollLeft 为负）
 - Toolbar 里嵌套的 ToggleGroup 各有一个 Tab 位置，没有并入工具栏的方向键移动
 - Pagination 的页码之间用 Tab 切换，没用漫游焦点（分页没有 ARIA 复合角色）
 - 虚拟化的选项列表里分组标题只是视觉上的一行，组名经 aria-describedby 念出
-- 表格是 table 语义，不是 grid：没有单元格之间的方向键导航（阶段 5 排了）
+- DataTable 只有开了单元格导航（`cellNavigation`，有可编辑的列时默认开）才是 grid 语义、方向键在格之间走；其余时候是 table 语义，Tab 只经过格里的控件
 - 记在浏览器里的界面设置（`usePersistentState`：QueryTable 的列设置、主题偏好等）在 setup 里就读出来：服务端渲染的页面上，
   存过与默认不同的值时水合会对不上一处（Vue 照样接管，生产环境不修正那一处的 class）。换成挂载后再读会让不用服务端渲染的应用每次先闪一下默认值，没换
 - `useMediaQuery` 在 setup 里就按当前窗口取值：服务端没有窗口，按不匹配渲染；窄屏、暗色偏好这类结果不同时水合对不上一处。版式尽量交给 CSS 媒体查询
