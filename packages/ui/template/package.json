@@ -1,0 +1,21 @@
+{
+  "name": "admin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@lucide/icons": "^1.69.0",
+    "vue": "^3.5.0",
+    "vue-router": "^5.0.0",
+    "zod": "^4.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.0.0"
+  }
+}

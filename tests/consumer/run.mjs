@@ -1,7 +1,8 @@
 /**
  * 发布产物验证：用 pnpm pack 打出的包，在仓库之外的独立应用里安装、类型检查、构建，再在真实浏览器里运行，
- * 确认使用方只靠 npm 产物就能用。两个应用：
+ * 确认使用方只靠 npm 产物就能用。三个应用：
  *   - tests/consumer/app：桌面组件库（ui）
+ *   - 桌面后台：用 ui 的 vtp-ui create 从模板（packages/ui/template）建应用，类型检查、构建、浏览器里走一遍列表与详情
  *   - 移动端：用 mini 的 vtp-mini create 从新项目模板（packages/mini/template）建应用，
  *     出 H5（mobile 组件库）与 vtp-mini build 出的微信、支付宝工程；模板里写的第三方依赖范围照原样装
  *
@@ -30,6 +31,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '../..');
 const work = mkdtempSync(join(tmpdir(), 'vue-tsx-pro-consumer-'));
 const app = join(work, 'app');
 const mobileApp = join(work, 'mobile');
+const adminApp = join(work, 'admin');
 
 /**
  * 独立应用里的环境：仓库的 nodeOptions（pnpm-workspace.yaml）让 Node 按 @vue-tsx-pro/source 条件读各包源码，
@@ -162,6 +164,25 @@ async function checkDesktop() {
   });
 }
 
+/** 桌面后台模板：列表页取到数据、点单号进详情页（客户端路由，静态服务器上从根路径进） */
+async function checkAdmin() {
+  await inBrowser(join(adminApp, 'dist'), async (page, errors) => {
+    const first = page.getByRole('link', { name: 'PO-1001' });
+    await first.waitFor();
+    const checks = {
+      '列表页：表格有 10 行（一页）': [await page.locator('tbody tr').count(), 10],
+    };
+    await first.click();
+    await page.getByRole('heading', { name: 'PO-1001' }).waitFor();
+    checks['详情页：路由切过去、字段列出来'] = [
+      (await page.textContent('body')).includes('华辰精密'),
+      true,
+    ];
+    checks['控制台没有错误'] = [errors.join('\n'), ''];
+    report(checks);
+  });
+}
+
 /** 移动端：H5 在手机视口、触摸屏里看 token 与点按；小程序看两端工程的文件与 app 样式表里的主题变量 */
 async function checkMobile() {
   await inBrowser(
@@ -198,13 +219,14 @@ async function checkMobile() {
 
 run('pnpm', ['build'], root);
 const tsx = pack('tsx');
+const uiPackage = pack('ui');
 
 cpSync(join(root, 'tests/consumer/app'), app, { recursive: true });
 install(
   app,
   {
     '@zerodep-dev/vue-tsx-pro-tsx': tsx,
-    '@zerodep-dev/vue-tsx-pro-ui': pack('ui'),
+    '@zerodep-dev/vue-tsx-pro-ui': uiPackage,
     ...catalogVersions(['vue', '@lucide/icons', 'shiki', 'zod']),
   },
   catalogVersions(['vite', 'typescript']),
@@ -212,6 +234,16 @@ install(
 run('npx', ['tsc', '-p', '.'], app);
 run('npx', ['vite', 'build'], app);
 await checkDesktop();
+
+// 桌面后台模板：create 用仓库里的，装的是打出的包（ui 的包上面已经打过）
+run('node', [join(root, 'packages/ui/bin/vtp-ui.mjs'), 'create', adminApp], root);
+install(adminApp, {
+  '@zerodep-dev/vue-tsx-pro-tsx': tsx,
+  '@zerodep-dev/vue-tsx-pro-ui': uiPackage,
+});
+run('npx', ['tsc', '-p', '.'], adminApp);
+run('npx', ['vite', 'build'], adminApp);
+await checkAdmin();
 
 // 模板与 create 用仓库里的（源码），装的是打出的包
 run('node', [join(root, 'packages/mini/src/cli.ts'), 'create', mobileApp], root);

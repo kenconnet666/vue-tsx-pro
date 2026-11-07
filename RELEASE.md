@@ -68,6 +68,9 @@
   `cascaderHarness`、`treeSelectHarness`、`treeHarness`、`dateFieldHarness` / `datePickerHarness`、`dataTableHarness`，
   `getControl(容器, 名称)` 按标签找控件，`setupTestingDom()` 给 happy-dom / jsdom 补上 popover 等 API 与视口大小。
   文档站加“Testing 测试”指南。Tree 的勾选框带 `data-part="checkbox"`。
+- 组件库带命令行 `vtp-ui create <目录>`（`npx -p @zerodep-dev/vue-tsx-pro-ui vtp-ui create my-admin`）：从模板建一个
+  桌面后台——AppShell、vue-router、列表页（QueryTable）、详情页、编辑页（SchemaForm），假接口在 src/api 里。
+  模板进了发布产物验证（装打出的包、类型检查、构建、浏览器里走一遍列表与详情）。
 - 字段约束认 `z.iso.datetime({ local: true })`：输入框不再把它当普通文字。
 - `useFormDialog` 的表单加了 `novalidate`：必填没填时只显示字段下的错误，不再弹浏览器自带的气泡。
 

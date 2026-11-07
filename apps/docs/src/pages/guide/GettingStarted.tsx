@@ -40,8 +40,24 @@ app.use(
   }),
 );`;
 
+const scaffold = `npx -p @zerodep-dev/vue-tsx-pro-ui vtp-ui create my-admin
+cd my-admin
+npm install
+npm run dev`;
+
 export default _component(() => () => (
   <DocPage meta={meta}>
+    <Flex direction="column" gap="md">
+      <H2 id="create" size="xl" anchor>
+        从模板起步
+      </H2>
+      <Paragraph>
+        {
+          '新项目可以直接用模板：一个后台骨架——AppShell 的顶栏与侧边导航、vue-router、列表页（QueryTable）、详情页（Descriptions）、编辑页（按 zod schema 生成的 SchemaForm），数据是 src/api 里的假接口，换成真的接口就能用。已有的项目照下面几步接入。'
+        }
+      </Paragraph>
+      <CodeBlock code={scaffold} lang="bash" />
+    </Flex>
     <Flex direction="column" gap="md">
       <H2 id="install" size="xl" anchor>
         安装

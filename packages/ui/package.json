@@ -120,8 +120,13 @@
     },
     "./package.json": "./package.json"
   },
+  "bin": {
+    "vtp-ui": "./bin/vtp-ui.mjs"
+  },
   "files": [
-    "dist"
+    "dist",
+    "bin",
+    "template"
   ],
   "scripts": {
     "build": "vite build --configLoader native && tsc -p tsconfig.build.json",
