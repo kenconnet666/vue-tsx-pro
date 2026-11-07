@@ -117,7 +117,7 @@ it('无障碍：演示页 axe-core 没有违规（亮色、暗色、纸张）', 
     // 无限循环的动画（加载指示）永远不会结束，不等它；Firefox 里个别过渡也停在 running，最多等 1 秒
     // （主题颜色的过渡是 durations.sm，远小于 1 秒）
     await Promise.race([
-      Promise.all(
+      Promise.allSettled(
         document
           .getAnimations()
           .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)

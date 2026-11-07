@@ -45,11 +45,11 @@ afterEach(() => {
 // 整页示例自带 main、header 这些地标，和别的示例放在同一个 main 里会重复
 const isFrame = (path: string) => path.includes('/frames/');
 
-/** 等颜色过渡结束（无限循环的加载动画不等），最多 1 秒 */
+/** 等颜色过渡结束（无限循环的加载动画不等），最多 1 秒；中途被取消的动画（finished 以 AbortError 拒绝）也算结束 */
 async function settle() {
   await new Promise((resolve) => requestAnimationFrame(resolve));
   await Promise.race([
-    Promise.all(
+    Promise.allSettled(
       document
         .getAnimations()
         .filter((animation) => animation.effect?.getComputedTiming().iterations !== Infinity)

@@ -201,7 +201,9 @@ export function createEditor(
         EditorState.tabSize.of(2),
         theme,
         darkMode.of(EditorView.darkTheme.of(dark)),
-        EditorView.contentAttributes.of({ 'aria-label': label }),
+        // contenteditable 本来就能 Tab 到；写明 tabindex，检查工具（axe 的 scrollable-region-focusable）才认它是
+        // 滚动区域里可聚焦的内容
+        EditorView.contentAttributes.of({ 'aria-label': label, tabindex: '0' }),
         keymap.of([
           ...closeBracketsKeymap,
           ...completionKeymap,

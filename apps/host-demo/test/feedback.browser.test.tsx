@@ -207,7 +207,7 @@ describe('Dialog · AlertDialog · Drawer', () => {
     // 进场是滑入过渡；Linux 上的 WebKit 偶尔把过渡停在起点（同 Firefox 的 running 问题），
     // 这里只验证最终布局：最多等 1 秒，然后让还没播完的过渡直接到终点
     await Promise.race([
-      Promise.all(drawer.getAnimations().map((animation) => animation.finished)),
+      Promise.allSettled(drawer.getAnimations().map((animation) => animation.finished)),
       new Promise((resolve) => setTimeout(resolve, 1000)),
     ]);
     for (const animation of drawer.getAnimations()) animation.finish();
@@ -248,7 +248,9 @@ describe('Dialog · AlertDialog · Drawer', () => {
     await expect.poll(() => dialog.open).toBe(true);
     // 等进场过渡结束再检查对比度（最多 1 秒）
     await Promise.race([
-      Promise.all(dialog.getAnimations({ subtree: true }).map((animation) => animation.finished)),
+      Promise.allSettled(
+        dialog.getAnimations({ subtree: true }).map((animation) => animation.finished),
+      ),
       new Promise((resolve) => setTimeout(resolve, 1000)),
     ]);
     const { violations } = await axe.run(dialog);
@@ -434,7 +436,7 @@ describe('Toast', () => {
     toaster.show({ tone: 'success', title: '已保存', duration: Infinity });
     await expect.poll(() => items().length).toBe(2);
     await Promise.race([
-      Promise.all(
+      Promise.allSettled(
         region()
           .getAnimations({ subtree: true })
           .map((animation) => animation.finished),

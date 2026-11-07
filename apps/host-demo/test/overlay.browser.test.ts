@@ -29,7 +29,9 @@ const isOpen = (element: Element) => element.matches(':popover-open');
 /** 等进场过渡结束（最多 1 秒），axe 才算得准对比度 */
 const settle = (element: Element) =>
   Promise.race([
-    Promise.all(element.getAnimations({ subtree: true }).map((animation) => animation.finished)),
+    Promise.allSettled(
+      element.getAnimations({ subtree: true }).map((animation) => animation.finished),
+    ),
     new Promise((resolve) => setTimeout(resolve, 1000)),
   ]);
 
