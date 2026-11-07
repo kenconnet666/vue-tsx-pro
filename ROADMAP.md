@@ -845,7 +845,10 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] P1.0 下游报的问题：焦点伪类的优先级查表落空、DateField 点后面的段焦点被抢、CodeBlock 展开按钮的焦点环被裁、
       不可用的项仍有悬停反馈（`_hover` / `_active` 别名排除不可用）（2026-11-07）
 - [ ] P0 安全网：~~截图比对进 CI~~（2026-11-07：`visual` 任务与上一次 master 全绿运行比对，报差异图）、~~box-sizing 统一~~（`:where([data-part])`，截图比对过）；
-      还剩：从右到左、高对比、手机宽度的截图，浮层截打开后的状态，焦点环被裁的全站检查（P0.3）
+      还剩：从右到左、高对比、手机宽度的截图，浮层截打开后的状态；焦点环被裁的全站检查（P0.3）2026-11-08 做了：
+      apps/docs/src/test/focus-ring.browser.test.ts 逐个键盘聚焦示例里的元素、算焦点环是否被 overflow 的祖先裁掉，三种浏览器；
+      表头排序按钮改成画在里面。已知的 72 处在 focus-ring-baseline.json，按类修：表格单元格里的按钮与链接、滚动区域里贴边的项
+      （Listbox、Transfer、PeoplePicker、NotificationList）、代码块的复制按钮、Tabs 列表、Splitter 把手、Upload 的列表
 - [x] P1 CSP nonce、ErrorBoundary、过时文档（2026-11-07）
 - [x] P7 发布流程：~~打标签发版、CI 带 provenance 发布~~（2026-11-07，`scripts/release.mjs` + `release.yml`，不用 changesets）；体积预算（packages/ui/scripts/size.mjs）与 peer 区间（test:consumer 的
       CONSUMER_RANGE=min 按 peerDependencies 的下限装，CI 的 consumer-min 任务）也做了，2026-11-08

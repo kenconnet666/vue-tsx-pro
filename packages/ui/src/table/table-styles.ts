@@ -197,12 +197,14 @@ export const dataTableRecipe = css.recipe({
     headerContent: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
     headerMain: { flexGrow: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' },
     // 去掉按钮默认外观、焦点环、波纹、颜色过渡由 ButtonBase 给出
+    // 焦点环画在里面：外层 headerMain 为省略号裁掉了溢出，画在外面会被整圈裁掉（同 focusRingStyles.inset）
     sortButton: {
       display: 'inline-flex',
       alignItems: 'center',
       gap: '_xs',
       maxWidth: '_full',
       color: { default: 'inherit', _hover: '_text' },
+      outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
     },
     sortLabel: { overflow: 'hidden', textOverflow: 'ellipsis' },
     sortIcon: { flexShrink: 0 },
