@@ -553,7 +553,8 @@ export const DataTableRow = _component(
             {selectionMode === 'single' ? (
               // 单选：同一个 name 的原生单选框，选中由 DataTableView 提供的 RadioGroupContext 决定
               <Radio
-                {...mergePartProps<Partial<RadioProps>>(s.selectRadio, propsSelectRadio, {
+                {...mergePartProps<Partial<RadioProps>>({}, propsSelectRadio, {
+                  propsRoot: mergeProps<'label'>(s.selectRadio, propsSelectRadio?.propsRoot),
                   disabled: !selectable,
                   'aria-label': lang.tableSelectRow(index + 1),
                 })}
@@ -563,9 +564,13 @@ export const DataTableRow = _component(
               <Checkbox
                 {...mergePartProps<CheckboxProps>(
                   // 名称每行不同（选择第 N 行）：类型里不让使用方覆盖
-                  { ...s.selectCheckbox, 'aria-label': lang.tableSelectRow(index + 1) },
+                  { 'aria-label': lang.tableSelectRow(index + 1) },
                   propsSelectCheckbox,
                   {
+                    propsRoot: mergeProps<'label'>(
+                      s.selectCheckbox,
+                      propsSelectCheckbox?.propsRoot,
+                    ),
                     _checked: selected,
                     indeterminate: partial,
                     disabled: !selectable,
@@ -1358,9 +1363,10 @@ export const DataTableView = _component(
                     {selectionMode === 'multiple' && (
                       <Checkbox
                         {...mergePartProps<CheckboxProps>(
-                          { ...s.selectAll, 'aria-label': lang.tableSelectAll },
+                          { 'aria-label': lang.tableSelectAll },
                           propsSelectAll,
                           {
+                            propsRoot: mergeProps<'label'>(s.selectAll, propsSelectAll?.propsRoot),
                             _checked: allSelected,
                             indeterminate: someSelected,
                             disabled: selectableRows.length === 0,

@@ -123,6 +123,16 @@ export const tableVariantVariant = {
 } as const;
 
 /**
+ * 单元格里的勾选框、单选框（加在外层 label 上，撑出 24px 点击区域的是它，不是里面的 input）：
+ * 叠放层在 label 的顶上、高一行（1.5em），多出的点击区域在下面。顶部对齐、下边的负外边距抵掉多出的部分，
+ * label 正好占一行文字，勾选框在这一行的正中，有勾选列的行与纯文字的行一样高（按基线或居中对齐都会因字体差出零点几像素）
+ */
+const choiceInCell = {
+  verticalAlign: 'top',
+  marginBlockEnd: `min(0px, 1.5em - ${t.sizes.minTarget})`,
+} as const;
+
+/**
  * DataTable、TreeDataTable 的配方：部件对应渲染出来的元素，密度、样式、斑马纹是档位。
  * 同类的格叠在一起用：勾选列、合计行、详情、空状态的格是 `[s.cell.sx, s.selectCell.sx]`，
  * 分组标题、表头的勾选列是 `[s.headerCell.sx, s.groupHeaderCell.sx]`；对齐、固定列、已选这些按列、按状态的
@@ -198,13 +208,13 @@ export const dataTableRecipe = css.recipe({
     sortIcon: { flexShrink: 0 },
     // 多列排序时的次序（1、2…）：小号数字跟在箭头后面
     sortPriority: { fontSize: '0.75em', fontVariantNumeric: 'tabular-nums', color: '_accentText' },
-    // 单元格里 24px 的控件（勾选框、单选框、展开按钮）：上下的负外边距抵掉比一行文字高出的部分，
-    // 有控件的行与纯文字的行一样高，点击区域仍是 24px。操作列放文字按钮时用 variant="link"
-    selectAll: { marginBlock: '-0.1875rem' },
+    // 单元格里 24px 的控件不把行撑高，点击区域仍是 24px：勾选框、单选框见 choiceInCell；
+    // 展开按钮上下的负外边距抵掉比一行文字高出的部分。操作列放文字按钮时用 variant="link"
+    selectAll: choiceInCell,
     cell: [tablePartStyles.cell],
     selectCell: { paddingInline: 0, textAlign: 'center', textOverflow: 'clip' },
-    selectCheckbox: { marginBlock: '-0.1875rem' },
-    selectRadio: { marginBlock: '-0.1875rem' },
+    selectCheckbox: choiceInCell,
+    selectRadio: choiceInCell,
     detailToggleCell: { paddingInline: 0, textAlign: 'center', textOverflow: 'clip' },
     detailToggle: {
       width: '1.5rem',
