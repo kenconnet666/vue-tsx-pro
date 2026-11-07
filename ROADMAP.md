@@ -834,10 +834,12 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 还没有使用方：旧 API 直接删，不分版本线，每批做完 CI 绿了就从 master 发一版，文档不写具体版本号。下游（CSharpUi、Blazor）每批通知，
 整个阶段完成后请它们整体跟进。
 
-- [ ] P1.0 下游报的问题：样式引擎焦点伪类的优先级查表落空；DateField / DateRangePicker 点后面的段焦点被抢到第一段
-- [ ] P0 安全网：截图回归进 CI（亮、暗全量，从右到左、高对比、手机宽度覆盖常用组件，浮层截打开后的状态）；box-sizing 统一（`:where([data-part])`）
-- [ ] P1 CSP nonce、ErrorBoundary、过时文档
-- [ ] P7 发布流程：changesets、CI 发布（`release` 环境，令牌已就位）、体积预算、peer 区间
+- [x] P1.0 下游报的问题：焦点伪类的优先级查表落空、DateField 点后面的段焦点被抢、CodeBlock 展开按钮的焦点环被裁、
+      不可用的项仍有悬停反馈（`_hover` / `_active` 别名排除不可用）（2026-11-07）
+- [ ] P0 安全网：~~截图比对进 CI~~（2026-11-07：`visual` 任务与上一次 master 全绿运行比对，报差异图）、~~box-sizing 统一~~（`:where([data-part])`，截图比对过）；
+      还剩：从右到左、高对比、手机宽度的截图，浮层截打开后的状态，焦点环被裁的全站检查（P0.3）
+- [x] P1 CSP nonce、ErrorBoundary、过时文档（2026-11-07）
+- [ ] P7 发布流程：~~打标签发版、CI 带 provenance 发布~~（2026-11-07，`scripts/release.mjs` + `release.yml`，不用 changesets）；还剩体积预算、peer 区间
 - [ ] P2 文档站整改：信息架构（合并、挪动、旧地址重定向）、示例改用组件库、逐页问题、文档站功能（组件选择指南、整页模板、示例工具、搜索、无障碍一节）
 - [ ] P2.5 逐个组件精修样式（随 P2 的页面顺序）
 - [ ] P3 组件补缺：ChoiceCard、ItemList 可选中的行、ColorPicker、ImageCropper、Carousel、Dialog 拖动、Tag 的 `selected`、`useInfiniteList`、
