@@ -6,7 +6,6 @@
   "ColumnFilterButton": ["unit"],
   "ColumnMenuButton": ["unit"],
   "ColumnResizer": ["unit"],
-  "CommentComposer": ["unit"],
   "DataTableDetailRow": ["unit", "types"],
   "DataTableRow": ["unit", "types"],
   "DataTableView": ["types"],
@@ -20,9 +19,7 @@
   "OverlayScrollbar": ["unit"],
   "PageScrollbar": ["unit"],
   "SegmentedField": ["unit"],
-  "SelectedTags": ["unit"],
   "SignaturePad": ["unit"],
-  "ThemeSwitcher": ["unit"],
   "ThemeThumbnail": ["unit"],
   "XYChart": ["unit", "types"]
 }

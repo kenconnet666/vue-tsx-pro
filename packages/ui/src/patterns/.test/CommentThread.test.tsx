@@ -3,7 +3,12 @@
 import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
-import { CommentThread, type CommentDraft, type CommentItem } from '../CommentThread';
+import {
+  CommentComposer,
+  CommentThread,
+  type CommentDraft,
+  type CommentItem,
+} from '../CommentThread';
 
 const flush = async () => {
   for (let i = 0; i < 4; i++) await nextTick();
@@ -146,5 +151,30 @@ describe('CommentThread', () => {
         .querySelector('[data-scope="comment-composer"][data-part="footer"]')!
         .classList.contains('my-footer'),
     ).toBe(true);
+  });
+});
+
+describe('CommentComposer', () => {
+  it('单独用：Ctrl+Enter 发送去掉首尾空白的内容，成功后清空；Esc 交给 onCancel', async () => {
+    const sent: CommentDraft[] = [];
+    let cancelled = 0;
+    const root = mount(() => (
+      <CommentComposer
+        people={people}
+        onSend={(draft) => void sent.push(draft)}
+        onCancel={() => cancelled++}
+      />
+    ));
+    const textarea = root.querySelector('textarea')!;
+    await write(textarea, '  下午确认  ');
+    textarea.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', ctrlKey: true, bubbles: true }),
+    );
+    await flush();
+    expect(sent.map((draft) => draft.content)).toEqual(['下午确认']);
+    expect(textarea.value).toBe('');
+
+    textarea.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(cancelled).toBe(1);
   });
 });

@@ -40,7 +40,7 @@
 | AppShell | patterns/AppShell.tsx |  |  |  |  |  |
 | AppShellBrand | patterns/AppShell.tsx |  |  |  |  |  |
 | AuthLayout | patterns/AuthLayout.tsx |  |  |  |  |  |
-| CommentComposer | patterns/CommentThread.tsx | ✗ |  |  |  |  |
+| CommentComposer | patterns/CommentThread.tsx |  |  |  |  |  |
 | CommentThread | patterns/CommentThread.tsx |  |  |  |  |  |
 | DataImport | patterns/DataImport.tsx |  |  |  |  |  |
 | DeadlineBadge | patterns/DeadlineBadge.tsx |  |  |  |  |  |
@@ -52,7 +52,7 @@
 | QueryTable | patterns/QueryTable.tsx |  |  |  |  |  |
 | SlideCaptcha | patterns/SlideCaptcha.tsx |  |  |  |  |  |
 | StepsForm | patterns/StepsForm.tsx |  |  |  |  |  |
-| ThemeSwitcher | patterns/ThemeSwitcher.tsx | ✗ |  |  |  |  |
+| ThemeSwitcher | patterns/ThemeSwitcher.tsx |  |  |  |  |  |
 | AlertDialog | overlay/AlertDialog.tsx |  |  |  |  |  |
 | CommandPalette | overlay/CommandPalette.tsx |  |  |  |  |  |
 | ContextMenu | overlay/ContextMenu.tsx |  |  |  |  |  |
@@ -132,7 +132,7 @@
 | Radio | input/Radio.tsx |  |  |  |  |  |
 | Rating | input/Rating.tsx |  |  |  |  |  |
 | Select | input/Select.tsx |  |  |  |  |  |
-| SelectedTags | input/SelectedTags.tsx | ✗ |  |  |  |  |
+| SelectedTags | input/SelectedTags.tsx |  |  |  |  |  |
 | SignaturePad | input/SignaturePad.tsx | ✗ |  |  |  |  |
 | Slider | input/Slider.tsx |  |  |  |  |  |
 | Switch | input/Switch.tsx |  |  |  |  |  |
