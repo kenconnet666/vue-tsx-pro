@@ -7,7 +7,7 @@
  *
  * 编码器自己写（utils/qr/encode.ts，ISO/IEC 18004）：UTF-8 字节模式，自动选最小的版本与罚分最低的掩码；
  * 有 logo 时纠错默认 H（能恢复约 30%，logo 默认占边长的 22%）。四周留 margin 个模块的静区（默认 2）。
- * 颜色：浅色主题下是主题的 surface 底、text 色模块；深色主题下仍是白底深色模块（反色的码很多扫码器认不出）；color、bgColor 可以改。
+ * 颜色是“纸面”（utils/style/paper.ts）：浅色主题下是主题的 surface 底、text 色模块，深色主题下仍是白底深色模块；color、bgColor 可以改。
  * 读屏：svg 是 role="img"，名称默认“二维码”（写 aria-label 改）；状态层是 role="status"，换状态时播报。
  * 部件：Root（div）、Code（svg）、Logo（中间的 logo 底板）、Overlay（状态层）。
  */
@@ -20,9 +20,9 @@ import { Icon } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
 import { Text } from '../base/Text';
 import { useLang } from '../config/context';
-import { t } from '../config/theme/tokens';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { encodeQr, type QrErrorCorrection } from '../utils/qr/encode';
+import { paperBackground, paperInk, paperStyles } from '../utils/style/paper';
 
 /** 二维码的状态 */
 export type QRCodeStatus = 'active' | 'loading' | 'expired' | 'scanned';
@@ -59,10 +59,6 @@ export interface QRCodeProps extends PartProps<'div', 'role'> {
   propsRefresh?: Partial<ButtonProps>;
 }
 
-/** 底色与模块色：深色主题下仍是浅底深色 */
-const plate = `light-dark(${t.colors.surface}, #ffffff)`;
-const ink = `light-dark(${t.colors.text}, #1c2024)`;
-
 /** QRCode 的样式：root、code、logo、logoImage、overlay、overlayShown */
 export const qrCodeStyles = css.create({
   root: {
@@ -70,8 +66,6 @@ export const qrCodeStyles = css.create({
     display: 'inline-block',
     flexShrink: 0,
     aspectRatio: '1',
-    color: ink,
-    backgroundColor: plate,
     borderRadius: '_md',
     verticalAlign: 'middle',
   },
@@ -106,7 +100,7 @@ export const qrCodeStyles = css.create({
   },
   overlayShown: {
     pointerEvents: 'auto',
-    backgroundColor: `color-mix(in srgb, ${plate} 90%, transparent)`,
+    backgroundColor: `color-mix(in srgb, ${paperBackground} 90%, transparent)`,
     backdropFilter: 'blur(2px)',
   },
 });
@@ -197,10 +191,11 @@ export const QRCode = _component(
           {...mergeAttrs<'div'>(
             {
               sx: [
+                paperStyles.paper,
                 qrCodeStyles.root,
                 qrCodeSizeStyles.size(typeof size === 'number' ? `${size}px` : size),
                 (color != null || bgColor != null) &&
-                  qrCodeSizeStyles.colors(color ?? ink, bgColor ?? plate),
+                  qrCodeSizeStyles.colors(color ?? paperInk, bgColor ?? paperBackground),
               ],
             },
             rest,

@@ -49,6 +49,10 @@
   放在中间（此时纠错默认 H）、`size`、`margin`（静区）、`color`、`bgColor`；`status` 有 loading、expired（`onRefresh` 刷新）、
   scanned，状态层是 role="status"。颜色跟主题，深色主题下仍是白底深色模块。也导出 `encodeQr` 拿到矩阵。
   语言包加了 `qrCode`、`qrExpired`、`qrRefresh`、`qrScanned`。
+- 新组件 SignaturePad（手写签名）：canvas 上用鼠标、笔、手指写，笔画随速度粗细，撤销上一笔、清空；`_value` 是透明底的 PNG
+  （data URL），`name` 随表单提交；外框同输入框（认 Field 的出错、不可用、只读），只读时显示已签的图；`handle` 拿到 `toPng`、
+  `toSvg`、`undo`、`clear`；`penColor`、`minWidth`、`maxWidth`、`height`。语言包加了 `signature` 等六条。
+- 二维码与签名的颜色是“纸面”（新导出 `paperStyles`、`paperInk`、`paperBackground`）：浅色主题下跟主题，深色主题下仍是白底深色。
 - 新组件 JsonViewer：接口返回、日志、配置的键值树，建在 Tree 上（虚拟滚动、树的键盘、搜索过滤）；值按类型着色（代码高亮的 token），
   bigint、Decimal 照实显示，Date 显示 ISO，Map、Set 可以展开，循环引用显示 [Circular]；`expandDepth`、`maxHeight`、`toolbar`
   （搜索与全部展开 / 收起）；选中一项后路径栏可复制路径（`$.items[0]["unit-price"]`）与值。语言包加了 `jsonItems` 等七条。

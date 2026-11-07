@@ -639,6 +639,12 @@ export { Rating, type RatingManaged, type RatingProps } from './input/Rating';
 export { Select, type SelectBaseProps, type SelectManaged, type SelectProps } from './input/Select';
 export { SelectedTags, type SelectedTag, type SelectedTagsProps } from './input/SelectedTags';
 export {
+  SignaturePad,
+  signaturePadStyles,
+  type SignaturePadHandle,
+  type SignaturePadProps,
+} from './input/SignaturePad';
+export {
   Slider,
   sliderStyles,
   type SliderManaged,
@@ -1252,6 +1258,7 @@ export {
 } from './utils/style/attached';
 export { itemStyles } from './utils/style/item-styles';
 export { headingMarker } from './utils/style/markers';
+export { paperBackground, paperInk, paperStyles } from './utils/style/paper';
 export { SHIMMER_STAGGER, shimmerStyles } from './utils/style/shimmer';
 export {
   columnGapStyles,

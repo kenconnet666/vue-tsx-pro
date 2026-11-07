@@ -393,6 +393,18 @@ export interface Lang {
   readonly jsonCopyPath: string;
   /** JsonViewer：没有选中项时路径栏的提示，默认“选中一项后可以复制它的值与路径” */
   readonly jsonPathHint: string;
+  /** SignaturePad：签名区域的默认名称，默认“签名” */
+  readonly signature: string;
+  /** SignaturePad：还没签时区域里的提示，默认“在此处签名” */
+  readonly signaturePlaceholder: string;
+  /** SignaturePad：撤销上一笔，默认“撤销上一笔” */
+  readonly signatureUndo: string;
+  /** SignaturePad：清空，默认“清空签名” */
+  readonly signatureClear: string;
+  /** SignaturePad：读屏念的状态，默认“已签名” */
+  readonly signatureSigned: string;
+  /** SignaturePad：读屏念的状态（只读时也显示），默认“未签名” */
+  readonly signatureEmpty: string;
   /** 二维码图片的默认名称（读屏），默认“二维码” */
   readonly qrCode: string;
   /** 二维码已过期（status="expired"），默认“二维码已过期” */
