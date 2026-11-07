@@ -30,7 +30,9 @@ export default _component(() => () => (
         <Example id="plans" title="套餐对比" demo={Plans}>
           行标题用 <Code>TableHeaderCell scope="row"</Code>
           ，读屏念单元格时会带上行名与列名。只用图标表达的值（勾与叉）旁边放一份隐藏文字。
-          <Code>TableCaption</Code> 是表格的标题。
+          <Code>TableCaption</Code> 是表格的标题。外层限了高度时 <Code>stickyHeader</Code>{' '}
+          让表头吸顶，单元格的 <Code>sticky</Code> 把第一列固定在起始边（见 ScrollArea
+          页的明细表）。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

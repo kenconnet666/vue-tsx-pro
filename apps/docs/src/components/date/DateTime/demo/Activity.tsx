@@ -1,29 +1,23 @@
 // 动态列表：发生时间写相对时间，随时间自动更新，悬停看完整的日期；一周以前的直接写日期。
 // format 是详略：long “3 分钟前”、short、narrow（窄栏、移动端）。
-// 演示数据相对页面打开的时刻，服务端渲染与浏览器的“现在”不同：列表包在 ClientOnly 里，只在浏览器里画
+// 演示数据相对页面打开的时刻（服务端渲染与浏览器打开的时刻不同，数据本身就不一样）：列表包在 ClientOnly 里，只在浏览器里画
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Avatar,
   Card,
   ClientOnly,
   Flex,
+  ItemList,
+  ItemListItem,
   RelativeTime,
-  Small,
   Text,
   ToggleGroup,
   ToggleItem,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
-const styles = css.create({
-  list: { display: 'flex', flexDirection: 'column', gap: '_md', margin: 0, padding: 0 },
-  item: { display: 'flex', alignItems: 'flex-start', gap: '_sm', listStyle: 'none' },
-});
-
 const MINUTE = 60_000;
 
 export default _component(() => {
-  // 演示数据：相对页面打开的时刻
   const opened = Date.now();
   const events = [
     { who: '林小满', what: '评论了“首页改版”', at: new Date(opened - 20_000) },
@@ -41,22 +35,24 @@ export default _component(() => {
         <ToggleItem value="narrow">narrow</ToggleItem>
       </ToggleGroup>
       <ClientOnly>
-        <Card padding="md">
-          <ul {...css.attrs(styles.list)}>
+        <Card padding="sm">
+          <ItemList>
             {events.map((event) => (
-              <li key={event.who} {...css.attrs(styles.item)}>
-                <Avatar size="sm" name={event.who} />
-                <Flex direction="column">
-                  <Text>
+              <ItemListItem
+                key={event.who}
+                align="start"
+                start={<Avatar size="sm" name={event.who} />}
+                title={
+                  <>
                     <Text weight="medium">{event.who}</Text> {event.what}
-                  </Text>
-                  <Small tone="muted">
-                    <RelativeTime value={event.at} format={format} threshold={{ days: 7 }} />
-                  </Small>
-                </Flex>
-              </li>
+                  </>
+                }
+                description={
+                  <RelativeTime value={event.at} format={format} threshold={{ days: 7 }} />
+                }
+              />
             ))}
-          </ul>
+          </ItemList>
         </Card>
       </ClientOnly>
     </Flex>

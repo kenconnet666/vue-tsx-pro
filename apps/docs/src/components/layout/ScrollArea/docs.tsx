@@ -38,8 +38,9 @@ export default _component(() => () => (
       </ExampleColumn>
       <ExampleColumn>
         <Example id="both" title="两个方向" demo={Sheet}>
-          <Code>axis="both"</Code>：宽表格、电子表格。表头和行号用 position: sticky
-          固定，在原生滚动里照常生效。
+          <Code>axis="both"</Code>：宽表格、电子表格。Table 的外层本来就是 ScrollArea，
+          <Code>propsRoot</Code> 把它改成两个方向、限高；表头吸顶（<Code>stickyHeader</Code>
+          ）、行号固定在起始边（<Code>sticky</Code>）用的是 position: sticky，在原生滚动里照常生效。
         </Example>
         <Example id="types" title="什么时候显示滚动条" demo={Types}>
           <Code>type</Code> 三种显示时机；淡出前的停留时间是 <Code>hideDelay</Code>。整页的滚动条用{' '}

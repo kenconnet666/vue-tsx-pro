@@ -543,7 +543,7 @@ export const DataTableRow = _component(
                 sx: [
                   s.cell.sx,
                   s.selectCell.sx,
-                  offsets.start.size > 0 && dataTableStateStyles.stickySelect,
+                  offsets.start.size > 0 && dataTableStateStyles.stickyStart,
                   active && dataTableStateStyles.activeEdge,
                 ],
               },
@@ -1349,7 +1349,7 @@ export const DataTableView = _component(
                         sx: [
                           s.headerCell.sx,
                           s.selectHeaderCell.sx,
-                          offsets.start.size > 0 && dataTableStateStyles.stickySelect,
+                          offsets.start.size > 0 && dataTableStateStyles.stickyStart,
                         ],
                       },
                       propsSelectHeaderCell,
@@ -1519,7 +1519,7 @@ export const DataTableView = _component(
                         sx: [
                           s.cell.sx,
                           s.summaryCell.sx,
-                          offsets.start.size > 0 && dataTableStateStyles.stickySelect,
+                          offsets.start.size > 0 && dataTableStateStyles.stickyStart,
                         ],
                       })}
                     />

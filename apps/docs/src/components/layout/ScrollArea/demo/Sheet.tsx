@@ -1,70 +1,58 @@
+// 两个方向都能滚的明细表：Table 外层本来就是 ScrollArea，propsRoot 改成两个方向、限高；
+// 表头吸顶（stickyHeader），行号固定在起始边（sticky），滚到哪都看得到
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Card, ScrollArea, VisuallyHidden } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+  VisuallyHidden,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 
 const columns = Array.from({ length: 14 }, (_, index) => String.fromCharCode(65 + index));
 const rows = Array.from({ length: 30 }, (_, index) => index + 1);
 
 const styles = css.create({
   area: { height: '18rem' },
-  table: { borderCollapse: 'collapse', fontSize: '_sm', fontVariantNumeric: 'tabular-nums' },
-  cell: {
-    minWidth: '5.5rem',
-    paddingBlock: '_xs',
-    paddingInline: '_sm',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_borderMuted',
-    textAlign: 'end',
-    whiteSpace: 'nowrap',
-  },
-  // 表头与行号固定：滚动时一直看得到
-  head: {
-    position: 'sticky',
-    top: 0,
-    zIndex: 1,
-    backgroundColor: '_fill',
-    color: '_textMuted',
-    textAlign: 'center',
-    fontWeight: '_medium',
-  },
-  rowHead: { position: 'sticky', insetInlineStart: 0, minWidth: '3rem' },
-  corner: { zIndex: 2 },
 });
 
 const value = (row: number, column: number) => ((row * 7919 + column * 104_729) % 100_000) / 100;
 
 export default _component(() => () => (
-  <Card padding="none">
-    <ScrollArea axis="both" sx={styles.area} propsViewport={{ 'aria-label': '销售明细表' }}>
-      <table {...css.attrs(styles.table)}>
-        <thead>
-          <tr>
-            <th {...css.attrs(styles.cell, styles.head, styles.rowHead, styles.corner)}>
-              <VisuallyHidden>行号</VisuallyHidden>
-            </th>
-            {columns.map((column) => (
-              <th key={column} scope="col" {...css.attrs(styles.cell, styles.head)}>
-                {column}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row}>
-              <th scope="row" {...css.attrs(styles.cell, styles.head, styles.rowHead)}>
-                {row}
-              </th>
-              {columns.map((column, index) => (
-                <td key={column} {...css.attrs(styles.cell)}>
-                  {value(row, index).toFixed(2)}
-                </td>
-              ))}
-            </tr>
+  <Table
+    aria-label="销售明细表"
+    density="compact"
+    stickyHeader
+    propsRoot={{ axis: 'both', sx: styles.area }}
+  >
+    <TableHead>
+      <TableRow>
+        <TableHeaderCell sticky width="3rem">
+          <VisuallyHidden>行号</VisuallyHidden>
+        </TableHeaderCell>
+        {columns.map((column) => (
+          <TableHeaderCell key={column} align="center" width="5.5rem">
+            {column}
+          </TableHeaderCell>
+        ))}
+      </TableRow>
+    </TableHead>
+    <TableBody>
+      {rows.map((row) => (
+        <TableRow key={row}>
+          <TableHeaderCell scope="row" sticky>
+            {row}
+          </TableHeaderCell>
+          {columns.map((column, index) => (
+            <TableCell key={column} align="end" nowrap>
+              {value(row, index).toFixed(2)}
+            </TableCell>
           ))}
-        </tbody>
-      </table>
-    </ScrollArea>
-  </Card>
+        </TableRow>
+      ))}
+    </TableBody>
+  </Table>
 ));

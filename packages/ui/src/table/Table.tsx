@@ -40,6 +40,8 @@ export interface TableState {
   readonly variant: keyof DataTableVariants;
   /** 斑马纹 */
   readonly striped: boolean;
+  /** 表头吸顶 */
+  readonly stickyHeader: boolean;
 }
 
 /** Table 的上下文：行与单元格据此取外观 */
@@ -56,10 +58,20 @@ export interface TableAligns {
 }
 
 /** 不在 Table 里单独用行与单元格时的外观 */
-const standalone: TableState = { density: 'standard', variant: 'surface', striped: false };
+const standalone: TableState = {
+  density: 'standard',
+  variant: 'surface',
+  striped: false,
+  stickyHeader: false,
+};
 
 /** 未声明的属性落到 table 上；aria-label 或 TableCaption 是表格的名称 */
 export interface TableProps extends PartProps<'table'>, DataTableOptions {
+  /**
+   * 表头吸顶：外层的滚动区域限了高度、竖向滚动时表头一直看得到（propsRoot 给 `axis: 'both'` 与高度）
+   * @default false
+   */
+  stickyHeader?: boolean;
   /** 外层（横向滚动的 ScrollArea）的部件属性 */
   propsRoot?: Partial<ScrollAreaProps>;
   children?: VNodeChild;
@@ -116,6 +128,8 @@ export const tableRecipe = css.recipe({
     striped: {
       true: { row: { backgroundColor: { default: null, ':nth-child(even)': '_fill' } } },
     },
+    // 表头在固定列之上（同 DataTable）
+    stickyHeader: { true: { head: { position: 'sticky', top: 0, zIndex: 2 } } },
   },
 });
 
@@ -142,7 +156,15 @@ function useTableParts() {
 
 /** 静态表格（table）：外层可横向滚动；外观经上下文交给行与单元格 */
 export const Table = _component(
-  ({ density, variant, striped, propsRoot, children, ...rest }: TableProps) => {
+  ({
+    density,
+    variant,
+    striped,
+    stickyHeader = false,
+    propsRoot,
+    children,
+    ...rest
+  }: TableProps) => {
     const appearance = useDefaults('Table', () => ({ density, variant, striped }), {
       density: 'standard',
       variant: 'surface',
@@ -159,9 +181,12 @@ export const Table = _component(
       get striped() {
         return appearance().striped;
       },
+      get stickyHeader() {
+        return stickyHeader;
+      },
     });
     return () => {
-      const s = recipe(appearance());
+      const s = recipe({ ...appearance(), stickyHeader });
       return (
         <ScrollArea {...mergePartProps<ScrollAreaProps>({ ...s.root, axis: 'x' }, propsRoot)}>
           <table {...mergeAttrs<'table'>(s.table, rest)}>{children}</table>
@@ -220,6 +245,8 @@ interface TableCellOptions {
   align?: keyof TableAligns;
   /** 不换行（超出时省略号）；默认可以换行 */
   nowrap?: boolean;
+  /** 固定在起始边（第一列，常是行标题）：横向滚动时一直看得到 */
+  sticky?: boolean;
   children?: VNodeChild;
 }
 
@@ -239,6 +266,7 @@ export const TableHeaderCell = _component(
   ({
     align = 'start',
     nowrap = false,
+    sticky = false,
     scope = 'col',
     width,
     children,
@@ -258,6 +286,7 @@ export const TableHeaderCell = _component(
                 section === 'foot' && s.footCell.sx,
                 dataTableStateStyles[align],
                 !nowrap && dataTableStateStyles.wrap,
+                sticky && [dataTableStateStyles.stickyStart, dataTableStateStyles.stickyStartEdge],
                 width != null &&
                   tableDynamicStyles.width(typeof width === 'number' ? `${width}px` : width),
               ],
@@ -275,7 +304,7 @@ export const TableHeaderCell = _component(
 
 /** 单元格（td） */
 export const TableCell = _component(
-  ({ align = 'start', nowrap = false, children, ...rest }: TableCellProps) => {
+  ({ align = 'start', nowrap = false, sticky = false, children, ...rest }: TableCellProps) => {
     const parts = useTableParts();
     const section = TableSectionContext.inject('body');
     return () => {
@@ -290,6 +319,7 @@ export const TableCell = _component(
                 section === 'foot' && s.footCell.sx,
                 dataTableStateStyles[align],
                 !nowrap && dataTableStateStyles.wrap,
+                sticky && [dataTableStateStyles.stickyStart, dataTableStateStyles.stickyStartEdge],
               ],
             },
             rest,
