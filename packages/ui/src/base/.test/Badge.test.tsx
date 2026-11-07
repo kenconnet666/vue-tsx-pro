@@ -87,6 +87,22 @@ describe('Badge', () => {
 });
 
 describe('Tag', () => {
+  it('_selected：整个标签是按钮，aria-pressed 跟着切换；选中时前面多一个对勾、外观换成实底色', async () => {
+    let urgent = _state(false);
+    const root = mount(() => <Tag _selected={urgent}>加急</Tag>);
+    const button = root.querySelector('button')!;
+    expect([button.type, button.getAttribute('aria-pressed'), button.querySelector('svg')]).toEqual(
+      ['button', 'false', null],
+    );
+    const before = button.className;
+    button.click();
+    await nextTick();
+    expect(urgent).toBe(true);
+    expect(button.getAttribute('aria-pressed')).toBe('true');
+    expect(button.querySelector('svg')).not.toBeNull();
+    expect(button.className).not.toBe(before);
+  });
+
   it('给了 onRemove 才有移除按钮；名称带上标签文字，可以改；离场结束后才调用', async () => {
     const onRemove = vi.fn();
     const root = mount(() => (

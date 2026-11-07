@@ -15,6 +15,7 @@ import StatusDots from './demo/StatusDots.tsx?demo';
 import Statuses from './demo/Statuses.tsx?demo';
 import TagBasic from './demo/TagBasic.tsx?demo';
 import TagRemovable from './demo/TagRemovable.tsx?demo';
+import TagSelectable from './demo/TagSelectable.tsx?demo';
 
 export const meta = {
   title: 'Badge 标记',
@@ -64,6 +65,12 @@ export default _component(() => () => (
         <Example id="tag-removable" title="可移除的标签" demo={TagRemovable}>
           写了 <Code>onRemove</Code> 就有移除按钮：先淡出，离场结束才调用 <Code>onRemove</Code>
           ；按钮的读屏名称是“移除 + 标签文字”，<Code>removeLabel</Code> 可以改。
+        </Example>
+        <Example id="tag-selectable" title="可选中的标签" demo={TagSelectable}>
+          写了 <Code>_selected</Code> 时整个标签是按钮（<Code>aria-pressed</Code>）
+          {
+            '，点一下切换：没选中时有描边，选中时实底色、前面一个对勾（不只靠颜色），不写色调时用 accent。筛选条件这类一排可选的短文字用它；要“只能选一个”的分段控件用 ToggleGroup。'
+          }
         </Example>
       </ExampleColumn>
     </Examples>
