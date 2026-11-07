@@ -139,6 +139,14 @@ export {
   type FlexProps,
 } from './layout/Flex';
 export {
+  FloatButton,
+  FloatButtonGroup,
+  FloatButtonGroupContext,
+  floatButtonStyles,
+  type FloatButtonGroupProps,
+  type FloatButtonProps,
+} from './layout/FloatButton';
+export {
   balancedColumns,
   createGrid,
   createGridItem,

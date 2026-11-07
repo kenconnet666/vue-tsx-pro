@@ -41,6 +41,10 @@
   勾选类的配方多一个 `end` 部件。
 - 选文件夹：FileDrop、Upload 加 `directory`，对话框里选整个文件夹（webkitdirectory），拖进来的文件夹递归读出里面的文件，
   补上 `webkitRelativePath`；Upload 的列表显示相对路径，隐含多选。
+- 新组件 FloatButton、FloatButtonGroup：页面角落的常驻操作（客服、反馈、新建），圆形按钮、悬停提示名称、`badge` 角标；
+  单个固定在视口的结束边底角（留出安全区），一组时竖排在一起；FloatButtonGroup 给了 `icon` 是速拨（主按钮展开、收起其余按钮，
+  `_open` 双向，Esc 或点外面收起）。BackTop 现在是一个 FloatButton：悬停有提示，可以放进 FloatButtonGroup（没出现时不占位），
+  位置同样留出安全区；`backTopStyles.root` 换成 `fade`（单独用时的淡入淡出）。
 - Dialog 加 `draggable`：按住标题栏拖动（标题栏上的按钮照常点），不超出窗口，每次打开回到正中；位移用 `translate`。
 - 可选中的 Tag：写了 `_selected` 时整个标签是按钮（`aria-pressed`），点一下切换；没选中时有描边，选中时实底色加对勾，
   不写色调时用 accent、字号默认 sm。筛选条件的一排标签用它。

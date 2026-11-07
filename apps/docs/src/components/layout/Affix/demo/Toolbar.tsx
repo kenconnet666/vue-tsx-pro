@@ -25,7 +25,8 @@ export default _component(() => {
   let stuck = _state(false);
   let panel = _state.raw<HTMLElement | null>(null);
   return () => (
-    <Card padding="none">
+    // contain: layout 让示例框成为固定定位的包含块：回到顶部停在框的角落，页面里用时就是视口的角落
+    <Card padding="none" style={{ contain: 'layout', overflow: 'hidden' }}>
       {/* 示例自己的滚动面板：sticky 相对它贴住，所以把它作为 target */}
       <ScrollArea
         style={{ height: '20rem' }}

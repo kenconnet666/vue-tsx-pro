@@ -4,46 +4,47 @@
  *   <BackTop />                                   整页
  *   <BackTop target={() => scroller} threshold={200} />   某个滚动容器
  *
- * 按钮固定在视口的结束边与底部（insetInlineEnd，从右到左排版时在左下），滚过 threshold 才淡入；
- * 滚回去之后焦点移到页面（或容器）开头，键盘用户不用再从按钮的位置往回 Tab。名称取语言包（回到顶部）。
- * 部件：Root（IconButton）。
+ * 是一个 FloatButton：固定在视口的结束边与底部（从右到左排版时在左下），滚过 threshold 才淡入；
+ * 滚回去之后焦点移到页面（或容器）开头，键盘用户不用再从按钮的位置往回 Tab。名称与提示取语言包（回到顶部）。
+ * 放进 FloatButtonGroup 时跟着组排，不自己固定；没出现时不占位。部件：Root（IconButton）。
  */
 import { ArrowUp } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onMounted } from 'vue';
-import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
+import { t } from '../config/theme/tokens';
 import { useEventListener } from '../utils/dom/event-listener';
 import { useReducedMotion } from '../utils/dom/media-query';
 import { mergePartProps } from '../utils/props';
-import { t } from '../config/theme/tokens';
+import { FloatButton, FloatButtonGroupContext, type FloatButtonProps } from './FloatButton';
 
-/** 未声明的属性落到按钮（IconButton）上 */
-export interface BackTopProps extends Partial<Omit<IconButtonProps, 'icon' | 'onClick'>> {
+/** 未声明的属性落到 FloatButton 上 */
+export interface BackTopProps extends Partial<
+  Omit<FloatButtonProps, 'icon' | 'onClick' | 'aria-label'>
+> {
   /** 滚动的容器；不写时是整页 */
   target?: () => HTMLElement | null | undefined;
   /** 滚过多少 px 后出现，默认 400 */
   threshold?: number;
+  /** 名称，默认取语言包（回到顶部） */
+  'aria-label'?: string;
 }
 
-/** BackTop 的样式：root、hidden */
+/** BackTop 的样式：fade（单独用时淡入淡出）、hidden、collapsed（在 FloatButtonGroup 里没出现时） */
 export const backTopStyles = css.create({
-  root: {
-    position: 'fixed',
-    insetInlineEnd: '_lg',
-    insetBlockEnd: '_lg',
-    zIndex: 20,
-    boxShadow: '_md',
+  fade: {
     transition: `opacity ${t.durations.md} ${t.easings.standard}, translate ${t.durations.md} ${t.easings.standard}`,
   },
   hidden: { opacity: 0, translate: '0 0.5em', pointerEvents: 'none', visibility: 'hidden' },
+  collapsed: { display: 'none' },
 });
 
 /** 回到顶部：滚下去才出现的浮动按钮 */
 export const BackTop = _component(({ target, threshold = 400, ...rest }: BackTopProps) => {
   const lang = useLang();
   const reduced = useReducedMotion();
+  const grouped = FloatButtonGroupContext.inject(false);
   let shown = _state(false);
 
   /** 滚动的元素：容器，或整页（document.scrollingElement） */
@@ -67,18 +68,17 @@ export const BackTop = _component(({ target, threshold = 400, ...rest }: BackTop
   }
 
   return () => (
-    <IconButton
-      {...mergePartProps<IconButtonProps>(
+    <FloatButton
+      {...mergePartProps<FloatButtonProps>(
         {
           icon: ArrowUp,
-          variant: 'surface',
-          tone: 'neutral',
-          radius: 'full',
-          size: 'lg',
           'aria-label': lang.backToTop,
-          sx: [backTopStyles.root, !shown && backTopStyles.hidden],
+          // 在组里没出现时不占位，单独用时淡入淡出
+          sx: grouped
+            ? !shown && backTopStyles.collapsed
+            : [backTopStyles.fade, !shown && backTopStyles.hidden],
         },
-        rest,
+        rest as Partial<FloatButtonProps>,
         { onClick: backToTop, 'aria-hidden': shown ? undefined : true },
       )}
     />

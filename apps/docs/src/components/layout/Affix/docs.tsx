@@ -24,7 +24,8 @@ export default _component(() => () => (
       相对它贴住，把它作为 <Code>target</Code> 传进来。是否贴住由 IntersectionObserver
       看一个零高度的哨兵：贴住时加阴影、写 data-stuck，并报告 <Code>onChange</Code>。
       <Code>BackTop</Code> 在整页（或 <Code>target</Code> 给的容器）滚过 <Code>threshold</Code>{' '}
-      后出现在右下角，点了平滑滚回顶部（减少动态效果时直接跳回），焦点也回到开头。
+      后出现在右下角，点了平滑滚回顶部（减少动态效果时直接跳回），焦点也回到开头。它是一个
+      FloatButton，可以和客服、反馈按钮一起放进 FloatButtonGroup。
     </Example>
     <ApiReference api={[api, backTopApi]} />
   </DocPage>
