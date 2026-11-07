@@ -278,7 +278,8 @@ export const Splitter = _component(
                   sx: [
                     splitterStyles.handle,
                     horizontal() ? splitterStyles.handleHorizontal : splitterStyles.handleVertical,
-                    focusRingStyles.visible,
+                    // 把手贯穿整个分栏，焦点环画在外面时两端会被容器裁掉
+                    focusRingStyles.inset,
                   ],
                   ...splitterPart('handle'),
                 },

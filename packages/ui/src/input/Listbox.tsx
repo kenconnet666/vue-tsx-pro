@@ -425,7 +425,12 @@ export const ListboxView = _component(
       const props = mergeProps<'div'>(
         {
           ...listboxPart,
-          sx: [listboxStyles.root, own && listboxStyles.scroll, focusRingStyles.visible],
+          // 自己滚动时它就是滚动区域的视口，外面一圈会被滚动区域裁掉：焦点环画在里面
+          sx: [
+            listboxStyles.root,
+            own && listboxStyles.scroll,
+            own ? focusRingStyles.inset : focusRingStyles.visible,
+          ],
         },
         rest,
         {

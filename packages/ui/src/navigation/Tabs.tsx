@@ -607,6 +607,8 @@ export const tabsRecipe = css.recipe({
       whiteSpace: 'nowrap',
       borderRadius: '_sm',
       opacity: { default: null, _dragging: 0.6, _disabled: '_disabled' },
+      // 焦点环画在里面：放不下时标签列表横向滚动（overflow），画在外面会被裁掉
+      outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
     },
     closeWrapper: { display: 'inline-grid', flexShrink: 0 },
     close: { gridArea: '1 / 1', justifySelf: 'end', alignSelf: 'center', marginInlineEnd: '_xs' },

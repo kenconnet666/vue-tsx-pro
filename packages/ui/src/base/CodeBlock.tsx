@@ -138,11 +138,13 @@ const codeBlockStyles = css.create({
     paddingInlineEnd: `calc(${t.space.md} + max(${t.sizes.control}, ${t.sizes.minTarget}))`,
   },
   // 不透明的底色：横向滚动的长行从按钮下面经过时，字不和图标叠在一起
+  // 焦点环画在里面：按钮贴着外框的角，外框为圆角裁掉了溢出
   copy: {
     position: 'absolute',
     top: '_space.xs',
     insetInlineEnd: '_space.xs',
     backgroundColor: { default: '_surface', _hover: '_fill' },
+    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
   },
   root: {
     boxSizing: 'border-box',
