@@ -50,7 +50,7 @@ import {
   type Fragment,
   type StylePart,
 } from './fragment';
-import { hash, insert, isInserted } from './sheet';
+import { BASE_PREFIX, hash, insert, insertNamed, isInserted } from './sheet';
 
 export { CONDITIONS } from './declarations';
 export { bind, select } from './dynamic';
@@ -186,4 +186,18 @@ export function keyframes(frames: Record<string, StyleObject>): string {
   const name = `x${hash(body)}-B`;
   if (!isInserted(name)) insert(name, [`@keyframes ${name}{${body}}`]);
   return name;
+}
+
+/* ───────────────────────── 基础规则 ───────────────────────── */
+
+/**
+ * css.globalRule：一条全局的基础规则，放在最前面的 vtp.base 层——组件库的样式、宿主的样式都盖得过它。
+ * 给组件库定自己元素的默认（如给部件统一 box-sizing），选择器自己限定范围、用 :where 不加特异性。
+ * 同名再调用换成新的规则（热更新）；服务端渲染总会带上
+ */
+export function globalRule(name: string, selector: string, styles: Record<string, Leaf>): void {
+  const body = Object.entries(styles)
+    .map(([property, value]) => `${dashify(property)}:${cssValue(property, value)}`)
+    .join(';');
+  insertNamed(`${BASE_PREFIX}${name}`, [`${selector}{${body}}`], 'base');
 }

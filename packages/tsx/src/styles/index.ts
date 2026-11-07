@@ -15,6 +15,7 @@ import {
   defineMarker as runtimeDefineMarker,
   defineTokens as runtimeDefineTokens,
   defineVars as runtimeDefineVars,
+  globalRule as runtimeGlobalRule,
   keyframes as runtimeKeyframes,
   layers as runtimeLayers,
   select as runtimeSelect,
@@ -269,6 +270,17 @@ export const defineMarker: (name: string) => Marker = runtimeDefineMarker as nev
 /** 定义关键帧动画，返回动画名，作为 animationName 的值使用。 */
 export const keyframes: (frames: Readonly<Record<string, DocumentedStyles>>) => string =
   runtimeKeyframes as never;
+
+/**
+ * 一条全局的基础规则，放在最前面的级联层（组件库与宿主的样式都盖得过它），如组件库给自己的部件统一 box-sizing：
+ * `css.globalRule('part-box', ':where([data-part])', { boxSizing: 'border-box' })`。
+ * 选择器自己限定范围、用 :where 不加特异性；同名再调用换成新的规则；服务端渲染总会带上
+ */
+export const globalRule: (
+  name: string,
+  selector: string,
+  styles: { [K in keyof DocumentedStyles]?: Exclude<DocumentedStyles[K], object | null> },
+) => void = runtimeGlobalRule as never;
 
 /** 关系条件：被观察元素（标记）处于某伪类时，如 `':hover'`、`':focus-visible'` */
 type When = (pseudo: `:${string}`, marker: Marker) => `:where(${string})`;

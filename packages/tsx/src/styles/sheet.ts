@@ -2,7 +2,8 @@
  * 运行时样式引擎的样式表：一张 <style>，规则按名字（类名、关键帧名）登记，同样的内容只插一次；
  * 记下规则原文（SSR 输出、测试断言用），热更新时按名字换掉。
  *
- * 规则分层（级联层 @layer）：变量组与主题在 vtp.vars，一个元素的样式按合并来源分段，第 k 段在 vtp.s{k}（fragment.ts）。
+ * 规则分层（级联层 @layer）：最前面的 vtp.base 放基础规则（globalRule，如组件库给部件统一 box-sizing），
+ * 变量组与主题在 vtp.vars，一个元素的样式按合并来源分段，第 k 段在 vtp.s{k}（fragment.ts）。
  * 后面的层不论特异性都盖过前面的层；宿主不分层的 CSS 盖过整个组件库。表的开头先声明层的顺序。
  * 不认 @layer 的环境（测试用的 happy-dom）插不带层的规则，原文仍记带层的写法
  */
@@ -10,20 +11,27 @@
 /** 一个元素最多分几段（超出的并进最后一段） */
 export const SEGMENT_LIMIT = 8;
 
-/** 层名：变量组与主题在 vars，样式的第 k 段在 s{k} */
-export const layerName = (layer: number | 'vars') =>
-  layer === 'vars' ? 'vtp.vars' : `vtp.s${layer}`;
+/** 规则所在的层：基础规则、变量组与主题、样式的第 k 段 */
+export type Layer = number | 'base' | 'vars';
+
+/** 层名：基础规则在 base，变量组与主题在 vars，样式的第 k 段在 s{k} */
+export const layerName = (layer: Layer) =>
+  typeof layer === 'number' ? `vtp.s${layer}` : `vtp.${layer}`;
 
 /** 层的顺序：样式表最前面声明一次 */
 export const LAYER_ORDER = `@layer ${[
+  'base' as const,
   'vars' as const,
   ...Array.from({ length: SEGMENT_LIMIT }, (_, index) => index),
 ]
   .map(layerName)
   .join(',')};`;
 
+/** 基础规则登记的名字前缀：服务端渲染时总会带上 */
+export const BASE_PREFIX = 'base:';
+
 /** 规则放进层里；layer 不给时不分层（关键帧） */
-const wrap = (text: string, layer: number | 'vars' | undefined) =>
+const wrap = (text: string, layer: Layer | undefined) =>
   layer === undefined ? text : `@layer ${layerName(layer)}{${text}}`;
 
 /**
@@ -82,7 +90,7 @@ function styleSheet(): CSSStyleSheet | null {
  * 插入一个名字的规则（已有时先删掉旧的：热更新改写规则）；layer 是规则所在的层（不给时不分层），
  * 记下的原文带层，插进样式表时环境不认 @layer 就不带
  */
-export function insert(name: string, rawTexts: readonly string[], layer?: number | 'vars') {
+export function insert(name: string, rawTexts: readonly string[], layer?: Layer) {
   const texts = rawTexts.map((text) => wrap(text, layer));
   const target = styleSheet();
   const previous = inserted.get(name);
@@ -109,7 +117,7 @@ export function insert(name: string, rawTexts: readonly string[], layer?: number
  * 按名字登记的规则（变量组）：模块执行时总会调用，同名再调用（热更新）换成新的取值。
  * 服务端输出过的不重复插入，只记下原文；之后的热更新照常插入，排在后面、盖过接管来的那条
  */
-export function insertNamed(name: string, texts: readonly string[], layer?: number | 'vars') {
+export function insertNamed(name: string, texts: readonly string[], layer?: Layer) {
   if (sheet === undefined) styleSheet();
   if (inserted.get(name)?.adopted)
     inserted.set(name, { texts: texts.map((text) => wrap(text, layer)), rules: [] });
@@ -137,7 +145,7 @@ export function isInserted(name: string): boolean {
 
 /**
  * 服务端渲染：一段 HTML 用到的规则写成一个 `<style data-vue-tsx-pro data-names="…">`，放进 head 的最前面。
- * 包括 class 里出现的引擎类名（组合类、主题类、标记）、这些规则引用的关键帧，以及全部变量组（:root 上的默认值）。
+ * 包括 class 里出现的引擎类名（组合类、主题类、标记）、这些规则引用的关键帧，以及全部变量组（:root 上的默认值）与基础规则。
  * 类名按内容哈希，同样的样式在所有请求里同名，所以不必按请求隔离：渲染完按 HTML 取用到的就行。
  * 客户端接管这张表，data-names 里的规则不再重复插入。
  * `include`：HTML 里没出现也要带上的类名（防闪烁脚本会换到 <html> 上的主题类）
@@ -150,7 +158,8 @@ export function renderStyleTag(
   for (const match of html.matchAll(/\bclass="([^"]*)"/g)) {
     for (const name of match[1]!.split(/\s+/)) if (inserted.has(name)) used.add(name);
   }
-  for (const name of inserted.keys()) if (name.startsWith('--')) used.add(name);
+  for (const name of inserted.keys())
+    if (name.startsWith('--') || name.startsWith(BASE_PREFIX)) used.add(name);
   // 规则里引用的关键帧（animation 的名字也是引擎生成的 x…-B）
   for (const name of [...used]) {
     for (const text of inserted.get(name)!.texts) {

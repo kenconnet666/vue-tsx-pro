@@ -8,7 +8,7 @@ import {
 } from '../src/styles/declarations';
 import { fragment, segmentTable, type Fragment } from '../src/styles/fragment';
 import { recipe } from '../src/styles/recipe';
-import { attrs, create, layers, styleText } from '../src/styles/runtime';
+import { attrs, create, globalRule, layers, styleText } from '../src/styles/runtime';
 import { LAYER_ORDER, renderStyleTag } from '../src/styles/sheet';
 
 /** 一个类的规则原文（styleText 记的，带层） */
@@ -120,6 +120,18 @@ describe('分段', () => {
     const tag = renderStyleTag(`<div class="${name}"></div>`);
     expect(tag).toContain(`>${LAYER_ORDER}\n`);
     expect(tag).toContain(`@layer vtp.s0{.${name}{color:rgb(5, 6, 7)}}`);
+  });
+
+  it('基础规则在最前面的 vtp.base 层，服务端渲染总会带上；同名再登记换成新的', () => {
+    expect(LAYER_ORDER).toMatch(/^@layer vtp\.base,vtp\.vars,vtp\.s0/);
+    globalRule('test-box', ':where([data-test-part])', { boxSizing: 'border-box' });
+    expect(renderStyleTag('<div></div>')).toContain(
+      '@layer vtp.base{:where([data-test-part]){box-sizing:border-box}}',
+    );
+    globalRule('test-box', ':where([data-test-part])', { boxSizing: 'content-box', margin: 0 });
+    const tag = renderStyleTag('<div></div>');
+    expect(tag).toContain('{box-sizing:content-box;margin:0px}');
+    expect(tag).not.toContain('box-sizing:border-box');
   });
 });
 
