@@ -23,8 +23,9 @@
  * - 键盘：节点（可选择时连线也是）按数组顺序用 Tab 聚焦，Enter / 空格选中；键盘聚焦到视口外的节点时自动平移过去。
  *   拖动、连线都有不用指针的做法：方向键挪节点，连线交给设计器的属性面板（WCAG 2.5.7）。
  * - overlay 里的内容（DiagramControls、DiagramMinimap、图例）浮在最上面、不随视口动，经 DiagramContext 拿到控制器。
- * 部件：Root（视口）、World（随视口平移缩放的一层）、Node（节点框）、Port（端口）、Edge（每条连线的 g）、EdgeText（连线上的文字）、
- * Marquee（框选框）、Guide（对齐线）。
+ * 部件（data-scope="diagram"）：Root（视口）、World（随视口平移缩放的一层）、Node（节点框）、Port（端口）、Edges（连线的 svg 层）、
+ * Edge（每条连线的 g）、EdgeLine、EdgeArrow、EdgeText（连线上的文字）、EdgeEnd（选中连线两端的改接把手）、Marquee（框选框）、
+ * Guide（对齐线）、Overlay（浮在最上面的一层）。
  */
 import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
@@ -56,6 +57,7 @@ import {
   type DiagramRect,
 } from './geometry';
 import { diagramMessages } from './messages';
+import { partAttrs } from '../config/styles';
 import { nearestSide, routeEdges, sidePoint, straightRoute, type DiagramSide } from './route';
 
 /** 画布上的一个节点：位置与大小（画布坐标），其余字段使用方自己用 */
@@ -249,6 +251,9 @@ export interface DiagramProps<
   /** 对齐线的部件属性 */
   propsGuide?: PartProps<'line'>;
 }
+
+/** 部件的标记（data-scope="diagram"） */
+const diagramPart = (part: string) => partAttrs({ name: 'Diagram' }, part);
 
 /** 画布里的部件（DiagramControls、DiagramMinimap）取控制器 */
 export const DiagramContext = createContext<DiagramController>('Diagram');
@@ -591,6 +596,7 @@ const NodeView = _component(
                 dragging && diagramStyles.nodeDragging,
                 diagramDynamicStyles.box(x, y, item.width, item.height),
               ],
+              ...diagramPart('node'),
             },
             partOf(part, item as never, state),
             {
@@ -623,11 +629,15 @@ const NodeView = _component(
             SIDES.map((side) => (
               <span
                 key={side}
-                {...mergeAttrs<'span'>({ sx: [diagramStyles.port, portStyles[side]] }, portPart, {
-                  ...dataAttrs({ 'data-diagram-port': side }),
-                  'aria-hidden': 'true',
-                  onPointerdown: (event: PointerEvent) => actions.portDown(id, side, event),
-                })}
+                {...mergeAttrs<'span'>(
+                  { sx: [diagramStyles.port, portStyles[side]], ...diagramPart('port') },
+                  portPart,
+                  {
+                    ...dataAttrs({ 'data-diagram-port': side }),
+                    'aria-hidden': 'true',
+                    onPointerdown: (event: PointerEvent) => actions.portDown(id, side, event),
+                  },
+                )}
               />
             ))}
         </div>
@@ -675,6 +685,7 @@ const EdgeView = _component(
                 item.tone && edgeToneStyles[item.tone],
                 item.dashed && diagramStyles.edgeDashed,
               ],
+              ...diagramPart('edge'),
             },
             partOf(part, item as never, state),
             {
@@ -695,8 +706,12 @@ const EdgeView = _component(
           )}
         >
           {selectable && <path d={path} {...css.attrs(diagramStyles.edgeHit)} />}
-          <path d={path} {...css.attrs(diagramStyles.edgeLine)} />
-          <polygon points={arrowHead(points, ARROW)} {...css.attrs(diagramStyles.edgeArrow)} />
+          <path d={path} {...css.attrs(diagramStyles.edgeLine)} {...diagramPart('edge-line')} />
+          <polygon
+            points={arrowHead(points, ARROW)}
+            {...css.attrs(diagramStyles.edgeArrow)}
+            {...diagramPart('edge-arrow')}
+          />
         </g>
       );
     },
@@ -728,6 +743,7 @@ const EdgeTextView = _component(
                 item.tone && edgeTextToneStyles[item.tone],
                 diagramDynamicStyles.at(x, y),
               ],
+              ...diagramPart('edge-text'),
             },
             partOf(part, item as never, state),
             { 'aria-hidden': 'true' },
@@ -1235,6 +1251,7 @@ export const Diagram = _component(
                 dragMode === 'select' && diagramStyles.rootSelect,
                 diagramDynamicStyles.grid(grid, diagram.x, diagram.y, diagram.scale, gridSize),
               ],
+              ...diagramPart('root'),
             },
             rest,
             {
@@ -1274,6 +1291,7 @@ export const Diagram = _component(
                   diagramStyles.world,
                   diagramDynamicStyles.world(diagram.x, diagram.y, diagram.scale),
                 ],
+                ...diagramPart('world'),
               },
               propsWorld,
               dataAttrs({ 'data-diagram-world': true }),
@@ -1311,6 +1329,7 @@ export const Diagram = _component(
             })}
             <svg
               {...css.attrs(diagramStyles.edges)}
+              {...diagramPart('edges')}
               width="1"
               height="1"
               aria-hidden={selectable ? undefined : 'true'}
@@ -1367,12 +1386,16 @@ export const Diagram = _component(
                 {drag?.guides.map((guide, index) => (
                   <line
                     key={index}
-                    {...mergeAttrs<'line'>({ sx: diagramStyles.guide }, propsGuide, {
-                      x1: guide.from.x,
-                      y1: guide.from.y,
-                      x2: guide.to.x,
-                      y2: guide.to.y,
-                    })}
+                    {...mergeAttrs<'line'>(
+                      { sx: diagramStyles.guide, ...diagramPart('guide') },
+                      propsGuide,
+                      {
+                        x1: guide.from.x,
+                        y1: guide.from.y,
+                        x2: guide.to.x,
+                        y2: guide.to.y,
+                      },
+                    )}
                   />
                 ))}
                 {ends.flatMap(({ edge, points }) =>
@@ -1385,6 +1408,7 @@ export const Diagram = _component(
                         cy={at.y}
                         r={5}
                         {...css.attrs(diagramStyles.edgeEnd)}
+                        {...diagramPart('edge-end')}
                         data-diagram-end={end}
                         onPointerdown={(event: PointerEvent) =>
                           actions.endDown(edge.id, end, event)
@@ -1416,13 +1440,18 @@ export const Diagram = _component(
                     diagramStyles.marquee,
                     diagramDynamicStyles.box(marquee.x, marquee.y, marquee.width, marquee.height),
                   ],
+                  ...diagramPart('marquee'),
                 },
                 propsMarquee,
               )}
             />
           )}
           {overlay != null && (
-            <div {...css.attrs(diagramStyles.overlay)} data-diagram-overlay="">
+            <div
+              {...css.attrs(diagramStyles.overlay)}
+              {...diagramPart('overlay')}
+              data-diagram-overlay=""
+            >
               {overlay}
             </div>
           )}

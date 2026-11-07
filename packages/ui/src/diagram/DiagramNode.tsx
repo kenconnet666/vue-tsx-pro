@@ -9,11 +9,14 @@
  *
  * 形状默认取节点数据的 shape（Diagram 经上下文给），连线也按它接到轮廓上；选中、焦点的描边由 Diagram 画在节点框外，
  * 胶囊、圆的描边跟着形状，菱形的是节点框。
+ *
+ * 部件（data-scope="diagram-node"）：Root（div）、Shape（菱形的 svg）、Start、Body、Title、Description、End。
  */
 import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 import { dataAttrs, hasContent, mergeAttrs, type PartProps } from '../utils/props';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { DiagramNodeShape } from './geometry';
@@ -46,7 +49,20 @@ export interface DiagramNodeProps extends PartProps<'div', 'title'> {
   align?: 'center' | 'start';
   /** 说明下面的更多内容 */
   children?: VNodeChild;
+  /** 起始边那一格的部件属性 */
+  propsStart?: PartProps<'span'>;
+  /** 标题、说明那一列的部件属性 */
+  propsBody?: PartProps<'div'>;
+  /** 标题的部件属性 */
+  propsTitle?: PartProps<'div'>;
+  /** 说明的部件属性 */
+  propsDescription?: PartProps<'div'>;
+  /** 结束边那一格的部件属性 */
+  propsEnd?: PartProps<'span'>;
 }
+
+/** 部件的标记（data-scope="diagram-node"） */
+const nodePart = (part: string) => partAttrs({ name: 'DiagramNode' }, part);
 
 /** Diagram 的节点框给里面的 DiagramNode 的：节点数据的形状 @internal */
 export const DiagramNodeFrameContext = createContext<{ readonly shape?: DiagramNodeShape }>(
@@ -190,6 +206,11 @@ export const DiagramNode = _component(
     dashed = false,
     align = 'center',
     children,
+    propsStart,
+    propsBody,
+    propsTitle,
+    propsDescription,
+    propsEnd,
     ...rest
   }: DiagramNodeProps) => {
     const frame = DiagramNodeFrameContext.inject(null);
@@ -210,6 +231,7 @@ export const DiagramNode = _component(
                 form !== 'rect' && diagramNodeStyles[form],
                 align === 'start' && diagramNodeStyles.alignStart,
               ],
+              ...nodePart('root'),
             },
             rest,
             // Diagram 按它把选中、焦点的描边画成同样的形状
@@ -221,6 +243,7 @@ export const DiagramNode = _component(
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
               aria-hidden="true"
+              {...nodePart('shape')}
               {...css.attrs(
                 diagramNodeStyles.diamondShape,
                 diamondToneStyles[tone],
@@ -233,19 +256,54 @@ export const DiagramNode = _component(
             </svg>
           )}
           {hasContent(start) && (
-            <span {...css.attrs(diagramNodeStyles.start, startTones[tone])}>{start}</span>
+            <span
+              {...mergeAttrs<'span'>(
+                { sx: [diagramNodeStyles.start, startTones[tone]], ...nodePart('start') },
+                propsStart,
+              )}
+            >
+              {start}
+            </span>
           )}
           {/* 标题、说明是块级元素：读屏与无障碍检查从内容取文字时两段之间有停顿，不会连成一串 */}
           <div
-            {...css.attrs(diagramNodeStyles.body, align === 'start' && diagramNodeStyles.bodyStart)}
+            {...mergeAttrs<'div'>(
+              {
+                sx: [diagramNodeStyles.body, align === 'start' && diagramNodeStyles.bodyStart],
+                ...nodePart('body'),
+              },
+              propsBody,
+            )}
           >
-            {hasContent(title) && <div {...css.attrs(diagramNodeStyles.title)}>{title}</div>}
+            {hasContent(title) && (
+              <div
+                {...mergeAttrs<'div'>(
+                  { sx: diagramNodeStyles.title, ...nodePart('title') },
+                  propsTitle,
+                )}
+              >
+                {title}
+              </div>
+            )}
             {hasContent(description) && (
-              <div {...css.attrs(diagramNodeStyles.description)}>{description}</div>
+              <div
+                {...mergeAttrs<'div'>(
+                  { sx: diagramNodeStyles.description, ...nodePart('description') },
+                  propsDescription,
+                )}
+              >
+                {description}
+              </div>
             )}
             {children}
           </div>
-          {hasContent(end) && <span {...css.attrs(diagramNodeStyles.end)}>{end}</span>}
+          {hasContent(end) && (
+            <span
+              {...mergeAttrs<'span'>({ sx: diagramNodeStyles.end, ...nodePart('end') }, propsEnd)}
+            >
+              {end}
+            </span>
+          )}
         </div>
       );
     };

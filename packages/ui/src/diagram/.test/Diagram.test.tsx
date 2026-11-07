@@ -393,6 +393,44 @@ describe('DiagramNode', () => {
   });
 });
 
+describe('部件', () => {
+  it('画布与 DiagramNode 的各层带 data-part，DiagramNode 的部件属性合并到对应的节点上', () => {
+    const root = mount(() => (
+      <Diagram
+        nodes={nodes}
+        edges={[{ id: 'ab', from: 'a', to: 'b', text: '供货' } as never]}
+        getNodeLabel={(item: Item) => item.name}
+        edgeText={() => '供货'}
+        aria-label="画布"
+      >
+        {(item: Item) => (
+          <DiagramNode title={item.name} description="说明" propsTitle={{ class: 'my-title' }} />
+        )}
+      </Diagram>
+    ));
+    const parts = (scope: string) =>
+      new Set(
+        [...root.querySelectorAll(`[data-scope="${scope}"]`)].map((node) =>
+          node.getAttribute('data-part'),
+        ),
+      );
+    for (const part of [
+      'root',
+      'world',
+      'node',
+      'edges',
+      'edge',
+      'edge-line',
+      'edge-arrow',
+      'edge-text',
+    ])
+      expect(parts('diagram').has(part)).toBe(true);
+    for (const part of ['root', 'body', 'title', 'description'])
+      expect(parts('diagram-node').has(part)).toBe(true);
+    expect(root.querySelector('.my-title')!.getAttribute('data-part')).toBe('title');
+  });
+});
+
 describe('DiagramLanes', () => {
   it('lanesExtent 累加各条泳道的高（没写 size 的用 laneSize）；泳道名按顺序画出来', () => {
     const lanes = [{ name: '申请人' }, { name: '财务', size: 160 }];
