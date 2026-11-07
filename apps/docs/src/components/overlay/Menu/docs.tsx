@@ -65,7 +65,8 @@ export default _component(() => () => (
         </Example>
         <Example id="context-menu" title="右键菜单" demo={Files}>
           菜单项与 Menu 完全相同。区域本身不可聚焦：键盘用户聚焦里面的元素后按 <Kbd>Shift</Kbd> +{' '}
-          <Kbd>F10</Kbd> 或菜单键，从元素左下角弹出；关闭后焦点回到原处。
+          <Kbd>F10</Kbd> 或菜单键，从元素左下角弹出；关闭后焦点回到原处。这里的文件是 RadioGroup
+          的卡片（<Code>card</Code>）：方向键换选中的文件，右键先选中再弹菜单。
         </Example>
       </ExampleColumn>
     </Examples>

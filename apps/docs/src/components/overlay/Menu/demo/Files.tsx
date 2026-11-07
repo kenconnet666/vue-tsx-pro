@@ -10,12 +10,12 @@ import {
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
-  ButtonBase,
   ContextMenu,
   Flex,
-  GridList,
   Icon,
   MenuItem,
+  Radio,
+  RadioGroup,
   Separator,
   Small,
   type IconData,
@@ -31,30 +31,12 @@ const files: [string, IconData][] = [
 ];
 
 const styles = css.create({
-  area: {
-    padding: '_md',
-    borderWidth: '_xs',
-    borderStyle: 'dashed',
-    borderColor: '_border',
-    borderRadius: '_md',
-  },
-  file: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: '_xs',
-    width: '_full',
-    paddingBlock: '_md',
-    borderRadius: '_md',
-    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
-    fontSize: '_sm',
-  },
-  selected: { backgroundColor: '_accentSoft' },
-  icon: { fontSize: '2rem', color: '_textMuted' },
+  icon: { fontSize: '1.5rem', color: '_textMuted' },
 });
 
 export default _component(() => {
-  let selected = _state(files[0]![0]);
+  // 文件是一组单选卡片：方向键换选中的文件，右键先选中再弹菜单
+  let selected = _state<string | null>(files[0]![0]);
   let last = _state('');
   const run = (action: string) => () => (last = `${action}“${selected}”`);
   return () => (
@@ -77,24 +59,23 @@ export default _component(() => {
             </MenuItem>
           </>
         }
-        sx={styles.area}
       >
-        <GridList minItemWidth="9rem" gap="sm" aria-label="文件">
+        <RadioGroup
+          _value={selected}
+          card
+          orientation="horizontal"
+          minItemWidth="11rem"
+          aria-label="文件"
+        >
           {files.map(([name, icon]) => (
-            <li key={name}>
-              <ButtonBase
-                sx={[styles.file, selected === name && styles.selected]}
-                aria-pressed={selected === name}
-                onFocus={() => (selected = name)}
-                onContextmenu={() => (selected = name)}
-                onClick={() => (selected = name)}
-              >
+            <Radio key={name} value={name} propsRoot={{ onContextmenu: () => (selected = name) }}>
+              <Flex align="center" gap="sm">
                 <Icon icon={icon} sx={styles.icon} />
                 {name}
-              </ButtonBase>
-            </li>
+              </Flex>
+            </Radio>
           ))}
-        </GridList>
+        </RadioGroup>
       </ContextMenu>
       <Small tone="muted">{last || '在文件上点右键；键盘聚焦文件后按 Shift+F10 或菜单键'}</Small>
     </Flex>
