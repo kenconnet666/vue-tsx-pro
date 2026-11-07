@@ -71,8 +71,8 @@ export default _component(() => () => (
         <Example id="grow" title="伸展、行内与行列间距" demo={Grow}>
           <Code>grow</Code> 让 Flex 在父级的 flex
           里占满剩余空间，并且可以收缩到比内容窄——头像旁边的长标题才能截断；
-          <Code>inline</Code> 是行内的 flex，放在一段文字中间。Grid 的 <Code>rowGap</Code>、
-          <Code>columnGap</Code> 分别覆盖 <Code>gap</Code>。
+          <Code>inline</Code> 是行内的 flex，放在一段文字中间。Grid、GridList 的 <Code>rowGap</Code>
+          、<Code>columnGap</Code> 分别覆盖 <Code>gap</Code>：附件列表行与行挨得近、列与列隔得开。
         </Example>
       </ExampleColumn>
     </Examples>

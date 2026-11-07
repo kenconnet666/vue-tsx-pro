@@ -1,9 +1,11 @@
+// 版本记录：左右交替、小一号；节点按版本的性质着色（最新、功能、修复、破坏性变更），容器窄时自动排回一侧
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Badge, Flex, Timeline } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
   <Timeline
     alternate
+    size="sm"
     items={[
       {
         title: (

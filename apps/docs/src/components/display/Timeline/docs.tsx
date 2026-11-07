@@ -8,7 +8,6 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Approval from './demo/Approval.tsx?demo';
 import ChangeLog from './demo/ChangeLog.tsx?demo';
-import Contract from './demo/Contract.tsx?demo';
 import Order from './demo/Order.tsx?demo';
 import Releases from './demo/Releases.tsx?demo';
 
@@ -29,18 +28,15 @@ export default _component(() => () => (
           <Code>tone</Code>（同意、退回、催办、超时自动处理），意见写在 <Code>description</Code>
           ，附件做成链接。<Code>reverse</Code> 新的在前，items 仍按时间先后给。
         </Example>
-        <Example id="contract" title="流转记录：交替、小一号" demo={Contract}>
-          流转记录也是普通的 items，<Code>alternate</Code>、<Code>size</Code>、部件属性照常用。
-        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="order" title="订单进度" demo={Order}>
           每项一个节点（圆点或 <Code>icon</Code>）与标题、时间、说明；<Code>dateTime</Code> 写进
           time 元素给机器读；<Code>pending</Code> 是还在进行中的最后一项。
         </Example>
-        <Example id="releases" title="左右交替" demo={Releases}>
-          <Code>alternate</Code> 让事件左右交替排布，<Code>tone</Code>{' '}
-          给节点着色；容器窄时自动排回一侧。
+        <Example id="releases" title="版本记录：左右交替、小一号" demo={Releases}>
+          <Code>alternate</Code> 让事件左右交替排布，<Code>tone</Code> 给节点着色，
+          <Code>size</Code> 小一号；容器窄时自动排回一侧。
         </Example>
       </ExampleColumn>
     </Examples>

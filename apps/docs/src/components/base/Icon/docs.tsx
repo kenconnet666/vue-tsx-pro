@@ -44,7 +44,9 @@ export default _component(() => () => (
           <Code>warning</Code>、<Code>danger</Code> 等色调，和提示条、标记的颜色一致。
         </Example>
         <Example id="custom" title="自定义图标" demo={Custom}>
-          按 Lucide 的格式写节点即可，画布默认 24 格。
+          按 Lucide 的格式写节点即可，画布默认 24 格；实心部分写 <Code>fill="currentColor"</Code>
+          ，颜色仍跟随文字。写好的图标数据和 Lucide 的一样用：按钮、图标按钮、标签、菜单项的{' '}
+          <Code>icon</Code> 都认。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
