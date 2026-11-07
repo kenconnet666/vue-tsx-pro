@@ -23,6 +23,14 @@ export default _component(() => () => (
     </Card>
     <Card>
       <Flex direction="column" gap="xs">
+        <Small tone="muted">wrap="pretty"：最后一行不只剩一个字</Small>
+        <Paragraph>
+          验收完成后 10 个工作日内付款；逾期按日万分之五计收违约金，由采购部统一结算。
+        </Paragraph>
+      </Flex>
+    </Card>
+    <Card>
+      <Flex direction="column" gap="xs">
         <Small tone="muted">wrap="balance"：各行长度均衡</Small>
         <Paragraph wrap="balance" size="lg" weight="semibold" align="center">
           用更自然的 TSX 写 Vue 组件，符文让状态读写像普通变量
