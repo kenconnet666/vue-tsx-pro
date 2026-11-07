@@ -39,6 +39,10 @@ export default _component(() => () => (
       <Code>_condition</Code>，写出任一满足、介于、不包含这类固定条件写不出的组合。
       {'收起时有条件就写成一句话，带“清空”；“重置”同时把条件清成 null。'}
       条件是纯 JSON，交给后端或用 <Code>matchesCondition</Code> 在前端筛。
+      这里的关键字与能组合的字段写在一份 zod schema 里（标签、占位、可选值写在 <Code>.meta()</Code>
+      ）：<Code>schemaFilters</Code> 生成第一排的条件（值读写传进去的对象，QueryTable 的{' '}
+      <Code>filters</Code> 里传 draft），<Code>schemaConditionFields</Code> 给出高级筛选的字段，和{' '}
+      <Link href="/components/form#generated">SchemaForm</Link> 是同一套字段描述。
     </Example>
     <ApiReference api={api} />
   </DocPage>

@@ -187,6 +187,8 @@ export interface FormControllerBase {
   reset(): void;
   /** 字段从 schema 推出的约束（必填、长度、范围…）；Field 交给控件，控件上显式写的优先 */
   constraints(path: string): FieldConstraints;
+  /** 创建时给的 schema：SchemaForm 按它生成字段 */
+  readonly schema: $ZodType | undefined;
   /** 字段的当前值（按点连接的路径）：Field 自动绑定值时用 */
   getValue(path: string): unknown;
   /** 写字段的值：中途是 null / undefined 时什么也不做 */
@@ -685,6 +687,7 @@ export function useForm<Values extends object, Output = Values>(
         message === undefined ? rest : { ...rest, [path]: { message, value: cloneValue(value) } };
     },
     constraints,
+    schema,
     Field,
     getValue: (path) => readPath(values, path),
     setValue: (path, value) => writePath(values, path, value),

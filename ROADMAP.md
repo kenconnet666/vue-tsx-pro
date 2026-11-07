@@ -846,7 +846,10 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [ ] P2.5 逐个组件精修样式（随 P2 的页面顺序）
 - [x] P3 组件补缺：~~ChoiceCard~~（单选、复选的 card）、~~ItemList 可选中的行~~、~~ColorPicker~~、~~ImageCropper~~、~~Carousel~~、~~Dialog 拖动~~、~~Tag 的 `selected`~~、~~`useInfiniteList`~~、
       ~~QRCode（自己写编码器）~~、~~省市区数据~~、~~Transfer 虚拟滚动~~（两侧本来就是 Listbox）、~~选文件夹~~、~~FloatButton 组~~、~~JsonViewer~~、~~SignaturePad~~、~~DataTable 横向虚拟化~~
-- [ ] P4 按 schema 生成表单（第一步）与 QueryTable 的查询条件
+- [x] ~~P4 按 schema 生成表单（第一步）与 QueryTable 的查询条件~~（2026-11-08：SchemaForm / SchemaFields 按 useForm 的 schema
+      生成字段，meta 写标签、占位、单位、栏宽、分组与控件，fields 按路径换控件、pick / omit；emptyValues 给空白初始值；
+      schemaFilters 生成查询栏的条件、schemaConditionFields 给高级筛选，Form 页“按 schema 生成”与 FilterBar 的高级筛选示例用上。
+      第二步（JSON 字段配置在运行时转成 zod、显示 / 必填条件）以后做）
 - [ ] P5 阶段 24（含 24.4 直接删旧写法）
 - [ ] P6 `/testing` 测试辅助、桌面端 `create` 模板
 - [ ] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计

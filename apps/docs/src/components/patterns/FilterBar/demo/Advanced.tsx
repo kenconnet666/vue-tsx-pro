@@ -1,19 +1,21 @@
 // 高级筛选：常用的关键字之外，conditionFields 给出能组合的字段，“高级筛选”展开条件构造器（_condition），
 // 能写“金额介于、品类是其中之一、或者加急”这类固定条件写不出的组合；收起时下面是一句话的摘要，带“清空”。
+// 关键字与能组合的字段写在同一份 schema 里：schemaFilters 生成第一排的条件，schemaConditionFields 给出高级筛选的字段。
 // 这里点“查询”时用 matchesCondition 在前端筛，接后端时把同一份条件交给接口
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   DataTable,
-  Field,
+  emptyValues,
   Flex,
   matchesCondition,
+  schemaConditionFields,
+  schemaFilters,
   Small,
-  TextField,
   type Condition,
-  type ConditionField,
   type DataTableColumn,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { FilterBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+import { z } from 'zod';
 
 interface Order {
   id: string;
@@ -75,17 +77,14 @@ const orders: Order[] = [
   },
 ];
 
-const fields: ConditionField[] = [
-  { name: 'amount', label: '金额', type: 'number' },
-  {
-    name: 'category',
-    label: '品类',
-    type: 'select',
-    options: ['钢材', '铝材', '紧固件', '服务'].map((name) => ({ value: name, label: name })),
-  },
-  { name: 'urgent', label: '加急', type: 'boolean' },
-  { name: 'delivery', label: '交货日期', type: 'date' },
-];
+const query = z.object({
+  keyword: z.string().meta({ title: '关键字', placeholder: '订单号、供应商' }),
+  amount: z.number().meta({ title: '金额' }),
+  category: z.enum(['钢材', '铝材', '紧固件', '服务']).meta({ title: '品类' }),
+  urgent: z.boolean().meta({ title: '加急' }),
+  delivery: z.iso.date().meta({ title: '交货日期' }),
+});
+const fields = schemaConditionFields(query, { omit: ['keyword'] });
 
 const columns: DataTableColumn<Order>[] = [
   { key: 'id', header: '订单号', width: 100 },
@@ -97,7 +96,7 @@ const columns: DataTableColumn<Order>[] = [
 ];
 
 export default _component(() => {
-  let keyword = _state('');
+  let filters = _state(emptyValues(query));
   let condition = _state<Condition | null>({
     any: [
       { field: 'amount', op: 'between', value: [50000, 150000] },
@@ -107,7 +106,7 @@ export default _component(() => {
   let rows = _state.raw(orders);
 
   function search() {
-    const text = keyword.trim();
+    const text = filters.keyword.trim();
     rows = orders.filter(
       (order) =>
         (!text || order.id.includes(text) || order.supplier.includes(text)) &&
@@ -122,15 +121,13 @@ export default _component(() => {
         aria-label="订单查询"
         onSearch={search}
         onReset={() => {
-          keyword = '';
+          filters.keyword = '';
           search();
         }}
         conditionFields={fields}
         _condition={condition}
       >
-        <Field label="关键字">
-          <TextField _value={keyword} placeholder="订单号、供应商" />
-        </Field>
+        {schemaFilters(query, filters, { pick: ['keyword'] })}
       </FilterBar>
       <Small tone="muted">
         {rows.length} / {orders.length} 张订单

@@ -41,6 +41,13 @@
   `DiagramShapeRect`；`DiagramNodeShapes` 改从几何模块导出（名字不变）。
 - **破坏性**：`LinkUnderlineContext` 提供的值改成函数（`provide(() => 'hover')`）：LinkUnderlineScope 的 `underline` 变了，
   里面的链接跟着变。自己提供这个上下文的照着改。
+- 新组件 SchemaForm、SchemaFields：按 useForm 的 zod schema 生成表单。控件按类型选（文字、枚举的下拉、`z.iso.date()` 的日期、
+  数字含 Decimal 与 bigint、布尔的开关、枚举数组的多选、嵌套对象的一组、对象数组的可增删的行）；标签、说明、占位、单位、栏宽
+  （`span`）、分组（`group`）、换控件（`control`）写在 `.meta()` 里（扩充了 zod 的 GlobalMeta，有类型提示）；`fields` 按字段路径
+  换控件（键有类型检查），`pick` / `omit` 只生成一部分。配套 `emptyValues(schema)`（空白的初始值）、`schemaFields`（字段描述）、
+  `schemaFilters`（查询栏的条件，值读写传进去的对象）、`schemaConditionFields`（高级筛选的字段）。表单控制器加 `schema`。
+  语言包加 `formSubmit`、`formReset`、`formAddRow`、`formRemoveRow`。
+- 字段约束认 `z.iso.datetime({ local: true })`：输入框不再把它当普通文字。
 - `useFormDialog` 的表单加了 `novalidate`：必填没填时只显示字段下的错误，不再弹浏览器自带的气泡。
 
 ## 每次发布

@@ -33,17 +33,26 @@ export interface FieldConstraints {
   options?: readonly (string | number)[];
 }
 
-type JsonSchema = Record<string, unknown>;
+/** JSON Schema 的一个节点 @internal */
+export type JsonSchema = Record<string, unknown>;
 
 const NONE: FieldConstraints = Object.freeze({});
 
-/** schema → JSON Schema（输入一侧）；表达不了的类型当作 any，循环引用写成 $ref */
-function toJsonSchema(schema: $ZodType): JsonSchema | undefined {
+/** schema → JSON Schema（输入一侧）；表达不了的类型当作 any，循环引用写成 $ref。SchemaForm 也按它生成字段 @internal */
+export function toJsonSchema(schema: $ZodType): JsonSchema | undefined {
   try {
     return toJSONSchema(schema, {
       io: 'input',
       unrepresentable: 'any',
       cycles: 'ref',
+      // 不带时区的日期时间（z.iso.datetime({ local: true })，DatePicker 选到分钟的值）zod 只写正则：补上 format，
+      // 这份 JSON Schema 只给表单用，SchemaForm 据此选日期时间控件
+      override: ({ zodSchema, jsonSchema }) => {
+        const def = zodSchema._zod.def as { type: string; format?: string; local?: boolean };
+        if (def.type === 'string' && def.format === 'datetime' && def.local) {
+          jsonSchema.format = 'date-time';
+        }
+      },
     }) as JsonSchema;
   } catch (error) {
     // 理论上不会走到这里（unrepresentable: 'any'）；约束只是辅助，失败时不影响校验
@@ -52,8 +61,8 @@ function toJsonSchema(schema: $ZodType): JsonSchema | undefined {
   }
 }
 
-/** 解开 $ref（只认本文档的 #/$defs/…）与“允许 null”的 anyOf：返回实际的 schema 与是否允许 null */
-function unwrap(
+/** 解开 $ref（只认本文档的 #/$defs/…）与“允许 null”的 anyOf：返回实际的 schema 与是否允许 null @internal */
+export function unwrap(
   root: JsonSchema,
   node: JsonSchema | undefined,
 ): { node?: JsonSchema; nullable: boolean } {
@@ -97,8 +106,8 @@ function matchesEmpty(pattern: string): boolean {
   }
 }
 
-/** 字段自己的 schema → 约束；parentRequires 表示父对象要求这个键存在 */
-function constraintsOf(
+/** 字段自己的 schema → 约束；parentRequires 表示父对象要求这个键存在 @internal */
+export function constraintsOf(
   node: JsonSchema,
   nullable: boolean,
   parentRequires: boolean,

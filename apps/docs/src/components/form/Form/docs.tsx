@@ -6,11 +6,13 @@ import formValueApi from 'virtual:api/FormValueProps';
 import summaryApi from 'virtual:api/FormErrorSummaryProps';
 import sectionApi from 'virtual:api/FormSectionProps';
 import labelApi from 'virtual:api/LabelProps';
+import schemaFormApi from 'virtual:api/SchemaFormProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Admission from './demo/Admission.tsx?demo';
+import Generated from './demo/Generated.tsx?demo';
 import Layout from './demo/Layout.tsx?demo';
 import Native from './demo/Native.tsx?demo';
 import Quote from './demo/Quote.tsx?demo';
@@ -32,7 +34,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { bigintSchema, decimalSchema, Field, Form, FormErrorSummary, FormSection, FormValue, useForm, useLeaveConfirmation } from '@zerodep-dev/vue-tsx-pro-ui';"
+    imports="import { bigintSchema, decimalSchema, emptyValues, Field, Form, FormErrorSummary, FormSection, FormValue, SchemaFields, SchemaForm, useForm, useLeaveConfirmation } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Example id="admission" title="供应商准入：自动绑定与错误汇总" demo={Admission}>
       <Code>form.Field</Code> 里只有一个控件、控件上没写值时，自动绑定 <Code>form.values</Code>{' '}
@@ -43,6 +45,19 @@ export default _component(() => () => (
       放在表单顶上：提交没通过时列出显示着的错误（按字段在表单里的顺序、带字段名），焦点先到它上面，点哪一项跳到那个字段，改对一项就少一项（GOV.UK
       的 Error summary）。跨字段的规则写在 schema 的 <Code>refine</Code> 里，<Code>path</Code>{' '}
       指到要标错的字段；<Code>dependencies</Code> 让开始日期改了之后结束日期跟着重新校验。
+    </Example>
+    <Example id="generated" title="按 schema 生成：SchemaForm" demo={Generated}>
+      同一份准入申请：<Code>SchemaForm</Code> 按 useForm 的 schema
+      生成字段，控件按类型选（文字、枚举的下拉、
+      <Code>z.iso.date()</Code>{' '}
+      的日期、数字、布尔的开关、枚举数组的多选、嵌套对象的一组、对象数组的可增删的行）。
+      标签、说明、占位、单位、栏宽（<Code>span</Code>）、分组（<Code>group</Code>，同组放进一个
+      FormSection）与换控件（<Code>control</Code>：radio、checkbox、checkboxes、textarea）写在{' '}
+      <Code>.meta()</Code> 里，类型有提示。<Code>emptyValues(schema)</Code>{' '}
+      给出空白的初始值。某个字段要别的控件时写{' '}
+      <Code>{'fields={{ region: () => <Cascader … /> }}'}</Code>
+      （键按值的类型检查）；只想生成一部分时，在手写的 <Code>Form</Code> 里放{' '}
+      <Code>SchemaFields</Code>（<Code>pick</Code> / <Code>omit</Code>），其余照旧手写。
     </Example>
     <Examples>
       <ExampleColumn>
@@ -121,6 +136,8 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, summaryApi, fieldApi, sectionApi, formValueApi, labelApi]} />
+    <ApiReference
+      api={[api, summaryApi, fieldApi, sectionApi, schemaFormApi, formValueApi, labelApi]}
+    />
   </DocPage>
 ));
