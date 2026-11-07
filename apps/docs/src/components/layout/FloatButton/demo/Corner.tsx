@@ -18,6 +18,7 @@ const sections = [
   ['设置审批', '每类单据可以配置多级审批，金额超过阈值时自动加签财务负责人。'],
   ['对接系统', '开放接口用应用密钥签名，回调地址需要在“集成”里登记并通过校验。'],
   ['导出报表', '报表按筛选条件导出，超过一万行时改为后台生成，完成后站内通知。'],
+  ['权限与审计', '角色决定能看哪些菜单与数据，关键操作都会写进审计日志，可以按人与时间查询。'],
 ];
 
 export default _component(() => {
@@ -50,7 +51,7 @@ export default _component(() => {
           onClick={() => (unread = 0)}
         />
         <FloatButton icon={MessageSquareText} aria-label="意见反馈" />
-        <BackTop target={() => panel} threshold={160} />
+        <BackTop target={() => panel} threshold={80} />
       </FloatButtonGroup>
     </Card>
   );
