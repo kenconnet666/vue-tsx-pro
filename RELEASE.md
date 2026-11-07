@@ -39,6 +39,8 @@
 - 单选、复选的卡片外观：RadioGroup、CheckboxGroup（以及单个 Radio、Checkbox）加 `card`，每项是一张卡片、整块可点，
   选中时边框与底色换成色调色；横排时按 `minItemWidth`（默认 14em）分列。Radio、Checkbox 加 `end`（结束边：价格、标记）与 `propsEnd`，
   勾选类的配方多一个 `end` 部件。
+- ItemListItem 整条可点：`href`（标题是 Link，走路由适配）或 `onSelect`（标题是 ButtonBase），标题伸展盖住整条，结束边的操作叠在上面照常可点；
+  `selected` 是正在看的一条（选中色、aria-current），`disabled` 变淡点不了；`propsLink`、`propsButton` 转发给标题的链接、按钮。
 - Listbox 的根带上部件标记（`data-scope="listbox" data-part="root"`），和别的部件一样 border-box：写的高度就是整个列表的高度。
 - 静态 Table 新增 `stickyHeader`（外层限高、竖向滚动时表头吸顶），TableHeaderCell、TableCell 新增 `sticky`（第一列固定在起始边）。
 - Sparkline 的柱（`type="bar"`）在 `showLast` 时最新的一根实色、前面的淡下去。**破坏性**：删掉已废弃的 `variant` 属性与

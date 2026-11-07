@@ -7,13 +7,23 @@
  *       description="PO-2026-0187 · 官网改版" end={<DeadlineBadge due="2026-10-23" />} />
  *   </ItemList>
  *
- * divided 在条目之间画线；hoverable 悬停时着底色（整条可点时）；inset 是条目两侧的内边距（放在弹出层、
+ * divided 在条目之间画线；hoverable 悬停时着底色；inset 是条目两侧的内边距（放在弹出层、
  * 卡片正文里时与容器的内边距对齐）。标题与说明默认单行省略不了时换行；align="start" 让起始边、结束边贴着第一行。
+ *
+ * 整条可点：写 href（标题是链接，走路由适配）或 onSelect（标题是按钮），标题伸展盖住整条，点哪里都一样；
+ * 结束边的操作叠在上面照常可点。selected 是正在看的一条（主从视图左边的列表、收件箱）：底色换成选中色，
+ * 链接或按钮带 aria-current。焦点环画在整条上。
+ *
+ *   <ItemListItem title={mail.subject} description={mail.from} selected={mail.id === current}
+ *     onSelect={() => (current = mail.id)} />
  */
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
-import { hasContent, mergeAttrs, type PartProps } from '../utils/props';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
+import { Link, type LinkProps } from '../base/Link';
+import { t } from '../config/theme/tokens';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { paddingInlineStyles, type Space } from '../utils/style/styles';
 
 /** 条目的疏密 */
@@ -51,8 +61,8 @@ export interface ItemListProps extends PartProps<'ul'> {
   children?: VNodeChild;
 }
 
-/** 未声明的属性落到 li 上；原生的 title 属性让给标题 */
-export interface ItemListItemProps extends PartProps<'li', 'title'> {
+/** 未声明的属性落到 li 上；原生的 title 属性让给标题，onSelect 是点了这一条（不是原生的选中文字事件） */
+export interface ItemListItemProps extends PartProps<'li', 'title' | 'onSelect'> {
   /** 起始边：图标、色点、头像、状态 */
   start?: VNodeChild;
   /** 标题：一句话，常是链接 */
@@ -66,6 +76,18 @@ export interface ItemListItemProps extends PartProps<'li', 'title'> {
    * @default 'center'
    */
   align?: 'center' | 'start';
+  /** 整条是链接：标题渲染成 Link（走路由适配），盖住整条 */
+  href?: string;
+  /** 整条是按钮：点了这一条（主从视图里选中、打开详情）；标题渲染成按钮，盖住整条 */
+  onSelect?: (event: MouseEvent) => void;
+  /** 正在看的一条：选中色的底色，整条可点时链接或按钮带 aria-current */
+  selected?: boolean;
+  /** 整条可点时不可用：变淡、点不了 */
+  disabled?: boolean;
+  /** 整条是链接时，标题那个 Link 的部件属性 */
+  propsLink?: Partial<LinkProps>;
+  /** 整条是按钮时，标题那个 ButtonBase 的部件属性 */
+  propsButton?: Partial<ButtonBaseProps>;
   /** 标题的部件属性 */
   propsTitle?: PartProps<'span'>;
   /** 说明的部件属性 */
@@ -100,6 +122,34 @@ const itemListStyles = css.create({
   title: { minWidth: 0, overflowWrap: 'anywhere' },
   description: { color: '_textMuted', fontSize: '_xs', minWidth: 0, overflowWrap: 'anywhere' },
   end: { display: 'flex', alignItems: 'center', gap: '_xs', justifySelf: 'end' },
+  // 整条可点：悬停着底色；焦点在标题的链接或按钮上时整条画焦点环
+  interactive: {
+    position: 'relative',
+    backgroundColor: { default: null, _hover: '_fillHover' },
+    outlineStyle: { default: 'none', ':has([data-item-action]:focus-visible)': 'solid' },
+    outlineWidth: '_sm',
+    outlineColor: '_focusRing',
+    outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
+    borderRadius: '_sm',
+  },
+  selected: { backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' } },
+  disabled: { opacity: '_disabled', cursor: 'not-allowed' },
+  // 标题的链接或按钮：看起来就是标题；::after 伸展盖住整条，点哪里都等于点它
+  action: {
+    // ButtonBase 为波纹定了位：改回 static，::after 才以整条（li）为准
+    position: 'static',
+    display: 'block',
+    width: '_full',
+    padding: 0,
+    color: 'inherit',
+    textAlign: 'start',
+    textDecorationLine: 'none',
+    outlineStyle: { default: 'none', _focusVisible: 'none' },
+    cursor: 'inherit',
+    '::after': { content: '""', position: 'absolute', inset: 0 },
+  },
+  // 结束边的操作叠在伸展的标题上面，照常可点
+  raised: { position: 'relative', zIndex: 1 },
 });
 
 /** 条目列表（ul） */
@@ -125,11 +175,45 @@ export const ItemListItem = _component(
     description,
     end,
     align = 'center',
+    href,
+    onSelect,
+    selected = false,
+    disabled = false,
+    propsLink,
+    propsButton,
     propsTitle,
     propsDescription,
     children,
     ...rest
   }: ItemListItemProps) => {
+    /** 标题：整条可点时包成伸展的链接或按钮 */
+    const renderTitle = () => {
+      const action = {
+        sx: itemListStyles.action,
+        'data-item-action': '',
+        'aria-current': selected ? ('true' as const) : undefined,
+      };
+      if (href != null && !disabled) {
+        return (
+          <Link {...mergePartProps<LinkProps>({ ...action, href, underline: 'none' }, propsLink)}>
+            {title}
+          </Link>
+        );
+      }
+      if (onSelect) {
+        return (
+          <ButtonBase
+            {...mergePartProps<ButtonBaseProps>(
+              { ...action, ripple: false, disabled, onClick: onSelect },
+              propsButton,
+            )}
+          >
+            {title}
+          </ButtonBase>
+        );
+      }
+      return title;
+    };
     const look = ItemListContext.inject(() => ({
       divided: false,
       hoverable: false,
@@ -138,6 +222,7 @@ export const ItemListItem = _component(
     }));
     return () => {
       const { divided, hoverable, density, inset } = look();
+      const interactive = href != null || onSelect != null;
       return (
         <li
           {...mergeAttrs<'li'>(
@@ -150,17 +235,24 @@ export const ItemListItem = _component(
                 divided && itemListStyles.divided,
                 hoverable && itemListStyles.hoverable,
                 inset && paddingInlineStyles[inset],
+                interactive && itemListStyles.interactive,
+                selected && itemListStyles.selected,
+                interactive && disabled && itemListStyles.disabled,
               ],
             },
             rest,
           )}
+          data-selected={selected || undefined}
+          data-disabled={(interactive && disabled) || undefined}
         >
           {hasContent(start) && (
             <span {...css.attrs(align === 'start' && itemListStyles.startAligned)}>{start}</span>
           )}
           <span {...css.attrs(itemListStyles.body)}>
             {hasContent(title) && (
-              <span {...mergeAttrs<'span'>({ sx: itemListStyles.title }, propsTitle)}>{title}</span>
+              <span {...mergeAttrs<'span'>({ sx: itemListStyles.title }, propsTitle)}>
+                {renderTitle()}
+              </span>
             )}
             {hasContent(description) && (
               <span {...mergeAttrs<'span'>({ sx: itemListStyles.description }, propsDescription)}>
@@ -169,7 +261,13 @@ export const ItemListItem = _component(
             )}
             {children}
           </span>
-          {end != null ? <span {...css.attrs(itemListStyles.end)}>{end}</span> : <span />}
+          {end != null ? (
+            <span {...css.attrs(itemListStyles.end, interactive && itemListStyles.raised)}>
+              {end}
+            </span>
+          ) : (
+            <span />
+          )}
         </li>
       );
     };

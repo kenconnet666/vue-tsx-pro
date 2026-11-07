@@ -42,6 +42,40 @@ describe('ItemList', () => {
     // 第二条没有起始边：主体 + 结束边的占位
     expect(items[1]!.children).toHaveLength(2);
   });
+
+  it('整条可点：href 时标题是链接、onSelect 时是按钮；selected 带 aria-current；disabled 的按钮点不了', () => {
+    const picked: string[] = [];
+    const root = mount(() => (
+      <ItemList>
+        <ItemListItem title="收件箱" href="/inbox" selected />
+        <ItemListItem
+          title="草稿"
+          onSelect={() => picked.push('草稿')}
+          end={<button>删除</button>}
+        />
+        <ItemListItem title="已归档" onSelect={() => picked.push('已归档')} disabled />
+      </ItemList>
+    ));
+    const [inbox, drafts, archived] = [...root.querySelectorAll('li')];
+    const link = inbox!.querySelector('a')!;
+    expect([link.getAttribute('href'), link.getAttribute('aria-current')]).toEqual([
+      '/inbox',
+      'true',
+    ]);
+    expect(inbox!.dataset.selected).toBe('true');
+    const button = drafts!.querySelector<HTMLButtonElement>('[data-item-action]')!;
+    expect([button.tagName, button.type, button.hasAttribute('aria-current')]).toEqual([
+      'BUTTON',
+      'button',
+      false,
+    ]);
+    button.click();
+    // 结束边的操作是独立的按钮，不是标题那个
+    expect(drafts!.querySelectorAll('button')).toHaveLength(2);
+    archived!.querySelector<HTMLButtonElement>('[data-item-action]')!.click();
+    expect(picked).toEqual(['草稿']);
+    expect(archived!.dataset.disabled).toBe('true');
+  });
 });
 
 describe('ProportionBar', () => {
