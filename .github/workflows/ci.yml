@@ -143,6 +143,63 @@ jobs:
           include-hidden-files: true
           retention-days: 1
 
+  # 文档站全部示例的截图（亮、暗）与上一次 master 全部通过的运行比对：差异图作为产物上传、任务摘要列出变了的示例。
+  # 只报告不失败——外观的改动多半是有意的，由提交的人看差异图确认；这次的截图存成下一次的基线
+  visual:
+    needs: [hydration]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup
+      - name: Install browsers
+        timeout-minutes: 30
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            timeout 600 pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium && exit 0
+            echo "playwright install failed (attempt $attempt), retrying"
+            sleep 15
+          done
+          exit 1
+      - uses: actions/download-artifact@v8
+        with:
+          name: docs-dist
+          path: apps/docs/dist
+      - name: Serve the built docs
+        shell: bash
+        run: |
+          pnpm --filter @vue-tsx-pro/docs preview --port 5174 --strictPort > preview.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf http://localhost:5174/ > /dev/null && exit 0; sleep 1; done
+          cat preview.log
+          exit 1
+      - name: Screenshots
+        run: node scripts/docs/shots-batch.mjs current all --jobs=4
+      - name: Reference (last fully green master run)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          id=$(gh run list --workflow ci.yml --branch master --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          if [ -n "$id" ]; then
+            gh run download "$id" --name docs-shots --dir node_modules/.cache/docs-shots-reference || echo "run $id has no docs-shots"
+          fi
+      - name: Compare
+        run: node scripts/docs/shots-compare.mjs reference current --summary="$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: docs-shots
+          path: node_modules/.cache/docs-shots-current
+          retention-days: 30
+      - uses: actions/upload-artifact@v7
+        with:
+          name: docs-shots-diff
+          path: node_modules/.cache/docs-shots-diff
+          if-no-files-found: ignore
+          retention-days: 14
+
   # 全栈示例（Nitro）：构建产物上的端到端测试，按页面的模式跑一遍、整站浏览器渲染（RENDER_MODE=csr）再跑一遍
   fullstack:
     runs-on: ubuntu-latest

@@ -34,14 +34,21 @@ const dir = option('out', join(root, 'node_modules/.cache/docs-shots'));
 mkdirSync(dir, { recursive: true });
 const name = path.replaceAll('/', '_').replace(/^_/, '');
 
+// 同一份代码每次截出同样的图（前后比对、CI 与上一次比对用）：固定时钟与时区（“今天”、相对时间、倒计时不随日子变），
+// 减少动态效果（跑马灯、扫光、加载动画停住）
+const FIXED_NOW = new Date('2026-10-20T10:00:00+08:00');
 const browser = await chromium.launch();
 for (const theme of themes) {
   const context = await browser.newContext({
     viewport: { width, height: 900 },
     deviceScaleFactor: 1,
+    locale: 'zh-CN',
+    timezoneId: 'Asia/Shanghai',
+    reducedMotion: 'reduce',
   });
   await context.addInitScript((value) => localStorage.setItem('vue-tsx-pro-theme', value), theme);
   const page = await context.newPage();
+  await page.clock.setFixedTime(FIXED_NOW);
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   page.on('console', (message) => message.type() === 'error' && errors.push(message.text()));
