@@ -1,6 +1,8 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/LineChartProps';
+import xyChartApi from 'virtual:api/XYChartProps';
+import chartFrameApi from 'virtual:api/ChartFrameProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { ExampleColumn, Examples } from '../../../site/Examples';
@@ -72,6 +74,6 @@ export default _component(() => () => (
       打开中文不乱码）；文件名默认是图表的名称，<Code>exportName</Code>{' '}
       可以改。柱状图、面积图、组合图同样支持；导出各种图表都有，直接用 HTML 画的漏斗图只能导出数据。
     </Example>
-    <ApiReference api={api} />
+    <ApiReference api={[api, xyChartApi, chartFrameApi]} />
   </DocPage>
 ));

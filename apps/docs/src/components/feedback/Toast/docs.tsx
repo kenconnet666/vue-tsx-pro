@@ -1,6 +1,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ToasterProps';
+import toastItemApi from 'virtual:api/ToastItemProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -69,6 +70,6 @@ export default _component(() => () => (
       通知区域是 aria-live 的 <Code>section</Code>：新通知出现时读屏自动念出，焦点不会被抢走。按{' '}
       <Kbd>F8</Kbd> 才进入区域。
     </KeyboardReference>
-    <ApiReference api={api} />
+    <ApiReference api={[api, toastItemApi]} />
   </DocPage>
 ));

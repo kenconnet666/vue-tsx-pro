@@ -2,6 +2,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/CalendarProps';
 import calendarViewApi from 'virtual:api/CalendarViewProps';
+import quarterCalendarApi from 'virtual:api/QuarterCalendarProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { ExampleColumn, Examples } from '../../../site/Examples';
@@ -83,6 +84,6 @@ export default _component(() => () => (
     <KeyboardReference keys={calendarKeys}>
       整个月是一个网格（role="grid"），只有聚焦的那一格在 Tab 顺序里；移出当前显示的月份时自动翻页。
     </KeyboardReference>
-    <ApiReference api={[api, calendarViewApi]} />
+    <ApiReference api={[api, calendarViewApi, quarterCalendarApi]} />
   </DocPage>
 ));

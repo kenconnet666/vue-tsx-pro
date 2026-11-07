@@ -16,23 +16,23 @@
 | ShaderBackground | three/background/ShaderBackground.tsx |  |  |  |  |  |
 | ThemeCustomizer | theme-customize/ThemeCustomizer.tsx |  |  |  |  |  |
 | ThemeThumbnail | theme-customize/ThemeThumbnail.tsx | ✗ |  |  |  |  |
-| ColumnFilterButton | table/ColumnHeaderActions.tsx | ✗ | ✗ |  |  |  |
-| ColumnMenuButton | table/ColumnHeaderActions.tsx | ✗ | ✗ |  |  |  |
+| ColumnFilterButton | table/ColumnHeaderActions.tsx | ✗ |  |  |  |  |
+| ColumnMenuButton | table/ColumnHeaderActions.tsx | ✗ |  |  |  |  |
 | ColumnResizer | table/ColumnResizer.tsx | ✗ |  |  |  |  |
 | ColumnSettings | table/ColumnSettings.tsx | ✗ |  |  |  | ✗ |
 | ColumnTable | table/ColumnTable.tsx |  |  |  |  | ✗ |
 | DataTable | table/DataTable.tsx |  |  |  |  |  |
-| DataTableRow | table/DataTableView.tsx | ✗ | ✗ |  |  | ✗ |
-| DataTableDetailRow | table/DataTableView.tsx | ✗ | ✗ |  |  | ✗ |
+| DataTableRow | table/DataTableView.tsx | ✗ |  |  |  | ✗ |
+| DataTableDetailRow | table/DataTableView.tsx | ✗ |  |  |  | ✗ |
 | DataTableView | table/DataTableView.tsx |  |  |  |  | ✗ |
 | PivotTable | table/PivotTable.tsx |  |  |  |  | ✗ |
 | SelectionBar | table/SelectionBar.tsx |  |  |  |  |  |
 | Table | table/Table.tsx |  |  |  |  |  |
-| TableCaption | table/Table.tsx |  | ✗ |  |  |  |
-| TableHead | table/Table.tsx |  | ✗ |  |  |  |
-| TableBody | table/Table.tsx |  | ✗ |  |  |  |
-| TableFoot | table/Table.tsx |  | ✗ |  |  |  |
-| TableRow | table/Table.tsx |  | ✗ |  |  |  |
+| TableCaption | table/Table.tsx |  |  |  |  |  |
+| TableHead | table/Table.tsx |  |  |  |  |  |
+| TableBody | table/Table.tsx |  |  |  |  |  |
+| TableFoot | table/Table.tsx |  |  |  |  |  |
+| TableRow | table/Table.tsx |  |  |  |  |  |
 | TableHeaderCell | table/Table.tsx |  |  |  |  |  |
 | TableCell | table/Table.tsx |  |  |  |  |  |
 | TreeDataTable | table/TreeDataTable.tsx |  |  |  |  | ✗ |
@@ -68,7 +68,7 @@
 | MenuRadioGroup | overlay/Menu.tsx | ✗ |  |  |  |  |
 | MenuRadioItem | overlay/Menu.tsx | ✗ |  |  |  |  |
 | MenuSub | overlay/Menu.tsx | ✗ |  |  | ✗ |  |
-| ModalCore | overlay/ModalCore.tsx | ✗ | ✗ |  |  |  |
+| ModalCore | overlay/ModalCore.tsx | ✗ |  |  |  |  |
 | Popconfirm | overlay/Popconfirm.tsx |  |  |  |  |  |
 | Popover | overlay/Popover.tsx |  |  |  |  |  |
 | Tooltip | overlay/Tooltip.tsx | ✗ |  |  |  |  |
@@ -132,7 +132,7 @@
 | Radio | input/Radio.tsx |  |  |  |  |  |
 | Rating | input/Rating.tsx |  |  |  |  |  |
 | Select | input/Select.tsx |  |  |  |  |  |
-| SelectedTags | input/SelectedTags.tsx | ✗ | ✗ |  |  |  |
+| SelectedTags | input/SelectedTags.tsx | ✗ |  |  |  |  |
 | SignaturePad | input/SignaturePad.tsx | ✗ |  |  |  |  |
 | Slider | input/Slider.tsx |  |  |  |  |  |
 | Switch | input/Switch.tsx |  |  |  |  |  |
@@ -163,7 +163,7 @@
 | Result | feedback/Result.tsx |  |  |  |  |  |
 | Skeleton | feedback/Skeleton.tsx |  |  |  |  |  |
 | SkeletonText | feedback/SkeletonText.tsx |  |  |  |  |  |
-| ToastItem | feedback/Toast.tsx | ✗ | ✗ |  | ✗ |  |
+| ToastItem | feedback/Toast.tsx | ✗ |  |  | ✗ |  |
 | Toaster | feedback/Toast.tsx | ✗ |  |  |  |  |
 | CodeGroup | docs-kit/CodeGroup.tsx |  |  |  |  |  |
 | CodePreview | docs-kit/CodePreview.tsx |  |  |  |  |  |
@@ -188,7 +188,7 @@
 | Gauge | display/Gauge.tsx |  |  |  |  |  |
 | Image | display/Image.tsx |  |  |  |  |  |
 | ImageGroup | display/Image.tsx |  |  |  |  |  |
-| InfiniteListStatus | display/InfiniteListStatus.tsx |  | ✗ |  |  |  |
+| InfiniteListStatus | display/InfiniteListStatus.tsx |  |  |  |  |  |
 | ItemList | display/ItemList.tsx |  |  |  |  |  |
 | ItemListItem | display/ItemList.tsx |  |  |  |  |  |
 | JsonViewer | display/JsonViewer.tsx |  |  |  |  |  |
@@ -198,7 +198,7 @@
 | Sortable | display/Sortable.tsx |  |  |  |  | ✗ |
 | Sparkline | display/Sparkline.tsx |  |  |  |  |  |
 | Stat | display/Stat.tsx |  |  |  |  |  |
-| StatGroup | display/Stat.tsx |  | ✗ |  |  |  |
+| StatGroup | display/Stat.tsx |  |  |  |  |  |
 | Timeline | display/Timeline.tsx |  |  |  |  |  |
 | Tree | display/Tree.tsx |  |  |  |  |  |
 | ValueChange | display/ValueChange.tsx |  |  |  |  |  |
@@ -218,7 +218,7 @@
 | DateRangePicker | date/DateRangePicker.tsx |  |  |  |  | ✗ |
 | DateSegmentGroup | date/DateSegmentGroup.tsx | ✗ |  |  | ✗ |  |
 | DateTime | date/DateTime.tsx |  |  |  |  |  |
-| QuarterCalendar | date/QuarterCalendar.tsx |  | ✗ |  | ✗ |  |
+| QuarterCalendar | date/QuarterCalendar.tsx |  |  |  | ✗ |  |
 | RangeCalendar | date/RangeCalendar.tsx |  |  |  |  | ✗ |
 | RelativeTime | date/RelativeTime.tsx |  |  |  |  |  |
 | SegmentedField | date/SegmentedField.tsx | ✗ |  |  |  |  |
@@ -232,19 +232,19 @@
 | ChordChart | charts/ChordChart.tsx |  |  |  |  |  |
 | ComboChart | charts/ComboChart.tsx |  |  |  |  | ✗ |
 | DonutChart | charts/DonutChart.tsx |  |  |  |  | ✗ |
-| ChartFrame | charts/frame.tsx | ✗ | ✗ |  |  |  |
+| ChartFrame | charts/frame.tsx | ✗ |  |  |  |  |
 | FunnelChart | charts/FunnelChart.tsx |  |  |  |  |  |
 | GraphChart | charts/GraphChart.tsx |  |  |  |  |  |
 | LineChart | charts/LineChart.tsx |  |  |  |  | ✗ |
 | MapChart | charts/MapChart.tsx | ✗ |  |  |  |  |
-| ChartTooltipBox | charts/plot.tsx | ✗ | ✗ |  |  |  |
+| ChartTooltipBox | charts/plot.tsx | ✗ |  |  |  |  |
 | RadarChart | charts/RadarChart.tsx | ✗ |  |  |  | ✗ |
 | SankeyChart | charts/SankeyChart.tsx |  |  |  |  |  |
 | ScatterChart | charts/ScatterChart.tsx |  |  |  |  | ✗ |
 | TimelineChart | charts/TimelineChart.tsx |  |  |  |  |  |
 | TreemapChart | charts/TreemapChart.tsx | ✗ |  |  |  | ✗ |
 | WaterfallChart | charts/WaterfallChart.tsx |  |  |  |  |  |
-| XYChart | charts/XYChart.tsx | ✗ | ✗ |  |  | ✗ |
+| XYChart | charts/XYChart.tsx | ✗ |  |  |  | ✗ |
 | Badge | base/Badge.tsx |  |  |  |  |  |
 | StatusBadge | base/Badge.tsx |  |  |  |  | ✗ |
 | Blockquote | base/Blockquote.tsx |  |  |  |  |  |
@@ -262,7 +262,7 @@
 | IconLinkButton | base/IconLinkButton.tsx |  |  |  |  |  |
 | Indicator | base/Indicator.tsx |  |  |  |  |  |
 | Kbd | base/Kbd.tsx |  |  |  |  |  |
-| LinkUnderlineScope | base/Link.tsx |  | ✗ |  |  |  |
+| LinkUnderlineScope | base/Link.tsx |  |  |  |  |  |
 | Link | base/Link.tsx |  |  |  |  |  |
 | LinkButton | base/LinkButton.tsx |  |  |  |  |  |
 | List | base/List.tsx |  |  |  |  |  |

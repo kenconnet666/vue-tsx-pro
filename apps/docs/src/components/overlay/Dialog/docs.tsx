@@ -2,6 +2,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import alertDialogApi from 'virtual:api/AlertDialogProps';
 import api from 'virtual:api/DialogProps';
+import modalCoreApi from 'virtual:api/ModalCoreProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -90,6 +91,6 @@ export default _component(() => () => (
     >
       打开时焦点落在带 <Code>autofocus</Code> 的元素上，没有就是第一个可聚焦的元素。
     </KeyboardReference>
-    <ApiReference api={[api, alertDialogApi]} />
+    <ApiReference api={[api, alertDialogApi, modalCoreApi]} />
   </DocPage>
 ));

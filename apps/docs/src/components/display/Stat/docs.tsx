@@ -2,6 +2,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import animatedNumberApi from 'virtual:api/AnimatedNumberProps';
 import statApi from 'virtual:api/StatProps';
+import statGroupApi from 'virtual:api/StatGroupProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { ExampleColumn, Examples } from '../../../site/Examples';
@@ -64,6 +65,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[statApi, animatedNumberApi]} />
+    <ApiReference api={[statApi, statGroupApi, animatedNumberApi]} />
   </DocPage>
 ));

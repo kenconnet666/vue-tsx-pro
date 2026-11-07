@@ -67,7 +67,9 @@ const gaps = Object.fromEntries(
     const pages = pagesOf(name);
     const missing = [];
     if (!mentions(unitTests, name)) missing.push('unit');
-    if (pages.length === 0) missing.push('docs');
+    // 没有自己的 Props 接口（直接用原生元素的属性，如 TableHead）的列不进 API 表
+    const hasProps = exported.has(`${name}Props`) || exported.has(`${name}BaseProps`);
+    if (hasProps && pages.length === 0) missing.push('docs');
     if (keyboard && pages.length > 0 && !pages.some((text) => text.includes('KeyboardReference')))
       missing.push('keyboard');
     if (keyboard && !mentions(browserTests, name)) missing.push('browser');
