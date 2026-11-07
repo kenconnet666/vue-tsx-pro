@@ -117,8 +117,8 @@ describe('键盘', () => {
   it('FloatButtonGroup 速拨：Enter 展开，Esc 收起并回到主按钮', async () => {
     const root = mount(() => (
       <FloatButtonGroup icon={Plus} aria-label="快捷操作">
-        <FloatButton aria-label="新建" />
-        <FloatButton aria-label="导入" />
+        <FloatButton icon={Plus} aria-label="新建" />
+        <FloatButton icon={Plus} aria-label="导入" />
       </FloatButtonGroup>
     ));
     const main = root.querySelector<HTMLButtonElement>('button[aria-expanded]')!;
