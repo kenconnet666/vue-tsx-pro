@@ -10,6 +10,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import Cards from './demo/Cards.tsx?demo';
 import Items from './demo/Items.tsx?demo';
 import Permissions from './demo/Permissions.tsx?demo';
 import Settings from './demo/Settings.tsx?demo';
@@ -43,6 +44,13 @@ export default _component(() => () => (
           ，选项来自字典、接口时不用一个个写。<Code>description</Code> 显示在文字下方，经
           aria-describedby 关联；单独的 <Code>Checkbox</Code>、<Code>Radio</Code> 也能写。
         </Example>
+        <Example id="cards" title="卡片外观" demo={Cards}>
+          组上写 <Code>card</Code>
+          ：每个选项是一张卡片，整块可点，选中时边框与底色换成色调色（<Code>tone</Code>
+          ），组里的每一项都跟着（单项也能写 <Code>card</Code>）。横排时按宽度分列，每张不窄于{' '}
+          <Code>minItemWidth</Code>（默认 14em）。<Code>end</Code>{' '}
+          放在结束边（价格、标记）。底下仍是原生 radio、checkbox：键盘、表单提交、读屏都不变。
+        </Example>
       </ExampleColumn>
       <ExampleColumn>
         <Example id="switch" title="开关" demo={Settings}>
@@ -52,7 +60,8 @@ export default _component(() => () => (
         </Example>
         <Example id="radio" title="单选" demo={Shipping}>
           同一组的原生 radio 共用 <Code>name</Code>：Tab
-          只停在选中项，方向键在组内移动并选中，都是浏览器的原生行为。选项里可以放任意内容（说明、价格）；
+          只停在选中项，方向键在组内移动并选中，都是浏览器的原生行为。说明写在{' '}
+          <Code>description</Code>，价格这类放在结束边的写 <Code>end</Code>；
           <Code>orientation="horizontal"</Code> 横排。
         </Example>
         <Example id="validation" title="必选与出错" demo={Validation}>

@@ -37,7 +37,8 @@ export default _component(() => () => (
         </Example>
         <Example id="thumbnail" title="主题缩略图" demo={Gallery}>
           <Code>ThemeThumbnail</Code>{' '}
-          用主题自己的底色、表面、主色画一张小卡片，适合做选主题的网格；它是装饰（aria-hidden），名称写在旁边的文字里。
+          用主题自己的底色、表面、主色画一张小卡片，它是装饰（aria-hidden），名称写在旁边的文字里。选主题的网格用
+          RadioGroup 的 <Code>card</Code>：缩略图与名称放在每张单选卡片里，键盘与表单照常。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

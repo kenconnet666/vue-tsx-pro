@@ -1,11 +1,10 @@
-// 主题缩略图：用主题自己的底色、表面、主色画一张小卡片，做“选主题”的网格（设置页、引导流程）
+// 选主题：一组单选卡片，每张是主题自己的底色、表面、主色画的缩略图（设置页、引导流程）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   builtinThemeLabel,
   builtinThemes,
-  ButtonBase,
-  GridList,
+  Radio,
+  RadioGroup,
   Small,
   useLang,
   type BuiltinThemeName,
@@ -14,38 +13,23 @@ import { ThemeThumbnail } from '@zerodep-dev/vue-tsx-pro-ui/theme-customize';
 
 const names = Object.keys(builtinThemes) as BuiltinThemeName[];
 
-const styles = css.create({
-  option: {
-    display: 'grid',
-    gap: '_xs',
-    width: '_full',
-    padding: '_xs',
-    borderRadius: '_md',
-    borderWidth: '_sm',
-    borderStyle: 'solid',
-    borderColor: { default: 'transparent', _hover: '_border' },
-    textAlign: 'start',
-  },
-  selected: { borderColor: { default: '_accent', _hover: '_accent' } },
-});
-
 export default _component(() => {
   const lang = useLang();
-  let picked = _state<BuiltinThemeName>('paper');
+  let picked = _state<string | null>('paper');
   return () => (
-    <GridList minItemWidth="8rem" gap="sm" aria-label="选择主题">
+    <RadioGroup
+      _value={picked}
+      card
+      orientation="horizontal"
+      minItemWidth="10rem"
+      aria-label="选择主题"
+    >
       {names.map((name) => (
-        <li key={name}>
-          <ButtonBase
-            sx={[styles.option, picked === name && styles.selected]}
-            aria-pressed={picked === name}
-            onClick={() => (picked = name)}
-          >
-            <ThemeThumbnail theme={builtinThemes[name]} />
-            <Small>{builtinThemeLabel(lang, name)}</Small>
-          </ButtonBase>
-        </li>
+        <Radio key={name} value={name}>
+          <ThemeThumbnail theme={builtinThemes[name]} />
+          <Small>{builtinThemeLabel(lang, name)}</Small>
+        </Radio>
       ))}
-    </GridList>
+    </RadioGroup>
   );
 });

@@ -7,7 +7,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Hidden from './demo/Hidden.tsx?demo';
-import Plans from './demo/Plans.tsx?demo';
+import Plain from './demo/Plain.tsx?demo';
 import States from './demo/States.tsx?demo';
 
 export const meta = {
@@ -32,11 +32,12 @@ export default _component(() => () => (
     meta={meta}
     imports="import { ButtonBase, VisuallyHidden } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
-    <Example id="plans" title="自定义外观的按钮" demo={Plans}>
+    <Example id="plain" title="长得不像按钮的按钮" demo={Plain}>
       ButtonBase 去掉浏览器的默认样式，给出焦点环、按下的波纹、颜色过渡，默认{' '}
-      <Code>type="button"</Code>（不会意外提交表单）；外观全部经 <Code>sx</Code> 给出。选中状态用{' '}
-      <Code>aria-pressed</Code> 写给读屏，一组单选的卡片外面包 <Code>role="group"</Code>{' '}
-      与名称。要按钮外观时用 Button。
+      <Code>type="button"</Code>（不会意外提交表单）；外观全部经 <Code>sx</Code>{' '}
+      给出。可展开的标题整行是按钮，<Code>aria-expanded</Code> 与 <Code>aria-controls</Code>{' '}
+      关联下面的内容；账号按钮里放头像与两行文字。要按钮外观时用 Button，可选中的卡片用
+      RadioGroup、CheckboxGroup 的 <Code>card</Code>。
     </Example>
     <Examples>
       <ExampleColumn>

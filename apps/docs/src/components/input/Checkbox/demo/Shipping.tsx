@@ -1,5 +1,6 @@
+// 单选：说明写在 description（经 aria-describedby 关联），价格放在结束边（end）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Field, Flex, Radio, RadioGroup, Small, Strong } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Field, Flex, Radio, RadioGroup, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const options = [
   ['standard', '标准快递', '3–5 天送达', '免运费'],
@@ -15,14 +16,8 @@ export default _component(() => {
       <Field label="配送方式">
         <RadioGroup _value={shipping} name="shipping">
           {options.map(([value, title, time, price]) => (
-            <Radio key={value} value={value}>
-              <Flex justify="between" gap="lg">
-                <Flex direction="column">
-                  <Strong>{title}</Strong>
-                  <Small tone="muted">{time}</Small>
-                </Flex>
-                <Small>{price}</Small>
-              </Flex>
+            <Radio key={value} value={value} description={time} end={<Small>{price}</Small>}>
+              {title}
             </Radio>
           ))}
         </RadioGroup>
