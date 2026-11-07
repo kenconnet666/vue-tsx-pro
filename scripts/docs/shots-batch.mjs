@@ -5,6 +5,8 @@
 //   node scripts/docs/shots-batch.mjs after all --jobs=6   并发几页（默认 4）
 //   node scripts/docs/shots-batch.mjs after button,card  只截这几页
 //   --origin=http://localhost:5175                      文档站在别的地址（截图专用的工作树）
+//   --variants=rtl,forced,mobile   基础、输入、浮层、表格这几类页面再截这些变体（亮色主题；见 shot.mjs 的 --variant）
+// 浮层分类的页面每个示例再截一张打开后的（shot.mjs 的 --open）
 //   node scripts/docs/shots-compare.mjs before after    逐张比对
 import { execFile } from 'node:child_process';
 import { globSync, mkdirSync, rmSync } from 'node:fs';
@@ -47,12 +49,29 @@ const COMMON = [
   'avatar',
   'tags-input',
 ];
+// 组件页：路由名 → 分类
+const categories = new Map(
+  globSync('apps/docs/src/components/*/*/docs.tsx', { cwd: root }).map((file) => [
+    kebab(basename(dirname(file))),
+    basename(dirname(dirname(file))),
+  ]),
+);
 const pages =
   list === 'all'
-    ? globSync('apps/docs/src/components/*/*/docs.tsx', { cwd: root })
-        .map((file) => kebab(basename(dirname(file))))
-        .sort()
+    ? [...categories.keys()].sort((a, b) => a.localeCompare(b))
     : (list?.split(',') ?? COMMON);
+// 变体只截这几类：控件最多、最容易在从右到左、高对比、窄屏下出问题
+const VARIANT_CATEGORIES = new Set(['base', 'input', 'overlay', 'table']);
+const variants = option('variants', '').split(',').filter(Boolean);
+/** 要截的：页面与变体（空是默认的亮、暗两套） */
+const tasks = [
+  ...pages.map((page) => [page, '']),
+  ...variants.flatMap((variant) =>
+    pages
+      .filter((page) => VARIANT_CATEGORIES.has(categories.get(page)))
+      .map((page) => [page, variant]),
+  ),
+];
 
 const target = join(root, `node_modules/.cache/docs-shots-${label}`);
 rmSync(target, { recursive: true, force: true });
@@ -60,10 +79,12 @@ mkdirSync(target, { recursive: true });
 
 const jobs = Number(option('jobs', 4));
 const origin = option('origin', 'http://localhost:5174');
-const queue = [...pages];
+const queue = [...tasks];
 const failed = [];
 async function worker() {
-  for (let page = queue.shift(); page; page = queue.shift()) {
+  for (let task = queue.shift(); task; task = queue.shift()) {
+    const [page, variant] = task;
+    const name = variant ? `${page}（${variant}）` : page;
     try {
       await run(
         'node',
@@ -72,17 +93,19 @@ async function worker() {
           `/components/${page}`,
           `--out=${target}`,
           `--origin=${origin}`,
+          ...(variant ? [`--variant=${variant}`, '--themes=light'] : []),
+          ...(categories.get(page) === 'overlay' ? ['--open'] : []),
         ],
         { maxBuffer: 1 << 24 },
       );
-      console.log(`✓ ${page}`);
+      console.log(`✓ ${name}`);
     } catch (error) {
-      failed.push(page);
-      console.log(`✗ ${page}：${String(error.stderr ?? error.message).split('\n')[0]}`);
+      failed.push(name);
+      console.log(`✗ ${name}：${String(error.stderr ?? error.message).split('\n')[0]}`);
     }
   }
 }
 await Promise.all(Array.from({ length: jobs }, worker));
 console.log(
-  `${pages.length - failed.length} / ${pages.length} 页${failed.length ? `，失败：${failed.join(',')}` : ''}`,
+  `${tasks.length - failed.length} / ${tasks.length} 次${failed.length ? `，失败：${failed.join(',')}` : ''}`,
 );

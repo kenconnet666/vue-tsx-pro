@@ -5,6 +5,8 @@
 //   pnpm docs:shot /components/menu basic,groups --themes=dark
 //   pnpm docs:shot /components/menu page                  整页；keyboard 是键盘小节
 //   pnpm docs:shot /components/select basic --click=basic:城市    截图前点开一个按钮或下拉框（按名称找）
+//   pnpm docs:shot /components/select --variant=rtl        从右到左；forced 是强制颜色（Windows 高对比），mobile 是手机（390 宽、触屏）
+//   pnpm docs:shot /components/menu --open                 每个示例再截一张打开后的（点示例里的第一个按钮）
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireFrom, root } from '../lib/repo.mjs';
@@ -29,6 +31,90 @@ const clicks = new Map(
     .map((arg) => arg.slice(8).split(':'))
     .map(([id, ...text]) => [id, text.join(':')]),
 );
+// 变体：浏览器上下文多给的选项；文件名带上变体名
+const VARIANTS = {
+  rtl: {},
+  forced: { forcedColors: 'active' },
+  mobile: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
+};
+const variant = option('variant', '');
+if (variant && !(variant in VARIANTS)) {
+  console.error(`没有这个变体：${variant}（可选 ${Object.keys(VARIANTS).join('、')}）`);
+  process.exit(1);
+}
+const suffix = variant ? `-${variant}` : '';
+// --open：浮层页的示例再截一张打开后的（点示例里的第一个按钮，打开了弹层或对话框才截）
+const open = process.argv.includes('--open');
+
+// 新打开的顶层（弹层、对话框）：markOpen 之后打开的，常驻的（Toaster 的区域）不算
+const OPENED = ':is(:popover-open, dialog[open]):not([data-shot-before])';
+
+/** 记下现在已经打开的顶层：之后的截图与“打开了没有”不算它们 */
+const markOpen = (page) =>
+  page.evaluate(() => {
+    for (const element of document.querySelectorAll(':popover-open, dialog[open]'))
+      element.setAttribute('data-shot-before', '');
+  });
+
+/** 截一个示例：换成页面坐标，卡片与新打开的顶层合起来 */
+async function shoot(page, id, file) {
+  const clip = await page.evaluate(
+    ([id, opened]) => {
+      const rects = [
+        document.getElementById(id).parentElement.getBoundingClientRect(),
+        ...[...document.querySelectorAll(opened)]
+          .map((element) => element.getBoundingClientRect())
+          .filter((rect) => rect.width > 0 && rect.height > 0),
+      ];
+      const left = Math.min(...rects.map((rect) => rect.left));
+      const top = Math.min(...rects.map((rect) => rect.top));
+      const right = Math.max(...rects.map((rect) => rect.right));
+      const bottom = Math.max(...rects.map((rect) => rect.bottom));
+      return { x: left + scrollX, y: top + scrollY, width: right - left, height: bottom - top };
+    },
+    [id, OPENED],
+  );
+  await page.screenshot({ path: join(dir, file), clip, fullPage: true });
+}
+
+/**
+ * 打开示例里的触发器（标了 aria-haspopup / aria-expanded 的，没有就是第一个不是选项的按钮或链接）：先悬停
+ * （Tooltip、HoverCard；点过再悬停，有的提示要等指针离开才再出现），没开再点（链接不点，会离开页面）；
+ * 打开了弹层或对话框就截一张，再关掉（Esc 关不掉的直接关）
+ */
+async function shootOpen(page, target, id, file) {
+  await markOpen(page);
+  const demo = target.locator('[data-demo]');
+  const marked = demo.locator('[aria-haspopup], [aria-expanded]');
+  const trigger = (
+    (await marked.count())
+      ? marked
+      : demo.locator(':is(button, a[href]):not([aria-pressed], [role="radio"], [role="tab"])')
+  ).first();
+  const opened = () => page.locator(OPENED).count();
+  try {
+    // 触发器放到视口中间：贴着底边时弹层只剩一点高度
+    await trigger.evaluate((element) => element.scrollIntoView({ block: 'center' }));
+    await trigger.hover({ timeout: 3000 });
+    await page.waitForTimeout(1000);
+    if (!(await opened()) && (await trigger.evaluate((element) => element.tagName)) === 'BUTTON') {
+      await trigger.click({ timeout: 3000 });
+      await page.waitForTimeout(500);
+    }
+    if (await opened()) await shoot(page, id, file);
+  } catch (error) {
+    console.log(`${id}：没能打开（${error.message.split('\n')[0]}）`);
+  }
+  // 指针移开：留在原处会落在下一个示例上，带出悬停效果
+  await page.mouse.move(0, 0);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(300);
+  await page.evaluate((opened) => {
+    for (const element of document.querySelectorAll(opened))
+      if (element instanceof HTMLDialogElement) element.close();
+      else element.hidePopover();
+  }, OPENED);
+}
 // --out=<目录>：存到别处（shots-batch.mjs 并发截多页时各页直接写进同一批的目录）
 const dir = option('out', join(root, 'node_modules/.cache/docs-shots'));
 mkdirSync(dir, { recursive: true });
@@ -45,8 +131,18 @@ for (const theme of themes) {
     locale: 'zh-CN',
     timezoneId: 'Asia/Shanghai',
     reducedMotion: 'reduce',
+    ...VARIANTS[variant],
   });
   await context.addInitScript((value) => localStorage.setItem('vue-tsx-pro-theme', value), theme);
+  // 整页从右到左：解析完、页面脚本运行之前（readyState 变成 interactive）加上，组件挂载时就是从右到左
+  if (variant === 'rtl')
+    await context.addInitScript(() =>
+      document.addEventListener(
+        'readystatechange',
+        () => document.documentElement.setAttribute('dir', 'rtl'),
+        { once: true },
+      ),
+    );
   const page = await context.newPage();
   await page.clock.setFixedTime(FIXED_NOW);
   const errors = [];
@@ -65,7 +161,10 @@ for (const theme of themes) {
   });
   await page.waitForTimeout(800);
   if (which === 'page') {
-    await page.screenshot({ path: join(dir, `${name}-page-${theme}.png`), fullPage: true });
+    await page.screenshot({
+      path: join(dir, `${name}-page-${theme}${suffix}.png`),
+      fullPage: true,
+    });
   } else {
     const ids =
       which === 'all'
@@ -78,6 +177,7 @@ for (const theme of themes) {
       const target = page.locator(`[id="${id}"]`).locator('xpath=..');
       await target.scrollIntoViewIfNeeded();
       await page.waitForTimeout(300);
+      await markOpen(page);
       if (clicks.has(id)) {
         // 按钮或下拉框（Select 的触发器是 role="combobox"），按名称找
         await target
@@ -87,23 +187,10 @@ for (const theme of themes) {
           .click();
         await page.waitForTimeout(500);
       }
-      // 换成页面坐标：卡片与打开的弹层（顶层）合起来
-      const clip = await page.evaluate((id) => {
-        const rects = [document.getElementById(id).parentElement.getBoundingClientRect()];
-        const open = document.querySelector(':popover-open, dialog[open]');
-        if (open) rects.push(open.getBoundingClientRect());
-        const left = Math.min(...rects.map((rect) => rect.left));
-        const top = Math.min(...rects.map((rect) => rect.top));
-        const right = Math.max(...rects.map((rect) => rect.right));
-        const bottom = Math.max(...rects.map((rect) => rect.bottom));
-        return { x: left + scrollX, y: top + scrollY, width: right - left, height: bottom - top };
-      }, id);
-      await page.screenshot({
-        path: join(dir, `${name}-${id}-${theme}.png`),
-        clip,
-        fullPage: true,
-      });
+      await shoot(page, id, `${name}-${id}-${theme}${suffix}.png`);
       if (clicks.has(id)) await page.keyboard.press('Escape');
+      if (open && !clicks.has(id))
+        await shootOpen(page, target, id, `${name}-${id}-${theme}${suffix}-open.png`);
     }
   }
   if (errors.length)
