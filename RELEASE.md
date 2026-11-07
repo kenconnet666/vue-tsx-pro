@@ -16,6 +16,15 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
+- 组合组件把里面的按钮、勾选框、链接、头像的部件属性转发出来（用 `mergePartProps` 合并，组件管理的点击、勾选、不可用在最后）：
+  Timeline 的 `propsAvatar`、`propsPending`；PeoplePickerPanel 的 `propsAvatar`、`propsCheckbox`、`propsSelectAll`、`propsDrill`、
+  `propsClear`、`propsRemove`；DataImport 的 `propsTemplate`、`propsPrevious`、`propsNext`、`propsAgain`、`propsOnlyErrors`；
+  SchemaFields 的 `propsAddRow`、`propsRemoveRow`，SchemaForm 的 `propsSubmit`、`propsReset`；Upload 的 `propsLink`、`propsHandle`；
+  ConditionBuilder 的 `propsAddRule`、`propsAddGroup`、`propsRemoveRule`、`propsRemoveGroup`；Breadcrumbs 的 `propsButton`；
+  CommentThread 的 `propsAttachment`、`propsReply`；FilterBar 的 `propsClearAdvanced`；SlideCaptcha 的 `propsRefresh`；
+  QueryTable、ErrorBoundary 的 `propsRetry`；JsonViewer 的 `propsExpandAll`、`propsCollapseAll`；ImageCropper 的 `propsButton`；
+  QuarterCalendar 的 `propsPrevious`、`propsNext`；Carousel 的 `propsPause`、`propsDot`；TabList 的 `propsScrollButton`；
+  Transfer、TreeTransfer 的 `propsCheckAll`；XY 图的 `propsZoomReset`；MapChart 的 `propsControl`。
 - 日历改成配方组件 `Calendar`（CalendarView 渲染的 Calendar、RangeCalendar、日期选择器的弹层，以及 QuarterCalendar 共用）：
   `components.Calendar` 可以给 `size`、`showWeekNumbers`、`fixedWeeks` 的默认值（如全站显示周数），按部件（root、months、month、
   header、heading、grid、weekday、weekNumber、cell、cellButton、footer）追加样式。部件标记的 `data-scope` 从 `calendar-view`、
