@@ -856,7 +856,9 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [ ] P5 阶段 24（含 24.4 直接删旧写法）
 - [x] ~~P6 `/testing` 测试辅助、桌面端 `create` 模板~~（2026-11-08：/testing 做了——Select、Cascader、TreeSelect、Tree、日期、DataTable 的 harness，
       文档站的 Testing 指南与 Cascader 的浏览器测试用上；`vtp-ui create` 的桌面后台模板也做了，进了 test:consumer）
-- [ ] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计
+- [ ] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计（2026-11-08：达标矩阵做了——scripts/structure/matrix.mjs 进 pnpm check，
+      新组件缺单元测试、文档、键盘一节、浏览器测试、类型测试时报错，已知缺项在 matrix-baseline.json（107 个组件），整张表见
+      .claude/reports/matrix.md；按表逐个补）
 - [x] ~~P10 组件规格 JSON 给下游比对、下游问题用 GitHub issue 跟踪~~（2026-11-08：文档站构建时输出 /spec/components.json——全部组件的属性、
       默认值、可选值、事件、部件属性、部件标记、能否定制，CSharpUi、Blazor 的 CI 取线上这份比对；GitHub 建了 `parity` 标签跟踪下游报的问题。
       键盘行为还在文档页里，没进规格）
