@@ -3,6 +3,7 @@ import {
   Box,
   ChartLine,
   House,
+  LogOut,
   Package,
   Search,
   Settings,
@@ -12,18 +13,21 @@ import {
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
-  Avatar,
   Badge,
   Card,
   Flex,
   Grid,
   H1,
   IconButton,
+  Menu,
+  MenuGroup,
+  MenuItem,
   NavGroup,
   NavItem,
   NavList,
   NavSection,
   Paragraph,
+  Separator,
   Small,
   Stat,
   Strong,
@@ -34,6 +38,7 @@ import {
   TableHeaderCell,
   TableRow,
   TextField,
+  UserButton,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { AppShell, AppShellBrand } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
@@ -98,7 +103,17 @@ export default _component(() => {
             propsRoot={{ sx: styles.search }}
           />
           <IconButton icon={Bell} aria-label="通知" sx={styles.end} />
-          <Avatar size="sm" name="林小满" />
+          <Menu trigger={(props) => <UserButton {...props} name="林小满" />}>
+            <MenuGroup label="xiaoman@example.com">
+              <MenuItem icon={Settings} onAction={() => (current = 'billing')}>
+                账单与设置
+              </MenuItem>
+            </MenuGroup>
+            <Separator decorative={false} />
+            <MenuItem icon={LogOut} tone="danger">
+              退出登录
+            </MenuItem>
+          </Menu>
         </>
       }
       sidebar={

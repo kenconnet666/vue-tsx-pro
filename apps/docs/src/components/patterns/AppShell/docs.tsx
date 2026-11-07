@@ -34,7 +34,7 @@ export default _component(() => () => (
       <Code>skipLink</Code>）与整页的浮层滚动条（<Code>pageScrollbar</Code>
       ）默认都开。
     </Example>
-    <Example id="fullscreen" title="全屏" demo={Fullscreen} frame="28rem">
+    <Example id="fullscreen" title="全屏" demo={Fullscreen} frame="24rem">
       顶栏结束边默认有全屏按钮（<Code>fullscreenable</Code>
       ）：进入后不显示顶栏和左侧栏，正文占满窗口，同时请求浏览器全屏；右上角留一个退出按钮，Esc
       也退出。

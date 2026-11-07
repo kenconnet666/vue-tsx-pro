@@ -5,6 +5,7 @@ import {
   FileSignature,
   FileText,
   House,
+  LogOut,
   ReceiptText,
   Scale,
   ShoppingCart,
@@ -13,19 +14,21 @@ import {
 } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
-  Avatar,
   Card,
   Flex,
   Grid,
   H1,
   ItemList,
   ItemListItem,
+  Menu,
+  MenuItem,
   NavBar,
   NavItem,
   NavList,
   Small,
   Stat,
   Strong,
+  UserButton,
   type NavBarItem,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { AppShell, AppShellBrand } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
@@ -101,7 +104,14 @@ export default _component(() => {
         </AppShellBrand>
       }
       nav={<NavBar items={modules} aria-label="模块" />}
-      header={<Avatar size="sm" name="林小满" />}
+      header={
+        // 顶栏放了一级导航，账号只留头像
+        <Menu trigger={(props) => <UserButton {...props} name="林小满" compact />}>
+          <MenuItem icon={LogOut} tone="danger">
+            退出登录
+          </MenuItem>
+        </Menu>
+      }
       sidebar={
         <NavList aria-label="采购">
           {(Object.keys(sidePages) as SidePage[]).map((page) => (

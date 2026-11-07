@@ -1,21 +1,24 @@
 // 顶栏的铃铛：未读数、按类型筛选、只看未读、点一条标为已读、全部标为已读；读过的状态由使用方保存
-import { Plane, Search } from '@lucide/icons';
+import { LogOut, Plane, Search } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
-  Avatar,
   Button,
   Card,
   Flex,
-  Icon,
+  Menu,
+  MenuItem,
   Small,
-  Strong,
   TextField,
+  UserButton,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import { NotificationCenter, type NotificationItem } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+import {
+  AppShellBrand,
+  NotificationCenter,
+  type NotificationItem,
+} from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const styles = css.create({
-  brand: { color: '_accentText' },
   search: { flexGrow: 1, maxWidth: '20em', marginInlineStart: 'auto' },
 });
 
@@ -74,8 +77,9 @@ export default _component(() => {
     <Flex direction="column" gap="md">
       <Card padding="sm">
         <Flex align="center" gap="md">
-          <Icon icon={Plane} sx={styles.brand} />
-          <Strong>采购管理平台</Strong>
+          <AppShellBrand href="#top-bar" icon={Plane}>
+            采购管理平台
+          </AppShellBrand>
           <TextField icon={Search} size="sm" placeholder="搜索编号、名称" sx={styles.search} />
           <NotificationCenter
             items={items}
@@ -93,7 +97,11 @@ export default _component(() => {
               </Button>
             }
           />
-          <Avatar name="林小满" size="sm" />
+          <Menu trigger={(props) => <UserButton {...props} name="林小满" compact />}>
+            <MenuItem icon={LogOut} tone="danger">
+              退出登录
+            </MenuItem>
+          </Menu>
         </Flex>
       </Card>
       <Small tone="muted">
