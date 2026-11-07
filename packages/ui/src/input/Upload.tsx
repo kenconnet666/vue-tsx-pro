@@ -40,11 +40,11 @@ import {
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onBeforeUnmount, watch } from 'vue';
-import { ButtonBase } from '../base/ButtonBase';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Image, ImageGroup } from '../display/Image';
 import { useSortable } from '../utils/dom/sortable';
 import { Icon, type IconProps } from '../base/Icon';
-import { Link } from '../base/Link';
+import { Link, type LinkProps } from '../base/Link';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
@@ -167,6 +167,10 @@ export interface UploadProps extends PartProps<'div'> {
   propsRetry?: Omit<Partial<IconButtonProps>, 'aria-label' | 'onClick'>;
   /** 每一项的移除按钮的部件属性；名称（语言包的 uploadRemove）、点击与不可用由组件管理 */
   propsRemove?: Omit<Partial<IconButtonProps>, 'aria-label' | 'onClick' | 'disabled'>;
+  /** 文件名是链接时（有 url）链接的部件属性 */
+  propsLink?: Partial<LinkProps>;
+  /** 图片墙里拖动排序的把手的部件属性 */
+  propsHandle?: Partial<ButtonBaseProps>;
 }
 
 /** 部件的标记（data-scope="upload"） */
@@ -326,6 +330,8 @@ export const Upload = _component(
     propsProgress,
     propsRetry,
     propsRemove,
+    propsLink,
+    propsHandle,
     ...rest
   }: UploadProps) => {
     const lang = useLang();
@@ -526,7 +532,17 @@ export const Upload = _component(
               )}
             >
               {item.url ? (
-                <Link href={item.url} target="_blank" underline="hover" sx={uploadStyles.nameLink}>
+                <Link
+                  {...mergePartProps<LinkProps>(
+                    {
+                      href: item.url,
+                      target: '_blank',
+                      underline: 'hover',
+                      sx: uploadStyles.nameLink,
+                    },
+                    propsLink,
+                  )}
+                >
                   {fileName}
                 </Link>
               ) : (
@@ -647,10 +663,15 @@ export const Upload = _component(
             <div {...css.attrs(uploadStyles.actions)} {...uploadPart('actions')}>
               {sortable && (
                 <ButtonBase
-                  sx={uploadStyles.handle}
-                  ripple={false}
-                  disabled={state.disabled}
-                  aria-label={lang.sortableHandle(item.name)}
+                  {...mergePartProps<ButtonBaseProps>(
+                    {
+                      sx: uploadStyles.handle,
+                      ripple: false,
+                      'aria-label': lang.sortableHandle(item.name),
+                    },
+                    propsHandle,
+                    { disabled: state.disabled },
+                  )}
                   {...sortableWall.handleProps(item.id)}
                 >
                   <Icon icon={GripVertical} />

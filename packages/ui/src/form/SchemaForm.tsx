@@ -27,8 +27,8 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNode, VNodeChild } from 'vue';
 import type { $ZodType } from 'zod/v4/core';
-import { Button } from '../base/Button';
-import { IconButton } from '../base/IconButton';
+import { Button, type ButtonProps } from '../base/Button';
+import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { DatePicker } from '../date/DatePicker';
 import { Checkbox, CheckboxGroup } from '../input/Checkbox';
@@ -72,6 +72,10 @@ export interface SchemaFieldsProps<Values extends object> {
   columns?: number;
   /** 每一组（FormSection）的部件属性 */
   propsSection?: Partial<FormSectionProps>;
+  /** 数组字段“加一行”按钮的部件属性 */
+  propsAddRow?: Partial<ButtonProps>;
+  /** 数组字段每一行“删除”按钮的部件属性 */
+  propsRemoveRow?: Partial<IconButtonProps>;
 }
 
 /** SchemaForm 的属性：SchemaFields 的全部，加上表单与按钮 */
@@ -84,6 +88,10 @@ export interface SchemaFormProps<Values extends object> extends SchemaFieldsProp
   propsForm?: Partial<FormProps>;
   /** 按钮那一行的部件属性 */
   propsActions?: PartProps<'div'>;
+  /** 提交按钮的部件属性 */
+  propsSubmit?: Partial<ButtonProps>;
+  /** 重置按钮的部件属性 */
+  propsReset?: Partial<ButtonProps>;
   /** 按钮那一行起始边的内容：提交结果、说明 */
   children?: VNodeChild;
 }
@@ -205,6 +213,8 @@ export const SchemaFields = _component(
     fields: renderers,
     columns = 1,
     propsSection,
+    propsAddRow,
+    propsRemoveRow,
   }: SchemaFieldsProps<Values>) => {
     const lang = useLang();
     const custom = renderers as Partial<Record<string, (field: SchemaField) => VNodeChild>>;
@@ -239,10 +249,11 @@ export const SchemaFields = _component(
               description: field.description,
               extra: (
                 <Button
-                  size="sm"
-                  variant="soft"
-                  icon={Plus}
-                  onClick={() => array.append(cloneValue(blank))}
+                  {...mergePartProps<ButtonProps>(
+                    { size: 'sm', variant: 'soft', icon: Plus },
+                    propsAddRow,
+                    { onClick: () => array.append(cloneValue(blank)) },
+                  )}
                 >
                   {lang.formAddRow(field.label)}
                 </Button>
@@ -257,12 +268,17 @@ export const SchemaFields = _component(
                       {section(`${path}.${index}`, children, `${path}.${index}.`)}
                     </div>
                     <IconButton
-                      icon={Trash2}
-                      variant="ghost"
-                      tone="danger"
-                      aria-label={lang.formRemoveRow(field.label, index + 1)}
-                      onClick={() => array.remove(index)}
-                      sx={schemaFormStyles.rowRemove}
+                      {...mergePartProps<IconButtonProps>(
+                        {
+                          icon: Trash2,
+                          variant: 'ghost',
+                          tone: 'danger',
+                          'aria-label': lang.formRemoveRow(field.label, index + 1),
+                          sx: schemaFormStyles.rowRemove,
+                        },
+                        propsRemoveRow,
+                        { onClick: () => array.remove(index) },
+                      )}
                     />
                   </div>
                 ))}
@@ -325,6 +341,8 @@ export const SchemaForm = _component(
     resettable = true,
     propsForm,
     propsActions,
+    propsSubmit,
+    propsReset,
     children,
     ...fields
   }: SchemaFormProps<Values>) => {
@@ -343,11 +361,20 @@ export const SchemaForm = _component(
             {children}
           </div>
           {resettable && (
-            <Button type="reset" variant="soft" tone="neutral">
+            <Button
+              {...mergePartProps<ButtonProps>({ variant: 'soft', tone: 'neutral' }, propsReset, {
+                type: 'reset',
+              })}
+            >
               {lang.formReset}
             </Button>
           )}
-          <Button type="submit" loading={controller.submitting}>
+          <Button
+            {...mergePartProps<ButtonProps>({}, propsSubmit, {
+              type: 'submit',
+              loading: controller.submitting,
+            })}
+          >
             {submitText ?? lang.formSubmit}
           </Button>
         </div>

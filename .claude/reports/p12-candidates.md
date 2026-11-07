@@ -43,7 +43,7 @@
 - packages/ui/src/charts/TreemapChart.tsx:198 <svg>
 - packages/ui/src/charts/XYChart.tsx:1004 <svg>
 
-## 没转发部件属性的子组件（114）
+## 没转发部件属性的子组件（108）
 
 - packages/ui/src/table/ColumnHeaderActions.tsx:143 <Button>
 - packages/ui/src/table/ColumnHeaderActions.tsx:104 <Checkbox>
@@ -106,19 +106,13 @@
 - packages/ui/src/input/Rating.tsx:144 <Icon>
 - packages/ui/src/input/SelectedTags.tsx:100 <Tag>
 - packages/ui/src/input/Transfer.tsx:171 <Checkbox>
-- packages/ui/src/input/Upload.tsx:649 <ButtonBase>
-- packages/ui/src/input/Upload.tsx:626 <Icon>
-- packages/ui/src/input/Upload.tsx:656 <Icon>
-- packages/ui/src/input/Upload.tsx:727 <Icon>
-- packages/ui/src/input/Upload.tsx:529 <Link>
+- packages/ui/src/input/Upload.tsx:642 <Icon>
+- packages/ui/src/input/Upload.tsx:677 <Icon>
+- packages/ui/src/input/Upload.tsx:748 <Icon>
 - packages/ui/src/form/Field.tsx:445 <Icon>
 - packages/ui/src/form/FormErrorSummary.tsx:118 <Icon>
-- packages/ui/src/form/SchemaForm.tsx:241 <Button>
-- packages/ui/src/form/SchemaForm.tsx:346 <Button>
-- packages/ui/src/form/SchemaForm.tsx:350 <Button>
-- packages/ui/src/form/SchemaForm.tsx:259 <IconButton>
-- packages/ui/src/form/SchemaForm.tsx:120 <Checkbox>
-- packages/ui/src/form/SchemaForm.tsx:117 <Switch>
+- packages/ui/src/form/SchemaForm.tsx:128 <Checkbox>
+- packages/ui/src/form/SchemaForm.tsx:125 <Switch>
 - packages/ui/src/feedback/ErrorBoundary.tsx:67 <Button>
 - packages/ui/src/display/Avatar.tsx:171 <Icon>
 - packages/ui/src/display/Carousel.tsx:341 <ButtonBase>
