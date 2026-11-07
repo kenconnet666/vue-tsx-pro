@@ -3,10 +3,12 @@ import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/AvatarProps';
 import groupApi from 'virtual:api/AvatarGroupProps';
 import indicatorApi from 'virtual:api/IndicatorProps';
+import userButtonApi from 'virtual:api/UserButtonProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import Account from './demo/Account.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
 import Group from './demo/Group.tsx?demo';
 import Indicators from './demo/Indicators.tsx?demo';
@@ -14,7 +16,7 @@ import Indicators from './demo/Indicators.tsx?demo';
 export const meta = {
   title: 'Avatar 头像',
   description:
-    '用户、团队的头像：图片加载失败时显示首字母；头像组叠放并折叠成“+N”；角标（Indicator）标出未读数与在线状态。',
+    '用户、团队的头像：图片加载失败时显示首字母；头像组叠放并折叠成“+N”；角标（Indicator）标出未读数与在线状态；用户按钮（UserButton）做账号菜单的触发器。',
   order: 1,
 };
 
@@ -22,7 +24,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Avatar, AvatarGroup, Indicator } from '@zerodep-dev/vue-tsx-pro-ui';"
+    imports="import { Avatar, AvatarGroup, Indicator, UserButton } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -31,6 +33,11 @@ export default _component(() => () => (
           是读屏念的名称，也用来生成首字母；图片还没加载好、加载失败时显示后备内容。
           <Code>radius="md"</Code> 用于团队、组织；后备内容的 <Code>variant</Code> 与{' '}
           <Code>tone</Code> 同 Badge。
+        </Example>
+        <Example id="user-button" title="用户按钮" demo={Account}>
+          <Code>UserButton</Code> 是头像 + 名字 + 箭头，做账号菜单的触发器（展开触发器的 props
+          即可）。写了 <Code>description</Code> 时多一行说明、占满一行，适合侧栏底部；
+          <Code>compact</Code> 只剩头像，名字成为按钮的名称。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
@@ -46,6 +53,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, groupApi, indicatorApi]} />
+    <ApiReference api={[api, groupApi, indicatorApi, userButtonApi]} />
   </DocPage>
 ));

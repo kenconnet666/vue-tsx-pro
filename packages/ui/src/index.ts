@@ -319,6 +319,13 @@ export {
   type TimelineProps,
 } from './display/Timeline';
 export { Tree, type TreeItemRenderState, type TreeMove, type TreeProps } from './display/Tree';
+export {
+  UserButton,
+  userButtonRecipe,
+  type UserButtonOptions,
+  type UserButtonPart,
+  type UserButtonProps,
+} from './display/UserButton';
 export { ValueChange, type ValueChangeProps } from './display/ValueChange';
 export {
   VirtualList,

@@ -30,6 +30,7 @@ import { statRecipe } from '../../display/Stat';
 import { timelineRecipe } from '../../display/Timeline';
 import { codeBlockRecipe } from '../../base/CodeBlock';
 import { tourRecipe } from '../../overlay/Tour';
+import { userButtonRecipe } from '../../display/UserButton';
 import { calendarRecipe } from '../../date/CalendarView';
 
 describe('components', () => {
@@ -58,6 +59,7 @@ describe('components', () => {
       Stat: statRecipe,
       Timeline: timelineRecipe,
       Tour: tourRecipe,
+      UserButton: userButtonRecipe,
     } satisfies Record<ComponentName, { readonly name: string | undefined }>;
     for (const [name, recipe] of Object.entries(recipes)) expect(recipe.name).toBe(name);
   });

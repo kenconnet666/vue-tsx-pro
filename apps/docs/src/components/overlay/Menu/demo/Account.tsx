@@ -1,47 +1,21 @@
-import { BookOpen, ChevronDown, CreditCard, LogOut, Palette, UserRound } from '@lucide/icons';
+import { BookOpen, CreditCard, LogOut, Palette, UserRound } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
-  Avatar,
-  ButtonBase,
   Flex,
-  Icon,
   Menu,
   MenuGroup,
   MenuItem,
   MenuLinkItem,
   Separator,
   Small,
-  Strong,
+  UserButton,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-
-const styles = css.create({
-  trigger: {
-    display: 'inline-flex',
-    alignItems: 'center',
-    gap: '_sm',
-    paddingBlock: '_xs',
-    paddingInlineStart: '_xs',
-    paddingInlineEnd: '_sm',
-    borderRadius: '_full',
-    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
-  },
-  chevron: { color: '_textMuted' },
-});
 
 export default _component(() => {
   let signedOut = _state(false);
   return () => (
     <Flex direction="column" gap="md" align="start">
-      <Menu
-        trigger={(props) => (
-          <ButtonBase {...props} sx={styles.trigger}>
-            <Avatar name="林小满" size="sm" />
-            <Strong size="sm">林小满</Strong>
-            <Icon icon={ChevronDown} sx={styles.chevron} />
-          </ButtonBase>
-        )}
-      >
+      <Menu trigger={(props) => <UserButton {...props} name="林小满" />}>
         <MenuGroup label="xiaoman@example.com">
           <MenuLinkItem icon={UserRound} href="/components/avatar">
             个人资料

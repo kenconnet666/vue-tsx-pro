@@ -1,9 +1,20 @@
 // 后台的外壳：顶栏、侧边导航（窄屏收进抽屉）、内容区放当前路由的页面
-import { Box, ClipboardList, FilePlus2 } from '@lucide/icons';
+import { Box, ClipboardList, FilePlus2, LogOut } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Avatar, NavItem, NavList, NavSection } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  Menu,
+  MenuGroup,
+  MenuItem,
+  NavItem,
+  NavList,
+  NavSection,
+  UserButton,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { AppShell, AppShellBrand } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { RouterView } from 'vue-router';
+
+// 换成自己的退出登录：清掉令牌、回到登录页
+const signOut = () => location.assign('/');
 
 export const App = _component(() => {
   let navOpen = _state(false);
@@ -15,7 +26,15 @@ export const App = _component(() => {
           采购后台
         </AppShellBrand>
       }
-      header={<Avatar size="sm" name="林小满" />}
+      header={
+        <Menu trigger={(props) => <UserButton {...props} name="林小满" />}>
+          <MenuGroup label="xiaoman@example.com">
+            <MenuItem icon={LogOut} tone="danger" onAction={signOut}>
+              退出登录
+            </MenuItem>
+          </MenuGroup>
+        </Menu>
+      }
       sidebar={
         <NavList aria-label="采购后台">
           <NavSection label="采购">
