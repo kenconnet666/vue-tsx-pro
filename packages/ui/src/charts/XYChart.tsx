@@ -771,6 +771,7 @@ export const XYChart = _component(
                 y={onIndex && !horizontal ? rect.y + rect.height - 6 : rect.y + 6}
                 dominant-baseline={onIndex && !horizontal ? 'auto' : 'hanging'}
                 {...css.attrs(chartSvgStyles.labelMuted, chartSvgStyles.noPointer)}
+                {...chartPart('label')}
               >
                 {band.label}
               </text>
@@ -822,6 +823,7 @@ export const XYChart = _component(
                 xyChartStyles.textFill(color),
                 chartSvgStyles.noPointer,
               )}
+              {...chartPart('label')}
             >
               {label}
             </text>
@@ -866,6 +868,7 @@ export const XYChart = _component(
                   chartSvgStyles.halo,
                   chartSvgStyles.noPointer,
                 )}
+                {...chartPart('label')}
               >
                 {item.label}
               </text>
@@ -925,6 +928,7 @@ export const XYChart = _component(
                 y={y - 14}
                 text-anchor={anchor}
                 {...css.attrs(chartSvgStyles.label, chartSvgStyles.halo, chartSvgStyles.noPointer)}
+                {...chartPart('label')}
               >
                 {item.label}
               </text>
@@ -951,6 +955,7 @@ export const XYChart = _component(
             width={plot.width}
             height={half * 2}
             {...css.attrs(chartSvgStyles.hoverBand)}
+            {...chartPart('hoverBand')}
           />
         ) : (
           <rect
@@ -959,6 +964,7 @@ export const XYChart = _component(
             width={half * 2}
             height={plot.height}
             {...css.attrs(chartSvgStyles.hoverBand)}
+            {...chartPart('hoverBand')}
           />
         );
       }
@@ -976,6 +982,7 @@ export const XYChart = _component(
               y1={plot.top}
               y2={plot.top + plot.height}
               {...css.attrs(chartSvgStyles.crosshair)}
+              {...chartPart('crosshairLine')}
             />
           )}
           {dotted.map((item) => {
@@ -1021,6 +1028,7 @@ export const XYChart = _component(
           width={area.width}
           height={area.height}
           {...css.attrs(chartSvgStyles.svg, xyChartStyles.svg)}
+          {...chartPart('svg')}
           onPointermove={onPointermove}
           onPointerleave={() => (hover = null)}
           onClick={onClick}
@@ -1046,6 +1054,7 @@ export const XYChart = _component(
               y={area.height - 2}
               text-anchor="middle"
               {...css.attrs(chartSvgStyles.axisTitle)}
+              {...chartPart('axisTitle')}
             >
               {kind.continuousX.title}
             </text>
@@ -1058,6 +1067,7 @@ export const XYChart = _component(
                 y1={plot.top}
                 y2={plot.top + plot.height}
                 {...css.attrs(chartSvgStyles.baseline)}
+                {...chartPart('baseline')}
               />
             ) : (
               <line
@@ -1066,6 +1076,7 @@ export const XYChart = _component(
                 y1={Math.round(zero) + 0.5}
                 y2={Math.round(zero) + 0.5}
                 {...css.attrs(chartSvgStyles.baseline)}
+                {...chartPart('baseline')}
               />
             ))}
           {renderCrosshair(false)}

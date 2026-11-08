@@ -38,6 +38,8 @@
   PeoplePickerPanel、SchemaForm、FieldCompare、Tree、ColumnSettings、ColumnHeaderActions、TreeDataTable、Cascader、ItemList、
   PageSizeSelect、Splitter、ImageCropper、SignaturePad、CalendarView、DatePicker、StepsForm、Popconfirm、Affix、AsideLayout、
   ColorField、ListPopover、OtpField、FormSection、LoadingBar、QRCode、VirtualList。
+  图表的 svg 根、坐标轴文字与十字准线，选择框一族（Select、Cascader、TreeSelect、PeoplePicker）共用的 value、placeholder
+  （`data-scope="select"`）也带上了。
 - 列表行（Listbox、Tree、Cascader、NavList、Menu）的高亮、已选、当前、不可用改成跟着元素上的属性走（条件别名）：
   `itemStyles.highlighted / selected / current / disabled` 合成 `itemStyles.states`，元素写 `data-highlighted`、`aria-selected`、
   `aria-current`（或 `data-current`）、`aria-disabled` 即可；Listbox、Tree 的 `data-active` 换成 `data-highlighted`（Tree 只在有焦点时），

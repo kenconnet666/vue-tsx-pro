@@ -55,7 +55,7 @@ import {
   type ControlOptions,
 } from './control';
 import { listPopoverStyles } from './ListPopover';
-import { selectStyles, type SelectManaged } from './Select';
+import { selectPart, selectStyles, type SelectManaged } from './Select';
 import { TextField, type TextFieldProps } from './TextField';
 
 /** 未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
@@ -666,7 +666,7 @@ export const Cascader = _component(
       const labels = keys.map((key, index) => (nodes[index] ? getLabel(nodes[index]) : key));
       const shown =
         keys.length === 0 ? (
-          <span {...css.attrs(selectStyles.placeholder)}>
+          <span {...css.attrs(selectStyles.placeholder)} {...selectPart('placeholder')}>
             {placeholder ?? lang.selectPlaceholder}
           </span>
         ) : (
@@ -724,7 +724,14 @@ export const Cascader = _component(
                 },
               )}
             >
-              <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
+              <span
+                {...mergeAttrs<'span'>(
+                  { sx: selectStyles.value, ...selectPart('value') },
+                  propsValue,
+                )}
+              >
+                {shown}
+              </span>
             </button>
             {clearable && keys.length > 0 && !locked && controlClear(s, propsClear, clear)}
             <Icon

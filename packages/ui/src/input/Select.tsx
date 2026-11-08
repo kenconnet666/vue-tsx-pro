@@ -75,6 +75,7 @@ import {
 import { useRemoteItems, type OptionsLoader } from './remote-items';
 import { SelectedTags, type SelectedTagsProps } from './SelectedTags';
 import { TextField, type TextFieldProps } from './TextField';
+import { partAttrs } from '../config/styles';
 
 /** 角色、展开状态与可用性由组件管理 */
 export type SelectManaged =
@@ -163,6 +164,9 @@ export interface SelectBaseProps<T>
 
 /** 单选或多选；items 不是 ListboxOption 或字符串时要给 toOption */
 export type SelectProps<T = ListboxOption> = SelectBaseProps<T> & SelectionProps & OptionMapping<T>;
+
+/** 选择框一族（Select、Cascader、TreeSelect、PeoplePicker）共用部分的标记（data-scope="select"）：value、placeholder @internal */
+export const selectPart = (part: string) => partAttrs({ name: 'Select' }, part);
 
 /** Select 的样式：root、trigger、value、placeholder 等（组件之间共用，不进入口） @internal */
 export const selectStyles = css.create({
@@ -449,7 +453,7 @@ export const Select = _component(
           selected.flatMap((option) => (option.item === undefined ? [] : [option.item])),
         ) ??
         (selected.length === 0 ? (
-          <span {...css.attrs(selectStyles.placeholder)}>
+          <span {...css.attrs(selectStyles.placeholder)} {...selectPart('placeholder')}>
             {placeholder ?? lang.selectPlaceholder}
           </span>
         ) : (
@@ -526,7 +530,14 @@ export const Select = _component(
                 },
               )}
             >
-              <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
+              <span
+                {...mergeAttrs<'span'>(
+                  { sx: selectStyles.value, ...selectPart('value') },
+                  propsValue,
+                )}
+              >
+                {shown}
+              </span>
             </button>
             {clearable && values.length > 0 && !locked && controlClear(s, propsClear, clear)}
             <Icon

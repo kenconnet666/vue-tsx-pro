@@ -27,7 +27,7 @@ import {
 } from './control';
 import { peopleKey, type PeopleEntry, type PeopleSource, type PeopleType } from './people';
 import { PeoplePickerPanel, type PeoplePickerPanelProps } from './PeoplePickerPanel';
-import { selectStyles, type SelectManaged } from './Select';
+import { selectPart, selectStyles, type SelectManaged } from './Select';
 import { SelectedTags, type SelectedTagsProps } from './SelectedTags';
 
 /** 未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
@@ -126,7 +126,9 @@ export const PeoplePicker = _component(
       const tagged = max !== 1 && value.length > 0;
       const shown =
         value.length === 0 ? (
-          <span {...css.attrs(selectStyles.placeholder)}>{title}</span>
+          <span {...css.attrs(selectStyles.placeholder)} {...selectPart('placeholder')}>
+            {title}
+          </span>
         ) : tagged ? (
           <span {...css.attrs(visuallyHiddenStyles.hidden)}>
             {lang.selectSummary(value.map((entry) => entry.name))}
@@ -186,7 +188,9 @@ export const PeoplePicker = _component(
                 },
               )}
             >
-              <span {...css.attrs(selectStyles.value)}>{shown}</span>
+              <span {...css.attrs(selectStyles.value)} {...selectPart('value')}>
+                {shown}
+              </span>
             </button>
             <Icon {...s.icon} icon={UsersRound} />
           </div>

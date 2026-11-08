@@ -685,6 +685,7 @@ export const GraphChart = _component(
             width={area.width}
             height={area.height}
             {...css.attrs(chartSvgStyles.svg)}
+            {...graphChartPart('svg')}
             onClick={onClick}
           >
             <rect
@@ -696,7 +697,7 @@ export const GraphChart = _component(
             <g
               transform={`translate(${svgNumber(view.x)} ${svgNumber(view.y)}) scale(${svgNumber(view.scale)})`}
             >
-              <g {...css.attrs(chartSvgStyles.fadeIn)}>
+              <g {...css.attrs(chartSvgStyles.fadeIn)} {...graphChartPart('content')}>
                 {renderPanels()}
                 {renderLinks()}
                 {renderNodes()}

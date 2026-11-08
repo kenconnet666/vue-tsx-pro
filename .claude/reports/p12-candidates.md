@@ -7,8 +7,8 @@
 
 - packages/ui/src/navigation/NavBar.tsx:163 <a href>
 - packages/ui/src/input/Cascader.tsx:702 <button>
-- packages/ui/src/input/PeoplePicker.tsx:160 <button>
-- packages/ui/src/input/Select.tsx:494 <button>
+- packages/ui/src/input/PeoplePicker.tsx:162 <button>
+- packages/ui/src/input/Select.tsx:498 <button>
 - packages/ui/src/input/SignaturePad.tsx:247 <svg>
 - packages/ui/src/input/ToggleGroup.tsx:281 <button>
 - packages/ui/src/input/TreeSelect.tsx:440 <button>
@@ -41,7 +41,7 @@
 - packages/ui/src/charts/SankeyChart.tsx:173 <svg>
 - packages/ui/src/charts/TimelineChart.tsx:274 <svg>
 - packages/ui/src/charts/TreemapChart.tsx:202 <svg>
-- packages/ui/src/charts/XYChart.tsx:1020 <svg>
+- packages/ui/src/charts/XYChart.tsx:1027 <svg>
 
 ## 没转发部件属性的子组件（84）
 
@@ -85,7 +85,7 @@
 - packages/ui/src/input/Cascader.tsx:586 <Spinner>
 - packages/ui/src/input/Checkbox.tsx:360 <Checkbox>
 - packages/ui/src/input/Listbox.tsx:321 <Icon>
-- packages/ui/src/input/PeoplePicker.tsx:191 <Icon>
+- packages/ui/src/input/PeoplePicker.tsx:195 <Icon>
 - packages/ui/src/input/PeoplePickerPanel.tsx:283 <Icon>
 - packages/ui/src/input/PeoplePickerPanel.tsx:415 <Spinner>
 - packages/ui/src/input/Rating.tsx:138 <Icon>
@@ -115,42 +115,37 @@
 - packages/ui/src/display/Tree.tsx:704 <Spinner>
 - packages/ui/src/display/ValueChange.tsx:69 <Icon>
 - packages/ui/src/date/picker-popover.tsx:185 <Button>
-- packages/ui/src/charts/ChordChart.tsx:298 <Skeleton>
-- packages/ui/src/charts/DonutChart.tsx:300 <Skeleton>
+- packages/ui/src/charts/ChordChart.tsx:300 <Skeleton>
+- packages/ui/src/charts/DonutChart.tsx:301 <Skeleton>
 - packages/ui/src/charts/frame.tsx:292 <Empty>
 - packages/ui/src/charts/FunnelChart.tsx:162 <Skeleton>
-- packages/ui/src/charts/GraphChart.tsx:726 <Skeleton>
-- packages/ui/src/charts/MapChart.tsx:845 <Skeleton>
+- packages/ui/src/charts/GraphChart.tsx:727 <Skeleton>
+- packages/ui/src/charts/MapChart.tsx:851 <Skeleton>
 - packages/ui/src/charts/RadarChart.tsx:297 <Skeleton>
-- packages/ui/src/charts/SankeyChart.tsx:296 <Skeleton>
-- packages/ui/src/charts/TimelineChart.tsx:405 <Skeleton>
-- packages/ui/src/charts/TreemapChart.tsx:323 <Skeleton>
+- packages/ui/src/charts/SankeyChart.tsx:301 <Skeleton>
+- packages/ui/src/charts/TimelineChart.tsx:408 <Skeleton>
+- packages/ui/src/charts/TreemapChart.tsx:324 <Skeleton>
 - packages/ui/src/charts/XYChart.tsx:290 <Skeleton>
 - packages/ui/src/charts/XYChart.tsx:298 <Skeleton>
 - packages/ui/src/base/Heading.tsx:140 <Icon>
 - packages/ui/src/base/Tag.tsx:106 <ButtonBase>
 
-## 没有部件标记的内部节点（按文件计数）（31）
+## 没有部件标记的内部节点（按文件计数）（26）
 
-- packages/ui/src/charts/XYChart.tsx：11
-- packages/ui/src/charts/TimelineChart.tsx：5
-- packages/ui/src/charts/GraphChart.tsx：4
 - packages/ui/src/table/DataTableView.tsx：3
-- packages/ui/src/input/PeoplePicker.tsx：3
-- packages/ui/src/input/TreeSelect.tsx：3
-- packages/ui/src/charts/ChordChart.tsx：3
-- packages/ui/src/input/Cascader.tsx：2
 - packages/ui/src/input/Rating.tsx：2
-- packages/ui/src/input/Select.tsx：2
+- packages/ui/src/input/TreeSelect.tsx：2
 - packages/ui/src/display/Tree.tsx：2
 - packages/ui/src/date/CalendarView.tsx：2
 - packages/ui/src/config/Provider.tsx：2
-- packages/ui/src/charts/SankeyChart.tsx：2
-- packages/ui/src/charts/TreemapChart.tsx：2
+- packages/ui/src/charts/GraphChart.tsx：2
 - packages/ui/src/table/TreeDataTable.tsx：1
 - packages/ui/src/patterns/AppShell.tsx：1
 - packages/ui/src/navigation/NavBar.tsx：1
+- packages/ui/src/input/Cascader.tsx：1
 - packages/ui/src/input/Listbox.tsx：1
+- packages/ui/src/input/PeoplePicker.tsx：1
+- packages/ui/src/input/Select.tsx：1
 - packages/ui/src/display/Checklist.tsx：1
 - packages/ui/src/display/FieldCompare.tsx：1
 - packages/ui/src/display/ItemList.tsx：1
@@ -160,6 +155,6 @@
 - packages/ui/src/display/Timeline.tsx：1
 - packages/ui/src/date/QuarterCalendar.tsx：1
 - packages/ui/src/code-editor/CodeEditor.tsx：1
-- packages/ui/src/charts/DonutChart.tsx：1
-- packages/ui/src/charts/MapChart.tsx：1
+- packages/ui/src/charts/ChordChart.tsx：1
 - packages/ui/src/charts/RadarChart.tsx：1
+- packages/ui/src/charts/TimelineChart.tsx：1

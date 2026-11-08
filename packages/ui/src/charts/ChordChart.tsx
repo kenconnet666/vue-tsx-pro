@@ -186,12 +186,14 @@ export const ChordChart = _component(
           width={width}
           height={plotHeight}
           {...css.attrs(chartSvgStyles.svg)}
+          {...chordChartPart('svg')}
           onPointermove={onPointermove}
           onPointerleave={() => (hovered = null)}
         >
           <g
             transform={`translate(${svgNumber(width / 2)},${svgNumber(plotHeight / 2)})`}
             {...css.attrs(chartSvgStyles.fadeIn)}
+            {...chordChartPart('content')}
           >
             <g {...chordChartPart('links')}>
               {layout.chords.map((chord) => {

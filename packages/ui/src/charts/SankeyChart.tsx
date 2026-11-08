@@ -174,10 +174,15 @@ export const SankeyChart = _component(
           width={width}
           height={area.height}
           {...css.attrs(chartSvgStyles.svg)}
+          {...sankeyChartPart('svg')}
           onPointermove={onPointermove}
           onPointerleave={() => (hovered = null)}
         >
-          <g transform={`translate(0,${MARGIN})`} {...css.attrs(chartSvgStyles.fadeIn)}>
+          <g
+            transform={`translate(0,${MARGIN})`}
+            {...css.attrs(chartSvgStyles.fadeIn)}
+            {...sankeyChartPart('content')}
+          >
             <g {...sankeyChartPart('links')}>
               {layout.links.map((link, index) => {
                 const state = linkState(index);

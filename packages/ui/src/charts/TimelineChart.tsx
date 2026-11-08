@@ -275,6 +275,7 @@ export const TimelineChart = _component(
           width={width}
           height={area.height}
           {...css.attrs(chartSvgStyles.svg)}
+          {...timelineChartPart('svg')}
           onPointermove={onPointermove}
           onPointerleave={() => (hovered = null)}
         >
@@ -307,11 +308,12 @@ export const TimelineChart = _component(
               y={svgNumber(position * rowHeight + rowHeight / 2)}
               dominant-baseline="central"
               {...css.attrs(chartSvgStyles.label)}
+              {...timelineChartPart('label')}
             >
               {truncateText(row, labelWidth - 12)}
             </text>
           ))}
-          <g {...css.attrs(chartSvgStyles.fadeIn)}>
+          <g {...css.attrs(chartSvgStyles.fadeIn)} {...timelineChartPart('content')}>
             {shown.map((segment, index) => {
               const row = rowOf(segment.item.row);
               if (row < 0) return null;
@@ -358,6 +360,7 @@ export const TimelineChart = _component(
                     xyChartStyles.textFill(color),
                     chartSvgStyles.noPointer,
                   )}
+                  {...timelineChartPart('label')}
                 >
                   {marker.label}
                 </text>

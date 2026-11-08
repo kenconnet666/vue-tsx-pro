@@ -575,7 +575,13 @@ export const MapChart = _component(
       const current = hovered;
       const hoveredShape = current?.kind === 'feature' ? shapes[current.index] : undefined;
       return (
-        <svg width={width} height={plotHeight} {...css.attrs(chartSvgStyles.svg)} onClick={onClick}>
+        <svg
+          width={width}
+          height={plotHeight}
+          {...css.attrs(chartSvgStyles.svg)}
+          {...mapChartPart('svg')}
+          onClick={onClick}
+        >
           <g
             {...mapChartPart('features')}
             transform={`translate(${svgNumber(view.x)} ${svgNumber(view.y)}) scale(${svgNumber(view.scale)})`}

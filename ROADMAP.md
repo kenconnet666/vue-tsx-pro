@@ -821,12 +821,14 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 还没有使用方，24.4 的旧写法直接删、不留过渡（[计划](.claude/reports/plan-2026-11-07.md) §0）。
 计划与取舍记在 [.claude/reports/style-overhaul-plan.md](.claude/reports/style-overhaul-plan.md) §5、§11。
 
-- [ ] 24.1 部件补齐：约 190 个用 `css.attrs` 直接取样式的内部节点补 `propsXxx` 与 `data-part`（CommentThread、Checklist、Cascader、CalendarBoard…）；
+- [x] 24.1 部件补齐：约 190 个用 `css.attrs` 直接取样式的内部节点补 `propsXxx` 与 `data-part`（CommentThread、Checklist、Cascader、CalendarBoard…）；
       （2026-11-08 做了五批：CommentThread、Checklist、Cascader、KanbanBoard、CalendarBoard、ColorPicker、Diagram、DiagramNode 补部件属性与标记，
       已有部件属性的十几个组件统一补标记；第七批给 NotificationList、Upload、ConditionBuilder、ColorPicker、JsonViewer、Lightbox、
       Timeline、ProportionBar 的内部节点补标记；部件名一律小驼峰，scripts/structure/part-names.mjs 检查；第八批是图表：外框、绘图区、
       标记、XY 图共用 data-scope="chart"，各图自己的部分用自己的名字（2026-11-08，没标记的文件 63 → 56）；
-      第九批用 codemod 给其余 32 个文件的内部节点按样式键补标记（56 → 31，剩下的多是读屏专用的隐藏文字、动态样式）……）
+      第九批用 codemod 给其余 32 个文件的内部节点按样式键补标记（56 → 31）；第十批补图表的 svg 根、坐标轴文字、
+      十字准线，选择框一族共用的 value、placeholder（data-scope="select"）——31 → 26，剩下的是读屏专用的隐藏文字、只有动态宽度与缩进的节点、
+      Provider 的根，不需要标记）
       部件多却没有配方的改成配方并在 `UiComponents` 登记（~~AppShell~~、~~Transfer~~、~~NavList~~、~~NotificationCenter~~、~~FilterBar~~、~~Upload~~、~~Timeline~~、~~CalendarView~~、~~CodeBlock~~、~~Tour~~、~~Stat~~、~~Menu~~、~~Toast~~；
       2026-11-08 又做了 Countdown、UserButton（新）、NavList、Menu、Toaster、AppShell、Transfer、NotificationList / NotificationCenter、FilterBar、Upload，清单里的都改完了；先前做了三个：档位进配方的 variants，按项、按状态变的留在 xxxStateStyles 叠在部件层后，Options 可在 components 里给默认值）
 - [x] 24.2 状态写法换条件别名（约 45 处 `条件 && styles.selected / disabled…`）：随 24.1 把状态样式搬进配方时一起换；
@@ -873,7 +875,7 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       生成字段，meta 写标签、占位、单位、栏宽、分组与控件，fields 按路径换控件、pick / omit；emptyValues 给空白初始值；
       schemaFilters 生成查询栏的条件、schemaConditionFields 给高级筛选，Form 页“按 schema 生成”与 FilterBar 的高级筛选示例用上。
       第二步（JSON 字段配置在运行时转成 zod、显示 / 必填条件）以后做）
-- [ ] P5 阶段 24（含 24.4 直接删旧写法）
+- [x] P5 阶段 24（含 24.4 直接删旧写法）（2026-11-08：24.1 – 24.6 都做完，见阶段 24）
 - [x] ~~P6 `/testing` 测试辅助、桌面端 `create` 模板~~（2026-11-08：/testing 做了——Select、Cascader、TreeSelect、Tree、日期、DataTable 的 harness，
       文档站的 Testing 指南与 Cascader 的浏览器测试用上；`vtp-ui create` 的桌面后台模板也做了，进了 test:consumer）
 - [ ] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计（2026-11-08：达标矩阵做了——scripts/structure/matrix.mjs 进 pnpm check，

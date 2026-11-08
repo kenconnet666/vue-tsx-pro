@@ -66,7 +66,7 @@ import {
 } from './control';
 import { listPopoverStyles } from './ListPopover';
 import { useRemoteItems } from './remote-items';
-import { selectStyles, type SelectManaged } from './Select';
+import { selectPart, selectStyles, type SelectManaged } from './Select';
 import { SelectedTags, type SelectedTagsProps } from './SelectedTags';
 import { TextField, type TextFieldProps } from './TextField';
 
@@ -394,7 +394,7 @@ export const TreeSelect = _component(
       const tagged = multiple() && shownKeys.length > 0;
       const shown =
         shownKeys.length === 0 ? (
-          <span {...css.attrs(selectStyles.placeholder)}>
+          <span {...css.attrs(selectStyles.placeholder)} {...selectPart('placeholder')}>
             {placeholder ?? lang.selectPlaceholder}
           </span>
         ) : tagged ? (
@@ -470,7 +470,14 @@ export const TreeSelect = _component(
                 },
               )}
             >
-              <span {...mergeAttrs<'span'>({ sx: selectStyles.value }, propsValue)}>{shown}</span>
+              <span
+                {...mergeAttrs<'span'>(
+                  { sx: selectStyles.value, ...selectPart('value') },
+                  propsValue,
+                )}
+              >
+                {shown}
+              </span>
             </button>
             {clearable && shownKeys.length > 0 && !locked && controlClear(s, propsClear, clear)}
             <Icon

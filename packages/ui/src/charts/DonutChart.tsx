@@ -211,6 +211,7 @@ export const DonutChart = _component(
           width={width}
           height={height}
           {...css.attrs(chartSvgStyles.svg)}
+          {...donutChartPart('svg')}
           onPointermove={onPointermove}
           onPointerleave={() => (hovered = null)}
           onClick={onClick}

@@ -203,10 +203,11 @@ export const TreemapChart = _component(
           width={area.width}
           height={area.height}
           {...css.attrs(chartSvgStyles.svg)}
+          {...treemapChartPart('svg')}
           onPointermove={onPointermove}
           onPointerleave={() => (hovered = null)}
         >
-          <g {...css.attrs(chartSvgStyles.fadeIn)}>
+          <g {...css.attrs(chartSvgStyles.fadeIn)} {...treemapChartPart('content')}>
             {branches.map((node) => {
               const base = topColors.get(topOfNode(node).key) ?? resolveColor(undefined, 0);
               const width = node.x1 - node.x0;
