@@ -25,6 +25,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./client": {
+      "@vue-tsx-pro/source": "./src/client/index.ts",
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
+    },
     "./testing": {
       "@vue-tsx-pro/source": "./src/testing/testing.ts",
       "types": "./dist/testing/testing.d.ts",
@@ -51,7 +56,8 @@
   "dependencies": {
     "@zerodep-dev/easy-query-ts": "^0.2.5",
     "@zerodep-dev/easy-query-ts-pg": "^0.2.5",
-    "@zerodep-dev/flow-ts-model": "workspace:^"
+    "@zerodep-dev/flow-ts-model": "workspace:^",
+    "@zerodep-dev/json-wire": "catalog:"
   },
   "peerDependencies": {
     "@electric-sql/pglite": "^0.5.10"

@@ -822,6 +822,9 @@ importers:
       '@zerodep-dev/flow-ts-model':
         specifier: workspace:^
         version: link:../model
+      '@zerodep-dev/json-wire':
+        specifier: 'catalog:'
+        version: 0.1.0(@internationalized/date@3.12.4)(decimal.js@10.6.0)
     devDependencies:
       '@electric-sql/pglite':
         specifier: 'catalog:'

@@ -17,6 +17,18 @@ export type {
   WorkItemField,
 } from './views.ts';
 export { FlowError, type FlowErrorCode } from './core/errors.ts';
+export { flowEndpoint, type FlowEndpoint, type FlowEndpointOptions } from './client/endpoint.ts';
+export {
+  createFlowClient,
+  portTransport,
+  servePort,
+  type DraftInput,
+  type FlowClient,
+  type FlowRequest,
+  type FlowResponse,
+  type FlowTransport,
+  type MessagePortLike,
+} from './client/index.ts';
 export { type NextStep, type PickPrompt, type Picks } from './runtime/next-steps.ts';
 export {
   FlowCc,

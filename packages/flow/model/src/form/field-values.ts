@@ -4,7 +4,7 @@
  *
  * 只查形状与范围；`options: { source }` 的字典、接入方注册的字段类型由后端另查。
  */
-import { parseWire, wireTypeOf, type WireType } from '@zerodep-dev/json-wire';
+import { parseWire, wireText, wireTypeOf, type WireType } from '@zerodep-dev/json-wire';
 import { isOrgId } from '../definition/definition.ts';
 import type { FieldDefinition } from './manifest.ts';
 import { compareValues, isBlank } from '../routing/values.ts';
@@ -75,6 +75,19 @@ export function typedValue(field: FieldDefinition, value: unknown): unknown {
   } catch {
     return value;
   }
+}
+
+/**
+ * typedValue 的反方向：强类型的值（Decimal、CalendarDate、ZonedDateTime、Date、bigint）写成线上的文字，对象、数组逐层写，
+ * 别的原样。引擎存的单据是普通 JSON（小数、日期是文字），收到强类型的值（客户端还原过的、在进程里直接传的）先过它再存
+ */
+export function plainValue(value: unknown): unknown {
+  if (value === null || value === undefined) return value;
+  if (wireTypeOf(value) !== undefined) return wireText(value);
+  if (Array.isArray(value)) return value.map(plainValue);
+  if (typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype)
+    return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, plainValue(v)]));
+  return value;
 }
 
 const isObject = (value: unknown): value is Readonly<Record<string, unknown>> =>

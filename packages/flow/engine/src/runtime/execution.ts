@@ -14,6 +14,7 @@ import {
   type ProcessNode,
   type CallNode,
   type TaskNode,
+  plainValue,
 } from '@zerodep-dev/flow-ts-model';
 import type { Row } from '@zerodep-dev/easy-query-ts';
 import { candidateToken, expandToUsers, resolveCandidates, type Candidate } from './assignees.ts';
@@ -195,8 +196,9 @@ export class Execution {
   }
 
   /** 改流程变量 */
+  /** 改流程变量：强类型的值写成文字再存（单据是普通 JSON，见模型包的 plainValue） */
   setVariables(values: Readonly<Record<string, unknown>>): void {
-    Object.assign(this.variables, values);
+    Object.assign(this.variables, plainValue(values));
   }
 
   node(id: string): ProcessNode {

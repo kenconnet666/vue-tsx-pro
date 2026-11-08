@@ -8,6 +8,7 @@ import {
   formManifest,
   type AssigneeSource,
   type ProcessDefinition,
+  plainValue,
 } from '@zerodep-dev/flow-ts-model';
 import { checkPicks, nextSteps, picksOf, type Picks } from '../runtime/next-steps.ts';
 import { FlowDefinition, FlowInstance, type FlowDb } from '../core/entities.ts';
@@ -151,6 +152,8 @@ export function createStarts(core: EngineCore) {
     { required }: { readonly required: boolean },
   ): Record<string, unknown> {
     const manifest = formManifest(model);
+    // 强类型的值先写成文字：存的是普通 JSON，校验时再按清单读成强类型
+    submitted = plainValue(submitted) as Readonly<Record<string, unknown>>;
     if (Object.keys(manifest).length === 0) return { ...submitted };
     const start = model.nodes.find((node) => node.type === 'start');
     const stored = defaultsOf(model);

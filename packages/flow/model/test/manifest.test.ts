@@ -7,6 +7,7 @@ import {
   type FormManifest,
   type Problem,
   manifestProblemMessage,
+  plainValue,
 } from '../src/index.ts';
 import { fromWire } from '@zerodep-dev/json-wire';
 import { listSpec, readSpec } from './spec.ts';
@@ -97,5 +98,19 @@ describe('注册的字段类型', () => {
     assert.deepEqual(checkFieldValue(list, [{ cost: { currency: 'JPY' } }], fieldTypes), [
       { path: '[0].cost', code: 'currency' },
     ]);
+  });
+});
+
+describe('plainValue', () => {
+  it('强类型的值写成文字、逐层写，别的原样：引擎存的是普通 JSON', () => {
+    const typed = fromWire<Record<string, unknown>>({
+      amount: '12.50',
+      on: '2026-11-08',
+      $types: { amount: 'decimal', on: 'date' },
+    });
+    assert.deepEqual(
+      plainValue({ ...typed, rows: [{ at: new Date('2026-11-08T01:00:00Z') }], n: 3, t: 'x' }),
+      { amount: '12.5', on: '2026-11-08', rows: [{ at: '2026-11-08T01:00:00Z' }], n: 3, t: 'x' },
+    );
   });
 });

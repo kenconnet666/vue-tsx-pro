@@ -23,7 +23,9 @@ export type FlowErrorCode =
   /** 守卫拒绝了这次提交 */
   | 'guard-rejected'
   /** 接入方的扩展（同步的动作）出错 */
-  | 'extension-failed';
+  | 'extension-failed'
+  /** 引擎之外的错误（客户端经端点收到的：数据库连不上、程序出错） */
+  | 'internal';
 
 /** 引擎的错误 */
 export class FlowError extends Error {
