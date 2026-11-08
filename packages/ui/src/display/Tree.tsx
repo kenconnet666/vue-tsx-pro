@@ -179,9 +179,16 @@ const treeStyles = css.create({
     padding: '_xs',
     outlineStyle: 'none',
   },
-  sizer: { position: 'relative', width: '_full' },
+  // 各行叠在同一格里、按 translateY 错开（同 Listbox）：在 TreeSelect 的弹层里按最宽的一行定宽，深层节点不被截断
+  sizer: {
+    position: 'relative',
+    width: '_full',
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, 1fr)',
+    alignItems: 'start',
+  },
   skeleton: { display: 'block', height: '1em', marginBlock: '0.625em', marginInline: '_sm' },
-  row: { position: 'absolute', top: 0, insetInline: 0, paddingBlock: '1px' },
+  row: { gridArea: '1 / 1', minWidth: 0, paddingBlock: '1px' },
   item: { gap: '_xs', minHeight: '_sizes.minTarget', paddingInlineStart: '_xs' },
   toggle: {
     display: 'grid',

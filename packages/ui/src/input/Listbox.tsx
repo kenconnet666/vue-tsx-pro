@@ -124,8 +124,16 @@ const listboxStyles = css.create({
   root: { position: 'relative', padding: '_xs', lineHeight: '_normal', outlineStyle: 'none' },
   // 自己是滚动容器时（单独使用的 Listbox）：限制高度，滚动不传给页面
   scroll: { maxHeight: '20em', overflowY: 'auto', overscrollBehavior: 'contain' },
-  sizer: { position: 'relative', width: '_full' },
-  row: { position: 'absolute', top: 0, insetInline: 0 },
+  // 各行叠在同一格里、按 translateY 错开（不用绝对定位）：行还在文档流里，弹层按最宽的一行定宽，
+  // 选项文字不会被触发框的宽度截断；放不下时（弹层有上限）照旧省略
+  sizer: {
+    position: 'relative',
+    width: '_full',
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, 1fr)',
+    alignItems: 'start',
+  },
+  row: { gridArea: '1 / 1', minWidth: 0 },
   groupLabel: {
     display: 'block',
     paddingTop: '_sm',
