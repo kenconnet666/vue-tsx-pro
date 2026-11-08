@@ -8,6 +8,7 @@ export {
   type InstanceDetail,
   type TodoItem,
   type WorkItemDetail,
+  type WorkItemField,
 } from './engine.ts';
 export { FlowError, type FlowErrorCode } from './errors.ts';
 export {

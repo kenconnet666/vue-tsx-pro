@@ -156,10 +156,15 @@ async function run(mode) {
       .getByRole('listitem')
       .filter({ hasText: '采购：服务器' });
     await todoItem.getByTitle(/^截止 /).waitFor();
-    // 超过 5 万：经理同意后经理与人事会签，各一份
+    // 经理这一步能改金额（必填，其余只读）：核减到 6 万再同意；超过 5 万，经理与人事会签，各一份
     await todoItem.getByRole('link').click();
+    await page
+      .getByTestId('editable-fields')
+      .getByRole('spinbutton', { name: '金额' })
+      .fill('60000');
     await handle('同意');
     await state().getByText('进行中：经理与人事会签').waitFor();
+    await page.getByText('60000').first().waitFor();
     const countersign = page.getByTestId('countersign');
     await countersign.getByText('周启航 · 待处理').waitFor();
     // 会签里退回：退回到哪一步由处理的人选（默认最近的经理审批），要写意见
@@ -209,11 +214,11 @@ async function run(mode) {
       .getByTestId('children')
       .getByRole('link', { name: /核实供应商：远山精密/ })
       .click();
-    await page.getByRole('link', { name: '采购：服务器（¥80000）' }).waitFor();
+    await page.getByRole('link', { name: /^采购：服务器/ }).waitFor();
     await handle('资质齐全');
     await state().getByText('已结束：approved').waitFor();
     // 子流程结束，采购单跟着结束
-    await page.getByRole('link', { name: '采购：服务器（¥80000）' }).click();
+    await page.getByRole('link', { name: /^采购：服务器/ }).click();
     await state().getByText('已结束：approved').waitFor();
 
     assert.deepEqual(problems, [], `${mode}：没有报错与水合警告`);

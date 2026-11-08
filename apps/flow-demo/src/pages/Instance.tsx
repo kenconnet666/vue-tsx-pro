@@ -8,16 +8,22 @@ import {
   Alert,
   Badge,
   Button,
+  DatePicker,
   Descriptions,
+  Field,
   Flex,
+  Grid,
   H1,
   Link,
+  NumberField,
   Paragraph,
   Small,
+  Switch,
   Tab,
   TabList,
   TabPanel,
   Tabs,
+  TextField,
   Timeline,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { Diagram } from '@zerodep-dev/vue-tsx-pro-ui/diagram';
@@ -75,6 +81,16 @@ interface OutcomeChoice {
   choose: boolean;
 }
 
+/** 单据里的一个字段（这一步的表单权限算过的） */
+interface FormField {
+  name: string;
+  label: string;
+  type: string;
+  value: unknown;
+  editable: boolean;
+  required: boolean;
+}
+
 /** 选人、选节点的选项 */
 interface Choice {
   value: string;
@@ -88,6 +104,26 @@ export default _component(() => {
   let tab = _state('records');
   let problem = _state('');
   let busy = _state(false);
+  // 这一步能改的字段改过的值（没改的用单据上存着的）
+  let edits = _state<Record<string, unknown>>({});
+  const valueOf = (field: FormField) => (field.name in edits ? edits[field.name] : field.value);
+
+  /** 能改的字段的控件：按变量的类型 */
+  function control(field: FormField) {
+    const set = (next: unknown) => (edits = { ...edits, [field.name]: next });
+    const value = valueOf(field);
+    switch (field.type) {
+      case 'number':
+      case 'decimal':
+        return <NumberField _value={value as number | null} onUpdate:_value={set} />;
+      case 'date':
+        return <DatePicker _value={value as string | null} onUpdate:_value={set} />;
+      case 'boolean':
+        return <Switch _checked={!!value} onUpdate:_checked={set} />;
+      default:
+        return <TextField _value={(value as string | null) ?? ''} onUpdate:_value={set} />;
+    }
+  }
 
   async function run(work: () => Promise<unknown>) {
     busy = true;
@@ -143,14 +179,19 @@ export default _component(() => {
     if (!values) return;
     const comment = values['comment'];
     const returnTo = values['returnTo'];
+    // 这一步能改的字段一并提交（引擎只收能改的）
+    const editable = (data.value?.fields ?? []).filter((field) => field.editable);
+    const variables = Object.fromEntries(editable.map((field) => [field.name, valueOf(field)]));
     await run(() =>
       actions.complete({
         workItem,
         outcome: outcome.key,
         ...(comment ? { comment } : {}),
         ...(returnTo ? { returnTo } : {}),
+        ...(editable.length ? { variables } : {}),
       }),
     );
+    edits = {};
   }
 
   /** 转办：交给另一个人处理，自己不再处理 */
@@ -238,12 +279,38 @@ export default _component(() => {
         )}
         <Descriptions
           columns="auto"
-          items={(detail.definition.variables ?? []).map((variable) => ({
-            key: variable.name,
-            label: variable.label ?? variable.name,
-            value: valueText(instance.variables[variable.name]),
-          }))}
+          items={
+            detail.fields
+              ? detail.fields
+                  .filter((field) => !field.editable)
+                  .map((field) => ({
+                    key: field.name,
+                    label: field.label,
+                    value: valueText(field.value),
+                  }))
+              : (detail.definition.variables ?? []).map((variable) => ({
+                  key: variable.name,
+                  label: variable.label ?? variable.name,
+                  value: valueText(instance.variables[variable.name]),
+                }))
+          }
         />
+        {detail.fields?.some((field) => field.editable) && (
+          <Grid minItemWidth="14rem" gap="md" data-testid="editable-fields">
+            {detail.fields
+              .filter((field) => field.editable)
+              .map((field) => (
+                <Field
+                  key={field.name}
+                  label={field.label}
+                  required={field.required}
+                  description="这一步可以改"
+                >
+                  {control(field)}
+                </Field>
+              ))}
+          </Grid>
+        )}
         {detail.signs.map((sign) => (
           <Flex key={sign.node} gap="sm" align="center" wrap data-testid="countersign">
             <Small tone="muted">{sign.node}</Small>

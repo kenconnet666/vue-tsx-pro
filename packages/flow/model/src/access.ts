@@ -10,7 +10,7 @@
  * 明细表的列没单独写时跟着明细表；明细表隐藏时列都隐藏；明细表是 `editable` / `required` 时才能增删行。
  */
 import { evaluateCondition, type ConditionReader } from './condition.ts';
-import type { FieldAccess, NodeFormAccess } from './definition.ts';
+import type { FieldAccess, NodeFormAccess, ProcessDefinition } from './definition.ts';
 import { checkFieldValue, type ValueProblem } from './field-values.ts';
 import type { FieldDefinition, FormManifest } from './manifest.ts';
 import { isBlank } from './values.ts';
@@ -166,4 +166,17 @@ function mergeRows(
     }
     return row;
   });
+}
+
+/**
+ * 流程变量当作字段清单：流程没有单独的表单时，环节的表单权限（node.form）按变量名算，提交照 mergeSubmission 合并。
+ * 变量的类型就是字段的类型（变量类型是字段类型的子集）
+ */
+export function variablesManifest(definition: Pick<ProcessDefinition, 'variables'>): FormManifest {
+  return Object.fromEntries(
+    (definition.variables ?? []).map((variable) => [
+      variable.name,
+      { label: variable.label ?? variable.name, type: variable.type },
+    ]),
+  );
 }

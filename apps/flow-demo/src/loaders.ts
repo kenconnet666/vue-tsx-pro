@@ -116,8 +116,11 @@ export const loaders = defineLoaders({
     const detail = await engine.query.instance(id);
     const open = detail.workItems.filter((w) => w.state === 'open');
     const mine = [];
+    // 能处理时单据按这一步的表单权限显示（隐藏的不列、能改的可编辑）；只是来看的显示全部字段
+    let fields: Awaited<ReturnType<typeof engine.query.workItem>>['fields'] | null = null;
     for (const item of open) {
       const view = await engine.query.workItem(item.id, actor);
+      if (view.completable) fields ??= view.fields;
       if (view.completable)
         mine.push({
           id: item.id,
@@ -181,6 +184,9 @@ export const loaders = defineLoaders({
         variables: detail.instance.variables,
       },
       current: detail.current,
+      fields:
+        fields?.map((field) => ({ ...field, value: field.value as string | number | null })) ??
+        null,
       today: dayOf(new Date()),
       // 正在处理的待办的时限（同一节点取最早的）
       due:

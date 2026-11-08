@@ -34,6 +34,9 @@
 - 流程引擎：待办详情（query.workItem）多了 `transferable`（能不能转办）与 `returnTargets`（退回到运行时选的节点时能选哪些）；
   催办尊重环节的 `allow.remind: false`（点名催报 forbidden，催全部时跳过）。
 - 流程引擎：待办、已办的行（TodoItem）多了 `instanceStatus`、`completedAt`、`outcome`（已办里看得出选了什么、单子结束了没有）。
+- 流程引擎：处理时提交的变量按环节的表单权限（`node.form`）合并——流程声明了变量时只收这一步能改的字段，`required` 的要有值，
+  其余用存着的值（原来提交什么就写什么，任何处理人都能改任意字段）；没写 `form` 的环节默认只读。没声明的变量照旧直接写入。
+  待办详情多了 `fields`（字段在这一步的样子：隐藏的不列，能改、必填标出来）；模型包新增 `variablesManifest`（流程变量当字段清单）。
 - AppShell 的 sidebarCollapsible：收起、展开按钮挪到顶栏品牌格的结束边（原来在侧栏底部单独一行，`collapseBar` 部件删掉）；
   收起后品牌格只放展开按钮、不放品牌；没写 brand 时也有这一格放按钮。AppShellBrand 不再按收起状态隐藏产品名。
 

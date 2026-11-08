@@ -11,15 +11,19 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { and, createDb, or, type Cond, type Row } from '@zerodep-dev/easy-query-ts';
 import {
+  fieldStates,
   gatewayPairs,
   isRef,
+  mergeSubmission,
   processGraph,
+  variablesManifest,
   validateProcess,
   type AssigneeSource,
   type CallNode,
   type Outcome,
   type ProcessDefinition,
   type TaskNode,
+  type VariableDeclaration,
 } from '@zerodep-dev/flow-ts-model';
 import { compileCode } from './code.ts';
 import { decideCountersign } from './countersign.ts';
@@ -81,6 +85,21 @@ export interface WorkItemDetail {
   readonly transferable: boolean;
   /** 结果里有“退回到运行时选的节点”（target: 'choose'）时能选的节点：上游走到过的人工节点 */
   readonly returnTargets: readonly { readonly node: string; readonly name: string }[];
+  /**
+   * 单据的字段在这一步的样子：流程声明的变量按环节的表单权限（node.form）算，隐藏的不列；
+   * 不是候选人（只是来看的）时一律只读
+   */
+  readonly fields: readonly WorkItemField[];
+}
+
+/** 待办详情里的一个字段 */
+export interface WorkItemField {
+  readonly name: string;
+  readonly label: string;
+  readonly type: VariableDeclaration['type'];
+  readonly value: unknown;
+  readonly editable: boolean;
+  readonly required: boolean;
 }
 
 /** 抄送列表里的一行 */
@@ -438,7 +457,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       if (outcome.comment === 'required' && !command.comment?.trim()) {
         throw new FlowError('invalid-input', `“${outcome.label}”要写意见`, { field: 'comment' });
       }
-      if (command.variables) exec.setVariables(command.variables);
+      applySubmission(exec, node, command.variables);
       for (const name of outcome.guards ?? []) {
         const guard = exec.extension('guards', name);
         if (!guard) throw new FlowError('invalid-definition', `没有注册守卫 ${name}`);
@@ -531,6 +550,37 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   }
 
   /** 人工节点有了结果：按结果的种类往下走 */
+  /**
+   * 处理时提交的变量：流程声明了变量时按环节的表单权限合并（只收能改的，必填的要有值，其余用存着的；0004 的 4.5），
+   * 没声明的变量照旧直接写进去
+   */
+  function applySubmission(
+    exec: Execution,
+    node: TaskNode,
+    submitted: Readonly<Record<string, unknown>> = {},
+  ): void {
+    const manifest = variablesManifest(exec.definition);
+    const declared = Object.keys(manifest);
+    const others = Object.fromEntries(
+      Object.entries(submitted).filter(([name]) => !declared.includes(name)),
+    );
+    if (declared.length > 0) {
+      const states = fieldStates(manifest, { access: node.form, read: exec.read });
+      const { values, errors } = mergeSubmission(manifest, states, exec.variables, submitted);
+      const [first] = errors;
+      if (first) {
+        const label = manifest[first.field.split(/[.[]/)[0]!]?.label ?? first.field;
+        throw new FlowError(
+          'invalid-input',
+          first.code === 'required' ? `“${label}”要填` : `“${label}”的值不对`,
+          { field: first.field, code: first.code },
+        );
+      }
+      exec.setVariables(values);
+    }
+    if (Object.keys(others).length > 0) exec.setVariables(others);
+  }
+
   async function advanceFromTask(
     exec: Execution,
     node: TaskNode,
@@ -976,6 +1026,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           open &&
           (workItem.assignee === actor.id || !!actor.admin) &&
           task?.allow?.transfer !== false,
+        fields: fieldsOf(definition, task, instance.variables, candidate),
         returnTargets:
           candidate && chooses
             ? returnTargets({ definition, graph, state: instance.state }, workItem.node).map(
@@ -1345,6 +1396,34 @@ const todoColumns = (
   definitionId: w.instance.definitionId,
   variables: w.instance.variables,
 });
+
+/** 待办详情的字段：变量当字段清单，按环节的表单权限算；不能处理时一律只读 */
+function fieldsOf(
+  definition: ProcessDefinition,
+  task: TaskNode | undefined,
+  variables: Readonly<Record<string, unknown>>,
+  candidate: boolean,
+): WorkItemField[] {
+  const manifest = variablesManifest(definition);
+  const states = fieldStates(manifest, {
+    access: task?.form,
+    read: (name) => variables[name.startsWith('form.') ? name.slice(5) : name],
+  });
+  return Object.entries(manifest).flatMap(([name, field]) => {
+    const state = states.get(name);
+    if (!state?.visible) return [];
+    return [
+      {
+        name,
+        label: field.label,
+        type: field.type as VariableDeclaration['type'],
+        value: variables[name] ?? null,
+        editable: candidate && state.editable,
+        required: candidate && state.required,
+      },
+    ];
+  });
+}
 
 /** 候选匹配这个人 */
 function matches(candidate: { kind: string; value: string }, actor: Actor): boolean {

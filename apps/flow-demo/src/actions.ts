@@ -73,10 +73,12 @@ export const actions = defineActions({
         comment: z.string().optional(),
         // 退回到运行时选的节点（结果的 target 是 choose）
         returnTo: z.string().optional(),
+        // 这一步能改的字段：引擎按环节的表单权限只收能改的
+        variables: z.record(z.string(), z.unknown()).optional(),
       }),
       permission: 'flow.use',
     },
-    ({ workItem, outcome, comment, returnTo }) =>
+    ({ workItem, outcome, comment, returnTo, variables }) =>
       run(async () => {
         const result = await engine.run(
           {
@@ -85,6 +87,7 @@ export const actions = defineActions({
             outcome,
             ...(comment ? { comment } : {}),
             ...(returnTo ? { returnTo } : {}),
+            ...(variables ? { variables } : {}),
           },
           currentActor(),
         );

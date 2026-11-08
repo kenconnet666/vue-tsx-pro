@@ -111,6 +111,8 @@ export const purchase = defineProcess({
       // 限时一天，过了在待办与审批单上标成超时（不自动处理）
       due: { days: 1 },
       overdue: { action: 'mark' },
+      // 经理可以核减金额，其余字段只读
+      form: { fields: { amount: 'required' } },
       outcomes: [
         { key: 'approve', label: '同意' },
         { key: 'reject', label: '不同意', kind: 'reject', comment: 'required' },

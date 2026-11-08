@@ -390,6 +390,74 @@ describe('engine: 待办详情与催办', () => {
   });
 });
 
+describe('engine: 环节的表单权限', () => {
+  // 采购：经理能改金额（必填）、看不到备注，物品只读
+  const access: ProcessDefinition = {
+    key: 'access',
+    name: '采购',
+    variables: [
+      { name: 'item', type: 'text', label: '物品' },
+      { name: 'amount', type: 'number', label: '金额' },
+      { name: 'note', type: 'text', label: '备注' },
+    ],
+    nodes: [
+      { id: 'start', type: 'start', name: '提交' },
+      {
+        id: 'manager',
+        type: 'task',
+        name: '经理审批',
+        assignees: [{ role: '1' }],
+        form: { fields: { amount: 'required', note: 'hidden' } },
+        outcomes: [{ key: 'approve', label: '同意' }],
+      },
+      { id: 'end', type: 'end', name: '结束' },
+    ],
+    edges: [
+      { id: 'a', from: 'start', to: 'manager' },
+      { id: 'b', from: 'manager', to: 'end', outcome: 'approve' },
+    ],
+  };
+
+  async function atManager(variables: Record<string, unknown>) {
+    const test = await createTestEngine();
+    await test.engine.publish(access);
+    const started = await test.engine.run({ type: 'start', process: 'access', variables }, alice);
+    return { ...test, item: started.workItems[0]!, instance: started.instance.id };
+  }
+
+  it('待办详情按权限列字段：隐藏的不列，能改的与必填的标出来；不是候选人时只读', async () => {
+    const { engine, item } = await atManager({ item: '服务器', amount: 80000, note: '加急' });
+    const fields = (await engine.query.workItem(item.id, carol)).fields;
+    assert.deepEqual(
+      fields.map((f) => [f.name, f.editable, f.required, f.value]),
+      [
+        ['item', false, false, '服务器'],
+        ['amount', true, true, 80000],
+      ],
+    );
+    assert.ok((await engine.query.workItem(item.id, alice)).fields.every((f) => !f.editable));
+  });
+
+  it('处理时只收能改的字段：只读的改了也不算；必填的空着报 invalid-input', async () => {
+    const { engine, item, instance } = await atManager({ item: '服务器', note: '加急' });
+    await rejectsWith(
+      engine.run({ type: 'complete', workItem: item.id, outcome: 'approve' }, carol),
+      'invalid-input',
+    );
+    await engine.run(
+      {
+        type: 'complete',
+        workItem: item.id,
+        outcome: 'approve',
+        variables: { amount: 72000, item: '改了的物品', note: '改了的备注' },
+      },
+      carol,
+    );
+    const { variables } = (await engine.query.instance(instance)).instance;
+    assert.deepEqual([variables.item, variables.amount, variables.note], ['服务器', 72000, '加急']);
+  });
+});
+
 /** 以待办的处理人（或候选里的第一个）处理，结果取节点上第一个通过的 */
 async function completeAs(
   engine: Awaited<ReturnType<typeof createTestEngine>>['engine'],
