@@ -4,6 +4,7 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { FlowCommand, Incident, InstanceDetail } from '@zerodep-dev/flow-ts-engine';
+import { formManifest } from '@zerodep-dev/flow-ts-model';
 import { Button, Flex, Menu, MenuItem, useConfirm } from '@zerodep-dev/vue-tsx-pro-ui';
 import { useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { useFlowCenter } from '../runtime/center';
@@ -118,6 +119,56 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
     );
   }
 
+  /** 现在的值写成文字（简单的值；空写“—”） */
+  const valueText = (value: unknown) =>
+    value === undefined || value === null || value === ''
+      ? '—'
+      : typeof value === 'object'
+        ? JSON.stringify(value)
+        : String(value as string | number);
+
+  /** 管理员改得了的字段（单据的字段清单，没有单据时是流程变量）：简单的值（文字、数字、金额、日期） */
+  const editable = () =>
+    Object.entries(formManifest(detail.definition))
+      .filter(([, field]) => ['text', 'number', 'decimal', 'date'].includes(field.type))
+      .map(([name, field]) => ({ name, label: field.label, type: field.type }));
+
+  async function changeData() {
+    const variables = editable();
+    const current = detail.instance.variables as Record<string, unknown>;
+    const answers = await prompt({
+      title: '改数据',
+      description: '改单据上的值，记进流转记录；后面的条件、处理人按新值算。',
+      fields: [
+        {
+          name: 'name',
+          label: '字段',
+          type: 'select',
+          required: true,
+          options: variables.map((v) => ({
+            value: v.name,
+            label: `${v.label ?? v.name}（现在：${valueText(current[v.name])}）`,
+          })),
+        },
+        { name: 'value', label: '改成', type: 'text', required: true },
+        { name: 'comment', label: '原因', type: 'textarea', required: true },
+      ],
+      confirmText: '改',
+    });
+    if (!answers) return;
+    const variable = variables.find((v) => v.name === answers.name)!;
+    await act(`已改${variable.label ?? variable.name}`, () =>
+      run({
+        type: 'changeData',
+        instance: id(),
+        variables: {
+          [variable.name]: variable.type === 'number' ? Number(answers.value) : answers.value,
+        },
+        comment: answers.comment,
+      }),
+    );
+  }
+
   async function reassign() {
     const open = detail.workItems.filter((w) => w.state === 'open');
     const answers = await prompt({
@@ -206,6 +257,9 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
             )}
             <MenuItem onAction={() => void jump()}>跳转</MenuItem>
             <MenuItem onAction={() => void reassign()}>改派</MenuItem>
+            {editable().length > 0 && (
+              <MenuItem onAction={() => void changeData()}>改数据</MenuItem>
+            )}
             <MenuItem tone="danger" onAction={() => void terminate()}>
               终止
             </MenuItem>

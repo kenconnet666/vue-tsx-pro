@@ -182,7 +182,15 @@ export default _component(() => () => (
       <ListItem>
         自动节点同步或异步（作业重试，失败的能重试、跳过），同步调用子流程，等待外部事件与超时。
       </ListItem>
-      <ListItem>Java 版 flow 的 37 个场景里跑通了 20 个；没做的能力在设计文档里写明。</ListItem>
+      <ListItem>
+        站内通知兼发件箱（与推进同一个事务写入，外部投递失败的到点重试）；推进、发布随提交广播（PG
+        的
+        NOTIFY），多实例部署各进程都收得到；休假代理（新到的待办交给代理人）；监控统计（时长、瓶颈环节、待办积压）。
+      </ListItem>
+      <ListItem>
+        Java 版 flow 的 37 个场景里跑通了 30 个；没跑的 7 个用的是 Java
+        版另一套表单管理、流程管理接口与“标为已读”的待办（这边是工作室的发布、版本、启停与站内通知），取舍写在设计文档里。
+      </ListItem>
     </List>
     <H2 id="simulate" size="xl" anchor>
       试运行
