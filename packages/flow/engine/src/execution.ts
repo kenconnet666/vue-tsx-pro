@@ -65,6 +65,8 @@ export class Execution {
   status: InstanceRow['status'];
   result: string | null;
   endedAt: Date | null;
+  /** 结束时写的原因（终止、撤回）：子实例被一起终止时用它 */
+  endComment: string | null = null;
   /** 这次新建的待办 */
   readonly created: WorkItemRow[] = [];
   private readonly events: FlowEventView[] = [];
@@ -645,9 +647,11 @@ export class Execution {
   async finish(
     status: Exclude<InstanceRow['status'], 'active' | 'suspended'>,
     result: string | null,
+    comment: string | null = null,
   ): Promise<void> {
     if (this.finished) return;
     this.status = status;
+    this.endComment = comment;
     this.result = result;
     this.endedAt = this.now;
     await this.cancelWhere(() => []);
@@ -660,6 +664,7 @@ export class Execution {
     this.state.queues = {};
     // 正常走到结束记 instance.finished，其余按状态（instance.withdrawn、instance.terminated），同 Java 版
     this.addEvent(status === 'completed' ? 'instance.finished' : `instance.${status}`, {
+      comment,
       data: result ? { result } : null,
     });
   }

@@ -137,7 +137,8 @@ export const purchase = defineProcess({
       type: 'call',
       name: '供应商核实',
       process: 'vendor-check',
-      // 子流程结束时，按它的结果（approved / rejected）走出线
+      // 同步：子流程结束时，按它的结果（approved / rejected）走出线（不写 mode 是异步，发起就往下走）
+      mode: 'sync',
       input: { vendor: { ref: 'vendor' } },
     },
     { id: 'approved', type: 'end', name: '通过', result: 'approved' },

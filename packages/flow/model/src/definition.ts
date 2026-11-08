@@ -257,7 +257,7 @@ export interface CallNode extends NodeBase {
   readonly type: 'call';
   /** 子流程的 key */
   readonly process: string;
-  /** `sync`：等子流程结束；`async`：发起后不等 */
+  /** `sync`：等子流程结束；`async`（默认）：发起后不等 */
   readonly mode?: 'sync' | 'async';
   /** 对列表里的每一项各发起一个子流程 */
   readonly forEach?: Ref;

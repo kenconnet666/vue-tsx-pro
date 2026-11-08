@@ -12,6 +12,8 @@ export interface RunState {
   returnedFrom: Record<string, string>;
   /** 依次会签还没轮到的人：会签组 → 处理人 */
   queues: Record<string, string[]>;
+  /** 同步的调用节点还在等几个子实例 */
+  calls: Record<string, number>;
 }
 
 /** 新实例的运行状态 */
@@ -21,4 +23,5 @@ export const emptyRunState = (): RunState => ({
   handledBy: {},
   returnedFrom: {},
   queues: {},
+  calls: {},
 });

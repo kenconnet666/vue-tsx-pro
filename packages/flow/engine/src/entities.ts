@@ -60,6 +60,8 @@ export const FlowInstance = entity(
     /** 调用它的父实例与节点（调用流程） */
     parentId: col.bigint().nullable(),
     parentNode: col.string(100).nullable(),
+    /** 调用节点在父实例里的第几轮（退回、跳转后重新进入调用节点时，旧一轮的子实例不算） */
+    parentRound: col.int().nullable(),
     rev: col.int(),
   },
   {

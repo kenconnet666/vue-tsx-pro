@@ -145,7 +145,7 @@ export function addCallStep(
   input: { readonly name: string; readonly process: string },
 ): ProcessDefinition {
   const id = uniqueId(definition, 'call');
-  return insertPassThrough(definition, after, { id, type: 'call', ...input });
+  return insertPassThrough(definition, after, { id, type: 'call', mode: 'sync', ...input });
 }
 
 /** 在 after 之后抄送：抄给 to 里的人（不用处理），流程接着原来的路 */

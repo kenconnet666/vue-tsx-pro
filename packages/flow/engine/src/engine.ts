@@ -377,7 +377,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     definition: Row<typeof FlowDefinition>,
     variables: Readonly<Record<string, unknown>>,
     actor: Actor,
-    extra: Pick<InstanceRow, 'businessKey' | 'title' | 'parentId' | 'parentNode'>,
+    extra: Pick<InstanceRow, 'businessKey' | 'title' | 'parentId' | 'parentNode' | 'parentRound'>,
   ): Promise<Execution> {
     const model = definition.model;
     const values = {
@@ -399,7 +399,9 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     const exec = await execution(tx, model, { id, ...values }, actor);
     exec.addEvent(
       'instance.started',
-      extra.parentId === null ? {} : { data: { parentId: extra.parentId } },
+      extra.parentId === null
+        ? {}
+        : { data: { parentId: extra.parentId, parentNode: extra.parentNode } },
     );
     const startNode = model.nodes.find((node) => node.type === 'start');
     if (!startNode) throw new FlowError('invalid-definition', `流程 ${model.key} 没有开始节点`);
@@ -422,6 +424,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         title: command.title ?? null,
         parentId: null,
         parentNode: null,
+        parentRound: null,
       });
       const { instance, events } = await exec.flush();
       const result = { instance, workItems: exec.created.map(workItemSummary), events };
@@ -435,52 +438,132 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
    * 子实例结束时 afterFlush 回到父实例。input 的键是子流程的变量，值是父流程这边的值（引用或直接写）
    */
   async function startChild(parent: Execution, node: CallNode): Promise<void> {
-    if (node.forEach || node.mode === 'async') {
-      throw new FlowError(
-        'invalid-definition',
-        '这一版只支持单个同步的调用流程（forEach、异步不支持）',
-        { node: node.id },
-      );
-    }
     const definition = await latestDefinition(parent.tx, node.process);
-    const input = Object.fromEntries(
-      Object.entries(node.input ?? {}).map(([name, value]) => [
-        variableName(name),
-        isRef(value) ? parent.read(value.ref) : value,
-      ]),
-    );
-    const actor: Actor = { id: parent.instance.startedBy };
-    const child = await launch(parent.tx, definition, input, actor, {
-      businessKey: parent.instance.businessKey,
-      title: null,
-      parentId: parent.instance.id,
-      parentNode: node.id,
-    });
-    const { instance } = await child.flush();
-    parent.addEvent('call.started', {
-      node: node.id,
-      data: { child: instance.id, process: node.process },
-    });
-    parent.current.add(node.id);
-    if (child.finished) await returnToParent(parent, node, child);
+    const round = parent.bumpRound(node.id);
+    const sync = node.mode === 'sync';
+    // forEach：列表里每一项一个子实例，input 里 `as.字段` 引用那一项
+    const items: unknown[] = node.forEach ? listOf(parent.read(node.forEach.ref)) : [undefined];
+    const valueOf = (value: unknown, item: unknown) => {
+      if (!isRef(value)) return value;
+      const as = node.as;
+      if (as && (value.ref === as || value.ref.startsWith(`${as}.`))) {
+        return value.ref
+          .slice(as.length)
+          .split('.')
+          .filter(Boolean)
+          .reduce<unknown>((at, key) => (at as Record<string, unknown> | null)?.[key], item);
+      }
+      return parent.read(value.ref);
+    };
+    if (sync) {
+      parent.state.calls[node.id] = items.length;
+      parent.current.add(node.id);
+    }
+    const finished: Execution[] = [];
+    for (const item of items) {
+      const input = Object.fromEntries(
+        Object.entries(node.input ?? {}).map(([name, value]) => [
+          variableName(name),
+          valueOf(value, item),
+        ]),
+      );
+      const child = await launch(
+        parent.tx,
+        definition,
+        input,
+        { id: parent.instance.startedBy },
+        {
+          businessKey: parent.instance.businessKey,
+          title: null,
+          parentId: parent.instance.id,
+          parentNode: node.id,
+          parentRound: round,
+        },
+      );
+      const { instance } = await child.flush();
+      // 子实例开出的待办也算这个命令的结果（同 Java 版）
+      parent.created.push(...child.created);
+      parent.addEvent('call.started', {
+        node: node.id,
+        data: { child: instance.id, process: node.process, title: instance.title },
+      });
+      if (child.finished) finished.push(child);
+    }
+    // 异步：发起就往下走；同步：这一轮全在同一个命令里结束了（或列表是空的）就直接回来
+    if (!sync) return parent.leave(node.id, null);
+    for (const child of finished) await childReturned(parent, node, child);
+    if (items.length === 0) await callsSettled(parent, node, []);
   }
 
-  /** 子实例结束了：父实例收 output、按子实例的结果往下走 */
-  async function returnToParent(
-    parent: Execution,
-    node: CallNode,
-    child: Execution,
-  ): Promise<void> {
+  /** 同步调用的一个子实例结束了：少等一个；这一轮都结束了收 output、往下走 */
+  async function childReturned(parent: Execution, node: CallNode, child: Execution) {
+    const left = (parent.state.calls[node.id] ?? 1) - 1;
+    parent.state.calls[node.id] = left;
+    if (left > 0) return;
+    await callsSettled(parent, node, [child]);
+  }
+
+  /**
+   * 这一轮的子实例都结束了：output 收进父实例（forEach 时按发起的先后收成列表），几个子实例的结果都一样才按它，
+   * 否则走没写结果的出边。justEnded 是这个命令里刚结束、还没从库里读到的
+   */
+  async function callsSettled(parent: Execution, node: CallNode, justEnded: readonly Execution[]) {
+    const round = parent.state.rounds[node.id] ?? 1;
+    const rows = await parent.tx
+      .queryable(FlowInstance)
+      .where((i) => [
+        i.parentId.eq(parent.instance.id),
+        i.parentNode.eq(node.id),
+        i.parentRound.eq(round),
+      ])
+      .orderBy((i) => i.id)
+      .toList();
+    const children = rows.map((row) => {
+      const live = justEnded.find((c) => c.instance.id === row.id);
+      return {
+        id: row.id,
+        status: live?.status ?? row.status,
+        result: live ? live.result : row.result,
+        read: (name: string) => (live ? live.read(name) : row.variables[variableName(name)]),
+      };
+    });
     for (const [variable, name] of Object.entries(node.output ?? {})) {
-      parent.setVariables({ [variableName(variable)]: child.read(name) });
+      const values = children.map((c) => c.read(name) ?? null);
+      parent.setVariables({
+        [variableName(variable)]: node.forEach ? values : (values[0] ?? null),
+      });
     }
+    delete parent.state.calls[node.id];
     parent.current.delete(node.id);
+    const first = children[0];
+    const same =
+      first && children.every((c) => c.status === 'completed' && c.result === first.result);
+    const outcome = same ? first.result : null;
     parent.addEvent('call.finished', {
       node: node.id,
-      outcome: child.result,
-      data: { child: child.instance.id, status: child.status },
+      outcome,
+      data: { children: children.map((c) => c.id) },
     });
-    await parent.leave(node.id, child.status === 'completed' ? child.result : null);
+    await parent.leave(node.id, outcome);
+  }
+
+  /** 父实例恢复时：暂停期间这一轮的子实例都结束了的同步调用节点，补上往下走 */
+  async function resumeWaitingCalls(parent: Execution) {
+    for (const nodeId of Object.keys(parent.state.calls)) {
+      const node = parent.graph.node(nodeId);
+      if (node?.type !== 'call') continue;
+      const round = parent.state.rounds[nodeId] ?? 1;
+      const open = await parent.tx
+        .queryable(FlowInstance)
+        .where((i) => [
+          i.parentId.eq(parent.instance.id),
+          i.parentNode.eq(nodeId),
+          i.parentRound.eq(round),
+          i.status.in(['active', 'suspended']),
+        ])
+        .count();
+      if (open === 0) await callsSettled(parent, node, []);
+    }
   }
 
   /**
@@ -494,9 +577,18 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         const row = await tx.queryable(FlowInstance).findOrThrow(parentId);
         const parent = await execution(tx, await definitionOf(tx, row.definitionId), row, null);
         const node = parent.graph.node(exec.instance.parentNode);
-        if (parent.status === 'active' && node?.type === 'call' && parent.current.has(node.id)) {
-          await returnToParent(parent, node, exec);
+        // 暂停的父实例不推进（恢复时 resumeWaitingCalls 补上）；旧一轮的子实例不算
+        if (
+          parent.status === 'active' &&
+          node?.type === 'call' &&
+          node.mode === 'sync' &&
+          parent.current.has(node.id) &&
+          exec.instance.parentRound === (parent.state.rounds[node.id] ?? 1)
+        ) {
+          await childReturned(parent, node, exec);
           await parent.flush();
+          // 父实例往下走开出的待办也算这个命令的结果
+          exec.created.push(...parent.created);
           await afterFlush(tx, parent);
         }
       }
@@ -509,7 +601,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       for (const row of children) {
         await tx.lock(FlowInstance, row.id);
         const child = await execution(tx, await definitionOf(tx, row.definitionId), row, null);
-        await child.finish('terminated', 'parent-terminated');
+        await child.finish('terminated', 'parent-terminated', exec.endComment);
         await child.flush();
         await afterFlush(tx, child);
       }
@@ -895,7 +987,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         if (mode === 'never' || acted || (mode === 'beforeClaim' && claimed)) {
           throw new FlowError('forbidden', '已经有人处理了，不能撤回');
         }
-        await exec.finish('withdrawn', 'withdrawn');
+        await exec.finish('withdrawn', 'withdrawn', command.comment ?? null);
       },
       command,
     );
@@ -912,7 +1004,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       async (exec) => {
         if (exec.finished)
           throw new FlowError('instance-not-active', `实例 ${command.instance} 已经结束`);
-        await exec.finish('terminated', command.result ?? 'terminated');
+        await exec.finish('terminated', command.result ?? 'terminated', command.comment ?? null);
       },
       command,
     );
@@ -969,6 +1061,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         exec.addEvent(command.type === 'suspend' ? 'instance.suspended' : 'instance.resumed', {
           comment: command.type === 'suspend' ? (command.comment ?? null) : null,
         });
+        if (command.type === 'resume') await resumeWaitingCalls(exec);
       },
       command,
     );
@@ -1901,6 +1994,9 @@ export function returnTargets(
 
 /** 定义里写的变量名：`form.字段` 就是流程变量里的“字段” */
 const variableName = (name: string): string => (name.startsWith('form.') ? name.slice(5) : name);
+
+/** forEach 的列表：不是数组时当没有 */
+const listOf = (value: unknown): unknown[] => (Array.isArray(value) ? value : []);
 
 /** 跳过失败的自动节点时能选的结果：它的出边上写的结果 */
 function skipOutcomes(definition: ProcessDefinition, node: string | null): string[] {

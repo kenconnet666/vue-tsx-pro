@@ -94,7 +94,6 @@ const ERROR_CODES: Record<string, string> = {
 const SKIPPED: Record<string, string> = {
   'custom-node.json': '自定义节点类型与自定义会签规则第一版不做',
   'purchase-form-rules.json': '按字段清单校验表单在表单模块里做（ROADMAP 14.8）',
-  'call-process.json': '调用流程的 forEach 与异步第一版不做（单个同步调用见 engine.test.ts）',
 };
 
 /** 只跑到某一步的场景：后面的步骤用到第一版不做的能力 */
@@ -325,7 +324,9 @@ async function runStep(
   actor: Actor,
 ): Promise<Record<string, unknown>> {
   const variables = { ...args['variables'], ...args['form'] };
-  const run = async (c: FlowCommand) => shape(engine, await engine.run(c, actor));
+  // Java 版的引擎不查谁能暂停、恢复、终止（交给接入方的接口），这一版的引擎只给管理员：照场景的语义按管理员执行
+  const as = ADMIN_ONLY.has(command) ? { ...actor, admin: true } : actor;
+  const run = async (c: FlowCommand) => shape(engine, await engine.run(c, as));
   switch (command) {
     case 'start':
       return run({
@@ -485,8 +486,16 @@ async function runStep(
         .orderBy((w) => w.id)
         .toList();
       return {
-        instance: { ...detail.instance, current },
+        instance: { ...detail.instance, current, parentInstanceId: detail.instance.parentId },
         form: { values: detail.instance.variables },
+        // Java 版的实例详情只给管理员看全部流程变量（名字、类型、值）
+        variables: actor.admin
+          ? Object.entries(detail.instance.variables).map(([name, value]) => ({
+              name,
+              type: Array.isArray(value) ? 'list' : typeof value === 'number' ? 'number' : 'text',
+              value,
+            }))
+          : null,
         workItems: items.map(javaItem),
         timeline: detail.events.map((event) => ({ ...event, actorId: event.actor })),
       };
@@ -495,7 +504,7 @@ async function runStep(
       const detail = await engine.query.workItem(Number(args['workItem']), actor);
       return {
         workItem: javaItem(detail.workItem),
-        instance: detail.instance,
+        instance: { ...detail.instance, parentInstanceId: detail.instance.parentId },
         claimable: detail.claimable,
         completable: detail.completable,
         // 场景按名字问能不能做：内置的动作都列出来
@@ -524,6 +533,9 @@ async function runStep(
       throw new Error(`不支持 ${command}`);
   }
 }
+
+/** 这一版只给管理员、Java 版的引擎不查权限的命令 */
+const ADMIN_ONLY = new Set(['suspend', 'resume', 'terminate']);
 
 /** 场景的命令名 → 动作名（同名的不写） */
 const OPERATION_NAMES: Record<string, string> = {
