@@ -1,10 +1,11 @@
-import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import fs from 'node:fs';
+import module, { createRequire } from 'node:module';
+import path, { dirname, join } from 'node:path';
+import url, { pathToFileURL } from 'node:url';
 import { defineConfig } from 'tsdown';
 
 // 声明由 TypeScript 7 的原生 tsc 生成。插件只自动识别 7.0，7.1 要显式给出可执行文件；
-// lib/getExePath.js 不在 typescript 的 exports 里，按包目录找
+// lib/getExePath.js 不在 typescript 的 exports 里，按包目录找；它要调用方传入 Node 的模块（7.1 的每日版起）
 const typescriptDir = dirname(createRequire(import.meta.url).resolve('typescript/package.json'));
 const { default: getExePath } = await import(
   pathToFileURL(join(typescriptDir, 'lib/getExePath.js')).href
@@ -28,5 +29,5 @@ export default defineConfig({
   platform: 'neutral',
   // vite 入口跑在 Node 里；neutral 平台不认识内置模块，按外部依赖原样保留
   deps: { neverBundle: [/^node:/] },
-  dts: { generator: 'tsgo', tsgo: { path: getExePath() } },
+  dts: { generator: 'tsgo', tsgo: { path: getExePath({ fs, module, path, url }) } },
 });
