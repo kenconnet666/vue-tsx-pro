@@ -1,7 +1,7 @@
 /**
  * 流程工作室的编辑页（只给管理员）：工作副本是工程的文件。
  * - 图：设计器改 process.json；单据：表单设计器改字段清单（有 form.ts 时重写它，没有时改 process.json 里内联的清单）；
- *   代码：文件树 + 编辑器，直接改各个文件（form.ts、logic.ts……）；试运行：拿工作副本一步步走（TrialRun）；
+ *   代码：文件树 + 编辑器，直接改各个文件（form.ts、logic.ts……），TS 文件有浏览器里的 TypeScript 7 语言服务（lsp/）；试运行：拿工作副本一步步走（TrialRun）；
  *   版本：和工作副本对比（图的变化、逐行的代码差异）、载入某一版、回滚、把进行中的单子迁到某一版（MigrationPanel）。
  * - 边改边查：停手半秒后把整份文件交给 Worker 里的引擎检查（编译、校验、类型检查，同发布），问题列在下面，点一下定位。
  * - 发布：检查没有错误才能发，写发布说明，成新的一版；进行中的单子按原来的版本走完。
@@ -39,6 +39,7 @@ import {
   useConfirm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { CodeEditor } from '@zerodep-dev/vue-tsx-pro-ui/code-editor';
+import { javascript } from '@codemirror/lang-javascript';
 import { useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { onScopeDispose, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
@@ -47,6 +48,7 @@ import { showError, toaster } from '../parts/toaster';
 import { useFlowCenter } from '../runtime/center';
 import { ProcessCanvas } from './ProcessCanvas';
 import { TrialRun } from './TrialRun';
+import { languageServicePlugin, lspState, syncLanguageService } from './lsp/client';
 import { MigrationPanel } from './MigrationPanel';
 import { VersionCompare } from './VersionCompare';
 import {
@@ -150,6 +152,18 @@ export default _component(() => {
     { immediate: true },
   );
   onScopeDispose(() => clearTimeout(timer));
+
+  // 代码页签里的语言服务：打开过代码页签后，工程的文件改了就同步过去（它据此报错、补全跨文件的东西）
+  let lspTimer: ReturnType<typeof setTimeout> | undefined;
+  watch(
+    () => [files, tab] as const,
+    ([current, now]) => {
+      clearTimeout(lspTimer);
+      if (!current || now !== 'code') return;
+      lspTimer = setTimeout(() => syncLanguageService(current), 300);
+    },
+  );
+  onScopeDispose(() => clearTimeout(lspTimer));
 
   // 代码页：换文件时把内容放进编辑器，改了写回工作副本
   watch(
@@ -445,8 +459,21 @@ export default _component(() => {
               />
             ))}
           </ItemList>
+          <Small tone={lspState.status === 'error' ? 'danger' : 'muted'}>
+            {lspState.status === 'ready'
+              ? `语言服务：TypeScript 7（${lspState.build}）`
+              : lspState.status === 'error'
+                ? `语言服务没起来：${lspState.message}`
+                : '语言服务加载中（约 12MB，只在第一次）…'}
+          </Small>
         </Card>
-        <CodeEditor key={active} _value={code} aria-label={active} sx={styles.editor} />
+        <CodeEditor
+          key={active}
+          _value={code}
+          language={[javascript({ jsx: true, typescript: true }), languageServicePlugin(active)]}
+          aria-label={active}
+          sx={styles.editor}
+        />
       </div>
     );
   }

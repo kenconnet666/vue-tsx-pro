@@ -38,6 +38,10 @@ catalog:
   '@codemirror/search': 6.7.2
   '@codemirror/state': 6.7.6
   '@codemirror/view': 6.43.14
+  # 流程工作室的代码编辑器接 LSP（官方的 LSP 客户端）
+  '@codemirror/lsp-client': 6.3.0
+  # 语言服务的诊断：TypeScript 7 的 LSP 只给拉取式的（textDocument/diagnostic），编辑器按它画标记
+  '@codemirror/lint': 6.9.7
   '@lezer/highlight': 1.2.5
   # 宿主示例（apps/host-demo）：普通 Vue 项目常用的三件套
   '@vitejs/plugin-vue': 6.0.10
@@ -116,6 +120,9 @@ catalog:
   # 钉在 7.1 的每日构建（提交 e2bc2bc）：流程工作室在浏览器里用的 tsgo-wasm 2026.11.4 是同一个提交构建的，
   # 升级时两边成对换（挑一个 typescript 每日版，找 gitHead 相同的 tsgo-wasm），7.1 正式版出来后换成正式版
   typescript: 7.1.0-dev.20261104.1
+  # 浏览器里的 TypeScript 7（Go 编成的 WebAssembly，社区每日构建）：与上面的 typescript 同一个提交（buildInfo.commit），
+  # 流程工作室的语言服务在 Worker 里跑它的 tsc --lsp
+  tsgo-wasm: 2026.11.4
   '@types/node': 24.19.2
   oxlint: 1.88.0
   oxlint-tsgolint: 7.0.2004

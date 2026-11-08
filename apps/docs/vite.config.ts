@@ -11,6 +11,7 @@ import { componentApi } from './build/api.ts';
 import { demoSource } from './build/demo.ts';
 import { iconImports } from './build/icons.ts';
 import { docPages } from './build/pages.ts';
+import { tsgoWasm } from './build/tsgo.ts';
 
 /**
  * 应用加载前按记住的主题设好页面底色，不先闪一下亮色（跟随系统时按系统的明暗与对比度，同 site/theme.ts）；
@@ -67,6 +68,8 @@ export const plugins = [
   componentApi(),
   themeBoot(),
   spaFallback(),
+  // 流程工作室的语言服务：浏览器里的 TypeScript 7（wasm）
+  tsgoWasm(),
 ];
 
 /** 预构建的依赖：开发服务器与浏览器测试共用（测试另加测试专用的几个） */

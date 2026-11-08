@@ -28,3 +28,10 @@ declare module 'virtual:doc-pages' {
   const pages: import('./site/types').ComponentPageEntry[];
   export default pages;
 }
+
+/** 浏览器里的 TypeScript 7（build/tsgo.ts）：gzip 过的 wasm 的地址与构建信息 */
+declare module 'virtual:tsgo-wasm' {
+  export const tsgoWasmUrl: string;
+  /** 构建日期与提交（“2026-11-04 · e2bc2bc”） */
+  export const tsgoBuild: string;
+}

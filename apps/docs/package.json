@@ -31,6 +31,8 @@
     "@codemirror/search": "catalog:",
     "@codemirror/state": "catalog:",
     "@codemirror/view": "catalog:",
+    "@codemirror/lint": "catalog:",
+    "@codemirror/lsp-client": "catalog:",
     "@floating-ui/dom": "catalog:",
     "@internationalized/date": "catalog:",
     "@lezer/highlight": "catalog:",
@@ -54,6 +56,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "tsgo-wasm": "catalog:",
     "@emotion/css": "catalog:",
     "@types/three": "catalog:",
     "@vitest/browser-playwright": "catalog:",
