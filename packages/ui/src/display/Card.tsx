@@ -115,6 +115,8 @@ export const cardRecipe = css.recipe({
       color: '_text',
       overflow: 'hidden',
     },
+    // 正文撑开：网格里被拉齐的几张卡片，页脚都贴着底边对齐
+    body: { flexGrow: 1 },
     header: {
       borderBottomWidth: '_xs',
       borderBottomStyle: 'solid',

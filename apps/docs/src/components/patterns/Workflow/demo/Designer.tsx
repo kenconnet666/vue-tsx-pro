@@ -196,13 +196,18 @@ export default _component(() => {
         <Paragraph>先选一个最接近的模板，再在图上点环节改；之后也能加环节、加分支。</Paragraph>
         <Grid minItemWidth="14rem" gap="md">
           {TEMPLATES.map((choice) => (
-            <Card key={choice.title} padding="md">
-              <Flex direction="column" gap="sm" align="start">
-                <Strong>{choice.title}</Strong>
-                <Small tone="muted">{choice.text}</Small>
+            <Card
+              key={choice.title}
+              padding="md"
+              footer={
                 <Button size="sm" onClick={() => (definition = choice.make())}>
                   用这个模板
                 </Button>
+              }
+            >
+              <Flex direction="column" gap="xs">
+                <Strong>{choice.title}</Strong>
+                <Small tone="muted">{choice.text}</Small>
               </Flex>
             </Card>
           ))}

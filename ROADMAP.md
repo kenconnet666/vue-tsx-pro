@@ -884,7 +884,7 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       CONSUMER_RANGE=min 按 peerDependencies 的下限装，CI 的 consumer-min 任务）也做了，2026-11-08
 - [x] P2 文档站整改：~~信息架构（合并、挪动、旧地址重定向）~~（2026-11-07：组件页 137 → 119，新组“文档工具”，小图归图表组，
       3D 9 → 5 页，旧地址跳到新页的小节）、示例改用组件库（进行中：Stat、ScrollArea、DateTime、Splitter、Tabs、Card 外框、MapChart、ButtonBase、ThemeSwitcher、Menu 账户菜单与 NotificationCenter 顶栏（新组件 UserButton）、DateTime 倒计时（Countdown 的数字块）、Flex 自动换列（共用的示例图纸）已改）、逐页问题（进行中：QueryTable、FilterBar、Card、Code、Timeline、NavList、Flex、Icon、Tree、Upload、AppShell、Text、链接下划线已改；2026-11-08 把没逐页看过的图表、3D、表格、输入、日期 59 页巡检了一遍——没有报错与溢出，Select、Upload 两列挪齐）、~~文档站功能~~（~~组件选择指南~~、~~整页模板~~、~~示例工具~~、~~搜索~~、~~无障碍一节~~）
-- [ ] P2.5 逐个组件精修样式（随 P2 的页面顺序）
+- [x] P2.5 逐个组件精修样式（随 P2 的页面顺序）
       （2026-11-08 起：加了 `pnpm docs:states`（scripts/docs/states.mjs）——一个示例里的可交互元素各截默认、悬停、键盘焦点、按下，
       排成一张表，亮暗各一张，精修时对照状态是否齐全一致。Button 页过了一遍：暗色主题的实色悬停原来调暗、看不出来，改成调亮；
       Badge / Tag、ButtonBase、Text 的链接：可选中的 Tag 补悬停，移除按钮的悬停取标签色，次要链接悬停换正文色；
@@ -897,6 +897,9 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       色块、Image 预览、Carousel 页点、Splitter 收起按钮、Link 的悬停；紧凑密度下 130 页没有溢出与报错。
       人工看图顺手改了 TabList 横向滚动的边缘渐隐、Steps 连接线对齐圆圈中线，Diagram 页示例 id 占用 window.process 的问题；
       暗色主题再审一遍：剩下的都是选中项、当前项、品牌链接与过渡没走完的误报，没有要改的）
+      （收尾 2026-11-08：用户看过后改了 FilterBar——默认一排、放不下的都收进“展开”、去掉竖线、按钮统一尺寸，横排单选组与输入框对齐，
+      AppShell 收起按钮挪到品牌格；浮层、表单、页面组合、图表逐页人工看了一遍，改了 Card 正文撑开（卡片网格的页脚对齐）、
+      流程设计器的模板卡片、Tour 示例的封面）
 - [x] P3 组件补缺：~~ChoiceCard~~（单选、复选的 card）、~~ItemList 可选中的行~~、~~ColorPicker~~、~~ImageCropper~~、~~Carousel~~、~~Dialog 拖动~~、~~Tag 的 `selected`~~、~~`useInfiniteList`~~、
       ~~QRCode（自己写编码器）~~、~~省市区数据~~、~~Transfer 虚拟滚动~~（两侧本来就是 Listbox）、~~选文件夹~~、~~FloatButton 组~~、~~JsonViewer~~、~~SignaturePad~~、~~DataTable 横向虚拟化~~
 - [x] ~~P4 按 schema 生成表单（第一步）与 QueryTable 的查询条件~~（2026-11-08：SchemaForm / SchemaFields 按 useForm 的 schema
