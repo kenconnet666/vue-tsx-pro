@@ -40,6 +40,13 @@ const EVENTS: Record<string, string> = {
   'workItem.completed': '处理',
   'instance.finished': '结束',
   'instance.withdrawn': '撤回',
+  'workItem.transferred': '转办',
+  'workItem.reassigned': '改派',
+  'workItem.reminded': '催办',
+  'workItem.overdue': '超时',
+  'instance.cc': '抄送',
+  'instance.suspended': '暂停',
+  'instance.jumped': '跳转',
 };
 
 /** 实例状态的文字（子流程的列表） */
@@ -59,12 +66,19 @@ const valueText = (value: unknown) =>
       ? JSON.stringify(value)
       : String(value as string | number | boolean);
 
-/** 处理按钮：结果的标识、名字、要不要写意见、是不是驳回 */
+/** 处理按钮：结果的标识、名字、要不要写意见、是不是驳回、是不是退回到运行时选的节点 */
 interface OutcomeChoice {
   key: string;
   label: string;
   comment: boolean;
   reject: boolean;
+  choose: boolean;
+}
+
+/** 选人、选节点的选项 */
+interface Choice {
+  value: string;
+  label: string;
 }
 
 export default _component(() => {
@@ -88,28 +102,105 @@ export default _component(() => {
     }
   }
 
-  /** 按结果处理：先在对话框里写意见 */
-  async function handle(workItem: number, step: string, outcome: OutcomeChoice) {
+  /** 意见字段：要写意见的必填，其余可以不写 */
+  const commentField = (required: boolean, label = '意见') =>
+    ({
+      name: 'comment',
+      label,
+      type: 'textarea',
+      required,
+      maxlength: 500,
+      ...(required ? {} : { placeholder: '可以不写' }),
+    }) as const;
+
+  /** 按结果处理：先在对话框里写意见；退回到运行时选的节点时先选退回到哪 */
+  async function handle(
+    workItem: number,
+    step: string,
+    outcome: OutcomeChoice,
+    targets: readonly { node: string; name: string }[],
+  ) {
     const values = await prompt({
       title: `${step}：${outcome.label}`,
       fields: [
-        {
-          name: 'comment',
-          label: '意见',
-          type: 'textarea',
-          required: outcome.comment,
-          maxlength: 500,
-          ...(outcome.comment ? {} : { placeholder: '可以不写' }),
-        },
+        ...(outcome.choose
+          ? [
+              {
+                name: 'returnTo',
+                label: '退回到',
+                type: 'select',
+                required: true,
+                options: targets.map((t) => ({ value: t.node, label: t.name })),
+                defaultValue: targets.at(-1)?.node,
+              } as const,
+            ]
+          : []),
+        commentField(outcome.comment),
       ],
       confirmText: outcome.label,
       ...(outcome.reject ? { tone: 'danger' as const } : {}),
     });
     if (!values) return;
-    const comment = values['comment']?.trim();
+    const comment = values['comment'];
+    const returnTo = values['returnTo'];
     await run(() =>
-      actions.complete({ workItem, outcome: outcome.key, ...(comment ? { comment } : {}) }),
+      actions.complete({
+        workItem,
+        outcome: outcome.key,
+        ...(comment ? { comment } : {}),
+        ...(returnTo ? { returnTo } : {}),
+      }),
     );
+  }
+
+  /** 转办：交给另一个人处理，自己不再处理 */
+  async function transfer(workItem: number, step: string, people: readonly Choice[]) {
+    const values = await prompt({
+      title: `${step}：转办`,
+      fields: [
+        { name: 'to', label: '转给', type: 'select', required: true, options: people },
+        commentField(false, '说明'),
+      ],
+      confirmText: '转办',
+    });
+    if (!values) return;
+    const comment = values.comment;
+    await run(() => actions.transfer({ workItem, to: values.to, ...(comment ? { comment } : {}) }));
+  }
+
+  /** 催办：提醒还没处理的人 */
+  async function remind(instance: number) {
+    const values = await prompt({
+      title: '催办',
+      description: '提醒还开着的环节的处理人尽快处理。',
+      fields: [commentField(false, '附言')],
+      confirmText: '催办',
+    });
+    if (!values) return;
+    const message = values.comment;
+    await run(() => actions.remind({ instance, ...(message ? { message } : {}) }));
+  }
+
+  /** 抄送：让别人也看到这张单子（不用处理） */
+  async function cc(instance: number, people: readonly Choice[]) {
+    const values = await prompt({
+      title: '抄送',
+      fields: [
+        {
+          name: 'users',
+          label: '抄送给',
+          type: 'select',
+          multiple: true,
+          required: true,
+          options: people,
+        },
+        commentField(false, '附言'),
+      ],
+      confirmText: '抄送',
+    });
+    if (!values) return;
+    const message = values.comment;
+    await run(() => actions.cc({ instance, users: values.users, ...(message ? { message } : {}) }));
   }
 
   return () => {
@@ -206,7 +297,12 @@ export default _component(() => {
             <Timeline
               items={detail.timeline.map((event, index) => ({
                 key: String(index),
-                title: [EVENTS[event.type] ?? event.type, event.node, event.outcome]
+                title: [
+                  EVENTS[event.type] ?? event.type,
+                  event.node,
+                  event.outcome,
+                  event.target && `给 ${event.target}`,
+                ]
                   .filter(Boolean)
                   .join(' · '),
                 actor: event.actor,
@@ -226,8 +322,28 @@ export default _component(() => {
             />
           </TabPanel>
         </Tabs>
-        {(detail.actions.length > 0 || detail.withdrawable) && (
+        {(detail.actions.length > 0 || detail.withdrawable || active) && (
           <ActionBar start={detail.actions.map((item) => item.node).join('、') || undefined}>
+            {active && (
+              <Button
+                variant="ghost"
+                tone="neutral"
+                disabled={busy}
+                onClick={() => void cc(instance.id, detail.people)}
+              >
+                抄送
+              </Button>
+            )}
+            {detail.remindable && (
+              <Button
+                variant="ghost"
+                tone="neutral"
+                disabled={busy}
+                onClick={() => void remind(instance.id)}
+              >
+                催办
+              </Button>
+            )}
             {detail.withdrawable && (
               <Button
                 variant="ghost"
@@ -239,6 +355,17 @@ export default _component(() => {
               </Button>
             )}
             {detail.actions.map((item) => [
+              item.transferable && (
+                <Button
+                  key={`transfer-${item.id}`}
+                  variant="ghost"
+                  tone="neutral"
+                  disabled={busy}
+                  onClick={() => void transfer(item.id, item.node, detail.people)}
+                >
+                  转办
+                </Button>
+              ),
               item.claimable && (
                 <Button
                   key={`claim-${item.id}`}
@@ -256,7 +383,7 @@ export default _component(() => {
                   variant={outcome.reject ? 'outline' : 'solid'}
                   tone={outcome.reject ? 'danger' : 'accent'}
                   disabled={busy}
-                  onClick={() => void handle(item.id, item.node, outcome)}
+                  onClick={() => void handle(item.id, item.node, outcome, item.returnTargets)}
                 >
                   {outcome.label}
                 </Button>

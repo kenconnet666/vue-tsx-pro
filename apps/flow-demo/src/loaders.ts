@@ -10,6 +10,13 @@ import { engine } from './server/flow.ts';
 /** 流转记录里的人：示例的用户表里有名字的用名字 */
 const nameOf = (id: string | null) => (id ? (USERS[id]?.name ?? id) : '系统');
 
+/** 事件里记的“给了谁”（转办、改派的 to 是一个人，抄送的是几个人）：写成名字 */
+function targetsOf(data: Readonly<Record<string, unknown>> | null): string | null {
+  const to = data?.['to'];
+  const ids = Array.isArray(to) ? to : typeof to === 'string' ? [to] : [];
+  return ids.length ? ids.map((id) => nameOf(String(id))).join('、') : null;
+}
+
 /** 日期部分（YYYY-MM-DD，UTC）：时限标记按天算，服务端与浏览器用同一个“今天” */
 const dayOf = (date: Date) => date.toISOString().slice(0, 10);
 
@@ -76,12 +83,16 @@ export const loaders = defineLoaders({
           id: item.id,
           node: item.nodeName,
           claimable: view.claimable,
+          transferable: view.transferable,
           outcomes: view.outcomes.map((o) => ({
             key: o.key,
             label: o.label,
             comment: o.comment === 'required',
             reject: o.kind === 'reject',
+            // 退回到运行时选的节点：处理时先选退回到哪
+            choose: o.kind === 'return' && o.target === 'choose',
           })),
+          returnTargets: view.returnTargets,
         });
     }
     const names = namesOf(detail.definition);
@@ -164,6 +175,13 @@ export const loaders = defineLoaders({
             'workItem.claimed',
             'instance.finished',
             'instance.withdrawn',
+            'workItem.transferred',
+            'workItem.reassigned',
+            'workItem.reminded',
+            'workItem.overdue',
+            'instance.cc',
+            'instance.suspended',
+            'instance.jumped',
           ].includes(e.type),
         )
         .map((e) => ({
@@ -171,6 +189,8 @@ export const loaders = defineLoaders({
           node: e.node && names.node(e.node),
           actor: nameOf(e.actor),
           outcome: e.outcome && (e.node ? names.outcome(e.node, e.outcome) : e.outcome),
+          // 转办、改派、抄送给了谁
+          target: targetsOf(e.data),
           comment: e.comment,
           at: e.at.toISOString(),
         })),
@@ -184,6 +204,15 @@ export const loaders = defineLoaders({
         })),
       actions: mine,
       withdrawable: detail.instance.startedBy === actor.id && detail.instance.status === 'active',
+      // 催办：发起人或管理员，实例进行中、还有开着的待办
+      remindable:
+        (detail.instance.startedBy === actor.id || !!actor.admin) &&
+        detail.instance.status === 'active' &&
+        open.length > 0,
+      // 转办、抄送时选人：示例的用户表（除了自己）
+      people: Object.values(USERS)
+        .filter((user) => user.id !== actor.id)
+        .map((user) => ({ value: user.id, label: user.name })),
     };
   },
 });

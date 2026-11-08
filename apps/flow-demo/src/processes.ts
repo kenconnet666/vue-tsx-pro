@@ -125,6 +125,8 @@ export const purchase = defineProcess({
       multi: { participants: [{ role: '1' }, { role: '2' }], complete: 'all' },
       outcomes: [
         { key: 'approve', label: '同意' },
+        // 退回到哪一步由处理的人选（上游走到过的人工节点）
+        { key: 'back', label: '退回', kind: 'return', target: 'choose', comment: 'required' },
         { key: 'reject', label: '不同意', kind: 'reject', comment: 'required' },
       ],
     },

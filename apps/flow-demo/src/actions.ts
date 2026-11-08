@@ -71,13 +71,21 @@ export const actions = defineActions({
         workItem: z.number().int(),
         outcome: z.string(),
         comment: z.string().optional(),
+        // 退回到运行时选的节点（结果的 target 是 choose）
+        returnTo: z.string().optional(),
       }),
       permission: 'flow.use',
     },
-    ({ workItem, outcome, comment }) =>
+    ({ workItem, outcome, comment, returnTo }) =>
       run(async () => {
         const result = await engine.run(
-          { type: 'complete', workItem, outcome, ...(comment ? { comment } : {}) },
+          {
+            type: 'complete',
+            workItem,
+            outcome,
+            ...(comment ? { comment } : {}),
+            ...(returnTo ? { returnTo } : {}),
+          },
           currentActor(),
         );
         return result.instance.status;
@@ -90,6 +98,56 @@ export const actions = defineActions({
     },
     ({ instance, text }) =>
       run(async () => void (await engine.run({ type: 'comment', instance, text }, currentActor()))),
+  ),
+  transfer: defineAction(
+    {
+      input: z.object({
+        workItem: z.number().int(),
+        to: z.string().min(1),
+        comment: z.string().optional(),
+      }),
+      permission: 'flow.use',
+    },
+    ({ workItem, to, comment }) =>
+      run(
+        async () =>
+          void (await engine.run(
+            { type: 'transfer', workItem, to, ...(comment ? { comment } : {}) },
+            currentActor(),
+          )),
+      ),
+  ),
+  remind: defineAction(
+    {
+      input: z.object({ instance: z.number().int(), message: z.string().optional() }),
+      permission: 'flow.use',
+    },
+    ({ instance, message }) =>
+      run(
+        async () =>
+          void (await engine.run(
+            { type: 'remind', instance, ...(message ? { message } : {}) },
+            currentActor(),
+          )),
+      ),
+  ),
+  cc: defineAction(
+    {
+      input: z.object({
+        instance: z.number().int(),
+        users: z.array(z.string()).min(1),
+        message: z.string().optional(),
+      }),
+      permission: 'flow.use',
+    },
+    ({ instance, users, message }) =>
+      run(
+        async () =>
+          void (await engine.run(
+            { type: 'cc', instance, users, ...(message ? { message } : {}) },
+            currentActor(),
+          )),
+      ),
   ),
   withdraw: defineAction(
     { input: z.object({ instance: z.number().int() }), permission: 'flow.use' },

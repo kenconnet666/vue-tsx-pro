@@ -1,7 +1,8 @@
 /**
  * 端到端测试（ROADMAP 14.9）：对构建产物跑一遍审批——申请人发起 5 天的请假，经理同意，人事备案，结束；
  * 再发起一张 1 天的，经理退回、申请人重新提交后直接回到经理；管理员在设计器里用模板、试运行、发布，申请人马上能发起；
- * 8 万的采购：经理的待办标着时限，同意后经理与人事会签，都同意后调用“供应商核实”子流程，人事核实后采购单结束。
+ * 8 万的采购：发起人催办、抄送；经理的待办标着时限，同意后经理与人事会签，会签里退回到经理（处理的人选退回到哪）、
+ * 再同意后经理把自己那一份转办给管理员，都同意后调用“供应商核实”子流程，人事核实后采购单结束。
  * 按页面的模式跑一遍，整站浏览器渲染（RENDER_MODE=csr）再跑一遍。
  *
  *   pnpm build && node test/e2e.mjs
@@ -137,6 +138,17 @@ async function run(mode) {
     await form.getByRole('button', { name: '发起采购' }).click();
     await state().getByText('进行中：经理审批').waitFor();
     const order = page.url().split('/').pop();
+    // 发起人催办、抄送：都记进流转记录
+    await handle('催办');
+    await page.getByText('催办 · 经理审批').waitFor();
+    await page.getByRole('button', { name: '抄送', exact: true }).click();
+    const ccDialog = page.getByRole('dialog');
+    await ccDialog.getByRole('combobox', { name: '抄送给' }).click();
+    await page.getByRole('option', { name: '沈若水' }).click();
+    // 点一下对话框的标题收起多选的下拉
+    await ccDialog.getByRole('heading', { name: '抄送' }).click();
+    await ccDialog.getByRole('button', { name: '抄送', exact: true }).click();
+    await page.getByText('抄送 · 给 沈若水').waitFor();
     await signIn('bob', '/');
     const todoItem = page
       .getByRole('list', { name: '待办列表' })
@@ -149,8 +161,22 @@ async function run(mode) {
     await state().getByText('进行中：经理与人事会签').waitFor();
     const countersign = page.getByTestId('countersign');
     await countersign.getByText('周启航 · 待处理').waitFor();
+    // 会签里退回：退回到哪一步由处理的人选（默认最近的经理审批），要写意见
+    await handle('退回', '金额再核一下');
+    await state().getByText('进行中：经理审批').waitFor();
     await handle('同意');
-    await countersign.getByText('周启航 · 同意').waitFor();
+    await state().getByText('进行中：经理与人事会签').waitFor();
+    // 周启航把自己那一份转给管理员，管理员同意
+    await page.getByRole('button', { name: '转办', exact: true }).click();
+    const transferDialog = page.getByRole('dialog');
+    await transferDialog.getByRole('combobox', { name: '转给' }).click();
+    await page.getByRole('option', { name: '管理员' }).click();
+    await transferDialog.getByRole('button', { name: '转办', exact: true }).click();
+    await countersign.getByText('管理员 · 待处理').waitFor();
+    await page.getByText('转办 · 经理与人事会签 · 给 管理员').waitFor();
+    await signIn('admin', `/instances/${order}`);
+    await handle('同意');
+    await countersign.getByText('管理员 · 同意').waitFor();
     await countersign.getByText('沈若水 · 待处理').waitFor();
     // 人事也同意：会签通过，调用“供应商核实”子流程
     await signIn('carol', `/instances/${order}`);

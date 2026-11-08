@@ -10,8 +10,8 @@
  *   });
  *   if (values) refresh();                       // 取消、Esc 时是 null
  *
- * 字段是 text（默认）、textarea、select（options）、date（ISO 日期，可限 min / max）；required 的没填、validate 返回说明时，错误落在字段下面、不提交。
- * 值都是字符串（去掉首尾空白）。onSubmit 返回 Promise 时确认按钮显示加载中，失败（reject）时对话框留着，由调用方提示原因。
+ * 字段是 text（默认）、textarea、select（options；multiple 时多选）、date（ISO 日期，可限 min / max）；required 的没填、validate 返回说明时，
+ * 错误落在字段下面、不提交。值是字符串（去掉首尾空白），多选的是字符串数组（结果的类型按字段推导）。onSubmit 返回 Promise 时确认按钮显示加载中，失败（reject）时对话框留着，由调用方提示原因。
  * 对话框渲染在组件树之外，沿用调用处的主题、语言（同 useConfirm）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -42,6 +42,8 @@ export interface FormDialogField {
   required?: boolean;
   /** 下拉的选项（type 为 select）；description 是选项的第二行 */
   options?: readonly { value: string; label: string; description?: string }[];
+  /** 多选（type 为 select）：值是选中的 value 数组，不经过 validate */
+  multiple?: boolean;
   /** 初始值 */
   defaultValue?: string;
   /** 占位文字 */
@@ -58,14 +60,26 @@ export interface FormDialogField {
   validate?: (value: string, values: Readonly<Record<string, string>>) => string | null | undefined;
 }
 
+/** 填好的值：多选的字段是数组，其余是字符串；字段写成字面量时按名字给出类型 */
+export type FormDialogValues<
+  Fields extends readonly FormDialogField[] = readonly FormDialogField[],
+> = {
+  [F in Fields[number] as F['name']]: F extends { multiple: true } ? string[] : string;
+};
+
+/** 一个字段的值（对话框内部） */
+type FieldValue = string | string[];
+
 /** prompt() 的选项 */
-export interface FormDialogOptions {
+export interface FormDialogOptions<
+  Fields extends readonly FormDialogField[] = readonly FormDialogField[],
+> {
   /** 标题 */
   title: VNodeChild;
   /** 标题下面的说明 */
   description?: VNodeChild;
   /** 字段 */
-  fields: readonly FormDialogField[];
+  fields: Fields;
   /** 确认按钮的文字，默认取语言包（确定） */
   confirmText?: VNodeChild;
   /** 确认按钮的色调，默认 accent；驳回、终止用 danger */
@@ -76,7 +90,7 @@ export interface FormDialogOptions {
    */
   size?: DialogProps['size'];
   /** 提交：返回 Promise 时等它完成，失败时对话框留着 */
-  onSubmit?: (values: Record<string, string>) => unknown;
+  onSubmit?: (values: FormDialogValues<Fields>) => unknown;
 }
 
 /** 对话框的内容：字段、错误、提交 */
@@ -90,17 +104,22 @@ const FormDialogBody = _component(
     options: FormDialogOptions;
     _open?: boolean;
     /** 提交成功：带上值 */
-    onDone: (values: Record<string, string>) => void;
+    onDone: (values: Record<string, FieldValue>) => void;
     /** 对话框关上了（不论提交还是取消） */
     onClose: () => void;
   }) => {
     const lang = useLang();
     // 初始值只取一次：对话框打开后由用户填
-    let values = _state<Record<string, string>>(
+    let values = _state<Record<string, FieldValue>>(
       Object.fromEntries(
-        _untrack(options.fields).map((field) => [field.name, field.defaultValue ?? '']),
+        _untrack(options.fields).map((field) => [
+          field.name,
+          field.multiple ? [] : (field.defaultValue ?? ''),
+        ]),
       ),
     );
+    /** 单值字段的文字（多选字段不会走到这里） */
+    const text = (name: string) => (values[name] as string | undefined) ?? '';
     let errors = _state<Record<string, string>>({});
     // 确认按钮是这个表单的提交按钮：在输入框里按 Enter 也是确认（浏览器的隐式提交会点它）
     const formId = useId();
@@ -108,20 +127,33 @@ const FormDialogBody = _component(
     /** 对话框的确认：校验没过返回 false（对话框留着）；onSubmit 失败时对话框也留着 */
     async function confirm() {
       const trimmed = Object.fromEntries(
-        Object.entries(values).map(([name, value]) => [name, value.trim()]),
+        Object.entries(values).map(([name, value]) => [
+          name,
+          Array.isArray(value) ? value : value.trim(),
+        ]),
+      );
+      // validate 只看单值字段：多选的值是数组
+      const strings = Object.fromEntries(
+        Object.entries(trimmed).filter(
+          (entry): entry is [string, string] => !Array.isArray(entry[1]),
+        ),
       );
       errors = Object.fromEntries(
         options.fields
           .map((field): [string, string] => {
             const value = trimmed[field.name] ?? '';
             const message =
-              field.required && !value ? lang.formRequired : field.validate?.(value, trimmed);
+              field.required && value.length === 0
+                ? lang.formRequired
+                : Array.isArray(value)
+                  ? undefined
+                  : field.validate?.(value, strings);
             return [field.name, message ?? ''];
           })
           .filter(([, message]) => message),
       );
       if (Object.keys(errors).length > 0) return false;
-      await options.onSubmit?.(trimmed);
+      await options.onSubmit?.(trimmed as FormDialogValues);
       onDone(trimmed);
     }
 
@@ -130,7 +162,7 @@ const FormDialogBody = _component(
         case 'textarea':
           return (
             <Textarea
-              _value={values[field.name] ?? ''}
+              _value={text(field.name)}
               onUpdate:_value={(next: string) => (values[field.name] = next)}
               rows={3}
               placeholder={field.placeholder}
@@ -141,17 +173,25 @@ const FormDialogBody = _component(
         case 'date':
           return (
             <DatePicker
-              _value={values[field.name] || null}
+              _value={text(field.name) || null}
               onUpdate:_value={(next: string | null) => (values[field.name] = next ?? '')}
               min={field.min}
               max={field.max}
             />
           );
         case 'select':
-          return (
+          return field.multiple ? (
             <Select
               items={field.options ?? []}
-              _value={values[field.name] || null}
+              selectionMode="multiple"
+              _value={values[field.name] as string[]}
+              onUpdate:_value={(next: string[]) => (values[field.name] = next)}
+              placeholder={field.placeholder}
+            />
+          ) : (
+            <Select
+              items={field.options ?? []}
+              _value={text(field.name) || null}
               onUpdate:_value={(next: string | null) => (values[field.name] = next ?? '')}
               placeholder={field.placeholder}
             />
@@ -159,7 +199,7 @@ const FormDialogBody = _component(
         default:
           return (
             <TextField
-              _value={values[field.name] ?? ''}
+              _value={text(field.name)}
               onUpdate:_value={(next: string) => (values[field.name] = next)}
               placeholder={field.placeholder}
               maxlength={field.maxlength}
@@ -206,18 +246,18 @@ const FormDialogBody = _component(
  * 命令式的小表单对话框：在组件 setup 里调用，返回 prompt(options)。
  * 提交（onSubmit 完成）时得到填好的值，取消、Esc 时得到 null
  */
-export function useFormDialog(): (
-  options: FormDialogOptions,
-) => Promise<Record<string, string> | null> {
+export function useFormDialog(): <const Fields extends readonly FormDialogField[]>(
+  options: FormDialogOptions<Fields>,
+) => Promise<FormDialogValues<Fields> | null> {
   const mount = useDetachedDialog();
-  return (options) =>
-    new Promise((resolve) => {
-      let result: Record<string, string> | null = null;
+  return <const Fields extends readonly FormDialogField[]>(options: FormDialogOptions<Fields>) =>
+    new Promise<FormDialogValues<Fields> | null>((resolve) => {
+      let result: FormDialogValues<Fields> | null = null;
       mount((host) => (
         <FormDialogBody
-          options={options}
+          options={options as FormDialogOptions}
           _open={host.open}
-          onDone={(values) => (result = values)}
+          onDone={(values) => (result = values as FormDialogValues<Fields>)}
           onClose={() => {
             resolve(result);
             host.closed();

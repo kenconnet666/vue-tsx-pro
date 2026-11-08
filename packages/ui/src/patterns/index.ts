@@ -73,5 +73,10 @@ export {
 } from './SlideCaptcha';
 export { StepsForm, type FormStep, type StepsFormProps } from './StepsForm';
 export { ThemeSwitcher, type ThemeSwitcherProps } from './ThemeSwitcher';
-export { useFormDialog, type FormDialogField, type FormDialogOptions } from './form-dialog';
+export {
+  useFormDialog,
+  type FormDialogField,
+  type FormDialogOptions,
+  type FormDialogValues,
+} from './form-dialog';
 export { patternsMessages, type PatternsMessages } from './messages';

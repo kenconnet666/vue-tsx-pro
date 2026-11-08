@@ -13,6 +13,7 @@ import { and, createDb, or, type Cond, type Row } from '@zerodep-dev/easy-query-
 import {
   gatewayPairs,
   isRef,
+  processGraph,
   validateProcess,
   type AssigneeSource,
   type CallNode,
@@ -64,13 +65,17 @@ export interface TodoItem extends WorkItemSummary {
   readonly summary: Readonly<Record<string, unknown>>;
 }
 
-/** 待办详情：待办、实例、能选的结果，这个人能不能认领、能不能处理 */
+/** 待办详情：待办、实例、能选的结果，这个人能不能认领、能不能处理、能不能转办，退回时能选的节点 */
 export interface WorkItemDetail {
   readonly workItem: WorkItemRow;
   readonly instance: InstanceRow;
   readonly outcomes: readonly Outcome[];
   readonly claimable: boolean;
   readonly completable: boolean;
+  /** 能转办：落到自己（认领了或直接指定）或是管理员，节点没有关掉转办 */
+  readonly transferable: boolean;
+  /** 结果里有“退回到运行时选的节点”（target: 'choose'）时能选的节点：上游走到过的人工节点 */
+  readonly returnTargets: readonly { readonly node: string; readonly name: string }[];
 }
 
 /** 抄送列表里的一行 */
@@ -752,7 +757,14 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           ...(command.workItem !== undefined ? [w.id.eq(command.workItem)] : []),
         ])
         .toList();
-      for (const item of items) {
+      // 环节关掉了催办（allow.remind: false）：点名催它时报错，催全部时跳过它
+      const remindable = (node: string) => {
+        const found = exec.graph.node(node);
+        return found?.type !== 'task' || found.allow?.remind !== false;
+      };
+      if (command.workItem !== undefined && items[0] && !remindable(items[0].node))
+        throw new FlowError('forbidden', `节点 ${items[0].nodeName} 不允许催办`);
+      for (const item of items.filter((i) => remindable(i.node))) {
         exec.addEvent('workItem.reminded', {
           workItemId: item.id,
           node: item.node,
@@ -942,17 +954,29 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       const workItem = await db.queryable(FlowWorkItem).find(id);
       if (!workItem) throw new FlowError('not-found', `没有待办 ${id}`);
       const instance = await db.queryable(FlowInstance).findOrThrow(workItem.instanceId);
-      const node = (await definitionOf(db, instance.definitionId)).nodes.find(
-        (n) => n.id === workItem.node,
-      );
+      const definition = await definitionOf(db, instance.definitionId);
+      const node = definition.nodes.find((n) => n.id === workItem.node);
+      const task = node?.type === 'task' ? node : undefined;
       const open = workItem.state === 'open' && instance.status === 'active';
       const candidate = open && (await isCandidate(db, workItem, actor));
+      const graph = processGraph(definition);
+      const chooses = task?.outcomes.some((o) => o.kind === 'return' && o.target === 'choose');
       return {
         workItem,
         instance,
-        outcomes: node?.type === 'task' ? node.outcomes : [],
+        outcomes: task?.outcomes ?? [],
         claimable: candidate && workItem.assignee === null,
         completable: candidate,
+        transferable:
+          open &&
+          (workItem.assignee === actor.id || !!actor.admin) &&
+          task?.allow?.transfer !== false,
+        returnTargets:
+          candidate && chooses
+            ? returnTargets({ definition, graph, state: instance.state }, workItem.node).map(
+                (id) => ({ node: id, name: graph.node(id)?.name ?? id }),
+              )
+            : [],
       };
     },
     started: (actor) =>
@@ -1343,14 +1367,16 @@ function candidateConditions(c: any, actor: Actor): Cond[] {
 /**
  * 退回时能选的节点：沿前进的连线往上游找、走到过的人工节点；已经汇合了的并行区域里的节点不算（那些分支已经结束）
  */
-export function returnTargets(exec: Execution, from: string): string[] {
-  const definition = exec.definition;
+export function returnTargets(
+  { definition, graph, state }: Pick<Execution, 'definition' | 'graph' | 'state'>,
+  from: string,
+): string[] {
   const pairs = gatewayPairs(definition);
   const ancestors = new Set<string>();
   const queue = [from];
   while (queue.length > 0) {
     const id = queue.shift()!;
-    for (const edge of exec.graph.incoming(id)) {
+    for (const edge of graph.incoming(id)) {
       if (edge.kind === 'return' || edge.kind === 'escalate' || ancestors.has(edge.from)) continue;
       ancestors.add(edge.from);
       queue.push(edge.from);
@@ -1362,7 +1388,7 @@ export function returnTargets(exec: Execution, from: string): string[] {
       return join !== undefined && ancestors.has(join) && pairs.region(n.id).has(id);
     });
   return [...ancestors].filter(
-    (id) => exec.graph.node(id)?.type === 'task' && exec.state.rounds[id] && !closed(id),
+    (id) => graph.node(id)?.type === 'task' && state.rounds[id] && !closed(id),
   );
 }
 

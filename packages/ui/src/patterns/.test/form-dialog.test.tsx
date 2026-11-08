@@ -131,4 +131,31 @@ describe('useFormDialog', () => {
     expect(document.body.contains(dialog)).toBe(true);
     expect((dialog as HTMLDialogElement).open).toBe(true);
   });
+
+  it('多选的下拉（multiple）：必填时一个没选报“必填”、不提交', async () => {
+    const onSubmit = vi.fn();
+    const dialog = await open({
+      title: '抄送',
+      fields: [
+        {
+          name: 'users',
+          label: '抄送给',
+          type: 'select',
+          multiple: true,
+          required: true,
+          options: [
+            { value: 'alice', label: '林小满' },
+            { value: 'bob', label: '周启航' },
+          ],
+        },
+      ],
+      confirmText: '抄送',
+      onSubmit,
+    });
+    expect(dialog.querySelector('[role="combobox"]')).not.toBeNull();
+    buttonOf(dialog, '抄送').click();
+    await settle();
+    expect(dialog.textContent).toContain('必填');
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
 });

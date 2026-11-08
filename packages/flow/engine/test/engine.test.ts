@@ -329,6 +329,67 @@ describe('engine: 流程自带的 TS', () => {
   });
 });
 
+describe('engine: 待办详情与催办', () => {
+  const legal: Actor = { id: '1006', roles: ['3'] };
+
+  /** 发起 return-choose，起草、复核处理完，停在法务与财务（并行） */
+  async function atLegal(definition = processOf('return-choose')) {
+    const test = await createTestEngine();
+    await test.engine.publish(definition);
+    const started = await test.engine.run({ type: 'start', process: 'return-choose' }, alice);
+    await completeAs(test.engine, started.workItems[0]!.id);
+    const review = (await test.engine.query.todo(carol))[0]!;
+    await test.engine.run({ type: 'complete', workItem: review.id, outcome: 'pass' }, carol);
+    const item = (await test.engine.query.todo(legal))[0]!;
+    return { ...test, instance: started.instance.id, item };
+  }
+
+  it('结果里有“退回到运行时选”时给出能选的节点：上游走到过的人工节点', async () => {
+    const { engine, item } = await atLegal();
+    const detail = await engine.query.workItem(item.id, legal);
+    assert.deepEqual(detail.returnTargets.map((t) => t.node).sort(), ['draft', 'review']);
+    assert.equal(
+      detail.returnTargets.find((t) => t.node === 'review')?.name,
+      processOf('return-choose').nodes.find((n) => n.id === 'review')!.name,
+    );
+    // 不是候选人：不给
+    assert.deepEqual((await engine.query.workItem(item.id, alice)).returnTargets, []);
+  });
+
+  it('能不能转办：收件箱里没认领的不能，认领后能；节点关掉了转办时不能', async () => {
+    const { engine, item } = await atLegal();
+    assert.equal((await engine.query.workItem(item.id, legal)).transferable, false);
+    await engine.run({ type: 'claim', workItem: item.id }, legal);
+    assert.equal((await engine.query.workItem(item.id, legal)).transferable, true);
+    const closed = processOf('return-choose');
+    const locked = {
+      ...closed,
+      nodes: closed.nodes.map((n) => (n.id === 'legal' ? { ...n, allow: { transfer: false } } : n)),
+    } as ProcessDefinition;
+    const again = await atLegal(locked);
+    await again.engine.run({ type: 'claim', workItem: again.item.id }, legal);
+    assert.equal((await again.engine.query.workItem(again.item.id, legal)).transferable, false);
+  });
+
+  it('催办：环节关掉了催办（allow.remind: false）时点名催它报错，催全部时跳过它', async () => {
+    const definition = processOf('return-choose');
+    const quiet = {
+      ...definition,
+      nodes: definition.nodes.map((n) =>
+        n.id === 'legal' ? { ...n, allow: { remind: false } } : n,
+      ),
+    } as ProcessDefinition;
+    const { engine, instance, item } = await atLegal(quiet);
+    await rejectsWith(
+      engine.run({ type: 'remind', instance, workItem: item.id }, alice),
+      'forbidden',
+    );
+    const result = await engine.run({ type: 'remind', instance }, alice);
+    const reminded = result.events.filter((e) => e.type === 'workItem.reminded').map((e) => e.node);
+    assert.deepEqual(reminded, ['finance']);
+  });
+});
+
 /** 以待办的处理人（或候选里的第一个）处理，结果取节点上第一个通过的 */
 async function completeAs(
   engine: Awaited<ReturnType<typeof createTestEngine>>['engine'],
