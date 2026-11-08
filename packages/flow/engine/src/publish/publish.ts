@@ -12,7 +12,8 @@ import {
 import type { Ref } from '@zerodep-dev/easy-query-ts';
 import { FlowDefinition, FlowInstance, FlowWorkItem, type flowSchema } from '../core/entities.ts';
 import { FlowError } from '../core/errors.ts';
-import { buildProject, type FlowLogic } from './project.ts';
+import { buildProject } from './project.ts';
+import type { FlowLogic } from '../extensions.ts';
 import type { TypeProblem } from '../types.ts';
 import type { EngineCore } from '../core/context.ts';
 import type { CatalogEntry, CheckResult, MigrationCandidate, PublishOptions } from '../views.ts';

@@ -27,7 +27,7 @@ import {
   type FlowDb,
 } from '../core/entities.ts';
 import { FlowError } from '../core/errors.ts';
-import type { FlowLogic } from '../publish/project.ts';
+import type { FlowLogic } from '../extensions.ts';
 import { emptyRunState, type RunState } from './state.ts';
 import type {
   Actor,

@@ -12,32 +12,10 @@ import {
   upgradeDefinition,
   type FlowProject,
   type FormManifest,
-  type FormValues,
   type ProcessDefinition,
 } from '@zerodep-dev/flow-ts-model';
 import { FlowError } from '../core/errors.ts';
-import type { FlowExtensions, Variables } from '../types.ts';
-
-/** 流程代码里的逻辑：按种类分组，定义里写 `logic.名字` 引用 */
-export type FlowLogic<V extends object = Variables> = FlowExtensions<V>;
-
-/**
- * 写 logic.ts：给了单据时 ctx.variables、ctx.read 按单据的类型来
- * ```ts
- * import form from './form';
- * export default defineLogic(form, {
- *   guards: { budget: ({ variables }) => Number(variables.amount) > 1e5 ? '超出预算' : true },
- * });
- * ```
- */
-export function defineLogic<const L extends FlowLogic>(logic: L): L;
-export function defineLogic<Form extends FormManifest, const L extends FlowLogic<FormValues<Form>>>(
-  form: Form,
-  logic: L,
-): L;
-export function defineLogic(first: unknown, second?: unknown): unknown {
-  return second ?? first;
-}
+import { defineLogic, type FlowLogic } from '../extensions.ts';
 
 /** 宿主登记给流程代码 import 的模块：给出导出，或用到才加载；types 是给类型检查、在线编辑器的声明 */
 export interface HostModule {

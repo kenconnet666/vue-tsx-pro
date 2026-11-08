@@ -15,7 +15,8 @@ import {
   type WorkItemRow,
 } from '../runtime/execution.ts';
 import { excludeToken, operationsOf } from '../commands/operations.ts';
-import { linkProject, type FlowLogic } from '../publish/project.ts';
+import { linkProject } from '../publish/project.ts';
+import type { FlowLogic } from '../extensions.ts';
 import type { Actor, FlowCommand, FlowEngineOptions, RunResult } from '../types.ts';
 import type { Calls } from '../runtime/calls.ts';
 import type { Starts } from '../commands/start.ts';
