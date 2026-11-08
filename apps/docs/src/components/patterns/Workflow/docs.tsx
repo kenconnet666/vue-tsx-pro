@@ -23,9 +23,12 @@ export default _component(() => () => (
           {'）可以点选、拖动摆位置，位置存进定义的 '}
           <Code>layout</Code>
           {
-            '，引擎不读。右边的环节设置是 Field、TextField、Select、Checkbox、NumberField，改动经模型包的 '
+            '，引擎不读。右边的环节设置（源码目录里的 node-panel.tsx）按环节类型给出能改的：谁来处理、几个人一起审（全部、任一、按比例、依次）、时限与超时、到期前提醒、允许转办与催办、按钮、这一步每个字段能不能看能不能改；分支的条件用 '
           }
-          <Code>addApprovalStep</Code>、<Code>addAmountBranch</Code>、<Code>removeStep</Code>
+          <Link href="/components/condition-builder">ConditionBuilder</Link>
+          {' 编辑（就是引擎认的条件 JSON）；调用流程选流程、抄送选人。增删环节经模型包的 '}
+          <Code>addApprovalStep</Code>、<Code>addAmountBranch</Code>、<Code>addCallStep</Code>、
+          <Code>addCcStep</Code>、<Code>removeStep</Code>
           {' 写回定义；'}
           <Code>validateProcess</Code>
           {' 的问题用 '}
@@ -46,10 +49,12 @@ export default _component(() => () => (
           {' 上的按钮，按钮的名字、要不要写意见取自环节的 '}
           <Code>outcomes</Code>
           {
-            '。下面的标签页是流转记录（Timeline）与留言（CommentThread）。真实的应用里这些数据来自引擎的查询，处理调用 '
+            '；转办选一个人、抄送多选几个人，都是 useFormDialog（select 的 multiple）。下面的标签页是流转记录（Timeline）与留言（CommentThread）。真实的应用里这些数据来自引擎的查询，处理调用 '
           }
           <Code>engine.run</Code>
-          {'，见 apps/flow-demo。'}
+          {
+            '：apps/flow-demo 里还有工作台（待办、已办、抄送我的、我发起的）、退回到处理人选的环节、按环节的表单权限改字段、管理员的暂停跳转改派与异常作业。'
+          }
         </Example>
       </ExampleColumn>
     </Examples>

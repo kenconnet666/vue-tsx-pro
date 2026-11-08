@@ -1,6 +1,6 @@
 // 审批面板（组合）：单据摘要（Descriptions）、只看的进度图、流转记录（Timeline）与留言（CommentThread），
 // 最后是吸底的 ActionBar（滚动时一直看得见）。点按钮弹出写意见的表单对话框（useFormDialog），“不同意”的意见必填；
-// 按钮的名字、要不要写意见都取自环节的 outcomes
+// 按钮的名字、要不要写意见都取自环节的 outcomes。转办（选一个人）、抄送（多选几个人）同样是一个对话框，结果记进流转记录
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Badge,
@@ -74,6 +74,14 @@ const initialComments: CommentItem[] = [
   },
 ];
 
+/** 转办、抄送时能选的人（真实应用里来自组织架构） */
+const PEOPLE = [
+  { value: 'wang', label: '王经理' },
+  { value: 'zhao', label: '赵会计' },
+  { value: 'sun', label: '孙总监' },
+];
+const nameOf = (id: string) => PEOPLE.find((p) => p.value === id)?.label ?? id;
+
 export default _component(() => {
   const prompt = useFormDialog();
   let tab = _state('records');
@@ -96,6 +104,53 @@ export default _component(() => {
         },
   );
   const view = _derived(processDiagram(definition, progress));
+
+  /** 记一条流转记录 */
+  function record(key: string, title: string, description?: string) {
+    records = [
+      ...records,
+      { key, title, actor: '李总', time: '刚刚', ...(description ? { description } : {}) },
+    ];
+  }
+
+  /** 转办：交给另一个人处理 */
+  async function transfer() {
+    const values = await prompt({
+      title: '转办',
+      fields: [
+        { name: 'to', label: '转给', type: 'select', required: true, options: PEOPLE },
+        { name: 'comment', label: '说明', type: 'textarea', placeholder: '可以不写' },
+      ],
+      confirmText: '转办',
+    });
+    if (values)
+      record(`transfer-${records.length}`, `转办 · 给 ${nameOf(values.to)}`, values.comment);
+  }
+
+  /** 抄送：多选几个人，他们只看不处理 */
+  async function cc() {
+    const values = await prompt({
+      title: '抄送',
+      fields: [
+        {
+          name: 'users',
+          label: '抄送给',
+          type: 'select',
+          multiple: true,
+          required: true,
+          options: PEOPLE,
+        },
+        { name: 'comment', label: '附言', type: 'textarea', placeholder: '可以不写' },
+      ],
+      confirmText: '抄送',
+    });
+    if (values)
+      record(
+        `cc-${records.length}`,
+        `抄送 · 给 ${values.users.map(nameOf).join('、')}`,
+        values.comment,
+      );
+  }
 
   async function handle(outcome: Outcome) {
     const required = outcome.comment === 'required';
@@ -191,6 +246,12 @@ export default _component(() => {
       </Tabs>
       {!finished && (
         <ActionBar start="处理后流程走到下一步，申请人会收到通知">
+          <Button variant="ghost" tone="neutral" onClick={() => void cc()}>
+            抄送
+          </Button>
+          <Button variant="ghost" tone="neutral" onClick={() => void transfer()}>
+            转办
+          </Button>
           {outcomes.map((outcome) => (
             <Button
               key={outcome.key}
