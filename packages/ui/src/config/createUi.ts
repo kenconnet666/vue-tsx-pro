@@ -23,6 +23,7 @@ import { splitComponents, type ComponentsOptions } from './components';
 import { mergeStyles } from './styles';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
+import type { FormSources } from '../form/schema-fields';
 import type { WorkCalendar } from '../utils/data/workdays';
 import type { HttpClient } from '../utils/request/http';
 import { resolveTheme, themeVariables, type Theme, type ThemeInput } from './theme/theme';
@@ -50,6 +51,8 @@ export interface UiOptions {
   http?: HttpClient;
   /** 工作日历：createWorkCalendar({ holidays, workdays }) 带上法定节假日与调休；不写时只按周末算 */
   workCalendar?: WorkCalendar;
+  /** 表单的数据来源：SchemaForm 的字典与远程选项（meta 的 source）、人员（control: 'people'）、上传（control: 'file'） */
+  formSources?: FormSources;
   /** 按下时的波纹效果，默认 true；关掉后组件的 ripple prop 仍可单独打开 */
   ripple?: boolean;
   /**
@@ -183,6 +186,7 @@ export function createUi(options: UiOptions = {}): UiPlugin {
           permissions: options.permissions,
           http: options.http,
           workCalendar: options.workCalendar,
+          formSources: options.formSources,
           ripple: options.ripple ?? true,
         });
         // 应用级的语言也写在页面根元素上（Provider 写在自己的元素上）：读屏按 lang 选发音，

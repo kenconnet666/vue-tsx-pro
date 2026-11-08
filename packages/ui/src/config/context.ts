@@ -4,6 +4,7 @@
  */
 import { createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { createMatcher } from '../utils/data/collation';
+import type { FormSources } from '../form/schema-fields';
 import type { WorkCalendar } from '../utils/data/workdays';
 import type { HttpClient } from '../utils/request/http';
 import type { ComponentDefaults } from './defaults';
@@ -94,6 +95,8 @@ export interface UiConfig {
   readonly http?: HttpClient;
   /** 工作日历（时限、剩余工作日用）；没有时只按周末算 */
   readonly workCalendar?: WorkCalendar;
+  /** 表单的数据来源（SchemaForm 的字典与远程选项、人员、上传）；字段按名字引用 */
+  readonly formSources?: FormSources;
   /** 可点击组件按下时的波纹效果，默认开启；组件的 ripple prop 可以单独覆盖 */
   readonly ripple: boolean;
 }

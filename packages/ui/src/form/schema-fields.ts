@@ -20,6 +20,8 @@ import {
   type ConditionField,
   type ConditionFieldType,
 } from '../input/condition';
+import type { PeopleSource } from '../input/people';
+import type { UploadHandler } from '../input/Upload';
 import { cloneValue } from '../utils/data/clone';
 import { toJsonSchema, unwrap, type JsonSchema } from './form-constraints';
 
@@ -51,6 +53,10 @@ export interface SchemaControls {
   object: unknown;
   /** 对象的数组：可增删的行 */
   list: unknown;
+  /** 人员、部门：PeoplePicker（数据来自 formSources.people） */
+  people: unknown;
+  /** 附件：Upload（上传交给 formSources.upload） */
+  file: unknown;
   /** 对象的数组排成表格（明细表）：一行一条、一列一个字段，能增删行；列写了 total 时表底有合计行 */
   table: unknown;
 }
@@ -80,6 +86,8 @@ declare module 'zod/v4/core' {
     readonlyWhen?: Condition;
     /** 明细表（control: 'table'）的列在表底合计：sum 求和（精确，不经过浮点数） */
     total?: 'sum';
+    /** 选项来自登记的来源（createUi 的 formSources.options，或 SchemaFields 的 sources）：字典名、远程搜索的名字 */
+    source?: string;
   }
 }
 
@@ -123,6 +131,26 @@ export interface SchemaField {
   readonlyWhen?: Condition;
   /** 明细表的列在表底合计（meta） */
   total?: 'sum';
+  /** 选项来源的名字（meta）：formSources.options 里登记的 */
+  source?: string;
+}
+
+/** 一个选项来源：固定的列表（字典），或按搜索词远程取（供应商、件号） */
+export type OptionSource =
+  | readonly SchemaOption[]
+  | ((query: string, signal: AbortSignal) => Promise<readonly SchemaOption[]>);
+
+/**
+ * 表单的数据来源（宿主登记，按名字引用）：选择题的选项（字典、远程搜索）、人员与部门、上传。
+ * createUi 的 formSources 登记一次，SchemaFields 的 sources 可以局部覆盖
+ */
+export interface FormSources {
+  /** 选项来源：名字 → 列表或远程搜索；字段的 meta 写 source: '名字' */
+  readonly options?: Readonly<Record<string, OptionSource>>;
+  /** 人员、部门（control: 'people'） */
+  readonly people?: PeopleSource;
+  /** 上传（control: 'file'）；不给时用应用的请求客户端传到 formSources 之外的 action */
+  readonly upload?: UploadHandler;
 }
 
 /**
@@ -154,6 +182,7 @@ const META_KEYS = [
   'requiredWhen',
   'readonlyWhen',
   'total',
+  'source',
 ] as const;
 type Meta = { [K in (typeof META_KEYS)[number]]?: unknown };
 
@@ -180,6 +209,8 @@ function controlOf(node: JsonSchema, meta: Meta): keyof SchemaControls {
   const asked = text(meta.control) as keyof SchemaControls | undefined;
   const type = node.type;
   const fallback = (): keyof SchemaControls => {
+    // 选项来自登记的来源：数组是多选，否则是下拉
+    if (text(meta.source)) return type === 'array' ? 'multiselect' : 'select';
     if (Array.isArray(node.enum)) return 'select';
     if (type === 'number' || type === 'integer') return 'number';
     if (type === 'boolean') return 'switch';
@@ -215,6 +246,8 @@ function emptyOf(
     case 'checkboxes':
     case 'list':
     case 'table':
+    case 'people':
+    case 'file':
       return [];
     case 'object':
       return Object.fromEntries((fields ?? []).map((field) => [field.key, field.empty]));
@@ -259,6 +292,7 @@ function fieldsOf(root: JsonSchema, object: JsonSchema): SchemaField[] {
     if (options) field.options = options;
     if (fields) field.fields = fields;
     if (meta.total === 'sum') field.total = 'sum';
+    if (text(meta.source)) field.source = text(meta.source);
     for (const name of ['visibleWhen', 'requiredWhen', 'readonlyWhen'] as const) {
       if (isCondition(meta[name])) field[name] = meta[name];
     }

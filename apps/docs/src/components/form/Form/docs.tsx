@@ -15,6 +15,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Admission from './demo/Admission.tsx?demo';
 import Conditional from './demo/Conditional.tsx?demo';
 import Generated from './demo/Generated.tsx?demo';
+import Sources from './demo/Sources.tsx?demo';
 import Layout from './demo/Layout.tsx?demo';
 import Native from './demo/Native.tsx?demo';
 import Quote from './demo/Quote.tsx?demo';
@@ -93,6 +94,25 @@ export default _component(() => () => (
       {' 排成明细表（一行一条，能增删行），列写 '}
       <Code>{"total: 'sum'"}</Code>
       {' 在表底精确合计（不经过浮点数，小数位按最长的留着）。'}
+    </Example>
+    <Example id="sources" title="数据来源：字典、远程搜索、人员、附件" demo={Sources}>
+      {'选项、人员、上传的数据由应用登记一次：'}
+      <Code>{'createUi({ formSources: { options, people, upload } })'}</Code>
+      {'（局部用 '}
+      <Code>Provider</Code>
+      {' 的 '}
+      <Code>formSources</Code>
+      {'，单个表单用 '}
+      <Code>SchemaFields</Code>
+      {' 的 '}
+      <Code>sources</Code>
+      {' 覆盖）。字段的 meta 只写名字：'}
+      <Code>{"source: 'costCenters'"}</Code>
+      {' 取登记的选项——列表是字典，函数是按搜索词远程取（下拉带搜索框）；'}
+      <Code>{"control: 'people'"}</Code>
+      {' 用 PeoplePicker 从组织架构里选，'}
+      <Code>{"control: 'file'"}</Code>
+      {' 用 Upload 交给登记的上传函数。'}
     </Example>
     <Examples>
       <ExampleColumn>

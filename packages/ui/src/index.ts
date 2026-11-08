@@ -1013,6 +1013,8 @@ export {
   schemaFields,
   schemaFieldState,
   walkSchemaFields,
+  type FormSources,
+  type OptionSource,
   type SchemaControls,
   type SchemaField,
   type SchemaFieldAccess,

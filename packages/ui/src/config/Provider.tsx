@@ -15,6 +15,7 @@ import { mergeStyles } from './styles';
 import { defineLang, type Lang } from './lang/lang';
 import { usePrefersDark } from '../utils/dom/media-query';
 import type { WorkCalendar } from '../utils/data/workdays';
+import type { FormSources } from '../form/schema-fields';
 import type { HttpClient } from '../utils/request/http';
 import { resolveTheme, themeAttrs, type ThemeInput } from './theme/theme';
 
@@ -41,6 +42,8 @@ export interface ProviderProps {
   http?: HttpClient;
   /** 工作日历；不写时沿用上层配置 */
   workCalendar?: WorkCalendar;
+  /** 表单的数据来源；不写时沿用上层配置 */
+  formSources?: FormSources;
   /** 波纹效果的开关；不写时沿用上层配置 */
   ripple?: boolean;
   children?: VNodeChild;
@@ -73,6 +76,7 @@ export const Provider = _component(
     permissions,
     http,
     workCalendar,
+    formSources,
     ripple,
     children,
   }: ProviderProps) => {
@@ -113,6 +117,9 @@ export const Provider = _component(
       },
       get workCalendar() {
         return workCalendar ?? parent.workCalendar;
+      },
+      get formSources() {
+        return formSources ?? parent.formSources;
       },
       get ripple() {
         return ripple ?? parent.ripple;

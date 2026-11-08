@@ -29,14 +29,16 @@ import type { VNode, VNodeChild } from 'vue';
 import type { $ZodType } from 'zod/v4/core';
 import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
-import { useLang } from '../config/context';
+import { useConfig, useLang } from '../config/context';
 import { DatePicker } from '../date/DatePicker';
 import { Checkbox, CheckboxGroup } from '../input/Checkbox';
 import { NumberField } from '../input/NumberField';
 import { RadioGroup } from '../input/Radio';
 import { Select } from '../input/Select';
 import { Switch } from '../input/Switch';
+import { PeoplePicker } from '../input/PeoplePicker';
 import { Textarea } from '../input/Textarea';
+import { Upload } from '../input/Upload';
 import { TextField } from '../input/TextField';
 import { GridItem } from '../layout/Grid';
 import {
@@ -56,7 +58,13 @@ import { Field } from './Field';
 import { Form, type FormProps } from './Form';
 import { FormErrorSummary } from './FormErrorSummary';
 import { FormSection, type FormSectionProps } from './FormSection';
-import { pickFields, schemaFields, type SchemaControls, type SchemaField } from './schema-fields';
+import {
+  pickFields,
+  schemaFields,
+  type FormSources,
+  type SchemaControls,
+  type SchemaField,
+} from './schema-fields';
 import type { FieldArray, FieldPath, FormController } from './useForm';
 import { partAttrs } from '../config/styles';
 import { relativeFontSizes } from '../utils/style/typography';
@@ -70,6 +78,8 @@ export type SchemaFieldRenderers<Values extends object> = {
 export interface SchemaFieldsProps<Values extends object> {
   /** useForm 的返回值（要有 schema） */
   controller: FormController<Values>;
+  /** 数据来源（字典与远程选项、人员、上传）：合并在 createUi 的 formSources 之上，同名的以这里为准 */
+  sources?: FormSources;
   /** 只生成这些顶层字段，按这里的顺序 */
   pick?: readonly (keyof Values & string)[];
   /** 不生成这些顶层字段 */
@@ -136,9 +146,22 @@ function groupedTotal(text: string): string {
 /**
  * 按字段的描述选控件。extra 是额外的属性：表单里不给（Field 自动绑定值），查询栏里给值的读写与 clearable
  */
-function controlOf(field: SchemaField, extra: Record<string, unknown> = {}): VNodeChild {
-  const options = field.options ?? [];
+function controlOf(
+  field: SchemaField,
+  extra: Record<string, unknown> = {},
+  sources: FormSources = {},
+): VNodeChild {
+  // 选项来自登记的来源：固定的列表直接当 items，函数是远程搜索
+  const source = field.source === undefined ? undefined : sources.options?.[field.source];
+  const remote = typeof source === 'function' ? { searchable: true, load: source } : {};
+  const options = (Array.isArray(source) ? source : undefined) ?? field.options ?? [];
   switch (field.control) {
+    case 'people':
+      if (!sources.people)
+        throw new Error(`字段 ${field.key} 是人员控件，要在 createUi 的 formSources 里给 people`);
+      return <PeoplePicker source={sources.people} placeholder={field.placeholder} {...extra} />;
+    case 'file':
+      return <Upload multiple {...(sources.upload ? { upload: sources.upload } : {})} {...extra} />;
     case 'textarea':
       return <Textarea placeholder={field.placeholder} rows={3} {...extra} />;
     case 'number':
@@ -149,7 +172,7 @@ function controlOf(field: SchemaField, extra: Record<string, unknown> = {}): VNo
       // 单个复选框的文字就是标签（字段的标签只给读屏，见 item）
       return <Checkbox {...extra}>{field.label}</Checkbox>;
     case 'select':
-      return <Select items={options} placeholder={field.placeholder} {...extra} />;
+      return <Select items={options} placeholder={field.placeholder} {...remote} {...extra} />;
     case 'radio':
       return <RadioGroup items={options} orientation="horizontal" {...extra} />;
     case 'multiselect':
@@ -158,6 +181,7 @@ function controlOf(field: SchemaField, extra: Record<string, unknown> = {}): VNo
           items={options}
           selectionMode="multiple"
           placeholder={field.placeholder}
+          {...remote}
           {...extra}
         />
       );
@@ -183,6 +207,8 @@ export interface SchemaFilterOptions<Values extends object> {
   omit?: readonly (keyof Values & string)[];
   /** 换掉某些字段的控件：自己绑定值（_value={values.region}） */
   fields?: { [K in keyof Values & string]?: (field: SchemaField) => VNodeChild };
+  /** 数据来源（字典与远程选项）：meta 写了 source 的字段从这里取 */
+  sources?: FormSources;
 }
 
 /**
@@ -192,14 +218,18 @@ export interface SchemaFilterOptions<Values extends object> {
 export function schemaFilters<Values extends object>(
   schema: $ZodType<unknown, Values>,
   values: Values,
-  { pick, omit, fields: renderers }: SchemaFilterOptions<Values> = {},
+  { pick, omit, fields: renderers, sources }: SchemaFilterOptions<Values> = {},
 ): VNode[] {
   const record = values as Record<string, unknown>;
   const custom = renderers as Partial<Record<string, (field: SchemaField) => VNodeChild>>;
   return pickFields(schemaFields(schema), pick, omit)
     .filter(
       (field) =>
-        field.control !== 'object' && field.control !== 'list' && field.control !== 'table',
+        field.control !== 'object' &&
+        field.control !== 'list' &&
+        field.control !== 'table' &&
+        field.control !== 'people' &&
+        field.control !== 'file',
     )
     .map((field) => {
       const prop =
@@ -216,7 +246,7 @@ export function schemaFilters<Values extends object>(
           labelHidden={field.control === 'checkbox'}
           description={field.description}
         >
-          {custom?.[field.key]?.(field) ?? controlOf(field, extra)}
+          {custom?.[field.key]?.(field) ?? controlOf(field, extra, sources)}
         </Field>
       );
     });
@@ -240,8 +270,19 @@ export const SchemaFields = _component(
     propsSection,
     propsAddRow,
     propsRemoveRow,
+    sources,
   }: SchemaFieldsProps<Values>) => {
     const lang = useLang();
+    const config = useConfig();
+    /** 登记的来源加上这里给的 */
+    const merged = (): FormSources => {
+      const base = config.formSources ?? {};
+      return {
+        ...base,
+        ...sources,
+        options: { ...base.options, ...sources?.options },
+      };
+    };
     const custom = renderers as Partial<Record<string, (field: SchemaField) => VNodeChild>>;
 
     /** 一组字段：标题是组名或对象的标签 */
@@ -352,7 +393,7 @@ export const SchemaFields = _component(
                 {...(state.readonly ? { readonly: true } : {})}
                 {...(state.required ? { required: true } : {})}
               >
-                {custom?.[`${path}.${child.key}`]?.(child) ?? controlOf(child)}
+                {custom?.[`${path}.${child.key}`]?.(child) ?? controlOf(child, {}, merged())}
               </Field>
             )}
           </TableCell>
@@ -474,7 +515,7 @@ export const SchemaFields = _component(
           </GridItem>
         );
       }
-      const control = custom?.[path]?.(field) ?? controlOf(field);
+      const control = custom?.[path]?.(field) ?? controlOf(field, {}, merged());
       const node = (
         <Field
           key={path}
