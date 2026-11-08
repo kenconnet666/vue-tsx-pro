@@ -283,6 +283,18 @@ export type FlowCommand =
       readonly outcome?: string;
       readonly reason?: string;
     }
+  /**
+   * 管理员把实例迁到流程的另一个版本：正在用的节点按对应关系换到新版本的节点（同名的可以不写），
+   * 新版本里没有或类型不同时报 invalid-input，不迁；待办、运行状态、作业跟着改，记 instance.migrated
+   */
+  | {
+      readonly type: 'migrate';
+      readonly instance: number;
+      readonly version: number;
+      /** 旧节点 → 新节点 */
+      readonly nodes?: Readonly<Record<string, string>>;
+      readonly comment: string;
+    }
   /** 管理员改单据数据：记下每个字段改前、改后的值（instance.dataChanged） */
   | {
       readonly type: 'changeData';

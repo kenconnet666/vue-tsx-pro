@@ -57,7 +57,7 @@ import {
   type OperationView,
 } from './operations.ts';
 import { buildProject, linkProject, type FlowLogic } from './project.ts';
-import { emptyRunState } from './state.ts';
+import { emptyRunState, renameNodes } from './state.ts';
 import type {
   Actor,
   BatchResult,
@@ -1152,6 +1152,93 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     );
   }
 
+  /** 管理员迁移版本（同 Java 版）：先核对正在用的节点在新版本里都有、类型相同，再换版本、改待办与作业 */
+  async function migrate(
+    command: Extract<FlowCommand, { type: 'migrate' }>,
+    actor: Actor,
+  ): Promise<RunResult> {
+    if (!actor.admin) throw new FlowError('forbidden', '只有管理员能迁移版本');
+    if (!command.comment?.trim()) {
+      throw new FlowError('invalid-input', '迁移要写原因', { field: 'comment', code: 'required' });
+    }
+    return withInstance(
+      command.instance,
+      actor,
+      async (exec, tx) => {
+        if (exec.finished)
+          throw new FlowError('instance-not-active', `实例 ${command.instance} 已经结束`);
+        const target = await tx
+          .queryable(FlowDefinition)
+          .where((d) => [d.processKey.eq(exec.instance.processKey), d.version.eq(command.version)])
+          .first();
+        if (!target) {
+          throw new FlowError(
+            'not-found',
+            `没有 ${exec.instance.processKey} 的第 ${command.version} 版`,
+          );
+        }
+        const to = processGraph(target.model);
+        const live = await tx
+          .queryable(FlowWorkItem)
+          .where((w) => [w.instanceId.eq(exec.instance.id), w.state.in(['open', 'waiting'])])
+          .toList();
+        const inUse = new Set([...exec.current, ...live.map((w) => w.node)]);
+        const mapping: Record<string, string> = {};
+        for (const node of inUse) {
+          const next = command.nodes?.[node] ?? node;
+          const before = exec.graph.node(node);
+          const after = to.node(next);
+          if (!before || !after || before.type !== after.type) {
+            throw new FlowError(
+              'invalid-input',
+              `节点 ${node} 在第 ${command.version} 版里没有对应的节点`,
+              {
+                field: `nodes.${node}`,
+                code: 'no-matching-node',
+              },
+            );
+          }
+          mapping[node] = next;
+        }
+        const renamed = Object.entries(mapping).filter(([from, next]) => from !== next);
+        for (const [from, next] of renamed) {
+          await tx
+            .update(FlowWorkItem)
+            .set({ node: next, nodeName: to.node(next)!.name })
+            .where((w) => [w.instanceId.eq(exec.instance.id), w.node.eq(from)])
+            .execute();
+          await tx
+            .update(FlowJob)
+            .set({ node: next })
+            .where((j) => [j.instanceId.eq(exec.instance.id), j.node.eq(from)])
+            .execute();
+        }
+        for (const item of live.filter((w) => w.signGroup && mapping[w.node] !== w.node)) {
+          const round = item.signGroup!.slice(item.signGroup!.lastIndexOf('#'));
+          await tx
+            .update(FlowWorkItem)
+            .set({ signGroup: `${mapping[item.node]}${round}` })
+            .where((w) => w.id.eq(item.id))
+            .execute();
+        }
+        Object.assign(exec.state, renameNodes(exec.state, mapping));
+        const current = [...exec.current].map((node) => mapping[node] ?? node);
+        exec.current.clear();
+        for (const node of current) exec.current.add(node);
+        await tx
+          .update(FlowInstance)
+          .set({ definitionId: target.id, version: target.version })
+          .where((i) => i.id.eq(exec.instance.id))
+          .execute();
+        exec.addEvent('instance.migrated', {
+          comment: command.comment,
+          data: { fromVersion: exec.instance.version, toVersion: target.version, nodes: mapping },
+        });
+      },
+      command,
+    );
+  }
+
   async function runMany(commands: readonly FlowCommand[], actor: Actor): Promise<BatchResult[]> {
     const results: BatchResult[] = [];
     for (const command of commands) {
@@ -1290,6 +1377,8 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         return remind(command, actor);
       case 'changeData':
         return changeData(command, actor);
+      case 'migrate':
+        return migrate(command, actor);
       case 'comment':
         return withInstance(
           command.instance,

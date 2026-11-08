@@ -18,6 +18,27 @@ export interface RunState {
   events: Record<string, string>;
 }
 
+/** 迁移版本时按节点改名：按节点记的键、值里的节点、会签组（节点#轮次）都换成新版本的节点 */
+export function renameNodes(state: RunState, mapping: Readonly<Record<string, string>>): RunState {
+  const node = (id: string) => mapping[id] ?? id;
+  const keys = <T>(record: Record<string, T>, value: (v: T) => T = (v) => v) =>
+    Object.fromEntries(Object.entries(record).map(([k, v]) => [node(k), value(v)]));
+  const group = (key: string) => {
+    const at = key.lastIndexOf('#');
+    return at < 0 ? node(key) : `${node(key.slice(0, at))}${key.slice(at)}`;
+  };
+  return {
+    ...state,
+    waiting: keys(state.waiting),
+    rounds: keys(state.rounds),
+    handledBy: keys(state.handledBy),
+    returnedFrom: keys(state.returnedFrom, node),
+    queues: Object.fromEntries(Object.entries(state.queues).map(([k, v]) => [group(k), v])),
+    calls: keys(state.calls),
+    events: keys(state.events),
+  };
+}
+
 /** 新实例的运行状态 */
 export const emptyRunState = (): RunState => ({
   waiting: {},

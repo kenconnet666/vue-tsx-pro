@@ -44,6 +44,9 @@
   事件由 `engine.signal` 送来时调 `received`（不写时按事件带的结果走）；节点上除共同字段以外的属性原样给它。
 - 自定义会签规则（`multi.complete: '名字'`）：扩展的 `countersign` 里注册，每有一个人处理完问一次，返回结果就结束、返回
   undefined 再等，都办完没结果按 `fallback`（没写时按最后这个人选的）。流程工程的 logic.ts 也能写这两类。
+- 迁移版本（`migrate`，管理员）：正在用的节点按对应关系（同名的可以不写）换到新版本的节点，新版本里没有或类型不同时报
+  `invalid-input`（`code: no-matching-node`）不迁；待办、作业、运行状态里的节点跟着改，记 `instance.migrated`。
+- 提级是结果的一种（`kind: 'escalate'`），按提级连线走，不是动作。
 - 已办、我发起的按流程、时间段筛（`ListFilter`：`processKey`、`from`、`to`）。
 
 ## 4. 表
@@ -52,4 +55,4 @@
 
 ## 5. 之后
 
-提级、草稿、实例迁移，按 ROADMAP 26.3 接着做，都按这里的形状加。
+草稿（处理前暂存、发起前存草稿）要按单据的字段校验值，随表单模块（ROADMAP 26.4）做。

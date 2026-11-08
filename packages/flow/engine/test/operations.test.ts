@@ -208,6 +208,39 @@ describe('待办上的动作', () => {
     );
   });
 
+  it('迁移版本：正在用的节点按对应关系换到新版本，待办跟着改；新版本里没有对应节点时不迁', async () => {
+    const { engine, item, instance } = await claimedReview();
+    const v1 = processOf('purchase');
+    const rename = (id: string) => (id === 'review' ? 'check' : id);
+    await engine.publish({
+      ...v1,
+      nodes: v1.nodes.map((n) => ({
+        ...n,
+        id: rename(n.id),
+        ...(n.id === 'review' ? { name: '财务核对' } : {}),
+      })),
+      edges: v1.edges.map((e) => ({ ...e, from: rename(e.from), to: rename(e.to) })),
+    } as ProcessDefinition);
+    const admin: Actor = { id: '1000', admin: true };
+    await rejectsWith(
+      engine.run({ type: 'migrate', instance, version: 2, comment: '换版本' }, admin),
+      'invalid-input',
+    );
+    await engine.run(
+      { type: 'migrate', instance, version: 2, nodes: { review: 'check' }, comment: '换版本' },
+      admin,
+    );
+    const detail = await engine.query.instance(instance);
+    assert.equal(detail.instance.version, 2);
+    assert.deepEqual(
+      detail.current.map((c) => [c.node, c.name]),
+      [['check', '财务核对']],
+    );
+    const done = await engine.run({ type: 'complete', workItem: item.id, outcome: 'pass' }, carol);
+    assert.equal(done.instance.status, 'completed');
+    assert.ok(detail.events.some((e) => e.type === 'instance.migrated'));
+  });
+
   it('自定义动作：选项里加的出现在待办详情里，按 available 判断，run 里能记事件', async () => {
     const flag: WorkItemOperation<{ reason?: string }> = {
       name: 'flag',
