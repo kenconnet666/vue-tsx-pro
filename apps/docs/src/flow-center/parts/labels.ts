@@ -1,7 +1,7 @@
 /**
  * 流程中心里的说法：流转记录、实例状态、时间的写法。页面与组合共用。
  */
-import type { FlowEventView, InstanceStatus } from '@zerodep-dev/flow-ts-engine';
+import type { FlowEventView, InstanceStatus, NotificationView } from '@zerodep-dev/flow-ts-engine';
 import type { StatusTone } from '@zerodep-dev/vue-tsx-pro-ui';
 import { useFlowCenter } from '../runtime/center';
 
@@ -70,3 +70,42 @@ export function timeText(value: Date | string | null | undefined, now = new Date
 /** 发起人等编号写成名字；库里没有时是编号 */
 export const who = (id: string | null | undefined): string =>
   useFlowCenter().person(id)?.name ?? id ?? '';
+
+/** 通知的说法：标题、第二行与色调（引擎只给事件，文案在这里；以后按语言包换） */
+export function noticeText(notice: NotificationView): {
+  title: string;
+  description: string;
+  tone?: StatusTone;
+} {
+  const title = notice.title ?? notice.processKey;
+  const node = notice.nodeName ?? '';
+  switch (notice.event) {
+    case 'arrived':
+      return { title: `待办：${title}`, description: `“${node}”到了你这里` };
+    case 'returned':
+      return {
+        title: `退回：${title}`,
+        description: `“${node}”退回给你，改好再提交`,
+        tone: 'warning',
+      };
+    case 'reminded':
+      return {
+        title: `催办：${title}`,
+        description: notice.sender
+          ? `${who(notice.sender)}催你处理“${node}”`
+          : `“${node}”很久没人认领`,
+        tone: 'warning',
+      };
+    case 'dueSoon':
+      return { title: `快到期：${title}`, description: `“${node}”快到时限了`, tone: 'warning' };
+    case 'overdue':
+      return { title: `已超时：${title}`, description: `“${node}”过了时限`, tone: 'danger' };
+    case 'cc':
+      return {
+        title: `抄送：${title}`,
+        description: notice.sender ? `${who(notice.sender)}抄送给你` : '流程抄送给你',
+      };
+    case 'finished':
+      return { title: `已结束：${title}`, description: '你发起的这张单结束了', tone: 'success' };
+  }
+}

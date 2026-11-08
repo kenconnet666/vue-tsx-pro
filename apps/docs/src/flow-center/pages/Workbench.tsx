@@ -1,24 +1,26 @@
 /**
- * 工作台（docs/decisions/0009 第 4 节）：左边是列表——待办、已办、抄送我的、我发起的、草稿，右边是选中的审批单，像邮件一样不用来回换页。
+ * 工作台（docs/decisions/0009 第 4 节）：审批单占满宽度；列表——待办、已办、抄送我的、我发起的、草稿——收在顶上的下拉里，
+ * 按钮上写着现在看的是哪个格子、第几条，点开选一条（选完收起），旁边上一条、下一条，不用来回换页。
  * 待办里超时、快到期的排前面并标出来；处理完一条自动换到下一条；数据变了（别人处理了、作业跑了）列表自己刷新。
  * 批量：勾几条待办一起同意（各用节点上不要求写意见的同意结果），逐条给出结果，没办成的留着并写出原因。
  * 键盘：J / K（焦点在列表里时也可以 ↑ ↓）换一条，回车去处理（焦点到第一个结果按钮），X 勾选。
  * 选中的格子与单子记在地址栏里（box、instance、item），刷新、分享链接都还在。
  */
-import { Square, SquareCheck } from '@lucide/icons';
+import { ChevronDown, ChevronUp, Square, SquareCheck } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { CcItem, InstanceRow, TodoItem } from '@zerodep-dev/flow-ts-engine';
 import {
   Badge,
   Button,
-  Card,
   Empty,
   Flex,
   Icon,
+  IconButton,
   ItemList,
   ItemListItem,
   Kbd,
+  Popover,
   SkeletonText,
   Small,
   Tab,
@@ -61,14 +63,23 @@ interface Entry {
 }
 
 const styles = css.create({
-  layout: {
-    display: 'grid',
-    gap: '_lg',
-    containerType: 'inline-size',
-    gridTemplateColumns: { default: '1fr', '@media (min-width: 64rem)': '22rem minmax(0, 1fr)' },
-    alignItems: 'start',
+  page: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
+  top: { display: 'flex', alignItems: 'center', gap: '_xs', flexWrap: 'wrap' },
+  // 下拉按钮上的标题：太长时省略，不把工具条撑开
+  current: {
+    maxWidth: '28rem',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
-  list: { position: { default: 'static', '@media (min-width: 64rem)': 'sticky' }, top: '4.5rem' },
+  // 弹出的列表：固定宽、列表太长时在里面滚
+  panel: {
+    width: 'min(26rem, calc(100vw - 2rem))',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '_xs',
+  },
+  scroll: { maxHeight: '60vh', overflowY: 'auto' },
   bar: { paddingBlock: '_sm', paddingInline: '_xs' },
 });
 
@@ -100,6 +111,8 @@ export default _component(() => {
   let approving = _state(false);
   // 存成响应式的：挂载后列表里的方向键才绑得上
   let listElement = _state.raw<HTMLElement | null>(null);
+  /** 顶上的列表下拉开着没有 */
+  let listOpen = _state(false);
 
   const box = () =>
     (BOXES.some((b) => b.value === route.query['box']) ? route.query['box'] : 'todo') as Box;
@@ -321,82 +334,135 @@ export default _component(() => {
     );
   }
 
+  /** 列表本身：页签、批量处理、条目、快捷键提示（在顶上的下拉里） */
+  function renderList(list: Entry[] | null) {
+    return (
+      <div {...css.attrs(styles.panel)}>
+        <Tabs
+          _value={box()}
+          onUpdate:_value={(value: string) => void router.replace({ query: { box: value } })}
+        >
+          <TabList aria-label="工作台">
+            {BOXES.map((b) => (
+              <Tab key={b.value} value={b.value}>
+                {b.label}
+              </Tab>
+            ))}
+          </TabList>
+        </Tabs>
+        {list && renderBatchBar(list)}
+        {!list ? (
+          <SkeletonText lines={5} />
+        ) : list.length === 0 ? (
+          <Empty title="这里是空的" description={box() === 'todo' ? '没有要处理的' : undefined} />
+        ) : (
+          <div
+            ref={(value: unknown) => (listElement = toElement(value))}
+            {...css.attrs(styles.scroll)}
+          >
+            <ItemList aria-label={BOXES.find((b) => b.value === box())!.label}>
+              {list.map((entry) => (
+                <ItemListItem
+                  key={entry.key}
+                  title={entry.title}
+                  description={entry.description}
+                  start={
+                    batch &&
+                    entry.quickOutcome && (
+                      <Icon
+                        icon={checked.includes(entry.key) ? SquareCheck : Square}
+                        tone={checked.includes(entry.key) ? 'accent' : 'muted'}
+                      />
+                    )
+                  }
+                  end={entry.badge && <Badge tone={entry.badge.tone}>{entry.badge.label}</Badge>}
+                  {...(entry.href
+                    ? { href: entry.href }
+                    : {
+                        selected: isCurrent(entry),
+                        // 批量模式下点一条是勾选它（不能批量的照常打开）；打开一条后收起下拉
+                        onSelect: () => {
+                          if (batch && entry.quickOutcome) return toggle(entry);
+                          select(entry);
+                          listOpen = false;
+                        },
+                      })}
+                />
+              ))}
+            </ItemList>
+          </div>
+        )}
+        {list && list.length > 0 && (
+          <Small tone="muted" sx={styles.bar}>
+            <Kbd>J</Kbd> <Kbd>K</Kbd> 换一条，<Kbd>Enter</Kbd> 去处理
+            {batch && (
+              <>
+                ，<Kbd>X</Kbd> 勾选
+              </>
+            )}
+          </Small>
+        )}
+      </div>
+    );
+  }
+
   return () => {
     const list = entries;
     const current = selected();
+    const openable = (list ?? []).filter((e) => !e.href);
+    const at = openable.findIndex(isCurrent);
+    const label = BOXES.find((b) => b.value === box())!.label;
     return (
-      <div {...css.attrs(styles.layout)}>
-        <Card padding="sm" sx={styles.list}>
-          <Tabs
-            _value={box()}
-            onUpdate:_value={(value: string) => void router.replace({ query: { box: value } })}
+      <div {...css.attrs(styles.page)}>
+        <div {...css.attrs(styles.top)}>
+          <Popover
+            _open={listOpen}
+            placement="bottom-start"
+            trigger={(props) => (
+              <Button variant="outline" tone="neutral" iconEnd={ChevronDown} {...props}>
+                {label}
+                {list && (
+                  <Badge tone={box() === 'todo' && list.length > 0 ? 'accent' : 'neutral'}>
+                    {list.length}
+                  </Badge>
+                )}
+                {at >= 0 && <span {...css.attrs(styles.current)}>{openable[at]!.title}</span>}
+              </Button>
+            )}
           >
-            <TabList aria-label="工作台">
-              {BOXES.map((b) => (
-                <Tab key={b.value} value={b.value}>
-                  {b.label}
-                </Tab>
-              ))}
-            </TabList>
-          </Tabs>
-          {list && renderBatchBar(list)}
-          {!list ? (
-            <SkeletonText lines={5} />
-          ) : list.length === 0 ? (
-            <Empty title="这里是空的" description={box() === 'todo' ? '没有要处理的' : undefined} />
-          ) : (
-            <div ref={(value: unknown) => (listElement = toElement(value))}>
-              <ItemList aria-label={BOXES.find((b) => b.value === box())!.label}>
-                {list.map((entry) => (
-                  <ItemListItem
-                    key={entry.key}
-                    title={entry.title}
-                    description={entry.description}
-                    start={
-                      batch &&
-                      entry.quickOutcome && (
-                        <Icon
-                          icon={checked.includes(entry.key) ? SquareCheck : Square}
-                          tone={checked.includes(entry.key) ? 'accent' : 'muted'}
-                        />
-                      )
-                    }
-                    end={entry.badge && <Badge tone={entry.badge.tone}>{entry.badge.label}</Badge>}
-                    {...(entry.href
-                      ? { href: entry.href }
-                      : {
-                          selected: isCurrent(entry),
-                          // 批量模式下点一条是勾选它（不能批量的照常打开）
-                          onSelect: () =>
-                            batch && entry.quickOutcome ? toggle(entry) : select(entry),
-                        })}
-                  />
-                ))}
-              </ItemList>
-            </div>
-          )}
-          {list && list.length > 0 && (
-            <Small tone="muted" sx={styles.bar}>
-              <Kbd>J</Kbd> <Kbd>K</Kbd> 换一条，<Kbd>Enter</Kbd> 去处理
-              {batch && (
-                <>
-                  ，<Kbd>X</Kbd> 勾选
-                </>
-              )}
+            {renderList(list)}
+          </Popover>
+          <IconButton
+            variant="ghost"
+            tone="neutral"
+            icon={ChevronUp}
+            aria-label="上一条（K）"
+            disabled={at <= 0}
+            onClick={() => move(-1)}
+          />
+          <IconButton
+            variant="ghost"
+            tone="neutral"
+            icon={ChevronDown}
+            aria-label="下一条（J）"
+            disabled={at < 0 || at >= openable.length - 1}
+            onClick={() => move(1)}
+          />
+          {at >= 0 && (
+            <Small tone="muted">
+              第 {at + 1} / {openable.length} 条
             </Small>
           )}
-        </Card>
-        <div>
-          {current.instance ? (
-            <ApprovalPanel
-              key={`${current.instance}-${current.item ?? ''}`}
-              instance={current.instance}
-              workItem={current.item}
-            />
-          ) : (
-            <Empty title="选一张单" description="左边点一条，在这里看、处理。" />
-          )}
         </div>
+        {current.instance ? (
+          <ApprovalPanel
+            key={`${current.instance}-${current.item ?? ''}`}
+            instance={current.instance}
+            workItem={current.item}
+          />
+        ) : (
+          <Empty title="选一张单" description={`点上面的“${label}”，选一条在这里看、处理。`} />
+        )}
       </div>
     );
   };

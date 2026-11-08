@@ -72,11 +72,14 @@ describe.skipIf(!chromium)('流程中心', () => {
         button('同意', document.querySelector('[data-flow-outcomes]') ?? document),
       )
     ).click();
-    await waitFor(() => text().includes('没有要处理的'));
+    // 办完了：列表空了，审批单那里请人选一张
+    await waitFor(() => text().includes('选一张单'));
 
     useFlowCenter().setActor('1013');
+    // 列表收在顶上的下拉里：点开，选年假那条（选完下拉收起）
+    (await waitFor(() => main()?.querySelector<HTMLElement>('button[aria-expanded]'))).click();
     const item = await waitFor(() =>
-      [...document.querySelectorAll<HTMLElement>('main li button')].find((b) =>
+      [...document.querySelectorAll<HTMLElement>('[popover] li button')].find((b) =>
         b.textContent?.includes('年假'),
       ),
     );
@@ -87,12 +90,22 @@ describe.skipIf(!chromium)('流程中心', () => {
         button('已备案', document.querySelector('[data-flow-outcomes]') ?? document),
       )
     ).click();
+    // 备案完：下拉按钮上写的当前这张不再是年假
     await waitFor(
-      () =>
-        ![...document.querySelectorAll('main li button')].some((b) =>
-          b.textContent?.includes('年假'),
-        ),
+      () => !main()?.querySelector('button[aria-expanded]')?.textContent?.includes('年假'),
     );
+
+    // 通知：备案的待办到人事的收件箱时，人事经理收到“到达”；单子结束，发起人陈晓收到“已结束”
+    const { client } = useFlowCenter();
+    expect((await client.notifications.list()).some((n) => n.event === 'arrived')).toBe(true);
+    useFlowCenter().setActor('1005');
+    // 换了身份要等 Worker 收到：轮询到有为止
+    for (let i = 0; i < 50; i++) {
+      if ((await client.notifications.list()).some((n) => n.event === 'finished')) break;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    expect((await client.notifications.list()).some((n) => n.event === 'finished')).toBe(true);
+    expect(document.querySelector('button[aria-label^="通知"]')).not.toBeNull();
   }, 60_000);
 
   it('总经理在工作室里给请假加抄送，检查通过后发布第 2 版', async () => {

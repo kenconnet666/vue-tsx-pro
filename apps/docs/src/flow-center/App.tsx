@@ -1,5 +1,5 @@
 /**
- * 流程中心的应用外壳（docs/decisions/0009）：侧栏是工作台、发起、单据、工作室与管理（管理员）；顶栏是演示身份（谁在用）、演示时钟（快进看超时与提醒）、
+ * 流程中心的应用外壳（docs/decisions/0009）：侧栏是工作台、发起、单据、工作室与管理（管理员）；顶栏是演示身份（谁在用）、通知铃铛、演示时钟（快进看超时与提醒）、
  * 重置演示数据、回文档。第一次打开时 Worker 要建表、发布流程、写种子，先显示进度。
  */
 import {
@@ -38,6 +38,7 @@ import { computed, onMounted, watch } from 'vue';
 import { RouterView } from 'vue-router';
 import { preference } from '../site/theme';
 import { formSourcesOf } from './domain/sources';
+import { NotificationBell } from './parts/NotificationBell';
 import { timeText } from './parts/labels';
 import { toaster } from './parts/toaster';
 import { useFlowCenter, type FlowCenter } from './runtime/center';
@@ -126,6 +127,7 @@ export default _component(() => {
                   aria-label="演示身份"
                   sx={styles.identity}
                 />
+                {current.state.status === 'ready' && <NotificationBell />}
                 <Small tone="muted">{timeText(current.state.now)}</Small>
                 <Menu
                   trigger={(props) => (
