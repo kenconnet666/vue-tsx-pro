@@ -3,6 +3,50 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.16.0（2026-11-08）
+
+- NotificationList、NotificationCenter 改成配方组件：`components.NotificationList` 按部件（root、head、title、markAll、filters、
+  types、unreadOnly、scroll、list、item、dot、body、itemTitle、description、time、empty、footer）追加样式，`components.NotificationCenter`
+  按部件（panel、indicator、trigger、list）追加样式。顺手修了“只看未读”没有靠结束边（样式落到了开关的 input 上）。
+- Card 的 `padding="none"` 只让正文贴边，页头、页脚仍留 sm / md 的内边距（原来文字贴着边框）。
+- FilterBar 改成配方组件（QueryTable 的查询栏也是它）：`components.FilterBar` 可以给 `labelPlacement`、`labelWidth`、`minFieldWidth`
+  的默认值（全站查询栏的标签位置、条件宽度），按部件（root、start、body、row、fields、actions、toggle、advancedToggle、reset、search、
+  more、advanced、summary、clearAdvanced）追加样式。
+- Upload 改成配方组件：`components.Upload` 可以给 `listType`、`thumbnailSize`、`sortable`、`pasteable` 的默认值，按部件（root、drop、
+  hint、list、item、icon、body、name、link、progress、meta、retry、remove、wall、wallList、card、image、placeholder、overlay、actions、
+  handle）追加样式；drop、list、card、image、retry、remove 等原来没有标记的也带上了。
+- 样式合并按“后写的赢”处理简写与长属性：后面的片段写了简写（`padding`、`paddingInline`、`border`、`outline`、`flex`、`gap`…），
+  前面片段里被它重设的长属性去掉，不再出现后写的简写盖不过前面长属性的情况（如 UserButton 的 `compact` 与整行的内边距、
+  示例卡片底栏的 `padding: 0`）。同一个样式对象里两者都写时仍是长属性赢。
+- 图表的内部节点带上部件标记：外框、绘图区、标记（柱、线、面积、点）、XY 图的参考线与十字准线等共用部分是 `data-scope="chart"`
+  （root、header、unit、unitEnd、legend、legendItem、swatch、plot、state、tooltip、tooltipContent、grid、tick、bars、bar、lines、line、
+  areas、area、dots、dot、band、target、event、mark、crosshair…），各图自己的部分用自己的名字（`graph-chart`、`map-chart`、
+  `funnel-chart`、`radar-chart`、`treemap-chart`、`sankey-chart`、`chord-chart`、`timeline-chart`、`donut-chart`、`sparkline`）。
+  原来手写的 `data-part`（bar、line、area、node、link、segment…）名字不变，多了 `data-scope`；Donut 中心的说明文字改叫 centerTitle。
+- 又一批内部节点带上部件标记（部件名取样式键）：ThemeCustomizer、ThemeThumbnail、Diagram、DiagramMinimap、QueryTable、Listbox、
+  PeoplePickerPanel、SchemaForm、FieldCompare、Tree、ColumnSettings、ColumnHeaderActions、TreeDataTable、Cascader、ItemList、
+  PageSizeSelect、Splitter、ImageCropper、SignaturePad、CalendarView、DatePicker、StepsForm、Popconfirm、Affix、AsideLayout、
+  ColorField、ListPopover、OtpField、FormSection、LoadingBar、QRCode、VirtualList。
+  图表的 svg 根、坐标轴文字与十字准线，选择框一族（Select、Cascader、TreeSelect、PeoplePicker）共用的 value、placeholder
+  （`data-scope="select"`）也带上了。
+- 更多部件属性：RadioGroup、CheckboxGroup 的 `propsItem`（按 items 生成的每一项，可以按项计算）、ColumnSettings 的 `propsCheckbox`、
+  SelectedTags 的 `propsMore`（“+N”）、DatePicker 与 DateRangePicker 的 `propsPreset`（快捷选项按钮）、NavItem 的 `propsBadge`；
+  FilterBar 的计数角标是 `count` 部件，NavBar 的计数、DataImport 的必填星号、CommandPalette 的快捷键提示、表头筛选的选项与“清除”带上标记。
+- 交互状态补齐：可选中的 Tag 悬停时叠一层 8% 的文字色（原来没有悬停反馈）；可移除的 Tag 的移除按钮悬停、按下的底色取标签的文字色
+  （原来是灰色，彩色标签上不协调）；`tone="muted"` 的 Link 悬停时换成正文色（`underline="none"` 的导航链接原来没有悬停反馈）。
+  Splitter 的分隔条悬停、拖动时线从 1px 加粗到 3px 并变深，键盘聚焦时加粗成强调色（同 ResizeHandle，去掉了原来贯穿整栏的焦点框）；
+  Splitter 与 ResizeHandle 拖动中带 `data-dragging`，指针离开了也保持高亮。
+- 暗色主题的实色悬停改成调亮（原来调暗，在深色背景上看不出悬停）：dark 的 `accentHover` `#3758d4` → `#4a6ddf`，dark、midnight、ember、
+  cyberpunk 的 `dangerHover` `#a33b3e` → `#bd5356`，白字仍有 4.6:1。midnight 的品牌色、big-screen 的危险色白字已贴着 4.5:1，仍是调暗。
+- 输入法：NumberField 在组合中的 ↑ ↓（选候选）不再加减、Enter（上屏）不再提交；Select 的搜索框在组合中按退格不再删掉已选的项。
+- 列表行（Listbox、Tree、Cascader、NavList、Menu）的高亮、已选、当前、不可用改成跟着元素上的属性走（条件别名）：
+  `itemStyles.highlighted / selected / current / disabled` 合成 `itemStyles.states`，元素写 `data-highlighted`、`aria-selected`、
+  `aria-current`（或 `data-current`）、`aria-disabled` 即可；Listbox、Tree 的 `data-active` 换成 `data-highlighted`（Tree 只在有焦点时），
+  Tree 选中的节点多一个 `data-current`；`menuItemLayer` 去掉 `disabled` 参数。外观不变，当前项悬停时文字保持品牌色。
+  ItemList（`data-selected`、`data-disabled`）、NavBar（`aria-current`，下拉与“更多”按钮带 `data-current`）、按钮家族的不可用
+  （`disabled` / `aria-disabled`；`buttonSx` 去掉 `disabled`）、DataTable 的已选与正在看的行（`aria-selected`、`aria-current`）、
+  CalendarBoard 的选中与不可用格（不可用格多了 `aria-disabled`，悬停不再有底色）同样改了。
+
 ## 0.15.0（2026-11-08）
 
 - 组合组件把里面的按钮、勾选框、链接、头像的部件属性转发出来（用 `mergePartProps` 合并，组件管理的点击、勾选、不可用在最后）：
