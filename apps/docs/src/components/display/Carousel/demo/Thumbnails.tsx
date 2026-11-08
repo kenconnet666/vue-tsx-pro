@@ -4,14 +4,15 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { ButtonBase, Carousel, Flex, Image, Small } from '@zerodep-dev/vue-tsx-pro-ui';
 import { drawings } from '../../Image/demo/drawings';
 
-// 当前的一张（aria-current）描一圈强调色；其余的淡一些，悬停时亮起来。描边与焦点环共用 outline：键盘聚焦时换成焦点环的颜色
+// 当前的一张（aria-current）描一圈强调色；其余的淡一些，悬停时亮起来。描边与焦点环共用 outline：键盘聚焦时换成焦点环的颜色、
+// 离得更远（当前的那张聚焦时也看得出来）
 const styles = css.create({
   thumb: {
     borderRadius: '_md',
     outlineWidth: '2px',
     outlineStyle: 'solid',
     outlineColor: { default: 'transparent', _current: '_accent', _focusVisible: '_focusRing' },
-    outlineOffset: '2px',
+    outlineOffset: { default: '2px', _focusVisible: '4px' },
     opacity: { default: 0.6, _hover: 0.9, _current: { default: 1, _hover: 1 } },
   },
 });

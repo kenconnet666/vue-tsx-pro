@@ -41,7 +41,7 @@ export default _component(() => () => (
           是缩小、比例、放大、适应画布四个按钮。拖动空白处平移，滚轮平移，按住 Ctrl / ⌘
           滚轮或触控板捏合缩放。
         </Example>
-        <Example id="process" title="流程图：形状、状态、退回的线" demo={Process}>
+        <Example id="flowchart" title="流程图：形状、状态、退回的线" demo={Process}>
           节点数据的 <Code>shape</Code> 定形状：<Code>circle</Code> 画开始、结束，
           <Code>diamond</Code> 画分支与汇合，里面的 <Code>DiagramNode</Code>{' '}
           跟着画，连线接到形状的轮廓上（圆、菱形的线接在顶点）。

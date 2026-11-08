@@ -79,6 +79,8 @@ async function auditPage(theme, path) {
       localStorage.setItem('vue-tsx-pro-theme-settings', JSON.stringify({ scaling: 0.9 })),
     );
   const page = await context.newPage();
+  // 浮层页的示例会打开对话框、引导，盖住后面的示例：一步卡住不等太久，跳过这个元素接着查
+  page.setDefaultTimeout(5000);
   const found = [];
   try {
     await page.goto(`${origin}${path}`);
@@ -92,7 +94,13 @@ async function auditPage(theme, path) {
     for (const id of ids) {
       // 示例卡片推迟渲染：滚到小节那里再等示例出来；键盘、API 这类小节没有示例，跳过
       const section = page.locator(`[id="${id}"]`).locator('xpath=..');
-      await page.locator(`[id="${id}"]`).scrollIntoViewIfNeeded();
+      await page.keyboard.press('Escape');
+      const scrolled = await page
+        .locator(`[id="${id}"]`)
+        .scrollIntoViewIfNeeded()
+        .then(() => true)
+        .catch(() => false);
+      if (!scrolled) continue;
       const demo = section.locator('[data-demo]');
       await demo
         .first()
@@ -105,11 +113,12 @@ async function auditPage(theme, path) {
       for (let index = 0; index < count; index++) {
         const target = targets.nth(index);
         if (!(await target.isVisible())) continue;
-        const { label, disabled, focusable, cells } = await captureStates(page, target, {
-          active: false,
-          settle: 80,
-        });
-        if (!cells.default) continue;
+        const captured = await captureStates(page, target, { active: false, settle: 80 }).catch(
+          () => null,
+        );
+        await page.keyboard.press('Escape');
+        if (!captured?.cells.default) continue;
+        const { label, disabled, focusable, cells } = captured;
         const missing = [];
         if (!disabled && cells.hover === cells.default) missing.push('悬停');
         if (focusable && cells.focus === cells.default) missing.push('焦点');
