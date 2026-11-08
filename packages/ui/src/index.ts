@@ -1008,10 +1008,15 @@ export { createConstraints, type FieldConstraints } from './form/form-constraint
 export { useLeaveConfirmation, type LeaveConfirmationOptions } from './form/leave-confirmation';
 export {
   emptyValues,
+  isBlank,
   schemaConditionFields,
   schemaFields,
+  schemaFieldState,
+  walkSchemaFields,
   type SchemaControls,
   type SchemaField,
+  type SchemaFieldAccess,
+  type SchemaFieldState,
   type SchemaOption,
 } from './form/schema-fields';
 export {
@@ -1027,6 +1032,7 @@ export {
 export {
   useForm,
   type ArrayPath,
+  type FieldAccessMap,
   type FieldArray,
   type FieldPath,
   type FieldValidator,

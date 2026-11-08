@@ -236,8 +236,8 @@ export const SchemaFields = _component(
       );
     }
 
-    /** 对象的数组：每一行是一组字段加删除按钮，标题旁是添加按钮 */
-    function rows(field: SchemaField, path: string) {
+    /** 对象的数组：每一行是一组字段加删除按钮，标题旁是添加按钮；只读时不能增删行 */
+    function rows(field: SchemaField, path: string, readonly: boolean) {
       const array = controller.array(path as never) as FieldArray<unknown>;
       const children = field.fields ?? [];
       const blank = Object.fromEntries(children.map((child) => [child.key, child.empty]));
@@ -247,7 +247,7 @@ export const SchemaFields = _component(
             {...mergePartProps<FormSectionProps>({}, propsSection, {
               title: field.label,
               description: field.description,
-              extra: (
+              extra: readonly ? undefined : (
                 <Button
                   {...mergePartProps<ButtonProps>(
                     { size: 'sm', variant: 'soft', icon: Plus },
@@ -274,19 +274,21 @@ export const SchemaFields = _component(
                     >
                       {section(`${path}.${index}`, children, `${path}.${index}.`)}
                     </div>
-                    <IconButton
-                      {...mergePartProps<IconButtonProps>(
-                        {
-                          icon: Trash2,
-                          variant: 'ghost',
-                          tone: 'danger',
-                          'aria-label': lang.formRemoveRow(field.label, index + 1),
-                          sx: schemaFormStyles.rowRemove,
-                        },
-                        propsRemoveRow,
-                        { onClick: () => array.remove(index) },
-                      )}
-                    />
+                    {!readonly && (
+                      <IconButton
+                        {...mergePartProps<IconButtonProps>(
+                          {
+                            icon: Trash2,
+                            variant: 'ghost',
+                            tone: 'danger',
+                            'aria-label': lang.formRemoveRow(field.label, index + 1),
+                            sx: schemaFormStyles.rowRemove,
+                          },
+                          propsRemoveRow,
+                          { onClick: () => array.remove(index) },
+                        )}
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -296,10 +298,12 @@ export const SchemaFields = _component(
       );
     }
 
-    /** 一个字段：嵌套对象是一组，列表是可增删的行，其余是 Field 里放控件 */
+    /** 一个字段：嵌套对象是一组，列表是可增删的行，其余是 Field 里放控件；按权限与条件不显示、只读、必填 */
     function item(field: SchemaField, prefix: string): VNodeChild {
       const path = `${prefix}${field.key}`;
-      if (field.control === 'list') return rows(field, path);
+      const state = controller.fieldState(path);
+      if (!state.visible) return null;
+      if (field.control === 'list') return rows(field, path, state.readonly);
       if (field.control === 'object') {
         return (
           <GridItem key={path} span="full">
@@ -318,6 +322,8 @@ export const SchemaFields = _component(
           label={field.label}
           labelHidden={field.control === 'checkbox'}
           description={field.description}
+          {...(state.readonly ? { readonly: true } : {})}
+          {...(state.required ? { required: true } : {})}
         >
           {control}
         </Field>

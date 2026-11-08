@@ -14,7 +14,12 @@
  * 推不出的类型（自定义类型、z.date()）是 TextField：日期用 z.iso.date()，或用 SchemaForm 的 fields 换成自己的控件。
  */
 import type { $ZodType } from 'zod/v4/core';
-import type { ConditionField, ConditionFieldType } from '../input/condition';
+import {
+  matchesCondition,
+  type Condition,
+  type ConditionField,
+  type ConditionFieldType,
+} from '../input/condition';
 import { cloneValue } from '../utils/data/clone';
 import { toJsonSchema, unwrap, type JsonSchema } from './form-constraints';
 
@@ -62,6 +67,15 @@ declare module 'zod/v4/core' {
     options?: Readonly<Record<string, string>>;
     /** 数字的单位（SchemaForm），写在输入框的结束边：元、天、kg */
     unit?: string;
+    /**
+     * 显示条件（SchemaForm、useForm）：不成立时字段不显示、不校验（同 ConditionBuilder 的条件，字段名是同一层或顶层的键）。
+     * 有条件的字段在 schema 里写成可选，条件由表单负责
+     */
+    visibleWhen?: Condition;
+    /** 必填条件：成立时空着报“必填” */
+    requiredWhen?: Condition;
+    /** 只读条件：成立时控件只读 */
+    readonlyWhen?: Condition;
   }
 }
 
@@ -97,6 +111,28 @@ export interface SchemaField {
   fields?: readonly SchemaField[];
   /** 空着时的值：新的一行、emptyValues 用它（必填的选择、数字、日期是 null，可选的是 undefined） */
   empty: unknown;
+  /** 显示条件（meta） */
+  visibleWhen?: Condition;
+  /** 必填条件（meta） */
+  requiredWhen?: Condition;
+  /** 只读条件（meta） */
+  readonlyWhen?: Condition;
+}
+
+/**
+ * 字段的权限（useForm 的 access，按字段路径）：hidden 不显示、不校验，readonly 只读、不算必填，editable 照 schema 与条件，
+ * required 必填。流程的环节权限（字段 × 环节）直接映射过来；明细表的列没写时跟着明细表
+ */
+export type SchemaFieldAccess = 'hidden' | 'readonly' | 'editable' | 'required';
+
+/** 字段此刻的样子 */
+export interface SchemaFieldState {
+  /** 显示（不显示的不渲染、不校验） */
+  readonly visible: boolean;
+  /** 只读 */
+  readonly readonly: boolean;
+  /** 条件或权限要求必填（schema 本身的必填另算） */
+  readonly required: boolean;
 }
 
 const META_KEYS = [
@@ -108,6 +144,9 @@ const META_KEYS = [
   'group',
   'options',
   'unit',
+  'visibleWhen',
+  'requiredWhen',
+  'readonlyWhen',
 ] as const;
 type Meta = { [K in (typeof META_KEYS)[number]]?: unknown };
 
@@ -211,11 +250,84 @@ function fieldsOf(root: JsonSchema, object: JsonSchema): SchemaField[] {
     if (typeof meta.span === 'number' || meta.span === 'full') field.span = meta.span;
     if (options) field.options = options;
     if (fields) field.fields = fields;
+    for (const name of ['visibleWhen', 'requiredWhen', 'readonlyWhen'] as const) {
+      if (isCondition(meta[name])) field[name] = meta[name];
+    }
     return field;
   });
 }
 
 const cache = new WeakMap<$ZodType, readonly SchemaField[]>();
+
+const isCondition = (value: unknown): value is Condition =>
+  typeof value === 'object' && value !== null;
+
+/** 值是不是空的（null、undefined、空文字、空数组）：必填按它判断 */
+export const isBlank = (value: unknown): boolean =>
+  value === null ||
+  value === undefined ||
+  (typeof value === 'string' && value.trim() === '') ||
+  (Array.isArray(value) && value.length === 0);
+
+/**
+ * 字段此刻的样子：权限（access）→ 显示条件 → 只读（权限或条件）→ 必填（权限、条件或 schema 的必填）。
+ * read 按字段名取值：明细表的列先找同一行，再找顶层
+ */
+export function schemaFieldState(
+  field: SchemaField,
+  access: SchemaFieldAccess | undefined,
+  read: (name: string) => unknown,
+): SchemaFieldState {
+  const holds = (condition: Condition | undefined) =>
+    condition !== undefined && matchesCondition(condition, undefined, (_, name) => read(name));
+  if (access === 'hidden' || (field.visibleWhen && !holds(field.visibleWhen)))
+    return { visible: false, readonly: true, required: false };
+  const readonly = access === 'readonly' || holds(field.readonlyWhen);
+  return {
+    visible: true,
+    readonly,
+    required: !readonly && (access === 'required' || holds(field.requiredWhen)),
+  };
+}
+
+/**
+ * 逐个走值里的字段（明细表逐行逐列），给出路径、字段与它此刻的样子：useForm 据此跳过隐藏字段的错误、补条件必填，
+ * SchemaFields 据此显示与只读。列没写权限时跟着明细表
+ */
+export function walkSchemaFields(
+  fields: readonly SchemaField[],
+  values: Readonly<Record<string, unknown>>,
+  access: Readonly<Partial<Record<string, SchemaFieldAccess>>>,
+  visit: (path: string, field: SchemaField, state: SchemaFieldState) => void,
+  prefix = '',
+  scope: Readonly<Record<string, unknown>> = values,
+  inherited?: SchemaFieldAccess,
+): void {
+  const read = (name: string) => (name in scope ? scope[name] : values[name]);
+  for (const field of fields) {
+    const path = `${prefix}${field.key}`;
+    const own = access[path.replace(/\.\d+\./g, '.')] ?? inherited;
+    const state = schemaFieldState(field, own, read);
+    visit(path, field, state);
+    if (!state.visible || !field.fields) continue;
+    const value = scope[field.key];
+    if (field.control === 'list' && Array.isArray(value)) {
+      value.forEach((row, index) =>
+        walkSchemaFields(field.fields!, values, access, visit, `${path}.${index}.`, row ?? {}, own),
+      );
+    } else if (field.control === 'object' && value && typeof value === 'object') {
+      walkSchemaFields(
+        field.fields,
+        values,
+        access,
+        visit,
+        `${path}.`,
+        value as Record<string, unknown>,
+        own,
+      );
+    }
+  }
+}
 
 /** schema（对象）→ 各个字段的描述，按 schema 缓存；不是对象的 schema 没有字段 */
 export function schemaFields(schema: $ZodType): readonly SchemaField[] {

@@ -13,6 +13,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Admission from './demo/Admission.tsx?demo';
+import Conditional from './demo/Conditional.tsx?demo';
 import Generated from './demo/Generated.tsx?demo';
 import Layout from './demo/Layout.tsx?demo';
 import Native from './demo/Native.tsx?demo';
@@ -73,6 +74,21 @@ export default _component(() => () => (
       {'（'}
       <Code>pick</Code> / <Code>omit</Code>
       {'），其余照旧手写。'}
+    </Example>
+    <Example id="conditional" title="字段的条件与权限" demo={Conditional}>
+      {'显示、必填、只读的条件写在 '}
+      <Code>.meta()</Code>
+      {' 里（'}
+      <Code>visibleWhen</Code> / <Code>requiredWhen</Code> / <Code>readonlyWhen</Code>
+      {'，条件同 ConditionBuilder）；'}
+      <Code>useForm</Code>
+      {' 的 '}
+      <Code>access</Code>
+      {
+        ' 按字段路径给权限（hidden、readonly、editable、required，可以是随环节变的函数；明细表的列没写时跟着明细表），与流程的环节权限一一对应。不显示的字段不渲染、不校验，条件必填的空着报“必填”；有条件的字段在 schema 里写成可选。'
+      }
+      <Code>form.fieldState(path)</Code>
+      {' 给出字段此刻的样子。'}
     </Example>
     <Examples>
       <ExampleColumn>

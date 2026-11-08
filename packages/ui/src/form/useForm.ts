@@ -39,6 +39,13 @@ import { safeParseAsync, type $ZodIssue, type $ZodRawIssue, type $ZodType } from
 import { useLang } from '../config/context';
 import { Field, type FieldProps } from './Field';
 import { createConstraints, type FieldConstraints } from './form-constraints';
+import {
+  isBlank,
+  schemaFields,
+  walkSchemaFields,
+  type SchemaFieldAccess,
+  type SchemaFieldState,
+} from './schema-fields';
 import { cloneValue } from '../utils/data/clone';
 import { sameValue } from '../utils/data/equality';
 import { codeText, errorCodeOf, errorMessage } from '../utils/request/error-message';
@@ -129,12 +136,23 @@ export interface FormValidateTimings {
   submit: unknown;
 }
 
+/** 字段的权限：字段路径（明细表的列写成 `列表.列`）→ 权限 */
+export type FieldAccessMap = Readonly<Partial<Record<string, SchemaFieldAccess>>>;
+
+/** 不在 schema 里的字段：显示、可改、不额外必填 */
+const VISIBLE: SchemaFieldState = { visible: true, readonly: false, required: false };
+
 /** useForm 的选项；Values 是表单里的值（有 schema 时是它的输入类型），Output 是校验通过后交给 onSubmit 的值 */
 export interface FormOptions<Values extends object, Output = Values> {
   /** 初始值；reset() 回到它 */
   initial: Values;
   /** zod schema：整份值一起校验，issue 的 path 决定错误挂在哪个字段上；字段约束也从它推出 */
   schema?: $ZodType<Output, Values>;
+  /**
+   * 字段的权限（按字段路径，明细表的列写成 `列表.列`）：hidden 不显示、不校验，readonly 只读，required 必填；
+   * 可以是函数（随环节、随人变）。与 schema 里 meta 的 visibleWhen、requiredWhen、readonlyWhen 一起算出字段此刻的样子
+   */
+  access?: FieldAccessMap | (() => FieldAccessMap);
   /** 自定义校验：返回各字段的错误（可以是 Promise），与 schema 的结果合并 */
   validate?: (values: Values) => FormErrors | Promise<FormErrors>;
   /**
@@ -189,6 +207,11 @@ export interface FormControllerBase {
   constraints(path: string): FieldConstraints;
   /** 创建时给的 schema：SchemaForm 按它生成字段 */
   readonly schema: $ZodType | undefined;
+  /**
+   * 字段此刻的样子（按 access 与 schema 里的条件）：不显示的不校验，SchemaForm 不渲染；路径里明细表的行号照写（`lines.0.price`）。
+   * 没有 schema、或 schema 里没有这个字段时是显示、可改、不额外必填
+   */
+  fieldState(path: string): SchemaFieldState;
   /** 字段的当前值（按点连接的路径）：Field 自动绑定值时用 */
   getValue(path: string): unknown;
   /** 写字段的值：中途是 null / undefined 时什么也不做 */
@@ -343,6 +366,22 @@ export function useForm<Values extends object, Output = Values>(
   // 最近一次通过校验时 schema 解析出的值，交给 onSubmit
   let parsed: Output | undefined;
   const constraints = createConstraints(schema);
+  const accessOf = () =>
+    (typeof options.access === 'function' ? options.access() : options.access) ?? {};
+  /** 全部字段此刻的样子（随值、随权限重算） */
+  const fieldStates = () => {
+    const states = new Map<string, SchemaFieldState>();
+    if (schema) {
+      walkSchemaFields(
+        schemaFields(schema),
+        values as Record<string, unknown>,
+        accessOf(),
+        (path, _, state) => states.set(path, state),
+      );
+    }
+    return states;
+  };
+  const statesNow = computed(fieldStates);
   const dirty = computed(() => !sameValue(values, state.baseline));
   // 数组字段每项的 key，与数组等长；数组被外部整个换掉（长度不同）时重新生成
   const arrayKeys = new Map<string, string[]>();
@@ -436,6 +475,15 @@ export function useForm<Values extends object, Output = Values>(
     if (options.validate) {
       for (const [path, message] of Object.entries(await options.validate(values))) {
         if (message) errors[path] ??= message;
+      }
+    }
+    // 权限与条件：不显示的字段（及它下面的）不报错，条件必填、权限必填的空着报“必填”
+    for (const [path, state] of fieldStates()) {
+      if (!state.visible) {
+        for (const key of Object.keys(errors))
+          if (key === path || key.startsWith(`${path}.`)) delete errors[key];
+      } else if (state.required && isBlank(readPath(values, path))) {
+        errors[path] ??= lang.formRequired;
       }
     }
     // 单字段校验：不等防抖，立刻跑完（值没变的直接用上次结果）
@@ -688,6 +736,7 @@ export function useForm<Values extends object, Output = Values>(
     },
     constraints,
     schema,
+    fieldState: (path) => statesNow.value.get(path) ?? VISIBLE,
     Field,
     getValue: (path) => readPath(values, path),
     setValue: (path, value) => writePath(values, path, value),
