@@ -17,6 +17,7 @@ import { useFieldControl } from '../form/Field';
 import { controlParts, useControlAppearance, type ControlOptions } from './control';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, relativeFontSizes, type TextSize } from '../utils/style/typography';
+import { touchInputStyles } from '../utils/style/styles';
 import { t } from '../config/theme/tokens';
 import { partAttrs } from '../config/styles';
 
@@ -93,7 +94,6 @@ const otpFieldStyles = css.create({
     appearance: 'none',
     color: 'transparent',
     caretColor: 'transparent',
-    font: 'inherit',
     letterSpacing: '-0.5em',
     cursor: 'text',
     '::selection': { backgroundColor: 'transparent' },
@@ -228,7 +228,11 @@ export const OtpField = _component(
           })}
           <input
             {...mergeAttrs<'input'>(
-              { sx: otpFieldStyles.input, autocomplete: 'one-time-code', spellcheck: false },
+              {
+                sx: [touchInputStyles.font, otpFieldStyles.input],
+                autocomplete: 'one-time-code',
+                spellcheck: false,
+              },
               rest,
               {
                 id: state.id,

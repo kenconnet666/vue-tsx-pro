@@ -21,6 +21,7 @@ import {
   type DateSegmentType,
 } from './date-segments';
 import { useLang } from '../config/context';
+import { coarsePointer } from '../utils/style/styles';
 
 /** 角色与状态由组件管理 */
 export type DateSegmentGroupManaged = 'role';
@@ -76,6 +77,8 @@ const dateSegmentStyles = css.create({
     paddingBlock: '_xs',
     whiteSpace: 'nowrap',
     fontVariantNumeric: 'tabular-nums',
+    // 每段是可编辑的（contenteditable）：触屏上整组字号不小于 16px，iOS 聚焦时才不放大整页（同 touchInputStyles）
+    fontSize: { default: 'inherit', [coarsePointer]: 'max(16px, 1em)' },
   },
   segment: {
     boxSizing: 'content-box',

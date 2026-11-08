@@ -17,7 +17,13 @@ import {
   attachedStyles,
   type AttachedOrientations,
 } from '../utils/style/attached';
-import { focusRingStyles, radiusStyles, variantOf, type Radius } from '../utils/style/styles';
+import {
+  focusRingStyles,
+  radiusStyles,
+  touchInputStyles,
+  variantOf,
+  type Radius,
+} from '../utils/style/styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
 
@@ -89,26 +95,28 @@ export const inputRecipe = css.recipe({
         transition: `border-color ${t.durations.sm} ${t.easings.standard}`,
       },
     ],
-    // 原生 input / textarea：透明、无边框，占满剩余宽度，字体继承外壳。
+    // 原生 input / textarea：透明、无边框，占满剩余宽度，字体继承外壳（触屏上字号不小于 16px，见 touchInputStyles）。
     // 参与基线对齐、高度撑满外壳：外壳（flex）的基线取输入框文字的基线，而不是排在前面的图标的底边，
     // 左标签（按基线对齐）才与输入的文字在同一条线上；原生输入框自己把文字竖直居中
-    input: {
-      alignSelf: 'baseline',
-      boxSizing: 'border-box',
-      flexGrow: 1,
-      minWidth: 0,
-      minHeight: `calc(max(${t.sizes.control}, ${t.sizes.minTarget}) - 2 * ${t.borderWidths.xs})`,
-      margin: 0,
-      paddingBlock: '_xs',
-      paddingInline: 0,
-      borderWidth: 0,
-      outlineStyle: 'none',
-      backgroundColor: 'transparent',
-      color: 'inherit',
-      font: 'inherit',
-      cursor: 'inherit',
-      '::placeholder': { color: '_textPlaceholder', opacity: 1 },
-    },
+    input: [
+      touchInputStyles.font,
+      {
+        alignSelf: 'baseline',
+        boxSizing: 'border-box',
+        flexGrow: 1,
+        minWidth: 0,
+        minHeight: `calc(max(${t.sizes.control}, ${t.sizes.minTarget}) - 2 * ${t.borderWidths.xs})`,
+        margin: 0,
+        paddingBlock: '_xs',
+        paddingInline: 0,
+        borderWidth: 0,
+        outlineStyle: 'none',
+        backgroundColor: 'transparent',
+        color: 'inherit',
+        cursor: 'inherit',
+        '::placeholder': { color: '_textPlaceholder', opacity: 1 },
+      },
+    ],
     // 前后的图标：次要颜色
     icon: { flexShrink: 0, color: '_textMuted' },
     // 前后缀文字（如 https://、元）：次要颜色，不换行

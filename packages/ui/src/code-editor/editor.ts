@@ -82,6 +82,9 @@ const theme = EditorView.theme({
     backgroundColor: c(colors.surface),
     fontSize: c(fontSizes.sm),
   },
+  // 触屏上字号不小于 16px：iOS 的 Safari 聚焦小于 16px 的可编辑区时会放大整页（同 utils/style 的 touchInputStyles）。
+  // 设在滚动区上，行号与正文一起变，行高对得上；style-mod 的 @media 只能在最外层、里面写具体的选择器（不能用 &）
+  '@media (pointer: coarse)': { '.cm-scroller': { fontSize: `max(16px, ${c(fontSizes.sm)})` } },
   // 外框（CodeEditor）画焦点环
   '&.cm-focused': { outline: 'none' },
   '.cm-scroller::-webkit-scrollbar': { display: 'none' },

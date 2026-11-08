@@ -1357,6 +1357,7 @@ export { headingMarker } from './utils/style/markers';
 export { paperBackground, paperInk, paperStyles } from './utils/style/paper';
 export { SHIMMER_STAGGER, shimmerStyles } from './utils/style/shimmer';
 export {
+  coarsePointer,
   columnGapStyles,
   focusRingStyles,
   gapStyles,
@@ -1366,6 +1367,7 @@ export {
   radiusStyles,
   rowGapStyles,
   stateLayerStyles,
+  touchInputStyles,
   variantOf,
   type LayoutTag,
   type Radius,

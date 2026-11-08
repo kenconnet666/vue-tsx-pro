@@ -148,6 +148,23 @@ export const stateLayerStyles = css.create({
   },
 });
 
+/** 触屏（手指是主要的指点设备）：手机、平板 */
+export const coarsePointer = '@media (pointer: coarse)';
+
+/**
+ * 原生输入框（input、textarea）继承外壳的字体；触屏上字号不小于 16px——iOS 的 Safari 聚焦小于 16px 的输入框时会放大整页，
+ * 用户还得手动缩回去。桌面不变
+ */
+export const touchInputStyles = css.create({
+  font: {
+    fontFamily: 'inherit',
+    fontStyle: 'inherit',
+    fontWeight: 'inherit',
+    lineHeight: 'inherit',
+    fontSize: { default: 'inherit', [coarsePointer]: 'max(16px, 1em)' },
+  },
+});
+
 /**
  * 焦点环：宽度、颜色全站一致，只有触发的伪类与偏移不同。
  * - visible：键盘聚焦本元素（Link、Button 等），环离开元素一点；
