@@ -963,7 +963,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       `logic.名字` 引用、发布时核对）；新包 flow-ts-studio 用组件库的 browser-compile 编译（纯 .ts 也去类型），引擎自己的链接器加载相对路径、自带与宿主模块；
       TS 7 的类型检查 `flow-ts-studio/typecheck`；版本列出、取源码、回滚；`engine.process<typeof form>(key)` 带类型的发起与处理。
       浏览器里在 Worker 编译：流程中心的合同审批就是流程工程，Worker 发布时用 compileInThread 就地编译（Node 的测试同一条路）。
-      还差：views/*.tsx 的约定、test.ts 的场景测试（随 26.6））
+      宿主模块的声明给工作室的编辑器（流程中心登记了业务库 `@app/business`，合同的守卫读它）。
+      还差：views/*.tsx 的约定（自定义的发起页、审批单分区、打印页））
 - [x] 26.3 动作插件化与补齐能力（委托、加签减签、撤回这一步、释放、指定承办人、批量、改数据、票签、提级、forEach / 异步、
       自定义节点、草稿、实例迁移）
       （已有，决定见 `packages/flow/docs/decisions/0003-operations.md`：动作插件 `WorkItemOperation`、`operate` 命令、待办详情的
@@ -989,18 +990,21 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       发起、处理时查（没选、不能选、选多了）并记进运行状态，到那一步由选的人处理；退回时能选的节点挪到结果上（targets）。
       Java 场景 field-type、pick、preview-skip-sign 跑起来，场景比对加上 outcomes、next、picks。
       界面文字的语言包（先写中文）随 26.8）
-- [ ] 26.5 文档站流程中心：外壳、业务模型与种子、工作台、发起、审批单、我的单据、管理；搬测试、删 flow-demo
+- [x] 26.5 文档站流程中心：外壳、业务模型与种子、工作台、发起、审批单、我的单据、管理；搬测试、删 flow-demo
       （决定见 `packages/flow/docs/decisions/0009-flow-center.md`。已有：引擎的客户端 `./client`（FlowClient 不带身份，
       flowEndpoint 注入 actor，消息端口 / HTTP 可换，数据变了推给页面）；/flow 应用：Worker 里跑 PGlite（IndexedDB）+ 引擎，
       演示身份、时钟快进、重置；引擎的组织目录 `./org`（部门树、角色、员工的表，内存快照接成 org、上级 / 第 N 级部门负责人解析器、
       Actor，带维护方法），流程中心第一次打开时同步进库、页面从库里取人；请假、出差报销、采购、付款、合同五个流程与种子
       （Node 里的测试在全新的库上跑通）；合同写成流程工程（process.json + form.ts + logic.ts 的守卫），Worker 里编译发布，
-      并行会审里法务会签、按付款计划 forEach 调用付款，付款推 ERP 的异步动作会失败进异常；工作台（左列表右审批单、批量同意、J / K 键盘）、
+      并行会审里法务会签、按付款计划 forEach 调用付款，付款推 ERP 的异步动作会失败进异常；工作台（整宽的表格，页签筛格子、按关键字与流程筛，
+      点一行在抽屉里开审批单、J / K 换一条，批量同意、抄送批量已读）、
       审批单（按环节权限的单据、结果按钮写出之后到哪、退回选节点、给下一步选人、动作插件、对整张单的动作——撤回、催办、留言与管理员干预、
       进度图、流转记录）、发起中心与发起页（预测下一步、草稿）、单据页（引擎的 query.search：我经手的、我发起的、全部）、
       管理页（异常的重试与跳过、组织维护）；端点管住实例详情、异常、重试的可见范围。
       服务端接入：`flowHttpHandler`（Web 标准的 Request / Response）与 `httpTransport`，kit + PG 的接法写进文档站 Flow 页。
-      flow-demo 的端到端测试与删除挪到 26.6 做完了；供应商、物料、预算的 ORM 实体随工作室一起）
+      flow-demo 的端到端测试与删除挪到 26.6 做完了。业务库（供应商、物料、成本中心与预算的实体，与流程同一个库）登记成宿主模块
+      `@app/business`，读准备时载入的快照（PGlite 只有一条连接，守卫在推进的事务里）；演示库带结构版本，老库自动重建。
+      管理员在审批单上改数据；父流程经手的人看得到子流程）
 - [ ] 26.6 流程工作室：在线 IDE、语言服务、预览、场景测试、对比、发布、迁移
       （已有，在流程中心的 /flow/studio，只给管理员：引擎补了 versions.catalog / setEnabled / migrationPreview 与 engine.check
       （与发布同样编译、校验、类型检查，不发布），端点开放管理员的发布与版本方法；列表（启停、新建从空白或模板）；编辑页——
@@ -1013,10 +1017,15 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       两个仓库都换成 7.1.0-dev.20261104.1），内存文件系统里放工程文件与模型包、引擎扩展点的类型；补全、悬停、跳转、拉取式诊断。
       场景测试：test.ts 写 defineScenarios（单据的值按 form.ts 的类型），引擎 testing 的 runScenarios 逐个试运行、对照期望；
       工作室的“测试”页签在 Worker 里跑，合同工程带三个场景，Node 的测试也跑它们。
-      还差：views/*.tsx 的约定；
-      供应商、物料、预算的 ORM 实体）
-- [ ] 26.7 事件与通知（发件箱、NOTIFY）、代理、监控看板、统计
+      还差：views/*.tsx 的约定）
+- [x] 26.7 事件与通知（发件箱、NOTIFY）、代理、监控看板、统计
+      （决定见 `packages/flow/docs/decisions/0010-notifications.md`：`flow_notification` 站内信箱兼发件箱，与推进同一个事务写入，
+      外部投递 `notifications.deliver` 失败的到点重试、先占用再投递；推进、作业、发布随提交 NOTIFY `FLOW_CHANNEL`，组织目录发
+      `ORG_CHANNEL`，宿主用 easy-query-ts-pg 的 listen 收听；代理 `flow_proxy`：不在的这段时间、这些流程新到的待办交给代理人、
+      记下 proxyFor，在新建待办的唯一口子 insertItem 里解析；`engine.stats.overview`：发起、结束、各流程时长、瓶颈环节、待办积压、
+      按天趋势。流程中心：顶栏铃铛、代理页、监控页。顺带：端点读参数也把时刻还原成 Date）
 - [ ] 26.8 收尾：服务端部署文档、决定文档改写、两个仓库发版、下游通知
+      （部署文档 `packages/flow/docs/deploy.md`：表与迁移、引擎与端点、作业、多实例广播、组织）
 
 ## 已知局限（有意的取舍，写在文档里）
 

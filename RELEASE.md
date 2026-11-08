@@ -16,7 +16,19 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- **NavBar** 的项可以是下拉面板：`panel: (close) => …` 点了弹出一块内容（带说明与状态的列表、批量操作），选完调 `close` 收起；
+  收进“更多”时列成它的 `href` 链接。`current` 自己判断当前项（同一个地址靠查询参数区分的几项）。
+- **Tabs** 整组卸载时不再逐个改选、写回旁边的值（之前标签一个个注销时会依次发出 `update:_value`，使用方据此改地址会把离开的导航拽回来）。
+- **流程引擎**（flow-ts-engine）：
+  - 通知：`engine.notifications.list / unread / read`，表 `flow_notification`（站内信箱兼发件箱，与推进同一个事务写入）；
+    引擎选项 `notifications.deliver` 做外部投递，失败的由 `jobs.runDue` 重试。
+  - 广播：推进、作业、发布随提交 `NOTIFY` 频道 `FLOW_CHANNEL`，组织目录改了发 `ORG_CHANNEL`；多实例部署用 easy-query-ts-pg 的
+    `listen` 收听（文档站 Flow 页的“服务端接入”）。`jobs.runDue` 之后不必再自己通知页面。
+  - 代理：`engine.proxies.list / save / cancel`，表 `flow_proxy`；新到的待办交给代理人，待办多了 `proxyFor`。
+  - 统计：`engine.stats.overview({ from, to, processKey, timeZone })`（端点只给管理员）。
+  - 父流程经手的人看得到它调起的子流程（查单据、实例详情）。
+  - 客户端：端点读参数时也把时刻还原成 `Date`（之前参数里的 `Date` 到引擎不是 `Date`）。
+  - 新表、新列（`flow_notification`、`flow_proxy`、`flow_work_item.proxy_for`）：已有的库要补上（`createTables` 只建缺的表，不补列）。
 
 ## 每次发布
 
