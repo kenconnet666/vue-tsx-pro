@@ -2,7 +2,7 @@
  * 流程工作室的编辑页（只给管理员）：工作副本是工程的文件。
  * - 图：设计器改 process.json；单据：表单设计器改字段清单（有 form.ts 时重写它，没有时改 process.json 里内联的清单）；
  *   代码：文件树 + 编辑器，直接改各个文件（form.ts、logic.ts……）；试运行：拿工作副本一步步走（TrialRun）；
- *   版本：载入某一版、回滚。
+ *   版本：和工作副本对比（图的变化、逐行的代码差异）、载入某一版、回滚。
  * - 边改边查：停手半秒后把整份文件交给 Worker 里的引擎检查（编译、校验、类型检查，同发布），问题列在下面，点一下定位。
  * - 发布：检查没有错误才能发，写发布说明，成新的一版；进行中的单子按原来的版本走完。
  * 还没发布过的新流程（从列表新建）只在这个页面里，发布后才进库。
@@ -47,6 +47,7 @@ import { showError, toaster } from '../parts/toaster';
 import { useFlowCenter } from '../runtime/center';
 import { ProcessCanvas } from './ProcessCanvas';
 import { TrialRun } from './TrialRun';
+import { VersionCompare } from './VersionCompare';
 import {
   definitionOf,
   fileTemplate,
@@ -94,6 +95,8 @@ export default _component(() => {
   let focus = _state.raw<{ node: string } | null>(null);
   /** 表单设计器刚改的清单：重写的 form.ts 检查完之前先显示它（不然要等编译才看得到改动） */
   let formDraft = _state.raw<FormManifest | null>(null);
+  /** 版本页里正在和工作副本比的那一版 */
+  let comparing = _state.raw<{ label: string; files: Files } | null>(null);
 
   async function load() {
     try {
@@ -447,40 +450,64 @@ export default _component(() => {
     );
   }
 
-  function renderVersions() {
+  async function compare(info: VersionInfo) {
+    try {
+      comparing = {
+        label: `第 ${info.version} 版`,
+        files: (await center.client.versions.project(key, info.version)).files,
+      };
+    } catch (error) {
+      showError(error);
+    }
+  }
+
+  function renderVersions(current: Files) {
     if (versions.length === 0) return <Small tone="muted">还没发布过。</Small>;
     return (
-      <ItemList aria-label="版本">
-        {versions.map((info) => (
-          <ItemListItem
-            key={info.version}
-            title={`第 ${info.version} 版${info.note ? ` · ${info.note}` : ''}`}
-            description={`${info.publishedBy ? who(info.publishedBy) : '系统'} · ${timeText(info.publishedAt, center.state.now)}${info.enabled ? ' · 能发起' : ''}`}
-            end={
-              <Flex gap="xs">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  tone="neutral"
-                  onClick={() => void loadVersion(info)}
-                >
-                  载入
-                </Button>
-                {info.version !== versions[0]?.version && (
+      <Flex direction="column" gap="lg">
+        <ItemList aria-label="版本">
+          {versions.map((info) => (
+            <ItemListItem
+              key={info.version}
+              title={`第 ${info.version} 版${info.note ? ` · ${info.note}` : ''}`}
+              description={`${info.publishedBy ? who(info.publishedBy) : '系统'} · ${timeText(info.publishedAt, center.state.now)}${info.enabled ? ' · 能发起' : ''}`}
+              end={
+                <Flex gap="xs">
                   <Button
                     size="sm"
-                    variant="outline"
+                    variant="ghost"
                     tone="neutral"
-                    onClick={() => void rollback(info)}
+                    onClick={() => void compare(info)}
                   >
-                    回滚到这版
+                    和现在比
                   </Button>
-                )}
-              </Flex>
-            }
-          />
-        ))}
-      </ItemList>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    tone="neutral"
+                    onClick={() => void loadVersion(info)}
+                  >
+                    载入
+                  </Button>
+                  {info.version !== versions[0]?.version && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      tone="neutral"
+                      onClick={() => void rollback(info)}
+                    >
+                      回滚到这版
+                    </Button>
+                  )}
+                </Flex>
+              }
+            />
+          ))}
+        </ItemList>
+        {comparing && (
+          <VersionCompare before={comparing.files} after={current} label={comparing.label} />
+        )}
+      </Flex>
     );
   }
 
@@ -577,7 +604,7 @@ export default _component(() => {
               />
             )}
           </TabPanel>
-          <TabPanel value="versions">{renderVersions()}</TabPanel>
+          <TabPanel value="versions">{renderVersions(current)}</TabPanel>
         </Tabs>
         {renderProblems()}
       </Flex>

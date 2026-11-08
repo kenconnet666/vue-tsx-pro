@@ -33,9 +33,33 @@ export function starterProject(starter: StarterId, key: string, name: string): F
   return { files: { [PROCESS_FILE]: stringify(definition) } };
 }
 
-/** process.json 的写法：两格缩进，同仓库里的样例 */
-export const stringify = (definition: ProcessDefinition): string =>
-  `${JSON.stringify(definition, null, 2)}\n`;
+/** 宽度上限：同仓库 prettier 的 printWidth */
+const WIDTH = 100;
+
+/** 一个 JSON 值的写法：放得下一行（连同缩进）就写一行，否则对象、数组分行；同 prettier 格式化过的 JSON */
+function json(value: unknown, indent: string): string {
+  if (typeof value !== 'object' || value === null) return JSON.stringify(value);
+  const inner = `${indent}  `;
+  const items = Array.isArray(value)
+    ? value.map((item) => json(item, inner))
+    : Object.entries(value)
+        .filter(([, v]) => v !== undefined)
+        .map(([k, v]) => `${JSON.stringify(k)}: ${json(v, inner)}`);
+  const [open, close] = Array.isArray(value) ? ['[', ']'] : ['{', '}'];
+  if (items.length === 0) return `${open}${close}`;
+  const flat = Array.isArray(value) ? `[${items.join(', ')}]` : `{ ${items.join(', ')} }`;
+  if (!flat.includes('\n') && indent.length + flat.length <= WIDTH - 2) return flat;
+  return `${open}\n${items.map((item) => `${inner}${item}`).join(',\n')}\n${indent}${close}`;
+}
+
+/** process.json 的写法：同 prettier 格式化过的样子，设计器改了图，版本对比里只看得到真改的行 */
+export const stringify = (definition: ProcessDefinition): string => {
+  // 顶层总是分行（同仓库里的样例）
+  const entries = Object.entries(definition)
+    .filter(([, v]) => v !== undefined)
+    .map(([k, v]) => `  ${JSON.stringify(k)}: ${json(v, '  ')}`);
+  return `{\n${entries.join(',\n')}\n}\n`;
+};
 
 /** 读出图；写坏了时是 undefined（代码页里正在改到一半） */
 export function definitionOf(
