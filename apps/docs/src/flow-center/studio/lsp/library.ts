@@ -20,6 +20,25 @@ const jsonWire = import.meta.glob<string>(
 const packageJson = (name: string, types: string) =>
   JSON.stringify({ name, type: 'module', types });
 
+/**
+ * 视图用到的页面模块：在线编辑器里给宽松的类型（一律 any），不把 vue 与组件库的声明搬进 Worker；
+ * 仓库里写的视图由项目的类型检查按真的声明查
+ */
+const VIEW_TYPES = `declare module 'vue';
+declare module '@zerodep-dev/vue-tsx-pro-tsx';
+declare module '@zerodep-dev/vue-tsx-pro-tsx/styles';
+declare module '@zerodep-dev/vue-tsx-pro-ui';
+declare module '@lucide/icons';
+declare namespace JSX {
+  type Element = any;
+  interface IntrinsicElements { [name: string]: any }
+  interface ElementChildrenAttribute { children: {} }
+}
+declare function _state<T>(value: T): T;
+declare namespace _state { function raw<T>(value: T): T; }
+declare function _derived<T>(value: T): T;
+`;
+
 /** 工作区的根 */
 export const WORKSPACE = '/project';
 
@@ -35,6 +54,8 @@ export function libraryFiles(): Record<string, string> {
         module: 'esnext',
         moduleResolution: 'bundler',
         allowImportingTsExtensions: true,
+        // 视图（views/*.tsx）：JSX 留给组件库的编译器，这里只查类型
+        jsx: 'preserve',
         noEmit: true,
         skipLibCheck: true,
         lib: ['esnext'],
@@ -51,6 +72,7 @@ export function libraryFiles(): Record<string, string> {
     [`${modules}/flow-ts-engine/src/extensions.ts`]: extensions,
     // 宿主模块的声明：流程代码 import '@app/business' 有类型、补全
     [`${WORKSPACE}/types/app-business.d.ts`]: BUSINESS_TYPES,
+    [`${WORKSPACE}/types/views.d.ts`]: VIEW_TYPES,
     [`${modules}/json-wire/package.json`]: packageJson(
       '@zerodep-dev/json-wire',
       './dist/index.d.ts',

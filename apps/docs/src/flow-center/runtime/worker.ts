@@ -37,7 +37,7 @@ const DATA_DIR = 'idb://flow-center';
  * 库的结构版本：引擎、组织目录的表加了列时加一。createTables 只建缺的表、不补列，浏览器里存的老库对不上就删了重建
  * （演示数据，不做迁移；服务端部署用 easy-query 的迁移）
  */
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 5;
 /** 跑到点作业的间隔 */
 const JOB_INTERVAL = 5_000;
 

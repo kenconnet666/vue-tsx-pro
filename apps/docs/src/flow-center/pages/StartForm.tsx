@@ -25,6 +25,7 @@ import { getLocalTimeZone } from '@internationalized/date';
 import { watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { who } from '../parts/labels';
+import { processViews, ViewSection, type ProcessView } from '../parts/process-views';
 import { showError, toaster } from '../parts/toaster';
 import { useFlowCenter } from '../runtime/center';
 
@@ -54,6 +55,12 @@ const StartFormBody = _component(
       timeZone,
       onSubmit: (variables) => start(variables),
     });
+
+    // 流程工程的发起页分区（views/start.tsx）：拿正在填的值
+    let startView = _state.raw<ProcessView | null>(null);
+    processViews(center.client, view.process.key)
+      .then((views) => (startView = views.start ?? null))
+      .catch(showError);
 
     async function start(variables: Record<string, unknown>) {
       let chosen: Record<string, string[]> = {};
@@ -133,6 +140,15 @@ const StartFormBody = _component(
         <Form controller={form}>
           <SchemaFields controller={form} columns={2} />
         </Form>
+        {startView && (
+          <ViewSection
+            view={startView}
+            props={{
+              variables: fromFormValues(view.manifest, form.values, timeZone),
+              instance: null,
+            }}
+          />
+        )}
         <ActionBar start={view.next.length > 0 && <Small tone="muted">提交后：{nextText()}</Small>}>
           <Button
             variant="ghost"

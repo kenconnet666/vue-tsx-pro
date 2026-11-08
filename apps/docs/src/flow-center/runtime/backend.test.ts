@@ -58,7 +58,20 @@ it('第一次准备：种子按组织里的上级、部门负责人、财务收�
 
   // 合同是流程工程：版本里存着源码；logic.ts 的守卫在财务审核通过前查付款计划的合计
   const files = (await backend.engine.versions.project('contract')).files;
-  expect(Object.keys(files).sort()).toEqual(['form.ts', 'logic.ts', 'process.json', 'test.ts']);
+  expect(Object.keys(files).sort()).toEqual([
+    'form.ts',
+    'logic.ts',
+    'process.json',
+    'test.ts',
+    'views/plans.tsx',
+    'views/print.tsx',
+  ]);
+  // 视图：编好的模块给页面，带上它们 import 的单据，不带逻辑
+  expect(Object.keys(await backend.engine.views('contract')).sort()).toEqual([
+    'form.ts',
+    'views/plans.tsx',
+    'views/print.tsx',
+  ]);
   const { engine, directory } = backend;
   const as = async (id: string) => (await directory.actorOf(id))!;
   const started = await engine.run(

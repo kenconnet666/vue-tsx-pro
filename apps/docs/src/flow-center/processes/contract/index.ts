@@ -1,6 +1,6 @@
 /**
  * 合同审批写成流程工程（packages/flow/docs/decisions/0002-projects.md）：process.json 是图，form.ts 是单据，logic.ts 是逻辑，
- * test.ts 是场景测试（工作室的“测试”页签里跑）。
+ * test.ts 是场景测试（工作室的“测试”页签里跑），views/ 是审批单的分区（付款计划）与打印页。
  * Worker 发布时就地编译这几份源码（同在线工作室），引擎按版本存下源码与编译结果。
  *
  * 部门负责人 → 分头会审（并行：法务会签——法务部每个人都要通过；财务审核——财务的收件箱，通过前查付款计划的合计）→ 汇合 →
@@ -13,6 +13,8 @@ import formSource from './form.ts?raw';
 import logicSource from './logic.ts?raw';
 import processSource from './process.json?raw';
 import testSource from './test.ts?raw';
+import plansView from './views/plans.tsx?raw';
+import printView from './views/print.tsx?raw';
 
 /** 发布用的工程 */
 export const contractProject: FlowProject = {
@@ -21,6 +23,8 @@ export const contractProject: FlowProject = {
     'form.ts': formSource,
     'logic.ts': logicSource,
     'test.ts': testSource,
+    'views/plans.tsx': plansView,
+    'views/print.tsx': printView,
   },
 };
 

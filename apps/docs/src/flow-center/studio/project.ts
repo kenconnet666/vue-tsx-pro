@@ -102,5 +102,20 @@ export default defineScenarios(form, {
   },
 });
 `;
+  if (path.startsWith('views/') && path.endsWith('.tsx'))
+    return `// 视图：start.tsx 是发起页的分区，print.tsx 是打印页，别的是审批单的分区（packages/flow/docs/decisions/0002 第 4 节）
+import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
+import type { FlowViewProps, FormValues } from '@zerodep-dev/flow-ts-model';
+import { Descriptions } from '@zerodep-dev/vue-tsx-pro-ui';
+import form from '../form';
+
+export const title = '摘要';
+
+export default _component(({ variables }: FlowViewProps<FormValues<typeof form>>) => {
+  return () => (
+    <Descriptions items={Object.entries(variables).map(([label, value]) => ({ label, value: String(value) }))} />
+  );
+});
+`;
   return '';
 }
