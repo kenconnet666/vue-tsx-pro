@@ -1,9 +1,10 @@
 /**
  * 语言服务工作区里的依赖：流程代码 import 得到的包。只放类型要用的——模型包的源码（它只依赖 json-wire）、
- * 引擎的 extensions.ts（defineLogic 与扩展点的类型，不碰库与实体）、json-wire 的声明。路径 → 内容，按 node_modules 的布局。
+ * 引擎的 extensions.ts（defineLogic 与扩展点的类型，不碰库与实体）、json-wire 的声明；宿主模块的声明（`@app/business`）。路径 → 内容，按 node_modules 的布局。
  * 源码在构建时按原文打进来，与仓库里的同一份。
  */
 import extensions from '../../../../../../packages/flow/engine/src/extensions.ts?raw';
+import { BUSINESS_TYPES } from '../../domain/business-data';
 
 const ROOT = '../../../../../../packages/flow/';
 
@@ -48,6 +49,8 @@ export function libraryFiles(): Record<string, string> {
       './src/extensions.ts',
     ),
     [`${modules}/flow-ts-engine/src/extensions.ts`]: extensions,
+    // 宿主模块的声明：流程代码 import '@app/business' 有类型、补全
+    [`${WORKSPACE}/types/app-business.d.ts`]: BUSINESS_TYPES,
     [`${modules}/json-wire/package.json`]: packageJson(
       '@zerodep-dev/json-wire',
       './dist/index.d.ts',

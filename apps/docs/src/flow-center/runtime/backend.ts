@@ -1,5 +1,6 @@
 /**
- * 流程中心的后端：库里的组织（引擎的组织目录）接上引擎，加上第一次打开时的准备——建表、同步组织、发布流程、写种子。
+ * 流程中心的后端：库里的组织（引擎的组织目录）与业务库（供应商、物料、预算，宿主模块 `@app/business`）接上引擎，
+ * 加上第一次打开时的准备——建表、同步组织、写业务种子、发布流程、写流程种子。
  * Worker 用它；测试在 Node 的 PGlite 上也用它，确认种子在全新的库上走得通。
  */
 import {
@@ -10,12 +11,14 @@ import {
 } from '@zerodep-dev/flow-ts-engine';
 import { createOrgDirectory, type OrgDirectory } from '@zerodep-dev/flow-ts-engine/org';
 import type { FlowProject } from '@zerodep-dev/flow-ts-model';
+import { createBusiness, type Business } from '../domain/business';
 import { isAdmin, ORG } from '../domain/org';
 import { seed, type TimeTravel } from '../domain/seed';
 import { PROCESSES } from '../processes';
 
 export interface Backend {
   readonly directory: OrgDirectory;
+  readonly business: Business;
   readonly engine: FlowEngine;
 }
 
@@ -43,17 +46,22 @@ const compileProjectFile: TransformCode = async (source, path) => {
   return compileInThread(source, { filename: path });
 };
 
-/** 引擎的扩展、组织、编译：流程中心与工作室的试运行同一套（试运行另开内存库，组织仍读这份目录的快照） */
-export const trialOptions = (directory: OrgDirectory) => ({
+/**
+ * 引擎的扩展、组织、宿主模块、编译：流程中心与工作室的试运行、场景测试同一套
+ * （试运行另开内存库，组织与业务仍读这一份库）
+ */
+export const trialOptions = ({ directory, business }: Pick<Backend, 'directory' | 'business'>) => ({
   org: directory.org,
   extensions: { resolvers: directory.resolvers, actions },
+  modules: { '@app/business': business.module },
   transform: compileProjectFile,
 });
 
 export function createBackend(adapter: FlowEngineOptions['adapter'], clock: () => Date): Backend {
   const directory = createOrgDirectory({ adapter, isAdmin });
-  const engine = createFlowEngine({ adapter, clock, ...trialOptions(directory) });
-  return { directory, engine };
+  const business = createBusiness(adapter);
+  const engine = createFlowEngine({ adapter, clock, ...trialOptions({ directory, business }) });
+  return { directory, business, engine };
 }
 
 /** 工程的流程键（process.json 里的 key）；读不出时为空 */
@@ -75,12 +83,13 @@ export interface PrepareOptions {
 
 /** 缺的表建上；组织是空的才同步，没发布过的流程补发；种子只在第一次打开（重置之后）写 */
 export async function prepare(
-  { directory, engine }: Backend,
+  { directory, business, engine }: Backend,
   { at, resume, progress }: PrepareOptions,
 ): Promise<void> {
   progress('准备数据库', 0, 1);
   await directory.createTables();
   await engine.createTables();
+  await business.prepare();
   if ((await directory.snapshot()).employees.length === 0) {
     progress('同步组织', 0, 1);
     await directory.sync(ORG);

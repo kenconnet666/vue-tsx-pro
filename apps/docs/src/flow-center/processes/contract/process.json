@@ -10,9 +10,10 @@
       "id": "head",
       "type": "task",
       "name": "部门负责人审批",
+      "description": "同意前查相对方有没有停用（logic.counterpartyAllowed，读业务库）",
       "assignees": [{ "resolver": "departmentHead" }],
       "outcomes": [
-        { "key": "approve", "label": "同意" },
+        { "key": "approve", "label": "同意", "guards": ["logic.counterpartyAllowed"] },
         { "key": "reject", "label": "不同意", "kind": "reject", "comment": "required" }
       ]
     },

@@ -56,7 +56,7 @@ it('第一次准备：种子按组织里的上级、部门负责人、财务收�
       process: 'contract',
       variables: {
         title: '对不上的合同',
-        counterparty: '西部线缆',
+        counterparty: '华南视讯',
         amount: '50000.00',
         plans: [{ label: '一次付清', amount: '40000.00' }],
       },
@@ -71,12 +71,12 @@ it('第一次准备：种子按组织里的上级、部门负责人、财务收�
   await step('1015');
   await expect(step('1011')).rejects.toThrow('付款计划合计 40000.00，与合同金额 50000.00 不一致');
 
-  // 合同工程自带的场景测试（test.ts）：同工作室的“测试”页签，全部通过
+  // 合同工程自带的场景测试（test.ts）：同工作室的“测试”页签，全部通过（含读业务库 @app/business 的守卫）
   const results = await runScenarios(contractProject, {
-    options: trialOptions(directory),
+    options: trialOptions(backend),
     processes: [payment],
     actorOf: (id) => directory.actorOf(id),
   });
   expect(results.map((r) => [r.name, r.problems])).toEqual(results.map((r) => [r.name, []]));
-  expect(results).toHaveLength(3);
+  expect(results).toHaveLength(4);
 }, 60_000);

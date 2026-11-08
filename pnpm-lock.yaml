@@ -478,6 +478,9 @@ importers:
       '@shikijs/langs':
         specifier: 'catalog:'
         version: 4.5.0
+      '@zerodep-dev/easy-query-ts':
+        specifier: ^0.2.5
+        version: 0.2.5
       '@zerodep-dev/easy-query-ts-pg':
         specifier: ^0.2.5
         version: 0.2.5(@zerodep-dev/easy-query-ts@0.2.5)(pg@8.13.1)

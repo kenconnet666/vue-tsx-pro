@@ -9,14 +9,13 @@ import {
   type PeopleNode,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import type { OrgSnapshot } from '@zerodep-dev/flow-ts-engine/org';
+import { SUPPLIER_ROWS } from './business-data';
 
-/** 供应商（字典）：值写进单据 */
-export const SUPPLIERS = [
-  { value: 'huadong', label: '华东数码' },
-  { value: 'huanan', label: '华南视讯' },
-  { value: 'beifang', label: '北方办公' },
-  { value: 'xibu', label: '西部线缆' },
-];
+/** 供应商（字典，来自业务库的种子）：值是编号，写进单据；停用的标出来 */
+export const SUPPLIERS = SUPPLIER_ROWS.map((s) => ({
+  value: s.id,
+  label: s.blocked ? `${s.name}（停用：${s.blockedReason}）` : s.name,
+}));
 
 /** 部门树（在职的人挂在所在部门下）→ 选人用的组织架构 */
 function tree(org: OrgSnapshot, parent: string | null): PeopleNode[] {

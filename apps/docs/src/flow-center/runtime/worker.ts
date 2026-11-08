@@ -20,6 +20,7 @@ import { DEFAULT_ACTOR } from '../domain/org';
 import { runScenarios, simulate } from '@zerodep-dev/flow-ts-engine/testing';
 import type { FlowProject } from '@zerodep-dev/flow-ts-model';
 import { createBackend, definitionKey, prepare, trialOptions } from './backend';
+import type { Business } from '../domain/business';
 import {
   isDemoMessage,
   type FromWorker,
@@ -36,7 +37,7 @@ const DATA_DIR = 'idb://flow-center';
  * 库的结构版本：引擎、组织目录的表加了列时加一。createTables 只建缺的表、不补列，浏览器里存的老库对不上就删了重建
  * （演示数据，不做迁移；服务端部署用 easy-query 的迁移）
  */
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 /** 跑到点作业的间隔 */
 const JOB_INTERVAL = 5_000;
 
@@ -51,6 +52,7 @@ let actorId = DEFAULT_ACTOR;
 let current: Actor = { id: DEFAULT_ACTOR };
 let engine: FlowEngine | undefined;
 let directory: OrgDirectory | undefined;
+let business: Business | undefined;
 let database: PGlite | undefined;
 
 /** 换演示身份：库里没有（或已离职）时回到默认身份；还没启动好时先记下，启动完再换 */
@@ -85,7 +87,7 @@ async function boot(): Promise<void> {
      INSERT INTO demo_schema VALUES (${SCHEMA_VERSION});`,
   );
   const backend = createBackend(pglite(database), now);
-  ({ engine, directory } = backend);
+  ({ engine, directory, business } = backend);
   // 收听引擎的广播（推进、作业、发布都随提交发出）：数据变了就告诉页面；同服务端多实例时的接法（core/channels.ts）
   await listen(database, FLOW_CHANNEL, () => endpoint?.changed());
   await prepare(backend, {
@@ -109,6 +111,7 @@ async function wipe(): Promise<void> {
   database = undefined;
   engine = undefined;
   directory = undefined;
+  business = undefined;
   await new Promise<void>((resolve, reject) => {
     const request = indexedDB.deleteDatabase(`/pglite/${DATA_DIR.slice('idb://'.length)}`);
     request.onsuccess = () => resolve();
@@ -174,11 +177,11 @@ const methods: {
     simulate(project, {
       ...input,
       processes: await otherProcesses(project),
-      options: trialOptions(directory!),
+      options: trialOptions({ directory: directory!, business: business! }),
     }),
   runTests: async ({ project }) =>
     runScenarios(project, {
-      options: trialOptions(directory!),
+      options: trialOptions({ directory: directory!, business: business! }),
       processes: await otherProcesses(project),
       actorOf: (id) => directory!.actorOf(id),
     }),

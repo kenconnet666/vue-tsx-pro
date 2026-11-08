@@ -34,6 +34,17 @@ export default defineScenarios(form, {
     ],
     expect: { status: 'completed', result: 'approved' },
   },
+  '相对方是停用的供应商：部门负责人同意被守卫拦下（读业务库）': {
+    initiator: '1016',
+    variables: {
+      ...base,
+      counterparty: '西部线缆',
+      amount: '8000.00',
+      plans: [{ label: '一次付清', amount: '8000.00' }],
+    },
+    steps: [{ node: 'head', outcome: 'approve' }],
+    expect: { error: { step: 1, message: '已停用' } },
+  },
   '部门负责人审批：郑可的合同到采购经理吴昊': {
     initiator: '1016',
     variables: { ...base, amount: '60000.00', plans: [{ label: '一次付清', amount: '60000.00' }] },
