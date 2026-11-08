@@ -76,6 +76,30 @@ describe('DateField', () => {
     expect(text(root)).toBe('2026/03/15');
   });
 
+  it('输入法：组合中的文字不进段（取消不了），组合结束时按上屏的文字输入（全角数字照样认）', async () => {
+    let value = _state<string | null>(null);
+    const root = mount(() => <DateField _value={value} aria-label="日期" />);
+    segment(root, 'year').focus();
+    const composing = new InputEvent('beforeinput', {
+      inputType: 'insertCompositionText',
+      data: '２０２６',
+      bubbles: true,
+      cancelable: true,
+    });
+    document.activeElement!.dispatchEvent(composing);
+    await nextTick();
+    expect(composing.defaultPrevented).toBe(false);
+    expect(text(root)).not.toContain('2026');
+    // happy-dom 的 CompositionEvent 不收 data：自己补上
+    const end = new CompositionEvent('compositionend', { bubbles: true });
+    Object.defineProperty(end, 'data', { value: '２０２６' });
+    document.activeElement!.dispatchEvent(end);
+    await nextTick();
+    await nextTick();
+    expect(text(root)).toContain('2026');
+    expect(document.activeElement).toBe(segment(root, 'month'));
+  });
+
   it('指针点在某一段上由浏览器聚焦那一段；点在分隔符、外壳空白处时焦点去第一个没填的段', () => {
     const root = mount(() => <DateField aria-label="日期" />);
     const down = (target: Element) => {

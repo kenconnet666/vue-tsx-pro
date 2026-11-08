@@ -884,6 +884,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       31 个泛型组件有了类型测试，二十来个组件补了单元测试；剩下的多是内部拼装件（表格行、列头按钮、滚动条、ListboxView、
       ModalCore…），父组件的测试已覆盖。API 审计做了：934 个属性名找同义、正反开关、近似名，没有要改的，
       结论与命名约定在 .claude/reports/api-audit.md）
+      （2026-11-08 输入法测试补齐：原有 TagsInput、Combobox、Mentions，补 NumberField、Select、CommandPalette、DateField——
+      顺手修了 NumberField 组合中的方向键会加减、Enter 会提交，Select 搜索框组合中的退格会删已选项；Textarea 没有自己的按键处理，不用测）
 - [x] ~~P10 组件规格 JSON 给下游比对、下游问题用 GitHub issue 跟踪~~（2026-11-08：文档站构建时输出 /spec/components.json——全部组件的属性、
       默认值、可选值、事件、部件属性、部件标记、能否定制，CSharpUi、Blazor 的 CI 取线上这份比对；GitHub 建了 `parity` 标签跟踪下游报的问题。
       键盘行为还在文档页里，没进规格）

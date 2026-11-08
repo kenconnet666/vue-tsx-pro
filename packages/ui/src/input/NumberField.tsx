@@ -50,6 +50,7 @@ import {
   type ControlIconOptions,
   type ControlOptions,
 } from './control';
+import { isComposingKey } from '../utils/dom/hotkeys';
 
 /** 值、角色与状态由组件管理 */
 export type NumberFieldManaged =
@@ -229,7 +230,8 @@ export const NumberField = _component(
 
     function onKeydown(event: KeyboardEvent) {
       const state = control();
-      if (state.disabled || state.readonly) return;
+      // 输入法组合中的方向键、Enter 是给输入法的（选候选、上屏），不加减、不提交
+      if (state.disabled || state.readonly || isComposingKey(event)) return;
       const lowest = low();
       const highest = high();
       const actions: Record<string, (() => void) | undefined> = {

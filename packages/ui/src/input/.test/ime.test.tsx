@@ -1,10 +1,14 @@
 // 输入法：组合输入中（Chrome、Firefox 的 isComposing，Safari 确认用的 keydown 的 keyCode 229）按 Enter、方向键是给输入法的，
-// TagsInput 不加标签、Combobox 不选中、Mentions 不提及（快捷键的见 utils/dom/.test/hotkeys.test.ts）；组合结束后照常
+// TagsInput 不加标签、Combobox 不选中、Mentions 不提及、NumberField 不加减、Select 的搜索框退格不删已选项、CommandPalette 不执行
+// （快捷键的见 utils/dom/.test/hotkeys.test.ts）；组合结束后照常
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { Combobox } from '../Combobox';
+import { CommandPalette } from '../../overlay/CommandPalette';
 import { Mentions } from '../Mentions';
+import { NumberField } from '../NumberField';
+import { Select } from '../Select';
 import { TagsInput } from '../TagsInput';
 
 const flush = async () => {
@@ -61,6 +65,69 @@ describe('输入法', () => {
     input.dispatchEvent(key('Enter'));
     await flush();
     expect(value).not.toBeNull();
+  });
+
+  it('NumberField：组合中的 ↑ ↓ 不加减（选候选），Enter 不提交；组合结束后照常', async () => {
+    let value = _state<number | null>(5);
+    const root = mount(() => <NumberField _value={value} aria-label="数量" />);
+    const input = root.querySelector('input')!;
+    input.focus();
+    input.dispatchEvent(composingKey('ArrowUp'));
+    input.dispatchEvent(composingKey('ArrowUp', true));
+    await flush();
+    expect(value).toBe(5);
+    input.dispatchEvent(key('ArrowUp'));
+    await flush();
+    expect(value).toBe(6);
+  });
+
+  it('Select 的搜索框：组合中的退格不删已选的项', async () => {
+    let value = _state<string[]>(['北京', '上海']);
+    mount(() => (
+      <Select
+        items={['北京', '上海', '广州']}
+        _value={value}
+        selectionMode="multiple"
+        searchable
+        _open
+        aria-label="城市"
+      />
+    ));
+    await flush();
+    const search = document.querySelector<HTMLInputElement>('input[type="search"]')!;
+    search.dispatchEvent(composingKey('Backspace'));
+    await flush();
+    expect(value).toEqual(['北京', '上海']);
+    search.dispatchEvent(key('Backspace'));
+    await flush();
+    expect(value).toEqual(['北京']);
+  });
+
+  it('CommandPalette：组合中的 ↓ 不移动高亮、Enter 不执行；组合结束后照常', async () => {
+    const run: string[] = [];
+    mount(() => (
+      <CommandPalette
+        _open
+        items={['新建采购单', '查找供应商']}
+        hotkey={false}
+        trigger={false}
+        onAction={(item: string) => run.push(item)}
+      />
+    ));
+    await flush();
+    const input = document.querySelector<HTMLInputElement>('input[role="combobox"]')!;
+    const active = () => input.getAttribute('aria-activedescendant');
+    const before = active();
+    input.dispatchEvent(composingKey('ArrowDown'));
+    input.dispatchEvent(composingKey('Enter', true));
+    await flush();
+    expect(active()).toBe(before);
+    expect(run).toEqual([]);
+    input.dispatchEvent(key('ArrowDown'));
+    await flush();
+    input.dispatchEvent(key('Enter'));
+    await flush();
+    expect(run).toHaveLength(1);
   });
 
   it('Mentions：列表开着时组合中的 Enter 不提及', async () => {

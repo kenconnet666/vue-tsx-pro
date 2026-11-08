@@ -76,6 +76,7 @@ import { useRemoteItems, type OptionsLoader } from './remote-items';
 import { SelectedTags, type SelectedTagsProps } from './SelectedTags';
 import { TextField, type TextFieldProps } from './TextField';
 import { partAttrs } from '../config/styles';
+import { isComposingKey } from '../utils/dom/hotkeys';
 
 /** 角色、展开状态与可用性由组件管理 */
 export type SelectManaged =
@@ -393,6 +394,8 @@ export const Select = _component(
     // 搜索框里：↑↓ 移动、Enter 选中（Home / End、空格留给输入），Tab 关闭后照常移到下一个；
     // 多选时空的搜索框里按 Backspace 移除最后一项
     function onSearchKeydown(event: KeyboardEvent) {
+      // 输入法组合中：退格删的是组合里的字（搜索词这时还是空的），不能删掉已选的项
+      if (isComposingKey(event)) return;
       if (event.key === 'Tab') {
         setOpen(false, 'focus', event);
         return;

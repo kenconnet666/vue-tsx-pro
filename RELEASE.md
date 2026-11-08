@@ -43,6 +43,7 @@
 - 更多部件属性：RadioGroup、CheckboxGroup 的 `propsItem`（按 items 生成的每一项，可以按项计算）、ColumnSettings 的 `propsCheckbox`、
   SelectedTags 的 `propsMore`（“+N”）、DatePicker 与 DateRangePicker 的 `propsPreset`（快捷选项按钮）、NavItem 的 `propsBadge`；
   FilterBar 的计数角标是 `count` 部件，NavBar 的计数、DataImport 的必填星号、CommandPalette 的快捷键提示、表头筛选的选项与“清除”带上标记。
+- 输入法：NumberField 在组合中的 ↑ ↓（选候选）不再加减、Enter（上屏）不再提交；Select 的搜索框在组合中按退格不再删掉已选的项。
 - 列表行（Listbox、Tree、Cascader、NavList、Menu）的高亮、已选、当前、不可用改成跟着元素上的属性走（条件别名）：
   `itemStyles.highlighted / selected / current / disabled` 合成 `itemStyles.states`，元素写 `data-highlighted`、`aria-selected`、
   `aria-current`（或 `data-current`）、`aria-disabled` 即可；Listbox、Tree 的 `data-active` 换成 `data-highlighted`（Tree 只在有焦点时），
