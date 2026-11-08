@@ -51,6 +51,7 @@ import type {
   InstanceDetail,
   PublishOptions,
   CatalogEntry,
+  CheckResult,
   VersionInfo,
   TypedProcess,
 } from './views.ts';
@@ -67,6 +68,8 @@ export interface FlowEngine {
     input: ProcessDefinition | FlowProject,
     options?: PublishOptions,
   ): Promise<{ key: string; version: number }>;
+  /** 检查（工作室边改边查）：与发布同样编译、校验、类型检查，不发布、不报错，问题都在结果里 */
+  check(input: ProcessDefinition | FlowProject): Promise<CheckResult>;
   /** 版本：全部流程、列出、取某版的工程（在线编辑）、回滚、启停 */
   readonly versions: {
     /** 全部流程（含停用的）：每个流程最新的一版，带版本数；按流程的键排 */
@@ -183,6 +186,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     versions: core.publishing.versions,
     process,
     publish: core.publishing.publish,
+    check: core.publishing.check,
     run: core.commands.run,
     query: core.queries.query,
     jobs: { runDue: core.jobs.runDue },

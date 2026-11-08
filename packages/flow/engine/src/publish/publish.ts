@@ -14,7 +14,7 @@ import { FlowError } from '../core/errors.ts';
 import { buildProject, type FlowLogic } from './project.ts';
 import type { TypeProblem } from '../types.ts';
 import type { EngineCore } from '../core/context.ts';
-import type { CatalogEntry, PublishOptions } from '../views.ts';
+import type { CatalogEntry, CheckResult, PublishOptions } from '../views.ts';
 import type { FlowEngine } from '../engine.ts';
 
 /** 版本行 → 工程：只发布过定义的，工程里只有 process.json（去掉版本号） */
@@ -70,17 +70,15 @@ function logicProblems(definition: ProcessDefinition, logic: FlowLogic | undefin
 export function createPublishing(core: EngineCore) {
   const { options, db, now, logics } = core;
 
-  async function publish(
-    input: ProcessDefinition | FlowProject,
-    { actor, note }: PublishOptions = {},
-  ): Promise<{ key: string; version: number }> {
+  /** 编译、链接、校验、类型检查：发布与检查（check）共用；编译出错照常抛 */
+  async function inspect(input: ProcessDefinition | FlowProject) {
     const project = 'files' in input ? input : undefined;
     const built = project
       ? await buildProject(project, options.transform, options.modules)
       : undefined;
     const definition = built?.definition ?? (input as ProcessDefinition);
     const fieldTypes = options.extensions?.fieldTypes ?? {};
-    const problems = [
+    const problems: Problem[] = [
       ...validateProcess(definition).filter((problem) => problem.severity === 'error'),
       ...logicProblems(definition, built?.linked.logic),
       // 内联的单据：清单自己合不合规（注册的字段类型算认得的）
@@ -90,6 +88,35 @@ export function createPublishing(core: EngineCore) {
           })
         : []),
     ];
+    // 定义有错时不做类型检查（多半是一样的错，也省一次检查）
+    const types: readonly TypeProblem[] =
+      problems.length === 0 && project && options.checkTypes
+        ? await options.checkTypes(project, options.modules ?? {})
+        : [];
+    return { project, built, definition, problems, types };
+  }
+
+  async function check(input: ProcessDefinition | FlowProject): Promise<CheckResult> {
+    try {
+      const { definition, problems, types } = await inspect(input);
+      return { definition, problems, types, error: null };
+    } catch (error) {
+      if (!(error instanceof FlowError)) throw error;
+      const field = typeof error.details['field'] === 'string' ? error.details['field'] : null;
+      return {
+        definition: null,
+        problems: [],
+        types: [],
+        error: { message: error.message, field },
+      };
+    }
+  }
+
+  async function publish(
+    input: ProcessDefinition | FlowProject,
+    { actor, note }: PublishOptions = {},
+  ): Promise<{ key: string; version: number }> {
+    const { project, built, definition, problems, types } = await inspect(input);
     if (problems.length > 0) {
       throw new FlowError(
         'invalid-definition',
@@ -97,8 +124,6 @@ export function createPublishing(core: EngineCore) {
         { problems },
       );
     }
-    const types: readonly TypeProblem[] =
-      project && options.checkTypes ? await options.checkTypes(project, options.modules ?? {}) : [];
     if (types.length > 0) {
       const [first] = types;
       throw new FlowError(
@@ -218,7 +243,7 @@ export function createPublishing(core: EngineCore) {
     return row;
   }
 
-  return { publish, versions, versionRow };
+  return { publish, check, versions, versionRow };
 }
 
 /** createPublishing 给出的函数 */

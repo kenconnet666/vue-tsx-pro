@@ -14,6 +14,7 @@ export type {
   TodoItem,
   TypedProcess,
   CatalogEntry,
+  CheckResult,
   VersionInfo,
   WorkItemDetail,
   WorkItemField,

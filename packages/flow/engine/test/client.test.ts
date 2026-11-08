@@ -118,6 +118,12 @@ describe('客户端与端点', () => {
     );
     assert.equal((await client.versions.rollback('leave', 1)).version, 3);
     assert.ok('process.json' in (await client.versions.project('leave')).files);
+    // 检查：不发布，问题都在结果里；JSON 写坏了是 error，带着文件
+    const broken = await client.check({ files: { 'process.json': '{ "key": ' } });
+    assert.equal(broken.error?.field, 'process.json');
+    const bad = await client.check({ ...templates.leave(), nodes: [] });
+    assert.ok(bad.problems.some((p) => p.severity === 'error'));
+    assert.equal((await client.versions.list('leave')).length, 3);
   });
 
   it('接口层的权限：别人的单看不到，全部异常与重试只给管理员', async () => {

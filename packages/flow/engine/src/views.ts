@@ -6,13 +6,14 @@ import {
   type NodeFormAccess,
   type FormManifest,
   type Outcome,
+  type Problem,
   type ProcessDefinition,
   type VariableDeclaration,
 } from '@zerodep-dev/flow-ts-model';
 import { type NextStep, type PickPrompt } from './runtime/next-steps.ts';
 import { type InstanceRow, type WorkItemRow } from './runtime/execution.ts';
 import { type OperationView } from './commands/operations.ts';
-import type { Actor, FlowEventView, RunResult, WorkItemSummary } from './types.ts';
+import type { Actor, FlowEventView, RunResult, TypeProblem, WorkItemSummary } from './types.ts';
 
 /** 待办列表里的一行：待办加所属实例的标题、流程与摘要列（定义里 summary 列出的字段） */
 export interface TodoItem extends WorkItemSummary {
@@ -161,6 +162,19 @@ export interface VersionInfo {
   readonly publishedBy: string | null;
   readonly publishedAt: Date;
   readonly note: string | null;
+}
+
+/**
+ * 检查（engine.check）：编译、单据并进去、校验、类型检查都做一遍，不发布。工作室边改边查用。
+ * 某个文件编译不过时 error 写着原因与文件（field），其余为空
+ */
+export interface CheckResult {
+  /** 编译后、单据并进去的定义 */
+  readonly definition: ProcessDefinition | null;
+  /** 定义、logic 引用、单据清单的问题（含警告） */
+  readonly problems: readonly Problem[];
+  readonly types: readonly TypeProblem[];
+  readonly error: { readonly message: string; readonly field: string | null } | null;
 }
 
 /** 全部流程里的一个：最新一版的信息，加上流程的键、发布过几版、现在能不能发起 */

@@ -60,6 +60,10 @@ const METHODS: Readonly<
     requireAdmin(a, '只有管理员能发布流程');
     return e.publish(input, { actor: a, ...(note ? { note } : {}) });
   },
+  check: (e, a, [input]) => {
+    requireAdmin(a, '只有管理员能检查流程');
+    return e.check(input);
+  },
   'versions.catalog': (e, a) => {
     requireAdmin(a, '只有管理员能看全部流程');
     return e.versions.catalog();

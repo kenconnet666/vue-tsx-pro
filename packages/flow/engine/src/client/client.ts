@@ -23,6 +23,7 @@ import type {
 import type {
   CatalogEntry,
   CcItem,
+  CheckResult,
   Incident,
   InstanceDetail,
   StartView,
@@ -93,6 +94,8 @@ export interface FlowClient {
     input: ProcessDefinition | FlowProject,
     note?: string,
   ): Promise<{ key: string; version: number }>;
+  /** 检查（不发布）：编译、校验、类型检查的结果（只给管理员） */
+  check(input: ProcessDefinition | FlowProject): Promise<CheckResult>;
   /** 工作室的版本：全部流程、某个流程的版本、某版的源码、回滚、启停（只给管理员） */
   readonly versions: {
     catalog(): Promise<CatalogEntry[]>;
@@ -144,6 +147,7 @@ export function createFlowClient(transport: FlowTransport): FlowClient {
       discard: (id) => call('drafts.discard', id),
     },
     publish: (input, note) => call('publish', input, note),
+    check: (input) => call('check', input),
     versions: {
       catalog: () => call('versions.catalog'),
       list: (key) => call('versions.list', key),
