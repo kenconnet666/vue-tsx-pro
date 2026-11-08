@@ -1,5 +1,5 @@
 // Tabs：WAI-ARIA 关系（tablist / tab / tabpanel）、选中与切换、手动激活、竖排、键盘移动；
-// 可关闭（Delete、关闭按钮，关掉当前标签时选旁边的）、新建、Alt + ←→ 排序
+// 可关闭（Delete、关闭按钮，关掉当前标签时选旁边的；整组卸载时不另选）、新建、Alt + ←→ 排序
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
@@ -176,6 +176,25 @@ describe('Tabs', () => {
     await nextTick();
     await nextTick();
     expect(current).toBe('a');
+  });
+
+  it('整组卸载时标签一个个注销，不另选、不写回（使用方据此改地址时不会把离开的导航拽回来）', async () => {
+    let shown = _state(true);
+    const writes: (string | undefined)[] = [];
+    mount(() =>
+      shown ? (
+        <Tabs _value="a" onUpdate:_value={(value: string | undefined) => writes.push(value)}>
+          <TabList aria-label="格子">
+            <Tab value="a">A</Tab>
+            <Tab value="b">B</Tab>
+            <Tab value="c">C</Tab>
+          </TabList>
+        </Tabs>
+      ) : null,
+    );
+    shown = false;
+    await nextTick();
+    expect(writes).toEqual([]);
   });
 
   it('新建按钮在标签栏里、tablist 外面；Alt + → 把标签往后挪一位并报告新顺序', async () => {

@@ -168,6 +168,9 @@ export const Tabs = _component(
     const labels = new Map<string, () => string>();
     const current = _derived(value ?? registered[0]);
     const tabId = (tab: string) => `${baseId}-tab-${idSafe(tab)}`;
+    // 整组在卸载（父级的 beforeUnmount 先于各标签）：标签一个个注销时不另选，不然会依次写回旁边的值
+    let unmounting = false;
+    onBeforeUnmount(() => (unmounting = true));
 
     TabsContext.provide({
       get value() {
@@ -196,7 +199,7 @@ export const Tabs = _component(
         return (order = registered) => {
           registered = registered.filter((item) => item !== tab);
           labels.delete(tab);
-          if (current !== tab) return;
+          if (unmounting || current !== tab) return;
           // 关掉的是当前标签（使用方没有另选）：按显示的顺序选它后面的一个，没有时选前面的一个
           const index = order.indexOf(tab);
           const rest = order.filter((item) => item !== tab && registered.includes(item));
