@@ -29,6 +29,7 @@
     "docs:review": "node scripts/docs/review.mjs",
     "docs:sheets": "node scripts/docs/contact-sheet.mjs",
     "docs:states": "node scripts/docs/states.mjs",
+    "docs:states-audit": "node scripts/docs/states-audit.mjs",
     "docs:coverage": "node scripts/docs/coverage.mjs",
     "exports": "node scripts/exports/generate.mjs",
     "exports:check": "node scripts/exports/generate.mjs --check",

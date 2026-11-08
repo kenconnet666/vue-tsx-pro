@@ -22,6 +22,8 @@ import {
   Menu,
   MenuCheckboxItem,
   MenuGroup,
+  MenuRadioGroup,
+  MenuRadioItem,
   Paragraph,
   Provider,
   type Theme,
@@ -32,6 +34,7 @@ import { framePath } from '../router';
 import { canvasStyles } from './canvas';
 import { EditInPlayground } from './EditInPlayground';
 import { afterFirstPaint } from './idle';
+import { scaledTheme, siteTheme } from './theme';
 import type { Demo } from './types';
 
 const styles = css.create({
@@ -40,7 +43,7 @@ const styles = css.create({
   framed: { padding: 0 },
   frame: { display: 'block', width: '100%', borderStyle: 'none' },
   description: { color: '_textMuted' },
-  // 示例工具：包住示例的一层不占位；窄屏时是一块 375px 宽、虚线框住的区域；放大字号按 em 缩放
+  // 示例工具：包住示例的一层不占位；窄屏时是一块 375px 宽、虚线框住的区域
   tools: { display: 'contents' },
   narrow: {
     display: 'block',
@@ -51,7 +54,6 @@ const styles = css.create({
     outlineColor: '_border',
     outlineOffset: '0.5em',
   },
-  large: { fontSize: '1.25em' },
   // 反色主题：Provider 只换 token，底色要自己铺
   inverted: { padding: '_md', borderRadius: '_md', backgroundColor: '_surface', color: '_text' },
   // 还没渲染的示例卡片：大致一张卡片的高度，补上时下面的内容少跳一点
@@ -124,13 +126,20 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
   // 示例工具的开关：只影响这一个示例
   let narrow = _state(false);
   let rtl = _state(false);
-  let large = _state(false);
   let invert = _state(false);
-  // 反色时用的主题：打开那一刻按页面的配色方案取相反的
-  let inverted = _state.raw<Theme | null>(null);
+  // 缩放：主题编辑器的 scaling，0.9 是紧凑、1.1 是宽松（字号缩放，间距、控件高度以 em 计跟着变）
+  let scale = _state('1');
+  // 示例换上的主题：反色时按打开那一刻页面的配色方案取相反的，再套缩放；都没开时不换
+  let toolTheme = _state.raw<Theme | null>(null);
   watch(
-    () => invert,
-    (on) => (inverted = on ? oppositeTheme() : null),
+    () => [invert, scale, invert || scale !== '1' ? siteTheme() : null] as const,
+    async ([opposite, scaling, site], _, onCleanup) => {
+      let stale = false;
+      onCleanup(() => (stale = true));
+      const base = opposite ? oppositeTheme() : site;
+      const theme = base && scaling !== '1' ? await scaledTheme(base, Number(scaling)) : base;
+      if (!stale) toolTheme = theme;
+    },
   );
 
   return () => (
@@ -176,9 +185,9 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
     );
   }
 
-  /** 示例工具：窄屏、从右到左、放大字号、反色主题，看示例在这些条件下是否还对 */
+  /** 示例工具：窄屏、从右到左、反色主题、缩放（紧凑、宽松），看示例在这些条件下是否还对 */
   function renderTools() {
-    const active = narrow || rtl || large || invert;
+    const active = narrow || rtl || invert || scale !== '1';
     return (
       <Menu
         trigger={(props) => (
@@ -195,9 +204,13 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
         <MenuGroup label="示例工具">
           <MenuCheckboxItem _checked={narrow}>窄屏（375 px）</MenuCheckboxItem>
           <MenuCheckboxItem _checked={rtl}>从右到左</MenuCheckboxItem>
-          <MenuCheckboxItem _checked={large}>放大字号（125%）</MenuCheckboxItem>
           <MenuCheckboxItem _checked={invert}>反色主题</MenuCheckboxItem>
         </MenuGroup>
+        <MenuRadioGroup label="缩放" _value={scale}>
+          <MenuRadioItem value="0.9">紧凑（90%）</MenuRadioItem>
+          <MenuRadioItem value="1">默认</MenuRadioItem>
+          <MenuRadioItem value="1.1">宽松（110%）</MenuRadioItem>
+        </MenuRadioGroup>
       </Menu>
     );
   }
@@ -205,15 +218,12 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
   /** 示例本身；开了示例工具时包一层（没开时原样，示例的排版不受影响） */
   function renderDemo() {
     const content = h(demo.component);
-    if (!narrow && !rtl && !large && !inverted) return content;
+    if (!narrow && !rtl && !toolTheme) return content;
     return (
-      <div
-        dir={rtl ? 'rtl' : undefined}
-        {...css.attrs(styles.tools, narrow && styles.narrow, large && styles.large)}
-      >
-        {inverted ? (
-          <Provider theme={inverted}>
-            <div {...css.attrs(styles.inverted)}>{content}</div>
+      <div dir={rtl ? 'rtl' : undefined} {...css.attrs(styles.tools, narrow && styles.narrow)}>
+        {toolTheme ? (
+          <Provider theme={toolTheme}>
+            {invert ? <div {...css.attrs(styles.inverted)}>{content}</div> : content}
           </Provider>
         ) : (
           content

@@ -49,6 +49,15 @@ export function siteThemeReady(): Promise<void> {
   return customized() ? loadCustomize() : Promise.resolve();
 }
 
+/**
+ * 示例工具的缩放：在给定的主题上套 scaling（主题编辑器同一项设置，0.9 紧凑、1.1 宽松）。
+ * 字号缩放，间距、控件高度以 em 计跟着缩放；要用定制模块，没加载时先加载
+ */
+export async function scaledTheme(base: Theme, scaling: number): Promise<Theme> {
+  await loadCustomize();
+  return customize.value!(base, { scaling });
+}
+
 /** 实际生效的主题：明暗偏好选出的主题，换上选中的字体，再套编辑器的设置 */
 export function siteTheme(): Theme {
   const theme = withSiteFont(preference.theme);

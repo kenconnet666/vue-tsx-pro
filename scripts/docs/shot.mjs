@@ -5,7 +5,8 @@
 //   pnpm docs:shot /components/menu basic,groups --themes=dark
 //   pnpm docs:shot /components/menu page                  整页；keyboard 是键盘小节
 //   pnpm docs:shot /components/select basic --click=basic:城市    截图前点开一个按钮或下拉框（按名称找）
-//   pnpm docs:shot /components/select --variant=rtl        从右到左；forced 是强制颜色（Windows 高对比），mobile 是手机（390 宽、触屏）
+//   pnpm docs:shot /components/select --variant=rtl        从右到左；forced 是强制颜色（Windows 高对比），mobile 是手机（390 宽、触屏），
+//                                                          compact 是紧凑密度（主题设置的缩放 0.9）
 //   pnpm docs:shot /components/menu --open                 每个示例再截一张打开后的（点示例里的第一个按钮）
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
@@ -36,6 +37,7 @@ const VARIANTS = {
   rtl: {},
   forced: { forcedColors: 'active' },
   mobile: { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true },
+  compact: {},
 };
 const variant = option('variant', '');
 if (variant && !(variant in VARIANTS)) {
@@ -162,6 +164,11 @@ for (const theme of themes) {
         () => document.documentElement.setAttribute('dir', 'rtl'),
         { once: true },
       ),
+    );
+  // 紧凑密度：文档站的主题设置（主题编辑器同一份）缩放到 0.9，整页按紧凑渲染
+  if (variant === 'compact')
+    await context.addInitScript(() =>
+      localStorage.setItem('vue-tsx-pro-theme-settings', JSON.stringify({ scaling: 0.9 })),
     );
   const page = await context.newPage();
   await page.clock.setFixedTime(FIXED_NOW);

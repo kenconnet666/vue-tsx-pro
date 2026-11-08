@@ -5,6 +5,7 @@
 //   pnpm docs:review menu,date-picker        只看某几页（页名或地址前缀，逗号分隔）：其他页的截图与报告条目保留
 //   pnpm docs:review --themes=light,dark --no-shots
 //   pnpm docs:review --columns-only           只量两列示例齐不齐（之后 node scripts/docs/balance-columns.mjs --apply）
+//   pnpm docs:review input,date --compact      紧凑密度（主题设置缩放到 0.9，同 docs:shot 的 --variant=compact）下量溢出、截图
 //
 // 溢出：示例区（[data-demo]）的内容比它宽（scrollWidth > clientWidth），或整页出现横向滚动条；手机宽度是 390px。
 // 两列不齐：1920 宽时并排的两列示例（apps/docs/src/site/Examples.tsx）底边差得多、挪一下能明显变齐时报出挪法
@@ -38,6 +39,17 @@ const reportFile = join(dir, 'report.json');
 const previous = only && existsSync(reportFile) ? JSON.parse(readFileSync(reportFile, 'utf8')) : [];
 
 const browser = await chromium.launch();
+const compact = args.includes('--compact');
+
+/** 浏览器上下文；--compact 时文档站的主题设置（主题编辑器同一份）缩放到 0.9，整页按紧凑渲染 */
+async function newContext(options) {
+  const context = await browser.newContext(options);
+  if (compact)
+    await context.addInitScript(() =>
+      localStorage.setItem('vue-tsx-pro-theme-settings', JSON.stringify({ scaling: 0.9 })),
+    );
+  return context;
+}
 
 /** 侧栏里的组件页地址，按侧栏的顺序 */
 async function pagePaths() {
@@ -130,7 +142,7 @@ async function reviewPage(path) {
   const name = path.replace('/components/', '');
   const result = { path, errors: [], desktop: null, mobile: null };
   for (const theme of columnsOnly ? [] : themes) {
-    const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+    const context = await newContext({ viewport: { width: 1280, height: 900 } });
     await context.addInitScript((value) => localStorage.setItem('vue-tsx-pro-theme', value), theme);
     const { page, errors } = await open(context, path);
     if (theme === themes[0]) result.desktop = await overflow(page);
@@ -159,7 +171,7 @@ async function reviewPage(path) {
     await context.close();
   }
   // 两列只在宽屏并排（内容区至少 54rem，去掉侧栏与本页目录）：按 1920 宽量
-  const wide = await browser.newContext({ viewport: { width: 1920, height: 1080 } });
+  const wide = await newContext({ viewport: { width: 1920, height: 1080 } });
   // 不齐的才记下：两列的示例与建议的挪法（balance-columns.mjs 照着改代码）
   result.columns = (await columns((await open(wide, path)).page))
     .map((pair) => ({ ...pair, move: bestMove(pair) }))
@@ -167,7 +179,7 @@ async function reviewPage(path) {
   await wide.close();
   if (columnsOnly) return result;
   // 手机宽度只量溢出，不截图
-  const mobile = await browser.newContext({
+  const mobile = await newContext({
     viewport: { width: 390, height: 844 },
     isMobile: true,
     hasTouch: true,
