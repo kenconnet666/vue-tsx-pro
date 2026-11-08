@@ -201,6 +201,7 @@
 | StatGroup | display/Stat.tsx |  |  |  |  |  |
 | Timeline | display/Timeline.tsx |  |  |  |  |  |
 | Tree | display/Tree.tsx |  |  |  |  |  |
+| UserButton | display/UserButton.tsx |  |  |  |  |  |
 | ValueChange | display/ValueChange.tsx |  |  |  |  |  |
 | VirtualList | display/VirtualList.tsx |  |  |  |  |  |
 | Watermark | display/Watermark.tsx |  |  |  |  |  |
