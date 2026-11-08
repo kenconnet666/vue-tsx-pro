@@ -12,6 +12,7 @@ import {
 import type { Ref } from '@zerodep-dev/easy-query-ts';
 import { FlowDefinition, FlowInstance, FlowWorkItem, type flowSchema } from '../core/entities.ts';
 import { FlowError } from '../core/errors.ts';
+import { FLOW_CHANNEL } from '../core/channels.ts';
 import { buildProject } from './project.ts';
 import type { FlowLogic } from '../extensions.ts';
 import type { TypeProblem } from '../types.ts';
@@ -161,6 +162,7 @@ export function createPublishing(core: EngineCore) {
           .returnId(),
       );
       logics.set(id, Promise.resolve(built?.linked.logic));
+      await tx.notify(FLOW_CHANNEL, JSON.stringify({ process: definition.key }));
       return { key: definition.key, version };
     });
   }
@@ -262,6 +264,7 @@ export function createPublishing(core: EngineCore) {
     },
     setEnabled: async (key, enabled) => {
       const latest = await versionRow(key);
+      await db.notify(FLOW_CHANNEL, JSON.stringify({ process: key }));
       await db
         .update(FlowDefinition)
         .set({ enabled: false })

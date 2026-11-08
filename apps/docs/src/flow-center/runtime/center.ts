@@ -188,7 +188,12 @@ function connect(): FlowCenter {
       }
     }
   });
-  client.onChange(() => state.revision++);
+  // 数据变了：端点自己的通知与引擎的广播可能同一次改动来两下，合在一起只刷新一次
+  let pendingChange: ReturnType<typeof setTimeout> | undefined;
+  client.onChange(() => {
+    clearTimeout(pendingChange);
+    pendingChange = setTimeout(() => state.revision++, 50);
+  });
   // 演示的时钟跟着真实时间走：每分钟更新一次显示
   setInterval(() => (state.now = new Date(Date.now() + state.offset)), 60_000);
   send({ demo: 'init', actor: state.actor, offset: state.offset });

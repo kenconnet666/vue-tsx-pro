@@ -22,6 +22,7 @@ export type {
   WorkItemField,
 } from './views.ts';
 export { FlowError, type FlowErrorCode } from './core/errors.ts';
+export { FLOW_CHANNEL, ORG_CHANNEL } from './core/channels.ts';
 export { flowEndpoint, type FlowEndpoint, type FlowEndpointOptions } from './client/endpoint.ts';
 export { flowHttpHandler, httpTransport, type HttpTransportOptions } from './client/http.ts';
 export {

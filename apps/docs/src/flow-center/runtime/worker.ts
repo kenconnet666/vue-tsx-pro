@@ -5,8 +5,9 @@
  */
 /// <reference lib="webworker" />
 import { PGlite } from '@electric-sql/pglite';
-import { pglite } from '@zerodep-dev/easy-query-ts-pg/pglite';
+import { listen, pglite } from '@zerodep-dev/easy-query-ts-pg/pglite';
 import {
+  FLOW_CHANNEL,
   FlowError,
   flowEndpoint,
   servePort,
@@ -58,6 +59,8 @@ async function boot(): Promise<void> {
   database = new PGlite(DATA_DIR);
   const backend = createBackend(pglite(database), now);
   ({ engine, directory } = backend);
+  // 收听引擎的广播（推进、作业、发布都随提交发出）：数据变了就告诉页面；同服务端多实例时的接法（core/channels.ts）
+  await listen(database, FLOW_CHANNEL, () => endpoint?.changed());
   await prepare(backend, {
     at: (daysAgo, hour = 10) => {
       const at = new Date(Date.now() + offset);
@@ -97,9 +100,8 @@ function serve(): void {
 
 /** 跑到点的作业；跑了的话告诉页面数据变了、时钟到了哪 */
 async function runJobs(): Promise<void> {
-  if (!engine) return;
-  const ran = await engine.jobs.runDue();
-  if (ran > 0) endpoint?.changed();
+  // 作业改了数据时引擎会广播 FLOW_CHANNEL，下面收听它通知页面
+  await engine?.jobs.runDue();
 }
 
 /** 改了组织之后：把新的组织发给页面、重算当前身份（角色、部门可能变了），用到名字的列表也跟着刷新 */

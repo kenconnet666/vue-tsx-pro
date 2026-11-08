@@ -28,6 +28,7 @@ import {
   FlowNotification,
 } from '../core/entities.ts';
 import { collectNotifications } from './notifications.ts';
+import { FLOW_CHANNEL } from '../core/channels.ts';
 import { FlowError } from '../core/errors.ts';
 import type { FlowLogic } from '../extensions.ts';
 import { emptyRunState, type RunState } from './state.ts';
@@ -781,6 +782,8 @@ export class Execution {
         .insert(FlowEvent)
         .values(this.events.map((event) => ({ ...event })))
         .execute();
+      // 广播：随提交发出，多实例部署时别的进程据此刷新页面（core/channels.ts）
+      await this.tx.notify(FLOW_CHANNEL, JSON.stringify({ instance: this.instance.id }));
       const notices = await collectNotifications(this, this.events, title);
       if (notices.length > 0) {
         await this.tx.insert(FlowNotification).values(notices).execute();

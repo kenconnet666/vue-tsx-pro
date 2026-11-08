@@ -6,10 +6,11 @@
  *   const engine = createFlowEngine({ adapter, org: directory.org, extensions: { resolvers: directory.resolvers } });
  *
  * 引擎在事务里展开处理人，读的是内存里的一份快照，不另发查询：组织很小、很少变，快照省掉每个节点的几次往返，
- * 也不会在只有一条连接的库（PGlite）上等自己的事务。经目录改的（sync、save*、removeDepartment）会自动刷新；
- * 绕过它直接改了表、或别的进程改了，调 refresh()
+ * 也不会在只有一条连接的库（PGlite）上等自己的事务。经目录改的（sync、save*、removeDepartment）会自动刷新，并广播 ORG_CHANNEL：
+ * 多实例部署时别的进程收听它、调 refresh()（见 core/channels.ts）；绕过目录直接改了表也调 refresh()
  */
 import { createDb, type Adapter } from '@zerodep-dev/easy-query-ts';
+import { ORG_CHANNEL } from '../core/channels.ts';
 import { FlowError } from '../core/errors.ts';
 import type { Actor, ExtensionContext, FlowOrg, Resolver } from '../types.ts';
 import {
@@ -203,6 +204,7 @@ export function createOrgDirectory(options: OrgDirectoryOptions): OrgDirectory {
       .onConflict((d) => d.id)
       .merge()
       .execute();
+    await db.notify(ORG_CHANNEL);
     await refresh();
   }
 
@@ -215,6 +217,7 @@ export function createOrgDirectory(options: OrgDirectoryOptions): OrgDirectory {
       .delete(OrgDepartment)
       .where((d) => d.id.eq(id))
       .execute();
+    await db.notify(ORG_CHANNEL);
     await refresh();
   }
 
@@ -235,6 +238,7 @@ export function createOrgDirectory(options: OrgDirectoryOptions): OrgDirectory {
       .onConflict((e) => e.id)
       .merge()
       .execute();
+    await db.notify(ORG_CHANNEL);
     await refresh();
   }
 
@@ -245,6 +249,7 @@ export function createOrgDirectory(options: OrgDirectoryOptions): OrgDirectory {
       .onConflict((r) => r.id)
       .merge()
       .execute();
+    await db.notify(ORG_CHANNEL);
     await refresh();
   }
 
@@ -263,6 +268,7 @@ export function createOrgDirectory(options: OrgDirectoryOptions): OrgDirectory {
           await tx.insert(OrgDepartment).values(data.departments).execute();
         if (data.roles.length) await tx.insert(OrgRole).values(data.roles).execute();
         if (data.employees.length) await tx.insert(OrgEmployee).values(data.employees).execute();
+        await tx.notify(ORG_CHANNEL);
       });
       await refresh();
     },
