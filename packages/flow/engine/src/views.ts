@@ -245,6 +245,65 @@ export interface ProxyInput {
   readonly note?: string;
 }
 
+/** 统计的范围 */
+export interface StatsFilter {
+  /** 不写是 to 往前 30 天 */
+  readonly from?: Date;
+  /** 不写是现在 */
+  readonly to?: Date;
+  readonly processKey?: string;
+  /** 按天的趋势用哪个时区分日子（IANA 名，如 Asia/Shanghai）；不写是 UTC */
+  readonly timeZone?: string;
+}
+
+/** 监控看板的数（docs/decisions/0010 第 4 节） */
+export interface FlowStats {
+  readonly from: Date;
+  readonly to: Date;
+  readonly totals: {
+    /** 进行中（含暂停）的实例 */
+    readonly active: number;
+    /** 这段时间发起的、结束的；结束里没走完的（终止、撤回） */
+    readonly started: number;
+    readonly finished: number;
+    readonly rejected: number;
+    /** 现在开着的待办（落到人的）、其中超时的 */
+    readonly open: number;
+    readonly overdue: number;
+    /** 失败的作业（异常） */
+    readonly incidents: number;
+  };
+  /** 各流程：进行中、这段时间发起、结束、平均走多久（小时） */
+  readonly processes: readonly {
+    readonly processKey: string;
+    readonly active: number;
+    readonly started: number;
+    readonly finished: number;
+    readonly averageHours: number | null;
+  }[];
+  /** 各环节：这段时间办了几份、平均停多久（小时）、超时几份；慢的在前（瓶颈） */
+  readonly nodes: readonly {
+    readonly processKey: string;
+    readonly node: string;
+    readonly nodeName: string;
+    readonly done: number;
+    readonly averageHours: number;
+    readonly overdue: number;
+  }[];
+  /** 谁手上压着待办：开着的、其中超时的；多的在前 */
+  readonly workload: readonly {
+    readonly user: string;
+    readonly open: number;
+    readonly overdue: number;
+  }[];
+  /** 按天：发起、结束 */
+  readonly daily: readonly {
+    readonly date: string;
+    readonly started: number;
+    readonly finished: number;
+  }[];
+}
+
 /** 全部流程里的一个：最新一版的信息，加上流程的键、发布过几版、现在能不能发起 */
 export interface CatalogEntry extends VersionInfo {
   readonly key: string;

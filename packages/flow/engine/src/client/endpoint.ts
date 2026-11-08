@@ -7,11 +7,11 @@
  *   servePort(self, endpoint);                         // Worker 里
  *   app.post('/api/flow', (req) => endpoint.handle(req.body, req));   // 服务端
  */
-import { parseWireJson, stringifyWire } from '@zerodep-dev/json-wire';
+import { stringifyWire } from '@zerodep-dev/json-wire';
 import { FlowError } from '../core/errors.ts';
 import type { FlowEngine } from '../engine.ts';
 import type { Actor } from '../types.ts';
-import type { FlowRequest, FlowResponse } from './protocol.ts';
+import { readWire, type FlowRequest, type FlowResponse } from './protocol.ts';
 
 /** 端点的选项；C 是传输给的上下文（服务端的请求，Worker 里没有） */
 export interface FlowEndpointOptions<C> {
@@ -61,6 +61,10 @@ const METHODS: Readonly<
   'proxies.list': (e, a) => e.proxies.list(a),
   'proxies.save': (e, a, [input]) => e.proxies.save(a, input),
   'proxies.cancel': (e, a, [id]) => e.proxies.cancel(a, id),
+  'stats.overview': (e, a, [filter]) => {
+    requireAdmin(a, '只有管理员能看监控');
+    return e.stats.overview(filter);
+  },
   // 工作室（只给管理员）：发布、版本、启停；源码只给管理员看
   publish: (e, a, [input, note]) => {
     requireAdmin(a, '只有管理员能发布流程');
@@ -140,7 +144,7 @@ export function flowEndpoint<C = void>(
       }
       try {
         const actor = await options.actor(context);
-        const args = parseWireJson<unknown[]>(request.args) ?? [];
+        const args = readWire<unknown[]>(request.args) ?? [];
         const value = await method(engine, actor, args);
         if (MUTATIONS.has(request.method)) changed();
         return { ok: true, value: stringifyWire(value ?? null) };

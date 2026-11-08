@@ -8,7 +8,7 @@
  *   const stop = flow.onChange(() => refresh());
  */
 import type { FlowProject, ProcessDefinition } from '@zerodep-dev/flow-ts-model';
-import { parseWire, parseWireJson, stringifyWire, type WireReader } from '@zerodep-dev/json-wire';
+import { stringifyWire } from '@zerodep-dev/json-wire';
 import { FlowError, type FlowErrorCode } from '../core/errors.ts';
 import type { InstanceRow } from '../runtime/execution.ts';
 import type {
@@ -29,13 +29,15 @@ import type {
   NotificationView,
   ProxyInput,
   ProxyView,
+  FlowStats,
+  StatsFilter,
   InstanceDetail,
   StartView,
   TodoItem,
   VersionInfo,
   WorkItemDetail,
 } from '../views.ts';
-import type { FlowTransport } from './protocol.ts';
+import { readWire, type FlowTransport } from './protocol.ts';
 
 /** 发起前的草稿：存、列、取、删 */
 export interface DraftInput {
@@ -45,12 +47,6 @@ export interface DraftInput {
   readonly variables?: Readonly<Record<string, unknown>>;
   readonly businessKey?: string;
 }
-
-/** 引擎给出的时刻（待办的创建时间、期限……）是 Date：线上的 timestamptz 读回 Date，别的照 json-wire 默认 */
-const reader: WireReader = (kind, text) =>
-  kind === 'timestamptz'
-    ? (parseWire(kind, text) as { toDate(): Date }).toDate()
-    : parseWire(kind, text);
 
 /** 已登录的人看到的引擎 */
 export interface FlowClient {
@@ -105,6 +101,10 @@ export interface FlowClient {
     save(input: ProxyInput): Promise<ProxyView>;
     cancel(id: number): Promise<boolean>;
   };
+  /** 监控看板（只给管理员） */
+  readonly stats: {
+    overview(filter?: StatsFilter): Promise<FlowStats>;
+  };
   /** 工作室（只给管理员）：发布定义或流程工程，校验、类型检查不过是 invalid-definition */
   publish(
     input: ProcessDefinition | FlowProject,
@@ -132,12 +132,12 @@ export function createFlowClient(transport: FlowTransport): FlowClient {
     const sent = [...args];
     while (sent.length > 0 && sent.at(-1) === undefined) sent.pop();
     const response = await transport.call({ method, args: stringifyWire(sent) });
-    if (response.ok) return parseWireJson<T>(response.value, { reader }) as T;
+    if (response.ok) return readWire<T>(response.value) as T;
     const { code, message, details } = response.error;
     throw new FlowError(
       code as FlowErrorCode,
       message,
-      parseWireJson<Record<string, unknown>>(details, { reader }) ?? {},
+      readWire<Record<string, unknown>>(details) ?? {},
     );
   }
   return {
@@ -172,6 +172,9 @@ export function createFlowClient(transport: FlowTransport): FlowClient {
       list: () => call('proxies.list'),
       save: (input) => call('proxies.save', input),
       cancel: (id) => call('proxies.cancel', id),
+    },
+    stats: {
+      overview: (filter) => call('stats.overview', filter),
     },
     publish: (input, note) => call('publish', input, note),
     check: (input) => call('check', input),

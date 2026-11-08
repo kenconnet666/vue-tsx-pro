@@ -44,6 +44,7 @@ import { createQueries } from './queries/queries.ts';
 import { createJobs } from './jobs/jobs.ts';
 import { createNotifications } from './notify/inbox.ts';
 import { createProxies } from './proxy/proxies.ts';
+import { createStats } from './queries/stats.ts';
 import type {
   TodoItem,
   WorkItemDetail,
@@ -58,6 +59,8 @@ import type {
   NotificationView,
   ProxyInput,
   ProxyView,
+  FlowStats,
+  StatsFilter,
   VersionInfo,
   TypedProcess,
 } from './views.ts';
@@ -172,6 +175,10 @@ export interface FlowEngine {
     save(actor: Actor, input: ProxyInput): Promise<ProxyView>;
     cancel(actor: Actor, id: number): Promise<boolean>;
   };
+  /** 监控与统计（docs/decisions/0010 第 4 节）：发起、结束、各流程时长、瓶颈环节、谁压着待办、异常；端点只给管理员 */
+  readonly stats: {
+    overview(filter?: StatsFilter): Promise<FlowStats>;
+  };
   /** 引擎用的 Db（查询自己的表、和业务表做报表） */
   readonly db: FlowDb;
 }
@@ -191,6 +198,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   core.jobs = createJobs(core);
   core.notifications = createNotifications(core);
   core.proxies = createProxies(core);
+  core.stats = createStats(core);
   const { db, now } = core;
 
   function process<Form extends FormManifest>(key: string): TypedProcess<FormValues<Form>> {
@@ -228,5 +236,6 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       read: core.notifications.read,
     },
     proxies: core.proxies,
+    stats: core.stats,
   };
 }

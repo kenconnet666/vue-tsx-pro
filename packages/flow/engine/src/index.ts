@@ -19,6 +19,8 @@ export type {
   NotificationView,
   ProxyInput,
   ProxyView,
+  FlowStats,
+  StatsFilter,
   VersionInfo,
   WorkItemDetail,
   WorkItemField,

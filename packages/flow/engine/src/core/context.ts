@@ -30,6 +30,7 @@ import type { Queries } from '../queries/queries.ts';
 import type { Jobs } from '../jobs/jobs.ts';
 import type { Notifications } from '../notify/inbox.ts';
 import type { Proxies } from '../proxy/proxies.ts';
+import type { Stats } from '../queries/stats.ts';
 
 /** 引擎核心：共用的部分，加上各模块（createFlowEngine 依次装上） */
 export interface EngineCore {
@@ -87,6 +88,8 @@ export interface EngineCore {
   notifications: Notifications;
   /** 代理规则（proxy/proxies.ts） */
   proxies: Proxies;
+  /** 监控与统计（queries/stats.ts） */
+  stats: Stats;
 }
 
 /** 建引擎核心；各模块的槽由 createFlowEngine 依次装上 */
@@ -241,6 +244,7 @@ export function createCore(options: FlowEngineOptions): EngineCore {
     jobs: undefined as never,
     notifications: undefined as never,
     proxies: undefined as never,
+    stats: undefined as never,
   };
   return core;
 }
