@@ -2,6 +2,8 @@
 
 更自然的 Vue TSX 写法：props 驱动的组件、下划线符文（`_state`、`_derived`、`_bindable`……）、写法像 StyleX 的运行时样式。
 
+文档站（组件、示例、指南）：<https://vue-tsx-pro.zerodep.dpdns.org>
+
 定位：在**已有的 Vue 3.5 项目**里用这套写法构建独立页面，配合本仓库的组件库。与宿主共享同一份 Vue、响应式状态（pinia、组合式函数）与 `provide` / `inject`；只写 TSX，不兼容 SFC 模板。
 
 本仓库也是 TS 全栈的家：组件库支持服务端渲染、在 Nitro 上做一层薄的全栈框架与纯 TS 的流程引擎，规划草案见 [FULLSTACK.md](FULLSTACK.md)。ORM（easy-query 的 TS 版）在独立仓库 [easy-query-ts](https://github.com/kenconnet666/easy-query-ts)。

@@ -5,6 +5,7 @@ import brandApi from 'virtual:api/AppShellBrandProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import Admin from './frames/Admin.tsx?demo';
 import Fullscreen from './frames/Fullscreen.tsx?demo';
 import Mixed from './frames/Mixed.tsx?demo';
@@ -50,6 +51,16 @@ export default _component(() => () => (
       自动换成紧凑样式，分组悬停弹出子项），品牌格只剩标志；<Code>_sidebarCollapsed</Code>{' '}
       可以双向绑定，存起来记住各人的设置。
     </Example>
+    <KeyboardReference
+      keys={[
+        ['Tab', '页面里第一下：出现“跳到正文”，Enter 跳过顶栏和侧栏，焦点到正文'],
+        ['Enter / Space', '窄屏时在顶栏最前面的菜单按钮上：打开导航抽屉'],
+        ['Esc', '关闭导航抽屉，焦点回到菜单按钮；全屏时退出全屏'],
+      ]}
+    >
+      顶栏、正文、右侧栏分别是 header、main、aside 地标（侧栏里的 NavList 是
+      nav），读屏能按地标跳；侧栏收起成窄栏时，图标的名称照样念出。
+    </KeyboardReference>
     <ApiReference api={[api, brandApi]} />
   </DocPage>
 ));
