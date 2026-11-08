@@ -43,6 +43,7 @@ import { createPublishing } from './publish/publish.ts';
 import { createQueries } from './queries/queries.ts';
 import { createJobs } from './jobs/jobs.ts';
 import { createNotifications } from './notify/inbox.ts';
+import { createProxies } from './proxy/proxies.ts';
 import type {
   TodoItem,
   WorkItemDetail,
@@ -55,6 +56,8 @@ import type {
   CheckResult,
   MigrationCandidate,
   NotificationView,
+  ProxyInput,
+  ProxyView,
   VersionInfo,
   TypedProcess,
 } from './views.ts';
@@ -160,6 +163,15 @@ export interface FlowEngine {
     /** 给了编号只标这些（只能标自己的），不给时全部；返回标了几条 */
     read(actor: Actor, ids?: readonly number[]): Promise<number>;
   };
+  /**
+   * 代理（docs/decisions/0010 第 3 节）：不在的时候新到手上的待办交给代理人。list 是我设的、别人交给我的（没结束的）；
+   * save 设一条（管理员可以替别人设）；cancel 撤销
+   */
+  readonly proxies: {
+    list(actor: Actor): Promise<{ mine: ProxyView[]; forMe: ProxyView[] }>;
+    save(actor: Actor, input: ProxyInput): Promise<ProxyView>;
+    cancel(actor: Actor, id: number): Promise<boolean>;
+  };
   /** 引擎用的 Db（查询自己的表、和业务表做报表） */
   readonly db: FlowDb;
 }
@@ -178,6 +190,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   core.queries = createQueries(core);
   core.jobs = createJobs(core);
   core.notifications = createNotifications(core);
+  core.proxies = createProxies(core);
   const { db, now } = core;
 
   function process<Form extends FormManifest>(key: string): TypedProcess<FormValues<Form>> {
@@ -214,5 +227,6 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       unread: core.notifications.unread,
       read: core.notifications.read,
     },
+    proxies: core.proxies,
   };
 }

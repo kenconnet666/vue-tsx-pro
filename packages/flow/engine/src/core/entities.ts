@@ -139,6 +139,8 @@ export const FlowWorkItem = entity(
     remindedAt: instant().nullable(),
     /** 转办、改派：从谁手里交过来的 */
     fromUser: text().nullable(),
+    /** 代理：本该是谁的（他设了代理，到达时交给了代理人 assignee，docs/decisions/0010 第 3 节） */
+    proxyFor: text().nullable(),
     /** 加签、委托：是哪一份待办加的（arrival 是 delegate、addSign.before / after） */
     parentItemId: col.bigint().nullable(),
     /** 后加签：处理人选的结果先挂在这里，加签的人都办完才生效 */
@@ -253,6 +255,34 @@ export const FlowNotification = entity(
   },
 );
 
+/**
+ * 代理规则（docs/decisions/0010 第 3 节）：principal 不在的这段时间（startsAt 到 endsAt，结束为空是一直到撤销），
+ * 这些流程（processKeys 为空是全部）新到他手上的待办交给 agent
+ */
+export const FlowProxy = entity(
+  'flow_proxy',
+  {
+    id: col.bigint().primaryKey().generated(),
+    principal: text(),
+    agent: text(),
+    processKeys: col.array(text()),
+    startsAt: instant(),
+    endsAt: instant().nullable(),
+    note: text().nullable(),
+    createdAt: instant(),
+    /** 谁设的（本人，或替他设的管理员） */
+    createdBy: text(),
+    cancelledAt: instant().nullable(),
+  },
+  {
+    comment: '代理规则',
+    indexes: [
+      { columns: ['principal'], where: 'cancelled_at IS NULL' },
+      { columns: ['agent'], where: 'cancelled_at IS NULL' },
+    ],
+  },
+);
+
 /** 抄送 */
 export const FlowCc = entity(
   'flow_cc',
@@ -273,7 +303,16 @@ export const FlowCc = entity(
 
 /** 引擎的 schema；关联是逻辑外键（只在查询里导航，库里不建约束） */
 export const flowSchema = defineSchema(
-  { FlowDefinition, FlowInstance, FlowWorkItem, FlowEvent, FlowJob, FlowCc, FlowNotification },
+  {
+    FlowDefinition,
+    FlowInstance,
+    FlowWorkItem,
+    FlowEvent,
+    FlowJob,
+    FlowCc,
+    FlowNotification,
+    FlowProxy,
+  },
   {
     FlowInstance: (r) => ({
       definition: r.one('FlowDefinition', { from: 'definitionId', to: 'id' }),

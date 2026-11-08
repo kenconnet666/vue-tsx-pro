@@ -17,7 +17,13 @@ import {
   plainValue,
 } from '@zerodep-dev/flow-ts-model';
 import type { Row } from '@zerodep-dev/easy-query-ts';
-import { candidateToken, expandToUsers, resolveCandidates, type Candidate } from './assignees.ts';
+import {
+  candidateToken,
+  expandToUsers,
+  parseCandidate,
+  resolveCandidates,
+  type Candidate,
+} from './assignees.ts';
 import {
   FlowCc,
   FlowEvent,
@@ -28,6 +34,7 @@ import {
   FlowNotification,
 } from '../core/entities.ts';
 import { collectNotifications } from './notifications.ts';
+import { agentOf } from '../proxy/proxies.ts';
 import { FLOW_CHANNEL } from '../core/channels.ts';
 import { FlowError } from '../core/errors.ts';
 import type { FlowLogic } from '../extensions.ts';
@@ -73,6 +80,7 @@ export const workItemSummary = (row: WorkItemRow): WorkItemSummary => ({
   state: row.state,
   assignment: row.assignment,
   assignee: row.assignee,
+  proxyFor: row.proxyFor,
   arrival: row.arrival,
   createdAt: row.createdAt,
   dueAt: row.dueAt,
@@ -503,6 +511,7 @@ export class Execution {
         >
       >,
   ): Promise<WorkItemRow> {
+    const routed = await this.applyProxies(fields);
     const values = {
       instanceId: this.instance.id,
       node: node.id,
@@ -521,12 +530,13 @@ export class Execution {
       parentItemId: null,
       pendingOutcome: null,
       fromUser: null,
+      proxyFor: null,
       designator: null,
       awaitingDesignation: false,
       draft: null,
       weight: null,
       remindedAt: null,
-      ...fields,
+      ...routed,
     };
     const id = Number(await this.tx.insert(FlowWorkItem).values(values).returnId());
     const row = { id, ...values } as WorkItemRow;
@@ -534,10 +544,41 @@ export class Execution {
     this.addEvent('workItem.created', {
       workItemId: id,
       node: node.id,
-      data: { assignee: row.assignee },
+      data: { assignee: row.assignee, ...(row.proxyFor ? { proxyFor: row.proxyFor } : {}) },
     });
     await this.scheduleDeadlines(node, row);
     return row;
+  }
+
+  /**
+   * 代理（docs/decisions/0010 第 3 节）：处理人此刻设了代理时交给代理人、记下本该是谁的；收件箱里的候选人设了代理时，
+   * 代理人也加进候选（本人回来了照样能认领）。会签里代理人本来就在这一组时不代理，免得一人两票
+   */
+  private async applyProxies<
+    F extends { assignee: string | null; candidates?: string[]; signGroup?: string | null },
+  >(fields: F): Promise<F & { proxyFor?: string }> {
+    const key = this.instance.processKey;
+    if (fields.assignee) {
+      const agent = await agentOf(this.tx, fields.assignee, key, this.now);
+      if (!agent) return fields;
+      if (fields.signGroup) {
+        const inGroup = await this.tx
+          .queryable(FlowWorkItem)
+          .where((w) => [w.signGroup.eq(fields.signGroup!), w.assignee.eq(agent)])
+          .count();
+        if (inGroup > 0) return fields;
+      }
+      return { ...fields, assignee: agent, proxyFor: fields.assignee };
+    }
+    const agents: string[] = [];
+    for (const token of fields.candidates ?? []) {
+      const candidate = parseCandidate(token);
+      if (candidate.kind !== 'user') continue;
+      const agent = await agentOf(this.tx, candidate.value, key, this.now);
+      if (agent) agents.push(`user:${agent}`);
+    }
+    if (agents.length === 0) return fields;
+    return { ...fields, candidates: [...new Set([...fields.candidates!, ...agents])] };
   }
 
   /**

@@ -27,6 +27,8 @@ import type {
   Incident,
   MigrationCandidate,
   NotificationView,
+  ProxyInput,
+  ProxyView,
   InstanceDetail,
   StartView,
   TodoItem,
@@ -97,6 +99,12 @@ export interface FlowClient {
     unread(): Promise<number>;
     read(ids?: readonly number[]): Promise<number>;
   };
+  /** 代理：我设的、别人交给我的（没结束的）；设一条（管理员可以替别人设）；撤销 */
+  readonly proxies: {
+    list(): Promise<{ mine: ProxyView[]; forMe: ProxyView[] }>;
+    save(input: ProxyInput): Promise<ProxyView>;
+    cancel(id: number): Promise<boolean>;
+  };
   /** 工作室（只给管理员）：发布定义或流程工程，校验、类型检查不过是 invalid-definition */
   publish(
     input: ProcessDefinition | FlowProject,
@@ -159,6 +167,11 @@ export function createFlowClient(transport: FlowTransport): FlowClient {
       list: (filter) => call('notifications.list', filter),
       unread: () => call('notifications.unread'),
       read: (ids) => call('notifications.read', ids),
+    },
+    proxies: {
+      list: () => call('proxies.list'),
+      save: (input) => call('proxies.save', input),
+      cancel: (id) => call('proxies.cancel', id),
     },
     publish: (input, note) => call('publish', input, note),
     check: (input) => call('check', input),

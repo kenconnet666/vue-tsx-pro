@@ -56,6 +56,7 @@ const todoColumns = (
   state: w.state,
   assignment: w.assignment,
   assignee: w.assignee,
+  proxyFor: w.proxyFor,
   arrival: w.arrival,
   createdAt: w.createdAt,
   dueAt: w.dueAt,

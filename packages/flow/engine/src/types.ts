@@ -271,6 +271,8 @@ export interface WorkItemSummary {
   readonly state: 'open' | 'waiting' | 'done' | 'canceled';
   readonly assignment: (typeof ASSIGNMENTS)[number];
   readonly assignee: string | null;
+  /** 代理：本该是谁的（他设了代理，交给了 assignee） */
+  readonly proxyFor: string | null;
   readonly arrival: string;
   readonly createdAt: Date;
   readonly dueAt: Date | null;

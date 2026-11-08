@@ -58,6 +58,9 @@ const METHODS: Readonly<
   'notifications.list': (e, a, [filter]) => e.notifications.list(a, filter),
   'notifications.unread': (e, a) => e.notifications.unread(a),
   'notifications.read': (e, a, [ids]) => e.notifications.read(a, ids),
+  'proxies.list': (e, a) => e.proxies.list(a),
+  'proxies.save': (e, a, [input]) => e.proxies.save(a, input),
+  'proxies.cancel': (e, a, [id]) => e.proxies.cancel(a, id),
   // 工作室（只给管理员）：发布、版本、启停；源码只给管理员看
   publish: (e, a, [input, note]) => {
     requireAdmin(a, '只有管理员能发布流程');
@@ -103,6 +106,8 @@ const MUTATIONS: ReadonlySet<string> = new Set([
   'drafts.save',
   'drafts.discard',
   'notifications.read',
+  'proxies.save',
+  'proxies.cancel',
   'publish',
   'versions.rollback',
   'versions.setEnabled',

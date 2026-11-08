@@ -214,6 +214,37 @@ export interface NotificationView {
   readonly readAt: Date | null;
 }
 
+/** 一条代理规则（docs/decisions/0010 第 3 节） */
+export interface ProxyView {
+  readonly id: number;
+  /** 委托人：不在的那个人 */
+  readonly principal: string;
+  /** 代理人 */
+  readonly agent: string;
+  /** 哪些流程；空是全部 */
+  readonly processKeys: readonly string[];
+  readonly startsAt: Date;
+  /** 结束；为空是一直到撤销 */
+  readonly endsAt: Date | null;
+  readonly note: string | null;
+  readonly createdAt: Date;
+  /** 这一刻在生效（开始了、没结束） */
+  readonly active: boolean;
+}
+
+/** 设一条代理 */
+export interface ProxyInput {
+  /** 替谁设（管理员才能写别人）；不写是自己 */
+  readonly principal?: string;
+  readonly agent: string;
+  readonly processKeys?: readonly string[];
+  /** 不写是现在 */
+  readonly startsAt?: Date;
+  /** 不写是一直到撤销 */
+  readonly endsAt?: Date | null;
+  readonly note?: string;
+}
+
 /** 全部流程里的一个：最新一版的信息，加上流程的键、发布过几版、现在能不能发起 */
 export interface CatalogEntry extends VersionInfo {
   readonly key: string;
