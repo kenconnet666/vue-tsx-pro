@@ -15,6 +15,7 @@ export type {
   TypedProcess,
   CatalogEntry,
   CheckResult,
+  MigrationCandidate,
   VersionInfo,
   WorkItemDetail,
   WorkItemField,

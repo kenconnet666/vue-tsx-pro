@@ -1,7 +1,8 @@
 /**
- * 发布与版本：校验定义、清单与逻辑，编译流程工程，记版本；列出版本、取源码、回滚。
+ * 发布与版本：校验定义、清单与逻辑，编译流程工程，记版本；检查（不发布）；全部流程、列出版本、取源码、回滚、启停、迁移预览。
  */
 import {
+  processGraph,
   validateManifest,
   type FlowProject,
   type Problem,
@@ -9,12 +10,12 @@ import {
   validateProcess,
 } from '@zerodep-dev/flow-ts-model';
 import type { Ref } from '@zerodep-dev/easy-query-ts';
-import { FlowDefinition, type flowSchema } from '../core/entities.ts';
+import { FlowDefinition, FlowInstance, FlowWorkItem, type flowSchema } from '../core/entities.ts';
 import { FlowError } from '../core/errors.ts';
 import { buildProject, type FlowLogic } from './project.ts';
 import type { TypeProblem } from '../types.ts';
 import type { EngineCore } from '../core/context.ts';
-import type { CatalogEntry, CheckResult, PublishOptions } from '../views.ts';
+import type { CatalogEntry, CheckResult, MigrationCandidate, PublishOptions } from '../views.ts';
 import type { FlowEngine } from '../engine.ts';
 
 /** 版本行 → 工程：只发布过定义的，工程里只有 process.json（去掉版本号） */
@@ -209,6 +210,55 @@ export function createPublishing(core: EngineCore) {
         ...rest,
         note: `回滚到第 ${version} 版`,
       }),
+    migrationPreview: async (key, version) => {
+      const target = processGraph((await versionRow(key, version)).model);
+      const instances = await db
+        .queryable(FlowInstance)
+        .where((i) => [
+          i.processKey.eq(key),
+          i.version.ne(version),
+          i.status.in(['active', 'suspended']),
+        ])
+        .orderBy((i) => i.id)
+        .toList();
+      const live = instances.length
+        ? await db
+            .queryable(FlowWorkItem)
+            .where((w) => [
+              w.instanceId.in(instances.map((i) => i.id)),
+              w.state.in(['open', 'waiting']),
+            ])
+            .select((w) => ({ instanceId: w.instanceId, node: w.node }))
+            .toList()
+        : [];
+      const candidates: MigrationCandidate[] = [];
+      for (const instance of instances) {
+        const from = processGraph(await core.definitionOf(db, instance.definitionId));
+        // 同 migrate 命令：正在处理的节点与开着的待办所在的节点
+        const inUse = new Set([
+          ...instance.current,
+          ...live.filter((w) => w.instanceId === instance.id).map((w) => w.node),
+        ]);
+        const nodes = [...inUse].map((node) => {
+          const before = from.node(node);
+          const after = target.node(node);
+          return {
+            node,
+            name: before?.name ?? node,
+            target: before && after && before.type === after.type ? node : null,
+          };
+        });
+        candidates.push({
+          instance: instance.id,
+          title: instance.title,
+          status: instance.status,
+          version: instance.version,
+          nodes,
+          ready: nodes.every((n) => n.target !== null),
+        });
+      }
+      return candidates;
+    },
     setEnabled: async (key, enabled) => {
       const latest = await versionRow(key);
       await db

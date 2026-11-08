@@ -25,6 +25,7 @@ import type {
   CcItem,
   CheckResult,
   Incident,
+  MigrationCandidate,
   InstanceDetail,
   StartView,
   TodoItem,
@@ -103,6 +104,7 @@ export interface FlowClient {
     project(key: string, version?: number): Promise<FlowProject>;
     rollback(key: string, version: number): Promise<{ key: string; version: number }>;
     setEnabled(key: string, enabled: boolean): Promise<void>;
+    migrationPreview(key: string, version: number): Promise<MigrationCandidate[]>;
   };
   /** 数据变了（任何人执行了命令）：列表、计数跟着刷新；返回取消订阅的函数 */
   onChange(listener: () => void): () => void;
@@ -154,6 +156,7 @@ export function createFlowClient(transport: FlowTransport): FlowClient {
       project: (key, version) => call('versions.project', key, version),
       rollback: (key, version) => call('versions.rollback', key, version),
       setEnabled: (key, enabled) => call('versions.setEnabled', key, enabled),
+      migrationPreview: (key, version) => call('versions.migrationPreview', key, version),
     },
     onChange: (listener) => transport.subscribe?.(listener) ?? (() => {}),
   };

@@ -52,6 +52,7 @@ import type {
   PublishOptions,
   CatalogEntry,
   CheckResult,
+  MigrationCandidate,
   VersionInfo,
   TypedProcess,
 } from './views.ts';
@@ -85,6 +86,11 @@ export interface FlowEngine {
     ): Promise<{ key: string; version: number }>;
     /** 启停：停用时这个流程的版本都不能再发起（运行中的照常走完）；启用时最新一版能发起 */
     setEnabled(key: string, enabled: boolean): Promise<void>;
+    /**
+     * 迁移预览：这个流程在别的版本上、还没结束的单子，各自正在用的节点在第 version 版里有没有同名同类型的节点。
+     * 迁移本身是实例上的 migrate 命令（对应不上的在 nodes 里写对应）
+     */
+    migrationPreview(key: string, version: number): Promise<MigrationCandidate[]>;
   };
   /** 按单据类型用一个流程：发起、处理时变量写错字段是编译错误（`engine.process<typeof form>('purchase')`） */
   process<Form extends FormManifest>(key: string): TypedProcess<FormValues<Form>>;

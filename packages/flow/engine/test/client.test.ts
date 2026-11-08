@@ -124,6 +124,15 @@ describe('客户端与端点', () => {
     const bad = await client.check({ ...templates.leave(), nodes: [] });
     assert.ok(bad.problems.some((p) => p.severity === 'error'));
     assert.equal((await client.versions.list('leave')).length, 3);
+    // 迁移预览：新单按最新的第 3 版走；预览迁到第 2 版——节点都有，能直接迁；目标就是它自己的版本时不列
+    as(alice);
+    await client.run({ type: 'start', process: 'leave', variables: { days: 1, reason: '病假' } });
+    as({ id: '1000', admin: true });
+    const [candidate] = await client.versions.migrationPreview('leave', 2);
+    assert.equal(candidate?.version, 3);
+    assert.equal(candidate?.ready, true);
+    assert.ok(candidate?.nodes.every((n) => n.target === n.node));
+    assert.deepEqual(await client.versions.migrationPreview('leave', 3), []);
   });
 
   it('接口层的权限：别人的单看不到，全部异常与重试只给管理员', async () => {

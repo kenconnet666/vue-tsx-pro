@@ -177,6 +177,23 @@ export interface CheckResult {
   readonly error: { readonly message: string; readonly field: string | null } | null;
 }
 
+/** 迁移预览里的一张单：正在用的节点在目标版本里对应到哪 */
+export interface MigrationCandidate {
+  readonly instance: number;
+  readonly title: string | null;
+  readonly status: InstanceRow['status'];
+  /** 现在按的版本 */
+  readonly version: number;
+  /** 正在用的节点（正在处理的、开着或在等加签的待办所在的）：目标版本里同名同类型的节点，没有时 target 为空 */
+  readonly nodes: readonly {
+    readonly node: string;
+    readonly name: string;
+    readonly target: string | null;
+  }[];
+  /** 都对应得上，能直接迁（不用写节点的对应） */
+  readonly ready: boolean;
+}
+
 /** 全部流程里的一个：最新一版的信息，加上流程的键、发布过几版、现在能不能发起 */
 export interface CatalogEntry extends VersionInfo {
   readonly key: string;

@@ -80,6 +80,10 @@ const METHODS: Readonly<
     requireAdmin(a, '只有管理员能回滚');
     return e.versions.rollback(key, version, { actor: a });
   },
+  'versions.migrationPreview': (e, a, [key, version]) => {
+    requireAdmin(a, '只有管理员能迁移版本');
+    return e.versions.migrationPreview(key, version);
+  },
   'versions.setEnabled': (e, a, [key, enabled]) => {
     requireAdmin(a, '只有管理员能启停流程');
     return e.versions.setEnabled(key, enabled);
