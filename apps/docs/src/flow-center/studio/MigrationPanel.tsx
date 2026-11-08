@@ -29,14 +29,17 @@ export interface MigrationPanelProps {
 export const MigrationPanel = _component(({ processKey, versions }: MigrationPanelProps) => {
   const center = useFlowCenter();
   const prompt = useFormDialog();
-  let target = _state<string | null>(versions[0] ? String(versions[0].version) : null);
+  /** 选的目标版本；没选时是最新版（发布了新版跟着变） */
+  let picked = _state<string | null>(null);
+  const latest = () => (versions[0] ? String(versions[0].version) : null);
+  const target = () => picked ?? latest();
   let candidates = _state.raw<readonly MigrationCandidate[] | null>(null);
   let busy = _state(false);
 
   async function preview() {
-    if (!target) return;
+    if (!target()) return;
     try {
-      candidates = await center.client.versions.migrationPreview(processKey, Number(target));
+      candidates = await center.client.versions.migrationPreview(processKey, Number(target()));
     } catch (error) {
       showError(error);
     }
@@ -45,7 +48,7 @@ export const MigrationPanel = _component(({ processKey, versions }: MigrationPan
   async function migrate() {
     const ready = (candidates ?? []).filter((c) => c.ready);
     const answers = await prompt({
-      title: `把 ${ready.length} 张单迁到第 ${target} 版？`,
+      title: `把 ${ready.length} 张单迁到第 ${target()} 版？`,
       description: '正在处理的环节换成新版本里同名的环节，待办与作业跟着换；流转记录里记一笔。',
       fields: [{ name: 'comment', label: '原因', type: 'textarea', required: true }],
       confirmText: '迁移',
@@ -57,7 +60,7 @@ export const MigrationPanel = _component(({ processKey, versions }: MigrationPan
         ready.map((c) => ({
           type: 'migrate',
           instance: c.instance,
-          version: Number(target),
+          version: Number(target()),
           comment: answers.comment,
         })),
       );
@@ -106,7 +109,8 @@ export const MigrationPanel = _component(({ processKey, versions }: MigrationPan
                   value: String(v.version),
                   label: `第 ${v.version} 版`,
                 }))}
-                _value={target}
+                _value={target()}
+                onUpdate:_value={(value: string | null) => (picked = value)}
               />
             </Field>
             <Button variant="outline" tone="neutral" onClick={() => void preview()}>

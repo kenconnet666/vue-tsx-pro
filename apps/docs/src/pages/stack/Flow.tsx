@@ -48,12 +48,19 @@ await engine.query.todo(carol);
 await engine.jobs.runDue();                   // 定时、时限、提醒、异步动作：定时调用`;
 
 const server = `// server/flow.ts（只在服务端）import pg from 'pg';
-import { postgres } from '@zerodep-dev/easy-query-ts-pg';
-import { createFlowEngine, flowEndpoint, flowHttpHandler } from '@zerodep-dev/flow-ts-engine';
+import { listen, postgres } from '@zerodep-dev/easy-query-ts-pg';
+import {
+  FLOW_CHANNEL,
+  ORG_CHANNEL,
+  createFlowEngine,
+  flowEndpoint,
+  flowHttpHandler,
+} from '@zerodep-dev/flow-ts-engine';
 import { createOrgDirectory } from '@zerodep-dev/flow-ts-engine/org';
 import { createInvalidationHub, type KitModule } from '@zerodep-dev/vue-tsx-pro-kit/server';
 
-const adapter = postgres(new pg.Pool({ connectionString: process.env.DATABASE_URL }));
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = postgres(pool);
 // 组织目录：部门、角色、员工的表；有 HR 系统时定时 directory.sync(从 HR 拉的数据)
 export const directory = createOrgDirectory({ adapter, isAdmin: (e) => e.roles.includes('admin') });
 export const engine = createFlowEngine({
@@ -68,14 +75,18 @@ const endpoint = flowEndpoint<Request>(engine, {
 });
 export const handleFlow = flowHttpHandler(endpoint);
 
-// 数据变了推给浏览器：接到 kit 的失效推送上（createRenderer({ invalidation: hub })）
+// 数据变了推给浏览器：接到 kit 的失效推送上（createRenderer({ invalidation: hub })）。
+// 推进、作业、发布随提交广播（PG 的 NOTIFY），多实例部署时哪个进程改的都收得到；本进程的其他写（已读、草稿）由端点通知
 export const hub = createInvalidationHub();
+await listen(pool, FLOW_CHANNEL, () => hub.publish(['flow']));
 endpoint.onChange(() => hub.publish(['flow']));
+// 别的进程改了组织（HR 同步、管理页）：刷新本进程的组织快照
+await listen(pool, ORG_CHANNEL, () => void directory.refresh());
 
-// 到点的作业（时限、提醒、异步动作）：多实例部署时靠作业表上的抢占，不会重复做
+// 到点的作业（时限、提醒、异步动作、没送出去的通知）：多实例部署时靠作业表上的抢占，不会重复做
 export const flowModule: KitModule = {
   name: 'flow',
-  start: () => void setInterval(() => void engine.jobs.runDue().then((ran) => ran > 0 && endpoint.changed()), 10_000),
+  start: () => void setInterval(() => void engine.jobs.runDue(), 10_000),
 };
 
 // server/api/flow.post.ts（Nitro 的路由）
@@ -188,7 +199,9 @@ export default _component(() => () => (
       引擎、组织目录跑在服务端，库是 PostgreSQL；页面经 <Code>flow-ts-engine/client</Code>{' '}
       的客户端调用，命令与查询都不带身份——身份由服务端的端点按会话定。端点只认列出的方法，实例详情只给经手的人与管理员看，全部异常与重试只给管理员。处理函数用
       Web 标准的 Request / Response，Nitro、Hono、Bun 的路由里都能直接挂；“数据变了”接到 kit
-      的失效推送上，列表与待办数实时刷新。
+      的失效推送上，列表与待办数实时刷新。引擎随提交广播（PG 的 <Code>NOTIFY</Code>，频道{' '}
+      <Code>FLOW_CHANNEL</Code>、<Code>ORG_CHANNEL</Code>
+      ），多实例部署时每个进程收听它，别的进程的改动也推得到、组织快照也跟着刷新。
     </Paragraph>
     <CodeBlock title="server/flow.ts" code={server} lang="ts" />
     <CodeBlock title="client.ts" code={client} lang="ts" />

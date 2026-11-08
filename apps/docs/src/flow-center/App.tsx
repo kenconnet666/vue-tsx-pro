@@ -1,5 +1,6 @@
 /**
- * 流程中心的应用外壳（docs/decisions/0009）：侧栏是工作台、发起、单据、工作室与管理（管理员）；顶栏是演示身份（谁在用）、通知铃铛、演示时钟（快进看超时与提醒）、
+ * 流程中心的应用外壳（docs/decisions/0009）：侧栏是工作台、发起、单据、工作室与管理（管理员）；顶栏前面是工作台的几个格子
+ * （待办、已办、抄送我的…，点开是列表，parts/WorkBoxes），后面是演示身份（谁在用）、通知铃铛（发生了什么）、演示时钟（快进看超时与提醒）、
  * 重置演示数据、回文档。第一次打开时 Worker 要建表、发布流程、写种子，先显示进度。
  */
 import {
@@ -23,6 +24,7 @@ import {
   LinkButton,
   Menu,
   MenuItem,
+  NavBar,
   NavItem,
   NavList,
   NavSection,
@@ -35,10 +37,11 @@ import {
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { AppShell, AppShellBrand, ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { computed, onMounted, watch } from 'vue';
-import { RouterView } from 'vue-router';
+import { RouterView, useRoute } from 'vue-router';
 import { preference } from '../site/theme';
 import { formSourcesOf } from './domain/sources';
 import { NotificationBell } from './parts/NotificationBell';
+import { WORK_PATH, boxOf, workBoxItems, type Box } from './parts/WorkBoxes';
 import { timeText } from './parts/labels';
 import { toaster } from './parts/toaster';
 import { useFlowCenter, type FlowCenter } from './runtime/center';
@@ -52,8 +55,10 @@ const styles = css.create({
 export default _component(() => {
   // Worker 只在浏览器里建：服务端渲染不到这里（流程中心不预渲染）
   let center = _state.raw<FlowCenter | null>(null);
-  let todoCount = _state(0);
+  /** 页签上的计数：待办数、未读的抄送数 */
+  let counts = _state.raw<Partial<Record<Box, number>>>({});
   const confirm = useConfirm();
+  const route = useRoute();
   onMounted(() => (center = useFlowCenter()));
   // 组织换了（重置、管理页改过）才重建
   const sources = computed(() => {
@@ -61,11 +66,13 @@ export default _component(() => {
     return org ? formSourcesOf(org) : undefined;
   });
 
-  // 待办数：数据变了、换了身份都重取
+  // 计数：数据变了、换了身份都重取
   watch(
     () => center && center.state.status === 'ready' && [center.state.revision, center.state.actor],
     async (ready) => {
-      if (ready && center) todoCount = (await center.client.todo()).length;
+      if (!ready || !center) return;
+      const [todo, cc] = await Promise.all([center.client.todo(), center.client.cc()]);
+      counts = { todo: todo.length, cc: cc.filter((c) => !c.readAt).length };
     },
   );
 
@@ -115,6 +122,17 @@ export default _component(() => {
             流程中心
           </AppShellBrand>
         }
+        nav={
+          current?.state.status === 'ready' && (
+            <NavBar
+              aria-label="工作台"
+              items={workBoxItems(
+                route.path === WORK_PATH ? boxOf(route.query['box']) : null,
+                counts,
+              )}
+            />
+          )
+        }
         header={
           <div {...css.attrs(styles.tools)}>
             {current && (
@@ -160,7 +178,7 @@ export default _component(() => {
         sidebar={
           <NavList aria-label="流程中心">
             <NavSection label="我的">
-              <NavItem href="/flow/work" icon={Inbox} badge={todoCount || undefined}>
+              <NavItem href="/flow/work" icon={Inbox}>
                 工作台
               </NavItem>
               <NavItem href="/flow/start" icon={Send}>

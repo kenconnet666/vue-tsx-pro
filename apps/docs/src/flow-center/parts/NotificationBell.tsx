@@ -1,6 +1,7 @@
 /**
- * 顶栏的通知铃铛（组件库的 NotificationCenter）：引擎的站内信箱（engine.notifications）。数据变了、换了身份重取；
- * 点一条标为已读并去那张单——待办类的去工作台的那份待办，抄送去“抄送我的”，结束去“我发起的”。
+ * 顶栏的通知铃铛（组件库的 NotificationCenter）：引擎的站内信箱（engine.notifications），按时间看“发生了什么”——
+ * 到了、退回、催办、快到期、超时、抄送、结束。要办的东西按格子分在顶栏的页签里（parts/WorkBoxes），这里不再分类。
+ * 数据变了、换了身份重取；点一条标为已读并去那张单——待办类的去工作台的那份待办，抄送去“抄送我的”，结束去“我发起的”。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { NotificationView } from '@zerodep-dev/flow-ts-engine';
@@ -10,20 +11,6 @@ import { watch } from 'vue';
 import { useFlowCenter } from '../runtime/center';
 import { noticeText } from './labels';
 import { showError } from './toaster';
-
-/** 按事件分的三类（铃铛里筛选） */
-const TYPES = [
-  { key: 'todo', label: '待办' },
-  { key: 'time', label: '催办与时限' },
-  { key: 'other', label: '抄送与结束' },
-];
-
-const typeOf = (event: NotificationView['event']) =>
-  event === 'arrived' || event === 'returned'
-    ? 'todo'
-    : event === 'cc' || event === 'finished'
-      ? 'other'
-      : 'time';
 
 /** 点一条去哪 */
 function hrefOf(notice: NotificationView): string {
@@ -57,7 +44,6 @@ export const NotificationBell = _component(() => {
         title: text.title,
         description: notice.message ?? text.description,
         time: notice.createdAt.toISOString(),
-        type: typeOf(notice.event),
         read: notice.readAt !== null,
         href: hrefOf(notice),
         ...(text.tone ? { tone: text.tone } : {}),
@@ -67,7 +53,6 @@ export const NotificationBell = _component(() => {
   return () => (
     <NotificationCenter
       items={items()}
-      types={TYPES}
       now={center.state.now.getTime()}
       onRead={(ids) => void center.client.notifications.read(ids.map(Number)).catch(showError)}
     />

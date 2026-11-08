@@ -1,103 +1,74 @@
 /**
- * 工作台（docs/decisions/0009 第 4 节）：审批单占满宽度；列表——待办、已办、抄送我的、我发起的、草稿——收在顶上的下拉里，
- * 按钮上写着现在看的是哪个格子、第几条，点开选一条（选完收起），旁边上一条、下一条，不用来回换页。
- * 待办里超时、快到期的排前面并标出来；处理完一条自动换到下一条；数据变了（别人处理了、作业跑了）列表自己刷新。
- * 批量：勾几条待办一起同意（各用节点上不要求写意见的同意结果），逐条给出结果，没办成的留着并写出原因。
- * 键盘：J / K（焦点在列表里时也可以 ↑ ↓）换一条，回车去处理（焦点到第一个结果按钮），X 勾选。
- * 选中的格子与单子记在地址栏里（box、instance、item），刷新、分享链接都还在。
+ * 工作台（docs/decisions/0009 第 4 节）：顶栏的页签选格子（待办、已办、抄送我的、我发起的、草稿，parts/WorkBoxes），
+ * 这里把它列成整宽的表格——按关键字、流程筛；点一行在抽屉里打开审批单，抽屉里上一条、下一条（J / K）不用回到列表。
+ * 处理完一条自动换到下一条，格子空了抽屉收起；数据变了（别人处理了、作业跑了）跟着刷新。
+ * 批量：待办勾几条一起同意（各用节点上不要求写意见的同意结果，没有的不能勾），逐条给出结果，没办成的留着勾上并写出原因；
+ * 抄送勾几条标为已读。
+ * 格子与打开的单子记在地址栏里（box、instance、item），刷新、分享链接都还在。
  */
-import { ChevronDown, ChevronUp, Square, SquareCheck } from '@lucide/icons';
+import { ChevronDown, ChevronUp } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { CcItem, InstanceRow, TodoItem } from '@zerodep-dev/flow-ts-engine';
 import {
   Badge,
   Button,
+  DataTable,
+  Drawer,
   Empty,
-  Flex,
-  Icon,
   IconButton,
-  ItemList,
-  ItemListItem,
   Kbd,
-  Popover,
-  SkeletonText,
+  Select,
+  SelectionBar,
   Small,
-  Tab,
-  TabList,
-  Tabs,
-  toElement,
+  TextField,
   useHotkeys,
-  type StatusTone,
+  type DataTableColumn,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { onScopeDispose, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { processOf } from '../processes';
 import { ApprovalPanel } from '../parts/ApprovalPanel';
-import { STATUS, timeText, who } from '../parts/labels';
+import { BOXES, boxOf, entryQuery, loadBox, type Box, type Entry } from '../parts/WorkBoxes';
 import { showError, toaster } from '../parts/toaster';
 import { useFlowCenter } from '../runtime/center';
 
-/** 左边的几个格子 */
-type Box = 'todo' | 'done' | 'cc' | 'started' | 'drafts';
-const BOXES: readonly { value: Box; label: string }[] = [
-  { value: 'todo', label: '待办' },
-  { value: 'done', label: '已办' },
-  { value: 'cc', label: '抄送我的' },
-  { value: 'started', label: '我发起的' },
-  { value: 'drafts', label: '草稿' },
-];
-
-/** 列表里的一行（几种格子统一成它） */
-interface Entry {
-  key: string;
-  instance: number;
-  workItem: number | null;
-  title: string;
-  description: string;
-  badge?: { label: string; tone: StatusTone };
-  /** 草稿：点了去发起页接着填 */
-  href?: string;
-  /** 待办能批量同意时用的结果 */
-  quickOutcome?: string;
-}
-
 const styles = css.create({
-  page: { display: 'flex', flexDirection: 'column', gap: '_md', minWidth: 0 },
-  top: { display: 'flex', alignItems: 'center', gap: '_xs', flexWrap: 'wrap' },
-  // 下拉按钮上的标题：太长时省略，不把工具条撑开
-  current: {
-    maxWidth: '28rem',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  },
-  // 弹出的列表：固定宽、列表太长时在里面滚
-  panel: {
-    width: 'min(26rem, calc(100vw - 2rem))',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '_xs',
-  },
-  scroll: { maxHeight: '60vh', overflowY: 'auto' },
-  bar: { paddingBlock: '_sm', paddingInline: '_xs' },
+  page: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
+  filters: { display: 'flex', alignItems: 'center', gap: '_sm', flexWrap: 'wrap' },
+  search: { width: '16rem' },
+  process: { width: '12rem' },
+  // 表格占满剩下的高度，长了在里面滚
+  table: { maxHeight: 'calc(100dvh - 14rem)' },
+  nav: { display: 'flex', alignItems: 'center', gap: '_xs', marginBlockEnd: '_sm' },
+  hint: { marginInlineStart: 'auto' },
 });
 
-const processName = (key: string) => processOf(key)?.definition.name ?? key;
+/** 各格子的列名：环节一列、时间一列、标记一列写什么 */
+const HEADERS: Record<Box, { step: string | null; at: string; badge: string | null }> = {
+  todo: { step: '环节', at: '到达', badge: '时限' },
+  done: { step: '环节', at: '处理时间', badge: '状态' },
+  cc: { step: '抄送人', at: '抄送时间', badge: '' },
+  started: { step: '现在到', at: '发起时间', badge: '状态' },
+  drafts: { step: null, at: '保存时间', badge: null },
+};
 
-/** 待办的排序：超时的、快到期的在前，再按到达的先后（新的在前） */
-function urgency(item: TodoItem, now: Date): number {
-  if (!item.dueAt) return Number.MAX_SAFE_INTEGER;
-  return new Date(item.dueAt).getTime() - now.getTime();
-}
-
-function deadline(item: TodoItem, now: Date): Entry['badge'] {
-  if (!item.dueAt)
-    return item.assignment === 'pool' ? { label: '收件箱', tone: 'neutral' } : undefined;
-  const left = new Date(item.dueAt).getTime() - now.getTime();
-  if (left < 0) return { label: '已超时', tone: 'danger' };
-  if (left < 24 * 3_600_000) return { label: '今天到期', tone: 'warning' };
-  return { label: `${timeText(item.dueAt, now)} 到期`, tone: 'neutral' };
+function columnsOf(box: Box): DataTableColumn<Entry>[] {
+  const headers = HEADERS[box];
+  return [
+    { key: 'title', header: '单据', minWidth: 240, cell: (e) => e.title },
+    { key: 'process', header: '流程', width: 120 },
+    ...(headers.step ? [{ key: 'step', header: headers.step, minWidth: 140 }] : []),
+    { key: 'at', header: headers.at, width: 170, type: 'dateTime' as const },
+    ...(headers.badge === null
+      ? []
+      : [
+          {
+            key: 'badge',
+            header: headers.badge,
+            width: 110,
+            cell: (e: Entry) => e.badge && <Badge tone={e.badge.tone}>{e.badge.label}</Badge>,
+          },
+        ]),
+  ];
 }
 
 export default _component(() => {
@@ -105,18 +76,13 @@ export default _component(() => {
   const route = useRoute();
   const router = useRouter();
   let entries = _state.raw<Entry[] | null>(null);
-  /** 批量模式与勾上的条目（Entry.key） */
-  let batch = _state(false);
   let checked = _state<string[]>([]);
-  let approving = _state(false);
-  // 存成响应式的：挂载后列表里的方向键才绑得上
-  let listElement = _state.raw<HTMLElement | null>(null);
-  /** 顶上的列表下拉开着没有 */
-  let listOpen = _state(false);
+  let busy = _state(false);
+  let text = _state('');
+  let process = _state<string | null>(null);
 
-  const box = () =>
-    (BOXES.some((b) => b.value === route.query['box']) ? route.query['box'] : 'todo') as Box;
-  const selected = () => ({
+  const box = () => boxOf(route.query['box']);
+  const opened = () => ({
     instance: Number(route.query['instance']) || null,
     item: Number(route.query['item']) || null,
   });
@@ -126,139 +92,61 @@ export default _component(() => {
   let leaving = false;
   onScopeDispose(router.beforeEach((to) => void (leaving = to.path !== path)));
   onScopeDispose(() => (leaving = true));
-  const select = (entry: Entry | undefined) => {
+  const open = (entry: Entry | undefined) => {
     if (leaving) return;
-    void router.replace({
-      path,
-      query: {
-        box: box(),
-        ...(entry ? { instance: String(entry.instance) } : {}),
-        ...(entry?.workItem ? { item: String(entry.workItem) } : {}),
-      },
-    });
+    if (entry?.href) return void router.push(entry.href);
+    void router.replace({ path, query: entryQuery(box(), entry) });
   };
 
-  async function load(which: Box): Promise<Entry[]> {
-    const now = center.state.now;
-    const { client } = center;
-    switch (which) {
-      case 'todo':
-        return (await client.todo())
-          .sort(
-            (a, b) =>
-              urgency(a, now) - urgency(b, now) || +new Date(b.createdAt) - +new Date(a.createdAt),
-          )
-          .map((t) => ({
-            key: `w${t.id}`,
-            instance: t.instanceId,
-            workItem: t.id,
-            title: t.title ?? processName(t.processKey),
-            description: `${t.nodeName} · ${timeText(t.createdAt, now)} 到达`,
-            ...withBadge(deadline(t, now)),
-            ...(t.quickOutcome ? { quickOutcome: t.quickOutcome } : {}),
-          }));
-      case 'done':
-        return (await client.done()).map((t) => ({
-          key: `w${t.id}`,
-          instance: t.instanceId,
-          workItem: t.id,
-          title: t.title ?? processName(t.processKey),
-          description: `${t.nodeName} · ${timeText(t.completedAt, now)} 处理`,
-          badge: STATUS[t.instanceStatus],
-        }));
-      case 'cc':
-        return (await client.cc()).map((c: CcItem) => ({
-          key: `c${c.id}`,
-          instance: c.instanceId,
-          workItem: null,
-          title: c.title ?? processName(c.processKey),
-          description: `${c.sender ? `${who(c.sender)}抄送` : '流程抄送'} · ${timeText(c.at, now)}`,
-          ...(c.readAt ? {} : { badge: { label: '未读', tone: 'accent' as const } }),
-        }));
-      case 'started':
-        return (await client.started()).map((i: InstanceRow) => ({
-          key: `i${i.id}`,
-          instance: i.id,
-          workItem: null,
-          title: i.title ?? processName(i.processKey),
-          description: `${processName(i.processKey)} · ${timeText(i.startedAt, now)} 发起`,
-          badge: STATUS[i.status],
-        }));
-      case 'drafts':
-        return (await client.drafts.list()).map((d: InstanceRow) => ({
-          key: `d${d.id}`,
-          instance: d.id,
-          workItem: null,
-          title: processName(d.processKey),
-          description: `${timeText(d.startedAt, now)} 存的草稿`,
-          href: `/flow/start/${d.processKey}?draft=${d.id}`,
-        }));
-    }
-  }
+  const isOpened = (entry: Entry) => {
+    const current = opened();
+    return entry.instance === current.instance && entry.workItem === current.item;
+  };
+  /** 筛过的行（抽屉里的上一条、下一条也按它） */
+  const rows = () => {
+    const keyword = text.trim();
+    return (entries ?? []).filter(
+      (e) => (!keyword || e.title.includes(keyword)) && (!process || e.process === process),
+    );
+  };
+  /** 打开的那条在列表里的位置：处理完它离开了列表时，换到同一位置的下一条 */
+  let openedAt = -1;
+
+  // 换格子：清掉勾选与筛选
+  watch(box, () => {
+    checked = [];
+    text = '';
+    process = null;
+  });
 
   watch(
     () => [box(), center.state.revision, center.state.actor] as const,
     async ([which]) => {
-      entries = await load(which);
+      entries = await loadBox(center, which);
       checked = checked.filter((key) => entries!.some((e) => e.key === key));
-      if (which !== 'todo') batch = false;
-      // 选中的不在列表里了（处理完了、换了身份）：换到第一条
-      const current = selected();
-      const still = entries.some(
-        (e) => e.instance === current.instance && (e.workItem ?? null) === (current.item ?? null),
-      );
-      if (!still && which !== 'drafts') select(entries[0]);
+      if (!opened().instance || rows().some(isOpened)) return;
+      // 打开的那条不在列表里了（处理完了、换了身份）：换到下一条，格子空了就收起
+      const list = rows();
+      open(list[Math.min(Math.max(openedAt, 0), list.length - 1)]);
     },
     { immediate: true },
   );
 
-  const isCurrent = (entry: Entry) => {
-    const current = selected();
-    return entry.instance === current.instance && entry.workItem === current.item;
-  };
-
-  /** 键盘换一条：step 是 +1（下一条）或 -1 */
+  /** 换一条：step 是 +1（下一条）或 -1 */
   function move(step: number) {
-    const list = (entries ?? []).filter((e) => !e.href);
-    if (list.length === 0) return;
-    const at = list.findIndex(isCurrent);
-    select(list[Math.min(list.length - 1, Math.max(0, at + step))]);
+    const list = rows().filter((e) => !e.href);
+    if (list.length === 0 || !opened().instance) return;
+    const at = list.findIndex(isOpened);
+    open(list[Math.min(list.length - 1, Math.max(0, at + step))]);
   }
 
-  function toggle(entry: Entry) {
-    if (!entry.quickOutcome) return;
-    checked = checked.includes(entry.key)
-      ? checked.filter((key) => key !== entry.key)
-      : [...checked, entry.key];
-  }
-
-  /** 去处理：焦点到审批单的第一个结果按钮（没有能做的就不动） */
-  function focusHandling() {
-    document.querySelector<HTMLElement>('[data-flow-outcomes] button')?.focus();
-  }
-
-  useHotkeys(() => ({
-    J: () => move(1),
-    K: () => move(-1),
-    X: () => {
-      const entry = entries?.find(isCurrent);
-      if (batch && entry) toggle(entry);
-    },
-  }));
-  useHotkeys(
-    () => ({
-      ArrowDown: () => move(1),
-      ArrowUp: () => move(-1),
-      Enter: focusHandling,
-    }),
-    { target: () => listElement },
-  );
+  useHotkeys(() => ({ J: () => move(1), K: () => move(-1) }));
 
   /** 勾上的待办一起同意：每条一个事务，各自成败；没办成的留着勾上，写出原因 */
   async function approveChecked() {
     const targets = (entries ?? []).filter((e) => checked.includes(e.key) && e.quickOutcome);
     if (targets.length === 0) return;
-    approving = true;
+    busy = true;
     try {
       const results = await center.client.runMany(
         targets.map((e) => ({ type: 'complete', workItem: e.workItem!, outcome: e.quickOutcome! })),
@@ -279,160 +167,59 @@ export default _component(() => {
     } catch (error) {
       showError(error);
     } finally {
-      approving = false;
+      busy = false;
     }
   }
 
-  function renderBatchBar(list: Entry[]) {
-    const quick = list.filter((e) => e.quickOutcome);
-    if (box() !== 'todo' || quick.length === 0) return null;
-    if (!batch)
+  async function readChecked() {
+    const targets = (entries ?? []).filter((e) => checked.includes(e.key));
+    busy = true;
+    try {
+      await Promise.all(targets.map((e) => center.client.readCc(e.instance)));
+      checked = [];
+    } catch (error) {
+      showError(error);
+    } finally {
+      busy = false;
+    }
+  }
+
+  function renderBatch(which: Box) {
+    if (which === 'todo')
       return (
-        <Flex justify="end" sx={styles.bar}>
-          <Button
-            size="sm"
-            variant="ghost"
-            tone="neutral"
-            icon={SquareCheck}
-            onClick={() => (batch = true)}
-          >
-            批量处理
-          </Button>
-        </Flex>
+        <Button size="sm" loading={busy} onClick={() => void approveChecked()}>
+          同意
+        </Button>
       );
-    const all = quick.every((e) => checked.includes(e.key));
     return (
-      <Flex gap="xs" align="center" wrap sx={styles.bar}>
-        <Button
-          size="sm"
-          variant="ghost"
-          tone="neutral"
-          onClick={() => (checked = all ? [] : quick.map((e) => e.key))}
-        >
-          {all ? '全不选' : '全选'}
-        </Button>
-        <Button
-          size="sm"
-          loading={approving}
-          disabled={checked.length === 0}
-          onClick={() => void approveChecked()}
-        >
-          同意{checked.length > 0 ? `（${checked.length}）` : ''}
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          tone="neutral"
-          onClick={() => {
-            batch = false;
-            checked = [];
-          }}
-        >
-          取消
-        </Button>
-      </Flex>
+      <Button
+        size="sm"
+        variant="outline"
+        tone="neutral"
+        loading={busy}
+        onClick={() => void readChecked()}
+      >
+        标为已读
+      </Button>
     );
   }
 
-  /** 列表本身：页签、批量处理、条目、快捷键提示（在顶上的下拉里） */
-  function renderList(list: Entry[] | null) {
+  function renderDrawer(list: Entry[], label: string) {
+    const current = opened();
+    const openable = list.filter((e) => !e.href);
+    const at = openable.findIndex(isOpened);
+    if (at >= 0) openedAt = at;
     return (
-      <div {...css.attrs(styles.panel)}>
-        <Tabs
-          _value={box()}
-          onUpdate:_value={(value: string) => void router.replace({ query: { box: value } })}
-        >
-          <TabList aria-label="工作台">
-            {BOXES.map((b) => (
-              <Tab key={b.value} value={b.value}>
-                {b.label}
-              </Tab>
-            ))}
-          </TabList>
-        </Tabs>
-        {list && renderBatchBar(list)}
-        {!list ? (
-          <SkeletonText lines={5} />
-        ) : list.length === 0 ? (
-          <Empty title="这里是空的" description={box() === 'todo' ? '没有要处理的' : undefined} />
-        ) : (
-          <div
-            ref={(value: unknown) => (listElement = toElement(value))}
-            {...css.attrs(styles.scroll)}
-          >
-            <ItemList aria-label={BOXES.find((b) => b.value === box())!.label}>
-              {list.map((entry) => (
-                <ItemListItem
-                  key={entry.key}
-                  title={entry.title}
-                  description={entry.description}
-                  start={
-                    batch &&
-                    entry.quickOutcome && (
-                      <Icon
-                        icon={checked.includes(entry.key) ? SquareCheck : Square}
-                        tone={checked.includes(entry.key) ? 'accent' : 'muted'}
-                      />
-                    )
-                  }
-                  end={entry.badge && <Badge tone={entry.badge.tone}>{entry.badge.label}</Badge>}
-                  {...(entry.href
-                    ? { href: entry.href }
-                    : {
-                        selected: isCurrent(entry),
-                        // 批量模式下点一条是勾选它（不能批量的照常打开）；打开一条后收起下拉
-                        onSelect: () => {
-                          if (batch && entry.quickOutcome) return toggle(entry);
-                          select(entry);
-                          listOpen = false;
-                        },
-                      })}
-                />
-              ))}
-            </ItemList>
-          </div>
-        )}
-        {list && list.length > 0 && (
-          <Small tone="muted" sx={styles.bar}>
-            <Kbd>J</Kbd> <Kbd>K</Kbd> 换一条，<Kbd>Enter</Kbd> 去处理
-            {batch && (
-              <>
-                ，<Kbd>X</Kbd> 勾选
-              </>
-            )}
-          </Small>
-        )}
-      </div>
-    );
-  }
-
-  return () => {
-    const list = entries;
-    const current = selected();
-    const openable = (list ?? []).filter((e) => !e.href);
-    const at = openable.findIndex(isCurrent);
-    const label = BOXES.find((b) => b.value === box())!.label;
-    return (
-      <div {...css.attrs(styles.page)}>
-        <div {...css.attrs(styles.top)}>
-          <Popover
-            _open={listOpen}
-            placement="bottom-start"
-            trigger={(props) => (
-              <Button variant="outline" tone="neutral" iconEnd={ChevronDown} {...props}>
-                {label}
-                {list && (
-                  <Badge tone={box() === 'todo' && list.length > 0 ? 'accent' : 'neutral'}>
-                    {list.length}
-                  </Badge>
-                )}
-                {at >= 0 && <span {...css.attrs(styles.current)}>{openable[at]!.title}</span>}
-              </Button>
-            )}
-          >
-            {renderList(list)}
-          </Popover>
+      <Drawer
+        _open={current.instance !== null}
+        onUpdate:_open={(value: boolean) => !value && open(undefined)}
+        size="lg"
+        // 审批单自己有标题：抽屉的标题写在看哪个格子的第几条
+        title={at >= 0 ? `${label} · 第 ${at + 1} / ${openable.length} 条` : label}
+      >
+        <div {...css.attrs(styles.nav)}>
           <IconButton
+            size="sm"
             variant="ghost"
             tone="neutral"
             icon={ChevronUp}
@@ -441,6 +228,7 @@ export default _component(() => {
             onClick={() => move(-1)}
           />
           <IconButton
+            size="sm"
             variant="ghost"
             tone="neutral"
             icon={ChevronDown}
@@ -448,25 +236,77 @@ export default _component(() => {
             disabled={at < 0 || at >= openable.length - 1}
             onClick={() => move(1)}
           />
-          {at >= 0 && (
-            <Small tone="muted">
-              第 {at + 1} / {openable.length} 条
+          {openable.length > 1 && (
+            <Small tone="muted" sx={styles.hint}>
+              <Kbd>J</Kbd> <Kbd>K</Kbd> 换一条
             </Small>
           )}
         </div>
-        {current.instance ? (
+        {current.instance !== null && (
           <ApprovalPanel
             key={`${current.instance}-${current.item ?? ''}`}
             instance={current.instance}
             workItem={current.item}
           />
-        ) : (
-          <Empty title="选一张单" description={`点上面的“${label}”，选一条在这里看、处理。`} />
         )}
+      </Drawer>
+    );
+  }
+
+  return () => {
+    const which = box();
+    const list = rows();
+    const label = BOXES.find((b) => b.value === which)!.label;
+    const processes = [...new Set((entries ?? []).map((e) => e.process))];
+    const batchable = which === 'todo' || which === 'cc';
+    return (
+      <div {...css.attrs(styles.page)}>
+        <div {...css.attrs(styles.filters)}>
+          <TextField
+            _value={text}
+            placeholder="按标题找"
+            clearable
+            aria-label="关键字"
+            sx={styles.search}
+          />
+          <Select
+            items={processes.map((p) => ({ value: p, label: p }))}
+            _value={process}
+            placeholder="全部流程"
+            clearable
+            aria-label="流程"
+            sx={styles.process}
+          />
+          <Small tone="muted">共 {list.length} 条</Small>
+        </div>
+        {batchable && (
+          <SelectionBar count={checked.length} onClear={() => (checked = [])}>
+            {renderBatch(which)}
+          </SelectionBar>
+        )}
+        <DataTable
+          rows={list}
+          columns={columnsOf(which)}
+          getKey={(e) => e.key}
+          loading={entries === null}
+          aria-label={label}
+          empty={
+            <Empty title="这里是空的" description={which === 'todo' ? '没有要处理的' : undefined} />
+          }
+          onRowClick={(e) => open(e)}
+          activeKey={list.find(isOpened)?.key ?? null}
+          {...(batchable
+            ? {
+                selectionMode: 'multiple' as const,
+                _selected: checked,
+                'onUpdate:_selected': (keys: string[]) => (checked = keys),
+                ...(which === 'todo' ? { isRowSelectable: (e: Entry) => !!e.quickOutcome } : {}),
+              }
+            : {})}
+          propsRoot={{ sx: styles.table }}
+        />
+        {renderDrawer(list, label)}
       </div>
     );
   };
 });
-
-/** 有角标时才带上 */
-const withBadge = (badge: Entry['badge']) => (badge ? { badge } : {});

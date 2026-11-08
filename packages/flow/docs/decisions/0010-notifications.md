@@ -24,3 +24,16 @@
 - 外部投递：引擎选项 `notifications.deliver`。提交后逐条送；抛错的记下原因留着，`jobs.runDue` 顺带再试，最多 5 次。
   多实例部署时先带条件地占用（次数加一）再投递，同一条不会被两个进程各送一次。
 - 接口：`engine.notifications.list / unread / read`，客户端同名；页面顶栏的铃铛按它列出、点一条去那张单。
+
+## 2. 广播：PG 的 NOTIFY
+
+- 多实例部署时，一个进程推进了，别的进程的页面也要刷新；组织目录是进程内的快照，别的进程改了也要刷新。
+  用 PostgreSQL 自带的 `NOTIFY` / `LISTEN`，不引入消息队列：引擎已经只支持 PG（0008），广播随事务提交发出、回滚就不发，
+  和数据一致；漏了（连接断开）也只是页面晚一点刷新，下次数据变化或重新进入页面就对了，不需要可靠投递。
+- 频道（`core/channels.ts`，从包入口导出）：
+  - `FLOW_CHANNEL`（`flow_changed`）：推进（负载 `{"instance": 12}`）、发布与启停（`{"process": "leave"}`）。
+    作业也是推进，所以不再需要“`runDue` 返回做了几件、宿主据此通知”。
+  - `ORG_CHANNEL`（`flow_org_changed`）：组织目录的 `sync`、`save*`、`removeDepartment`。
+- 宿主收听：`easy-query-ts-pg` 的 `listen(pool, channel, handler)`（占一条专用连接；断了要重新 listen），PGlite 用 `easy-query-ts-pg/pglite` 的 `listen`。
+  流程中心的 Worker 收听 `FLOW_CHANNEL` 后通知页面；页面把同一次改动的两下（端点自己的通知与广播）合成一次刷新。
+- 负载只是提示，不带数据：收到后按自己的权限重新查询，广播不会把别人的单子内容推给不该看的人。

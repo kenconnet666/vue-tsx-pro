@@ -36,6 +36,11 @@ const tab = (label: string) =>
   [...document.querySelectorAll<HTMLElement>('[role=tab]')].find(
     (t) => t.textContent?.trim() === label,
   );
+/** 工作台表格里写着 label 的一行 */
+const row = (label: string) =>
+  [...document.querySelectorAll<HTMLElement>('main tbody tr')].find((r) =>
+    r.textContent?.includes(label),
+  );
 const openDialog = () => [...document.querySelectorAll('dialog')].find((d) => d.open);
 
 let app: App | undefined;
@@ -67,33 +72,27 @@ describe.skipIf(!chromium)('流程中心', () => {
   });
 
   it('林小满同意陈晓的年假，人事经理备案，单子结束', async () => {
+    // 工作台是整宽的表格：点年假那行，在抽屉里打开审批单
+    (await waitFor(() => row('年假'))).click();
     (
       await waitFor(() =>
         button('同意', document.querySelector('[data-flow-outcomes]') ?? document),
       )
     ).click();
-    // 办完了：列表空了，审批单那里请人选一张
-    await waitFor(() => text().includes('选一张单'));
+    // 办完了：待办空了，抽屉收起
+    await waitFor(() => text().includes('没有要处理的') && !openDialog());
 
     useFlowCenter().setActor('1013');
-    // 列表收在顶上的下拉里：点开，选年假那条（选完下拉收起）
-    (await waitFor(() => main()?.querySelector<HTMLElement>('button[aria-expanded]'))).click();
-    const item = await waitFor(() =>
-      [...document.querySelectorAll<HTMLElement>('[popover] li button')].find((b) =>
-        b.textContent?.includes('年假'),
-      ),
-    );
-    item.click();
+    (await waitFor(() => row('年假'))).click();
     await waitFor(() => text().includes('人事备案'));
+    const leave = router.currentRoute.value.query['instance'];
     (
       await waitFor(() =>
         button('已备案', document.querySelector('[data-flow-outcomes]') ?? document),
       )
     ).click();
-    // 备案完：下拉按钮上写的当前这张不再是年假
-    await waitFor(
-      () => !main()?.querySelector('button[aria-expanded]')?.textContent?.includes('年假'),
-    );
+    // 备案完：抽屉换到下一条（或空了收起）
+    await waitFor(() => router.currentRoute.value.query['instance'] !== leave);
 
     // 通知：备案的待办到人事的收件箱时，人事经理收到“到达”；单子结束，发起人陈晓收到“已结束”
     const { client } = useFlowCenter();
