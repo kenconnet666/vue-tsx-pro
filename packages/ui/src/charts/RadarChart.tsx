@@ -24,6 +24,7 @@ import { niceStep } from './axis-ticks';
 import { ChartFrame, type ChartFrameParts } from './frame';
 import { resolveSeries, seriesNumber, seriesValue, type ChartSeries } from './series';
 import { svgNumber } from '../utils/data/number';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div（role="figure"）上；aria-label 是图表的名称 */
 export interface RadarChartProps<T extends object>
@@ -61,6 +62,9 @@ export interface RadarChartProps<T extends object>
   /** 没有数据时显示的内容 */
   empty?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="radar-chart"） */
+const radarChartPart = (part: string) => partAttrs({ name: 'RadarChart' }, part);
 
 /** RadarChart 的样式 */
 const radarChartStyles = css.create({
@@ -155,6 +159,7 @@ export const RadarChart = _component(
         count < 3 ? null : (
           <svg
             {...css.attrs(radarChartStyles.svg)}
+            {...radarChartPart('svg')}
             viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
             aria-hidden="true"
             onPointerleave={() => (active = null)}
@@ -168,9 +173,15 @@ export const RadarChart = _component(
                   cy={CY}
                   r={RADIUS * ratio}
                   {...css.attrs(radarChartStyles.grid)}
+                  {...radarChartPart('grid')}
                 />
               ) : (
-                <polygon key={level} points={ring(ratio)!} {...css.attrs(radarChartStyles.grid)} />
+                <polygon
+                  key={level}
+                  points={ring(ratio)!}
+                  {...css.attrs(radarChartStyles.grid)}
+                  {...radarChartPart('grid')}
+                />
               );
             })}
             {data.map((row, position) => {
@@ -188,6 +199,7 @@ export const RadarChart = _component(
                       radarChartStyles.spoke,
                       active === position && radarChartStyles.spokeActive,
                     )}
+                    {...radarChartPart('spoke')}
                   />
                   <text
                     x={label.x}
@@ -198,6 +210,7 @@ export const RadarChart = _component(
                       radarChartStyles.label,
                       active === position && radarChartStyles.labelActive,
                     )}
+                    {...radarChartPart('label')}
                   >
                     {String(row[index] ?? '')}
                   </text>
@@ -211,6 +224,7 @@ export const RadarChart = _component(
                 y={CY - (RADIUS * (level + 1)) / levels}
                 dominant-baseline="middle"
                 {...css.attrs(radarChartStyles.tick)}
+                {...radarChartPart('tick')}
               >
                 {format.number((top * (level + 1)) / levels, valueFormat)}
               </text>
@@ -224,6 +238,7 @@ export const RadarChart = _component(
                   <polygon
                     points={points.map((p) => `${p.x},${p.y}`).join(' ')}
                     {...css.attrs(radarChartStyles.area, radarChartStyles.stroke(item.color))}
+                    {...radarChartPart('area')}
                   />
                   {points.map((p, position) => (
                     <circle
@@ -232,6 +247,7 @@ export const RadarChart = _component(
                       cy={p.y}
                       r={active === position ? 4 : 2.5}
                       {...css.attrs(radarChartStyles.vertex, radarChartStyles.stroke(item.color))}
+                      {...radarChartPart('vertex')}
                     />
                   ))}
                   {active !== null && (
@@ -244,6 +260,7 @@ export const RadarChart = _component(
                         radarChartStyles.stroke(item.color),
                         radarChartStyles.surfaceStroke,
                       )}
+                      {...radarChartPart('value')}
                     >
                       {format.number(seriesValue(data[active]!, item.key) ?? 0, valueFormat)}
                     </text>
@@ -260,6 +277,7 @@ export const RadarChart = _component(
                   key={`sector-${position}`}
                   d={`M${CX} ${CY} L${a.x} ${a.y} L${b.x} ${b.y} Z`}
                   {...css.attrs(radarChartStyles.sector)}
+                  {...radarChartPart('sector')}
                   onPointerenter={() => (active = position)}
                 />
               );

@@ -25,7 +25,7 @@ import { useFormat } from '../config/lang/format';
 import { toNumber, type NumericValue } from '../utils/data/numeric';
 import { useChartValueText } from './frame';
 import { chartBar, chartMarkStyles } from './marks';
-import { chartSvgStyles } from './plot';
+import { chartPart, chartSvgStyles } from './plot';
 import { resolveColor, type ChartColor } from './series';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 
@@ -155,7 +155,7 @@ export const WaterfallChart = _component(
       render: (context) => {
         const width = Math.min(context.step * 0.7, 56);
         return (
-          <g data-part="bars">
+          <g {...chartPart('bars')}>
             {context.rows.map((row, index) => {
               const center = context.category(row, index);
               const next = context.rows[index + 1];
@@ -188,10 +188,14 @@ export const WaterfallChart = _component(
               return (
                 <g key={index}>
                   {connector && (
-                    <line {...connector} {...css.attrs(waterfallChartStyles.connector)} />
+                    <line
+                      {...connector}
+                      {...css.attrs(waterfallChartStyles.connector)}
+                      {...chartPart('connector')}
+                    />
                   )}
                   <path
-                    data-part="bar"
+                    {...chartPart('bar')}
                     data-index={index}
                     d={d}
                     {...css.attrs(chartMarkStyles.bar, grow, chartSvgStyles.fill(colorOf(row)))}

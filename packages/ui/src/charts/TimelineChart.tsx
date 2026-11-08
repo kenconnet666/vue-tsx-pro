@@ -39,6 +39,7 @@ import { linearScale, timeTicks } from './scale';
 import { resolveColor, type ChartColor } from './series';
 import { estimateTextWidth, truncateText } from './text-size';
 import { xyChartStyles } from './XYChart';
+import { partAttrs } from '../config/styles';
 
 /** 一个时间点：Date、时间戳（毫秒）或 ISO 字符串（日期或日期时间） */
 export type TimelineTime = Date | number | string;
@@ -129,6 +130,9 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 /** 行名最宽多少（px），更长的截短 */
 const LABEL_WIDTH = 160;
+
+/** 部件的标记（data-scope="timeline-chart"） */
+const timelineChartPart = (part: string) => partAttrs({ name: 'TimelineChart' }, part);
 
 /** TimelineChart 的样式：隔行的底色、时间条 */
 const timelineChartStyles = css.create({
@@ -283,6 +287,7 @@ export const TimelineChart = _component(
                 width={width}
                 height={rowHeight}
                 {...css.attrs(timelineChartStyles.stripe)}
+                {...timelineChartPart('stripe')}
               />
             ) : null,
           )}
@@ -315,7 +320,6 @@ export const TimelineChart = _component(
               return (
                 <rect
                   key={index}
-                  data-part="segment"
                   data-segment={index}
                   x={svgNumber(x)}
                   y={svgNumber(row * rowHeight + (rowHeight - segment.width) / 2)}
@@ -327,6 +331,7 @@ export const TimelineChart = _component(
                     chartSvgStyles.fill(segment.track ? trackColor(segment.color) : segment.color),
                     hovered?.index === index && timelineChartStyles.segmentActive,
                   )}
+                  {...timelineChartPart('segment')}
                 />
               );
             })}
@@ -335,7 +340,7 @@ export const TimelineChart = _component(
             const x = Math.round(scale(marker.time)) + 0.5;
             const color = resolveColor(marker.color ?? 'neutral', 0);
             return (
-              <g key={`marker:${position}`} data-part="marker">
+              <g key={`marker:${position}`} {...timelineChartPart('marker')}>
                 <line
                   x1={x}
                   x2={x}

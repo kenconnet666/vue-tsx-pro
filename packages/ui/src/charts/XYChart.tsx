@@ -41,6 +41,7 @@ import {
   type AxisTick,
   type ChartTip,
   type PlotRect,
+  chartPart,
 } from './plot';
 import { linearScale, linearTicks, niceDomain } from './scale';
 import {
@@ -291,6 +292,7 @@ function chartSkeleton({
     <div
       aria-hidden="true"
       {...css.attrs(xyChartStyles.skeletonBars, horizontal && xyChartStyles.skeletonBarsHorizontal)}
+      {...chartPart('skeletonBars')}
     >
       {SKELETON_BARS.map((percent, position) => (
         <Skeleton
@@ -388,7 +390,7 @@ export const XYChart = _component(
     const zoomBar = () => {
       const last = data.length - 1;
       return (
-        <div {...css.attrs(xyChartStyles.zoom)}>
+        <div {...css.attrs(xyChartStyles.zoom)} {...chartPart('zoom')}>
           <Slider
             _value={zoomRange ?? [0, last]}
             onUpdate:_value={(next: [number, number]) =>
@@ -757,10 +759,11 @@ export const XYChart = _component(
           : { x: plot.left, y: clampedFrom, width: plot.width, height: clampedTo - clampedFrom };
         if (rect.width <= 0 || rect.height <= 0) return null;
         return (
-          <g key={`band-${position}`} data-part="band">
+          <g key={`band-${position}`} {...chartPart('band')}>
             <rect
               {...rect}
               {...css.attrs(xyChartStyles.bandFill(color), chartSvgStyles.noPointer)}
+              {...chartPart('bandFill')}
             />
             {band.label && (
               <text
@@ -789,7 +792,7 @@ export const XYChart = _component(
           ? `${target.label} ${valueText(target.value)}`
           : valueText(target.value);
         return (
-          <g key={`target-${position}`} data-part="target">
+          <g key={`target-${position}`} {...chartPart('target')}>
             {horizontal ? (
               <line
                 x1={at}
@@ -797,6 +800,7 @@ export const XYChart = _component(
                 y1={plot.top}
                 y2={bottom}
                 {...css.attrs(xyChartStyles.targetLine, chartSvgStyles.stroke(color))}
+                {...chartPart('targetLine')}
               />
             ) : (
               <line
@@ -805,6 +809,7 @@ export const XYChart = _component(
                 y1={at}
                 y2={at}
                 {...css.attrs(xyChartStyles.targetLine, chartSvgStyles.stroke(color))}
+                {...chartPart('targetLine')}
               />
             )}
             <text
@@ -831,7 +836,7 @@ export const XYChart = _component(
           const color = resolveColor(item.color ?? 'neutral', 0);
           const p = svgNumber(at);
           return (
-            <g key={`event-${position}`} data-part="event">
+            <g key={`event-${position}`} {...chartPart('event')}>
               {horizontal ? (
                 <line
                   x1={plot.left}
@@ -839,6 +844,7 @@ export const XYChart = _component(
                   y1={p}
                   y2={p}
                   {...css.attrs(xyChartStyles.eventLine, chartSvgStyles.stroke(color))}
+                  {...chartPart('eventLine')}
                 />
               ) : (
                 <line
@@ -847,6 +853,7 @@ export const XYChart = _component(
                   y1={plot.top}
                   y2={bottom}
                   {...css.attrs(xyChartStyles.eventLine, chartSvgStyles.stroke(color))}
+                  {...chartPart('eventLine')}
                 />
               )}
               <text
@@ -905,12 +912,13 @@ export const XYChart = _component(
           const anchor = x + half > left + width ? 'end' : x - half < left ? 'start' : 'middle';
           const textX = anchor === 'end' ? x + 8 : anchor === 'start' ? x - 8 : x;
           return (
-            <g key={`mark-${position}`} data-part="mark">
+            <g key={`mark-${position}`} {...chartPart('mark')}>
               <circle
                 cx={x}
                 cy={y}
                 r={8}
                 {...css.attrs(xyChartStyles.mark, chartSvgStyles.stroke(color))}
+                {...chartPart('markDot')}
               />
               <text
                 x={textX}
@@ -960,7 +968,7 @@ export const XYChart = _component(
         : layout.shown;
       const p = Math.round(center) + 0.5;
       return (
-        <g data-part="crosshair">
+        <g {...chartPart('crosshair')}>
           {!kind.band && (
             <line
               x1={p}
@@ -980,6 +988,7 @@ export const XYChart = _component(
                 cy={svgNumber(valueScale(value))}
                 r={4.5}
                 {...css.attrs(xyChartStyles.crosshairDot, chartSvgStyles.fill(item.color))}
+                {...chartPart('crosshairDot')}
               />
             );
           })}

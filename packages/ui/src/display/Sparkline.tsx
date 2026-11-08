@@ -18,6 +18,7 @@ import { toNumber, type NumericValue } from '../utils/data/numeric';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 迷你图的画法 */
 export interface SparklineTypes {
@@ -51,6 +52,9 @@ export interface SparklineProps extends PartProps<'span', SparklineManaged> {
   /** 名称：读屏先念它（“近 12 个月实际销售”） */
   label?: string;
 }
+
+/** 部件的标记（data-scope="sparkline"） */
+const sparklinePart = (part: string) => partAttrs({ name: 'Sparkline' }, part);
 
 /** Sparkline 的样式 */
 const sparklineStyles = css.create({
@@ -145,6 +149,7 @@ export const Sparkline = _component(
         >
           <svg
             {...css.attrs(sparklineStyles.svg)}
+            {...sparklinePart('svg')}
             viewBox={`0 0 ${width} 100`}
             preserveAspectRatio="none"
             aria-hidden="true"
@@ -165,6 +170,7 @@ export const Sparkline = _component(
                             ? sparklineStyles.barLast
                             : sparklineStyles.barBefore),
                       )}
+                      {...sparklinePart('bar')}
                     />
                   ),
                 )
@@ -174,12 +180,14 @@ export const Sparkline = _component(
                       <path
                         d={`${path(points)} L${points.at(-1)![0]} 100 L${points[0]![0]} 100 Z`}
                         {...css.attrs(sparklineStyles.area)}
+                        {...sparklinePart('area')}
                       />
                     )}
                     <path
                       d={path(points)}
                       vector-effect="non-scaling-stroke"
                       {...css.attrs(sparklineStyles.line)}
+                      {...sparklinePart('line')}
                     />
                   </g>
                 ))}
@@ -194,6 +202,7 @@ export const Sparkline = _component(
                   `${yOf(values[lastIndex]!)}%`,
                 ),
               )}
+              {...sparklinePart('last')}
             />
           )}
         </span>

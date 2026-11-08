@@ -23,6 +23,7 @@ import { chordLayout } from './layout/chord';
 import { ChartTooltipBox, chartSvgStyles, pointerIn, usePlotArea, type ChartTip } from './plot';
 import { arcPath, polarPoint, ribbonPath } from './shape';
 import { estimateTextWidth } from './text-size';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div（role="figure"）上，aria-label 是图表的名称 */
 export interface ChordChartProps extends PartProps<'div', 'role' | 'aria-busy'>, ChartFrameParts {
@@ -59,6 +60,9 @@ export interface ChordChartProps extends PartProps<'div', 'role' | 'aria-busy'>,
   /** 没有数据时显示的内容，默认是“暂无数据” */
   empty?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="chord-chart"） */
+const chordChartPart = (part: string) => partAttrs({ name: 'ChordChart' }, part);
 
 /** ChordChart 的样式：弧、弦、名字、骨架 */
 const chordChartStyles = css.create({
@@ -189,14 +193,13 @@ export const ChordChart = _component(
             transform={`translate(${svgNumber(width / 2)},${svgNumber(plotHeight / 2)})`}
             {...css.attrs(chartSvgStyles.fadeIn)}
           >
-            <g data-part="links">
+            <g {...chordChartPart('links')}>
               {layout.chords.map((chord) => {
                 const state = chordState(chord.index);
                 const source = visible.get(layout.flows[chord.index]!.source)!;
                 return (
                   <path
                     key={chord.index}
-                    data-part="link"
                     data-link={chord.index}
                     d={ribbonPath(Math.max(0, inner - ARC_GAP), chord.source, chord.target)}
                     {...css.attrs(
@@ -205,6 +208,7 @@ export const ChordChart = _component(
                       state === true && chordChartStyles.linkActive,
                       state === false && chordChartStyles.linkFaded,
                     )}
+                    {...chordChartPart('link')}
                   />
                 );
               })}
@@ -217,7 +221,6 @@ export const ChordChart = _component(
               return (
                 <g key={node.id}>
                   <path
-                    data-part="node"
                     data-node={index}
                     d={arcPath({ inner, outer, start: group.start, end: group.end, corner: 2 })}
                     {...css.attrs(
@@ -225,6 +228,7 @@ export const ChordChart = _component(
                       chartSvgStyles.fill(node.color),
                       faded && chordChartStyles.nodeFaded,
                     )}
+                    {...chordChartPart('node')}
                   />
                   {!legend && (
                     <text
@@ -234,6 +238,7 @@ export const ChordChart = _component(
                       text-anchor={Math.abs(x) < outer * 0.2 ? 'middle' : x > 0 ? 'start' : 'end'}
                       dominant-baseline="central"
                       {...css.attrs(chordChartStyles.label, chartSvgStyles.noPointer)}
+                      {...chordChartPart('label')}
                     >
                       {node.label}
                     </text>

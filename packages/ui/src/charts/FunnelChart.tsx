@@ -18,6 +18,7 @@ import type { PartProps } from '../utils/props';
 import { ChartFrame, useChartValueText, type ChartFrameParts } from './frame';
 import { resolveColor, type ChartColor } from './series';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 漏斗的一个环节 */
 export interface FunnelStage {
@@ -60,6 +61,9 @@ export interface FunnelChartProps extends PartProps<'div', 'role' | 'aria-busy'>
    */
   onItemClick?: (stage: FunnelStage, index: number) => void;
 }
+
+/** 部件的标记（data-scope="funnel-chart"） */
+const funnelChartPart = (part: string) => partAttrs({ name: 'FunnelChart' }, part);
 
 /** FunnelChart 的样式：list、row、label、track、bar、value、rate… */
 const funnelChartStyles = css.create({
@@ -149,7 +153,11 @@ export const FunnelChart = _component(
         onLegendToggle={() => {}}
         loading={loading}
         skeleton={
-          <div aria-hidden="true" {...css.attrs(funnelChartStyles.skeleton)}>
+          <div
+            aria-hidden="true"
+            {...css.attrs(funnelChartStyles.skeleton)}
+            {...funnelChartPart('skeleton')}
+          >
             {SKELETON_WIDTHS.map((width) => (
               <Skeleton
                 key={width}
@@ -177,20 +185,29 @@ export const FunnelChart = _component(
           })),
         }}
         plot={
-          <div {...css.attrs(funnelChartStyles.list)}>
+          <div {...css.attrs(funnelChartStyles.list)} {...funnelChartPart('list')}>
             {stages.map((stage, index) => [
               index > 0 && rates && (
-                <div key={`rate-${index}`} {...css.attrs(funnelChartStyles.rate)}>
-                  <span {...css.attrs(funnelChartStyles.rateText)}>↓ {rate(index, index - 1)}</span>
+                <div
+                  key={`rate-${index}`}
+                  {...css.attrs(funnelChartStyles.rate)}
+                  {...funnelChartPart('rate')}
+                >
+                  <span {...css.attrs(funnelChartStyles.rateText)} {...funnelChartPart('rateText')}>
+                    ↓ {rate(index, index - 1)}
+                  </span>
                 </div>
               ),
               <div
                 key={`stage-${index}`}
                 {...css.attrs(funnelChartStyles.row, onItemClick && funnelChartStyles.rowClickable)}
+                {...funnelChartPart('row')}
                 onClick={onItemClick && (() => onItemClick(stage, index))}
               >
-                <span {...css.attrs(funnelChartStyles.label)}>{stage.label}</span>
-                <span {...css.attrs(funnelChartStyles.track)}>
+                <span {...css.attrs(funnelChartStyles.label)} {...funnelChartPart('label')}>
+                  {stage.label}
+                </span>
+                <span {...css.attrs(funnelChartStyles.track)} {...funnelChartPart('track')}>
                   <span
                     {...css.attrs(
                       funnelChartStyles.bar,
@@ -199,14 +216,17 @@ export const FunnelChart = _component(
                         resolveColor(stage.color ?? color, index),
                       ),
                     )}
+                    {...funnelChartPart('bar')}
                   />
                 </span>
-                <span {...css.attrs(funnelChartStyles.value)}>{valueText(stage.value)}</span>
+                <span {...css.attrs(funnelChartStyles.value)} {...funnelChartPart('value')}>
+                  {valueText(stage.value)}
+                </span>
               </div>,
             ])}
             {rates && stages.length > 1 && (
-              <div {...css.attrs(funnelChartStyles.rate)}>
-                <span {...css.attrs(funnelChartStyles.overall)}>
+              <div {...css.attrs(funnelChartStyles.rate)} {...funnelChartPart('rate')}>
+                <span {...css.attrs(funnelChartStyles.overall)} {...funnelChartPart('overall')}>
                   {lang.chartOverallRate} {rate(stages.length - 1, 0)}
                 </span>
               </div>

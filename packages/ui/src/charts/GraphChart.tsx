@@ -28,6 +28,7 @@ import { graphLayout } from './layout/graph';
 import { ChartTooltipBox, chartSvgStyles, pointerIn, usePlotArea, type ChartTip } from './plot';
 import { resolveColor, type ChartColor } from './series';
 import { estimateTextWidth, truncateText } from './text-size';
+import { partAttrs } from '../config/styles';
 
 /** 节点的形状 */
 export interface GraphChartShapes {
@@ -153,6 +154,9 @@ export interface GraphChartProps extends PartProps<'div', 'role' | 'aria-busy'>,
    */
   onItemClick?: (node: GraphChartNode, index: number) => void;
 }
+
+/** 部件的标记（data-scope="graph-chart"） */
+const graphChartPart = (part: string) => partAttrs({ name: 'GraphChart' }, part);
 
 /** GraphChart 的样式 */
 const graphChartStyles = css.create({
@@ -485,7 +489,7 @@ export const GraphChart = _component(
             ...members.map((node) => node.y + node.size / 2 + LINE * (node.sublabel ? 2 : 1) + 4),
           ) + PANEL_PAD;
         return (
-          <g key={group.id} data-part="panel">
+          <g key={group.id} {...graphChartPart('panel')}>
             <rect
               x={svgNumber(x0)}
               y={svgNumber(y0)}
@@ -496,12 +500,14 @@ export const GraphChart = _component(
                 graphChartStyles.panel,
                 chartSvgStyles.stroke(groupColors.get(group.id) ?? colors.borderMuted),
               )}
+              {...graphChartPart('panelBox')}
             />
             <text
               x={svgNumber(x0 + 10)}
               y={svgNumber(y0 + PANEL_TITLE / 2 + 2)}
               dominant-baseline="central"
               {...css.attrs(graphChartStyles.panelLabel)}
+              {...graphChartPart('panelLabel')}
             >
               {truncateText(group.label, x1 - x0 - 20)}
             </text>
@@ -535,9 +541,9 @@ export const GraphChart = _component(
           <g
             key={`${link.source}->${link.target}:${index}`}
             {...css.attrs(graphChartStyles.node, faded && chartSvgStyles.dimmed)}
+            {...graphChartPart('linkGroup')}
           >
             <path
-              data-part="link"
               data-link={index}
               d={d}
               stroke-width={svgNumber(width)}
@@ -546,6 +552,7 @@ export const GraphChart = _component(
                 chartSvgStyles.stroke(color),
                 link.dashed && graphChartStyles.linkDashed,
               )}
+              {...graphChartPart('link')}
             />
             {withArrows && <path d={arrowPath()} {...css.attrs(chartSvgStyles.fill(color))} />}
             {link.label && (
@@ -560,11 +567,13 @@ export const GraphChart = _component(
                   height={18}
                   rx={4}
                   {...css.attrs(graphChartStyles.linkLabelBox)}
+                  {...graphChartPart('linkLabelBox')}
                 />
                 <text
                   text-anchor="middle"
                   dominant-baseline="central"
                   {...css.attrs(graphChartStyles.linkLabel)}
+                  {...graphChartPart('linkLabel')}
                 >
                   {link.label}
                 </text>
@@ -582,7 +591,6 @@ export const GraphChart = _component(
         return (
           <g
             key={node.id}
-            data-part="node"
             data-node={index}
             transform={`translate(${svgNumber(node.x)},${svgNumber(node.y)})`}
             {...css.attrs(
@@ -590,6 +598,7 @@ export const GraphChart = _component(
               onItemClick && graphChartStyles.clickable,
               faded && chartSvgStyles.dimmed,
             )}
+            {...graphChartPart('node')}
           >
             <path
               d={shapePath(shape, node.size)}
@@ -598,12 +607,14 @@ export const GraphChart = _component(
                 chartSvgStyles.fill(node.fill),
                 selected === node.id && graphChartStyles.nodeSelected,
               )}
+              {...graphChartPart('nodeShape')}
             />
             <text
               y={node.size / 2 + 4}
               text-anchor="middle"
               dominant-baseline="hanging"
               {...css.attrs(graphChartStyles.nodeLabel, chartSvgStyles.halo)}
+              {...graphChartPart('nodeLabel')}
             >
               {truncateText(node.label, LABEL_MAX)}
             </text>
@@ -613,6 +624,7 @@ export const GraphChart = _component(
                 text-anchor="middle"
                 dominant-baseline="hanging"
                 {...css.attrs(graphChartStyles.nodeSublabel, chartSvgStyles.halo)}
+                {...graphChartPart('nodeSublabel')}
               >
                 {truncateText(node.sublabel, LABEL_MAX)}
               </text>
@@ -659,6 +671,7 @@ export const GraphChart = _component(
       return (
         <div
           {...css.attrs(graphChartStyles.viewport)}
+          {...graphChartPart('viewport')}
           {...(zoom ? view.viewportProps : {})}
           ref={(element) => (viewport.value = element as HTMLElement | null)}
           onPointermove={(event: PointerEvent) => {
@@ -675,10 +688,10 @@ export const GraphChart = _component(
             onClick={onClick}
           >
             <rect
-              data-part="background"
               width={area.width}
               height={area.height}
               {...css.attrs(graphChartStyles.background)}
+              {...graphChartPart('background')}
             />
             <g
               transform={`translate(${svgNumber(view.x)} ${svgNumber(view.y)}) scale(${svgNumber(view.scale)})`}
@@ -693,7 +706,9 @@ export const GraphChart = _component(
           <ChartTooltipBox tip={tip()} width={area.width} />
           {/* 只给指针用户的提示（读屏不用滚轮缩放）：浮在绘图区右上角，不挤动布局 */}
           {wheelHint && (
-            <span {...css.attrs(graphChartStyles.wheelHint)}>{lang.chartZoomWheelHint}</span>
+            <span {...css.attrs(graphChartStyles.wheelHint)} {...graphChartPart('wheelHint')}>
+              {lang.chartZoomWheelHint}
+            </span>
           )}
         </div>
       );

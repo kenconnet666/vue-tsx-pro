@@ -13,7 +13,7 @@ import { t } from '../config/theme/tokens';
 import { useFormat } from '../config/lang/format';
 import { svgNumber } from '../utils/data/number';
 import { chartMarkStyles } from './marks';
-import { chartSvgStyles } from './plot';
+import { chartSvgStyles, chartPart } from './plot';
 import { seriesNumber, type NumericKey } from './series';
 import { XYChart, type XYChartKind, type XYChartProps } from './XYChart';
 
@@ -81,7 +81,7 @@ export const ScatterChart = _component(
         const sizes =
           typeof size === 'number' ? [] : context.rows.map((row) => seriesNumber(row, size) ?? 0);
         return (
-          <g data-part="points">
+          <g {...chartPart('points')}>
             {context.series.flatMap((item) =>
               context.rows.map((row, index) => {
                 const value = context.valueOf(item, row);
@@ -90,7 +90,7 @@ export const ScatterChart = _component(
                 return (
                   <circle
                     key={`${item.key}:${index}`}
-                    data-part="point"
+                    {...chartPart('point')}
                     data-index={index}
                     cx={svgNumber(cx)}
                     cy={svgNumber(context.value(value))}

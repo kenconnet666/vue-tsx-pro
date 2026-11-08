@@ -12,6 +12,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { shallowRef, watch, type VNodeChild } from 'vue';
+import { partAttrs } from '../config/styles';
 import { t } from '../config/theme/tokens';
 import { useEventListener } from '../utils/dom/event-listener';
 import { useIntersectionObserver } from '../utils/dom/intersection';
@@ -125,6 +126,9 @@ export function pointerIn(event: { clientX: number; clientY: number }, element: 
 /** 进场：淡入；还有从 0 长出来的（柱、点），时长取主题的 lg */
 const enter = `${t.durations.lg} ${t.easings.standard}`;
 
+/** 图表共用部分（外框、绘图区、标记、XY 图）的部件标记（data-scope="chart"）；各图自己的部分用自己的名字 @internal */
+export const chartPart = (part: string) => partAttrs({ name: 'Chart' }, part);
+
 /** 图表 SVG 的共用样式（组件之间共用，不进入口） @internal */
 export const chartSvgStyles = css.create({
   svg: { display: 'block', overflow: 'visible', userSelect: 'none', WebkitUserSelect: 'none' },
@@ -210,6 +214,7 @@ export function chartAxis({
               y1={plot.top}
               y2={bottom}
               {...css.attrs(chartSvgStyles.grid)}
+              {...chartPart('grid')}
             />
           ) : (
             <line
@@ -219,6 +224,7 @@ export function chartAxis({
               y1={p}
               y2={p}
               {...css.attrs(chartSvgStyles.grid)}
+              {...chartPart('grid')}
             />
           );
         })}
@@ -231,6 +237,7 @@ export function chartAxis({
             text-anchor="middle"
             dominant-baseline="hanging"
             {...css.attrs(chartSvgStyles.tick)}
+            {...chartPart('tick')}
           >
             {tick.label}
           </text>
@@ -242,6 +249,7 @@ export function chartAxis({
             text-anchor={side === 'left' ? 'end' : 'start'}
             dominant-baseline="central"
             {...css.attrs(chartSvgStyles.tick)}
+            {...chartPart('tick')}
           >
             {tick.label}
           </text>
@@ -301,8 +309,8 @@ export const ChartTooltipBox = _component(
       const left = flip ? shown.x - 14 : shown.x + 14;
       return (
         <div
-          data-part="tooltip"
           {...css.attrs(chartTooltipStyles.box, !tip && chartTooltipStyles.hidden)}
+          {...chartPart('tooltip')}
           style={{
             transform: `translate(${Math.round(left)}px, ${Math.round(shown.y)}px) translate(${flip ? '-100%' : '0'}, -50%)`,
           }}

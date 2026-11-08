@@ -577,7 +577,7 @@ export const MapChart = _component(
       return (
         <svg width={width} height={plotHeight} {...css.attrs(chartSvgStyles.svg)} onClick={onClick}>
           <g
-            data-part="features"
+            {...mapChartPart('features')}
             transform={`translate(${svgNumber(view.x)} ${svgNumber(view.y)}) scale(${svgNumber(view.scale)})`}
             {...css.attrs(chartSvgStyles.fadeIn)}
           >
@@ -587,6 +587,7 @@ export const MapChart = _component(
                 cy={sphere.cy}
                 r={sphere.r}
                 {...css.attrs(mapChartStyles.sphere)}
+                {...mapChartPart('sphere')}
               />
             )}
             {shapes.map((shape, index) => {
@@ -594,7 +595,6 @@ export const MapChart = _component(
               return (
                 <path
                   key={`${shape.id}:${index}`}
-                  data-part="feature"
                   data-feature={index}
                   d={shape.d}
                   vector-effect="non-scaling-stroke"
@@ -603,6 +603,7 @@ export const MapChart = _component(
                     chartSvgStyles.fill(areaColor(info) ?? colors.fill),
                     info && onAreaClick && mapChartStyles.clickable,
                   )}
+                  {...mapChartPart('feature')}
                 />
               );
             })}
@@ -611,19 +612,20 @@ export const MapChart = _component(
                 d={hoveredShape.d}
                 vector-effect="non-scaling-stroke"
                 {...css.attrs(mapChartStyles.featureHover)}
+                {...mapChartPart('featureHover')}
               />
             )}
           </g>
-          <g data-part="links">
+          <g {...mapChartPart('links')}>
             {linkShapes.map((shape) => {
               const tone = resolveColor(shape.link.color ?? 'neutral', 0);
               return (
                 <path
                   key={shape.index}
-                  data-part="link"
                   d={shape.d}
                   stroke-width={svgNumber(shape.width)}
                   {...css.attrs(mapChartStyles.link, chartSvgStyles.stroke(tone))}
+                  {...mapChartPart('link')}
                 />
               );
             })}
@@ -639,6 +641,7 @@ export const MapChart = _component(
                     key={`${shape.index}:${k}`}
                     r={2}
                     {...css.attrs(mapChartStyles.particle, chartSvgStyles.fill(tone))}
+                    {...mapChartPart('particle')}
                   >
                     <animateMotion
                       dur={`${svgNumber(duration)}s`}
@@ -651,11 +654,10 @@ export const MapChart = _component(
                 ));
               })}
           </g>
-          <g data-part="points">
+          <g {...mapChartPart('points')}>
             {placedPoints.map((item) => (
               <path
                 key={item.point.id}
-                data-part="point"
                 data-point={item.index}
                 d={markerPath(item.point.shape, item.x, item.y, item.r)}
                 {...css.attrs(
@@ -663,6 +665,7 @@ export const MapChart = _component(
                   chartSvgStyles.fill(resolveColor(item.point.color ?? 'danger', 0)),
                   onPointClick && mapChartStyles.clickable,
                 )}
+                {...mapChartPart('point')}
               />
             ))}
           </g>
@@ -675,6 +678,7 @@ export const MapChart = _component(
                 text-anchor="middle"
                 dominant-baseline="central"
                 {...css.attrs(mapChartStyles.areaLabel, chartSvgStyles.halo)}
+                {...mapChartPart('areaLabel')}
               >
                 {item.label}
               </text>
@@ -697,6 +701,7 @@ export const MapChart = _component(
                       x2={svgNumber(toX)}
                       y2={svgNumber(toY)}
                       {...css.attrs(mapChartStyles.leader)}
+                      {...mapChartPart('leader')}
                     />
                   )}
                   <text
@@ -705,6 +710,7 @@ export const MapChart = _component(
                     text-anchor="middle"
                     dominant-baseline="central"
                     {...css.attrs(mapChartStyles.pointLabel, chartSvgStyles.halo)}
+                    {...mapChartPart('pointLabel')}
                   >
                     {item.point.label}
                   </text>
@@ -757,17 +763,18 @@ export const MapChart = _component(
       if (bins) {
         const step = (high - low) / bins;
         return (
-          <div {...css.attrs(mapChartStyles.legend)} aria-hidden="true">
+          <div {...css.attrs(mapChartStyles.legend)} {...mapChartPart('legend')} aria-hidden="true">
             {Array.from({ length: bins }, (_, index) => {
               const from = low + step * index;
               const to = index === bins - 1 ? high : from + step;
               return (
-                <span key={index} {...css.attrs(mapChartStyles.bin)}>
+                <span key={index} {...css.attrs(mapChartStyles.bin)} {...mapChartPart('bin')}>
                   <span
                     {...css.attrs(
                       mapChartStyles.swatch,
                       mapChartStyles.swatchColor(colorOf((from + to) / 2)),
                     )}
+                    {...mapChartPart('swatch')}
                   />
                   {numberText(from)} – {numberText(to)}
                 </span>
@@ -781,13 +788,14 @@ export const MapChart = _component(
           ? [colorOf(low), colors.fill, colorOf(high)]
           : [colorOf(low), colorOf(high)];
       return (
-        <div {...css.attrs(mapChartStyles.legend)} aria-hidden="true">
+        <div {...css.attrs(mapChartStyles.legend)} {...mapChartPart('legend')} aria-hidden="true">
           <span>{numberText(low)}</span>
           <span
             {...css.attrs(
               mapChartStyles.ramp,
               mapChartStyles.rampColors(`linear-gradient(to right, ${stops.join(', ')})`),
             )}
+            {...mapChartPart('ramp')}
           />
           <span>{numberText(high)}</span>
         </div>
@@ -796,9 +804,13 @@ export const MapChart = _component(
 
     /** 缩放按钮：放大、缩小、复位；前面是滚轮的提示 */
     const zoomButtons = () => (
-      <span {...css.attrs(mapChartStyles.zoom)}>
+      <span {...css.attrs(mapChartStyles.zoom)} {...mapChartPart('zoom')}>
         {wheelHint && (
-          <span {...css.attrs(mapChartStyles.wheelHint)} role="status">
+          <span
+            {...css.attrs(mapChartStyles.wheelHint)}
+            {...mapChartPart('wheelHint')}
+            role="status"
+          >
             {lang.chartZoomWheelHint}
           </span>
         )}
@@ -859,6 +871,7 @@ export const MapChart = _component(
           area.ready ? (
             <div
               {...css.attrs(mapChartStyles.viewport)}
+              {...mapChartPart('viewport')}
               {...(zoomable ? view.viewportProps : {})}
               ref={(element) => (viewport.value = element as HTMLElement | null)}
               onPointermove={(event: PointerEvent) => {

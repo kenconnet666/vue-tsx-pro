@@ -22,6 +22,7 @@ import { ChartFrame, chartTooltip, useChartValueText, type ChartFrameParts } fro
 import { sankeyLayout } from './layout/sankey';
 import { ChartTooltipBox, chartSvgStyles, pointerIn, usePlotArea, type ChartTip } from './plot';
 import { horizontalLinkPath } from './shape';
+import { partAttrs } from '../config/styles';
 
 /** 节点怎样排：justify 两端对齐（默认），left、right 靠向一侧，center 居中 */
 export interface SankeyAligns {
@@ -68,6 +69,9 @@ export interface SankeyChartProps extends PartProps<'div', 'role' | 'aria-busy'>
   /** 没有数据时显示的内容，默认是“暂无数据” */
   empty?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="sankey-chart"） */
+const sankeyChartPart = (part: string) => partAttrs({ name: 'SankeyChart' }, part);
 
 /** SankeyChart 的样式：节点、带子、名字、骨架 */
 const sankeyChartStyles = css.create({
@@ -174,13 +178,12 @@ export const SankeyChart = _component(
           onPointerleave={() => (hovered = null)}
         >
           <g transform={`translate(0,${MARGIN})`} {...css.attrs(chartSvgStyles.fadeIn)}>
-            <g data-part="links">
+            <g {...sankeyChartPart('links')}>
               {layout.links.map((link, index) => {
                 const state = linkState(index);
                 return (
                   <path
                     key={index}
-                    data-part="link"
                     data-link={index}
                     d={horizontalLinkPath(link.source.x1, link.y0, link.target.x0, link.y1)}
                     stroke-width={svgNumber(Math.max(1, link.width))}
@@ -190,6 +193,7 @@ export const SankeyChart = _component(
                       state === true && sankeyChartStyles.linkActive,
                       state === false && sankeyChartStyles.linkFaded,
                     )}
+                    {...sankeyChartPart('link')}
                   />
                 );
               })}
@@ -204,7 +208,6 @@ export const SankeyChart = _component(
               return (
                 <g key={node.id}>
                   <rect
-                    data-part="node"
                     data-node={index}
                     x={svgNumber(node.x0)}
                     y={svgNumber(node.y0)}
@@ -212,6 +215,7 @@ export const SankeyChart = _component(
                     height={svgNumber(Math.max(1, node.y1 - node.y0))}
                     rx={2}
                     {...css.attrs(sankeyChartStyles.node, chartSvgStyles.fill(info.color))}
+                    {...sankeyChartPart('node')}
                   />
                   <text
                     x={x}
@@ -223,6 +227,7 @@ export const SankeyChart = _component(
                       chartSvgStyles.halo,
                       chartSvgStyles.noPointer,
                     )}
+                    {...sankeyChartPart('name')}
                   >
                     {info.label}
                   </text>
@@ -236,6 +241,7 @@ export const SankeyChart = _component(
                       chartSvgStyles.halo,
                       chartSvgStyles.noPointer,
                     )}
+                    {...sankeyChartPart('value')}
                   >
                     {valueText(node.value)}
                   </text>

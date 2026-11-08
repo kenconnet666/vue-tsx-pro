@@ -16,6 +16,7 @@ import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { IconButton } from '../base/IconButton';
 import { Menu, MenuItem } from '../overlay/Menu';
 import { exportChartData, exportChartImage } from './export';
+import { chartPart } from './plot';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
@@ -141,13 +142,24 @@ export interface ChartTooltipItem {
 /** 提示框的内容：标题（类目、扇区名）+ 每个系列一行；放进 ChartTooltipBox 跟着指针显示 */
 export function chartTooltip(title: string, items: readonly ChartTooltipItem[]) {
   return (
-    <div {...css.attrs(chartStyles.tooltip)}>
-      {title && <div {...css.attrs(chartStyles.tooltipTitle)}>{title}</div>}
+    <div {...css.attrs(chartStyles.tooltip)} {...chartPart('tooltipContent')}>
+      {title && (
+        <div {...css.attrs(chartStyles.tooltipTitle)} {...chartPart('tooltipTitle')}>
+          {title}
+        </div>
+      )}
       {items.map((item) => (
-        <div key={item.label} {...css.attrs(chartStyles.tooltipRow)}>
-          <span {...css.attrs(chartStyles.swatch, chartStyles.swatchColor(item.color))} />
-          <span {...css.attrs(chartStyles.tooltipLabel)}>{item.label}</span>
-          <span {...css.attrs(chartStyles.tooltipValue)}>{item.value}</span>
+        <div key={item.label} {...css.attrs(chartStyles.tooltipRow)} {...chartPart('tooltipRow')}>
+          <span
+            {...css.attrs(chartStyles.swatch, chartStyles.swatchColor(item.color))}
+            {...chartPart('swatch')}
+          />
+          <span {...css.attrs(chartStyles.tooltipLabel)} {...chartPart('tooltipLabel')}>
+            {item.label}
+          </span>
+          <span {...css.attrs(chartStyles.tooltipValue)} {...chartPart('tooltipValue')}>
+            {item.value}
+          </span>
         </div>
       ))}
     </div>
@@ -276,25 +288,38 @@ export const ChartFrame = _component(
       const body = loading ? (
         skeleton
       ) : isEmpty ? (
-        <div {...css.attrs(chartStyles.center)}>
+        <div {...css.attrs(chartStyles.center)} {...chartPart('state')}>
           {empty ?? <Empty size="sm" title={lang.chartEmpty} />}
         </div>
       ) : null;
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: chartStyles.root }, rest, {
+          {...mergeAttrs<'div'>({ sx: chartStyles.root, ...chartPart('root') }, rest, {
             role: 'figure',
             'aria-busy': loading || undefined,
           })}
         >
           {(unit || unitEnd || legend.length > 0 || exportable || actions) && (
-            <div {...mergeAttrs<'div'>({ sx: chartStyles.header }, propsHeader)}>
+            <div
+              {...mergeAttrs<'div'>(
+                { sx: chartStyles.header, ...chartPart('header') },
+                propsHeader,
+              )}
+            >
               {unit && (
-                <span {...mergeAttrs<'span'>({ sx: chartStyles.unit }, propsUnit)}>{unit}</span>
+                <span
+                  {...mergeAttrs<'span'>({ sx: chartStyles.unit, ...chartPart('unit') }, propsUnit)}
+                >
+                  {unit}
+                </span>
               )}
               {legend.length > 0 && (
                 <div
-                  {...mergeAttrs<'div'>({ sx: chartStyles.legend }, propsLegend, { role: 'group' })}
+                  {...mergeAttrs<'div'>(
+                    { sx: chartStyles.legend, ...chartPart('legend') },
+                    propsLegend,
+                    { role: 'group' },
+                  )}
                 >
                   {legend.map((item) => {
                     const off = hiddenKeys.includes(item.key);
@@ -305,6 +330,7 @@ export const ChartFrame = _component(
                           {
                             sx: [chartStyles.legendItem, off && chartStyles.legendItemHidden],
                             ripple: false,
+                            ...chartPart('legendItem'),
                           },
                           propsLegendItem,
                           { 'aria-pressed': !off, onClick: () => onLegendToggle(item.key) },
@@ -317,6 +343,7 @@ export const ChartFrame = _component(
                               ? chartStyles.swatchHidden(item.color)
                               : chartStyles.swatchColor(item.color),
                           )}
+                          {...chartPart('swatch')}
                         />
                         {item.label}
                       </ButtonBase>
@@ -325,7 +352,14 @@ export const ChartFrame = _component(
                 </div>
               )}
               {unitEnd && (
-                <span {...mergeAttrs<'span'>({ sx: chartStyles.unit }, propsUnit)}>{unitEnd}</span>
+                <span
+                  {...mergeAttrs<'span'>(
+                    { sx: chartStyles.unit, ...chartPart('unitEnd') },
+                    propsUnit,
+                  )}
+                >
+                  {unitEnd}
+                </span>
               )}
               {!isEmpty && !loading && actions}
               {exportable && !isEmpty && !loading && exportMenu()}
@@ -333,7 +367,11 @@ export const ChartFrame = _component(
           )}
           {/* key 不同：两种状态不复用同一个 div，绘图区重新出现时是新的元素，大小重新量 */}
           {body ? (
-            <div key="state" {...css.attrs(chartStyles.plot, chartStyles.plotHeight(plotHeight))}>
+            <div
+              key="state"
+              {...css.attrs(chartStyles.plot, chartStyles.plotHeight(plotHeight))}
+              {...chartPart('plot')}
+            >
               {body}
             </div>
           ) : (
@@ -346,6 +384,7 @@ export const ChartFrame = _component(
                     chartStyles.plotHeight(plotHeight),
                     (clickable || onPlotClick) && chartStyles.plotClickable,
                   ],
+                  ...chartPart('plot'),
                 },
                 propsPlot,
                 {

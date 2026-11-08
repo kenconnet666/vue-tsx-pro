@@ -28,6 +28,7 @@ import { groupTree, treemapLayout, type TreemapNode } from './layout/treemap';
 import { ChartTooltipBox, chartSvgStyles, pointerIn, usePlotArea, type ChartTip } from './plot';
 import { resolveColor, seriesValue, type NumericKey } from './series';
 import { estimateTextWidth, truncateText } from './text-size';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div（role="figure"）上；aria-label 是图表的名称 */
 export interface TreemapChartProps<T extends object>
@@ -58,6 +59,9 @@ export interface TreemapChartProps<T extends object>
   /** 悬停时的提示框，默认 true */
   tooltip?: boolean;
 }
+
+/** 部件的标记（data-scope="treemap-chart"） */
+const treemapChartPart = (part: string) => partAttrs({ name: 'TreemapChart' }, part);
 
 /** TreemapChart 的样式 */
 const treemapChartStyles = css.create({
@@ -218,6 +222,7 @@ export const TreemapChart = _component(
                       treemapChartStyles.group,
                       chartSvgStyles.fill(`color-mix(in srgb, ${base} 14%, transparent)`),
                     )}
+                    {...treemapChartPart('group')}
                   />
                   {groupLabels && width > 40 && (
                     <text
@@ -225,6 +230,7 @@ export const TreemapChart = _component(
                       y={svgNumber(node.y0 + GROUP_TITLE / 2 + 1)}
                       dominant-baseline="central"
                       {...css.attrs(treemapChartStyles.groupName, chartSvgStyles.noPointer)}
+                      {...treemapChartPart('groupName')}
                     >
                       {truncateText(node.key, width - INSET * 2)}
                     </text>
@@ -244,7 +250,6 @@ export const TreemapChart = _component(
               return (
                 <g key={`leaf:${pathOf(node)}:${index}`}>
                   <rect
-                    data-part="tile"
                     data-leaf={index}
                     x={svgNumber(node.x0)}
                     y={svgNumber(node.y0)}
@@ -256,6 +261,7 @@ export const TreemapChart = _component(
                       chartSvgStyles.fill(leafColor(node)),
                       hovered?.index === index && treemapChartStyles.tileActive,
                     )}
+                    {...treemapChartPart('tile')}
                   />
                   {showName && (
                     <text
@@ -263,6 +269,7 @@ export const TreemapChart = _component(
                       y={svgNumber(node.y0 + INSET + 7)}
                       dominant-baseline="central"
                       {...css.attrs(treemapChartStyles.name, chartSvgStyles.noPointer)}
+                      {...treemapChartPart('name')}
                     >
                       {name}
                     </text>
@@ -273,6 +280,7 @@ export const TreemapChart = _component(
                       y={svgNumber(node.y0 + INSET + 24)}
                       dominant-baseline="central"
                       {...css.attrs(treemapChartStyles.value, chartSvgStyles.noPointer)}
+                      {...treemapChartPart('value')}
                     >
                       {amount}
                     </text>

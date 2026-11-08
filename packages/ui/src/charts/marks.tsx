@@ -10,7 +10,7 @@
 import { css, type SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { t } from '../config/theme/tokens';
-import { chartSvgStyles } from './plot';
+import { chartSvgStyles, chartPart } from './plot';
 import type { ResolvedSeries } from './series';
 import {
   areaPath,
@@ -165,7 +165,7 @@ export function chartBars<T extends object>(
   };
   const barWidth = stacked ? groupWidth : groupWidth / (series.length + (series.length - 1) * 0.1);
   return (
-    <g data-part="bars">
+    <g {...chartPart('bars')}>
       {context.rows.flatMap((row, index) => {
         const groupStart = context.category(row, index) - groupWidth / 2;
         return series.map((item, s) => {
@@ -185,10 +185,10 @@ export function chartBars<T extends object>(
           return (
             <path
               key={`${item.key}:${index}`}
-              data-part="bar"
               data-index={index}
               d={d}
               {...css.attrs(chartMarkStyles.bar, grow, chartSvgStyles.fill(item.color))}
+              {...chartPart('bar')}
             />
           );
         });
@@ -212,7 +212,7 @@ export function chartLines<T extends object>(
   { curve, width }: ChartLineOptions,
 ): VNodeChild {
   return (
-    <g data-part="lines">
+    <g {...chartPart('lines')}>
       {series.map((item) => {
         const parts = segments(context, (row) => context.valueOf(item, row));
         const d = parts
@@ -226,7 +226,6 @@ export function chartLines<T extends object>(
         return d ? (
           <path
             key={item.key}
-            data-part="line"
             d={d}
             pathLength={1}
             {...css.attrs(
@@ -234,6 +233,7 @@ export function chartLines<T extends object>(
               chartSvgStyles.stroke(item.color),
               chartMarkStyles.lineWidth(width),
             )}
+            {...chartPart('line')}
           />
         ) : null;
       })}
@@ -260,7 +260,7 @@ export function chartAreas<T extends object>(
   const [d0, d1] = context.domain;
   const floor = Math.min(Math.max(0, d0), d1);
   return (
-    <g data-part="areas">
+    <g {...chartPart('areas')}>
       {series.map((item) => {
         const stack = context.stacks.get(item.key);
         // 堆叠时空值是 0 厚度（面积连续）；重叠时空值处断开
@@ -291,16 +291,15 @@ export function chartAreas<T extends object>(
         return (
           <g key={item.key}>
             <path
-              data-part="area"
               d={area}
               {...css.attrs(
                 chartMarkStyles.area,
                 chartSvgStyles.fill(item.color),
                 chartMarkStyles.fillOpacity(opacity),
               )}
+              {...chartPart('area')}
             />
             <path
-              data-part="line"
               d={top}
               pathLength={1}
               {...css.attrs(
@@ -308,6 +307,7 @@ export function chartAreas<T extends object>(
                 chartSvgStyles.stroke(item.color),
                 chartMarkStyles.lineWidth(2),
               )}
+              {...chartPart('line')}
             />
           </g>
         );
@@ -323,7 +323,7 @@ export function chartDots<T extends object>(
   variant: 'filled' | 'hollow',
 ): VNodeChild {
   return (
-    <g data-part="dots">
+    <g {...chartPart('dots')}>
       {series.flatMap((item) =>
         context.rows.map((row, index) => {
           const value = context.valueOf(item, row);
@@ -332,7 +332,6 @@ export function chartDots<T extends object>(
           return (
             <circle
               key={`${item.key}:${index}`}
-              data-part="dot"
               cx={x}
               cy={y}
               r={variant === 'hollow' ? 3.5 : 4}
@@ -342,6 +341,7 @@ export function chartDots<T extends object>(
                   ? [chartMarkStyles.hollowDot, chartSvgStyles.stroke(item.color)]
                   : [chartMarkStyles.filledDot, chartSvgStyles.fill(item.color)],
               )}
+              {...chartPart('dot')}
             />
           );
         }),

@@ -216,17 +216,17 @@ export const DonutChart = _component(
           onClick={onClick}
         >
           <g transform={`translate(${svgNumber(width / 2)},${svgNumber(height / 2)})`}>
-            <g {...css.attrs(donutChartStyles.ring)}>
+            <g {...css.attrs(donutChartStyles.ring)} {...donutChartPart('ring')}>
               {inner > 0 && (
                 <path
                   d={arcPath({ inner, outer, start: 0, end: Math.PI * 2 })}
                   {...css.attrs(donutChartStyles.background)}
+                  {...donutChartPart('background')}
                 />
               )}
               {arcs.map((arc, index) => (
                 <path
                   key={arc.slice.name}
-                  data-part="segment"
                   data-index={index}
                   d={arcPath({
                     inner,
@@ -241,15 +241,26 @@ export const DonutChart = _component(
                     chartSvgStyles.dimmable,
                     hovered !== null && hovered.index !== index && chartSvgStyles.dimmed,
                   )}
+                  {...donutChartPart('segment')}
                 />
               ))}
             </g>
             {center !== undefined && (
               <g {...css.attrs(chartSvgStyles.noPointer)} {...donutChartPart('centerLabel')}>
-                <text y={-2} text-anchor="middle" {...css.attrs(donutChartStyles.centerValue)}>
+                <text
+                  y={-2}
+                  text-anchor="middle"
+                  {...css.attrs(donutChartStyles.centerValue)}
+                  {...donutChartPart('centerValue')}
+                >
                   {center}
                 </text>
-                <text y={18} text-anchor="middle" {...css.attrs(donutChartStyles.centerLabel)}>
+                <text
+                  y={18}
+                  text-anchor="middle"
+                  {...css.attrs(donutChartStyles.centerLabel)}
+                  {...donutChartPart('centerTitle')}
+                >
                   {centerSubLabel ?? lang.chartTotal}
                 </text>
               </g>

@@ -29,6 +29,11 @@
 - 样式合并按“后写的赢”处理简写与长属性：后面的片段写了简写（`padding`、`paddingInline`、`border`、`outline`、`flex`、`gap`…），
   前面片段里被它重设的长属性去掉，不再出现后写的简写盖不过前面长属性的情况（如 UserButton 的 `compact` 与整行的内边距、
   示例卡片底栏的 `padding: 0`）。同一个样式对象里两者都写时仍是长属性赢。
+- 图表的内部节点带上部件标记：外框、绘图区、标记（柱、线、面积、点）、XY 图的参考线与十字准线等共用部分是 `data-scope="chart"`
+  （root、header、unit、unitEnd、legend、legendItem、swatch、plot、state、tooltip、tooltipContent、grid、tick、bars、bar、lines、line、
+  areas、area、dots、dot、band、target、event、mark、crosshair…），各图自己的部分用自己的名字（`graph-chart`、`map-chart`、
+  `funnel-chart`、`radar-chart`、`treemap-chart`、`sankey-chart`、`chord-chart`、`timeline-chart`、`donut-chart`、`sparkline`）。
+  原来手写的 `data-part`（bar、line、area、node、link、segment…）名字不变，多了 `data-scope`；Donut 中心的说明文字改叫 centerTitle。
 - 列表行（Listbox、Tree、Cascader、NavList、Menu）的高亮、已选、当前、不可用改成跟着元素上的属性走（条件别名）：
   `itemStyles.highlighted / selected / current / disabled` 合成 `itemStyles.states`，元素写 `data-highlighted`、`aria-selected`、
   `aria-current`（或 `data-current`）、`aria-disabled` 即可；Listbox、Tree 的 `data-active` 换成 `data-highlighted`（Tree 只在有焦点时），
