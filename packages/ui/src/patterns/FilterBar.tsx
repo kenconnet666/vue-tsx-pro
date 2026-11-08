@@ -7,9 +7,10 @@
  *   </FilterBar>
  *
  * 第一排：start（QueryTable 的标题）、常用的条件、按钮区。按钮全在这一排的结束边，宽度随按钮；按剩下的宽度量出放得下几个条件
- * （每个不窄于 minFieldWidth），这几个铺满第一排，不留空。放不下的常用条件与展开的条件（more）一起从第二排起排成整行的栅格；
+ * （每个不窄于 minFieldWidth），这几个铺满第一排，不留空。连 more 的条件一起都放得下时全部铺在第一排、不出“展开”
+ * （展开只有多出一排时才有意义）；放不下的常用条件与展开的条件（more）一起从第二排起，列宽与第一排的每格相同、上下对齐；
  * more 收起时不渲染。窄到第一排一个条件也放不下时，条件在上、按钮区整体换到下面一行。
- * 按钮区依次是展开、高级筛选、actions、重置、查询，再是 end（QueryTable 的工具栏按钮，前面一条竖线）。
+ * 按钮区依次是展开、高级筛选、actions、重置、查询，再是 end（QueryTable 的工具栏按钮）。
  * moreActive 是收起的条件里已经填了几项，显示在“展开”旁边，免得忘了还有条件生效。
  * 默认标签在起始边、宽度随文字（labelWidth 为 auto：控件紧跟着标签，不留空白；要几行对齐时写固定宽度）。在输入框里按回车就是查询（原生表单提交）。
  *
@@ -41,7 +42,6 @@ import {
 import { ConditionBuilder, type ConditionBuilderProps } from '../input/ConditionBuilder';
 import { patternsMessages } from './messages';
 import { Button, type ButtonProps } from '../base/Button';
-import { Separator } from '../layout/Separator';
 import { childNodes } from '../utils/data/text';
 import { lengthToPx } from '../utils/dom/length';
 import { useResizeObserver } from '../utils/dom/resize';
@@ -193,10 +193,16 @@ export const filterBarRecipe = css.recipe({
 /** FilterBar 的部件（createUi / Provider 的 components.FilterBar.styles 按它定制） */
 export type FilterBarPart = (typeof filterBarRecipe.parts)[number];
 
-/** FilterBar 的样式：columns（第二排起，空列留着、各排对齐）、fill（第一排，空列收起、铺满）、basis（至少一格宽） */
+/**
+ * FilterBar 的样式：columns（第二排起，空列留着、各排对齐）、columnsAs（第二排起，列宽取第一排每格的宽度）、
+ * fill（第一排，空列收起、铺满）、basis（至少一格宽）
+ */
 const filterBarDynamicStyles = css.create({
   columns: (minWidth: string) => ({
     gridTemplateColumns: `repeat(auto-fill, minmax(min(${minWidth}, 100%), 1fr))`,
+  }),
+  columnsAs: (width: number) => ({
+    gridTemplateColumns: `repeat(auto-fill, minmax(min(${width}px, 100%), ${width}px))`,
   }),
   fill: (minWidth: string) => ({
     gridTemplateColumns: `repeat(auto-fit, minmax(min(${minWidth}, 100%), 1fr))`,
@@ -204,12 +210,65 @@ const filterBarDynamicStyles = css.create({
   basis: (minWidth: string) => ({ flexBasis: minWidth }),
 });
 
-/** 第一排放得下几个条件：按钮区之外剩下的宽度，每个不窄于 minWidth；一个也放不下时是 null（条件、按钮各占一行） */
-function firstRowCapacity(row: HTMLElement, actions: HTMLElement, minWidth: number): number | null {
-  const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
-  const free = row.clientWidth - actions.offsetWidth - gap;
-  const count = Math.floor((free + gap) / (minWidth + gap));
-  return count > 0 ? count : null;
+/** 排版要的尺寸（px）：整排宽、条件之间的间距、每个条件的最小宽度、带“展开”按钮时按钮区的宽、其中“展开”按钮占的宽（含间距） */
+interface FilterBarMetrics {
+  row: number;
+  gap: number;
+  min: number;
+  actions: number;
+  toggle: number;
+}
+
+/**
+ * 量出排版要的尺寸。“展开”按钮因为收起的条件直接显示而没渲染时量不到它，用上次量到的宽度（previousToggle），
+ * 按钮区一律按带着它算：两种情况比的是同一个基准，不会来回切换
+ */
+function measure(
+  row: HTMLElement,
+  actions: HTMLElement,
+  min: number,
+  previousToggle: number,
+): FilterBarMetrics {
+  const element = actions.querySelector<HTMLElement>(':scope > [data-part="toggle"]');
+  const actionsGap = parseFloat(getComputedStyle(actions).columnGap) || 0;
+  const toggle = element ? element.offsetWidth + actionsGap : previousToggle;
+  return {
+    row: row.clientWidth,
+    gap: parseFloat(getComputedStyle(row).columnGap) || 0,
+    min,
+    actions: actions.offsetWidth + (element ? 0 : toggle),
+    toggle,
+  };
+}
+
+/**
+ * 条件怎么排：第一排放几个（null 是一个也放不下：条件在上、按钮区换到下面一行），收起的条件要不要直接显示。
+ * 第一排放得下 n 个：条件区 = 整排 - 按钮区 - 间距，n 格占 n × min + (n - 1) × gap。
+ * 收起的条件连同常用条件一起排、去掉“展开”按钮后，总排数不比收起时多，就直接显示（展开只有多出一排时才有意义）
+ */
+function layoutFields(m: FilterBarMetrics, common: number, extra: number) {
+  const fit = (actions: number) => {
+    const n = Math.floor((m.row - actions) / (m.min + m.gap));
+    return n > 0 ? n : null;
+  };
+  // 一排排得下几格（每格宽 width）
+  const columns = (width: number) => Math.max(1, Math.floor((m.row + m.gap) / (width + m.gap)));
+  const rows = (count: number, first: number | null) => {
+    if (first == null) return Math.ceil(count / columns(m.min));
+    const inFirst = Math.min(count, first);
+    const width = (m.row - m.actions - m.gap - (inFirst - 1) * m.gap) / inFirst;
+    return 1 + Math.ceil((count - inFirst) / columns(width));
+  };
+  const withToggle = fit(m.actions);
+  const bare = fit(m.actions - m.toggle);
+  const inline = extra > 0 && rows(common + extra, bare) <= rows(common, withToggle);
+  const first = inline ? bare : withToggle;
+  // 第一排每格的宽度（auto-fit：空列折叠，有几个条件就几格分条件区）：第二排起的列宽跟它一样
+  const count = inline ? common + extra : common;
+  const cells = first == null ? Math.min(count, columns(m.min)) : Math.min(count, first);
+  const area = first == null ? m.row : m.row - (inline ? m.actions - m.toggle : m.actions) - m.gap;
+  const cell = cells > 0 ? (area - (cells - 1) * m.gap) / cells : null;
+  return { inline, first, cell };
 }
 
 /** 查询栏：筛选条件的栅格，查询、重置，不常用的条件可以展开收起 */
@@ -271,10 +330,10 @@ export const FilterBar = _component(
       return { labelPlacement, labelWidth };
     });
 
-    // 第一排放得下几个条件：量出来之前（服务端渲染、第一次渲染）常用条件都在第一排
+    // 第一排放得下几个条件、收起的要不要直接显示：按量出的尺寸算
     let rowElement = _state.raw<HTMLElement | null>(null);
     let actionsElement = _state.raw<HTMLElement | null>(null);
-    let capacity = _state<number | null>(null);
+    let metrics = _state.raw<FilterBarMetrics | null>(null);
     useResizeObserver(
       () => [rowElement, actionsElement],
       // 改第一排的条件会改布局：放到下一帧，不在 ResizeObserver 的回调里同步改（会报 loop）
@@ -282,7 +341,7 @@ export const FilterBar = _component(
         requestAnimationFrame(() => {
           const minWidth = rowElement && lengthToPx(options().minFieldWidth, rowElement);
           if (rowElement && actionsElement && minWidth)
-            capacity = firstRowCapacity(rowElement, actionsElement, minWidth);
+            metrics = measure(rowElement, actionsElement, minWidth, metrics?.toggle ?? 0);
         }),
     );
 
@@ -294,15 +353,22 @@ export const FilterBar = _component(
     return () => {
       const { options: o, parts: s } = ui();
       const common = childNodes(children);
-      const split = capacity != null && capacity < common.length ? capacity : common.length;
-      const below = [...common.slice(split), ...(more != null && expanded ? childNodes(more) : [])];
+      const extra = more != null ? childNodes(more) : [];
+      // 量出来之前（服务端渲染、第一次渲染）常用条件都在第一排、收起的照旧收着
+      const layout = metrics && layoutFields(metrics, common.length, extra.length);
+      const inline = layout?.inline ?? false;
+      const fields = inline ? [...common, ...extra] : common;
+      const split =
+        layout?.first != null && layout.first < fields.length ? layout.first : fields.length;
+      const below = [...fields.slice(split), ...(!inline && expanded ? extra : [])];
+      const toggleShown = more != null && !inline;
       return (
         <form
           {...mergeAttrs<'form'>(s.root, rest, {
             role: 'search',
             onSubmit,
           })}
-          data-expanded={more != null ? expanded : undefined}
+          data-expanded={toggleShown ? expanded : undefined}
         >
           {start != null && <div {...mergeAttrs<'div'>(s.start, propsStart)}>{start}</div>}
           <div
@@ -329,14 +395,14 @@ export const FilterBar = _component(
                   propsFields,
                 )}
               >
-                {common.slice(0, split)}
+                {fields.slice(0, split)}
               </div>
               <div
                 {...mergeAttrs<'div'>(s.actions, propsActions, {
                   ref: (element: unknown) => (actionsElement = element as HTMLElement | null),
                 })}
               >
-                {more != null && (
+                {toggleShown && (
                   <Button
                     {...mergePartProps<ButtonProps>(
                       {
@@ -409,18 +475,22 @@ export const FilterBar = _component(
                 >
                   {messages.filterSearch}
                 </Button>
-                {end != null && (
-                  <>
-                    <Separator orientation="vertical" />
-                    {end}
-                  </>
-                )}
+                {end}
               </div>
             </div>
             {below.length > 0 && (
               <div
                 {...mergeAttrs<'div'>(
-                  { ...s.more, sx: [s.more.sx, filterBarDynamicStyles.columns(o.minFieldWidth)] },
+                  {
+                    ...s.more,
+                    sx: [
+                      s.more.sx,
+                      // 第一排量出来之后列宽跟它的每格一样，上下对齐；量出来之前按最小宽度排
+                      layout?.cell
+                        ? filterBarDynamicStyles.columnsAs(layout.cell)
+                        : filterBarDynamicStyles.columns(o.minFieldWidth),
+                    ],
+                  },
                   propsMore,
                   { id: moreId },
                 )}
