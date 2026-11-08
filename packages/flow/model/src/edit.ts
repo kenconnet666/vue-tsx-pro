@@ -5,11 +5,15 @@
  *   let draft = templates.leave();
  *   draft = addApprovalStep(draft, 'manager', { name: '总监审批', assignees: [{ role: '3' }] });
  *   draft = addAmountBranch(draft, 'manager', { field: 'amount', over: 10000, step: { name: '总经理审批', assignees: [{ user: '1004' }] } });
+ *   draft = addCcStep(draft, 'manager', { name: '抄送财务', to: [{ role: '2' }] });
+ *   draft = addCallStep(draft, 'manager', { name: '供应商核实', process: 'vendor-check' });
  *   draft = removeStep(draft, 'hr');
  *   problemMessage(problem);   // → '“财务复核”没有处理人'
  */
 import type {
   AssigneeSource,
+  CallNode,
+  CcNode,
   MultiInstance,
   ProcessDefinition,
   ProcessEdge,
@@ -114,6 +118,48 @@ export function addApprovalStep(
       },
     ],
   };
+}
+
+/** 在 after 之后插一个直通的环节（调用流程、抄送）：after 原来往下走的连线改连到它，它再接着原来的路 */
+function insertPassThrough(
+  definition: ProcessDefinition,
+  after: string,
+  node: CallNode | CcNode,
+): ProcessDefinition {
+  const outgoing = forwardOut(definition, after);
+  const moved = new Set(outgoing.map((e) => e.id));
+  const edges = definition.edges.map((e) => (moved.has(e.id) ? { ...e, to: node.id } : e));
+  const targets = [...new Set(outgoing.map((e) => e.to))];
+  const continued = targets.map((to, index) => ({
+    id: uniqueId({ ...definition, edges }, `${node.id}-next${index === 0 ? '' : index + 1}`),
+    from: node.id,
+    to,
+  }));
+  return { ...definition, nodes: [...definition.nodes, node], edges: [...edges, ...continued] };
+}
+
+/** 在 after 之后调用另一个流程（同步：等子流程结束，按它的结果接着原来的路） */
+export function addCallStep(
+  definition: ProcessDefinition,
+  after: string,
+  input: { readonly name: string; readonly process: string },
+): ProcessDefinition {
+  const id = uniqueId(definition, 'call');
+  return insertPassThrough(definition, after, { id, type: 'call', ...input });
+}
+
+/** 在 after 之后抄送：抄给 to 里的人（不用处理），流程接着原来的路 */
+export function addCcStep(
+  definition: ProcessDefinition,
+  after: string,
+  input: {
+    readonly name: string;
+    readonly to: readonly AssigneeSource[];
+    readonly message?: string;
+  },
+): ProcessDefinition {
+  const id = uniqueId(definition, 'cc');
+  return insertPassThrough(definition, after, { id, type: 'cc', ...input });
 }
 
 /** 在 after 之后按金额（或别的数字）分支：超过 over 的多走一个审批环节，其余照原来的路 */

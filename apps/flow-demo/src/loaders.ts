@@ -97,6 +97,12 @@ export const loaders = defineLoaders({
       })),
     };
   },
+  // 设计页：调用流程时能选的流程（已发布的）
+  '/design': async () =>
+    (await engine.query.processes()).map((p) => ({
+      value: p.key as string,
+      label: p.name as string,
+    })),
   // 异常作业（管理员）：重试用完还失败的作业，能跳过的带上能选的结果
   '/incidents': async () =>
     (await engine.query.incidents()).map((incident) => ({

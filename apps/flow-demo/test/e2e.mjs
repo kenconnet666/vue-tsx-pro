@@ -112,6 +112,13 @@ async function run(mode) {
     // 管理员在设计器里用报销模板，试运行看停在财务，发布后申请人在发起页看得到
     await signIn('admin', '/design');
     await page.getByRole('button', { name: '用这个模板' }).nth(2).click();
+    // 选中“财务复核”，在右边改成几个人里任一人处理就算；再在它后面加一个抄送
+    await page.getByRole('button', { name: '财务复核', exact: true }).first().click();
+    await page.getByRole('combobox', { name: '几个人一起审' }).click();
+    await page.getByRole('option', { name: '任一人处理就算' }).click();
+    await page.getByRole('button', { name: '加抄送' }).click();
+    await page.getByRole('button', { name: '抄送', exact: true }).first().waitFor();
+    await page.getByText('没有问题，可以试运行、发布。').waitFor();
     await page.getByRole('button', { name: '试运行' }).click();
     await page.getByLabel('试运行').getByText('发起后停在：财务复核').waitFor();
     await page.getByRole('button', { name: '发布', exact: true }).click();

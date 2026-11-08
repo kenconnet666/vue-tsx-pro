@@ -1,6 +1,7 @@
 /**
  * 流程定义 → 画布：模型包的定义换成 Diagram 的节点与连线（形状、大小、状态、退回的线），排版交给 layoutLayers。
  * 设计器、审批单的进度图、技术栈的流程页共用；照着写自己的时，节点的说明、颜色按业务改。
+ * flow-demo 里有一份副本（scripts/structure/copies.mjs 核对一致）。
  *
  *   const { nodes, edges } = processDiagram(definition, { current: ['manager'], done: ['start', 'start-manager'] });
  *   <Diagram nodes={nodes} edges={edges} getNodeLabel={stepLabel} edgeText={(flow) => flow.text} routing="orthogonal">

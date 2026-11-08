@@ -4,6 +4,8 @@ import { describe, it } from 'vitest';
 import {
   addAmountBranch,
   addApprovalStep,
+  addCallStep,
+  addCcStep,
   problemMessage,
   removeStep,
   selectEdges,
@@ -34,6 +36,26 @@ describe('设计器的编辑操作', () => {
     assert.equal(graph.node(next!.to)?.name, '总监审批');
     const [after] = selectEdges(graph, next!.to, { outcome: 'approve', read: () => undefined });
     assert.equal(after?.to, 'approved');
+  });
+
+  it('加抄送、加调用流程：插在原来的路上，接着往下走', () => {
+    let draft = addCcStep(templates.expense(), 'finance', {
+      name: '抄送出纳',
+      to: [{ role: '5' }],
+    });
+    draft = addCallStep(draft, 'finance', { name: '入账', process: 'booking' });
+    const graph = processGraph(draft);
+    const [first] = selectEdges(graph, 'finance', { outcome: 'approve', read: () => undefined });
+    assert.equal(graph.node(first!.to)?.type, 'call');
+    const [second] = selectEdges(graph, first!.to, { read: () => undefined });
+    assert.equal(graph.node(second!.to)?.type, 'cc');
+    const [last] = selectEdges(graph, second!.to, { read: () => undefined });
+    assert.equal(last?.to, 'approved');
+    // 调用的流程没发布过：校验只报“找不到流程”这类，结构本身没有问题
+    assert.deepEqual(
+      errors(addCcStep(templates.expense(), 'finance', { name: '抄送', to: [{ role: '5' }] })),
+      [],
+    );
   });
 
   it('加金额分支：超过的多走一个环节，其余照原来的路', () => {

@@ -91,7 +91,7 @@ export function providePageData(app: App, data: PageData | null): void {
 
 /**
  * 浏览器：接管服务端写进页面的数据；之后每次换页、以及首屏没有数据（csr、服务端出错）时经接口取。
- * 有 loader 的地址等数据到了才切过去；取失败时照常换页，页面拿到 null
+ * 有 loader 的地址等数据到了才切过去；取失败时照常换页，页面拿到 null（没登录、没权限时同样是 null，不报错）
  */
 export function installClientPageData(app: App, router: Router, boot: BootData): void {
   const current = shallowRef(boot.current);
@@ -100,6 +100,11 @@ export function installClientPageData(app: App, router: Router, boot: BootData):
     const pattern = routePattern(to);
     try {
       const response = await fetch(`${DATA_PATH}?path=${encodeURIComponent(to.fullPath)}`);
+      // 没登录、没权限：页面自己显示“没有权限”，不算取数据出错
+      if (response.status === 401 || response.status === 403) {
+        current.value = { pattern, value: null };
+        return;
+      }
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       current.value = fromWire<PageData>(await response.json());
     } catch (error) {
