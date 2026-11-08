@@ -38,6 +38,7 @@ import {
   Tabs,
   useConfirm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { CodeEditor } from '@zerodep-dev/vue-tsx-pro-ui/code-editor';
 import { javascript } from '@codemirror/lang-javascript';
 import { useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
@@ -67,7 +68,7 @@ const styles = css.create({
   code: {
     display: 'grid',
     gap: '_md',
-    gridTemplateColumns: { default: '1fr', '@media (min-width: 64rem)': '14rem minmax(0, 1fr)' },
+    gridTemplateColumns: { default: '1fr', [breakpoints.lg]: '14rem minmax(0, 1fr)' },
   },
   editor: { height: '32rem' },
 });

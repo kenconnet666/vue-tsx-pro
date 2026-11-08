@@ -19,6 +19,7 @@ import {
   Select,
   Small,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { CodeEditor } from '@zerodep-dev/vue-tsx-pro-ui/code-editor';
 import { eventText, RESULT_TEXT, STATUS, who } from '../parts/labels';
 import { showError } from '../parts/toaster';
@@ -36,7 +37,7 @@ const styles = css.create({
   layout: {
     display: 'grid',
     gap: '_lg',
-    gridTemplateColumns: { default: '1fr', '@media (min-width: 64rem)': '22rem minmax(0, 1fr)' },
+    gridTemplateColumns: { default: '1fr', [breakpoints.lg]: '22rem minmax(0, 1fr)' },
     alignItems: 'start',
   },
   editor: { height: '14rem' },

@@ -5,6 +5,7 @@
 import {
   Activity,
   BookOpen,
+  Ellipsis,
   Code,
   FastForward,
   Files,
@@ -22,9 +23,12 @@ import {
   Button,
   Card,
   Flex,
+  IconButton,
   LinkButton,
   Menu,
+  MenuGroup,
   MenuItem,
+  MenuLinkItem,
   NavItem,
   NavList,
   NavSection,
@@ -35,6 +39,7 @@ import {
   Toaster,
   useConfirm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { AppShell, AppShellBrand, ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { computed, onMounted } from 'vue';
 import { RouterView } from 'vue-router';
@@ -47,9 +52,20 @@ import { toaster } from './parts/toaster';
 import { useFlowCenter, type FlowCenter } from './runtime/center';
 
 const styles = css.create({
-  tools: { display: 'flex', alignItems: 'center', gap: '_sm', marginInlineStart: 'auto' },
+  tools: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: { default: '_xs', [breakpoints.md]: '_sm' },
+    marginInlineStart: 'auto',
+    minWidth: 0,
+  },
   loading: { maxWidth: '28rem', marginInline: 'auto', marginBlockStart: '20vh' },
-  identity: { minWidth: '11rem' },
+  identity: { width: { default: '8.5rem', [breakpoints.sm]: '11rem' } },
+  // 手机上只留品牌的标志：顶栏放不下产品名、身份、铃铛和工具
+  brandName: { display: { default: 'none', [breakpoints.sm]: 'inline' } },
+  // 平板以上直接摆出来的工具（时钟、快进、重置、文档）；更窄时收进“更多”
+  wide: { display: { default: 'none', [breakpoints.md]: 'contents' } },
+  narrow: { display: { default: 'inline-flex', [breakpoints.md]: 'none' } },
 });
 
 export default _component(() => {
@@ -74,6 +90,19 @@ export default _component(() => {
     });
     if (ok) center?.reset();
   }
+
+  /** 快进演示时钟（顶栏的菜单与手机上的“更多”共用） */
+  const advanceItems = (current: FlowCenter) => [
+    <MenuItem key="1h" onAction={() => current.advance(1)}>
+      1 小时
+    </MenuItem>,
+    <MenuItem key="1d" onAction={() => current.advance(24)}>
+      1 天
+    </MenuItem>,
+    <MenuItem key="3d" onAction={() => current.advance(72)}>
+      3 天
+    </MenuItem>,
+  ];
 
   function renderBody(current: FlowCenter) {
     const { state } = current;
@@ -108,7 +137,7 @@ export default _component(() => {
       <AppShell
         brand={
           <AppShellBrand href="/flow/work" icon={Workflow}>
-            流程中心
+            <span {...css.attrs(styles.brandName)}>流程中心</span>
           </AppShellBrand>
         }
         header={
@@ -124,32 +153,68 @@ export default _component(() => {
                   sx={styles.identity}
                 />
                 {current.state.status === 'ready' && <NotificationBell />}
-                <Small tone="muted">{timeText(current.state.now)}</Small>
+                <div {...css.attrs(styles.wide)}>
+                  <Small tone="muted">{timeText(current.state.now)}</Small>
+                  <Menu
+                    trigger={(props) => (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        tone="neutral"
+                        icon={FastForward}
+                        {...props}
+                      >
+                        快进
+                      </Button>
+                    )}
+                  >
+                    {advanceItems(current)}
+                  </Menu>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    tone="neutral"
+                    icon={RotateCcw}
+                    onClick={() => void reset()}
+                  >
+                    重置
+                  </Button>
+                  <LinkButton
+                    href="/stack/flow"
+                    size="sm"
+                    variant="ghost"
+                    tone="neutral"
+                    icon={BookOpen}
+                  >
+                    文档
+                  </LinkButton>
+                </div>
                 <Menu
+                  placement="bottom-end"
                   trigger={(props) => (
-                    <Button size="sm" variant="ghost" tone="neutral" icon={FastForward} {...props}>
-                      快进
-                    </Button>
+                    <IconButton
+                      size="sm"
+                      variant="ghost"
+                      tone="neutral"
+                      icon={Ellipsis}
+                      aria-label="更多"
+                      sx={styles.narrow}
+                      {...props}
+                    />
                   )}
                 >
-                  <MenuItem onAction={() => current.advance(1)}>1 小时</MenuItem>
-                  <MenuItem onAction={() => current.advance(24)}>1 天</MenuItem>
-                  <MenuItem onAction={() => current.advance(72)}>3 天</MenuItem>
+                  <MenuGroup label={`快进（演示时钟 ${timeText(current.state.now)}）`}>
+                    {advanceItems(current)}
+                  </MenuGroup>
+                  <MenuItem icon={RotateCcw} onAction={() => void reset()}>
+                    重置演示数据
+                  </MenuItem>
+                  <MenuLinkItem href="/stack/flow" icon={BookOpen}>
+                    文档
+                  </MenuLinkItem>
                 </Menu>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  tone="neutral"
-                  icon={RotateCcw}
-                  onClick={() => void reset()}
-                >
-                  重置
-                </Button>
               </>
             )}
-            <LinkButton href="/stack/flow" size="sm" variant="ghost" tone="neutral" icon={BookOpen}>
-              文档
-            </LinkButton>
             <ThemeSwitcher preference={preference} />
           </div>
         }

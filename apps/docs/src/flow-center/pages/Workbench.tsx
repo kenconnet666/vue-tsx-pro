@@ -25,8 +25,10 @@ import {
   Tabs,
   TextField,
   useHotkeys,
+  useMediaQuery,
   type DataTableColumn,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { onScopeDispose, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ApprovalPanel } from '../parts/ApprovalPanel';
@@ -39,14 +41,19 @@ import {
   type Box,
   type Entry,
 } from '../parts/boxes';
+import { timeText } from '../parts/labels';
 import { showError, toaster } from '../parts/toaster';
 import { useFlowCenter } from '../runtime/center';
 
 const styles = css.create({
   page: { display: 'flex', flexDirection: 'column', gap: '_sm', minWidth: 0 },
   filters: { display: 'flex', alignItems: 'center', gap: '_sm', flexWrap: 'wrap' },
-  search: { width: '16rem' },
-  process: { width: '12rem' },
+  search: { width: { default: '100%', [breakpoints.sm]: '16rem' } },
+  process: {
+    width: { default: 'auto', [breakpoints.sm]: '12rem' },
+    flexGrow: { default: 1, [breakpoints.sm]: 0 },
+  },
+  compact: { display: 'flex', flexDirection: 'column', gap: '_xs' },
   // 表格占满剩下的高度，长了在里面滚
   table: { maxHeight: 'calc(100dvh - 14rem)' },
   nav: { display: 'flex', alignItems: 'center', gap: '_xs', marginBlockEnd: '_sm' },
@@ -62,23 +69,41 @@ const HEADERS: Record<Box, { step: string | null; at: string; badge: string | nu
   drafts: { step: null, at: '保存时间', badge: null },
 };
 
-function columnsOf(box: Box): DataTableColumn<Entry>[] {
+/** 手机上的一列：标题，下面一行小字写流程、环节与时间（多列要横着滚，看不全） */
+function compactTitle(entry: Entry, now: Date) {
+  const meta = [entry.process, entry.step === '草稿' ? '' : entry.step, timeText(entry.at, now)];
+  return (
+    <span {...css.attrs(styles.compact)}>
+      {entry.title}
+      <Small tone="muted">{meta.filter(Boolean).join(' · ')}</Small>
+    </span>
+  );
+}
+
+function columnsOf(box: Box, compact: boolean, now: Date): DataTableColumn<Entry>[] {
   const headers = HEADERS[box];
-  return [
-    { key: 'title', header: '单据', minWidth: 240, cell: (e) => e.title },
-    { key: 'process', header: '流程', width: 120 },
-    ...(headers.step ? [{ key: 'step', header: headers.step, minWidth: 140 }] : []),
-    { key: 'at', header: headers.at, width: 170, type: 'dateTime' as const },
-    ...(headers.badge === null
+  const badge =
+    headers.badge === null
       ? []
       : [
           {
             key: 'badge',
             header: headers.badge,
-            width: 110,
+            width: compact ? 90 : 110,
             cell: (e: Entry) => e.badge && <Badge tone={e.badge.tone}>{e.badge.label}</Badge>,
           },
-        ]),
+        ];
+  if (compact)
+    return [
+      { key: 'title', header: '单据', minWidth: 160, cell: (e) => compactTitle(e, now) },
+      ...badge,
+    ];
+  return [
+    { key: 'title', header: '单据', minWidth: 240, cell: (e) => e.title },
+    { key: 'process', header: '流程', width: 120 },
+    ...(headers.step ? [{ key: 'step', header: headers.step, minWidth: 140 }] : []),
+    { key: 'at', header: headers.at, width: 170, type: 'dateTime' as const },
+    ...badge,
   ];
 }
 
@@ -91,6 +116,8 @@ export default _component(() => {
   let busy = _state(false);
   let text = _state('');
   let process = _state<string | null>(null);
+  // 窄屏（手机）：表格只留标题与标记两列
+  const compact = useMediaQuery(breakpoints.sm.replace('@media ', 'not all and '));
   const counts = useBoxCounts(() => center);
 
   const box = () => boxOf(route.query['box']);
@@ -317,7 +344,7 @@ export default _component(() => {
         )}
         <DataTable
           rows={list}
-          columns={columnsOf(which)}
+          columns={columnsOf(which, compact.value, center.state.now)}
           getKey={(e) => e.key}
           loading={entries === null}
           aria-label={label}

@@ -16,6 +16,7 @@ import {
   useConfirm,
   type DataTableColumn,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { breakpoints } from '@zerodep-dev/vue-tsx-pro-ui/tokens';
 import { useFormDialog, type FormDialogField } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { useFlowCenter } from '../runtime/center';
 import { who } from './labels';
@@ -25,7 +26,7 @@ const styles = css.create({
   layout: {
     display: 'grid',
     gap: '_lg',
-    gridTemplateColumns: { default: '1fr', '@media (min-width: 64rem)': '18rem minmax(0, 1fr)' },
+    gridTemplateColumns: { default: '1fr', [breakpoints.lg]: '18rem minmax(0, 1fr)' },
     alignItems: 'start',
   },
   tree: { height: '28rem' },
