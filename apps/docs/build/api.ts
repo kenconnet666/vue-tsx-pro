@@ -52,6 +52,7 @@ import {
 } from 'typescript/ast';
 import { API, SymbolFlags, type Checker, type Program, type Symbol } from 'typescript/sync';
 import type { Plugin } from 'vite';
+import { keyboardByComponent } from './keyboard.ts';
 import type {
   ApiProp,
   ApiPropKinds,
@@ -586,12 +587,16 @@ function sourceHash() {
   return hash.digest('hex').slice(0, 16);
 }
 
+/** 文档页所在的目录：组件规格的键盘行为从这里的 docs.tsx 读 */
+const COMPONENTS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), '../src/components');
+
 /** 组件规格在站点上的路径：CSharpUi、Blazor 的 CI 取线上的这份与自己的比对 */
 export const SPEC_FILE = 'spec/components.json';
 
 /**
  * Vite 插件：`virtual:api/<接口名>` 导出那个接口的 API 数据，`virtual:api-catalog` 导出全部组件的目录（组件演练场用）；
- * 组件库源码变了重新生成。构建时另外输出组件规格（SPEC_FILE）：全部组件的属性、默认值、可选值、部件、能否定制
+ * 组件库源码变了重新生成。构建时另外输出组件规格（SPEC_FILE）：全部组件的属性、默认值、可选值、部件、能否定制，
+ * 以及文档页键盘一节写的按键（keyboard）
  */
 export function componentApi(): Plugin {
   const worker = apiWorker();
@@ -614,7 +619,14 @@ export function componentApi(): Plugin {
     async generateBundle() {
       if (!building) return;
       const code = await load('spec', undefined, true);
-      const components = JSON.parse(code.replace(/^export default /, '').replace(/;\s*$/, ''));
+      const catalog = JSON.parse(code.replace(/^export default /, '').replace(/;\s*$/, '')) as {
+        name: string;
+      }[];
+      // 键盘行为来自文档页的键盘一节：挂到那一页介绍的组件上
+      const keyboard = keyboardByComponent(COMPONENTS_DIR);
+      const components = catalog.map((entry) =>
+        keyboard.has(entry.name) ? { ...entry, keyboard: keyboard.get(entry.name) } : entry,
+      );
       const { version } = JSON.parse(readFileSync(MANIFEST, 'utf8')) as { version: string };
       this.emitFile({
         type: 'asset',

@@ -918,7 +918,7 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       测试覆盖；ImageCropper、SignaturePad、CodeEditor、MapChart 是画布、地图，happy-dom 没有画布，行为由文档站的浏览器测试覆盖）
 - [x] ~~P10 组件规格 JSON 给下游比对、下游问题用 GitHub issue 跟踪~~（2026-11-08：文档站构建时输出 /spec/components.json——全部组件的属性、
       默认值、可选值、事件、部件属性、部件标记、能否定制，CSharpUi、Blazor 的 CI 取线上这份比对；GitHub 建了 `parity` 标签跟踪下游报的问题。
-      键盘行为还在文档页里，没进规格）
+      2026-11-08 键盘行为也进了规格：构建时读各文档页键盘一节的按键，挂到页面介绍的组件上，字段 keyboard）
 - [x] ~~P11 取消流程引擎的前端包 `@zerodep-dev/flow-ts-ui`（用户加）：流程图需要的能力做进画布（节点形状、节点与连线的状态、
       回头的连线、只读查看），设计器、审批面板做成文档站与 flow-demo 里的组合，使用方照着拼；删 `packages/flow/ui`~~
       （2026-11-08：节点数据的 `shape` 加圆与菱形、连线接到形状的轮廓，DiagramNode 的 `active`；状态用色调、退回的线用

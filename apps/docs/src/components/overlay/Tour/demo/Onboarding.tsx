@@ -1,4 +1,4 @@
-import { Download, Filter, PackageCheck, Plus, Search, Sparkles } from '@lucide/icons';
+import { Download, Filter, Plus, Search, Sparkles } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
@@ -6,8 +6,8 @@ import {
   Button,
   Card,
   Flex,
-  Icon,
   IconButton,
+  Image,
   Small,
   Table,
   TableBody,
@@ -19,8 +19,8 @@ import {
   Tour,
   dataAttrs,
   type TourStep,
-  t,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { drawings } from '../../../display/Image/demo/drawings';
 
 const orders = [
   ['#10234', '林小满', '¥1,280.00', 'success', '已发货'],
@@ -30,15 +30,6 @@ const orders = [
 
 const styles = css.create({
   search: { flexGrow: 1 },
-  // 第一步的封面：主题色的渐变上放一个大图标，换主题时跟着变
-  cover: {
-    display: 'grid',
-    placeItems: 'center',
-    height: '7rem',
-    backgroundImage: `linear-gradient(135deg, ${t.colors.accentSoft}, ${t.colors.fill})`,
-    color: '_accentText',
-    fontSize: '3rem',
-  },
 });
 
 export default _component(() => {
@@ -53,11 +44,8 @@ export default _component(() => {
     {
       title: '欢迎使用订单中心',
       content: '花一分钟认识这几个常用功能。',
-      cover: (
-        <div {...css.attrs(styles.cover)}>
-          <Icon icon={PackageCheck} />
-        </div>
-      ),
+      // 封面：文档站共用的示例图纸（真实应用放产品截图或插画）
+      cover: <Image src={drawings[0]!.src} alt="" width="100%" height={112} fit="cover" />,
     },
     { target: target('search'), title: '搜索', content: '按订单号、客户姓名或手机号查找订单。' },
     { target: target('filter'), title: '筛选', content: '按状态、日期、金额筛选，条件会记住。' },
