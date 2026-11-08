@@ -111,4 +111,52 @@ describe('query.search', () => {
     const [done] = await engine.query.done(carol);
     assert.equal(done?.quickOutcome, null);
   });
+  it('子流程：父流程经手的人看得到它调起的子流程（只往下一层），子流程的人看不到父流程', async () => {
+    const { engine } = await createTestEngine();
+    const step = (id: string, user: `${bigint}`): ProcessDefinition['nodes'][number] => ({
+      id,
+      type: 'task',
+      name: id,
+      assignees: [{ user }],
+      outcomes: [{ key: 'ok', label: '同意' }],
+    });
+    await engine.publish({
+      key: 'child',
+      name: '子',
+      nodes: [
+        { id: 'start', type: 'start', name: '提交' },
+        step('pay', '1003'),
+        { id: 'end', type: 'end', name: '结束' },
+      ],
+      edges: [
+        { id: 'c1', from: 'start', to: 'pay' },
+        { id: 'c2', from: 'pay', to: 'end', outcome: 'ok' },
+      ],
+    });
+    await engine.publish({
+      key: 'parent',
+      name: '父',
+      nodes: [
+        { id: 'start', type: 'start', name: '提交' },
+        { id: 'call', type: 'call', name: '付款', process: 'child' },
+        step('wait', '1002'),
+        { id: 'end', type: 'end', name: '结束' },
+      ],
+      edges: [
+        { id: 'p1', from: 'start', to: 'call' },
+        { id: 'p2', from: 'call', to: 'wait' },
+        { id: 'p3', from: 'wait', to: 'end', outcome: 'ok' },
+      ],
+    });
+    const parent = (await engine.run({ type: 'start', process: 'parent' }, alice)).instance.id;
+    await engine.jobs.runDue();
+    const [child] = (await engine.query.search(admin, { scope: 'all', processKey: 'child' })).rows;
+    assert.ok(child);
+    // alice 发起了父流程：子流程在她的“经手的”里，详情也能看
+    const involved = (await engine.query.search(alice)).rows.map((row) => row.id);
+    assert.deepEqual(new Set(involved), new Set([parent, child.id]));
+    await engine.query.instance(child.id, alice);
+    // carol 只在子流程里办事：看不到父流程
+    await assert.rejects(engine.query.instance(parent, carol), { code: 'forbidden' });
+  });
 });

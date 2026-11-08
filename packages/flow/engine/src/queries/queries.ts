@@ -110,8 +110,8 @@ export function createQueries(core: EngineCore) {
     itemsOf,
   } = core;
 
-  /** 这个人经手过实例：发起的、待办落到他或他处理过、在他能认领的收件箱里、抄送给他 */
-  const involves = (i: InstanceRef, actor: Actor) =>
+  /** 这个人直接经手过实例：发起的、待办落到他或他处理过、在他能认领的收件箱里、抄送给他 */
+  const handled = (i: InstanceRef, actor: Actor) =>
     or(
       i.startedBy.eq(actor.id),
       i.id.in(
@@ -131,6 +131,18 @@ export function createQueries(core: EngineCore) {
           .queryable(FlowCc)
           .where((c) => c.recipient.eq(actor.id))
           .select((c) => c.instanceId),
+      ),
+    );
+
+  /** 经手过：直接经手的，加上它们调起的子流程（父流程的人看得到子流程走到哪；只往下一层，子流程的人看不到父流程） */
+  const involves = (i: InstanceRef, actor: Actor) =>
+    or(
+      handled(i, actor),
+      i.parentId.in(
+        db
+          .queryable(FlowInstance)
+          .where((p) => handled(p, actor))
+          .select((p) => p.id),
       ),
     );
 
