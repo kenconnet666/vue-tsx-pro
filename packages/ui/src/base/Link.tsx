@@ -59,9 +59,14 @@ export const linkRecipe = css.recipe({
   name: 'Link',
   parts: ['root', 'icon'],
   base: {
+    // 下划线平时是半透明的文字色，悬停时变成实色（同 Radix Themes）：一直有下划线的链接也有悬停反馈，各色调都适用
     root: {
       borderRadius: '_xs',
       textDecorationThickness: '_xs',
+      textDecorationColor: {
+        default: 'color-mix(in srgb, currentColor 50%, transparent)',
+        _hover: 'currentColor',
+      },
       textUnderlineOffset: '0.2em',
       cursor: 'pointer',
     },
