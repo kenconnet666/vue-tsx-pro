@@ -74,8 +74,8 @@ export const FlowInstance = entity(
 /** 待办的状态：open 等人处理，waiting 在等加签的人办完，done 处理了，canceled 不用处理了 */
 export const WORK_ITEM_STATES = ['open', 'waiting', 'done', 'canceled'] as const;
 
-/** 落到谁：pool 收件箱里等认领，claimed 认领了，direct 直接落到人 */
-export const ASSIGNMENTS = ['pool', 'claimed', 'direct'] as const;
+/** 落到谁：pool 收件箱里等认领，claimed 认领了，direct 直接落到人，designated 收件箱的负责人指定的 */
+export const ASSIGNMENTS = ['pool', 'claimed', 'direct', 'designated'] as const;
 
 /**
  * 待办：单表加状态，不拆历史表。收件箱的候选存成标记数组（`user:1001`、`role:finance`、`department:d1`、`group:岗位:p1`），
@@ -107,6 +107,10 @@ export const FlowWorkItem = entity(
     comment: col.string(2000).nullable(),
     /** 收件箱的候选标记；直接落到人的待办是空数组 */
     candidates: col.array(col.string(150)),
+    /** 收件箱很久没人认领时由谁指定承办人（收件箱的负责人）；没人认领、它不为空时在他的“待我指定”里 */
+    designator: col.string(64).nullable(),
+    /** 上次催办的时刻：同一份待办一小时内只催一次 */
+    remindedAt: col.datetime().nullable(),
     /** 转办、改派：从谁手里交过来的 */
     fromUser: col.string(64).nullable(),
     /** 加签、委托：是哪一份待办加的（arrival 是 delegate、addSign.before / after） */

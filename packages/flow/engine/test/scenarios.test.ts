@@ -67,6 +67,12 @@ const SUPPORTED = new Set([
   'addSigners',
   'release',
   'withdrawStep',
+  'assign',
+  'requestReassign',
+  'designations',
+  'batchClaim',
+  'batchComplete',
+  'changeData',
 ]);
 
 /** Java 版的错误代号 → 这里的 */
@@ -97,7 +103,6 @@ const PARTIAL: Record<
   { readonly before?: string; readonly skip?: readonly number[]; readonly reason: string }
 > = {
   'countersign.json': { before: 'votes', reason: '票签（votes、权重）第一版不做' },
-  'purchase-collaboration.json': { skip: [19], reason: '催办的频率限制还没做（ROADMAP 26.3）' },
 };
 
 /** 这一版产出、能比的期望 */
@@ -270,6 +275,8 @@ async function runScenario(scenario: Scenario, adapter?: Adapter): Promise<void>
     intercept: scenarioInterceptor(),
     extensions: testExtensions() as never,
     org: {
+      // 角色 9 是收件箱的负责人（场景 README：有它的人管所有收件箱的指定）
+      inboxManager: () => [...actors.values()].find((a) => a.roles?.includes('9'))?.id,
       members: (source) =>
         'role' in source
           ? (people.get(`role:${source.role}`) ?? [])
@@ -417,6 +424,8 @@ async function runStep(
     case 'addSigners':
     case 'release':
     case 'withdrawStep':
+    case 'assign':
+    case 'requestReassign':
       return run({
         type: 'operate',
         workItem: Number(args['workItem']),
@@ -445,9 +454,28 @@ async function runStep(
       };
     }
     case 'started': {
-      const rows = await engine.query.started(actor);
+      const rows = await engine.query.started(actor, listFilter(args));
       return { total: rows.length, rows };
     }
+    case 'batchClaim':
+    case 'batchComplete': {
+      const results = await engine.runMany(
+        (args['workItems'] as unknown[]).map((id) =>
+          command === 'batchClaim'
+            ? { type: 'claim' as const, workItem: Number(id) }
+            : { type: 'complete' as const, workItem: Number(id), outcome: args['outcome'] },
+        ),
+        actor,
+      );
+      return { results: results.map((r) => (r.ok ? { ok: true } : { ok: false, code: r.code })) };
+    }
+    case 'changeData':
+      return run({
+        type: 'changeData',
+        instance: Number(args['instance']),
+        variables,
+        ...(args['reason'] !== undefined ? { comment: args['reason'] } : {}),
+      });
     case 'instance': {
       const detail = await engine.query.instance(Number(args['instance']));
       const current = detail.current;
@@ -458,6 +486,7 @@ async function runStep(
         .toList();
       return {
         instance: { ...detail.instance, current },
+        form: { values: detail.instance.variables },
         workItems: items.map(javaItem),
         timeline: detail.events.map((event) => ({ ...event, actorId: event.actor })),
       };
@@ -476,8 +505,12 @@ async function runStep(
       };
     }
     case 'todo':
-    case 'done': {
-      const rows = await engine.query[command](actor);
+    case 'done':
+    case 'designations': {
+      const rows =
+        command === 'done'
+          ? await engine.query.done(actor, listFilter(args))
+          : await engine.query[command](actor);
       return {
         total: rows.length,
         rows: rows.map((row) => ({
@@ -490,6 +523,15 @@ async function runStep(
     default:
       throw new Error(`不支持 ${command}`);
   }
+}
+
+/** 已办、我发起的筛选参数 */
+function listFilter(args: Record<string, any>) {
+  return {
+    ...(args['processKey'] ? { processKey: String(args['processKey']) } : {}),
+    ...(args['from'] ? { from: String(args['from']) } : {}),
+    ...(args['to'] ? { to: String(args['to']) } : {}),
+  };
 }
 
 /** 引擎的结果 → 场景里的形状（Java 版的字段名） */
@@ -607,8 +649,10 @@ function compare(expected: unknown, actual: unknown, where: string): void {
       actual && typeof actual === 'object',
       `${where}：期望对象，实际 ${JSON.stringify(actual)}`,
     );
-    for (const [key, value] of Object.entries(expected as Record<string, unknown>)) {
+    for (const [key, raw] of Object.entries(expected as Record<string, unknown>)) {
       if (/Names?$/.test(key)) continue;
+      // 批量的结果里写的是 Java 版的错误代号
+      const value = key === 'code' && typeof raw === 'string' ? (ERROR_CODES[raw] ?? raw) : raw;
       compare(value, (actual as Record<string, unknown>)[key], `${where}.${key}`);
     }
     return;

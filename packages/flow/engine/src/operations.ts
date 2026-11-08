@@ -288,6 +288,60 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
     },
   },
   {
+    name: 'assign',
+    label: '指定承办人',
+    fields: () => [{ name: 'to', label: '指定给', type: 'user', required: true }, COMMENT],
+    // 等他指定的（收件箱的负责人）；管理员也能替他指定
+    available: (scope) =>
+      isOpen(scope) &&
+      scope.item.assignee === null &&
+      scope.item.designator !== null &&
+      (scope.item.designator === scope.actor.id || !!scope.actor.admin),
+    run: async ({ exec, tx, item, actor }, input) => {
+      const to = users(input, 'to')[0]!;
+      await tx
+        .update(FlowWorkItem)
+        .set({ assignee: to, assignment: 'designated' })
+        .where((w) => [w.id.eq(item.id), w.state.eq('open'), w.assignee.isNull()])
+        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经有人处理`))
+        .execute();
+      exec.addEvent('workItem.assigned', {
+        workItemId: item.id,
+        node: item.node,
+        actor: actor.id,
+        comment: text(input, 'comment', false),
+        data: { to },
+      });
+    },
+  },
+  {
+    name: 'requestReassign',
+    label: '申请改派',
+    tone: 'neutral',
+    fields: () => [{ ...COMMENT, label: '原因', required: true }],
+    // 负责人指定给我的：说明原因，回到负责人的“待我指定”里
+    available: (scope) =>
+      isOpen(scope) &&
+      scope.item.assignment === 'designated' &&
+      scope.item.assignee === scope.actor.id &&
+      scope.item.designator !== null,
+    run: async ({ exec, tx, item, actor }, input) => {
+      const comment = text(input, 'comment');
+      await tx
+        .update(FlowWorkItem)
+        .set({ assignee: null, assignment: 'pool' })
+        .where((w) => [w.id.eq(item.id), w.state.eq('open'), w.assignee.eq(actor.id)])
+        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
+        .execute();
+      exec.addEvent('workItem.reassignRequested', {
+        workItemId: item.id,
+        node: item.node,
+        actor: actor.id,
+        comment,
+      });
+    },
+  },
+  {
     name: 'withdrawStep',
     label: '撤回',
     tone: 'danger',

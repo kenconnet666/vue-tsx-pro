@@ -28,7 +28,7 @@ import {
   type TaskNode,
   type VariableDeclaration,
 } from '@zerodep-dev/flow-ts-model';
-import { actorTokens } from './assignees.ts';
+import { actorTokens, parseCandidate } from './assignees.ts';
 import { decideCountersign } from './countersign.ts';
 import {
   FlowCc,
@@ -59,7 +59,9 @@ import { buildProject, linkProject, type FlowLogic } from './project.ts';
 import { emptyRunState } from './state.ts';
 import type {
   Actor,
+  BatchResult,
   FlowCommand,
+  ListFilter,
   TypeProblem,
   FlowEngineOptions,
   FlowEventView,
@@ -72,6 +74,9 @@ import type {
 const MAX_ATTEMPTS = 3;
 /** 领到的作业锁多久：进程死掉后别的进程过了这段时间能接手 */
 const LEASE_MS = 5 * 60_000;
+
+/** 手动催办的间隔：同一份待办一小时内只催一次 */
+const REMIND_INTERVAL_MS = 3_600_000;
 
 /** 待办列表里的一行：待办加所属实例的标题、流程与摘要列（定义里 summary 列出的字段） */
 export interface TodoItem extends WorkItemSummary {
@@ -221,19 +226,23 @@ export interface FlowEngine {
   process<Form extends FormDefinition>(key: string): TypedProcess<FormValues<Form>>;
   /** 执行一个命令 */
   run(command: FlowCommand, actor: Actor): Promise<RunResult>;
+  /** 批量执行（批量认领、批量处理）：每条一个事务，各自成败，结果按顺序给出 */
+  runMany(commands: readonly FlowCommand[], actor: Actor): Promise<BatchResult[]>;
   /** 外部事件（对方盖章、付款到账）：在等它的实例往下走，返回这些实例的结果 */
   signal(input: SignalInput, actor: Actor): Promise<RunResult[]>;
   readonly query: {
     /** 我的待办：落到我的、我能认领的 */
     todo(actor: Actor): Promise<TodoItem[]>;
-    /** 我处理过的 */
-    done(actor: Actor): Promise<TodoItem[]>;
+    /** 我处理过的，新的在前 */
+    done(actor: Actor, filter?: ListFilter): Promise<TodoItem[]>;
+    /** 等我指定承办人的（我是收件箱的负责人，很久没人认领） */
+    designations(actor: Actor): Promise<TodoItem[]>;
     /** 实例详情：实例、全部待办、流转记录 */
     instance(id: number): Promise<InstanceDetail>;
     /** 待办详情 */
     workItem(id: number, actor: Actor): Promise<WorkItemDetail>;
     /** 我发起的实例，新的在前 */
-    started(actor: Actor): Promise<InstanceRow[]>;
+    started(actor: Actor, filter?: ListFilter): Promise<InstanceRow[]>;
     /** 抄送给我的，没读的在前 */
     cc(actor: Actor): Promise<CcItem[]>;
     /** 失败的作业（异常）；给实例时只看这个实例的 */
@@ -987,7 +996,15 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         };
         if (command.workItem !== undefined && items[0] && !remindable(items[0].node))
           throw new FlowError('forbidden', `节点 ${items[0].nodeName} 不允许催办`);
+        // 同一份待办一小时内只催一次（同 Java 版）：带条件地记下催办的时刻，没记上的不催
+        const notBefore = new Date(exec.now.getTime() - REMIND_INTERVAL_MS);
         for (const item of items.filter((i) => remindable(i.node))) {
+          const marked = await tx
+            .update(FlowWorkItem)
+            .set({ remindedAt: exec.now })
+            .where((w) => [w.id.eq(item.id), or(w.remindedAt.isNull(), w.remindedAt.lt(notBefore))])
+            .execute();
+          if (marked === 0) continue;
           exec.addEvent('workItem.reminded', {
             workItemId: item.id,
             node: item.node,
@@ -998,6 +1015,45 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       },
       command,
     );
+  }
+
+  /** 管理员改单据数据：只记真的变了的字段，改前、改后各一份 */
+  async function changeData(
+    command: Extract<FlowCommand, { type: 'changeData' }>,
+    actor: Actor,
+  ): Promise<RunResult> {
+    if (!actor.admin) throw new FlowError('forbidden', '只有管理员能改单据数据');
+    return withInstance(
+      command.instance,
+      actor,
+      async (exec) => {
+        const changes: Record<string, { before: unknown; after: unknown }> = {};
+        for (const [name, after] of Object.entries(command.variables)) {
+          const before = exec.variables[name] ?? null;
+          if (JSON.stringify(before) !== JSON.stringify(after)) changes[name] = { before, after };
+        }
+        if (Object.keys(changes).length === 0) return;
+        exec.setVariables(command.variables);
+        exec.addEvent('instance.dataChanged', {
+          comment: command.comment ?? null,
+          data: { form: changes },
+        });
+      },
+      command,
+    );
+  }
+
+  async function runMany(commands: readonly FlowCommand[], actor: Actor): Promise<BatchResult[]> {
+    const results: BatchResult[] = [];
+    for (const command of commands) {
+      try {
+        results.push({ ok: true, result: await run(command, actor) });
+      } catch (error) {
+        if (!(error instanceof FlowError)) throw error;
+        results.push({ ok: false, code: error.code, message: error.message });
+      }
+    }
+    return results;
   }
 
   /** 外部事件：在等它的实例往下走，返回这些实例的结果；不在等的只记一条 signal.ignored */
@@ -1099,6 +1155,8 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         return jump(command, actor);
       case 'remind':
         return remind(command, actor);
+      case 'changeData':
+        return changeData(command, actor);
       case 'comment':
         return withInstance(
           command.instance,
@@ -1300,10 +1358,15 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
             : [],
       };
     },
-    started: (actor) =>
+    started: (actor, filter = {}) =>
       db
         .queryable(FlowInstance)
-        .where((i) => i.startedBy.eq(actor.id))
+        .where((i) => [
+          i.startedBy.eq(actor.id),
+          ...(filter.processKey ? [i.processKey.eq(filter.processKey)] : []),
+          ...(filter.from ? [i.startedAt.ge(new Date(filter.from))] : []),
+          ...(filter.to ? [i.startedAt.le(new Date(filter.to))] : []),
+        ])
         .orderBy((i) => i.id.desc())
         .toList(),
     cc: (actor) =>
@@ -1343,11 +1406,25 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         .select(todoColumns)
         .toList()
         .then(withSummary),
-    done: (actor) =>
+    done: (actor, filter = {}) =>
       db
         .queryable(FlowWorkItem)
-        .where((w) => [w.state.eq('done'), w.completedBy.eq(actor.id)])
+        .where((w) => [
+          w.state.eq('done'),
+          w.completedBy.eq(actor.id),
+          ...(filter.processKey ? [w.instance.processKey.eq(filter.processKey)] : []),
+          ...(filter.from ? [w.completedAt.ge(new Date(filter.from))] : []),
+          ...(filter.to ? [w.completedAt.le(new Date(filter.to))] : []),
+        ])
         .orderBy((w) => w.id.desc())
+        .select(todoColumns)
+        .toList()
+        .then(withSummary),
+    designations: (actor) =>
+      db
+        .queryable(FlowWorkItem)
+        .where((w) => [w.state.eq('open'), w.assignee.isNull(), w.designator.eq(actor.id)])
+        .orderBy((w) => w.id)
         .select(todoColumns)
         .toList()
         .then(withSummary),
@@ -1476,6 +1553,29 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     }
     if (job.kind === 'unclaimed') {
       if (item.assignee) return;
+      if (node.unclaimed?.action === 'assignByManager') {
+        // 转收件箱的负责人指定：记下负责人，进他的“待我指定”（不知道负责人时只记一笔）
+        const inbox = item.candidates
+          .filter((token) => !token.startsWith('-'))
+          .map(parseCandidate)
+          .find((c) => c.kind !== 'user');
+        const manager =
+          inbox && options.org?.inboxManager
+            ? await options.org.inboxManager(
+                inbox as Parameters<typeof options.org.inboxManager>[0],
+              )
+            : undefined;
+        await exec.tx
+          .update(FlowWorkItem)
+          .set({ designator: manager ?? null })
+          .where((w) => [w.id.eq(item.id), w.state.eq('open'), w.assignee.isNull()])
+          .execute();
+        exec.addEvent('workItem.unclaimed', {
+          ...fields,
+          data: manager ? { designator: manager } : null,
+        });
+        return;
+      }
       exec.addEvent('workItem.reminded', { ...fields, data: { auto: true, reason: 'unclaimed' } });
       return;
     }
@@ -1642,6 +1742,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     retryJob,
     readCc,
     createTables: () => db.createTables(),
+    runMany,
     versions,
     process,
     publish,

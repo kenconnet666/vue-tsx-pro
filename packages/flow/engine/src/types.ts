@@ -5,6 +5,7 @@
  */
 import type { Adapter } from '@zerodep-dev/easy-query-ts';
 import type { FlowProject } from '@zerodep-dev/flow-ts-model';
+import type { ASSIGNMENTS } from './entities.ts';
 import type { WorkItemOperation } from './operations.ts';
 import type { HostModules, TransformCode } from './project.ts';
 
@@ -25,13 +26,20 @@ export interface FlowOrg {
     source:
       { readonly role: string } | { readonly department: string } | { readonly group: string },
   ): readonly string[] | Promise<readonly string[]>;
+  /**
+   * 收件箱的负责人（节点写了 `unclaimed: { action: 'assignByManager' }`，很久没人认领时由他指定承办人）：
+   * 参数是收件箱的候选（角色、部门、扩展种类），不知道时返回 undefined
+   */
+  inboxManager?(inbox: {
+    readonly kind: 'role' | 'department' | 'group';
+    readonly value: string;
+  }): string | undefined | Promise<string | undefined>;
 }
 
-/** 扩展函数拿到的：实例、流程变量、按字段名取值 */
 /** 流程变量的默认形状（没有单据类型时） */
 export type Variables = Readonly<Record<string, unknown>>;
 
-/** 扩展拿到的现场；V 是单据的值（流程工程里由 form.ts 推出） */
+/** 扩展函数拿到的：实例、流程变量、按字段名取值；V 是单据的值（流程工程里由 form.ts 推出） */
 export interface ExtensionContext<V extends object = Variables> {
   readonly instance: {
     readonly id: number;
@@ -228,6 +236,13 @@ export type FlowCommand =
       readonly outcome?: string;
       readonly reason?: string;
     }
+  /** 管理员改单据数据：记下每个字段改前、改后的值（instance.dataChanged） */
+  | {
+      readonly type: 'changeData';
+      readonly instance: number;
+      readonly variables: Readonly<Record<string, unknown>>;
+      readonly comment?: string;
+    }
   /** 留言：记进流转记录 */
   | { readonly type: 'comment'; readonly instance: number; readonly text: string }
   /** 手动抄送 */
@@ -237,6 +252,18 @@ export type FlowCommand =
       readonly users: readonly string[];
       readonly message?: string;
     };
+
+/** 列表的筛选：流程、时间段（已办按处理的时刻，我发起的按发起的时刻） */
+export interface ListFilter {
+  readonly processKey?: string;
+  readonly from?: Date | string;
+  readonly to?: Date | string;
+}
+
+/** 批量执行（engine.runMany）里一条命令的结果：各自成败，失败的带错误代号 */
+export type BatchResult =
+  | { readonly ok: true; readonly result: RunResult }
+  | { readonly ok: false; readonly code: string; readonly message: string };
 
 /** 外部事件（engine.signal）：送到等这个事件的实例，按实例或业务编号找 */
 export interface SignalInput {
@@ -268,7 +295,7 @@ export interface WorkItemSummary {
   readonly nodeName: string;
   readonly round: number;
   readonly state: 'open' | 'waiting' | 'done' | 'canceled';
-  readonly assignment: 'pool' | 'claimed' | 'direct';
+  readonly assignment: (typeof ASSIGNMENTS)[number];
   readonly assignee: string | null;
   readonly arrival: string;
   readonly createdAt: Date;

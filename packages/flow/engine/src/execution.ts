@@ -369,10 +369,8 @@ export class Execution {
         node: node.id,
       });
     }
-    return this.createItems(node, round, 'emptyAssignee', {
-      users: [],
-      pool: admins.map((value) => ({ kind: 'user', value })),
-    });
+    // 一个管理员时直接落到他（同 Java 版），几个时进以他们为候选的收件箱
+    return this.createItems(node, round, 'emptyAssignee', { users: admins, pool: [] });
   }
 
   /** 建一个待办：落到一个人，或进以候选为成员的收件箱 */
@@ -447,6 +445,8 @@ export class Execution {
       parentItemId: null,
       pendingOutcome: null,
       fromUser: null,
+      designator: null,
+      remindedAt: null,
       ...fields,
     };
     const id = Number(await this.tx.insert(FlowWorkItem).values(values).returnId());
