@@ -132,6 +132,8 @@ describe('客户端与端点', () => {
     assert.equal(candidate?.version, 3);
     assert.equal(candidate?.ready, true);
     assert.ok(candidate?.nodes.every((n) => n.target === n.node));
+    // 手动对应时能选的：目标版本里同类型的节点，含同名的那个
+    assert.ok(candidate?.nodes.every((n) => n.choices.some((c) => c.node === n.node)));
     assert.deepEqual(await client.versions.migrationPreview('leave', 3), []);
   });
 

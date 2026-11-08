@@ -1,6 +1,7 @@
 /**
  * 把进行中的单子迁到某一版（工作室的“版本”页签里）：先预览——每张单正在用的节点在那一版里有没有同名同类型的节点，
- * 对应得上的一键迁移（写原因，逐张成败），对应不上的列出来是哪个节点（改图时保留那个节点，或让单子按原版本走完）。
+ * 对应得上的一键迁移（写原因，逐张成败）；对应不上的逐张“对应节点”：给每个没对上的节点从那一版同类型的节点里选一个再迁
+ * （migrate 命令的 nodes），或让单子按原版本走完。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { MigrationCandidate, VersionInfo } from '@zerodep-dev/flow-ts-engine';
@@ -77,6 +78,46 @@ export const MigrationPanel = _component(({ processKey, versions }: MigrationPan
     }
   }
 
+  /** 对应不上的一张：给没对上的节点选那一版里的节点，写原因，迁这一张 */
+  async function mapAndMigrate(candidate: MigrationCandidate) {
+    const unmatched = candidate.nodes.filter((n) => !n.target);
+    const answers = await prompt({
+      title: `把“${candidate.title ?? `#${candidate.instance}`}”迁到第 ${target()} 版`,
+      description:
+        '下面的环节在那一版里没有同名的：选它对应到哪个环节（只能选同类型的），待办与作业跟着换。',
+      fields: [
+        ...unmatched.map((n) => ({
+          name: `node:${n.node}`,
+          label: n.name,
+          type: 'select' as const,
+          required: true,
+          options: n.choices.map((c) => ({ value: c.node, label: c.name })),
+        })),
+        { name: 'comment', label: '原因', type: 'textarea' as const, required: true },
+      ],
+      confirmText: '迁移',
+    });
+    if (!answers) return;
+    busy = true;
+    try {
+      await center.client.run({
+        type: 'migrate',
+        instance: candidate.instance,
+        version: Number(target()),
+        nodes: Object.fromEntries(
+          candidate.nodes.map((n) => [n.node, n.target ?? String(answers[`node:${n.node}`])]),
+        ),
+        comment: answers.comment,
+      });
+      toaster.success('迁好了');
+      await preview();
+    } catch (error) {
+      showError(error);
+    } finally {
+      busy = false;
+    }
+  }
+
   const columns: DataTableColumn<MigrationCandidate>[] = [
     { key: 'title', header: '单据', minWidth: 180, cell: (c) => c.title ?? `#${c.instance}` },
     { key: 'version', header: '现在的版本', width: 100, cell: (c) => `第 ${c.version} 版` },
@@ -91,9 +132,17 @@ export const MigrationPanel = _component(({ processKey, versions }: MigrationPan
     {
       key: 'ready',
       header: '',
-      width: 100,
+      width: 120,
       cell: (c) =>
-        c.ready ? <Badge tone="success">能直接迁</Badge> : <Badge tone="warning">对应不上</Badge>,
+        c.ready ? (
+          <Badge tone="success">能直接迁</Badge>
+        ) : c.nodes.every((n) => n.target || n.choices.length > 0) ? (
+          <Button size="sm" variant="outline" tone="neutral" onClick={() => void mapAndMigrate(c)}>
+            对应节点
+          </Button>
+        ) : (
+          <Badge tone="warning">没有能对应的</Badge>
+        ),
     },
   ];
 

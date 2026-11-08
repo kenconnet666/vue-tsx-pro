@@ -249,6 +249,10 @@ export function createPublishing(core: EngineCore) {
             node,
             name: before?.name ?? node,
             target: before && after && before.type === after.type ? node : null,
+            // 手动对应时能选的：目标版本里同类型的节点（migrate 命令的 nodes 照此核对）
+            choices: target.definition.nodes
+              .filter((n) => n.type === before?.type)
+              .map((n) => ({ node: n.id, name: n.name ?? n.id })),
           };
         });
         candidates.push({

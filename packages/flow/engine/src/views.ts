@@ -185,11 +185,15 @@ export interface MigrationCandidate {
   readonly status: InstanceRow['status'];
   /** 现在按的版本 */
   readonly version: number;
-  /** 正在用的节点（正在处理的、开着或在等加签的待办所在的）：目标版本里同名同类型的节点，没有时 target 为空 */
+  /**
+   * 正在用的节点（正在处理的、开着或在等加签的待办所在的）：target 是目标版本里同名同类型的节点，没有时为空；
+   * choices 是目标版本里同类型的节点，手动对应时从中选（migrate 命令的 nodes）
+   */
   readonly nodes: readonly {
     readonly node: string;
     readonly name: string;
     readonly target: string | null;
+    readonly choices: readonly { readonly node: string; readonly name: string }[];
   }[];
   /** 都对应得上，能直接迁（不用写节点的对应） */
   readonly ready: boolean;

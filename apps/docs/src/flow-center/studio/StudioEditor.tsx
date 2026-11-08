@@ -98,7 +98,6 @@ export default _component(() => {
   let focus = _state.raw<{ node: string } | null>(null);
   /** 表单设计器刚改的清单：重写的 form.ts 检查完之前先显示它（不然要等编译才看得到改动） */
   let formDraft = _state.raw<FormManifest | null>(null);
-  /** 版本页里正在和工作副本比的那一版 */
 
   async function load() {
     try {
@@ -124,7 +123,12 @@ export default _component(() => {
       failed = error instanceof Error ? error.message : String(error);
     }
   }
-  void load();
+  // 数据变了（别处发布、回滚、启停）重取版本与已发布的文件；工作副本不动（load 只在没有时才填）
+  watch(
+    () => center.state.revision,
+    () => void load(),
+    { immediate: true },
+  );
 
   // 改了就查：停手 CHECK_DELAY 再交给引擎；后一次覆盖前一次的结果
   let timer: ReturnType<typeof setTimeout> | undefined;
