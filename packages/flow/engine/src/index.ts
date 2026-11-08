@@ -6,11 +6,15 @@ export {
   type CcItem,
   type FlowEngine,
   type InstanceDetail,
+  type OutcomeView,
+  type ReturnTarget,
+  type StartView,
   type TodoItem,
   type WorkItemDetail,
   type WorkItemField,
 } from './engine.ts';
 export { FlowError, type FlowErrorCode } from './errors.ts';
+export { type NextStep, type PickPrompt, type Picks } from './next-steps.ts';
 export {
   FlowCc,
   FlowDefinition,

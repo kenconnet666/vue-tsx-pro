@@ -353,6 +353,7 @@ export class Execution {
       handledBy: this.state.handledBy,
       options: this.options,
       resolver: (name: string) => this.extension('resolvers', name),
+      picked: this.state.picks?.[node.id],
     };
     const settings = this.definition.settings ?? {};
 

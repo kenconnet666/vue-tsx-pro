@@ -146,8 +146,8 @@ export const loaders = defineLoaders({
             reject: o.kind === 'reject',
             // 退回到运行时选的节点：处理时先选退回到哪
             choose: o.kind === 'return' && o.target === 'choose',
+            targets: o.targets.map((t) => ({ node: t.node, name: t.nodeName })),
           })),
-          returnTargets: view.returnTargets,
         });
     }
     const names = namesOf(detail.definition);

@@ -39,6 +39,8 @@ export interface ResolveScope {
   readonly options: FlowEngineOptions;
   /** 按名字找处理人解析器（引擎选项里注册的，或流程工程的 `logic.名字`） */
   readonly resolver: (name: string) => Resolver | undefined;
+  /** 上一步给这个节点选的处理人（`{ pick }` 的来源） */
+  readonly picked?: readonly string[] | undefined;
 }
 
 /** 值或引用 → 文字编号；引用的值是数组时展开 */
@@ -79,7 +81,8 @@ export async function resolveCandidates(
         idsOf(source.id, scope).map((id) => `${source.group}:${id}`),
       );
     } else {
-      throw new FlowError('invalid-definition', '这一版不支持“上一步的处理人选”（pick）');
+      // 上一步选的人：发起、处理时已经按 pick 的 from、max 查过（next-steps.ts）
+      add('user', [...(scope.picked ?? [])]);
     }
   }
   return found;

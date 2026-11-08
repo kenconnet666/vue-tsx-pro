@@ -16,6 +16,8 @@ export interface RunState {
   calls: Record<string, number>;
   /** 自定义节点在等的事件：节点 → 事件名 */
   events: Record<string, string>;
+  /** 上一步选的下一步处理人（`assignees` 写 `{ pick }` 的节点）：节点 → 用户编号 */
+  picks: Record<string, string[]>;
 }
 
 /** 迁移版本时按节点改名：按节点记的键、值里的节点、会签组（节点#轮次）都换成新版本的节点 */
@@ -36,6 +38,7 @@ export function renameNodes(state: RunState, mapping: Readonly<Record<string, st
     queues: Object.fromEntries(Object.entries(state.queues).map(([k, v]) => [group(k), v])),
     calls: keys(state.calls),
     events: keys(state.events),
+    picks: keys(state.picks ?? {}),
   };
 }
 
@@ -48,4 +51,5 @@ export const emptyRunState = (): RunState => ({
   queues: {},
   calls: {},
   events: {},
+  picks: {},
 });

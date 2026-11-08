@@ -14,6 +14,8 @@ import {
   type Actor,
   type FlowCommand,
   type FlowEngine,
+  type NextStep,
+  type PickPrompt,
   type RunResult,
 } from '../src/index.ts';
 import { parseCandidate } from '../src/assignees.ts';
@@ -99,8 +101,6 @@ const ERROR_CODES: Record<string, string> = {
 
 /** 整个不跑的场景：用到第一版不做的能力（docs/decisions/0001 第 2 节） */
 const SKIPPED: Record<string, string> = {
-  'pick.json': '上一步选下一步的处理人（pick）还没做（ROADMAP 26.4）',
-  'preview-skip-sign.json': '发起页预测下一步还没做（ROADMAP 26.4）',
   'purchase-form-rules.json': '按字段清单校验表单在表单模块里做（ROADMAP 14.8）',
 };
 
@@ -125,6 +125,9 @@ const COMPARED = new Set([
   'workItem',
   'claimable',
   'completable',
+  'outcomes',
+  'next',
+  'picks',
   'read',
   'revived',
 ]);
@@ -283,8 +286,25 @@ const isRefArg = (value: unknown): value is { ref: string } =>
   value !== null &&
   typeof (value as { ref?: unknown }).ref === 'string';
 
+/** 场景里的人：编号 → 名字（Java 版的待办、选人带名字，这一版的引擎只给编号，名字由接入方查） */
+const NAMES = new Map<string, string>();
+
+/** 要选处理人的下一步：能选的人带上名字 */
+const javaPick = (pick: PickPrompt) => ({
+  ...pick,
+  candidates: pick.candidates?.map((id) => ({ id, name: NAMES.get(id) ?? null })) ?? null,
+});
+
+/** 预测的下一步：处理人写成名字 */
+const javaStep = (step: NextStep) => ({
+  ...step,
+  handlers: step.handlers.map((id) => NAMES.get(id) ?? id),
+  pick: step.pick ? javaPick(step.pick) : null,
+});
+
 async function runScenario(scenario: Scenario, adapter?: Adapter): Promise<void> {
   const actors = new Map<string, Actor>();
+  NAMES.clear();
   const people = new Map<string, string[]>();
   for (const [name, a] of Object.entries(scenario.actors ?? {})) {
     const actor: Actor = {
@@ -295,6 +315,7 @@ async function runScenario(scenario: Scenario, adapter?: Adapter): Promise<void>
       admin: a.id === 1000 || name === 'admin',
     };
     actors.set(name, actor);
+    NAMES.set(actor.id, a.name);
     for (const role of actor.roles ?? [])
       people.set(`role:${role}`, [...(people.get(`role:${role}`) ?? []), actor.id]);
     for (const dept of actor.departments ?? [])
@@ -383,6 +404,7 @@ async function runStep(
         variables,
         ...(args['businessKey'] ? { businessKey: args['businessKey'] } : {}),
         ...(args['title'] ? { title: args['title'] } : {}),
+        ...(args['picks'] ? { picks: args['picks'] } : {}),
       });
     case 'claim':
       return run({ type: 'claim', workItem: Number(args['workItem']) });
@@ -394,6 +416,7 @@ async function runStep(
         ...(args['comment'] !== undefined ? { comment: args['comment'] } : {}),
         ...(Object.keys(variables).length ? { variables } : {}),
         ...(args['returnTarget'] ? { returnTo: args['returnTarget'] } : {}),
+        ...(args['picks'] ? { picks: args['picks'] } : {}),
       });
     case 'withdraw':
       return run({ type: 'withdraw', instance: Number(args['instance']), comment: args['reason'] });
@@ -563,9 +586,18 @@ async function runStep(
     case 'discardStartDraft':
       return { discarded: await engine.drafts.discard(Number(args['draft']), actor) };
     case 'startView': {
-      // 这一版只有“接着草稿填”：草稿的值
-      const draft = await engine.drafts.get(Number(args['draft']), actor);
-      return { form: { values: draft.variables } };
+      if (args['draft'] !== undefined) {
+        // 接着草稿填：草稿的值
+        const draft = await engine.drafts.get(Number(args['draft']), actor);
+        return { form: { values: draft.variables } };
+      }
+      const view = await engine.query.startView(args['key'], actor);
+      return {
+        process: view.process,
+        form: { values: view.values },
+        next: view.next.map(javaStep),
+        picks: view.picks.map(javaPick),
+      };
     }
     case 'saveDraft':
       return run({
@@ -586,6 +618,15 @@ async function runStep(
         instance: { ...detail.instance, parentInstanceId: detail.instance.parentId },
         claimable: detail.claimable,
         completable: detail.completable,
+        outcomes: detail.outcomes.map((o) => ({
+          ...o,
+          next: o.next.map(javaStep),
+          picks: o.picks.map(javaPick),
+          targets: o.targets.map((t) => ({
+            ...t,
+            handlerName: NAMES.get(t.handler ?? '') ?? null,
+          })),
+        })),
         // 场景按名字问能不能做：内置的动作都列出来
         actions: Object.fromEntries(
           BUILTIN_OPERATIONS.map((o) => [o.name, detail.operations.some((d) => d.name === o.name)]),
@@ -669,6 +710,7 @@ function javaItem(row: Record<string, any>) {
   return {
     ...row,
     assigneeId: row['assignee'],
+    assigneeName: NAMES.get(row['assignee']) ?? null,
     fromUserId: row['fromUser'],
     addMode: ADD_MODES[row['arrival']] ?? null,
   };

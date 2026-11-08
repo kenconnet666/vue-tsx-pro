@@ -84,6 +84,8 @@ interface OutcomeChoice {
   comment: boolean;
   reject: boolean;
   choose: boolean;
+  /** 退回到运行时选的节点时能选的 */
+  targets: readonly { node: string; name: string }[];
 }
 
 /** 单据里的一个字段（这一步的表单权限算过的） */
@@ -155,12 +157,7 @@ export default _component(() => {
     }) as const;
 
   /** 按结果处理：先在对话框里写意见；退回到运行时选的节点时先选退回到哪 */
-  async function handle(
-    workItem: number,
-    step: string,
-    outcome: OutcomeChoice,
-    targets: readonly { node: string; name: string }[],
-  ) {
+  async function handle(workItem: number, step: string, outcome: OutcomeChoice) {
     const values = await prompt({
       title: `${step}：${outcome.label}`,
       fields: [
@@ -171,8 +168,8 @@ export default _component(() => {
                 label: '退回到',
                 type: 'select',
                 required: true,
-                options: targets.map((t) => ({ value: t.node, label: t.name })),
-                defaultValue: targets.at(-1)?.node,
+                options: outcome.targets.map((t) => ({ value: t.node, label: t.name })),
+                defaultValue: outcome.targets.at(-1)?.node,
               } as const,
             ]
           : []),
@@ -568,7 +565,7 @@ export default _component(() => {
                   variant={outcome.reject ? 'outline' : 'solid'}
                   tone={outcome.reject ? 'danger' : 'accent'}
                   disabled={busy}
-                  onClick={() => void handle(item.id, item.node, outcome, item.returnTargets)}
+                  onClick={() => void handle(item.id, item.node, outcome)}
                 >
                   {outcome.label}
                 </Button>

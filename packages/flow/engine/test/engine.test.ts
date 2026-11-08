@@ -276,14 +276,16 @@ describe('engine: 待办详情与催办', () => {
 
   it('结果里有“退回到运行时选”时给出能选的节点：上游走到过的人工节点', async () => {
     const { engine, item } = await atLegal();
-    const detail = await engine.query.workItem(item.id, legal);
-    assert.deepEqual(detail.returnTargets.map((t) => t.node).sort(), ['draft', 'review']);
+    const targetsOf = async (actor: typeof legal) =>
+      (await engine.query.workItem(item.id, actor)).outcomes.flatMap((o) => o.targets);
+    const targets = await targetsOf(legal);
+    assert.deepEqual(targets.map((t) => t.node).sort(), ['draft', 'review']);
     assert.equal(
-      detail.returnTargets.find((t) => t.node === 'review')?.name,
+      targets.find((t) => t.node === 'review')?.nodeName,
       processOf('return-choose').nodes.find((n) => n.id === 'review')!.name,
     );
     // 不是候选人：不给
-    assert.deepEqual((await engine.query.workItem(item.id, alice)).returnTargets, []);
+    assert.deepEqual(await targetsOf(alice), []);
   });
 
   it('能做的动作：收件箱里没认领的能认领、转办，认领后能转办、委托、加签、放回；节点关掉了转办时不给', async () => {

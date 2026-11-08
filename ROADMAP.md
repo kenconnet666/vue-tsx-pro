@@ -970,7 +970,7 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       调用流程的 forEach 与异步（默认异步，同 Java 版）、父实例恢复时补上往下走，语义对齐 Java 版的场景；选项 `operations` 加自定义的。
       自定义节点与自定义会签规则（扩展的 nodes、countersign，logic.ts 也能写），迁移版本；提级本来就有（结果的 kind: escalate）。
       草稿要按单据的字段校验值，挪到 26.4）
-- [ ] 26.4 表单模块（SchemaForm 增强、表单设计器、权限矩阵、字典、明细表、计算、联动、打印）；草稿（处理前暂存、发起前存草稿，
+- [x] 26.4 表单模块（SchemaForm 增强、表单设计器、权限矩阵、字典、明细表、计算、联动、打印）；草稿（处理前暂存、发起前存草稿，
       Java 场景 save-draft、start-draft）
       （决定见 `packages/flow/docs/decisions/0004-forms.md`。已有：单据就是字段清单，`defineForm` 接清单字面量、推出单据的类型，
       发布时内联进定义的 form.manifest；发起、处理按清单校验（值按 json-wire 的强类型查）；处理前暂存（saveDraft）与发起前存草稿
@@ -983,8 +983,11 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       问题由模型包的 validateManifest 查出、manifestProblemMessage 说成业务的话。
       接入方注册的字段类型：引擎选项 extensions.fieldTypes，发布时清单校验认得、提交与暂存时按它查值（Java 场景 field-type）；
       发布时内联的清单也要过 validateManifest。
-      还差：界面文字的语言包（先写中文，随 26.8）；
-      上一步选下一步的处理人（pick）、发起页预测下一步（preview-skip-sign））
+      预测下一步（next-steps.ts）：发起视图 engine.query.startView 与待办详情的每个结果都带 next（会到哪些节点、谁处理、
+      进不进收件箱，会被自动跳过的不停）；上一步选下一步的处理人（assignees 写 { pick }）：预测里列出要选的与能选的人，
+      发起、处理时查（没选、不能选、选多了）并记进运行状态，到那一步由选的人处理；退回时能选的节点挪到结果上（targets）。
+      Java 场景 field-type、pick、preview-skip-sign 跑起来，场景比对加上 outcomes、next、picks。
+      界面文字的语言包（先写中文）随 26.8）
 - [ ] 26.5 文档站流程中心：外壳、业务模型与种子、工作台、发起、审批单、我的单据、管理；搬测试、删 flow-demo
 - [ ] 26.6 流程工作室：在线 IDE、语言服务、预览、场景测试、对比、发布、迁移
 - [ ] 26.7 事件与通知（发件箱、NOTIFY）、代理、监控看板、统计

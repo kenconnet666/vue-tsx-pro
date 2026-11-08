@@ -19,6 +19,7 @@ import {
   typedValue,
   type FieldState,
   type FieldTypeChecks,
+  type NodeFormAccess,
   validateManifest,
   validateProcess,
   type AssigneeSource,
@@ -33,6 +34,15 @@ import {
   type VariableDeclaration,
 } from '@zerodep-dev/flow-ts-model';
 import { actorTokens, parseCandidate } from './assignees.ts';
+import {
+  checkPicks,
+  nextSteps,
+  picksOf,
+  type NextStep,
+  type PickPrompt,
+  type Picks,
+  type PredictScope,
+} from './next-steps.ts';
 import { decideCountersign } from './countersign.ts';
 import {
   FlowCc,
@@ -96,11 +106,40 @@ export interface TodoItem extends WorkItemSummary {
   readonly outcome: string | null;
 }
 
+/** 退回到运行时选的节点时能选的一个：上游走到过的人工节点与它上次的处理人 */
+export interface ReturnTarget {
+  readonly node: string;
+  readonly nodeName: string;
+  /** 上次处理它的人（退回后落回这个人） */
+  readonly handler: string | null;
+}
+
+/**
+ * 待办详情里的一个结果（能处理这份待办的人才有后面几项）：选它之后会到哪些节点、要给哪些节点选处理人；
+ * 退回到运行时选的节点（target: 'choose'）时能选的节点
+ */
+export type OutcomeView = Outcome & {
+  readonly next: readonly NextStep[];
+  readonly picks: readonly PickPrompt[];
+  readonly targets: readonly ReturnTarget[];
+};
+
+/** 发起视图：流程、单据的清单与发起时的权限、默认值，接下来要选处理人的节点 */
+export interface StartView {
+  readonly process: { readonly key: string; readonly name: string; readonly version: number };
+  readonly manifest: FormManifest;
+  readonly access: NodeFormAccess | null;
+  readonly values: Readonly<Record<string, unknown>>;
+  /** 发起后会到哪些节点 */
+  readonly next: readonly NextStep[];
+  readonly picks: readonly PickPrompt[];
+}
+
 /** 待办详情：待办、实例、能选的结果，这个人能不能认领、能不能处理、能不能转办，退回时能选的节点 */
 export interface WorkItemDetail {
   readonly workItem: WorkItemRow;
   readonly instance: InstanceRow;
-  readonly outcomes: readonly Outcome[];
+  readonly outcomes: readonly OutcomeView[];
   readonly claimable: boolean;
   /** 能选结果处理：是候选人，待办开着，不在委托中（委托出去的由受托人办完交回） */
   readonly completable: boolean;
@@ -108,8 +147,6 @@ export interface WorkItemDetail {
   readonly draft: WorkItemRow['draft'];
   /** 这个人此刻能做的动作（认领、转办、委托、加签……）与要填的 */
   readonly operations: readonly OperationView[];
-  /** 结果里有“退回到运行时选的节点”（target: 'choose'）时能选的节点：上游走到过的人工节点 */
-  readonly returnTargets: readonly { readonly node: string; readonly name: string }[];
   /**
    * 单据的字段在这一步的样子：流程声明的变量按环节的表单权限（node.form）算，隐藏的不列；
    * 不是候选人（只是来看的）时一律只读
@@ -273,6 +310,8 @@ export interface FlowEngine {
     incidents(instance?: number): Promise<Incident[]>;
     /** 能发起的流程：每个流程最新的启用版本 */
     processes(): Promise<ProcessDefinition[]>;
+    /** 发起视图：发起页按它渲染单据、列出要选处理人的下一步 */
+    startView(key: string, actor: Actor): Promise<StartView>;
   };
   /** 重试失败的作业 */
   retryJob(job: number, actor: Actor): Promise<boolean>;
@@ -404,6 +443,8 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     extra: Pick<InstanceRow, 'businessKey' | 'title' | 'parentId' | 'parentNode' | 'parentRound'>,
     /** 从草稿发起：用草稿那一行（同一个实例） */
     draftId?: number,
+    /** 发起人给下一步选的处理人；null 时不查（调用流程发起的子实例没有人选） */
+    picks: Picks | null = null,
   ): Promise<Execution> {
     const model = definition.model;
     const values = {
@@ -438,8 +479,38 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     const startNode = model.nodes.find((node) => node.type === 'start');
     if (!startNode) throw new FlowError('invalid-definition', `流程 ${model.key} 没有开始节点`);
     exec.lastHandler = actor.id;
+    if (picks !== null)
+      exec.state.picks = checkPicks(
+        picksOf(await nextSteps(predictScope(exec, actor.id), startNode.id, { read: exec.read })),
+        picks,
+      );
     await exec.enter(startNode.id, 'start');
     return exec;
+  }
+
+  /** 预测下一步用的：解析处理人、图与设置，previous 是刚处理完的人（自动跳过按它判断） */
+  function predictScope(exec: Execution, previous: string): PredictScope {
+    return {
+      context: exec.context(),
+      handledBy: exec.state.handledBy,
+      options,
+      resolver: (name: string) => exec.extension('resolvers', name),
+      graph: exec.graph,
+      definition: exec.definition,
+      previous,
+    };
+  }
+
+  /** 选这个结果之后会到哪些节点：退回、终止不往下走；会签的一份不定下一步 */
+  async function stepsAfter(
+    exec: Execution,
+    node: TaskNode,
+    outcome: Outcome,
+    actor: string,
+  ): Promise<NextStep[]> {
+    const kind = outcome.kind ?? 'approve';
+    if (node.multi || kind === 'return' || kind === 'terminate') return [];
+    return nextSteps(predictScope(exec, actor), node.id, { outcome: outcome.key, read: exec.read });
   }
 
   async function start(
@@ -468,6 +539,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           parentRound: null,
         },
         draft?.id,
+        command.picks ?? {},
       );
       const { instance, events } = await exec.flush();
       const result = { instance, workItems: exec.created.map(workItemSummary), events };
@@ -784,6 +856,10 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           });
           if (verdict !== true) throw new FlowError('guard-rejected', verdict, { guard: name });
         }
+        exec.state.picks = {
+          ...exec.state.picks,
+          ...checkPicks(picksOf(await stepsAfter(exec, node, outcome, actor.id)), command.picks),
+        };
         await finishItem(exec, tx, item, node, outcome.key, {
           actor: actor.id,
           comment: command.comment ?? null,
@@ -1712,6 +1788,42 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         if (!latest.has(row.processKey)) latest.set(row.processKey, row.model);
       return [...latest.values()];
     },
+    startView: async (key, actor) => {
+      const row = await latestDefinition(db, key);
+      const model = row.model;
+      const startNode = model.nodes.find((node) => node.type === 'start');
+      const values = defaultsOf(model);
+      // 还没有实例：按发起人与默认值预测下一步
+      const read = (field: string) => values[field.startsWith('form.') ? field.slice(5) : field];
+      const next = startNode
+        ? await nextSteps(
+            {
+              context: {
+                instance: { id: 0, processKey: key, businessKey: null, startedBy: actor.id },
+                variables: values,
+                read,
+                args: {},
+              },
+              handledBy: {},
+              options,
+              resolver: (name: string) => options.extensions?.resolvers?.[name],
+              graph: processGraph(model),
+              definition: model,
+              previous: actor.id,
+            },
+            startNode.id,
+            { read },
+          )
+        : [];
+      return {
+        process: { key, name: model.name, version: row.version },
+        manifest: formManifest(model),
+        access: startNode?.type === 'start' ? (startNode.form ?? null) : null,
+        values,
+        next,
+        picks: picksOf(next),
+      };
+    },
     workItem: async (id, actor) => {
       const workItem = await db.queryable(FlowWorkItem).find(id);
       if (!workItem) throw new FlowError('not-found', `没有待办 ${id}`);
@@ -1722,14 +1834,30 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       const open = workItem.state === 'open' && instance.status === 'active';
       const candidate = open && isCandidate(workItem, actor);
       const graph = processGraph(definition);
-      const chooses = task?.outcomes.some((o) => o.kind === 'return' && o.target === 'choose');
       // 暂存只给处理人看：别人看到的待办没有它，字段显示存着的值
       const draft = workItem.assignee === actor.id ? workItem.draft : null;
+      // 能处理的人才看到各个结果之后要给谁选处理人
+      const exec = task && candidate ? await execution(db, definition, instance, actor) : undefined;
+      const outcomes: OutcomeView[] = [];
+      for (const outcome of task ? outcomesFor(task, workItem) : []) {
+        const next = exec ? await stepsAfter(exec, task!, outcome, actor.id) : [];
+        const chooses = exec && outcome.kind === 'return' && outcome.target === 'choose';
+        const targets = chooses
+          ? returnTargets({ definition, graph, state: instance.state }, workItem.node).map(
+              (id) => ({
+                node: id,
+                nodeName: graph.node(id)?.name ?? id,
+                handler: instance.state.handledBy[id] ?? null,
+              }),
+            )
+          : [];
+        outcomes.push({ ...outcome, next, picks: picksOf(next), targets });
+      }
       return {
         workItem: { ...workItem, draft },
         draft,
         instance,
-        outcomes: task ? outcomesFor(task, workItem) : [],
+        outcomes,
         claimable: candidate && workItem.assignee === null,
         completable: candidate,
         operations: task
@@ -1748,12 +1876,6 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           { ...instance.variables, ...(draft?.values ?? {}) },
           candidate,
         ),
-        returnTargets:
-          candidate && chooses
-            ? returnTargets({ definition, graph, state: instance.state }, workItem.node).map(
-                (id) => ({ node: id, name: graph.node(id)?.name ?? id }),
-              )
-            : [],
       };
     },
     started: (actor, filter = {}) =>
@@ -2326,9 +2448,13 @@ export function returnTargets(
       const join = pairs.joinOf(n.id);
       return join !== undefined && ancestors.has(join) && pairs.region(n.id).has(id);
     });
-  return [...ancestors].filter(
-    (id) => graph.node(id)?.type === 'task' && state.rounds[id] && !closed(id),
-  );
+  // 按定义里的先后（流程的顺序）：最近的上游在最后
+  return definition.nodes
+    .map((node) => node.id)
+    .filter(
+      (id) =>
+        ancestors.has(id) && graph.node(id)?.type === 'task' && state.rounds[id] && !closed(id),
+    );
 }
 
 /** 定义里写的变量名：`form.字段` 就是流程变量里的“字段” */

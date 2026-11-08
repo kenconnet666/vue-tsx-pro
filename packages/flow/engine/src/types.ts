@@ -225,6 +225,8 @@ export type FlowCommand =
       readonly variables?: Readonly<Record<string, unknown>>;
       readonly businessKey?: string;
       readonly title?: string;
+      /** 给接下来要选处理人的节点选的人（startView 的 picks）：节点 → 用户编号 */
+      readonly picks?: Readonly<Record<string, readonly (string | number)[]>>;
     }
   /** 待办上的动作（operations.ts）：认领、转办、委托、加签……；input 是动作要填的 */
   | {
@@ -243,6 +245,8 @@ export type FlowCommand =
       readonly comment?: string;
       readonly variables?: Readonly<Record<string, unknown>>;
       readonly returnTo?: string;
+      /** 给这个结果之后要选处理人的节点选的人（待办详情 outcomes 的 picks）：节点 → 用户编号 */
+      readonly picks?: Readonly<Record<string, readonly (string | number)[]>>;
     }
   /** 转办：交给另一个人处理（operate 的简写） */
   | {
