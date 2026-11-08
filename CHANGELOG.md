@@ -3,6 +3,12 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.21.0（2026-11-08）
+
+- **触屏上的输入框字号不小于 16px**（`pointer: coarse`）：TextField 这类输入框、OtpField、日期与时间的分段、CodeEditor。
+  iOS 的 Safari 聚焦小于 16px 的输入框时会放大整页；桌面不变。新导出 `touchInputStyles`（自己写的原生输入框用 `touchInputStyles.font`）
+  与 `coarsePointer`（触屏的媒体查询）。
+
 ## 0.20.1（2026-11-08）
 
 - **FilterBar** 的按钮区、**QueryTable** 的工具栏不再宽过整排：按钮多、屏幕窄时在里面换行（之前手机上会把整页撑宽、缩小显示）。

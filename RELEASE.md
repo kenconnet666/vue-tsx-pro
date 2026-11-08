@@ -16,9 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- **触屏上的输入框字号不小于 16px**（`pointer: coarse`）：TextField 这类输入框、OtpField、日期与时间的分段、CodeEditor。
-  iOS 的 Safari 聚焦小于 16px 的输入框时会放大整页；桌面不变。新导出 `touchInputStyles`（自己写的原生输入框用 `touchInputStyles.font`）
-  与 `coarsePointer`（触屏的媒体查询）。
+（暂无）
 
 ## 每次发布
 
