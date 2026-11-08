@@ -16,7 +16,8 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- `useFormDialog`（`/patterns`）：下拉字段的选项可以写 `group`，同组的归在一个组标题下（如选人按部门分组）；
+  多选字段（`multiple: true`）的 `defaultValue` 可以给数组，打开时就选好这些。
 
 ## 每次发布
 
