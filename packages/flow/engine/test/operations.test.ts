@@ -112,6 +112,27 @@ describe('待办上的动作', () => {
     assert.equal(done.instance.status, 'completed');
   });
 
+  it('减签：原来的处理人减掉还没办的加签，都减掉了回到自己', async () => {
+    const { engine, item } = await claimedReview();
+    await operate(engine, item.id, 'addSign', carol, {
+      mode: 'before',
+      users: [helper.id, second.id],
+    });
+    const options = (await engine.query.workItem(item.id, carol)).operations
+      .find((o) => o.name === 'removeSign')
+      ?.fields[0]?.options?.map((o) => o.value);
+    assert.deepEqual(options, [helper.id, second.id]);
+    await operate(engine, item.id, 'removeSign', carol, { users: [helper.id] });
+    assert.deepEqual(await todoIds(engine, helper), []);
+    assert.deepEqual(await todoIds(engine, carol), []);
+    await operate(engine, item.id, 'removeSign', carol, { users: [second.id] });
+    assert.deepEqual(await todoIds(engine, carol), [item.id]);
+    await rejectsWith(
+      operate(engine, item.id, 'removeSign', carol, { users: [second.id] }),
+      'forbidden',
+    );
+  });
+
   it('后加签：原来的人选了结果先挂着，加签的人办完才生效；加签的人否决就按否决走', async () => {
     const { engine, item } = await claimedReview();
     await operate(engine, item.id, 'addSign', carol, { mode: 'after', users: [helper.id] });

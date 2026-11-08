@@ -40,6 +40,8 @@ export interface OperationContext extends OperationScope {
   cancel(comment: string | null): Promise<void>;
   /** 这份待办按这个结果处理完（同 complete：会签判断、往下走） */
   finish(outcome: string, comment: string | null): Promise<void>;
+  /** 这份待办下的加签都办完（或减掉）了时让它恢复：前加签回到处理人，后加签的挂着的结果生效 */
+  settle(): Promise<void>;
 }
 
 /** 一个动作 */
@@ -288,22 +290,60 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
     },
   },
   {
+    name: 'removeSign',
+    label: '减签',
+    tone: 'neutral',
+    // 选的是还没办的加签（委托）的人
+    fields: (scope) => [
+      {
+        name: 'users',
+        label: '减掉',
+        type: 'select',
+        required: true,
+        options: pendingSigners(scope).map((w) => ({ value: w.assignee!, label: w.assignee! })),
+      },
+    ],
+    available: (scope) =>
+      scope.instance.status === 'active' &&
+      scope.item.assignee === scope.actor.id &&
+      (scope.item.state === 'open' || scope.item.state === 'waiting') &&
+      pendingSigners(scope).length > 0,
+    // 取消选中的人的加签待办；都减掉了，原来那份恢复（后加签的挂着的结果生效）
+    run: async (context, input) => {
+      const removed = new Set(users(input, 'users'));
+      for (const child of pendingSigners(context)) {
+        if (!removed.has(child.assignee!)) continue;
+        await context.tx
+          .update(FlowWorkItem)
+          .set({ state: 'canceled', completedAt: context.exec.now })
+          .where((w) => [w.id.eq(child.id), w.state.in(['open', 'waiting'])])
+          .execute();
+        context.exec.addEvent('workItem.signersRemoved', {
+          workItemId: child.id,
+          node: child.node,
+          actor: context.actor.id,
+          data: { user: child.assignee },
+        });
+      }
+      await context.settle();
+    },
+  },
+  {
     name: 'assign',
     label: '指定承办人',
     fields: () => [{ name: 'to', label: '指定给', type: 'user', required: true }, COMMENT],
     // 等他指定的（收件箱的负责人）；管理员也能替他指定
     available: (scope) =>
       isOpen(scope) &&
-      scope.item.assignee === null &&
-      scope.item.designator !== null &&
+      scope.item.awaitingDesignation &&
       (scope.item.designator === scope.actor.id || !!scope.actor.admin),
     run: async ({ exec, tx, item, actor }, input) => {
       const to = users(input, 'to')[0]!;
       await tx
         .update(FlowWorkItem)
-        .set({ assignee: to, assignment: 'designated' })
-        .where((w) => [w.id.eq(item.id), w.state.eq('open'), w.assignee.isNull()])
-        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经有人处理`))
+        .set({ assignee: to, assignment: 'designated', awaitingDesignation: false })
+        .where((w) => [w.id.eq(item.id), w.state.eq('open'), w.awaitingDesignation.eq(true)])
+        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经指定过了`))
         .execute();
       exec.addEvent('workItem.assigned', {
         workItemId: item.id,
@@ -319,17 +359,18 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
     label: '申请改派',
     tone: 'neutral',
     fields: () => [{ ...COMMENT, label: '原因', required: true }],
-    // 负责人指定给我的：说明原因，回到负责人的“待我指定”里
+    // 负责人指定给我的：说明原因，回到负责人的“待我指定”里；他重新指定之前仍由我处理（同 Java 版）
     available: (scope) =>
       isOpen(scope) &&
       scope.item.assignment === 'designated' &&
       scope.item.assignee === scope.actor.id &&
-      scope.item.designator !== null,
+      scope.item.designator !== null &&
+      !scope.item.awaitingDesignation,
     run: async ({ exec, tx, item, actor }, input) => {
       const comment = text(input, 'comment');
       await tx
         .update(FlowWorkItem)
-        .set({ assignee: null, assignment: 'pool' })
+        .set({ awaitingDesignation: true })
         .where((w) => [w.id.eq(item.id), w.state.eq('open'), w.assignee.eq(actor.id)])
         .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
         .execute();
@@ -395,6 +436,10 @@ function withdrawable({ item, node, instance, actor, items }: OperationScope): b
     later.every((w) => w.state === 'open' && w.assignment !== 'claimed' && w.arrival === 'forward')
   );
 }
+
+/** 这份待办下还没办完的加签（委托）待办 */
+const pendingSigners = ({ item, items }: OperationScope) =>
+  items.filter((w) => w.parentItemId === item.id && (w.state === 'open' || w.state === 'waiting'));
 
 /** 给加签（委托）的人建一份待办，挂在原来那份下面 */
 function signerItem(

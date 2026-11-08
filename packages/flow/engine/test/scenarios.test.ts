@@ -73,6 +73,7 @@ const SUPPORTED = new Set([
   'batchClaim',
   'batchComplete',
   'changeData',
+  'removeSigners',
 ]);
 
 /** Java 版的错误代号 → 这里的 */
@@ -101,9 +102,7 @@ const SKIPPED: Record<string, string> = {
 const PARTIAL: Record<
   string,
   { readonly before?: string; readonly skip?: readonly number[]; readonly reason: string }
-> = {
-  'countersign.json': { before: 'votes', reason: '票签（votes、权重）第一版不做' },
-};
+> = {};
 
 /** 这一版产出、能比的期望 */
 const COMPARED = new Set([
@@ -426,10 +425,11 @@ async function runStep(
     case 'withdrawStep':
     case 'assign':
     case 'requestReassign':
+    case 'removeSigners':
       return run({
         type: 'operate',
         workItem: Number(args['workItem']),
-        operation: command === 'addSigners' ? 'addSign' : command,
+        operation: OPERATION_NAMES[command] ?? command,
         input: {
           ...(args['user'] !== undefined ? { to: String(args['user']) } : {}),
           ...(args['users'] !== undefined ? { users: args['users'].map(String) } : {}),
@@ -524,6 +524,12 @@ async function runStep(
       throw new Error(`不支持 ${command}`);
   }
 }
+
+/** 场景的命令名 → 动作名（同名的不写） */
+const OPERATION_NAMES: Record<string, string> = {
+  addSigners: 'addSign',
+  removeSigners: 'removeSign',
+};
 
 /** 已办、我发起的筛选参数 */
 function listFilter(args: Record<string, any>) {

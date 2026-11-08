@@ -557,6 +557,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
             },
             finish: (outcome, comment) =>
               finishItem(exec, tx, item, scope.node, outcome, { actor: actor.id, comment }),
+            settle: () => settleParent(exec, tx, item.id, scope.node),
           },
           command.input ?? {},
         );
@@ -751,14 +752,19 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
    * 加签（委托）的人办完一份：同一份待办下的都办完了，前加签与委托回到原来的处理人，后加签让挂着的结果生效——
    * 加签的人里有选了非通过结果的，按第一个这样的结果走
    */
-  async function signerDone(exec: Execution, tx: FlowDb, signer: WorkItemRow, node: TaskNode) {
+  function signerDone(exec: Execution, tx: FlowDb, signer: WorkItemRow, node: TaskNode) {
+    return settleParent(exec, tx, signer.parentItemId!, node);
+  }
+
+  /** 原来那份待办下的加签都办完（或减掉）了：恢复它 */
+  async function settleParent(exec: Execution, tx: FlowDb, parentId: number, node: TaskNode) {
     const siblings = await tx
       .queryable(FlowWorkItem)
-      .where((w) => w.parentItemId.eq(signer.parentItemId!))
+      .where((w) => w.parentItemId.eq(parentId))
       .orderBy((w) => w.id)
       .toList();
     if (siblings.some((w) => w.state === 'open' || w.state === 'waiting')) return;
-    const parent = await tx.queryable(FlowWorkItem).findOrThrow(signer.parentItemId!);
+    const parent = await tx.queryable(FlowWorkItem).findOrThrow(parentId);
     if (parent.state !== 'waiting') return;
     await tx
       .update(FlowWorkItem)
@@ -1423,7 +1429,11 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     designations: (actor) =>
       db
         .queryable(FlowWorkItem)
-        .where((w) => [w.state.eq('open'), w.assignee.isNull(), w.designator.eq(actor.id)])
+        .where((w) => [
+          w.state.eq('open'),
+          w.awaitingDesignation.eq(true),
+          w.designator.eq(actor.id),
+        ])
         .orderBy((w) => w.id)
         .select(todoColumns)
         .toList()
@@ -1567,7 +1577,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
             : undefined;
         await exec.tx
           .update(FlowWorkItem)
-          .set({ designator: manager ?? null })
+          .set({ designator: manager ?? null, awaitingDesignation: manager !== undefined })
           .where((w) => [w.id.eq(item.id), w.state.eq('open'), w.assignee.isNull()])
           .execute();
         exec.addEvent('workItem.unclaimed', {

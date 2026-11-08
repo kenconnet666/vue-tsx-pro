@@ -107,8 +107,12 @@ export const FlowWorkItem = entity(
     comment: col.string(2000).nullable(),
     /** 收件箱的候选标记；直接落到人的待办是空数组 */
     candidates: col.array(col.string(150)),
-    /** 收件箱很久没人认领时由谁指定承办人（收件箱的负责人）；没人认领、它不为空时在他的“待我指定”里 */
+    /** 收件箱的负责人：很久没人认领、或被指定的人申请改派时由他指定承办人 */
     designator: col.string(64).nullable(),
+    /** 在等负责人指定（他的“待我指定”）；申请改派时处理人不变，重新指定之前仍由他处理 */
+    awaitingDesignation: col.boolean(),
+    /** 票签的票数：只有 votes 规则的会签待办有，别处为空 */
+    weight: col.int().nullable(),
     /** 上次催办的时刻：同一份待办一小时内只催一次 */
     remindedAt: col.datetime().nullable(),
     /** 转办、改派：从谁手里交过来的 */

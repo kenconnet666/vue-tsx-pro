@@ -3,6 +3,7 @@
  * - all、sequential：有人选了非通过的结果立即结束，按他的；全部通过才结束
  * - any：第一个人处理完就结束
  * - ratio：同一结果的人数占比达到门槛就结束；有一票否决的结果立即结束；都办完还没达到按 fallback
+ * - votes：同一结果的票数（每份待办的 weight）达到 votes 就结束；一票否决、都办完没达到同 ratio
  */
 import type { MultiInstance, Outcome } from '@zerodep-dev/flow-ts-model';
 import { FlowError } from './errors.ts';
@@ -11,6 +12,8 @@ import { FlowError } from './errors.ts';
 export interface SignVote {
   readonly state: 'open' | 'waiting' | 'done' | 'canceled';
   readonly outcome: string | null;
+  /** 票数；没有时一票 */
+  readonly weight?: number | null;
 }
 
 /** 判断：还没结束是 undefined，结束了是结果 */
@@ -33,18 +36,26 @@ export function decideCountersign(
     }
     case 'any':
       return done[0]?.outcome ?? undefined;
-    case 'ratio': {
+    case 'ratio':
+    case 'votes': {
       const veto = done.find((v) => outcomes.find((o) => o.key === v.outcome)?.veto);
       if (veto) return veto.outcome!;
-      const threshold = multi.ratio ?? 1;
+      const byVotes = multi.complete === 'votes';
       const counts = new Map<string, number>();
-      for (const v of done) counts.set(v.outcome!, (counts.get(v.outcome!) ?? 0) + 1);
+      for (const v of done)
+        counts.set(v.outcome!, (counts.get(v.outcome!) ?? 0) + (byVotes ? (v.weight ?? 1) : 1));
       for (const [outcome, count] of counts) {
-        if (total > 0 && count / total >= threshold - 1e-9) return outcome;
+        const reached = byVotes
+          ? count >= (multi.votes ?? Infinity)
+          : total > 0 && count / total >= (multi.ratio ?? 1) - 1e-9;
+        if (reached) return outcome;
       }
       if (!allDone) return undefined;
       if (!multi.fallback) {
-        throw new FlowError('invalid-definition', '按比例会签都办完了没达到门槛，又没写 fallback');
+        throw new FlowError(
+          'invalid-definition',
+          '按比例、票数会签都办完了没达到门槛，又没写 fallback',
+        );
       }
       return multi.fallback;
     }

@@ -319,7 +319,14 @@ export class Execution {
         : [{ user: node.multi.participants as never }];
       const users = await expandToUsers(await resolveCandidates(sources, scope), this.options);
       if (users.length === 0) return this.emptyAssignee(node, round);
-      return this.createSignItems(node, round, arrival, users);
+      // 票签：指定的人可以带票数（weight），别的一人一票
+      const weights = new Map<string, number>();
+      for (const source of sources) {
+        if (!('user' in source) || source.weight === undefined) continue;
+        for (const c of await resolveCandidates([source], scope))
+          weights.set(c.value, source.weight);
+      }
+      return this.createSignItems(node, round, arrival, users, weights);
     }
 
     const sources = node.assignees ?? laneInbox(this.graph, node);
@@ -400,6 +407,7 @@ export class Execution {
     round: number,
     arrival: string,
     users: readonly string[],
+    weights: ReadonlyMap<string, number>,
   ) {
     const group = `${node.id}#${round}`;
     const sequential = node.multi!.complete === 'sequential';
@@ -411,6 +419,7 @@ export class Execution {
         state: 'open',
         signGroup: group,
         signSeq: seq + 1,
+        weight: node.multi!.complete === 'votes' ? (weights.get(user) ?? 1) : null,
       });
     }
     if (sequential && users.length > 1) this.state.queues[group] = users.slice(1);
@@ -424,7 +433,10 @@ export class Execution {
     arrival: string,
     fields: Pick<WorkItemRow, 'assignee' | 'assignment' | 'state'> &
       Partial<
-        Pick<WorkItemRow, 'signGroup' | 'signSeq' | 'candidates' | 'parentItemId' | 'fromUser'>
+        Pick<
+          WorkItemRow,
+          'signGroup' | 'signSeq' | 'candidates' | 'parentItemId' | 'fromUser' | 'weight'
+        >
       >,
   ): Promise<WorkItemRow> {
     const values = {
@@ -446,6 +458,8 @@ export class Execution {
       pendingOutcome: null,
       fromUser: null,
       designator: null,
+      awaitingDesignation: false,
+      weight: null,
       remindedAt: null,
       ...fields,
     };
