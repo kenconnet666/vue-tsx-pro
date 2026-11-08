@@ -1,0 +1,113 @@
+{
+  "key": "contract",
+  "name": "合同审批",
+  "title": "合同：{title}",
+  "summary": ["form.amount", "form.counterparty"],
+  "form": { "key": "contract" },
+  "nodes": [
+    { "id": "start", "type": "start", "name": "提交" },
+    {
+      "id": "head",
+      "type": "task",
+      "name": "部门负责人审批",
+      "assignees": [{ "resolver": "departmentHead" }],
+      "outcomes": [
+        { "key": "approve", "label": "同意" },
+        { "key": "reject", "label": "不同意", "kind": "reject", "comment": "required" }
+      ]
+    },
+    { "id": "fork", "type": "parallel", "name": "分头会审" },
+    {
+      "id": "legal",
+      "type": "task",
+      "name": "法务会签",
+      "description": "法务部每个人都要通过；不通过直接结束整张单",
+      "multi": { "participants": [{ "role": "5" }], "complete": "all" },
+      "outcomes": [
+        { "key": "approve", "label": "通过" },
+        {
+          "key": "reject",
+          "label": "不通过",
+          "kind": "terminate",
+          "result": "rejected",
+          "comment": "required"
+        }
+      ]
+    },
+    {
+      "id": "finance",
+      "type": "task",
+      "name": "财务审核",
+      "description": "通过前查付款计划的合计（logic.plansMatch）",
+      "assignees": [{ "role": "2" }],
+      "outcomes": [
+        { "key": "approve", "label": "通过", "guards": ["logic.plansMatch"] },
+        {
+          "key": "reject",
+          "label": "不通过",
+          "kind": "terminate",
+          "result": "rejected",
+          "comment": "required"
+        }
+      ]
+    },
+    { "id": "join", "type": "parallel", "name": "会审汇合" },
+    { "id": "big", "type": "exclusive", "name": "超过 10 万？" },
+    {
+      "id": "ceo",
+      "type": "task",
+      "name": "总经理审批",
+      "assignees": [{ "role": "6" }],
+      "outcomes": [
+        { "key": "approve", "label": "同意" },
+        { "key": "reject", "label": "不同意", "kind": "reject", "comment": "required" }
+      ]
+    },
+    {
+      "id": "archive",
+      "type": "task",
+      "name": "盖章归档",
+      "assignees": [{ "role": "5" }],
+      "outcomes": [{ "key": "approve", "label": "已盖章归档" }]
+    },
+    {
+      "id": "payments",
+      "type": "call",
+      "name": "按计划发起付款",
+      "process": "payment",
+      "forEach": { "ref": "form.plans" },
+      "as": "plan",
+      "input": {
+        "form.title": { "ref": "plan.label" },
+        "form.amount": { "ref": "plan.amount" },
+        "form.due": { "ref": "plan.due" },
+        "form.payee": { "ref": "form.counterparty" },
+        "form.contract": { "ref": "form.title" }
+      }
+    },
+    { "id": "effective", "type": "end", "name": "合同生效", "result": "approved" },
+    { "id": "rejected", "type": "end", "name": "不通过", "result": "rejected" }
+  ],
+  "edges": [
+    { "id": "e1", "from": "start", "to": "head" },
+    { "id": "e2", "from": "head", "to": "fork", "outcome": "approve" },
+    { "id": "e3", "from": "head", "to": "rejected", "outcome": "reject" },
+    { "id": "e4", "from": "fork", "to": "legal" },
+    { "id": "e5", "from": "fork", "to": "finance" },
+    { "id": "e6", "from": "legal", "to": "join", "outcome": "approve" },
+    { "id": "e8", "from": "finance", "to": "join", "outcome": "approve" },
+    { "id": "e10", "from": "join", "to": "big" },
+    {
+      "id": "e11",
+      "from": "big",
+      "to": "ceo",
+      "label": "超过 10 万",
+      "when": { "field": "form.amount", "op": "gt", "value": "100000" }
+    },
+    { "id": "e12", "from": "big", "to": "archive", "default": true },
+    { "id": "e13", "from": "ceo", "to": "archive", "outcome": "approve" },
+    { "id": "e14", "from": "ceo", "to": "rejected", "outcome": "reject" },
+    { "id": "e15", "from": "archive", "to": "payments", "outcome": "approve" },
+    { "id": "e16", "from": "payments", "to": "effective" }
+  ]
+}

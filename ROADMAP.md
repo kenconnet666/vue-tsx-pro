@@ -962,7 +962,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       （已有，决定见 `packages/flow/docs/decisions/0002-projects.md`：process.json、form.ts（`defineForm`）、logic.ts（`defineLogic(form, …)`，
       `logic.名字` 引用、发布时核对）；新包 flow-ts-studio 用组件库的 browser-compile 编译（纯 .ts 也去类型），引擎自己的链接器加载相对路径、自带与宿主模块；
       TS 7 的类型检查 `flow-ts-studio/typecheck`；版本列出、取源码、回滚；`engine.process<typeof form>(key)` 带类型的发起与处理。
-      还差：浏览器里 Worker 编译的接法与测试（随 26.5 的流程中心一起）、views/*.tsx 的约定（随 26.4）、test.ts 的场景测试（随 26.6））
+      浏览器里在 Worker 编译：流程中心的合同审批就是流程工程，Worker 发布时用 compileInThread 就地编译（Node 的测试同一条路）。
+      还差：views/*.tsx 的约定、test.ts 的场景测试（随 26.6））
 - [x] 26.3 动作插件化与补齐能力（委托、加签减签、撤回这一步、释放、指定承办人、批量、改数据、票签、提级、forEach / 异步、
       自定义节点、草稿、实例迁移）
       （已有，决定见 `packages/flow/docs/decisions/0003-operations.md`：动作插件 `WorkItemOperation`、`operate` 命令、待办详情的
@@ -992,10 +993,13 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       （决定见 `packages/flow/docs/decisions/0009-flow-center.md`。已有：引擎的客户端 `./client`（FlowClient 不带身份，
       flowEndpoint 注入 actor，消息端口 / HTTP 可换，数据变了推给页面）；/flow 应用：Worker 里跑 PGlite（IndexedDB）+ 引擎，
       演示身份、时钟快进、重置；引擎的组织目录 `./org`（部门树、角色、员工的表，内存快照接成 org、上级 / 第 N 级部门负责人解析器、
-      Actor），流程中心第一次打开时同步进库、页面从库里取人；请假、出差报销、采购三个流程与种子（Node 里的测试在全新的库上跑通）；工作台（左列表右审批单）、
-      审批单（按环节权限的单据、结果按钮写出之后到哪、退回选节点、给下一步选人、动作插件、进度图、流转记录）、发起中心与发起页（预测下一步、草稿）。
-      还差：业务模型（供应商、物料、预算）改成 ORM 实体、流程写成 TS 工程在 Worker 里编译、合同与付款流程、批量处理与键盘、我的单据、管理页、
-      搬 flow-demo 的端到端测试并删掉它、kit + PG 的接法文档）
+      Actor，带维护方法），流程中心第一次打开时同步进库、页面从库里取人；请假、出差报销、采购、付款、合同五个流程与种子
+      （Node 里的测试在全新的库上跑通）；合同写成流程工程（process.json + form.ts + logic.ts 的守卫），Worker 里编译发布，
+      并行会审里法务会签、按付款计划 forEach 调用付款，付款推 ERP 的异步动作会失败进异常；工作台（左列表右审批单、批量同意、J / K 键盘）、
+      审批单（按环节权限的单据、结果按钮写出之后到哪、退回选节点、给下一步选人、动作插件、对整张单的动作——撤回、催办、留言与管理员干预、
+      进度图、流转记录）、发起中心与发起页（预测下一步、草稿）、单据页（引擎的 query.search：我经手的、我发起的、全部）、
+      管理页（异常的重试与跳过、组织维护）；端点管住实例详情、异常、重试的可见范围。
+      还差：搬 flow-demo 的端到端测试并删掉它、kit + PG 的接法文档；供应商、物料、预算的 ORM 实体随 26.6 的工作室一起）
 - [ ] 26.6 流程工作室：在线 IDE、语言服务、预览、场景测试、对比、发布、迁移
 - [ ] 26.7 事件与通知（发件箱、NOTIFY）、代理、监控看板、统计
 - [ ] 26.8 收尾：服务端部署文档、决定文档改写、两个仓库发版、下游通知

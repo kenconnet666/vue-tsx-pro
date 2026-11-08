@@ -6,6 +6,7 @@ import {
   createFlowEngine,
   type FlowEngine,
   type FlowEngineOptions,
+  type TransformCode,
 } from '@zerodep-dev/flow-ts-engine';
 import { createOrgDirectory, type OrgDirectory } from '@zerodep-dev/flow-ts-engine/org';
 import { isAdmin, ORG } from '../domain/org';
@@ -32,6 +33,15 @@ const actions: NonNullable<FlowEngineOptions['extensions']>['actions'] = {
   },
 };
 
+/**
+ * 流程工程的 .ts 编成引擎链接器认的模块：就在这个线程里编（已经在 Worker 里了，不卡界面），Babel 用到时才加载。
+ * 同流程工作室的 compileInPlace
+ */
+const compileProjectFile: TransformCode = async (source, path) => {
+  const { compileInThread } = await import('@zerodep-dev/vue-tsx-pro-tsx/browser-compile');
+  return compileInThread(source, { filename: path });
+};
+
 export function createBackend(adapter: FlowEngineOptions['adapter'], clock: () => Date): Backend {
   const directory = createOrgDirectory({ adapter, isAdmin });
   const engine = createFlowEngine({
@@ -39,6 +49,7 @@ export function createBackend(adapter: FlowEngineOptions['adapter'], clock: () =
     clock,
     org: directory.org,
     extensions: { resolvers: directory.resolvers, actions },
+    transform: compileProjectFile,
   });
   return { directory, engine };
 }
@@ -68,7 +79,7 @@ export async function prepare(
   for (const [index, entry] of PROCESSES.entries()) {
     if (published.has(entry.definition.key)) continue;
     progress(`发布流程：${entry.definition.name}`, index, PROCESSES.length);
-    await engine.publish(entry.definition);
+    await engine.publish(entry.project ?? entry.definition);
   }
   if (published.size > 0) return;
   await seed(engine, {

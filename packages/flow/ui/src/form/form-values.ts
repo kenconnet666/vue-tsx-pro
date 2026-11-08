@@ -26,9 +26,16 @@ const hasZone = (text: string) => /(?:[zZ]|[+-]\d{2}:?\d{2})(?:\[[^\]]+\])?$/.te
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-/** 一个值从线上换成表单里的 */
+/** 值是数组的字段：人员、附件、明细表、多选 */
+const holdsList = (field: FieldDefinition) =>
+  field.type === 'people' ||
+  field.type === 'file' ||
+  field.type === 'list' ||
+  (field.type === 'select' && field.multiple === true);
+
+/** 一个值从线上换成表单里的；数组型的字段没填（null）时是空数组，组件只认数组 */
 function toFormValue(field: FieldDefinition, value: unknown, timeZone: string): unknown {
-  if (value === null || value === undefined) return value;
+  if (value === null || value === undefined) return holdsList(field) ? [] : value;
   switch (field.type) {
     case 'date':
       return typeof value === 'string' ? value : (value as CalendarDate).toString();

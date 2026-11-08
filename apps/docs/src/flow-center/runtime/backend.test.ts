@@ -41,4 +41,30 @@ it('第一次准备：种子按组织里的上级、部门负责人、财务收�
   const admin = (await backend.directory.actorOf('1001'))!;
   const { rows } = await backend.engine.query.search(admin, { scope: 'all', text: '首付' });
   expect(rows.map((row) => [row.status, row.result])).toEqual([['completed', 'paid']]);
+
+  // 合同是流程工程：版本里存着源码；logic.ts 的守卫在财务审核通过前查付款计划的合计
+  const files = (await backend.engine.versions.project('contract')).files;
+  expect(Object.keys(files).sort()).toEqual(['form.ts', 'logic.ts', 'process.json']);
+  const { engine, directory } = backend;
+  const as = async (id: string) => (await directory.actorOf(id))!;
+  const started = await engine.run(
+    {
+      type: 'start',
+      process: 'contract',
+      variables: {
+        title: '对不上的合同',
+        counterparty: '西部线缆',
+        amount: '50000.00',
+        plans: [{ label: '一次付清', amount: '40000.00' }],
+      },
+    },
+    await as('1016'),
+  );
+  const step = async (by: string, outcome = 'approve') => {
+    const actor = await as(by);
+    const item = (await engine.query.todo(actor)).find((t) => t.instanceId === started.instance.id);
+    return engine.run({ type: 'complete', workItem: item!.id, outcome }, actor);
+  };
+  await step('1015');
+  await expect(step('1011')).rejects.toThrow('付款计划合计 40000.00，与合同金额 50000.00 不一致');
 }, 60_000);

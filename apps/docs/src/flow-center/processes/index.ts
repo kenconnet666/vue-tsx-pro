@@ -1,8 +1,8 @@
 /**
  * 流程中心的流程：Worker 第一次启动时按这里的先后发布（被调用的付款在合同前面）；发起中心按分类列出。
  */
-import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
-import { contract } from './contract';
+import type { FlowProject, ProcessDefinition } from '@zerodep-dev/flow-ts-model';
+import { contract, contractProject } from './contract';
 import { expense } from './expense';
 import { leave } from './leave';
 import { payment } from './payment';
@@ -15,6 +15,8 @@ export interface ProcessEntry {
   readonly category: string;
   /** 一句话说明 */
   readonly description: string;
+  /** 写成流程工程的：发布这个（Worker 里编译），definition 只给页面显示 */
+  readonly project?: FlowProject;
 }
 
 export const PROCESSES: readonly ProcessEntry[] = [
@@ -40,6 +42,7 @@ export const PROCESSES: readonly ProcessEntry[] = [
   },
   {
     definition: contract,
+    project: contractProject,
     category: '法务',
     description: '合同：法务会签与财务审核同时进行，超过 10 万给总经理，归档后按付款计划逐期付款',
   },

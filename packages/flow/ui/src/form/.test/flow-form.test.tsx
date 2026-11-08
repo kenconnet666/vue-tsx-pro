@@ -108,6 +108,13 @@ describe('线上与表单里的值', () => {
 });
 
 describe('引擎存的值（普通 JSON）', () => {
+  it('人员、附件没填（null）时是空数组：选人、上传组件只认数组', () => {
+    const form = toFormValues(manifest, { owner: null, files: null, title: null }, TZ);
+    expect(form.owner).toEqual([]);
+    expect(form.files).toEqual([]);
+    expect(form.title).toBeNull();
+  });
+
   it('小数的文字读成 Decimal，带时区的时刻文字换算成本地时间；交回时按时区还原', () => {
     const form = toFormValues(manifest, { amount: '12.50', at: '2026-11-08T01:30:00Z' }, TZ);
     expect(form.amount).toBeInstanceOf(Decimal);
