@@ -161,7 +161,14 @@ function controlOf(
     case 'textarea':
       return <Textarea placeholder={field.placeholder} rows={3} {...extra} />;
     case 'number':
-      return <NumberField placeholder={field.placeholder} suffix={field.unit} {...extra} />;
+      return (
+        <NumberField
+          placeholder={field.placeholder}
+          suffix={field.unit}
+          {...(field.valueType ? { valueType: field.valueType } : {})}
+          {...extra}
+        />
+      );
     case 'switch':
       return <Switch {...extra} />;
     case 'checkbox':

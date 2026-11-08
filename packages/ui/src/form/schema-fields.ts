@@ -23,8 +23,8 @@ import {
 import type { PeopleSource } from '../input/people';
 import type { UploadHandler } from '../input/Upload';
 import { cloneValue } from '../utils/data/clone';
-import { groupDigits, sumNumeric } from '../utils/data/numeric';
-import { toJsonSchema, unwrap, type JsonSchema } from './form-constraints';
+import { groupDigits, sumNumeric, type NumericKind } from '../utils/data/numeric';
+import { numericKindOf, toJsonSchema, unwrap, type JsonSchema } from './form-constraints';
 
 /** SchemaForm 能生成的控件 */
 export interface SchemaControls {
@@ -118,6 +118,8 @@ export interface SchemaField {
   options?: readonly SchemaOption[];
   /** 数字的单位 */
   unit?: string;
+  /** 数字的值类型（decimalSchema 给了 type、bigintSchema）：控件一开始为空时按它写回 */
+  valueType?: NumericKind;
   /** 占几栏 */
   span?: number | 'full';
   /** 分组 */
@@ -293,6 +295,8 @@ function fieldsOf(root: JsonSchema, object: JsonSchema): SchemaField[] {
     if (text(meta.description)) field.description = text(meta.description);
     if (text(meta.placeholder)) field.placeholder = text(meta.placeholder);
     if (text(meta.unit)) field.unit = text(meta.unit);
+    const valueType = numericKindOf(node);
+    if (valueType) field.valueType = valueType;
     if (text(meta.group)) field.group = text(meta.group);
     if (text(meta.tab)) field.tab = text(meta.tab);
     if (typeof meta.span === 'number' || meta.span === 'full') field.span = meta.span;

@@ -10,6 +10,7 @@
  *   constraints('age')   // { required: true, min: 0, step: 1 }
  */
 import { toJSONSchema, type $ZodType } from 'zod/v4/core';
+import type { NumericKind } from '../utils/data/numeric';
 
 /** 一个字段从 schema 推出的约束；推不出的项不出现 */
 export interface FieldConstraints {
@@ -38,6 +39,20 @@ export type JsonSchema = Record<string, unknown>;
 
 const NONE: FieldConstraints = Object.freeze({});
 
+/**
+ * decimalSchema、bigintSchema 建出的 schema（按 def 记：.meta() 克隆出的 schema 共用同一个 def）→ 值的类型：表单按它让 NumberField 一开始为空时也写回同类型的值
+ * （不放进 meta：meta 会原样进 JSON Schema，构造函数不该出现在那里） @internal
+ */
+export const numericKinds = new WeakMap<object, NumericKind>();
+
+/** 见过的值类型：zod 输出 JSON Schema 时做一次 JSON 往返，构造函数留不下来，JSON Schema 里记它在这里的序号 */
+const kindTable: NumericKind[] = [];
+
+/** JSON Schema 节点上记下的值类型（decimalSchema 给了 type、bigintSchema） @internal */
+export function numericKindOf(node: JsonSchema): NumericKind | undefined {
+  return typeof node.valueType === 'number' ? kindTable[node.valueType] : undefined;
+}
+
 /** schema → JSON Schema（输入一侧）；表达不了的类型当作 any，循环引用写成 $ref。SchemaForm 也按它生成字段 @internal */
 export function toJsonSchema(schema: $ZodType): JsonSchema | undefined {
   try {
@@ -51,6 +66,12 @@ export function toJsonSchema(schema: $ZodType): JsonSchema | undefined {
         const def = zodSchema._zod.def as { type: string; format?: string; local?: boolean };
         if (def.type === 'string' && def.format === 'datetime' && def.local) {
           jsonSchema.format = 'date-time';
+        }
+        // Decimal、bigint 的值类型（schemas.ts）：SchemaForm 的 NumberField 一开始为空时按它写回
+        const kind = numericKinds.get(zodSchema._zod.def);
+        if (kind) {
+          if (!kindTable.includes(kind)) kindTable.push(kind);
+          jsonSchema.valueType = kindTable.indexOf(kind);
         }
       },
     }) as JsonSchema;

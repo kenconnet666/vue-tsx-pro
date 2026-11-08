@@ -165,7 +165,9 @@ export default _component(() => () => (
         <Example id="array" title="报价单：数组字段与 Decimal" demo={Quote}>
           <Code>form.array('items')</Code> 增删、插入、移动，每项有稳定的
           key，错误跟着下标走。金额用 <Code>decimalSchema({'{ min: 0, scale: 2 }'})</Code>：值是
-          Decimal，NumberField 自动拿到 min 0、step 0.01，合计不受浮点误差影响。
+          Decimal，NumberField 自动拿到 min 0、step 0.01，合计不受浮点误差影响。SchemaForm
+          生成的字段一开始为空时，给 <Code>{'type: Decimal'}</Code> 让输入写回 Decimal（bigintSchema
+          自动写回 bigint）。
         </Example>
         <Example id="wizard" title="分步填写：局部校验与字段联动" demo={Wizard}>
           <Code>{"form.validate(['company', 'contact', 'phone'])"}</Code>{' '}

@@ -45,6 +45,33 @@ describe('Tabs', () => {
     expect(tabs().map((tab) => tab.getAttribute('tabindex'))).toEqual(['0', '-1', '-1']);
   });
 
+  it('值里有中文、空格、下划线时 id 也各不相同，标签与面板照样关联', async () => {
+    const values = ['行程', '费用', 'a b', 'a_b'];
+    const root = mount(() => (
+      <Tabs>
+        <TabList aria-label="分页">
+          {values.map((value) => (
+            <Tab key={value} value={value}>
+              {value}
+            </Tab>
+          ))}
+        </TabList>
+        {values.map((value) => (
+          <TabPanel key={value} value={value}>
+            {value}
+          </TabPanel>
+        ))}
+      </Tabs>
+    ));
+    await nextTick();
+    const ids = [...root.querySelectorAll('[role="tab"], [role="tabpanel"]')].map((el) => el.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const tab of root.querySelectorAll('[role="tab"]'))
+      expect(document.getElementById(tab.getAttribute('aria-controls')!)?.textContent).toBe(
+        tab.textContent,
+      );
+  });
+
   it('只当导航用（没有 TabPanel）时标签不写 aria-controls：不能指向不存在的元素', async () => {
     const root = mount(() => (
       <Tabs>

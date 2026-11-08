@@ -1,7 +1,8 @@
 // 从 schema 推出字段：控件按类型选、meta 的标签与选项、嵌套与列表、空白的初始值
+import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod';
-import { decimalSchema } from '../schemas';
+import { bigintSchema, decimalSchema } from '../schemas';
 import { emptyValues, schemaFields } from '../schema-fields';
 
 const schema = z.object({
@@ -27,6 +28,19 @@ const schema = z.object({
 const byKey = (key: string) => schemaFields(schema).find((field) => field.key === key)!;
 
 describe('schemaFields', () => {
+  it('decimalSchema 给了 type、bigintSchema 时记下值类型（包了 meta、optional 也认得）：控件一开始为空时按它写回', () => {
+    const typed = z.object({
+      price: decimalSchema({ scale: 2, type: Decimal }).optional().meta({ title: '单价' }),
+      id: bigintSchema().nullable(),
+      plain: decimalSchema(),
+    });
+    expect(schemaFields(typed).map((field) => field.valueType)).toEqual([
+      Decimal,
+      'bigint',
+      undefined,
+    ]);
+  });
+
   it('按类型选控件，meta 写了 control 时用它', () => {
     expect(schemaFields(schema).map((field) => [field.key, field.control])).toEqual([
       ['company', 'text'],

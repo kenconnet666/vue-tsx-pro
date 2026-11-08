@@ -174,6 +174,8 @@ export const PeoplePicker = _component(
                   id: state.id,
                   type: 'button',
                   disabled: state.disabled,
+                  // 弹出对话框的组合框（ARIA 1.2）：按钮本身不能带必填、只读、出错这些状态
+                  role: 'combobox',
                   'aria-haspopup': 'dialog',
                   'aria-expanded': open,
                   'aria-invalid': state.invalid || undefined,

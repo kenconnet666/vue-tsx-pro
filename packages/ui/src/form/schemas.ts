@@ -3,7 +3,7 @@
  * 常见的格式：手机号（phoneSchema）、居民身份证号（idCardSchema，校验出生日期与校验码）。
  *
  *   const schema = z.object({
- *     price: decimalSchema({ min: 0, scale: 2 }),         // Decimal，最小 0，最多两位小数
+ *     price: decimalSchema({ min: 0, scale: 2, type: Decimal }),   // Decimal，最小 0，最多两位小数；空着时也写回 Decimal
  *     stock: bigintSchema({ min: 0n }),
  *   });
  *   // useForm 从 schema 推出约束：NumberField 拿到 min 0、step 0.01，不用再写一遍
@@ -15,6 +15,7 @@
 import type Decimal from 'decimal.js';
 import { z } from 'zod';
 import { isDecimal, toNumber, type NumericValue } from '../utils/data/numeric';
+import { numericKinds } from './form-constraints';
 
 /** decimalSchema 的选项；边界与步长可以是数字、bigint、Decimal 或十进制文本（'0.01'） */
 export interface DecimalSchemaOptions {
@@ -26,13 +27,18 @@ export interface DecimalSchemaOptions {
   step?: NumericValue | string;
   /** 最多几位小数（金额通常是 2） */
   scale?: number;
+  /**
+   * 值的构造函数（decimal.js 的 Decimal，或 Decimal.clone 出来的）：字段一开始为空时 SchemaForm 的 NumberField 按它写回 Decimal；
+   * 不给时写回 number，校验报类型不对
+   */
+  type?: typeof Decimal;
 }
 
 /** Decimal 的 schema：类型、范围、步长与小数位数 */
-export function decimalSchema({ min, max, step, scale }: DecimalSchemaOptions = {}) {
+export function decimalSchema({ min, max, step, scale, type }: DecimalSchemaOptions = {}) {
   // 小数位数等价于步长 10^-scale；两个都给时都要满足
   const steps = [step, scale == null ? undefined : `1e-${scale}`].filter((item) => item != null);
-  return z
+  const schema = z
     .custom<Decimal>(isDecimal)
     .check((ctx) => {
       const value = ctx.value;
@@ -79,6 +85,8 @@ export function decimalSchema({ min, max, step, scale }: DecimalSchemaOptions = 
         multipleOf: Math.min(...steps.map((item) => Number(String(item)))),
       }),
     });
+  if (type) numericKinds.set(schema._zod.def, type);
+  return schema;
 }
 
 /** bigintSchema 的选项 */
@@ -94,11 +102,13 @@ export function bigintSchema({ min, max }: BigIntSchemaOptions = {}) {
   let schema = z.bigint();
   if (min != null) schema = schema.min(min);
   if (max != null) schema = schema.max(max);
-  return schema.meta({
+  const typed = schema.meta({
     type: 'integer',
     ...(min != null && { minimum: Number(min) }),
     ...(max != null && { maximum: Number(max) }),
   });
+  numericKinds.set(typed._zod.def, 'bigint');
+  return typed;
 }
 
 /** phoneSchema、idCardSchema 的选项 */

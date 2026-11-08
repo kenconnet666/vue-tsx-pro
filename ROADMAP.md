@@ -974,9 +974,10 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       Java 场景 save-draft、start-draft）
       （决定见 `packages/flow/docs/decisions/0004-forms.md`。已有：单据就是字段清单，`defineForm` 接清单字面量、推出单据的类型，
       发布时内联进定义的 form.manifest；发起、处理按清单校验（值按 json-wire 的强类型查）；处理前暂存（saveDraft）与发起前存草稿
-      （engine.drafts），两个 Java 场景跑起来。还差：SchemaForm 的条件、明细表、选项来源、人员与附件控件、页签、只读与打印；
-      flow-ts-ui 包（清单渲染、审批面板、流程图与环节面板、权限矩阵）；表单设计器；接入方注册的字段类型（field-type）、
-      上一步选下一步的处理人（pick）、发起页预测下一步（preview-skip-sign））
+      （engine.drafts），两个 Java 场景跑起来。组件库的 SchemaForm 补上了条件与权限（visibleWhen / requiredWhen / readonlyWhen、
+      useForm 的 access）、明细表与合计、数据来源（formSources：字典、远程搜索、人员、上传）、页签、只读视图 SchemaView，
+      Decimal / bigint 字段一开始为空时也写回对的类型。还差：flow-ts-ui 包（清单渲染、审批面板、流程图与环节面板、权限矩阵）；
+      表单设计器；接入方注册的字段类型（field-type）、上一步选下一步的处理人（pick）、发起页预测下一步（preview-skip-sign））
 - [ ] 26.5 文档站流程中心：外壳、业务模型与种子、工作台、发起、审批单、我的单据、管理；搬测试、删 flow-demo
 - [ ] 26.6 流程工作室：在线 IDE、语言服务、预览、场景测试、对比、发布、迁移
 - [ ] 26.7 事件与通知（发件箱、NOTIFY）、代理、监控看板、统计

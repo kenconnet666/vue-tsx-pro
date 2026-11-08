@@ -115,8 +115,12 @@ export interface TabsState {
 /** Tabs 的上下文：自定义的标签或面板可以 inject 它 */
 export const TabsContext = createContext<TabsState>('Tabs');
 
-/** 值里的空格等字符不能出现在 id 里 */
-const idSafe = (value: string) => value.replace(/[^\w-]/g, '_');
+/**
+ * 值放进 id：字母、数字、- 以外的字符（空格、中文、_ 本身）写成 `_码位_`，不同的值不会撞成同一个 id
+ * （只把它们换成 _ 时，“行程”与“费用”都成了 `__`）
+ */
+const idSafe = (value: string) =>
+  value.replace(/[^a-zA-Z0-9-]/gu, (char) => `_${char.codePointAt(0)!.toString(16)}_`);
 
 // ─────────────── Tabs ───────────────
 
