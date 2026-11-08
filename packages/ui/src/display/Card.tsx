@@ -52,7 +52,7 @@ export interface CardEffects {
 export interface CardOptions {
   /** 样式，默认 surface */
   variant?: keyof CardVariants;
-  /** 内边距档位，对应主题的 space，默认 lg */
+  /** 内边距档位，对应主题的 space，默认 lg；none 时正文贴边（表格、列表），页头、页脚仍留 sm / md 的内边距 */
   padding?: Space;
   /** 圆角，默认 lg */
   radius?: Radius;
@@ -157,10 +157,11 @@ export const cardRecipe = css.recipe({
     },
     // 页头、正文、页脚的内边距
     padding: {
+      // 正文贴边（表格、列表）；页头、页脚的文字不能贴着边框，留小一档的内边距
       none: {
-        header: { padding: '_none' },
+        header: { paddingBlock: '_sm', paddingInline: '_md' },
         body: { padding: '_none' },
-        footer: { padding: '_none' },
+        footer: { paddingBlock: '_sm', paddingInline: '_md' },
       },
       xs: { header: { padding: '_xs' }, body: { padding: '_xs' }, footer: { padding: '_xs' } },
       sm: { header: { padding: '_sm' }, body: { padding: '_sm' }, footer: { padding: '_sm' } },

@@ -554,8 +554,7 @@ export const Cascader = _component(
                       active && cascaderStyles.onPath,
                       // 列有焦点时它的高亮项画焦点环（列本身不画）
                       active && focused && focusRingStyles.virtual,
-                      selected && itemStyles.selected,
-                      off && itemStyles.disabled,
+                      itemStyles.states,
                     ],
                     ...cascaderPart('option'),
                   },
@@ -628,13 +627,7 @@ export const Cascader = _component(
                 key={item.keys.join('\u0000')}
                 {...mergeAttrs<'div'>(
                   {
-                    sx: [
-                      itemStyles.row,
-                      itemStyles.hoverable,
-                      index === hit && itemStyles.highlighted,
-                      selected && itemStyles.selected,
-                      item.disabled && itemStyles.disabled,
-                    ],
+                    sx: [itemStyles.row, itemStyles.hoverable, itemStyles.states],
                     ...cascaderPart('option'),
                   },
                   optionPart(item.nodes.at(-1)!),
@@ -649,6 +642,7 @@ export const Cascader = _component(
                       !item.disabled && pick(item.keys, item.nodes.at(-1)!, true, event),
                   },
                 )}
+                data-highlighted={index === hit || undefined}
               >
                 <span {...css.attrs(itemStyles.label)} {...cascaderPart('label')}>
                   {item.label}

@@ -287,12 +287,7 @@ export const ListboxView = _component(
         <div
           {...mergeAttrs<'div'>(
             {
-              sx: [
-                itemStyles.row,
-                state.active && itemStyles.highlighted,
-                state.selected && itemStyles.selected,
-                option.disabled && itemStyles.disabled,
-              ],
+              sx: [itemStyles.row, itemStyles.states],
             },
             own,
             {
@@ -316,7 +311,7 @@ export const ListboxView = _component(
             },
           )}
           data-state={state.selected ? 'checked' : 'unchecked'}
-          data-active={state.active || undefined}
+          data-highlighted={state.active || undefined}
           data-disabled={option.disabled || undefined}
         >
           {renderOption ? (

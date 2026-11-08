@@ -19,6 +19,8 @@ import type { PartStyles, Recipe, RecipeExtension } from '@zerodep-dev/vue-tsx-p
 import type { AlertOptions, AlertPart } from '../feedback/Alert';
 import type { AvatarOptions, AvatarPart } from '../display/Avatar';
 import type { AppShellOptions, AppShellPart } from '../patterns/AppShell';
+import type { FilterBarOptions, FilterBarPart } from '../patterns/FilterBar';
+import type { NotificationCenterPart, NotificationListPart } from '../patterns/NotificationCenter';
 import type { BadgeOptions, BadgePart } from '../base/badge-styles';
 import type { ButtonOptions, ButtonPart } from '../base/button-core';
 import type { CalendarOptions, CalendarPart } from '../date/CalendarView';
@@ -44,6 +46,7 @@ import type { StatOptions, StatPart } from '../display/Stat';
 import type { TimelineOptions, TimelinePart } from '../display/Timeline';
 import type { TourOptions, TourPart } from '../overlay/Tour';
 import type { TransferOptions, TransferPart } from '../input/Transfer';
+import type { UploadOptions, UploadPart } from '../input/Upload';
 import type { UserButtonOptions, UserButtonPart } from '../display/UserButton';
 import { useDefaults, type ComponentDefaults, type ResolvedDefaults } from './defaults';
 import { useRecipe, type ComponentStyles, type PartLayer } from './styles';
@@ -123,6 +126,14 @@ export interface UiComponents {
   AppShell: ComponentConfig<AppShellPart, AppShellOptions>;
   /** Transfer、TreeTransfer */
   Transfer: ComponentConfig<TransferPart, TransferOptions>;
+  /** NotificationList（patterns；NotificationCenter 面板里的也是它） */
+  NotificationList: ComponentConfig<NotificationListPart, Record<never, never>>;
+  /** NotificationCenter（patterns）：铃铛与弹出层 */
+  NotificationCenter: ComponentConfig<NotificationCenterPart, Record<never, never>>;
+  /** FilterBar（patterns；QueryTable 的查询栏也是它） */
+  FilterBar: ComponentConfig<FilterBarPart, FilterBarOptions>;
+  /** Upload（列表与图片墙） */
+  Upload: ComponentConfig<UploadPart, UploadOptions>;
   /** Dialog、AlertDialog 共用：dialog 元素与标题行、标题、关闭按钮、说明、正文、页脚 */
   Dialog: ComponentConfig<DialogPart, DialogOptions>;
   /** Drawer：同 Dialog 的部件 */

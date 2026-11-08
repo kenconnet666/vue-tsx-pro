@@ -68,7 +68,10 @@ const row = [
     borderRadius: '_md',
     color: { default: '_textMuted', _hover: '_text' },
     fontWeight: '_medium',
+    pointerEvents: { default: null, _disabled: 'none' },
   },
+  // 当前页（aria-current、data-current）、不可用跟着属性走
+  itemStyles.states,
 ] as const;
 
 /**
@@ -133,11 +136,8 @@ export type NavListPart = (typeof navListRecipe.parts)[number];
 /** NavList 没有档位：紧凑跟随所在的 AppShell 侧栏或 compact 属性 */
 export type NavListOptions = Record<never, never>;
 
-/** 按项变的样式，追加在部件层之后：当前页、不可用、紧凑 */
+/** 按项变的样式，追加在部件层之后：紧凑 */
 const navListStateStyles = css.create({
-  // 当前页的底色来自 itemStyles.current；悬停时也保持品牌色
-  current: { color: { default: '_accentText', _hover: '_accentText' } },
-  disabled: { pointerEvents: 'none' },
   // 紧凑：图标居中；小节标题只剩图标，上面一条细线与上一节隔开
   compactRow: { justifyContent: 'center', paddingInline: 0 },
   compactSection: {
@@ -152,9 +152,6 @@ const navListStateStyles = css.create({
 });
 
 type NavListParts = Readonly<Record<NavListPart, PartLayer>>;
-
-/** 当前页的行：列表行的选中底色 + 品牌色文字 */
-const currentRow = [itemStyles.current, navListStateStyles.current];
 
 // ─────────────── NavList ───────────────
 
@@ -272,12 +269,7 @@ export const NavItem = _component(
           {
             ...tooltip,
             ...s.link,
-            sx: [
-              s.link.sx,
-              iconOnly() && navListStateStyles.compactRow,
-              current && currentRow,
-              disabled && [itemStyles.disabled, navListStateStyles.disabled],
-            ],
+            sx: [s.link.sx, iconOnly() && navListStateStyles.compactRow],
           },
           rest,
           {
@@ -403,12 +395,14 @@ export const NavGroup = _component(
                 {...mergePartProps<ButtonBaseProps>(
                   {
                     ...s.trigger,
-                    sx: [s.trigger.sx, navListStateStyles.compactRow, hasCurrent && currentRow],
+                    sx: [s.trigger.sx, navListStateStyles.compactRow],
                   },
                   propsTrigger,
                   props as Partial<ButtonBaseProps>,
                 )}
                 data-state={hasCurrent ? 'active' : 'inactive'}
+                // 组里有当前页：图标是当前项的外观
+                data-current={hasCurrent || undefined}
               >
                 <Icon {...mergePartProps<IconProps>({ ...s.icon, icon: icon! }, propsIcon)} />
                 <span

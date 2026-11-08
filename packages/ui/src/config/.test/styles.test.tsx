@@ -36,6 +36,12 @@ import { navListRecipe } from '../../navigation/NavList';
 import { toasterRecipe } from '../../feedback/Toast';
 import { appShellRecipe } from '../../patterns/AppShell';
 import { transferRecipe } from '../../input/Transfer';
+import { filterBarRecipe } from '../../patterns/FilterBar';
+import { uploadRecipe } from '../../input/Upload';
+import {
+  notificationCenterRecipe,
+  notificationListRecipe,
+} from '../../patterns/NotificationCenter';
 import { countdownRecipe } from '../../date/Countdown';
 import { calendarRecipe } from '../../date/CalendarView';
 
@@ -71,6 +77,10 @@ describe('components', () => {
       Toaster: toasterRecipe,
       AppShell: appShellRecipe,
       Transfer: transferRecipe,
+      FilterBar: filterBarRecipe,
+      Upload: uploadRecipe,
+      NotificationList: notificationListRecipe,
+      NotificationCenter: notificationCenterRecipe,
       UserButton: userButtonRecipe,
     } satisfies Record<ComponentName, { readonly name: string | undefined }>;
     for (const [name, recipe] of Object.entries(recipes)) expect(recipe.name).toBe(name);

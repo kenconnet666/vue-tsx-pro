@@ -35,7 +35,14 @@ export {
 } from './CommentThread';
 export { DataImport, type DataImportProps, type ImportField } from './DataImport';
 export { DeadlineBadge, type DeadlineBadgeProps } from './DeadlineBadge';
-export { FilterBar, type FilterBarManaged, type FilterBarProps } from './FilterBar';
+export {
+  FilterBar,
+  filterBarRecipe,
+  type FilterBarManaged,
+  type FilterBarOptions,
+  type FilterBarPart,
+  type FilterBarProps,
+} from './FilterBar';
 export { FormDialog, type FormDialogProps } from './FormDialog';
 export {
   KanbanBoard,
@@ -45,10 +52,14 @@ export {
 } from './KanbanBoard';
 export {
   NotificationCenter,
+  notificationCenterRecipe,
   NotificationList,
+  notificationListRecipe,
+  type NotificationCenterPart,
   type NotificationCenterProps,
   type NotificationItem,
   type NotificationListOptions,
+  type NotificationListPart,
   type NotificationListProps,
   type NotificationType,
 } from './NotificationCenter';

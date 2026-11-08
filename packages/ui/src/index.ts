@@ -744,9 +744,12 @@ export { TreeSelect, type TreeSelectProps } from './input/TreeSelect';
 export {
   existingUploadFile,
   Upload,
+  uploadRecipe,
   type UploadFile,
   type UploadHandler,
   type UploadListTypes,
+  type UploadOptions,
+  type UploadPart,
   type UploadProps,
 } from './input/Upload';
 export {

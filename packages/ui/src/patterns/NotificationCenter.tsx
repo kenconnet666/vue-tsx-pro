@@ -40,7 +40,8 @@ import { focusRingStyles } from '../utils/style/styles';
 import type { SingleSelectionProps } from '../utils/data/selection';
 import type { StatusTone } from '../utils/style/tone-styles';
 import { patternsMessages } from './messages';
-import { partAttrs } from '../config/styles';
+import { useComponent } from '../config/components';
+import type { PartLayer } from '../config/styles';
 
 /** 一条通知 */
 export interface NotificationItem {
@@ -114,67 +115,101 @@ export interface NotificationListProps extends PartProps<'div', 'title'>, Notifi
   propsFooter?: PartProps<'div'>;
 }
 
-/** 部件的标记（data-scope="notification-list"） */
-const notificationListPart = (part: string) => partAttrs({ name: 'NotificationList' }, part);
+/**
+ * NotificationList 的配方（createUi / Provider 的 components.NotificationList 按它定制）：root、head（标题行）、title、
+ * markAll（“全部标为已读”）、filters（筛选行）、types（类型按钮组）、unreadOnly（开关）、scroll（滚动区域）、list、item（一条）、
+ * dot（未读色点）、body、itemTitle、description、time、empty、footer。未读、没有标题行时按条叠在部件层之后
+ */
+export const notificationListRecipe = css.recipe({
+  name: 'NotificationList',
+  parts: [
+    'root',
+    'head',
+    'title',
+    'markAll',
+    'filters',
+    'types',
+    'unreadOnly',
+    'scroll',
+    'list',
+    'item',
+    'dot',
+    'body',
+    'itemTitle',
+    'description',
+    'time',
+    'empty',
+    'footer',
+  ],
+  base: {
+    root: { display: 'flex', flexDirection: 'column', minWidth: 0 },
+    head: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: '_sm',
+      paddingBlock: '_sm',
+      paddingInline: '_md',
+      borderBlockEndWidth: '_xs',
+      borderBlockEndStyle: 'solid',
+      borderBlockEndColor: '_border',
+    },
+    title: { fontWeight: '_medium' },
+    // 类型多时筛选按钮换行；“只看未读”靠结束边（没有标题行时“全部标为已读”跟在它后面）
+    filters: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: '_sm',
+      paddingBlock: '_sm',
+      paddingInline: '_md',
+    },
+    types: { flexWrap: 'wrap' },
+    unreadOnly: { marginInlineStart: 'auto' },
+    list: { listStyle: 'none', margin: 0, padding: 0 },
+    // 整行贴着滚动区域的边：焦点环画在里面，画在外面会被裁掉
+    item: [
+      focusRingStyles.inset,
+      {
+        display: 'grid',
+        gridTemplateColumns: '0.5rem minmax(0, 1fr) auto',
+        columnGap: '_sm',
+        alignItems: 'baseline',
+        paddingBlock: '_sm',
+        paddingInline: '_md',
+        color: 'inherit',
+        textDecoration: 'none',
+        borderBlockStartWidth: '_xs',
+        borderBlockStartStyle: 'solid',
+        borderBlockStartColor: '_borderMuted',
+        backgroundColor: { default: 'transparent', _hover: '_fillHover' },
+        cursor: 'pointer',
+      },
+    ],
+    // 未读的色点贴着标题的第一行
+    dot: { display: 'flex', alignItems: 'center', height: '1lh', alignSelf: 'start' },
+    body: { display: 'flex', flexDirection: 'column', gap: '_xxs', minWidth: 0 },
+    itemTitle: { fontSize: '_sm' },
+    description: { color: '_textMuted', fontSize: '_xs' },
+    time: { color: '_textMuted', fontSize: '_xs', whiteSpace: 'nowrap' },
+    footer: {
+      display: 'flex',
+      justifyContent: 'center',
+      paddingBlock: '_sm',
+      borderBlockStartWidth: '_xs',
+      borderBlockStartStyle: 'solid',
+      borderBlockStartColor: '_border',
+    },
+    empty: { paddingBlock: '_lg' },
+  },
+});
 
-/** NotificationList 的样式：root、head、title、filters、list、item、dot… */
-const notificationListStyles = css.create({
-  root: { display: 'flex', flexDirection: 'column', minWidth: 0 },
-  head: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '_sm',
-    paddingBlock: '_sm',
-    paddingInline: '_md',
-    borderBlockEndWidth: '_xs',
-    borderBlockEndStyle: 'solid',
-    borderBlockEndColor: '_border',
-  },
-  title: { fontWeight: '_medium' },
-  // 类型多时筛选按钮换行；“只看未读”总在最后、靠结束边
-  filters: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: '_sm',
-    paddingBlock: '_sm',
-    paddingInline: '_md',
-  },
-  types: { flexWrap: 'wrap' },
-  end: { marginInlineStart: 'auto' },
-  list: { listStyle: 'none', margin: 0, padding: 0 },
-  item: {
-    display: 'grid',
-    gridTemplateColumns: '0.5rem minmax(0, 1fr) auto',
-    columnGap: '_sm',
-    alignItems: 'baseline',
-    paddingBlock: '_sm',
-    paddingInline: '_md',
-    color: 'inherit',
-    textDecoration: 'none',
-    borderBlockStartWidth: '_xs',
-    borderBlockStartStyle: 'solid',
-    borderBlockStartColor: '_borderMuted',
-    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
-    cursor: 'pointer',
-  },
-  // 未读的色点贴着标题的第一行
-  dot: { display: 'flex', alignItems: 'center', height: '1lh', alignSelf: 'start' },
-  body: { display: 'flex', flexDirection: 'column', gap: '_xxs', minWidth: 0 },
-  itemTitle: { fontSize: '_sm' },
-  itemTitleUnread: { fontWeight: '_semibold' },
-  muted: { color: '_textMuted', fontSize: '_xs' },
-  time: { color: '_textMuted', fontSize: '_xs', whiteSpace: 'nowrap' },
-  foot: {
-    display: 'flex',
-    justifyContent: 'center',
-    paddingBlock: '_sm',
-    borderBlockStartWidth: '_xs',
-    borderBlockStartStyle: 'solid',
-    borderBlockStartColor: '_border',
-  },
-  empty: { paddingBlock: '_lg' },
+/** NotificationList 的部件（createUi / Provider 的 components.NotificationList.styles 按它定制） */
+export type NotificationListPart = (typeof notificationListRecipe.parts)[number];
+
+/** 按条变的样式，追加在部件层之后：未读的标题加粗 */
+const notificationListStateStyles = css.create({
+  unread: { fontWeight: '_semibold' },
 });
 
 /** 通知列表：标题行、筛选、通知（新的在前）、底部；直接放在页面、抽屉里，或由 NotificationCenter 放进弹出层 */
@@ -200,6 +235,7 @@ export const NotificationList = _component(
     propsFooter,
     ...rest
   }: NotificationListProps) => {
+    const ui = useComponent(notificationListRecipe, () => ({}));
     const messages = useMessages('patterns', patternsMessages);
     const router = useRouterLink();
     let type = _state('');
@@ -216,10 +252,11 @@ export const NotificationList = _component(
     }
 
     return () => {
+      const s = ui().parts;
       const markAll = (
         <Button
           {...mergePartProps<ButtonProps>(
-            { size: 'xs', variant: 'ghost', sx: title === false && notificationListStyles.end },
+            { ...s.markAll, size: 'xs', variant: 'ghost' },
             propsMarkAll,
             {
               disabled: unread === 0,
@@ -231,39 +268,18 @@ export const NotificationList = _component(
         </Button>
       );
       return (
-        <div
-          {...mergeAttrs<'div'>(
-            { sx: notificationListStyles.root, ...notificationListPart('root') },
-            rest,
-          )}
-        >
+        <div {...mergeAttrs<'div'>(s.root, rest)}>
           {title !== false && (
-            <div
-              {...mergeAttrs<'div'>(
-                { sx: notificationListStyles.head, ...notificationListPart('head') },
-                propsHead,
-              )}
-            >
-              <span {...css.attrs(notificationListStyles.title)} {...notificationListPart('title')}>
-                {title ?? messages.notifications}
-              </span>
+            <div {...mergeAttrs<'div'>(s.head, propsHead)}>
+              <span {...mergeAttrs<'span'>(s.title)}>{title ?? messages.notifications}</span>
               {markAll}
             </div>
           )}
-          <div
-            {...mergeAttrs<'div'>(
-              { sx: notificationListStyles.filters, ...notificationListPart('filters') },
-              propsFilters,
-            )}
-          >
+          <div {...mergeAttrs<'div'>(s.filters, propsFilters)}>
             {types?.length ? (
               <ToggleGroup
                 {...mergePartProps<ToggleGroupBaseProps & SingleSelectionProps>(
-                  {
-                    size: 'xs',
-                    sx: notificationListStyles.types,
-                    'aria-label': messages.notifications,
-                  },
+                  { ...s.types, size: 'xs', 'aria-label': messages.notifications },
                   propsTypes,
                 )}
                 _value={type || 'all'}
@@ -281,7 +297,7 @@ export const NotificationList = _component(
             ) : null}
             <Switch
               {...mergePartProps<SwitchProps>(
-                { size: 'sm', sx: notificationListStyles.end },
+                { size: 'sm', propsRoot: s.unreadOnly },
                 propsUnreadOnly,
               )}
               _checked={unreadOnly}
@@ -291,31 +307,17 @@ export const NotificationList = _component(
             {title === false && markAll}
           </div>
           {shown.length === 0 ? (
-            <div
-              {...mergeAttrs<'div'>(
-                { sx: notificationListStyles.empty, ...notificationListPart('empty') },
-                propsEmpty,
-              )}
-            >
+            <div {...mergeAttrs<'div'>(s.empty, propsEmpty)}>
               {empty ?? <Empty size="sm" title={messages.notificationsEmpty} />}
             </div>
           ) : (
-            <ScrollArea {...propsScroll}>
-              <ul
-                {...mergeAttrs<'ul'>(
-                  { sx: notificationListStyles.list, ...notificationListPart('list') },
-                  propsList,
-                )}
-              >
+            <ScrollArea {...mergePartProps<ScrollAreaProps>(s.scroll, propsScroll)}>
+              <ul {...mergeAttrs<'ul'>(s.list, propsList)}>
                 {shown.map((item) => (
                   <li key={item.id}>
                     <a
                       {...mergeAttrs<'a'>(
-                        // 整行贴着滚动区域的边：焦点环画在里面，画在外面会被裁掉
-                        {
-                          sx: [notificationListStyles.item, focusRingStyles.inset],
-                          ...notificationListPart('item'),
-                        },
+                        s.item,
                         typeof propsItem === 'function' ? propsItem(item) : propsItem,
                         {
                           href: item.href ? router.href(item.href) : undefined,
@@ -332,22 +334,15 @@ export const NotificationList = _component(
                       )}
                       data-state={item.read ? 'read' : 'unread'}
                     >
-                      <span
-                        {...css.attrs(notificationListStyles.dot)}
-                        {...notificationListPart('dot')}
-                      >
+                      <span {...mergeAttrs<'span'>(s.dot)}>
                         {!item.read && <StatusDot tone={item.tone ?? 'accent'} />}
                       </span>
-                      <span
-                        {...css.attrs(notificationListStyles.body)}
-                        {...notificationListPart('body')}
-                      >
+                      <span {...mergeAttrs<'span'>(s.body)}>
                         <span
-                          {...css.attrs(
-                            notificationListStyles.itemTitle,
-                            !item.read && notificationListStyles.itemTitleUnread,
-                          )}
-                          {...notificationListPart('itemTitle')}
+                          {...mergeAttrs<'span'>({
+                            ...s.itemTitle,
+                            sx: [s.itemTitle.sx, !item.read && notificationListStateStyles.unread],
+                          })}
                         >
                           {!item.read && (
                             <VisuallyHidden>{messages.notificationUnreadMark} </VisuallyHidden>
@@ -355,31 +350,17 @@ export const NotificationList = _component(
                           {item.title}
                         </span>
                         {item.description && (
-                          <span
-                            {...css.attrs(notificationListStyles.muted)}
-                            {...notificationListPart('description')}
-                          >
-                            {item.description}
-                          </span>
+                          <span {...mergeAttrs<'span'>(s.description)}>{item.description}</span>
                         )}
                       </span>
-                      <RelativeTime value={item.time} now={now} sx={notificationListStyles.time} />
+                      <RelativeTime {...s.time} value={item.time} now={now} />
                     </a>
                   </li>
                 ))}
               </ul>
             </ScrollArea>
           )}
-          {hasContent(footer) && (
-            <div
-              {...mergeAttrs<'div'>(
-                { sx: notificationListStyles.foot, ...notificationListPart('footer') },
-                propsFooter,
-              )}
-            >
-              {footer}
-            </div>
-          )}
+          {hasContent(footer) && <div {...mergeAttrs<'div'>(s.footer, propsFooter)}>{footer}</div>}
         </div>
       );
     };
@@ -395,11 +376,21 @@ export interface NotificationCenterProps
   propsNotificationList?: Partial<NotificationListProps>;
 }
 
-/** NotificationCenter 的样式：panel（弹出层的宽度）、list（列表的最大高度） */
-const notificationCenterStyles = css.create({
-  panel: { width: 'min(26rem, calc(100vw - 2rem))', padding: 0 },
-  list: { maxHeight: '24rem' },
+/**
+ * NotificationCenter 的配方（createUi / Provider 的 components.NotificationCenter 按它定制）：panel（弹出层）、indicator（未读数）、
+ * trigger（铃铛按钮）、list（面板里的 NotificationList 的滚动区域：最大高度）
+ */
+export const notificationCenterRecipe = css.recipe({
+  name: 'NotificationCenter',
+  parts: ['panel', 'indicator', 'trigger', 'list'],
+  base: {
+    panel: { width: 'min(26rem, calc(100vw - 2rem))', padding: 0 },
+    list: { maxHeight: '24rem' },
+  },
 });
+
+/** NotificationCenter 的部件（createUi / Provider 的 components.NotificationCenter.styles 按它定制） */
+export type NotificationCenterPart = (typeof notificationCenterRecipe.parts)[number];
 
 /** 通知中心：顶栏的铃铛（带未读数），点开是 NotificationList；点了一条就收起 */
 export const NotificationCenter = _component(
@@ -416,45 +407,46 @@ export const NotificationCenter = _component(
     propsNotificationList,
     ...rest
   }: NotificationCenterProps) => {
+    const ui = useComponent(notificationCenterRecipe, () => ({}));
     const messages = useMessages('patterns', patternsMessages);
     const unread = _derived(items.filter((item) => !item.read).length);
-    return () => (
-      <Popover
-        {...mergeProps<PopoverProps>(
-          { placement: 'bottom-end', sx: notificationCenterStyles.panel },
-          rest,
-        )}
-        _open={open}
-        trigger={(trigger) => (
-          <Indicator count={unread} label={messages.notificationsUnread(unread)}>
-            <IconButton
-              {...mergePartProps<IconButtonProps>(
-                { icon: Bell, 'aria-label': messages.notificationsUnread(unread) },
-                propsTrigger,
-                trigger,
-              )}
-            />
-          </Indicator>
-        )}
-      >
-        <NotificationList
-          {...mergePartProps<NotificationListProps>(
-            { items, propsScroll: { sx: notificationCenterStyles.list } },
-            propsNotificationList,
-            {
-              types,
-              onRead,
-              footer,
-              empty,
-              now,
-              onItemClick: (item: NotificationItem) => {
-                onItemClick?.(item);
-                open = false;
-              },
-            },
+    return () => {
+      const s: Readonly<Record<NotificationCenterPart, PartLayer>> = ui().parts;
+      return (
+        <Popover
+          {...mergeProps<PopoverProps>({ ...s.panel, placement: 'bottom-end' }, rest)}
+          _open={open}
+          trigger={(trigger) => (
+            <Indicator {...s.indicator} count={unread} label={messages.notificationsUnread(unread)}>
+              <IconButton
+                {...mergePartProps<IconButtonProps>(
+                  { ...s.trigger, icon: Bell, 'aria-label': messages.notificationsUnread(unread) },
+                  propsTrigger,
+                  trigger,
+                )}
+              />
+            </Indicator>
           )}
-        />
-      </Popover>
-    );
+        >
+          <NotificationList
+            {...mergePartProps<NotificationListProps>(
+              { items, propsScroll: s.list },
+              propsNotificationList,
+              {
+                types,
+                onRead,
+                footer,
+                empty,
+                now,
+                onItemClick: (item: NotificationItem) => {
+                  onItemClick?.(item);
+                  open = false;
+                },
+              },
+            )}
+          />
+        </Popover>
+      );
+    };
   },
 );
