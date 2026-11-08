@@ -1665,6 +1665,7 @@ export {
   sameNumeric,
   shiftDecimal,
   snapNumeric,
+  sumNumeric,
   toNumber,
   toNumericKind,
   type NumericKind,

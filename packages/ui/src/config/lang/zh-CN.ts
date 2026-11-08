@@ -98,6 +98,8 @@ export const zhCN: Lang = {
   formReset: '重置',
   formAddRow: (label) => `添加${label}`,
   formRemoveRow: (label, index) => `删除第 ${index} 个${label}`,
+  formRowLabel: (label, index) => `第 ${index} 个${label}`,
+  formRowActions: '操作',
   formIssues: zodMessages().localeError,
   leaveTitle: '离开这个页面？',
   leaveDescription: '有未保存的修改，离开后会丢失。',

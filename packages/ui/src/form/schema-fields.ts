@@ -51,6 +51,8 @@ export interface SchemaControls {
   object: unknown;
   /** 对象的数组：可增删的行 */
   list: unknown;
+  /** 对象的数组排成表格（明细表）：一行一条、一列一个字段，能增删行；列写了 total 时表底有合计行 */
+  table: unknown;
 }
 
 declare module 'zod/v4/core' {
@@ -76,6 +78,8 @@ declare module 'zod/v4/core' {
     requiredWhen?: Condition;
     /** 只读条件：成立时控件只读 */
     readonlyWhen?: Condition;
+    /** 明细表（control: 'table'）的列在表底合计：sum 求和（精确，不经过浮点数） */
+    total?: 'sum';
   }
 }
 
@@ -117,6 +121,8 @@ export interface SchemaField {
   requiredWhen?: Condition;
   /** 只读条件（meta） */
   readonlyWhen?: Condition;
+  /** 明细表的列在表底合计（meta） */
+  total?: 'sum';
 }
 
 /**
@@ -147,6 +153,7 @@ const META_KEYS = [
   'visibleWhen',
   'requiredWhen',
   'readonlyWhen',
+  'total',
 ] as const;
 type Meta = { [K in (typeof META_KEYS)[number]]?: unknown };
 
@@ -207,6 +214,7 @@ function emptyOf(
     case 'multiselect':
     case 'checkboxes':
     case 'list':
+    case 'table':
       return [];
     case 'object':
       return Object.fromEntries((fields ?? []).map((field) => [field.key, field.empty]));
@@ -230,7 +238,7 @@ function fieldsOf(root: JsonSchema, object: JsonSchema): SchemaField[] {
     const fields =
       control === 'object'
         ? fieldsOf(root, node)
-        : control === 'list' && item
+        : (control === 'list' || control === 'table') && item
           ? fieldsOf(root, item)
           : undefined;
     const field: SchemaField = {
@@ -250,6 +258,7 @@ function fieldsOf(root: JsonSchema, object: JsonSchema): SchemaField[] {
     if (typeof meta.span === 'number' || meta.span === 'full') field.span = meta.span;
     if (options) field.options = options;
     if (fields) field.fields = fields;
+    if (meta.total === 'sum') field.total = 'sum';
     for (const name of ['visibleWhen', 'requiredWhen', 'readonlyWhen'] as const) {
       if (isCondition(meta[name])) field[name] = meta[name];
     }
@@ -311,7 +320,7 @@ export function walkSchemaFields(
     visit(path, field, state);
     if (!state.visible || !field.fields) continue;
     const value = scope[field.key];
-    if (field.control === 'list' && Array.isArray(value)) {
+    if ((field.control === 'list' || field.control === 'table') && Array.isArray(value)) {
       value.forEach((row, index) =>
         walkSchemaFields(field.fields!, values, access, visit, `${path}.${index}.`, row ?? {}, own),
       );

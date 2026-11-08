@@ -6,6 +6,7 @@ import {
   isDecimal,
   isNumeric,
   numericText,
+  sumNumeric,
   sameNumeric,
   shiftDecimal,
   toNumber,
@@ -67,5 +68,14 @@ describe('numeric', () => {
       '1e5',
       '7',
     ]);
+  });
+});
+
+describe('sumNumeric', () => {
+  it('按十进制精确相加：number、bigint、十进制文本混着也行，空值与文字跳过', () => {
+    expect(sumNumeric([0.1, 0.2])).toBe('0.3');
+    expect(sumNumeric(['1.25', 2n, -0.5, null, '', 'abc'])).toBe('2.75');
+    expect(sumNumeric(['99999999999999999999.01', '0.99'])).toBe('100000000000000000000.00');
+    expect(sumNumeric([null, undefined])).toBeUndefined();
   });
 });

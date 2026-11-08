@@ -39,6 +39,17 @@ import { Switch } from '../input/Switch';
 import { Textarea } from '../input/Textarea';
 import { TextField } from '../input/TextField';
 import { GridItem } from '../layout/Grid';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableFoot,
+  TableHead,
+  TableHeaderCell,
+  TableRow,
+} from '../table/Table';
+import { sumNumeric } from '../utils/data/numeric';
+import { VisuallyHidden } from '../base/VisuallyHidden';
 import { cloneValue } from '../utils/data/clone';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { Field } from './Field';
@@ -109,7 +120,18 @@ export const schemaFormStyles = css.create({
   rowFields: { flexGrow: 1, minWidth: 0 },
   // 删除按钮与第一行输入框对齐：让开标签的高度
   rowRemove: { marginBlockStart: '1.75em' },
+  // 明细表：每格放一个控件，列至少能放下输入框；合计右对齐、等宽数字
+  tableCell: { minWidth: '8em', verticalAlign: 'top' },
+  tableActions: { width: '1%', verticalAlign: 'top' },
+  tableTotal: { fontWeight: '_semibold', fontVariantNumeric: 'tabular-nums' },
 });
+
+/** 合计显示成带千分位的文字（小数部分原样） */
+function groupedTotal(text: string): string {
+  const [whole = '', fraction] = text.split('.');
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return fraction === undefined ? grouped : `${grouped}.${fraction}`;
+}
 
 /**
  * 按字段的描述选控件。extra 是额外的属性：表单里不给（Field 自动绑定值），查询栏里给值的读写与 clearable
@@ -175,7 +197,10 @@ export function schemaFilters<Values extends object>(
   const record = values as Record<string, unknown>;
   const custom = renderers as Partial<Record<string, (field: SchemaField) => VNodeChild>>;
   return pickFields(schemaFields(schema), pick, omit)
-    .filter((field) => field.control !== 'object' && field.control !== 'list')
+    .filter(
+      (field) =>
+        field.control !== 'object' && field.control !== 'list' && field.control !== 'table',
+    )
     .map((field) => {
       const prop =
         field.control === 'switch' || field.control === 'checkbox' ? '_checked' : '_value';
@@ -298,12 +323,147 @@ export const SchemaFields = _component(
       );
     }
 
+    /**
+     * 明细表：一行一条、一列一个字段（格子里是去掉标签的控件，标签留给读屏），行末是删除按钮，标题旁是添加按钮；
+     * 列写了 total 时表底是合计行。整列都不显示（权限、条件）时不出这一列；只读时不能增删行
+     */
+    function table(field: SchemaField, path: string, readonly: boolean) {
+      const array = controller.array(path as never) as FieldArray<Record<string, unknown>>;
+      const children = field.fields ?? [];
+      const blank = Object.fromEntries(children.map((child) => [child.key, child.empty]));
+      const columns = children.filter(
+        (child) =>
+          array.items.length === 0 ||
+          array.items.some(
+            (_, index) => controller.fieldState(`${path}.${index}.${child.key}`).visible,
+          ),
+      );
+      const totals = columns.some((child) => child.total === 'sum');
+      const cell = (child: SchemaField, index: number) => {
+        const cellPath = `${path}.${index}.${child.key}`;
+        const state = controller.fieldState(cellPath);
+        return (
+          <TableCell key={child.key} sx={schemaFormStyles.tableCell}>
+            {state.visible && (
+              <Field
+                name={cellPath}
+                label={`${child.label}（${lang.formRowLabel(field.label, index + 1)}）`}
+                labelHidden
+                {...(state.readonly ? { readonly: true } : {})}
+                {...(state.required ? { required: true } : {})}
+              >
+                {custom?.[`${path}.${child.key}`]?.(child) ?? controlOf(child)}
+              </Field>
+            )}
+          </TableCell>
+        );
+      };
+      return (
+        <GridItem key={path} span="full">
+          <FormSection
+            {...mergePartProps<FormSectionProps>({}, propsSection, {
+              title: field.label,
+              description: field.description,
+              extra: readonly ? undefined : (
+                <Button
+                  {...mergePartProps<ButtonProps>(
+                    { size: 'sm', variant: 'soft', icon: Plus },
+                    propsAddRow,
+                    { onClick: () => array.append(cloneValue(blank)) },
+                  )}
+                >
+                  {lang.formAddRow(field.label)}
+                </Button>
+              ),
+            })}
+          >
+            <GridItem span="full">
+              <Table aria-label={field.label} {...schemaFormPart('table')}>
+                <TableHead>
+                  <TableRow>
+                    {columns.map((child) => (
+                      <TableHeaderCell key={child.key} align={child.total ? 'end' : undefined}>
+                        {child.label}
+                      </TableHeaderCell>
+                    ))}
+                    {!readonly && (
+                      <TableHeaderCell sx={schemaFormStyles.tableActions}>
+                        <VisuallyHidden>{lang.formRowActions}</VisuallyHidden>
+                      </TableHeaderCell>
+                    )}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {array.items.length === 0 ? (
+                    <TableRow>
+                      <TableCell colspan={columns.length + (readonly ? 0 : 1)}>
+                        {lang.tableEmpty}
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    array.items.map((_, index) => (
+                      <TableRow key={array.keys[index]}>
+                        {columns.map((child) => cell(child, index))}
+                        {!readonly && (
+                          <TableCell sx={schemaFormStyles.tableActions}>
+                            <IconButton
+                              {...mergePartProps<IconButtonProps>(
+                                {
+                                  icon: Trash2,
+                                  variant: 'ghost',
+                                  tone: 'danger',
+                                  'aria-label': lang.formRemoveRow(field.label, index + 1),
+                                },
+                                propsRemoveRow,
+                                { onClick: () => array.remove(index) },
+                              )}
+                            />
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+                {totals && array.items.length > 0 && (
+                  <TableFoot>
+                    <TableRow>
+                      {columns.map((child, i) => {
+                        const sum =
+                          child.total === 'sum'
+                            ? sumNumeric(array.items.map((row) => row?.[child.key]))
+                            : undefined;
+                        return (
+                          <TableCell
+                            key={child.key}
+                            align={child.total ? 'end' : undefined}
+                            sx={schemaFormStyles.tableTotal}
+                          >
+                            {sum !== undefined
+                              ? groupedTotal(sum)
+                              : i === 0
+                                ? lang.tableSummary
+                                : null}
+                          </TableCell>
+                        );
+                      })}
+                      {!readonly && <TableCell />}
+                    </TableRow>
+                  </TableFoot>
+                )}
+              </Table>
+            </GridItem>
+          </FormSection>
+        </GridItem>
+      );
+    }
+
     /** 一个字段：嵌套对象是一组，列表是可增删的行，其余是 Field 里放控件；按权限与条件不显示、只读、必填 */
     function item(field: SchemaField, prefix: string): VNodeChild {
       const path = `${prefix}${field.key}`;
       const state = controller.fieldState(path);
       if (!state.visible) return null;
       if (field.control === 'list') return rows(field, path, state.readonly);
+      if (field.control === 'table') return table(field, path, state.readonly);
       if (field.control === 'object') {
         return (
           <GridItem key={path} span="full">

@@ -99,6 +99,8 @@ export const enUS: Lang = {
   formReset: 'Reset',
   formAddRow: (label) => `Add ${label}`,
   formRemoveRow: (label, index) => `Remove ${label} ${index}`,
+  formRowLabel: (label, index) => `${label} ${index}`,
+  formRowActions: 'Actions',
   formIssues: zodMessages().localeError,
   leaveTitle: 'Leave this page?',
   leaveDescription: 'You have unsaved changes that will be lost.',

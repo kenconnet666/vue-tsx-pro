@@ -1,5 +1,6 @@
 // 费用报销单：显示、必填、只读的条件写在 .meta() 里（visibleWhen、requiredWhen、readonlyWhen，同 ConditionBuilder 的条件），
-// useForm 的 access 按字段路径给权限（同流程的环节权限：申请人填写、财务只改核定金额）；不显示的不校验，明细表跟着它的权限
+// useForm 的 access 按字段路径给权限（同流程的环节权限：申请人填写、财务只改核定金额）；不显示的不校验；
+// 明细表排成表格（control: 'table'），金额列表底合计（total: 'sum'），列跟着明细表的权限
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   emptyValues,
@@ -46,10 +47,10 @@ const schema = z.object({
     .array(
       z.object({
         item: z.string().min(1, '请填写项目').meta({ title: '项目' }),
-        cost: z.number('请填写金额').meta({ title: '金额', unit: '元' }),
+        cost: z.number('请填写金额').meta({ title: '金额', unit: '元', total: 'sum' }),
       }),
     )
-    .meta({ title: '明细' }),
+    .meta({ title: '明细', control: 'table' }),
 });
 
 /** 两个环节的字段权限：申请人填写时看不到核定金额，财务审核时只改核定金额 */
@@ -71,7 +72,14 @@ export default _component(() => {
   let result = _state('');
   const form = useForm({
     schema,
-    initial: { ...emptyValues(schema), kind: 'travel', lines: [{ item: '高铁', cost: 553 }] },
+    initial: {
+      ...emptyValues(schema),
+      kind: 'travel',
+      lines: [
+        { item: '高铁', cost: 553 },
+        { item: '酒店', cost: 1260.5 },
+      ],
+    },
     access: () => STEPS[step]!,
     onSubmit: async () => {
       await new Promise((resolve) => setTimeout(resolve, 400));

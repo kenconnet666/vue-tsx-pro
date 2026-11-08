@@ -88,7 +88,11 @@ export default _component(() => () => (
         ' 按字段路径给权限（hidden、readonly、editable、required，可以是随环节变的函数；明细表的列没写时跟着明细表），与流程的环节权限一一对应。不显示的字段不渲染、不校验，条件必填的空着报“必填”；有条件的字段在 schema 里写成可选。'
       }
       <Code>form.fieldState(path)</Code>
-      {' 给出字段此刻的样子。'}
+      {' 给出字段此刻的样子。对象的数组写 '}
+      <Code>{"control: 'table'"}</Code>
+      {' 排成明细表（一行一条，能增删行），列写 '}
+      <Code>{"total: 'sum'"}</Code>
+      {' 在表底精确合计（不经过浮点数，小数位按最长的留着）。'}
     </Example>
     <Examples>
       <ExampleColumn>

@@ -195,6 +195,10 @@ export interface Lang {
   readonly formAddRow: (label: string) => string;
   /** SchemaForm 列表字段删一行的按钮：`('联系人', 2)` → “删除第 2 个联系人” */
   readonly formRemoveRow: (label: string, index: number) => string;
+  /** 明细表里一行的说明（格子里控件的读屏标签：“单价（第 2 个明细）”） */
+  readonly formRowLabel: (label: string, index: number) => string;
+  /** 明细表操作列的表头（只给读屏） */
+  readonly formRowActions: string;
   /** 其余校验错误的文案：取 zod 自带的语言包（`zod/v4/locales` 的 localeError）；schema 里自己写的提示优先 */
   readonly formIssues: $ZodErrorMap;
   /** 未保存离开时确认对话框的标题，默认“离开这个页面？” */

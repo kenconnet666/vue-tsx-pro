@@ -193,6 +193,28 @@ export function addNumeric(value: NumericValue, delta: NumericValue, kind: Numer
   return (left as Decimal).plus(right as Decimal);
 }
 
+/**
+ * 一组数值的和，按十进制文本精确相加（放大成整数再移回小数点），不经过浮点数，小数位按最长的那个留着：表格的合计行用它。
+ * 认 number、bigint、Decimal 与十进制文本，别的值（空、文字）跳过；一个也没有时是 undefined
+ */
+export function sumNumeric(values: readonly unknown[]): string | undefined {
+  const texts = values
+    .map((value) => (isNumeric(value) ? numericText(value) : isNumericText(value) ? value : null))
+    .filter((text): text is string => text !== null && /^[+-]?\d*(\.\d*)?$/.test(text));
+  if (texts.length === 0) return undefined;
+  const places = Math.max(...texts.map((text) => text.split('.')[1]?.length ?? 0));
+  const total = texts.reduce((sum, text) => {
+    const [whole = '0', fraction = ''] = text.replace(/^[+-]/, '').split('.');
+    const scaled = BigInt((whole || '0') + fraction.padEnd(places, '0'));
+    return sum + (text.startsWith('-') ? -scaled : scaled);
+  }, 0n);
+  // 小数位按最长的那个留着（金额 553.00 + 1200.00 是 1753.00）
+  const negative = total < 0n;
+  const digits = (negative ? -total : total).toString().padStart(places + 1, '0');
+  const text = places > 0 ? `${digits.slice(0, -places)}.${digits.slice(-places)}` : digits;
+  return negative ? `-${text}` : text;
+}
+
 /** value 的 times 倍（times 是整数，如 -1、10），按 kind 精确运算 */
 export function multiplyNumeric(value: NumericValue, times: number, kind: NumericKind) {
   const typed = toNumericKind(value, kind);
