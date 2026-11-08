@@ -9,7 +9,7 @@ import {
 } from '@zerodep-dev/flow-ts-engine/client';
 import type { EmployeeRow, OrgSnapshot } from '@zerodep-dev/flow-ts-engine/org';
 import { markRaw, reactive, readonly } from 'vue';
-import { DEFAULT_ACTOR } from '../domain/org';
+import { DEFAULT_ACTOR, isAdmin } from '../domain/org';
 import { isDemoMessage, type FromWorker, type ToWorker } from './messages';
 
 /** 流程中心此刻的样子 */
@@ -37,6 +37,8 @@ export interface FlowCenter {
   readonly state: Readonly<FlowCenterState>;
   /** 经 Worker 用引擎（以当前演示身份） */
   readonly client: FlowClient;
+  /** 当前演示身份是管理员（显示管理入口；真正的权限在引擎里查） */
+  admin(): boolean;
   /** 按编号找人；找不到（组织还没到、编号不对）时 undefined */
   person(id: string | null | undefined): EmployeeRow | undefined;
   /** 选人的选项：在职的人，按部门分组，名字后面是职务 */
@@ -167,6 +169,10 @@ function connect(): FlowCenter {
     client,
     // 读一下 state.org：组织换了，用到名字的地方跟着重画
     person: (id) => (state.org && id ? index.get(id) : undefined),
+    admin: () => {
+      const me = state.org && index.get(state.actor);
+      return me ? isAdmin(me) : false;
+    },
     people,
     setActor,
     advance(hours) {

@@ -1,7 +1,7 @@
 /**
- * 查询：待办、已办、抄送、我发起的、实例与待办详情、发起视图、能发起的流程。
+ * 查询：待办、已办、抄送、我发起的、查单据、实例与待办详情、发起视图、能发起的流程。
  */
-import { and, not, or } from '@zerodep-dev/easy-query-ts';
+import { and, not, or, type Ref } from '@zerodep-dev/easy-query-ts';
 import {
   fieldStates,
   processGraph,
@@ -12,16 +12,34 @@ import {
 } from '@zerodep-dev/flow-ts-model';
 import { actorTokens } from '../runtime/assignees.ts';
 import { nextSteps, picksOf } from '../runtime/next-steps.ts';
-import { FlowCc, FlowDefinition, FlowEvent, FlowInstance, FlowWorkItem } from '../core/entities.ts';
+import {
+  FlowCc,
+  FlowDefinition,
+  FlowEvent,
+  FlowInstance,
+  FlowWorkItem,
+  type flowSchema,
+} from '../core/entities.ts';
 import { FlowError } from '../core/errors.ts';
 import { workItemSummary } from '../runtime/execution.ts';
 import { availableOperations, excludeToken } from '../commands/operations.ts';
+import { remindable, withdrawable } from '../commands/admin.ts';
 import type { EngineCore } from '../core/context.ts';
 import { stepsAfter } from '../runtime/next-steps.ts';
 import { defaultsOf } from '../commands/start.ts';
 import { outcomesFor, returnTargets } from '../commands/complete.ts';
 import type { TodoItem, OutcomeView, WorkItemField } from '../views.ts';
 import type { FlowEngine } from '../engine.ts';
+import type { Actor, ListFilter } from '../types.ts';
+
+type InstanceRef = Ref<typeof flowSchema, 'FlowInstance'>;
+
+/** 发起的时刻在这段时间里、是这个流程的 */
+const startedWithin = (i: InstanceRef, filter: ListFilter) => [
+  ...(filter.processKey ? [i.processKey.eq(filter.processKey)] : []),
+  ...(filter.from ? [i.startedAt.ge(new Date(filter.from))] : []),
+  ...(filter.to ? [i.startedAt.le(new Date(filter.to))] : []),
+];
 
 /** 待办列表的列：待办加所属实例的流程与标题 */
 const todoColumns = (
@@ -87,6 +105,30 @@ export function createQueries(core: EngineCore) {
     latestDefinition,
     itemsOf,
   } = core;
+
+  /** 这个人经手过实例：发起的、待办落到他或他处理过、在他能认领的收件箱里、抄送给他 */
+  const involves = (i: InstanceRef, actor: Actor) =>
+    or(
+      i.startedBy.eq(actor.id),
+      i.id.in(
+        db
+          .queryable(FlowWorkItem)
+          .where((w) =>
+            or(
+              w.assignee.eq(actor.id),
+              w.completedBy.eq(actor.id),
+              and(w.state.eq('open'), w.assignee.isNull(), w.candidates.hasAny(actorTokens(actor))),
+            ),
+          )
+          .select((w) => w.instanceId),
+      ),
+      i.id.in(
+        db
+          .queryable(FlowCc)
+          .where((c) => c.recipient.eq(actor.id))
+          .select((c) => c.instanceId),
+      ),
+    );
 
   /** 列表行补上摘要列：按实例的定义里 summary 列出的字段取流程变量 */
   async function withSummary(rows: Record<string, any>[]): Promise<TodoItem[]> {
@@ -208,15 +250,34 @@ export function createQueries(core: EngineCore) {
     started: (actor, filter = {}) =>
       db
         .queryable(FlowInstance)
-        .where((i) => [
-          i.startedBy.eq(actor.id),
-          i.status.ne('draft'),
-          ...(filter.processKey ? [i.processKey.eq(filter.processKey)] : []),
-          ...(filter.from ? [i.startedAt.ge(new Date(filter.from))] : []),
-          ...(filter.to ? [i.startedAt.le(new Date(filter.to))] : []),
-        ])
+        .where((i) => [i.startedBy.eq(actor.id), i.status.ne('draft'), ...startedWithin(i, filter)])
         .orderBy((i) => i.id.desc())
         .toList(),
+    search: async (actor, filter = {}) => {
+      const scope = filter.scope ?? 'involved';
+      if (scope === 'all' && !actor.admin)
+        throw new FlowError('forbidden', '只有管理员能查全部单据');
+      const text = filter.text?.trim();
+      const status = filter.status?.length ? [...filter.status] : undefined;
+      return db
+        .queryable(FlowInstance)
+        .where((i) => [
+          status ? i.status.in(status) : i.status.ne('draft'),
+          ...(scope === 'started' ? [i.startedBy.eq(actor.id)] : []),
+          ...(scope === 'involved' ? [involves(i, actor)] : []),
+          ...(text
+            ? [
+                or(
+                  i.title.like(text, { ignoreCase: true }),
+                  i.businessKey.like(text, { ignoreCase: true }),
+                ),
+              ]
+            : []),
+          ...startedWithin(i, filter),
+        ])
+        .orderBy((i) => i.id.desc())
+        .toPage(Math.max(1, filter.page ?? 1), Math.min(200, Math.max(1, filter.size ?? 20)));
+    },
     cc: (actor) =>
       db
         .queryable(FlowCc)
@@ -280,9 +341,18 @@ export function createQueries(core: EngineCore) {
         .select(todoColumns)
         .toList()
         .then(withSummary),
-    instance: async (id) => {
+    instance: async (id, actor) => {
       const instance = await db.queryable(FlowInstance).find(id);
       if (!instance) throw new FlowError('not-found', `没有实例 ${id}`);
+      if (
+        actor &&
+        !actor.admin &&
+        !(await db
+          .queryable(FlowInstance)
+          .where((i) => [i.id.eq(id), involves(i, actor)])
+          .any())
+      )
+        throw new FlowError('forbidden', `实例 ${id} 不是你经手的`);
       const items = await db
         .queryable(FlowWorkItem)
         .where((w) => w.instanceId.eq(id))
@@ -299,7 +369,24 @@ export function createQueries(core: EngineCore) {
         node,
         name: nodes.find((n) => n.id === node)?.name ?? node,
       }));
-      return { instance, definition, current, workItems: items.map(workItemSummary), events };
+      const active = instance.status === 'active';
+      const starter = actor?.id === instance.startedBy;
+      const actions = {
+        withdraw: active && starter && withdrawable(definition, items, instance.startedBy),
+        remind:
+          active &&
+          (starter || actor?.admin === true) &&
+          items.some((w) => w.state === 'open' && remindable(definition, w.node)),
+        manage: actor?.admin === true && ['active', 'suspended'].includes(instance.status),
+      };
+      return {
+        instance,
+        definition,
+        current,
+        workItems: items.map(workItemSummary),
+        events,
+        actions,
+      };
     },
   };
 

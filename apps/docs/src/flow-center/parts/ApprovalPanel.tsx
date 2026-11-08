@@ -1,6 +1,6 @@
 /**
- * 审批单：单据的摘要（流程、发起人、时间、现在到哪）、我能做的（HandleTask）或只读的单据（SchemaView，按“旁观的人”的权限）、
- * 进度图、流转记录。数据变了（谁处理了、作业跑了）、换了演示身份都重新取。
+ * 审批单：单据的摘要（流程、发起人、时间、现在到哪）、对整张单的动作（InstanceActions：撤回、催办、留言、管理员的干预）、
+ * 我能做的（HandleTask）或只读的单据（SchemaView，按“旁观的人”的权限）、进度图、流转记录。数据变了（谁处理了、作业跑了）、换了演示身份都重新取。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { Incident, InstanceDetail, WorkItemDetail } from '@zerodep-dev/flow-ts-engine';
@@ -21,6 +21,7 @@ import { watch } from 'vue';
 import { useFlowCenter } from '../runtime/center';
 import { FlowTimeline } from './FlowTimeline';
 import { HandleTask } from './HandleTask';
+import { InstanceActions } from './InstanceActions';
 import { ProgressDiagram } from './ProgressDiagram';
 import { RESULT_TEXT, STATUS, timeText, who } from './labels';
 
@@ -110,11 +111,16 @@ export const ApprovalPanel = _component(
                 },
               ]}
             />
+            <InstanceActions detail={current} incidents={incidents} />
           </Flex>
           {incidents.length > 0 && (
             <Alert
               tone="danger"
-              title="自动处理失败，等管理员处理"
+              title={
+                current.actions.manage
+                  ? '自动处理失败：重试，或跳过往下走'
+                  : '自动处理失败，等管理员处理'
+              }
               description={incidents.map((i) => `${i.nodeName ?? ''}：${i.error ?? ''}`).join('；')}
             />
           )}

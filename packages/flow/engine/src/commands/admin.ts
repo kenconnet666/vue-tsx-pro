@@ -2,7 +2,7 @@
  * 实例上的操作：撤回、终止、跳转、暂停与恢复、催办、改单据数据、迁移到另一个版本。
  */
 import { or } from '@zerodep-dev/easy-query-ts';
-import { processGraph } from '@zerodep-dev/flow-ts-model';
+import { processGraph, type ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import { FlowDefinition, FlowInstance, FlowJob, FlowWorkItem } from '../core/entities.ts';
 import { FlowError } from '../core/errors.ts';
 import { renameNodes } from '../runtime/state.ts';
@@ -11,6 +11,31 @@ import type { EngineCore } from '../core/context.ts';
 
 /** 手动催办的间隔：同一份待办一小时内只催一次 */
 const REMIND_INTERVAL_MS = 3_600_000;
+
+/**
+ * 发起人此刻能不能撤回：按流程的 withdraw 设置（默认没人处理过之前），别人处理过、或设成 beforeClaim 时有人认领了就不行。
+ * 撤回命令与实例详情的 actions 共用
+ */
+export function withdrawable(
+  definition: ProcessDefinition,
+  items: readonly {
+    readonly state: string;
+    readonly completedBy: string | null;
+    readonly assignment: string;
+  }[],
+  startedBy: string,
+): boolean {
+  const mode = definition.settings?.withdraw ?? 'beforeAction';
+  if (mode === 'never') return false;
+  if (items.some((w) => w.state === 'done' && w.completedBy !== startedBy)) return false;
+  return !(mode === 'beforeClaim' && items.some((w) => w.assignment === 'claimed'));
+}
+
+/** 节点允许催办（环节上写了 allow.remind: false 的不行） */
+export function remindable(definition: ProcessDefinition, node: string): boolean {
+  const found = definition.nodes.find((n) => n.id === node);
+  return found?.type !== 'task' || found.allow?.remind !== false;
+}
 
 /** 实例上的操作：装进引擎核心（core.admin），别的模块经它调用 */
 export function createAdmin(core: EngineCore) {
@@ -28,16 +53,12 @@ export function createAdmin(core: EngineCore) {
           throw new FlowError('instance-not-active', `实例 ${command.instance} 不在进行中`);
         if (exec.instance.startedBy !== actor.id)
           throw new FlowError('forbidden', '只有发起人能撤回');
-        const mode = exec.definition.settings?.withdraw ?? 'beforeAction';
         const items = await tx
           .queryable(FlowWorkItem)
           .where((w) => w.instanceId.eq(command.instance))
           .toList();
-        const acted = items.some((w) => w.state === 'done' && w.completedBy !== actor.id);
-        const claimed = items.some((w) => w.assignment === 'claimed');
-        if (mode === 'never' || acted || (mode === 'beforeClaim' && claimed)) {
+        if (!withdrawable(exec.definition, items, actor.id))
           throw new FlowError('forbidden', '已经有人处理了，不能撤回');
-        }
         await exec.finish('withdrawn', 'withdrawn', command.comment ?? null);
       },
       command,
@@ -140,15 +161,15 @@ export function createAdmin(core: EngineCore) {
           ])
           .toList();
         // 环节关掉了催办（allow.remind: false）：点名催它时报错，催全部时跳过它
-        const remindable = (node: string) => {
-          const found = exec.graph.node(node);
-          return found?.type !== 'task' || found.allow?.remind !== false;
-        };
-        if (command.workItem !== undefined && items[0] && !remindable(items[0].node))
+        if (
+          command.workItem !== undefined &&
+          items[0] &&
+          !remindable(exec.definition, items[0].node)
+        )
           throw new FlowError('forbidden', `节点 ${items[0].nodeName} 不允许催办`);
         // 同一份待办一小时内只催一次（同 Java 版）：带条件地记下催办的时刻，没记上的不催
         const notBefore = new Date(exec.now.getTime() - REMIND_INTERVAL_MS);
-        for (const item of items.filter((i) => remindable(i.node))) {
+        for (const item of items.filter((i) => remindable(exec.definition, i.node))) {
           const marked = await tx
             .update(FlowWorkItem)
             .set({ remindedAt: exec.now })

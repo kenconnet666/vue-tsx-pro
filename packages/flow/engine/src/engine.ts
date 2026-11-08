@@ -24,7 +24,9 @@ import type {
   Actor,
   BatchResult,
   FlowCommand,
+  InstanceSearch,
   ListFilter,
+  ResultPage,
   FlowEngineOptions,
   RunResult,
   SignalInput,
@@ -107,12 +109,14 @@ export interface FlowEngine {
     done(actor: Actor, filter?: ListFilter): Promise<TodoItem[]>;
     /** 等我指定承办人的（我是收件箱的负责人，很久没人认领） */
     designations(actor: Actor): Promise<TodoItem[]>;
-    /** 实例详情：实例、全部待办、流转记录 */
-    instance(id: number): Promise<InstanceDetail>;
+    /** 实例详情：实例、全部待办、流转记录；给了 actor 时只给经手的人与管理员看（同 search 的 involved），别人是 forbidden */
+    instance(id: number, actor?: Actor): Promise<InstanceDetail>;
     /** 待办详情 */
     workItem(id: number, actor: Actor): Promise<WorkItemDetail>;
     /** 我发起的实例，新的在前 */
     started(actor: Actor, filter?: ListFilter): Promise<InstanceRow[]>;
+    /** 查单据：按范围、流程、状态、发起时间、文字筛，新的在前，分页 */
+    search(actor: Actor, filter?: InstanceSearch): Promise<ResultPage<InstanceRow>>;
     /** 抄送给我的，没读的在前 */
     cc(actor: Actor): Promise<CcItem[]>;
     /** 失败的作业（异常）；给实例时只看这个实例的 */

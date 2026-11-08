@@ -14,6 +14,10 @@ export const ROLE = {
   ceo: '6',
 } as const;
 
+/** 总经理能做管理员的事（干预流程、处理异常）；Worker 给引擎的 Actor 与页面显示管理入口都按它 */
+export const isAdmin = (employee: { readonly roles: readonly string[] }): boolean =>
+  employee.roles.includes(ROLE.ceo);
+
 /** 演示身份默认是林小满（前端组长，有下属的请假要批） */
 export const DEFAULT_ACTOR = '1003';
 

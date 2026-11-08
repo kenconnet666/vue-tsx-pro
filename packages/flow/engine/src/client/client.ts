@@ -11,7 +11,15 @@ import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import { parseWire, parseWireJson, stringifyWire, type WireReader } from '@zerodep-dev/json-wire';
 import { FlowError, type FlowErrorCode } from '../core/errors.ts';
 import type { InstanceRow } from '../runtime/execution.ts';
-import type { BatchResult, FlowCommand, ListFilter, RunResult, SignalInput } from '../types.ts';
+import type {
+  BatchResult,
+  FlowCommand,
+  InstanceSearch,
+  ListFilter,
+  ResultPage,
+  RunResult,
+  SignalInput,
+} from '../types.ts';
 import type {
   CcItem,
   Incident,
@@ -53,9 +61,11 @@ export interface FlowClient {
   designations(): Promise<TodoItem[]>;
   /** 我发起的 */
   started(filter?: ListFilter): Promise<InstanceRow[]>;
+  /** 查单据（我发起的、我经手的；管理员能查全部） */
+  search(filter?: InstanceSearch): Promise<ResultPage<InstanceRow>>;
   /** 抄送给我的 */
   cc(): Promise<CcItem[]>;
-  /** 实例详情 */
+  /** 实例详情（我经手的；管理员都能看） */
   instance(id: number): Promise<InstanceDetail>;
   /** 待办详情（我能做什么、提交后到哪） */
   workItem(id: number): Promise<WorkItemDetail>;
@@ -103,6 +113,7 @@ export function createFlowClient(transport: FlowTransport): FlowClient {
     done: (filter) => call('done', filter),
     designations: () => call('designations'),
     started: (filter) => call('started', filter),
+    search: (filter) => call('search', filter),
     cc: () => call('cc'),
     instance: (id) => call('instance', id),
     workItem: (id) => call('workItem', id),

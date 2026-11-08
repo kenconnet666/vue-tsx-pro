@@ -325,11 +325,36 @@ export type FlowCommand =
       readonly message?: string;
     };
 
-/** 列表的筛选：流程、时间段（已办按处理的时刻，我发起的按发起的时刻） */
+/** 列表的筛选：流程、时间段（已办按处理的时刻，我发起的、查单据按发起的时刻） */
 export interface ListFilter {
   readonly processKey?: string;
   readonly from?: Date | string;
   readonly to?: Date | string;
+}
+
+/** 查单据（engine.query.search）的条件 */
+export interface InstanceSearch extends ListFilter {
+  /**
+   * 范围：我发起的；我经手的（发起、处理过、在我的待办或我能认领的收件箱里、抄送给我）；全部（只有管理员能查）
+   * @default 'involved'
+   */
+  readonly scope?: 'started' | 'involved' | 'all';
+  /** 只要这些状态的；不给时除草稿以外都要（草稿只在草稿箱里） */
+  readonly status?: readonly InstanceStatus[];
+  /** 标题或业务编号里有这段文字（不分大小写） */
+  readonly text?: string;
+  /** 第几页，从 1 开始 */
+  readonly page?: number;
+  /** 每页几行，默认 20 */
+  readonly size?: number;
+}
+
+/** 一页结果：这一页的行与总行数 */
+export interface ResultPage<T> {
+  readonly rows: readonly T[];
+  readonly total: number;
+  readonly page: number;
+  readonly size: number;
 }
 
 /** 批量执行（engine.runMany）里一条命令的结果：各自成败，失败的带错误代号 */

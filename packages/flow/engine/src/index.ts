@@ -5,6 +5,7 @@ export { createFlowEngine, type FlowEngine } from './engine.ts';
 export type {
   CcItem,
   Incident,
+  InstanceActions,
   InstanceDetail,
   OutcomeView,
   PublishOptions,

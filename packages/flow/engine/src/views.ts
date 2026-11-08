@@ -126,6 +126,18 @@ export interface InstanceDetail {
   readonly current: readonly { readonly node: string; readonly name: string }[];
   readonly workItems: readonly WorkItemSummary[];
   readonly events: readonly FlowEventView[];
+  /** 看的人此刻能对实例做的（query.instance 给了 actor 时算，否则都是 false） */
+  readonly actions: InstanceActions;
+}
+
+/** 实例上能做的：页面按它显示按钮，规则只在引擎里 */
+export interface InstanceActions {
+  /** 发起人撤回（按流程的 withdraw 设置） */
+  readonly withdraw: boolean;
+  /** 发起人或管理员催还开着的待办 */
+  readonly remind: boolean;
+  /** 管理员的干预：暂停或恢复、终止、跳转、改派、改单据、迁移版本 */
+  readonly manage: boolean;
 }
 
 /** 发布的选项 */

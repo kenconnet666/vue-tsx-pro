@@ -8,7 +8,7 @@ import {
   type FlowEngineOptions,
 } from '@zerodep-dev/flow-ts-engine';
 import { createOrgDirectory, type OrgDirectory } from '@zerodep-dev/flow-ts-engine/org';
-import { ORG, ROLE } from '../domain/org';
+import { isAdmin, ORG } from '../domain/org';
 import { seed, type TimeTravel } from '../domain/seed';
 import { PROCESSES } from '../processes';
 
@@ -26,8 +26,7 @@ const actions = {
 };
 
 export function createBackend(adapter: FlowEngineOptions['adapter'], clock: () => Date): Backend {
-  // 总经理能做管理员的事（干预流程、处理异常）
-  const directory = createOrgDirectory({ adapter, isAdmin: (e) => e.roles.includes(ROLE.ceo) });
+  const directory = createOrgDirectory({ adapter, isAdmin });
   const engine = createFlowEngine({
     adapter,
     clock,

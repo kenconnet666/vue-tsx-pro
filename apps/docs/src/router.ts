@@ -69,6 +69,11 @@ export function createDocsRouter(
             meta: { title: '工作台 · 流程中心' },
           },
           {
+            path: 'documents',
+            component: () => import('./flow-center/pages/Documents'),
+            meta: { title: '单据 · 流程中心' },
+          },
+          {
             path: 'start',
             component: () => import('./flow-center/pages/StartCenter'),
             meta: { title: '发起 · 流程中心' },
