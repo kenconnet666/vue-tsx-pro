@@ -31,6 +31,11 @@ export const flowRoutes: RouteRecordRaw = {
       meta: { title: '管理 · 流程中心' },
     },
     {
+      path: 'monitor',
+      component: () => import('./pages/Monitor'),
+      meta: { title: '监控 · 流程中心' },
+    },
+    {
       path: 'documents',
       component: () => import('./pages/Documents'),
       meta: { title: '单据 · 流程中心' },

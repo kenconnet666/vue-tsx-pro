@@ -1,8 +1,9 @@
 /**
- * 流程中心的应用外壳（docs/decisions/0009）：侧栏是工作台（待办数）、发起、单据、代理、工作室与管理（管理员）；
+ * 流程中心的应用外壳（docs/decisions/0009）：侧栏是工作台（待办数）、发起、单据、代理、工作室、监控与管理（管理员）；
  * 顶栏是演示身份（谁在用）、通知铃铛（发生了什么）、演示时钟（快进看超时与提醒）、重置演示数据、回文档。第一次打开时 Worker 要建表、发布流程、写种子，先显示进度。
  */
 import {
+  Activity,
   BookOpen,
   Code,
   FastForward,
@@ -171,6 +172,9 @@ export default _component(() => {
                 <>
                   <NavItem href="/flow/studio" icon={Code}>
                     工作室
+                  </NavItem>
+                  <NavItem href="/flow/monitor" icon={Activity}>
+                    监控
                   </NavItem>
                   <NavItem href="/flow/admin" icon={ShieldCheck}>
                     管理
