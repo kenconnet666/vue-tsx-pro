@@ -16,20 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- **Tabs** 整组卸载时不再逐个改选、写回旁边的值（之前标签一个个注销时会依次发出 `update:_value`，使用方据此改地址会把离开的导航拽回来）。
-- **流程引擎**（flow-ts-engine）：
-  - 通知：`engine.notifications.list / unread / read`，表 `flow_notification`（站内信箱兼发件箱，与推进同一个事务写入）；
-    引擎选项 `notifications.deliver` 做外部投递，失败的由 `jobs.runDue` 重试。
-  - 广播：推进、作业、发布随提交 `NOTIFY` 频道 `FLOW_CHANNEL`，组织目录改了发 `ORG_CHANNEL`；多实例部署用 easy-query-ts-pg 的
-    `listen` 收听（文档站 Flow 页的“服务端接入”）。`jobs.runDue` 之后不必再自己通知页面。
-  - 代理：`engine.proxies.list / save / cancel`，表 `flow_proxy`；新到的待办交给代理人，待办多了 `proxyFor`。
-  - 统计：`engine.stats.overview({ from, to, processKey, timeZone })`（端点只给管理员）。
-  - 父流程经手的人看得到它调起的子流程（查单据、实例详情）。
-  - 流程工程的视图 `views/*.tsx`：发布时编译、引擎不加载；`engine.views(key, version?)` 给页面编好的模块，用 `flow-ts-engine/client`
-    的 `linkProject` 加载；模型包的 `FlowViewProps`、`isViewFile`、`PROJECT_FILES.views`。
-  - 迁移预览的每个节点多了 `choices`（目标版本里同类型的节点），对不上的可以在 `migrate` 的 `nodes` 里手动对应。
-  - 客户端：端点读参数时也把时刻还原成 `Date`（之前参数里的 `Date` 到引擎不是 `Date`）。
-  - 新表、新列（`flow_notification`、`flow_proxy`、`flow_work_item.proxy_for`）：已有的库要补上（`createTables` 只建缺的表，不补列）。
+（暂无）
 
 ## 每次发布
 
