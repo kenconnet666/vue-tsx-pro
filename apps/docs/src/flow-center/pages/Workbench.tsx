@@ -28,7 +28,7 @@ import {
   useHotkeys,
   type StatusTone,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import { watch } from 'vue';
+import { onScopeDispose, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { processOf } from '../processes';
 import { ApprovalPanel } from '../parts/ApprovalPanel';
@@ -107,14 +107,23 @@ export default _component(() => {
     instance: Number(route.query['instance']) || null,
     item: Number(route.query['item']) || null,
   });
-  const select = (entry: Entry | undefined) =>
+  // 列表是异步取的：取完时人可能已经要去别的页面了（导航开始了、页面还在懒加载），这时再改地址会取消那次导航、
+  // 把人拽回工作台。所以导航一开始（beforeEach）就记下要离开，之后不再改地址
+  const path = route.path;
+  let leaving = false;
+  onScopeDispose(router.beforeEach((to) => void (leaving = to.path !== path)));
+  onScopeDispose(() => (leaving = true));
+  const select = (entry: Entry | undefined) => {
+    if (leaving) return;
     void router.replace({
+      path,
       query: {
         box: box(),
         ...(entry ? { instance: String(entry.instance) } : {}),
         ...(entry?.workItem ? { item: String(entry.workItem) } : {}),
       },
     });
+  };
 
   async function load(which: Box): Promise<Entry[]> {
     const now = center.state.now;

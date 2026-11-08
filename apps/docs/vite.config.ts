@@ -70,6 +70,9 @@ export const plugins = [
 ];
 
 /** 预构建的依赖：开发服务器与浏览器测试共用（测试另加测试专用的几个） */
+/** 流程中心的 Worker（src/flow-center/runtime/worker.ts）：同样按源码解析各包，打成 ES 模块；浏览器测试也用 */
+export const worker = { format: 'es' as const, plugins: () => [workspaceSource()] };
+
 export const optimizeDeps = {
   include: [
     // 示例里用到的（组件库源码不在运行时导入它）
@@ -113,8 +116,7 @@ export default defineConfig({
     // PGlite 自己按 import.meta.url 找 wasm 与数据文件，预构建后路径就不对了（PGlite 文档的建议）
     exclude: ['@electric-sql/pglite'],
   },
-  // 流程中心的 Worker（src/flow-center/runtime/worker.ts）：同样按源码解析各包，打成 ES 模块
-  worker: { format: 'es', plugins: () => [workspaceSource()] },
+  worker,
   // Shiki 的每种语言语法单独成块、用到才下载（emacs-lisp、cpp 这类大语法不会被页面加载），不必为它们报警
   build: {
     chunkSizeWarningLimit: 1000,

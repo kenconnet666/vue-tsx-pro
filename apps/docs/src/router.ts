@@ -2,6 +2,7 @@
 import { createRouter, createWebHistory, type Router, type RouterHistory } from 'vue-router';
 import { allPages } from './site/nav';
 import { redirects } from './site/redirects';
+import { flowRoutes } from './flow-center/routes';
 
 /** 整页示例的地址（示例卡片里 iframe 的 src） */
 export const framePath = (demoPath: string) => `${import.meta.env.BASE_URL}frame/${demoPath}`;
@@ -57,49 +58,7 @@ export function createDocsRouter(
       // 合并、挪走了的页：跳到新页的对应小节
       ...Object.entries(redirects).map(([path, redirect]) => ({ path, redirect })),
       // 流程中心（docs/decisions 0009）：自己的应用外壳，引擎跑在浏览器的 Worker 里
-      {
-        path: '/flow',
-        component: () => import('./flow-center/App'),
-        meta: { title: '流程中心' },
-        children: [
-          { path: '', redirect: '/flow/work' },
-          {
-            path: 'work',
-            component: () => import('./flow-center/pages/Workbench'),
-            meta: { title: '工作台 · 流程中心' },
-          },
-          {
-            path: 'studio',
-            component: () => import('./flow-center/studio/StudioList'),
-            meta: { title: '工作室 · 流程中心' },
-          },
-          {
-            path: 'studio/:key',
-            component: () => import('./flow-center/studio/StudioEditor'),
-            meta: { title: '工作室 · 流程中心' },
-          },
-          {
-            path: 'admin',
-            component: () => import('./flow-center/pages/Admin'),
-            meta: { title: '管理 · 流程中心' },
-          },
-          {
-            path: 'documents',
-            component: () => import('./flow-center/pages/Documents'),
-            meta: { title: '单据 · 流程中心' },
-          },
-          {
-            path: 'start',
-            component: () => import('./flow-center/pages/StartCenter'),
-            meta: { title: '发起 · 流程中心' },
-          },
-          {
-            path: 'start/:key',
-            component: () => import('./flow-center/pages/StartForm'),
-            meta: { title: '发起 · 流程中心' },
-          },
-        ],
-      },
+      flowRoutes,
       // 整页示例：示例卡片里的 iframe 打开它，不套站点外壳（见 isFrame）
       { path: '/frame/:path(.*)', component: () => import('./pages/Frame'), meta: { title: '' } },
       {

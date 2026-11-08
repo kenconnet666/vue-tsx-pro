@@ -1,13 +1,14 @@
 // 真实浏览器（Playwright 的 Chromium、Firefox、WebKit）里的测试：示例的布局、焦点、动画与亮暗两套主题的无障碍检查
 import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
-import { optimizeDeps, plugins } from './vite.config.ts';
+import { optimizeDeps, plugins, worker } from './vite.config.ts';
 
 // 只跑某几个浏览器：VTP_BROWSERS=chromium（CI 的 Windows 只跑 Chromium，Firefox、WebKit 在 Ubuntu 上跑全）
 const only = process.env['VTP_BROWSERS']?.split(',');
 
 export default defineConfig({
   plugins,
+  worker,
   // 依赖一开始就预构建（与开发服务器同一份，加上测试专用的）：否则 Vite 跑到一半发现新依赖会重新预构建并刷新页面，
   // 三个浏览器并行时正在初始化的测试页会卡住（CI 上出现过“failed to find the current suite”）
   optimizeDeps: {
