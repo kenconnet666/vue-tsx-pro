@@ -139,10 +139,11 @@ export const stepsStyles = css.create({
   text: { display: 'grid', gap: '_xs', paddingBlockStart: '0.3em', minWidth: 0 },
   title: { fontWeight: '_medium' },
   description: { color: '_textMuted', fontSize: relativeFontSizes.sm },
-  // 步骤之间的连接线：横排在标题右侧延伸
+  // 步骤之间的连接线：横排在标题右侧延伸，对齐圆圈的中线（圆圈高 2 × 0.93em）；带说明的步骤更高，按整项居中会偏下
   connector: {
     flexGrow: 1,
-    alignSelf: 'center',
+    alignSelf: 'flex-start',
+    marginBlockStart: `calc(0.93em - ${t.borderWidths.xs} / 2)`,
     minWidth: '_space.lg',
     height: '_borderWidths.xs',
     backgroundColor: '_border',
@@ -157,8 +158,9 @@ export const stepsStyles = css.create({
     width: '_borderWidths.xs',
     height: 'auto',
     minWidth: 0,
-    // 两端都定了位置时按 align-self 对齐：横排的 center 会让空的 span 缩成 0 高，这里要拉伸
+    // 两端都定了位置时按 align-self 对齐：横排的 flex-start 会让空的 span 缩成 0 高，这里要拉伸
     alignSelf: 'stretch',
+    marginBlockStart: 0,
     marginInlineStart: `calc(${t.borderWidths.xs} / -2)`,
   },
   connectorDone: { backgroundColor: '_accent' },
