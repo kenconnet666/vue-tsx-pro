@@ -955,7 +955,9 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] 26.1 只认 PG：测试换 PGlite（共用一个实例、每次清空），CI 的 db 任务只留 PG 17；引擎去掉 Node 专属依赖
       （AsyncLocalStorage、process.pid、stripTypeScriptTypes 改成可注入的 `compileCode`），浏览器里能跑；候选人改成待办上的
       `text[]` 标记 + 部分 GIN 索引（去掉 flow_candidate 表）；作业用 FOR UPDATE SKIP LOCKED 成批抢占；各表补索引。
-      ORM 的缺口只有 PGlite 的 `listen`，已在 easy-query-ts 0.2.4 补上。迁移基线等 26.2–26.4 的表定下来再冻结
+      ORM 的缺口只有 PGlite 的 `listen`，已在 easy-query-ts 0.2.4 补上。迁移基线等 26.2–26.4 的表定下来再冻结。
+      2026-11-08 表按 PG 的习惯重排：文字 text、时刻 timestamptz（easy-query-ts 0.2.5 补的 `col.datetime({ timeZone: true })`）、
+      状态用原生枚举、正在处理的节点 text[]、单据数据 GIN 索引、表注释；只有逻辑外键（实体的关系），不建库里的外键约束
 - [ ] 26.2 流程即 TS 工程：多文件、宿主模块登记、编译与类型检查、版本与回滚、浏览器与服务端加载；类型贯通的客户端
       （已有，决定见 `packages/flow/docs/decisions/0002-projects.md`：process.json、form.ts（`defineForm`）、logic.ts（`defineLogic(form, …)`，
       `logic.名字` 引用、发布时核对）；新包 flow-ts-studio 用组件库的 browser-compile 编译（纯 .ts 也去类型），引擎自己的链接器加载相对路径、自带与宿主模块；
@@ -970,6 +972,11 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       草稿要按单据的字段校验值，挪到 26.4）
 - [ ] 26.4 表单模块（SchemaForm 增强、表单设计器、权限矩阵、字典、明细表、计算、联动、打印）；草稿（处理前暂存、发起前存草稿，
       Java 场景 save-draft、start-draft）
+      （决定见 `packages/flow/docs/decisions/0004-forms.md`。已有：单据就是字段清单，`defineForm` 接清单字面量、推出单据的类型，
+      发布时内联进定义的 form.manifest；发起、处理按清单校验（值按 json-wire 的强类型查）；处理前暂存（saveDraft）与发起前存草稿
+      （engine.drafts），两个 Java 场景跑起来。还差：SchemaForm 的条件、明细表、选项来源、人员与附件控件、页签、只读与打印；
+      flow-ts-ui 包（清单渲染、审批面板、流程图与环节面板、权限矩阵）；表单设计器；接入方注册的字段类型（field-type）、
+      上一步选下一步的处理人（pick）、发起页预测下一步（preview-skip-sign））
 - [ ] 26.5 文档站流程中心：外壳、业务模型与种子、工作台、发起、审批单、我的单据、管理；搬测试、删 flow-demo
 - [ ] 26.6 流程工作室：在线 IDE、语言服务、预览、场景测试、对比、发布、迁移
 - [ ] 26.7 事件与通知（发件箱、NOTIFY）、代理、监控看板、统计

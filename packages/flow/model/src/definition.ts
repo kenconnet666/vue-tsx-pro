@@ -4,6 +4,7 @@
  * 概念对应 BPMN 2.0 的子集：泳道、开始与结束、人工节点、排他 / 并行 / 包容网关、自动节点、调用流程、定时等待、等待外部事件、抄送，
  * 加接入方注册的自定义节点（`type` 以 `x-` 开头）。条件是条件树（condition.ts），要逻辑的地方按名字引用接入方注册的扩展。
  */
+import type { FormManifest } from './manifest.ts';
 import type { Condition } from './condition.ts';
 
 // ---------- 取值与引用（0005 的 1.1） ----------
@@ -400,7 +401,15 @@ export interface ProcessDefinition {
   /** 发布时后端给；草稿里没有 */
   readonly version?: number;
   /** 一个流程一张表单；`version` 在发布时固定 */
-  readonly form?: { readonly key: string; readonly version?: number };
+  /**
+   * 单据：Java 版是引用登记的表单（key、version）；流程工程发布时把 form.ts 的字段清单内联在 manifest 里
+   * （docs/decisions/0004-forms.md），引擎、设计器优先用它
+   */
+  readonly form?: {
+    readonly key: string;
+    readonly version?: number;
+    readonly manifest?: FormManifest;
+  };
   readonly variables?: readonly VariableDeclaration[];
   /** 待办列表的摘要列：`{ ref }` 的名字 */
   readonly summary?: readonly string[];

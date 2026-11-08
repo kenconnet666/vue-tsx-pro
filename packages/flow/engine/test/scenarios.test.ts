@@ -6,7 +6,7 @@ import pg from 'pg';
 import { afterAll, describe, it } from 'vitest';
 import type { Adapter } from '@zerodep-dev/easy-query-ts';
 import { postgres } from '@zerodep-dev/easy-query-ts-pg';
-import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
+import type { FormManifest, ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import {
   BUILTIN_OPERATIONS,
   FlowError,
@@ -31,6 +31,8 @@ interface Step {
 interface Scenario {
   name: string;
   processes?: string[];
+  /** Java 版登记的表单（字段清单）：这一版的单据跟着流程，发布时内联进引用它的流程 */
+  forms?: string[];
   clock?: string;
   actors: Record<string, { id: number; name: string; roles?: number[]; departments?: number[] }>;
   steps: Step[];
@@ -74,6 +76,11 @@ const SUPPORTED = new Set([
   'batchComplete',
   'changeData',
   'removeSigners',
+  'saveDraft',
+  'saveStartDraft',
+  'startDrafts',
+  'discardStartDraft',
+  'startView',
 ]);
 
 /** Java 版的错误代号 → 这里的 */
@@ -92,6 +99,9 @@ const ERROR_CODES: Record<string, string> = {
 
 /** 整个不跑的场景：用到第一版不做的能力（docs/decisions/0001 第 2 节） */
 const SKIPPED: Record<string, string> = {
+  'field-type.json': '接入方注册的字段类型（money）随表单模块的组件部分做（ROADMAP 26.4）',
+  'pick.json': '上一步选下一步的处理人（pick）还没做（ROADMAP 26.4）',
+  'preview-skip-sign.json': '发起页预测下一步还没做（ROADMAP 26.4）',
   'purchase-form-rules.json': '按字段清单校验表单在表单模块里做（ROADMAP 14.8）',
 };
 
@@ -300,8 +310,21 @@ async function runScenario(scenario: Scenario, adapter?: Adapter): Promise<void>
             : [],
     },
   });
+  const manifests = new Map(
+    (scenario.forms ?? []).map((path) => {
+      const form = JSON.parse(readFileSync(new URL(path, DIR), 'utf8')) as {
+        key: string;
+        manifest: FormManifest;
+      };
+      return [form.key, form.manifest] as const;
+    }),
+  );
   for (const path of scenario.processes ?? []) {
-    await engine.publish(JSON.parse(readFileSync(new URL(path, DIR), 'utf8')) as ProcessDefinition);
+    const definition = JSON.parse(readFileSync(new URL(path, DIR), 'utf8')) as ProcessDefinition;
+    const manifest = definition.form && manifests.get(definition.form.key);
+    await engine.publish(
+      manifest ? { ...definition, form: { ...definition.form!, manifest } } : definition,
+    );
   }
   const results = new Map<string, unknown>();
   let previous: unknown;
@@ -348,7 +371,8 @@ async function runStep(
     case 'start':
       return run({
         type: 'start',
-        process: args['key'],
+        process: args['key'] ?? '',
+        ...(args['draft'] !== undefined ? { draft: Number(args['draft']) } : {}),
         variables,
         ...(args['businessKey'] ? { businessKey: args['businessKey'] } : {}),
         ...(args['title'] ? { title: args['title'] } : {}),
@@ -517,10 +541,41 @@ async function runStep(
         timeline: detail.events.map((event) => ({ ...event, actorId: event.actor })),
       };
     }
+    case 'saveStartDraft':
+      return engine.drafts.save(
+        {
+          ...(args['draft'] !== undefined ? { draft: Number(args['draft']) } : {}),
+          ...(args['key'] !== undefined ? { process: args['key'] } : {}),
+          variables,
+          ...(args['businessKey'] ? { businessKey: args['businessKey'] } : {}),
+        },
+        actor,
+      ) as never;
+    case 'startDrafts':
+      return { drafts: await engine.drafts.list(actor) };
+    case 'discardStartDraft':
+      return { discarded: await engine.drafts.discard(Number(args['draft']), actor) };
+    case 'startView': {
+      // 这一版只有“接着草稿填”：草稿的值
+      const draft = await engine.drafts.get(Number(args['draft']), actor);
+      return { form: { values: draft.variables } };
+    }
+    case 'saveDraft':
+      return run({
+        type: 'operate',
+        workItem: Number(args['workItem']),
+        operation: 'saveDraft',
+        input: {
+          variables,
+          ...(args['comment'] !== undefined ? { comment: args['comment'] } : {}),
+        },
+      });
     case 'workItem': {
       const detail = await engine.query.workItem(Number(args['workItem']), actor);
       return {
         workItem: javaItem(detail.workItem),
+        form: { values: Object.fromEntries(detail.fields.map((f) => [f.name, f.value])) },
+        draft: detail.draft,
         instance: { ...detail.instance, parentInstanceId: detail.instance.parentId },
         claimable: detail.claimable,
         completable: detail.completable,

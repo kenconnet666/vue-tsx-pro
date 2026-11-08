@@ -17,8 +17,8 @@
   "dependencies": {
     "@floating-ui/dom": "catalog:",
     "@lucide/icons": "catalog:",
-    "@zerodep-dev/easy-query-ts": "^0.2.4",
-    "@zerodep-dev/easy-query-ts-sqlite": "^0.2.4",
+    "@zerodep-dev/easy-query-ts": "^0.2.5",
+    "@zerodep-dev/easy-query-ts-sqlite": "^0.2.5",
     "@zerodep-dev/storage": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-kit": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",

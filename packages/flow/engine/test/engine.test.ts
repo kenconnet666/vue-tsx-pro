@@ -290,9 +290,15 @@ describe('engine: 待办详情与催办', () => {
     const { engine, item } = await atLegal();
     const names = async (e: typeof engine, id: number) =>
       (await e.query.workItem(id, legal)).operations.map((o) => o.name);
-    assert.deepEqual(await names(engine, item.id), ['claim', 'transfer']);
+    assert.deepEqual(await names(engine, item.id), ['claim', 'transfer', 'saveDraft']);
     await engine.run({ type: 'claim', workItem: item.id }, legal);
-    assert.deepEqual(await names(engine, item.id), ['release', 'transfer', 'delegate', 'addSign']);
+    assert.deepEqual(await names(engine, item.id), [
+      'release',
+      'transfer',
+      'delegate',
+      'addSign',
+      'saveDraft',
+    ]);
     const transfer = (await engine.query.workItem(item.id, legal)).operations.find(
       (o) => o.name === 'transfer',
     );

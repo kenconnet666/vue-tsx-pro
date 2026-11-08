@@ -504,8 +504,9 @@ function resolveReference(
   const unknown = { code: 'ref-unknown', params: { ref: name } };
   if (name.startsWith('form.')) {
     if (!definition.form) return unknown;
-    if (!context.form) return undefined;
-    const field = manifestField(context.form, name.slice(5));
+    const manifest = context.form ?? definition.form.manifest;
+    if (!manifest) return undefined;
+    const field = manifestField(manifest, name.slice(5));
     if (!field) return unknown;
     return mismatch(ref, field.type, field.multiple === true)
       ? { code: 'ref-type-mismatch', params: { ref: name, type: field.type } }
@@ -614,7 +615,7 @@ function checkForm(
   context: ValidationContext,
   report: Report,
 ): void {
-  const manifest = context.form;
+  const manifest = context.form ?? definition.form?.manifest;
   if (!manifest) return;
   for (const node of definition.nodes) {
     if (node.type !== 'task' && node.type !== 'start') continue;

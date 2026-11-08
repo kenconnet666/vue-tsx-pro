@@ -15,12 +15,14 @@ import {
   isRef,
   mergeSubmission,
   processGraph,
-  variablesManifest,
+  formManifest,
+  typedValue,
+  type FieldState,
   validateProcess,
   type AssigneeSource,
   type CallNode,
   type FlowProject,
-  type FormDefinition,
+  type FormManifest,
   type FormValues,
   type Outcome,
   type Problem,
@@ -44,6 +46,7 @@ import { FlowError } from './errors.ts';
 import {
   dueAt,
   Execution,
+  renderTitle,
   workItemSummary,
   type CustomNodeDef,
   type InstanceRow,
@@ -99,6 +102,8 @@ export interface WorkItemDetail {
   readonly claimable: boolean;
   /** 能选结果处理：是候选人，待办开着，不在委托中（委托出去的由受托人办完交回） */
   readonly completable: boolean;
+  /** 处理前暂存的值与意见：只有处理人看得到，别人是 null */
+  readonly draft: WorkItemRow['draft'];
   /** 这个人此刻能做的动作（认领、转办、委托、加签……）与要填的 */
   readonly operations: readonly OperationView[];
   /** 结果里有“退回到运行时选的节点”（target: 'choose'）时能选的节点：上游走到过的人工节点 */
@@ -224,9 +229,25 @@ export interface FlowEngine {
     ): Promise<{ key: string; version: number }>;
   };
   /** 按单据类型用一个流程：发起、处理时变量写错字段是编译错误（`engine.process<typeof form>('purchase')`） */
-  process<Form extends FormDefinition>(key: string): TypedProcess<FormValues<Form>>;
+  process<Form extends FormManifest>(key: string): TypedProcess<FormValues<Form>>;
   /** 执行一个命令 */
   run(command: FlowCommand, actor: Actor): Promise<RunResult>;
+  /** 发起前存的草稿：不进流程、只有自己看得到，只查值不查必填；`start` 带 draft 时从它发起 */
+  readonly drafts: {
+    /** 存（给 draft 时改那一份，否则按 process 新建） */
+    save(
+      input: {
+        readonly draft?: number;
+        readonly process?: string;
+        readonly variables?: Readonly<Record<string, unknown>>;
+        readonly businessKey?: string;
+      },
+      actor: Actor,
+    ): Promise<InstanceRow>;
+    list(actor: Actor): Promise<InstanceRow[]>;
+    get(id: number, actor: Actor): Promise<InstanceRow>;
+    discard(id: number, actor: Actor): Promise<boolean>;
+  };
   /** 批量执行（批量认领、批量处理）：每条一个事务，各自成败，结果按顺序给出 */
   runMany(commands: readonly FlowCommand[], actor: Actor): Promise<BatchResult[]>;
   /** 外部事件（对方盖章、付款到账）：在等它的实例往下走，返回这些实例的结果 */
@@ -379,6 +400,8 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     variables: Readonly<Record<string, unknown>>,
     actor: Actor,
     extra: Pick<InstanceRow, 'businessKey' | 'title' | 'parentId' | 'parentNode' | 'parentRound'>,
+    /** 从草稿发起：用草稿那一行（同一个实例） */
+    draftId?: number,
   ): Promise<Execution> {
     const model = definition.model;
     const values = {
@@ -396,7 +419,13 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       rev: 0,
       ...extra,
     };
-    const id = Number(await tx.insert(FlowInstance).values(values).returnId());
+    const id = draftId ?? Number(await tx.insert(FlowInstance).values(values).returnId());
+    if (draftId !== undefined)
+      await tx
+        .update(FlowInstance)
+        .set(values)
+        .where((i) => i.id.eq(draftId))
+        .execute();
     const exec = await execution(tx, model, { id, ...values }, actor);
     exec.addEvent(
       'instance.started',
@@ -416,17 +445,28 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     actor: Actor,
   ): Promise<RunResult> {
     return db.transaction(async (tx) => {
-      const definition = await latestDefinition(tx, command.process);
+      const draft =
+        command.draft === undefined ? undefined : await ownDraft(tx, command.draft, actor);
+      const definition = await latestDefinition(tx, draft?.processKey ?? command.process);
       if (definition.model.starters && !canStart(definition.model.starters, actor)) {
         throw new FlowError('forbidden', `${actor.id} 不能发起 ${command.process}`);
       }
-      const exec = await launch(tx, definition, command.variables ?? {}, actor, {
-        businessKey: command.businessKey ?? null,
-        title: command.title ?? null,
-        parentId: null,
-        parentNode: null,
-        parentRound: null,
-      });
+      const submitted = { ...(draft?.variables ?? {}), ...(command.variables ?? {}) };
+      const variables = startValues(definition.model, submitted, { required: true });
+      const exec = await launch(
+        tx,
+        definition,
+        variables,
+        actor,
+        {
+          businessKey: command.businessKey ?? draft?.businessKey ?? null,
+          title: command.title ?? null,
+          parentId: null,
+          parentNode: null,
+          parentRound: null,
+        },
+        draft?.id,
+      );
       const { instance, events } = await exec.flush();
       const result = { instance, workItems: exec.created.map(workItemSummary), events };
       await options.intercept?.after?.(command, result, actor);
@@ -651,6 +691,19 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
             finish: (outcome, comment) =>
               finishItem(exec, tx, item, scope.node, outcome, { actor: actor.id, comment }),
             settle: () => settleParent(exec, tx, item.id, scope.node),
+            draftValues: (submitted) => {
+              const manifest = formManifest(exec.definition);
+              const states = fieldStates(manifest, { access: scope.node.form, read: exec.read });
+              const editable = Object.fromEntries(
+                Object.entries(submitted).filter(([name]) => states.get(name)?.editable),
+              );
+              const { errors } = submit(manifest, states, exec.variables, editable);
+              throwFormErrors(
+                manifest,
+                errors.filter((e) => e.code !== 'required'),
+              );
+              return editable;
+            },
           },
           command.input ?? {},
         );
@@ -780,6 +833,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     await tx
       .update(FlowWorkItem)
       .set({
+        draft: null,
         state: 'done',
         outcome: outcomeKey,
         comment: by.comment,
@@ -896,23 +950,15 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     node: TaskNode,
     submitted: Readonly<Record<string, unknown>> = {},
   ): void {
-    const manifest = variablesManifest(exec.definition);
+    const manifest = formManifest(exec.definition);
     const declared = Object.keys(manifest);
     const others = Object.fromEntries(
       Object.entries(submitted).filter(([name]) => !declared.includes(name)),
     );
     if (declared.length > 0) {
       const states = fieldStates(manifest, { access: node.form, read: exec.read });
-      const { values, errors } = mergeSubmission(manifest, states, exec.variables, submitted);
-      const [first] = errors;
-      if (first) {
-        const label = manifest[first.field.split(/[.[]/)[0]!]?.label ?? first.field;
-        throw new FlowError(
-          'invalid-input',
-          first.code === 'required' ? `“${label}”要填` : `“${label}”的值不对`,
-          { field: first.field, code: first.code },
-        );
-      }
+      const { values, errors } = submit(manifest, states, exec.variables, submitted);
+      throwFormErrors(manifest, errors);
       exec.setVariables(values);
     }
     if (Object.keys(others).length > 0) exec.setVariables(others);
@@ -1239,6 +1285,101 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     );
   }
 
+  /** 发起时的值：按发起节点的权限收（只取能改的、显示条件不成立的丢掉），查值；required 时查必填。清单以外的变量原样留着 */
+  function startValues(
+    model: ProcessDefinition,
+    submitted: Readonly<Record<string, unknown>>,
+    { required }: { readonly required: boolean },
+  ): Record<string, unknown> {
+    const manifest = formManifest(model);
+    if (Object.keys(manifest).length === 0) return { ...submitted };
+    const start = model.nodes.find((node) => node.type === 'start');
+    const stored = defaultsOf(model);
+    const read = (name: string) => {
+      const key = variableName(name);
+      return key in submitted ? submitted[key] : stored[key];
+    };
+    const states = fieldStates(manifest, { access: start?.form, isStart: true, read });
+    const { values, errors } = submit(manifest, states, stored, submitted);
+    throwFormErrors(manifest, required ? errors : errors.filter((e) => e.code !== 'required'));
+    const others = Object.fromEntries(
+      Object.entries(submitted).filter(([name]) => !(name in manifest)),
+    );
+    return { ...others, ...values };
+  }
+
+  /** 自己的草稿（别人的、不是草稿的都当没有） */
+  async function ownDraft(tx: FlowDb, id: number, actor: Actor): Promise<InstanceRow> {
+    const row = await tx.queryable(FlowInstance).find(id);
+    if (!row || row.status !== 'draft' || row.startedBy !== actor.id)
+      throw new FlowError('not-found', `没有草稿 ${id}`);
+    return row;
+  }
+
+  const drafts: FlowEngine['drafts'] = {
+    save: (input, actor) =>
+      db.transaction(async (tx) => {
+        const existing =
+          input.draft === undefined ? undefined : await ownDraft(tx, input.draft, actor);
+        const definition = await latestDefinition(tx, existing?.processKey ?? input.process ?? '');
+        const model = definition.model;
+        const variables = startValues(
+          model,
+          { ...(existing?.variables ?? {}), ...(input.variables ?? {}) },
+          { required: false },
+        );
+        const title = renderTitle(model.title, (field) => variables[variableName(field)] ?? null);
+        const values = {
+          definitionId: definition.id,
+          processKey: model.key,
+          version: definition.version,
+          businessKey: input.businessKey ?? existing?.businessKey ?? null,
+          title,
+          variables,
+          startedAt: now(),
+        };
+        if (existing) {
+          await tx
+            .update(FlowInstance)
+            .set(values)
+            .where((i) => i.id.eq(existing.id))
+            .execute();
+          return { ...existing, ...values };
+        }
+        const row = {
+          ...values,
+          status: 'draft' as const,
+          result: null,
+          current: [],
+          state: emptyRunState(),
+          startedBy: actor.id,
+          endedAt: null,
+          parentId: null,
+          parentNode: null,
+          parentRound: null,
+          rev: 0,
+        };
+        const id = Number(await tx.insert(FlowInstance).values(row).returnId());
+        return { id, ...row };
+      }),
+    list: (actor) =>
+      db
+        .queryable(FlowInstance)
+        .where((i) => [i.startedBy.eq(actor.id), i.status.eq('draft')])
+        .orderBy((i) => i.id.desc())
+        .toList(),
+    get: (id, actor) => db.transaction((tx) => ownDraft(tx, id, actor)),
+    discard: (id, actor) =>
+      db.transaction(async (tx) => {
+        await ownDraft(tx, id, actor);
+        await tx
+          .delete(FlowInstance)
+          .where((i) => [i.id.eq(id), i.status.eq('draft')])
+          .execute();
+        return true;
+      }),
+  };
+
   async function runMany(commands: readonly FlowCommand[], actor: Actor): Promise<BatchResult[]> {
     const results: BatchResult[] = [];
     for (const command of commands) {
@@ -1510,7 +1651,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     return row;
   }
 
-  function process<Form extends FormDefinition>(key: string): TypedProcess<FormValues<Form>> {
+  function process<Form extends FormManifest>(key: string): TypedProcess<FormValues<Form>> {
     return {
       start: (input, actor) => run({ type: 'start', process: key, ...input }, actor),
       complete: (input, actor) => run({ type: 'complete', ...input }, actor),
@@ -1555,8 +1696,11 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       const candidate = open && isCandidate(workItem, actor);
       const graph = processGraph(definition);
       const chooses = task?.outcomes.some((o) => o.kind === 'return' && o.target === 'choose');
+      // 暂存只给处理人看：别人看到的待办没有它，字段显示存着的值
+      const draft = workItem.assignee === actor.id ? workItem.draft : null;
       return {
-        workItem,
+        workItem: { ...workItem, draft },
+        draft,
         instance,
         outcomes: task ? outcomesFor(task, workItem) : [],
         claimable: candidate && workItem.assignee === null,
@@ -1571,7 +1715,12 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
               items: await itemsOf(db, instance.id),
             })
           : [],
-        fields: fieldsOf(definition, task, instance.variables, candidate),
+        fields: fieldsOf(
+          definition,
+          task,
+          { ...instance.variables, ...(draft?.values ?? {}) },
+          candidate,
+        ),
         returnTargets:
           candidate && chooses
             ? returnTargets({ definition, graph, state: instance.state }, workItem.node).map(
@@ -1585,6 +1734,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         .queryable(FlowInstance)
         .where((i) => [
           i.startedBy.eq(actor.id),
+          i.status.ne('draft'),
           ...(filter.processKey ? [i.processKey.eq(filter.processKey)] : []),
           ...(filter.from ? [i.startedAt.ge(new Date(filter.from))] : []),
           ...(filter.to ? [i.startedAt.le(new Date(filter.to))] : []),
@@ -1968,6 +2118,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     retryJob,
     readCc,
     createTables: () => db.createTables(),
+    drafts,
     runMany,
     versions,
     process,
@@ -2009,7 +2160,7 @@ function fieldsOf(
   variables: Readonly<Record<string, unknown>>,
   candidate: boolean,
 ): WorkItemField[] {
-  const manifest = variablesManifest(definition);
+  const manifest = formManifest(definition);
   const states = fieldStates(manifest, {
     access: task?.form,
     read: (name) => variables[name.startsWith('form.') ? name.slice(5) : name],
@@ -2031,6 +2182,43 @@ function fieldsOf(
 }
 
 /** 候选匹配这个人 */
+/**
+ * 收提交（mergeSubmission）：引擎存的是普通 JSON（小数、日期是文字），清单的值检查要强类型（json-wire 还原的 Decimal、日期），
+ * 所以按 typedValue 读成强类型再查；取的值仍是原样的 JSON
+ */
+function submit(
+  manifest: FormManifest,
+  states: ReadonlyMap<string, FieldState>,
+  stored: Readonly<Record<string, unknown>>,
+  submitted: Readonly<Record<string, unknown>>,
+) {
+  const typed = (row: Readonly<Record<string, unknown>>) =>
+    Object.fromEntries(
+      Object.entries(row).map(([name, value]) => [
+        name,
+        manifest[name] ? typedValue(manifest[name], value) : value,
+      ]),
+    );
+  const { errors } = mergeSubmission(manifest, states, typed(stored), typed(submitted));
+  const { values } = mergeSubmission(manifest, states, stored, submitted);
+  return { values, errors };
+}
+
+/** 单据的值不合格：报 invalid-input，details.errors 是全部问题，消息说第一处 */
+function throwFormErrors(
+  manifest: FormManifest,
+  errors: readonly { readonly field: string; readonly code: string }[],
+): void {
+  const [first] = errors;
+  if (!first) return;
+  const label = manifest[first.field.split(/[.[]/)[0]!]?.label ?? first.field;
+  throw new FlowError(
+    'invalid-input',
+    first.code === 'required' ? `“${label}”要填` : `“${label}”的值不对`,
+    { field: first.field, code: first.code, errors },
+  );
+}
+
 /** 这份待办能选的结果：加签的人不能退回（退回由原来的处理人决定） */
 function outcomesFor(node: TaskNode, item: WorkItemRow): readonly Outcome[] {
   return item.parentItemId === null

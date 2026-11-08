@@ -5,7 +5,7 @@
  */
 import type { Adapter } from '@zerodep-dev/easy-query-ts';
 import type { FlowProject } from '@zerodep-dev/flow-ts-model';
-import type { ASSIGNMENTS } from './entities.ts';
+import type { ASSIGNMENTS, INSTANCE_STATUSES } from './entities.ts';
 import type { WorkItemOperation } from './operations.ts';
 import type { HostModules, TransformCode } from './project.ts';
 
@@ -212,10 +212,11 @@ export interface FlowEngineOptions {
 
 /** 命令：一个入口 engine.run(command, actor) */
 export type FlowCommand =
-  /** 发起：按流程的最新启用版本 */
+  /** 发起：按流程的最新启用版本；给了 draft 时从那份草稿发起（同一个实例，草稿的值加上这次给的） */
   | {
       readonly type: 'start';
       readonly process: string;
+      readonly draft?: number;
       readonly variables?: Readonly<Record<string, unknown>>;
       readonly businessKey?: string;
       readonly title?: string;
@@ -338,7 +339,7 @@ export interface InstanceSummary {
   readonly id: number;
   readonly processKey: string;
   readonly version: number;
-  readonly status: 'active' | 'suspended' | 'completed' | 'terminated' | 'withdrawn';
+  readonly status: (typeof INSTANCE_STATUSES)[number];
   readonly result: string | null;
   readonly title: string | null;
   /** 正在处理的节点与名称 */

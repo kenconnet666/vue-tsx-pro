@@ -8,11 +8,10 @@
  */
 import * as model from '@zerodep-dev/flow-ts-model';
 import {
-  formVariables,
   PROJECT_FILES,
   upgradeDefinition,
   type FlowProject,
-  type FormDefinition,
+  type FormManifest,
   type FormValues,
   type ProcessDefinition,
 } from '@zerodep-dev/flow-ts-model';
@@ -32,10 +31,10 @@ export type FlowLogic<V extends object = Variables> = FlowExtensions<V>;
  * ```
  */
 export function defineLogic<const L extends FlowLogic>(logic: L): L;
-export function defineLogic<
-  Form extends FormDefinition,
-  const L extends FlowLogic<FormValues<Form>>,
->(form: Form, logic: L): L;
+export function defineLogic<Form extends FormManifest, const L extends FlowLogic<FormValues<Form>>>(
+  form: Form,
+  logic: L,
+): L;
 export function defineLogic(first: unknown, second?: unknown): unknown {
   return second ?? first;
 }
@@ -91,7 +90,7 @@ export async function compileProject(
 /** 加载好的工程：取模块的导出；单据与逻辑是 form.ts、logic.ts 的默认导出 */
 export interface LinkedProject {
   module(path: string): Readonly<Record<string, unknown>>;
-  readonly form: FormDefinition | undefined;
+  readonly form: FormManifest | undefined;
   readonly logic: FlowLogic | undefined;
 }
 
@@ -143,7 +142,7 @@ export async function linkProject(
   };
 }
 
-/** 编译、加载，把单据的字段并进定义的变量（单据里有的以单据为准） */
+/** 编译、加载，把单据（form.ts 的字段清单）内联进定义的 form.manifest */
 export async function buildProject(
   project: FlowProject,
   transform?: TransformCode,
@@ -151,17 +150,11 @@ export async function buildProject(
 ): Promise<CompiledProject & { readonly linked: LinkedProject }> {
   const compiled = await compileProject(project, transform);
   const linked = await linkProject(compiled.modules, host);
-  const form = linked.form;
-  if (!form) return { ...compiled, linked };
-  const fields = formVariables(form);
-  const rest = (compiled.definition.variables ?? []).filter(
-    (v) => !fields.some((f) => f.name === v.name),
-  );
-  return {
-    ...compiled,
-    definition: { ...compiled.definition, variables: [...fields, ...rest] },
-    linked,
-  };
+  const manifest = linked.form;
+  if (!manifest) return { ...compiled, linked };
+  const { definition } = compiled;
+  const form = { ...(definition.form ?? { key: definition.key }), manifest };
+  return { ...compiled, definition: { ...definition, form }, linked };
 }
 
 /** 模块表格式的代码导入了哪些模块（按出现的先后，不重复） */

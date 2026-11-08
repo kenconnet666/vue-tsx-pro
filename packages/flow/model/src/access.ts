@@ -168,6 +168,13 @@ function mergeRows(
   });
 }
 
+/** 流程的字段清单：内联的单据（form.manifest），没有时把流程变量当字段（variablesManifest） */
+export function formManifest(
+  definition: Pick<ProcessDefinition, 'variables' | 'form'>,
+): FormManifest {
+  return definition.form?.manifest ?? variablesManifest(definition);
+}
+
 /**
  * 流程变量当作字段清单：流程没有单独的表单时，环节的表单权限（node.form）按变量名算，提交照 mergeSubmission 合并。
  * 变量的类型就是字段的类型（变量类型是字段类型的子集）

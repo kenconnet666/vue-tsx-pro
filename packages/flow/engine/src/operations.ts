@@ -42,6 +42,8 @@ export interface OperationContext extends OperationScope {
   finish(outcome: string, comment: string | null): Promise<void>;
   /** 这份待办下的加签都办完（或减掉）了时让它恢复：前加签回到处理人，后加签的挂着的结果生效 */
   settle(): Promise<void>;
+  /** 暂存的值：只留这一步能改的字段、只查值不查必填，不合格报 invalid-input */
+  draftValues(submitted: Readonly<Record<string, unknown>>): Record<string, unknown>;
 }
 
 /** 一个动作 */
@@ -380,6 +382,29 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
         actor: actor.id,
         comment,
       });
+    },
+  },
+  {
+    name: 'saveDraft',
+    label: '暂存',
+    tone: 'neutral',
+    // 处理人、收件箱里的候选人（暂存时先认领给自己）
+    available: (scope) => isOpen(scope) && scope.candidate && scope.item.parentItemId === null,
+    run: async (context, input) => {
+      const { exec, tx, item, actor } = context;
+      const values = context.draftValues(
+        (input['variables'] ?? {}) as Readonly<Record<string, unknown>>,
+      );
+      await tx
+        .update(FlowWorkItem)
+        .set({
+          draft: { values, comment: text(input, 'comment', false) },
+          ...(item.assignee === null ? { assignee: actor.id, assignment: 'claimed' as const } : {}),
+        })
+        .where((w) => [w.id.eq(item.id), w.state.eq('open')])
+        .execute();
+      if (item.assignee === null)
+        exec.addEvent('workItem.claimed', { workItemId: item.id, node: item.node });
     },
   },
   {

@@ -44,10 +44,8 @@ const graph = {
 
 const form = `import { defineForm } from '@zerodep-dev/flow-ts-model';
 export default defineForm({
-  fields: {
-    amount: { type: 'number', label: '金额', required: true },
-    stamped: { type: 'boolean' },
-  },
+  amount: { type: 'number', label: '金额', required: true },
+  stamped: { type: 'boolean', label: '已盖章' },
 });
 `;
 
@@ -89,14 +87,12 @@ async function rejectsWith(promise: Promise<unknown>, code: string, field?: stri
 
 // 第一个用例要先载入 Babel，全量并行跑时机器忙会超过默认的 5 秒
 describe('流程工程', { timeout: 30_000 }, () => {
-  it('处理人、守卫、条件、动作引用 logic.名字；相对路径与宿主模块都能 import；单据的字段并进变量', async () => {
+  it('处理人、守卫、条件、动作引用 logic.名字；相对路径与宿主模块都能 import；单据的清单内联进定义', async () => {
     const { engine } = await createTestEngine({ transform: compileInPlace, modules });
     await engine.publish(project());
     const [definition] = await engine.query.processes();
-    assert.deepEqual(
-      definition?.variables?.map((v) => v.name),
-      ['amount', 'stamped'],
-    );
+    assert.deepEqual(Object.keys(definition?.form?.manifest ?? {}), ['amount', 'stamped']);
+    assert.equal(definition?.form?.key, 'coded');
     const started = await engine.run(
       { type: 'start', process: 'coded', variables: { amount: 800 } },
       alice,
@@ -182,7 +178,8 @@ describe('流程工程', { timeout: 30_000 }, () => {
 
   it('带单据类型的发起：变量按单据推出的类型', async () => {
     const purchase = defineForm({
-      fields: { amount: { type: 'number', required: true }, stamped: { type: 'boolean' } },
+      amount: { label: '金额', type: 'number', required: true },
+      stamped: { label: '已盖章', type: 'boolean' },
     });
     const { engine } = await createTestEngine({ transform: compileInPlace, modules });
     await engine.publish(project());

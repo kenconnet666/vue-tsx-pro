@@ -561,11 +561,11 @@ importers:
         specifier: 'catalog:'
         version: 1.69.0
       '@zerodep-dev/easy-query-ts':
-        specifier: ^0.2.4
-        version: 0.2.4
+        specifier: ^0.2.5
+        version: 0.2.5
       '@zerodep-dev/easy-query-ts-pg':
-        specifier: ^0.2.4
-        version: 0.2.4(@zerodep-dev/easy-query-ts@0.2.4)(pg@8.13.1)
+        specifier: ^0.2.5
+        version: 0.2.5(@zerodep-dev/easy-query-ts@0.2.5)(pg@8.13.1)
       '@zerodep-dev/flow-ts-engine':
         specifier: workspace:^
         version: link:../../packages/flow/engine
@@ -619,11 +619,11 @@ importers:
         specifier: 'catalog:'
         version: 1.69.0
       '@zerodep-dev/easy-query-ts':
-        specifier: ^0.2.4
-        version: 0.2.4
+        specifier: ^0.2.5
+        version: 0.2.5
       '@zerodep-dev/easy-query-ts-sqlite':
-        specifier: ^0.2.4
-        version: 0.2.4(@zerodep-dev/easy-query-ts@0.2.4)
+        specifier: ^0.2.5
+        version: 0.2.5(@zerodep-dev/easy-query-ts@0.2.5)
       '@zerodep-dev/storage':
         specifier: workspace:^
         version: link:../../packages/storage
@@ -808,11 +808,11 @@ importers:
   packages/flow/engine:
     dependencies:
       '@zerodep-dev/easy-query-ts':
-        specifier: ^0.2.4
-        version: 0.2.4
+        specifier: ^0.2.5
+        version: 0.2.5
       '@zerodep-dev/easy-query-ts-pg':
-        specifier: ^0.2.4
-        version: 0.2.4(@zerodep-dev/easy-query-ts@0.2.4)(pg@8.13.1)
+        specifier: ^0.2.5
+        version: 0.2.5(@zerodep-dev/easy-query-ts@0.2.5)(pg@8.13.1)
       '@zerodep-dev/flow-ts-model':
         specifier: workspace:^
         version: link:../model
@@ -2387,19 +2387,19 @@ packages:
   '@yuku-toolchain/types@0.19.0':
     resolution: {integrity: sha512-tFkNbsP4WXX9UMUC5syJGdK9dPMLK0PPaIuXCcCYH75sZ8MrebfBZ2XvCILRTw8AgLivSSCfDa4R67iYBDa4Kg==}
 
-  '@zerodep-dev/easy-query-ts-pg@0.2.4':
-    resolution: {integrity: sha512-K/Co8LWmup2eQjNGkM7Kl6m+S5VHXK0txJ0GJWe0jZLZXR/OrjTNLsgdvQtYru4l4SsD4QjKih9hSurg3324Dg==}
+  '@zerodep-dev/easy-query-ts-pg@0.2.5':
+    resolution: {integrity: sha512-zWtvTK1ajOzP5bzuIVY8bY5pZ3LXnZE2+EpzZzlVZbGAc1E3uDgs2im01jHGKvyMaHVqrb66e3FQP/DAbtmS5g==}
     peerDependencies:
-      '@zerodep-dev/easy-query-ts': ^0.2.4
+      '@zerodep-dev/easy-query-ts': ^0.2.5
       pg: ^8.11.0
 
-  '@zerodep-dev/easy-query-ts-sqlite@0.2.4':
-    resolution: {integrity: sha512-KA2/UYnfJ+DMLhs1xO7e3Sf0ahfW4fxTvHdprdXr1lgjY6uwqf/EiMELHMUu5V7dx9qbIVv0cHYJ8koxvgWehA==}
+  '@zerodep-dev/easy-query-ts-sqlite@0.2.5':
+    resolution: {integrity: sha512-NvPv3bfBX1SdXi2rlDsX4g5NsgUkt6naVln4v2vd5tLuom4mvjrkPzy8yMQMEDQ5igEisKSv+CGD/jDapqMPmQ==}
     peerDependencies:
-      '@zerodep-dev/easy-query-ts': ^0.2.4
+      '@zerodep-dev/easy-query-ts': ^0.2.5
 
-  '@zerodep-dev/easy-query-ts@0.2.4':
-    resolution: {integrity: sha512-g89FUG2qbgK1x3JbNNklWSYyKQ1Om30Je0AacJhpVX8UazG6zv1CA2drNucdLDFX9TZaKR5g/lnC9rG3ttNGSQ==}
+  '@zerodep-dev/easy-query-ts@0.2.5':
+    resolution: {integrity: sha512-T1lH7Zh6CkwpSEQurJxqxfYS6T/T78An2H11CrUcfDgDnE9d8Bf/783J5ow3qmgk0Yj81A6eNV7tW/RTNVALOQ==}
 
   '@zerodep-dev/json-wire@0.1.0':
     resolution: {integrity: sha512-T3wTZeaUOc4Z9eC+jYT9vJMf1n608hbDZrj0rWhH89g7UPHuN4FDZqGT47BfDX3p9DiDPFYZQ43DWSgG8vSWeA==}
@@ -6051,16 +6051,16 @@ snapshots:
 
   '@yuku-toolchain/types@0.19.0': {}
 
-  '@zerodep-dev/easy-query-ts-pg@0.2.4(@zerodep-dev/easy-query-ts@0.2.4)(pg@8.13.1)':
+  '@zerodep-dev/easy-query-ts-pg@0.2.5(@zerodep-dev/easy-query-ts@0.2.5)(pg@8.13.1)':
     dependencies:
-      '@zerodep-dev/easy-query-ts': 0.2.4
+      '@zerodep-dev/easy-query-ts': 0.2.5
       pg: 8.13.1
 
-  '@zerodep-dev/easy-query-ts-sqlite@0.2.4(@zerodep-dev/easy-query-ts@0.2.4)':
+  '@zerodep-dev/easy-query-ts-sqlite@0.2.5(@zerodep-dev/easy-query-ts@0.2.5)':
     dependencies:
-      '@zerodep-dev/easy-query-ts': 0.2.4
+      '@zerodep-dev/easy-query-ts': 0.2.5
 
-  '@zerodep-dev/easy-query-ts@0.2.4': {}
+  '@zerodep-dev/easy-query-ts@0.2.5': {}
 
   '@zerodep-dev/json-wire@0.1.0(@internationalized/date@3.12.4)(decimal.js@10.6.0)':
     dependencies:

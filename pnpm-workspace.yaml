@@ -124,10 +124,10 @@ minimumReleaseAgeExclude:
   - '@lucide/icons@1.69.0'
   # 自己的包（json-wire 仓库），发布即用
   - '@zerodep-dev/json-wire@0.1.0'
-  # 自己的包（easy-query-ts 仓库），发布即用
-  - '@zerodep-dev/easy-query-ts@0.2.4'
-  - '@zerodep-dev/easy-query-ts-sqlite@0.2.4'
-  - '@zerodep-dev/easy-query-ts-pg@0.2.4'
+  # 自己的包（easy-query-ts 仓库），发布即用（按名字豁免，发新版不用改这里）
+  - '@zerodep-dev/easy-query-ts'
+  - '@zerodep-dev/easy-query-ts-sqlite'
+  - '@zerodep-dev/easy-query-ts-pg'
   # 自己的包（rune-ui-font 仓库），发布即用
   - 'rune-ui-font@0.2.0'
 

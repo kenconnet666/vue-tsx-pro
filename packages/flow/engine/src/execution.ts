@@ -508,6 +508,7 @@ export class Execution {
       fromUser: null,
       designator: null,
       awaitingDesignation: false,
+      draft: null,
       weight: null,
       remindedAt: null,
       ...fields,
@@ -692,7 +693,7 @@ export class Execution {
 
   /** 结束实例：取消还开着的待办，删掉还没到点的作业 */
   async finish(
-    status: Exclude<InstanceRow['status'], 'active' | 'suspended'>,
+    status: Exclude<InstanceRow['status'], 'draft' | 'active' | 'suspended'>,
     result: string | null,
     comment: string | null = null,
   ): Promise<void> {
@@ -801,7 +802,7 @@ function laneInbox(graph: ProcessGraph, node: TaskNode): Parameters<typeof resol
 }
 
 /** 实例标题：模板里花括号中是字段名 */
-function renderTitle(
+export function renderTitle(
   template: string | undefined,
   read: (field: string) => unknown,
 ): string | null {
