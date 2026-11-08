@@ -236,25 +236,6 @@ jobs:
       - run: pnpm -C apps/fullstack-demo build
       - run: pnpm -C apps/fullstack-demo test:e2e
 
-  # 流程引擎示例：构建产物上的审批端到端测试，两种渲染模式各一遍
-  flow-demo:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: ./.github/actions/setup
-      - name: Install browsers
-        timeout-minutes: 30
-        shell: bash
-        run: |
-          for attempt in 1 2 3; do
-            timeout 600 pnpm --filter @vue-tsx-pro/flow-demo exec playwright install --with-deps chromium && exit 0
-            echo "playwright install failed (attempt $attempt), retrying"
-            sleep 15
-          done
-          exit 1
-      - run: pnpm -C apps/flow-demo build
-      - run: pnpm -C apps/flow-demo test:e2e
-
   # 发布产物：pnpm pack 的包在仓库之外的独立应用里安装、类型检查、构建并在浏览器里运行
   # 打成 tarball 装进仓库外的项目：只在 Ubuntu 上（Windows 的路径问题由 test、build 两个任务覆盖）
   consumer:

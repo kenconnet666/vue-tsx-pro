@@ -134,7 +134,7 @@ npm 上 `@zerodep-dev/flow-model` 是 `flow` 仓库的包，这里加 `-ts`（�
 分层：model 不依赖 vue 与 easy-query；engine 不依赖 vue。
 
 界面没有单独的包（原来的 `packages/flow/ui` 已删）：流程图是组件库的画布（`/diagram` 的 Diagram，节点的形状、状态、退回的线都是画布的通用能力），
-设计器与审批面板是组件库拼的组合，写在文档站“流程设计与审批”一页与 `apps/flow-demo` 里，使用方照着拼；流程的增删改用 model 的函数。
+设计器与审批面板是组件库拼的组合，写在文档站“流程设计与审批”一页与流程中心（`apps/docs/src/flow-center`）里，使用方照着拼；流程的增删改用 model 的函数。
 
 ## 8. 验收
 

@@ -203,7 +203,8 @@ export default _component(() => () => (
       {
         '：从模板起步，一步加审批环节、金额分支，点环节改谁来处理、几个人一起审、时限与按钮，问题用业务的话列出、点一下定位，开发者在“代码”页直接改定义。流程的增删改是模型包的函数。接上引擎的完整例子在 '
       }
-      <Code>apps/flow-demo</Code>。
+      <Link href="/flow/work">流程中心</Link>（引擎跑在浏览器的 Worker
+      里，工作台、审批单、工作室都在）。
     </Paragraph>
   </DocPage>
 ));

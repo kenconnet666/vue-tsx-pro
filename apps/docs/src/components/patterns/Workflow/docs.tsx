@@ -67,7 +67,7 @@ export default _component(() => () => (
           }
           <Code>engine.run</Code>
           {
-            '：apps/flow-demo 里还有工作台（待办、已办、抄送我的、我发起的）、退回到处理人选的环节、按环节的表单权限改字段、管理员的暂停跳转改派与异常作业。'
+            '：文档站的流程中心（/flow）把它们接上了引擎——工作台、审批单、发起、单据、管理（暂停、跳转、改派、异常）与流程工作室。'
           }
         </Example>
       </ExampleColumn>

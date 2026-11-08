@@ -8,7 +8,7 @@
   - 阶段 12：组件库支持服务端渲染，文档站 137 页预渲染、水合无不一致（CI 的 hydration 任务逐页查）。
   - 阶段 13：`apps/fullstack-demo`（Nitro 3）按页面选 ssr / csr / static，loader、action、请求上下文、会话与权限，端到端测试两种渲染模式。
   - 阶段 14：纯 TS 流程引擎 `packages/flow`（model、engine、ui）：Java 版 37 个场景里 20 个跑通（SQLite、MySQL 8.0.18、8.4、PG 17），
-    试运行、流程图、低代码设计器、流程自带的 TS；`apps/flow-demo` 是审批应用（端到端测试进 CI）。
+    试运行、流程图、低代码设计器、流程自带的 TS；审批应用是文档站的流程中心 `/flow`（端到端测试是 `apps/docs/src/flow-center/flow-center.browser.test.ts`；原来的 `apps/flow-demo` 已删）。
   - 阶段 15：两个应用一样的接线抽成 `packages/kit`（`@zerodep-dev/vue-tsx-pro-kit`，还没发布），带模块（`KitModule`）。
   - 文档站加了"全栈"分区（框架、流程引擎）；ORM 的分区 2026-11-02 删除，文档在 easy-query-ts 的文档站。
   - 没做的：11b.7（按需）、14.9 里会签、超时、子流程的页面；"待决"里一条（打成包的流程模块）。

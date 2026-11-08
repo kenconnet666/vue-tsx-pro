@@ -59,4 +59,5 @@ Java 版的前端另写一层 REST 接口与 DTO，flow-demo 的页面直接拿�
 4. “kit + PG”的接法写进文档（文档站 Flow 页的“服务端接入”）：引擎给 Web 标准 Request / Response 的 `flowHttpHandler`，
    客户端给 `httpTransport`，测试经它们走一遍（身份按请求头、错误带 HTTP 状态）。
    flow-demo 的端到端覆盖里有一半是流程设计器（模板、试运行、发布），流程中心要到第 6 批（工作室）才有设计器：
-   删 flow-demo、把端到端测试搬成文档站对流程中心的浏览器测试，挪到第 6 批工作室落地时一起做，免得中间丢了设计器的覆盖。
+   删 flow-demo、把端到端测试搬成文档站对流程中心的浏览器测试，挪到第 6 批工作室落地时一起做，免得中间丢了设计器的覆盖
+   （已做：`flow-center.browser.test.ts`，flow-demo 已删）。

@@ -109,8 +109,8 @@ export default _component(() => () => (
     <CodeBlock title="入口" code={entries} lang="ts" />
     <Paragraph>
       完整的例子在仓库的 <Code>apps/fullstack-demo</Code>
-      （三种模式、loader、action、权限、按租户隔离）与
-      <Code>apps/flow-demo</Code>（流程引擎的审批应用）。
+      （三种模式、loader、action、权限、按租户隔离）；流程引擎接到 kit 上的写法见{' '}
+      <Link href="/stack/flow#server">Flow 的服务端接入</Link>。
     </Paragraph>
   </DocPage>
 ));

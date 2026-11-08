@@ -1,7 +1,7 @@
 # 全栈框架（@zerodep-dev/vue-tsx-pro-kit）
 
 组件库 + Nitro：按页面选服务端渲染、浏览器渲染或构建时预渲染；页面的数据（loader）在服务端渲染时直接调用、浏览器里经接口取；
-写操作是带类型的 action（Standard Schema 校验）；请求上下文、会话与权限两端一致。从 `apps/fullstack-demo` 与 `apps/flow-demo`
+写操作是带类型的 action（Standard Schema 校验）；请求上下文、会话与权限两端一致。从 `apps/fullstack-demo` 与 `apps/flow-demo`（后来换成了文档站的流程中心）
 的重复里抽出来（ROADMAP 阶段 15），还没发布（`private`）。
 
 | 入口                                   | 内容                                                                                                                                                |
@@ -23,8 +23,8 @@ export default {
 startClient(app);
 ```
 
-用法看两个示例应用：`apps/fullstack-demo`（三种渲染模式、loader、action、权限、按租户隔离的 easy-query）、
-`apps/flow-demo`（流程引擎的审批应用）。
+用法看示例应用 `apps/fullstack-demo`（三种渲染模式、loader、action、权限、按租户隔离的 easy-query）；
+流程引擎接到 kit 上的写法见文档站 Flow 页的“服务端接入”。
 
 ## 前端缓存的失效推送
 
