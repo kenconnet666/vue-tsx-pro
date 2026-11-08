@@ -1,18 +1,43 @@
-// 后台的顶栏导航：有子项的是下拉菜单，待办带角标；拖动滑块把顶栏变窄，放不下的项收进“更多”
-import { BarChart3, Boxes, House, ShoppingCart, Truck, Users, Wrench } from '@lucide/icons';
+// 后台的顶栏导航：有子项的是下拉菜单，审批是下拉面板（带说明的列表，选一条收起），带角标；拖动滑块把顶栏变窄，放不下的项收进“更多”
+import { BarChart3, Boxes, House, ShoppingCart, Stamp, Truck, Users, Wrench } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Card,
   Field,
   Flex,
+  ItemList,
+  ItemListItem,
   NavBar,
   Slider,
   Small,
   type NavBarItem,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
+const approvals = [
+  { title: '采购：展厅大屏与音响', description: '总经理审批 · 今天到期' },
+  { title: '请假：年假 3 天', description: '部门经理审批 · 2 小时前到达' },
+];
+
 const items: NavBarItem[] = [
   { label: '工作台', href: '#home', icon: House },
+  {
+    label: '审批',
+    href: '#approvals',
+    icon: Stamp,
+    badge: approvals.length,
+    panel: (close) => (
+      <ItemList aria-label="待审批" style={{ width: '20rem' }}>
+        {approvals.map((a) => (
+          <ItemListItem
+            key={a.title}
+            title={a.title}
+            description={a.description}
+            onSelect={close}
+          />
+        ))}
+      </ItemList>
+    ),
+  },
   {
     label: '采购',
     icon: ShoppingCart,
@@ -24,7 +49,7 @@ const items: NavBarItem[] = [
   },
   { label: '供应商', href: '#suppliers', icon: Users },
   { label: '库存', href: '#stock', icon: Boxes },
-  { label: '物流', href: '#logistics', icon: Truck, badge: 3 },
+  { label: '物流', href: '#logistics', icon: Truck },
   {
     label: '报表',
     icon: BarChart3,
