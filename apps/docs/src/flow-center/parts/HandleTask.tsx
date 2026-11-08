@@ -22,7 +22,6 @@ import {
   type FormDialogField,
 } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { getLocalTimeZone } from '@internationalized/date';
-import { PEOPLE } from '../domain/org';
 import { useFlowCenter } from '../runtime/center';
 import { who } from './labels';
 import { showError, toaster } from './toaster';
@@ -39,9 +38,6 @@ const styles = css.create({
   outcomes: { display: 'flex', flexWrap: 'wrap', gap: '_sm', alignItems: 'flex-start' },
   outcome: { display: 'flex', flexDirection: 'column', gap: '_xs', maxWidth: '16rem' },
 });
-
-/** 选人的选项：全部员工 */
-const everyone = PEOPLE.map((p) => ({ value: p.id, label: `${p.name}（${p.title}）` }));
 
 /** 下一步的一句话：节点、谁处理 */
 function nextText(steps: readonly NextStep[]): string {
@@ -62,9 +58,9 @@ function dialogField(field: OperationField): FormDialogField {
   const base = { name: field.name, label: field.label, required: field.required ?? false };
   switch (field.type) {
     case 'user':
-      return { ...base, type: 'select', options: everyone };
+      return { ...base, type: 'select', options: useFlowCenter().people() };
     case 'users':
-      return { ...base, type: 'select', options: everyone, multiple: true };
+      return { ...base, type: 'select', options: useFlowCenter().people(), multiple: true };
     case 'select':
       return { ...base, type: 'select', options: [...(field.options ?? [])] };
     default:
@@ -114,7 +110,7 @@ export const HandleTask = _component(({ detail, item, onDone }: HandleTaskProps)
         multiple: pick.max !== 1,
         options: pick.candidates
           ? pick.candidates.map((id) => ({ value: id, label: who(id) }))
-          : everyone,
+          : center.people(),
       });
     if (outcome.comment === 'required' || fields.length > 0)
       fields.push({

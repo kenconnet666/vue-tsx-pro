@@ -30,6 +30,11 @@
       "types": "./dist/client/index.d.ts",
       "default": "./dist/client/index.js"
     },
+    "./org": {
+      "@vue-tsx-pro/source": "./src/org/index.ts",
+      "types": "./dist/org/index.d.ts",
+      "default": "./dist/org/index.js"
+    },
     "./testing": {
       "@vue-tsx-pro/source": "./src/testing/testing.ts",
       "types": "./dist/testing/testing.d.ts",

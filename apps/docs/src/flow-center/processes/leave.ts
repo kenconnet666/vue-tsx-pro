@@ -1,5 +1,5 @@
 /**
- * 请假：直属上级审批；超过 3 天再给部门负责人；最后人事备案。上级是发起人自己时（总经理请假）自动跳过
+ * 请假：直属上级审批；超过 3 天再给一级部门负责人（就是上级时跳过）；最后人事备案。上级是发起人自己时（总经理请假）自动跳过
  */
 import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import { ROLE } from '../domain/org';
@@ -51,8 +51,10 @@ export const leave: ProcessDefinition = {
     {
       id: 'head',
       type: 'task',
-      name: '部门负责人审批',
-      assignees: [{ resolver: 'departmentHead' }],
+      name: '一级部门负责人审批',
+      // 一级部门（研发中心、财务部……）的负责人；就是刚批过的上级时自动跳过
+      assignees: [{ resolver: 'departmentHead', args: { level: 1 } }],
+      autoSkip: { sameAsPrevious: true },
       outcomes: [...decide],
     },
     {

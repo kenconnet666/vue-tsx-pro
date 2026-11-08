@@ -24,7 +24,6 @@ import {
 import { getLocalTimeZone } from '@internationalized/date';
 import { watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { PEOPLE } from '../domain/org';
 import { who } from '../parts/labels';
 import { showError, toaster } from '../parts/toaster';
 import { useFlowCenter } from '../runtime/center';
@@ -65,10 +64,9 @@ const StartFormBody = _component(
           type: 'select',
           required: true,
           multiple: pick.max !== 1,
-          options: (pick.candidates ?? PEOPLE.map((p) => p.id)).map((id) => ({
-            value: id,
-            label: who(id),
-          })),
+          options: pick.candidates
+            ? pick.candidates.map((id) => ({ value: id, label: who(id) }))
+            : center.people(),
         }));
         const answers = await prompt({ title: '选下一步的处理人', fields, confirmText: '提交' });
         if (!answers) return;

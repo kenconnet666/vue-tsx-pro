@@ -24,11 +24,10 @@ import {
   useConfirm,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { AppShell, AppShellBrand, ThemeSwitcher } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
-import { onMounted, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
 import { RouterView } from 'vue-router';
 import { preference } from '../site/theme';
-import { DEPARTMENTS, PEOPLE } from './domain/org';
-import { formSources } from './domain/sources';
+import { formSourcesOf } from './domain/sources';
 import { timeText } from './parts/labels';
 import { toaster } from './parts/toaster';
 import { useFlowCenter, type FlowCenter } from './runtime/center';
@@ -39,19 +38,17 @@ const styles = css.create({
   identity: { minWidth: '11rem' },
 });
 
-/** 演示身份的选项：按部门分组，名字后面是职务 */
-const identities = PEOPLE.map((person) => ({
-  value: person.id,
-  label: `${person.name}（${person.title}）`,
-  group: DEPARTMENTS.find((d) => d.id === person.department)?.name ?? '',
-}));
-
 export default _component(() => {
   // Worker 只在浏览器里建：服务端渲染不到这里（流程中心不预渲染）
   let center = _state.raw<FlowCenter | null>(null);
   let todoCount = _state(0);
   const confirm = useConfirm();
   onMounted(() => (center = useFlowCenter()));
+  // 组织换了（重置、管理页改过）才重建
+  const sources = computed(() => {
+    const org = center?.state.org;
+    return org ? formSourcesOf(org) : undefined;
+  });
 
   // 待办数：数据变了、换了身份都重取
   watch(
@@ -92,7 +89,7 @@ export default _component(() => {
       );
     // 单据里的字典、选人、上传在整个流程中心登记一次
     return (
-      <Provider formSources={formSources}>
+      <Provider formSources={sources.value}>
         <RouterView />
       </Provider>
     );
@@ -113,7 +110,7 @@ export default _component(() => {
               <>
                 <Select
                   size="sm"
-                  items={identities}
+                  items={current.people()}
                   _value={current.state.actor}
                   onUpdate:_value={(id: string | null) => id && current.setActor(id)}
                   aria-label="演示身份"

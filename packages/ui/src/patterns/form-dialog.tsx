@@ -40,8 +40,8 @@ export interface FormDialogField {
   type?: 'text' | 'textarea' | 'select' | 'date';
   /** 必填 */
   required?: boolean;
-  /** 下拉的选项（type 为 select）；description 是选项的第二行 */
-  options?: readonly { value: string; label: string; description?: string }[];
+  /** 下拉的选项（type 为 select）；description 是选项的第二行，group 相同的归在一组标题下 */
+  options?: readonly { value: string; label: string; description?: string; group?: string }[];
   /** 多选（type 为 select）：值是选中的 value 数组，不经过 validate */
   multiple?: boolean;
   /** 初始值 */

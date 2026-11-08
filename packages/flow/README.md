@@ -16,7 +16,8 @@
   `routing/`（取值与比较、条件树、选边）、`form/`（字段清单、值的检查、清单校验、字段权限与收提交）、`project.ts`（流程即 TS 工程）。
 - **engine/src**：`engine.ts` 是对外接口与组装；`core/`（引擎核心、表、错误）、`runtime/`（推进现场、处理人、会签、调用流程、
   预测下一步、运行状态）、`commands/`（发起、处理、待办上的动作、实例操作、外部消息、命令分发、收单据的值）、`publish/`（发布与版本、
-  流程工程的编译与加载）、`queries/`（查询）、`jobs/`（作业）、`views.ts`（结果的形状）、`types.ts`（选项与命令）、`testing/`（测试工具）。
+  流程工程的编译与加载）、`queries/`（查询）、`jobs/`（作业）、`views.ts`（结果的形状）、`types.ts`（选项与命令）、`testing/`（测试工具）、
+  `client/`（页面经它用引擎，`./client`）、`org/`（组织目录：部门、角色、员工的表，接成 org、上级与部门负责人解析器、Actor，`./org`）。
 - **ui/src**：`form/`（按清单渲染单据）、`form-designer/`（表单设计器）、`process-designer/`（环节设置、表单权限矩阵）、
   `diagram/`（流程图）。
 

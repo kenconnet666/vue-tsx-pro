@@ -2,8 +2,7 @@
  * 演示数据：第一次打开时按时钟往前推着写进去——几天前发起、有人处理过、有的超时、有的付款失败进了异常、有的等着选采购员。
  * 切换演示身份就能看到各人的待办：林小满、周启航（上级）、孙悦（财务）、何静（销售总监）、顾承远（总经理）。
  */
-import type { FlowCommand, FlowEngine } from '@zerodep-dev/flow-ts-engine';
-import { actorOf, personOf } from './org';
+import type { Actor, FlowCommand, FlowEngine } from '@zerodep-dev/flow-ts-engine';
 
 /** 写种子时拨时钟：回到几天前的某个钟点 */
 export type TimeTravel = (daysAgo: number, hour?: number) => void;
@@ -30,8 +29,6 @@ interface SeedHelpers {
     extra?: Partial<Extract<FlowCommand, { type: 'complete' }>>,
   ) => Promise<void>;
 }
-
-const actor = (id: string) => actorOf(personOf(id)!);
 
 const STEPS: readonly SeedStep[] = [
   {
@@ -174,19 +171,28 @@ const STEPS: readonly SeedStep[] = [
 /** 写演示数据；progress 报到第几条 */
 export async function seed(
   engine: FlowEngine,
-  at: TimeTravel,
-  progress: (label: string, done: number, total: number) => void,
+  {
+    actor,
+    at,
+    progress,
+  }: {
+    /** 引擎眼里的这个人（从库里的组织读） */
+    actor: (id: string) => Promise<Actor>;
+    at: TimeTravel;
+    progress: (label: string, done: number, total: number) => void;
+  },
 ): Promise<void> {
   const helpers: SeedHelpers = {
     at,
     async start(by, process, variables) {
-      const result = await engine.run({ type: 'start', process, variables }, actor(by));
+      const result = await engine.run({ type: 'start', process, variables }, await actor(by));
       return result.instance.id;
     },
     async act(by, instance, outcome, extra = {}) {
-      const item = (await engine.query.todo(actor(by))).find((t) => t.instanceId === instance);
+      const who = await actor(by);
+      const item = (await engine.query.todo(who)).find((t) => t.instanceId === instance);
       if (!item) throw new Error(`种子：${by} 在实例 ${instance} 上没有待办`);
-      await engine.run({ type: 'complete', workItem: item.id, outcome, ...extra }, actor(by));
+      await engine.run({ type: 'complete', workItem: item.id, outcome, ...extra }, who);
     },
   };
   for (const [index, step] of STEPS.entries()) {

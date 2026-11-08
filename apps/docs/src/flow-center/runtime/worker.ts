@@ -1,21 +1,21 @@
 /**
  * 流程中心的 Worker：PGlite（数据存 IndexedDB，刷新不丢）+ 引擎都在这里，页面经客户端调用（servePort），主线程只渲染。
- * 第一次打开时建表、发布流程、写种子，进度报给页面；演示身份与时钟由页面的消息改；每 5 秒跑一次到点的作业。
+ * 第一次打开时建表、同步组织、发布流程、写种子（backend.ts），进度报给页面。
+ * 演示身份与时钟由页面的消息改；每 5 秒跑一次到点的作业。
  */
 /// <reference lib="webworker" />
 import { PGlite } from '@electric-sql/pglite';
 import { pglite } from '@zerodep-dev/easy-query-ts-pg/pglite';
 import {
-  createFlowEngine,
   flowEndpoint,
   servePort,
   type Actor,
   type FlowEndpoint,
   type FlowEngine,
 } from '@zerodep-dev/flow-ts-engine';
-import { actorOf, org, personOf, resolvers } from '../domain/org';
-import { seed } from '../domain/seed';
-import { PROCESSES } from '../processes';
+import type { OrgDirectory } from '@zerodep-dev/flow-ts-engine/org';
+import { DEFAULT_ACTOR } from '../domain/org';
+import { createBackend, prepare } from './backend';
 import { isDemoMessage, type FromWorker, type ToWorker } from './messages';
 
 declare const self: DedicatedWorkerGlobalScope;
@@ -32,53 +32,35 @@ let offset = 0;
 let fixed: Date | null = null;
 const now = () => fixed ?? new Date(Date.now() + offset);
 
-let current: Actor = actorOf(personOf('1003')!);
+let actorId = DEFAULT_ACTOR;
+let current: Actor = { id: DEFAULT_ACTOR };
 let engine: FlowEngine | undefined;
+let directory: OrgDirectory | undefined;
 let database: PGlite | undefined;
 
-/** 演示的自动动作：付款推给 ERP，单笔核定超过 2 万时 ERP 拒收（作业失败进异常） */
-const actions = {
-  payout: ({ variables }: { variables: Readonly<Record<string, unknown>> }) => {
-    if (Number(variables['approved'] ?? 0) > 20_000)
-      throw new Error('ERP 拒收：单笔超过 2 万要走线下审批');
-  },
-};
+/** 换演示身份：库里没有（或已离职）时回到默认身份；还没启动好时先记下，启动完再换 */
+async function useActor(id: string): Promise<void> {
+  actorId = id;
+  if (!directory) return;
+  current = (await directory.actorOf(id)) ?? (await directory.actorOf(DEFAULT_ACTOR))!;
+}
 
 async function boot(): Promise<void> {
   database = new PGlite(DATA_DIR);
-  engine = createFlowEngine({
-    adapter: pglite(database),
-    clock: now,
-    org,
-    extensions: { resolvers, actions },
+  const backend = createBackend(pglite(database), now);
+  ({ engine, directory } = backend);
+  await prepare(backend, {
+    at: (daysAgo, hour = 10) => {
+      const at = new Date(Date.now() + offset);
+      at.setDate(at.getDate() - daysAgo);
+      at.setHours(hour, 0, 0, 0);
+      fixed = at;
+    },
+    resume: () => (fixed = null),
+    progress: (step, done, total) => post({ demo: 'progress', step, done, total }),
   });
-  post({ demo: 'progress', step: '准备数据库', done: 0, total: 1 });
-  await engine.createTables();
-  if ((await engine.query.processes()).length === 0) {
-    for (const [index, entry] of PROCESSES.entries()) {
-      post({
-        demo: 'progress',
-        step: `发布流程：${entry.definition.name}`,
-        done: index,
-        total: PROCESSES.length,
-      });
-      await engine.publish(entry.definition);
-    }
-    const ready = engine;
-    await seed(
-      ready,
-      (daysAgo, hour = 10) => {
-        const at = new Date(Date.now() + offset);
-        at.setDate(at.getDate() - daysAgo);
-        at.setHours(hour, 0, 0, 0);
-        fixed = at;
-      },
-      (step, done, total) => post({ demo: 'progress', step, done, total }),
-    );
-    fixed = null;
-    // 种子里有到期的、要异步执行的：现在跑一遍（超时、付款失败）
-    await ready.jobs.runDue();
-  }
+  await useActor(actorId);
+  post({ demo: 'org', org: await backend.directory.snapshot() });
   post({ demo: 'ready', now: now().toISOString(), offset });
 }
 
@@ -87,6 +69,7 @@ async function wipe(): Promise<void> {
   await database?.close();
   database = undefined;
   engine = undefined;
+  directory = undefined;
   await new Promise<void>((resolve, reject) => {
     const request = indexedDB.deleteDatabase(`/pglite/${DATA_DIR.slice('idb://'.length)}`);
     request.onsuccess = () => resolve();
@@ -118,14 +101,14 @@ self.addEventListener('message', (event: MessageEvent) => {
     try {
       switch (message.demo) {
         case 'init':
-          current = actorOf(personOf(message.actor) ?? personOf('1003')!);
+          actorId = message.actor;
           offset = message.offset;
           await boot();
           serve();
           setInterval(() => void runJobs().catch(() => {}), JOB_INTERVAL);
           break;
         case 'actor':
-          current = actorOf(personOf(message.actor) ?? personOf('1003')!);
+          await useActor(message.actor);
           break;
         case 'advance':
           offset += message.by;

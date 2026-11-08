@@ -1,7 +1,8 @@
 /**
  * 页面与 Worker 之间演示用的消息（引擎的调用另走客户端的端口协议，带 flow 标记）：
- * 页面让 Worker 启动、换演示身份、拨时钟、重置；Worker 报启动的进度、准备好了、现在几点。
+ * 页面让 Worker 启动、换演示身份、拨时钟、重置；Worker 报启动的进度、准备好了、现在几点、库里的组织。
  */
+import type { OrgSnapshot } from '@zerodep-dev/flow-ts-engine/org';
 
 /** 页面 → Worker */
 export type ToWorker =
@@ -25,6 +26,8 @@ export type FromWorker =
     }
   /** 准备好了 */
   | { readonly demo: 'ready'; readonly now: string; readonly offset: number }
+  /** 库里的组织（启动、重置、改过之后）：页面按它选人、显示名字 */
+  | { readonly demo: 'org'; readonly org: OrgSnapshot }
   /** 时钟变了（拨过、作业跑过） */
   | { readonly demo: 'clock'; readonly now: string; readonly offset: number }
   /** 启动失败 */

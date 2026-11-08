@@ -3,7 +3,7 @@
  */
 import type { FlowEventView, InstanceStatus } from '@zerodep-dev/flow-ts-engine';
 import type { StatusTone } from '@zerodep-dev/vue-tsx-pro-ui';
-import { nameOf } from '../domain/org';
+import { useFlowCenter } from '../runtime/center';
 
 /** 流转记录要列出来的事件与它们的说法（推进的内部事件如 node.entered 不列） */
 const EVENT_TEXT: Readonly<Record<string, string>> = {
@@ -67,5 +67,6 @@ export function timeText(value: Date | string | null | undefined, now = new Date
   return date.getFullYear() === now.getFullYear() ? day : `${date.getFullYear()}-${day}`;
 }
 
-/** 发起人等编号写成名字 */
-export const who = nameOf;
+/** 发起人等编号写成名字；库里没有时是编号 */
+export const who = (id: string | null | undefined): string =>
+  useFlowCenter().person(id)?.name ?? id ?? '';
