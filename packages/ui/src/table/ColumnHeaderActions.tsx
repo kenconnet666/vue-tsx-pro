@@ -107,6 +107,7 @@ export const ColumnFilterButton = _component(
             {shown().map((option) => (
               <Checkbox
                 key={option.value}
+                {...columnHeaderActionsPart('option')}
                 _checked={values.includes(option.value)}
                 onUpdate:_checked={(checked: boolean) => toggle(option.value, checked)}
               >
@@ -147,7 +148,13 @@ export const ColumnFilterButton = _component(
               {...css.attrs(columnHeaderActionStyles.footer)}
               {...columnHeaderActionsPart('footer')}
             >
-              <Button size="sm" variant="ghost" disabled={!active} onClick={() => onChange([])}>
+              <Button
+                {...columnHeaderActionsPart('clear')}
+                size="sm"
+                variant="ghost"
+                disabled={!active}
+                onClick={() => onChange([])}
+              >
                 {lang.tableFilterClear}
               </Button>
             </div>

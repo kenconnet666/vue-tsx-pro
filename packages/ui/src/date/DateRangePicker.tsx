@@ -73,6 +73,7 @@ import {
 import { QuarterCalendar } from './QuarterCalendar';
 import { RangeCalendar, type RangeCalendarProps } from './RangeCalendar';
 import { firstSegmentOf, segmentedFieldStyles, useFieldSegments } from './SegmentedField';
+import type { ButtonProps } from '../base/Button';
 
 /** 自定义的快捷区间（财年、上个结算周期） */
 export interface DateRangeCustomPreset<V extends DateInput = string> {
@@ -132,6 +133,8 @@ export interface DateRangePickerProps<V extends DateInput = string>
   propsClear?: Omit<Partial<PresetIconButtonProps>, 'onClick'>;
   /** 快捷区间那一列的部件属性 */
   propsPresets?: PartProps<'div', 'role'>;
+  /** 每个快捷选项按钮的部件属性；按下与点击由组件管理 */
+  propsPreset?: Partial<ButtonProps>;
   /** 区间日历的部件属性（值、范围由选择器给出） */
   propsCalendar?: Omit<
     Partial<RangeCalendarProps<V>>,
@@ -190,6 +193,7 @@ export const DateRangePicker = _component(
     propsButton,
     propsPopover,
     propsPresets,
+    propsPreset,
     propsCalendar,
     ...rest
   }: DateRangePickerProps<V>) => {
@@ -440,6 +444,7 @@ export const DateRangePicker = _component(
                 }),
                 lang.dateRangePresets,
                 propsPresets,
+                propsPreset,
               ),
               granularity === 'quarter' ? (
                 <QuarterCalendar

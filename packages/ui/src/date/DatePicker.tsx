@@ -74,6 +74,8 @@ export interface DatePickerProps<V extends DateInput = string>
   showToday?: boolean;
   /** 快捷选项那一列的部件属性 */
   propsPresets?: PartProps<'div', 'role'>;
+  /** 每个快捷选项按钮的部件属性；按下与点击由组件管理 */
+  propsPreset?: Partial<ButtonProps>;
   /** “今天”按钮的部件属性 */
   propsToday?: Partial<ButtonProps>;
   /** 日历的部件属性（值、范围、粒度由选择器给出） */
@@ -121,6 +123,7 @@ export const DatePicker = _component(
     presets = [],
     showToday = true,
     propsPresets,
+    propsPreset,
     propsToday,
     id,
     disabled,
@@ -270,6 +273,7 @@ export const DatePicker = _component(
               }),
               lang.datePickerPresets,
               propsPresets,
+              propsPreset,
             ),
             <div {...css.attrs(datePickerStyles.main)} {...datePickerPart('main')}>
               {granularity === 'quarter' ? (

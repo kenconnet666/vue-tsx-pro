@@ -41,6 +41,7 @@ import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { breakpoints } from '../config/theme/tokens';
 import { openSetter } from '../utils/dom/open-change';
 import { Dialog, type DialogProps } from './Dialog';
+import { partAttrs } from '../config/styles';
 
 /** 交给触发器的属性：展开到按钮上 */
 export interface CommandPaletteTriggerProps {
@@ -91,6 +92,9 @@ export interface CommandPaletteBaseProps<T> extends Omit<
 
 /** 命令面板的属性；items 不是 ListboxOption 或字符串时要给 toOption */
 export type CommandPaletteProps<T = ListboxOption> = CommandPaletteBaseProps<T> & OptionMapping<T>;
+
+/** 部件的标记（data-scope="command-palette"） */
+const commandPalettePart = (part: string) => partAttrs({ name: 'CommandPalette' }, part);
 
 /** CommandPalette 的样式：dialog、search、input、listbox、trigger、triggerText、triggerLabel */
 const commandPaletteStyles = css.create({
@@ -236,6 +240,7 @@ export const CommandPalette = _component(
           <span {...mergeAttrs<'span'>({ sx: commandPaletteStyles.triggerLabel })}>{text}</span>
           {hotkey && (
             <Kbd
+              {...commandPalettePart('hotkey')}
               sx={commandPaletteStyles.triggerText}
               aria-hidden={ariaKeyShortcut(hotkey) ? 'true' : undefined}
             >

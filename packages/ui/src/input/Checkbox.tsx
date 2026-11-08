@@ -276,6 +276,8 @@ export interface CheckboxGroupBaseProps<T> extends PartProps<'div', 'role'> {
   minItemWidth?: string;
   /** 各项：ListboxOption（值、文字、说明、不可用）、字符串，或任意数据加 toOption；写了 children 时不用 */
   items?: readonly T[];
+  /** 按 items 生成的每个 Checkbox 的部件属性，可以按项计算；值与勾选由组管理 */
+  propsItem?: Partial<CheckboxProps> | ((item: T) => Partial<CheckboxProps>);
   /** Checkbox；不写时按 items 生成 */
   children?: VNodeChild;
 }
@@ -297,6 +299,7 @@ export const CheckboxGroup = _component(
     id,
     items,
     toOption,
+    propsItem,
     children,
     ...rest
   }: CheckboxGroupProps<T>) => {
@@ -359,9 +362,15 @@ export const CheckboxGroup = _component(
               return (
                 <Checkbox
                   key={option.value}
-                  value={option.value}
-                  disabled={option.disabled || undefined}
-                  description={option.description}
+                  {...mergePartProps<CheckboxProps>(
+                    {
+                      value: option.value,
+                      disabled: option.disabled || undefined,
+                      description: option.description,
+                    },
+                    typeof propsItem === 'function' ? propsItem(item) : propsItem,
+                    { value: option.value },
+                  )}
                 >
                   {option.label}
                 </Checkbox>

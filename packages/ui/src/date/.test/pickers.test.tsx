@@ -36,10 +36,12 @@ describe('DatePicker', () => {
           { label: '元旦', value: () => '2027-01-01' },
           { label: '月底', value: '2026-10-31' },
         ]}
+        propsPreset={{ class: 'preset' }}
         aria-label="日期"
       />
     ));
     await flush();
+    expect(document.querySelectorAll('button.preset')).toHaveLength(3);
     expect(button('国庆').getAttribute('aria-pressed')).toBe('true');
     expect(button('元旦').disabled).toBe(true);
     button('月底').click();

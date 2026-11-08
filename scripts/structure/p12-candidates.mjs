@@ -35,6 +35,12 @@ const BASE = [
   'DateTime',
 ];
 
+/**
+ * 装饰性的子组件不要求转发部件属性（2026-11-08 定）：按钮、行里的小图标、加载中的骨架与转圈只是外观的一部分，
+ * 使用方改外观走所在部件的样式、部件标记或主题定制
+ */
+const DECORATIVE = new Set(['Icon', 'Skeleton', 'Spinner']);
+
 /** 从 < 开始找到这个开标签的结尾（跳过 {} 里的表达式） */
 function openingTag(text, start) {
   let depth = 0;
@@ -73,14 +79,22 @@ for (const file of files) {
           handWritten.push(`${file}:${lineOf(text, match.index)} ${what}`);
   }
   for (const name of BASE) {
+    if (DECORATIVE.has(name)) continue;
     // 多态组件里的局部变量 Tag（as 决定的标签）不是 Tag 组件
     if (name === 'Tag' && !/import \{[^}]*\bTag\b[^}]*\} from/.test(text)) continue;
     for (const match of text.matchAll(new RegExp(`<${name}[\\s/>]`, 'g'))) {
       if (inComment(text, match.index)) continue;
       const tag = openingTag(text, match.index);
-      // 经 mergePartProps 合并、展开现成的 props，或展开一个合并好的辅助函数（button({…})）都算转发了
-      if (/mergePartProps|\{\.\.\.(props|rest|own|part|trigger)\b|\{\.\.\.\w+\(/.test(tag))
+      // 经 mergePartProps / mergeProps 合并、展开现成的 props（字段的 extra 也是），展开配方的部件层（{...s.time}），
+      // 或展开一个合并好的辅助函数（button({…})、xxxPart('…')）都算处理过了
+      if (
+        /mergePartProps|mergeProps|\{\.\.\.(props|rest|own|part|trigger|extra)\b|\{\.\.\.s\.\w+\}|\{\.\.\.\w+\(/.test(
+          tag,
+        )
+      )
         continue;
+      // 没写 empty 时的默认空状态：使用方用 empty 整个换掉
+      if (name === 'Empty' && /\?\?\s*$/.test(text.slice(0, match.index))) continue;
       unforwarded.push(`${file}:${lineOf(text, match.index)} <${name}>`);
     }
   }

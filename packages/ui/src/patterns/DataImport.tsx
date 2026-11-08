@@ -42,6 +42,7 @@ import { DataTable, type DataTableProps } from '../table/DataTable';
 import { readCsvFile, type SheetTable, type SheetValue } from '../table/sheet';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { patternsMessages } from './messages';
+import { partAttrs } from '../config/styles';
 
 /** 要导入的一个字段 */
 export interface ImportField {
@@ -108,6 +109,9 @@ export interface DataImportProps<Row> extends PartProps<'div'> {
   /** 预览里“只看有错的行”开关的部件属性 */
   propsOnlyErrors?: Partial<SwitchProps>;
 }
+
+/** 部件的标记（data-scope="data-import"） */
+const dataImportPart = (part: string) => partAttrs({ name: 'DataImport' }, part);
 
 /** DataImport 的样式：root、previewTable、validIcon、invalidIcon */
 const dataImportStyles = css.create({
@@ -390,7 +394,11 @@ export const DataImport = _component(
                 cell: (field) => (
                   <Flex align="center" gap="xs">
                     {field.label}
-                    {field.required && <Badge tone="danger">*</Badge>}
+                    {field.required && (
+                      <Badge tone="danger" {...dataImportPart('required')}>
+                        *
+                      </Badge>
+                    )}
                   </Flex>
                 ),
               },

@@ -18,7 +18,13 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { toListboxOption, type ListboxOption, type OptionMapping } from './list-state';
-import { hasContent, defaultLabelledBy, mergeAttrs, type PartProps } from '../utils/props';
+import {
+  hasContent,
+  defaultLabelledBy,
+  mergeAttrs,
+  mergePartProps,
+  type PartProps,
+} from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import type { StatusTone } from '../utils/style/tone-styles';
 import type { TextSize } from '../utils/style/typography';
@@ -89,6 +95,8 @@ export interface RadioGroupBaseProps<T> extends PartProps<'div', 'role'> {
   minItemWidth?: string;
   /** 各项：ListboxOption（值、文字、说明、不可用）、字符串，或任意数据加 toOption；写了 children 时不用 */
   items?: readonly T[];
+  /** 按 items 生成的每个 Radio 的部件属性，可以按项计算；值由组管理 */
+  propsItem?: Partial<RadioProps> | ((item: T) => Partial<RadioProps>);
   /** Radio；不写时按 items 生成 */
   children?: VNodeChild;
 }
@@ -113,6 +121,7 @@ export const RadioGroup = _component(
     id,
     items,
     toOption,
+    propsItem,
     children,
     ...rest
   }: RadioGroupProps<T>) => {
@@ -186,9 +195,15 @@ export const RadioGroup = _component(
               return (
                 <Radio
                   key={option.value}
-                  value={option.value}
-                  disabled={option.disabled || undefined}
-                  description={option.description}
+                  {...mergePartProps<RadioProps>(
+                    {
+                      value: option.value,
+                      disabled: option.disabled || undefined,
+                      description: option.description,
+                    },
+                    typeof propsItem === 'function' ? propsItem(item) : propsItem,
+                    { value: option.value },
+                  )}
                 >
                   {option.label}
                 </Radio>

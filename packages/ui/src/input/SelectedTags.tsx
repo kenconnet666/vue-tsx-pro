@@ -33,6 +33,8 @@ export interface SelectedTagsProps extends PartProps<'span', 'aria-hidden'> {
   onRemove?: (value: string) => void;
   /** 每个标签的部件属性 */
   propsTag?: Partial<TagProps>;
+  /** “+N”标签的部件属性 */
+  propsMore?: Partial<TagProps>;
 }
 
 /** SelectedTags 的样式：root、line */
@@ -57,7 +59,7 @@ const keepFocus = (event: PointerEvent) => event.preventDefault();
 
 /** 多选下拉的已选标签：可移除，可按数量或宽度收起 */
 export const SelectedTags = _component(
-  ({ tags, maxTagCount, onRemove, propsTag, ...rest }: SelectedTagsProps) => {
+  ({ tags, maxTagCount, onRemove, propsTag, propsMore, ...rest }: SelectedTagsProps) => {
     const lang = useLang();
     let row = _state.raw<HTMLElement | null>(null);
     const overflow = useOverflowItems({
@@ -97,7 +99,13 @@ export const SelectedTags = _component(
           ))}
           {/* responsive 时“+N”一直在（没有折起的项时藏起来，但仍要量它的宽度） */}
           {(responsive || hiddenCount > 0) && (
-            <Tag size="sm" variant="soft" {...(responsive ? overflow.restProps() : {})}>
+            <Tag
+              {...mergePartProps<TagProps>(
+                { size: 'sm', variant: 'soft' },
+                propsMore,
+                responsive ? overflow.restProps() : {},
+              )}
+            >
               {lang.selectMoreTags(hiddenCount)}
             </Tag>
           )}

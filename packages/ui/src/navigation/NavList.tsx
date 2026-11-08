@@ -26,7 +26,7 @@ import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
-import { Badge } from '../base/Badge';
+import { Badge, type BadgeProps } from '../base/Badge';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { Indicator } from '../base/Indicator';
 import { visuallyHiddenStyles } from '../base/VisuallyHidden';
@@ -220,6 +220,8 @@ export interface NavItemProps extends PartProps<'a', NavItemManaged> {
   propsItem?: PartProps<'li'>;
   /** 图标的部件属性 */
   propsIcon?: Partial<IconProps>;
+  /** 计数角标（展开时的 Badge）的部件属性；数目与色调由 badge、badgeTone 给 */
+  propsBadge?: Partial<BadgeProps>;
   /** 文字的部件属性 */
   propsLabel?: PartProps<'span'>;
   children?: VNodeChild;
@@ -238,6 +240,7 @@ export const NavItem = _component(
     ripple,
     propsItem,
     propsIcon,
+    propsBadge,
     propsLabel,
     children,
     ...rest
@@ -302,7 +305,13 @@ export const NavItem = _component(
         </span>
         {!iconOnly() && end}
         {!iconOnly() && badge > 0 && (
-          <Badge {...s.badge} size="xs" variant="solid" tone={badgeTone} radius="full">
+          <Badge
+            {...mergePartProps<BadgeProps>(
+              { ...s.badge, size: 'xs', variant: 'solid', radius: 'full' },
+              propsBadge,
+              { tone: badgeTone },
+            )}
+          >
             {badge > 99 ? '99+' : badge}
           </Badge>
         )}

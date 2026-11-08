@@ -84,6 +84,30 @@ describe('RadioGroup', () => {
   });
 });
 
+describe('按 items 生成的项：propsItem', () => {
+  it('对象或按项计算，合并到每个 Radio / Checkbox；值仍由组管理', () => {
+    const items = [
+      { value: 'a', label: '甲' },
+      { value: 'b', label: '乙' },
+    ];
+    const root = mount(() => (
+      <>
+        <RadioGroup
+          items={items}
+          aria-label="单选"
+          propsItem={(item) => ({ 'data-testid': `radio-${item.value}`, value: 'x' })}
+        />
+        <CheckboxGroup items={items} aria-label="复选" propsItem={{ class: 'my-box' }} />
+      </>
+    ));
+    const radios = [...root.querySelectorAll<HTMLInputElement>('input[type="radio"]')];
+    expect(radios.map((radio) => radio.dataset.testid)).toEqual(['radio-a', 'radio-b']);
+    expect(radios.map((radio) => radio.value)).toEqual(['a', 'b']);
+    const boxes = [...root.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')];
+    expect(boxes.every((box) => box.classList.contains('my-box'))).toBe(true);
+  });
+});
+
 describe('卡片外观（card）', () => {
   it('组的 card 交给每一项；选中的卡片换成选中样式；end 在文字后面，单项写的 card 优先', async () => {
     let plan = _state<string | null>('basic');

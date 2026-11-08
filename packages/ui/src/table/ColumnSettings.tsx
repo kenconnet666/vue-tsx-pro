@@ -15,7 +15,7 @@ import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { Sortable, type SortableProps } from '../display/Sortable';
-import { Checkbox } from '../input/Checkbox';
+import { Checkbox, type CheckboxProps } from '../input/Checkbox';
 import { Popover, type PopoverProps } from '../overlay/Popover';
 import { plainText } from '../utils/data/text';
 import { mergePartProps } from '../utils/props';
@@ -38,6 +38,8 @@ export interface ColumnSettingsProps<T> {
   propsPanel?: Partial<PopoverProps>;
   /** 列表（Sortable）的部件属性 */
   propsList?: Partial<SortableProps<DataTableColumn<T>>>;
+  /** 每一列的勾选框（显示 / 隐藏）的部件属性；勾选与不可用由组件管理 */
+  propsCheckbox?: Partial<CheckboxProps>;
   /** “重置”按钮的部件属性 */
   propsReset?: Partial<ButtonProps>;
 }
@@ -63,6 +65,7 @@ export const ColumnSettings = _component(
     propsTrigger,
     propsPanel,
     propsList,
+    propsCheckbox,
     propsReset,
   }: ColumnSettingsProps<T>) => {
     const lang = useLang();
@@ -133,9 +136,11 @@ export const ColumnSettings = _component(
                 const visible = !hidden.includes(column.key);
                 return (
                   <Checkbox
+                    {...mergePartProps<CheckboxProps>({}, propsCheckbox, {
+                      // 只剩这一列可见时不能再隐藏
+                      disabled: visible && visibleCount() <= 1,
+                    })}
                     _checked={visible}
-                    // 只剩这一列可见时不能再隐藏
-                    disabled={visible && visibleCount() <= 1}
                     onUpdate:_checked={(checked: boolean) => toggle(column.key, checked)}
                   >
                     {labelOf(column)}

@@ -24,6 +24,14 @@ describe('SelectedTags', () => {
     await vi.waitFor(() => expect(removed).toEqual(['sh']));
   });
 
+  it('“+N”标签的部件属性（propsMore）合并到它上面', () => {
+    const root = mount(() => (
+      <SelectedTags tags={tags} maxTagCount={1} propsMore={{ class: 'more', tone: 'accent' }} />
+    ));
+    const more = root.querySelector('.more')!;
+    expect(more.textContent).toContain('2');
+  });
+
   it('maxTagCount 是数字时只显示前几个，其余收进“+N”', () => {
     const root = mount(() => <SelectedTags tags={tags} maxTagCount={1} />);
     expect(root.textContent).toContain('北京');

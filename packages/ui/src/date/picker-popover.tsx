@@ -12,7 +12,7 @@
  */
 import { useId, type VNodeChild } from 'vue';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Button } from '../base/Button';
+import { Button, type ButtonProps } from '../base/Button';
 import type { IconData } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useRecipe } from '../config/styles';
@@ -172,6 +172,7 @@ export function renderPickerPresets(
   presets: readonly PickerPreset[],
   label: string,
   user?: PartProps<'div', 'role'>,
+  propsPreset?: Partial<ButtonProps>,
 ): VNodeChild {
   if (presets.length === 0) return null;
   return (
@@ -184,13 +185,16 @@ export function renderPickerPresets(
       {presets.map((preset) => (
         <Button
           key={preset.key}
-          sx={pickerPresetStyles.preset}
-          size="sm"
-          variant={preset.active ? 'soft' : 'ghost'}
-          tone="neutral"
-          aria-pressed={preset.active}
-          disabled={preset.disabled}
-          onClick={preset.onPick}
+          {...mergePartProps<ButtonProps>(
+            {
+              sx: pickerPresetStyles.preset,
+              size: 'sm',
+              variant: preset.active ? 'soft' : 'ghost',
+              tone: 'neutral',
+            },
+            propsPreset,
+            { 'aria-pressed': preset.active, disabled: preset.disabled, onClick: preset.onPick },
+          )}
         >
           {preset.label}
         </Button>

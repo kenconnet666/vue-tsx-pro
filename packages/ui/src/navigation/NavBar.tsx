@@ -116,7 +116,7 @@ export const NavBar = _component(({ items, propsList, ...rest }: NavBarProps) =>
 
   const badge = (count = 0) =>
     count > 0 && (
-      <Badge size="xs" variant="solid" tone="danger" radius="full">
+      <Badge size="xs" variant="solid" tone="danger" radius="full" {...navBarPart('badge')}>
         {count > 99 ? '99+' : count}
       </Badge>
     );

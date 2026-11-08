@@ -893,13 +893,19 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       `fromSide`/`toSide` 与正交路由绕回，只看就是不开 selectable / draggable，Diagram 页加“流程图”示例；patterns 下新页
       “流程设计与审批”（设计器、审批面板两个组合，审批面板的意见用 useFormDialog），flow-demo 的设计页、审批单改成同样的组合，
       审批单加了留言（引擎的 comment 命令）；模型包的 `autoLayout` 跟着删，排版用 `layoutLayers`）
-- [ ] P12 组件之间层层合并、层层转发（用户加，贯穿 P2.5 与之后的组件改动）：上层覆盖下层，组合组件转发里面每层的部件属性；
+- [x] P12 组件之间层层合并、层层转发（用户加，贯穿 P2.5 与之后的组件改动）：上层覆盖下层，组合组件转发里面每层的部件属性；
       手写的节点换成基础组件，用得多的样式与行为抽成组件或工具，差不多的实现合并成一份保持一致；先用脚本列候选，逐个组件过，
       顺手修发现的问题
       （2026-11-08：scripts/structure/p12-candidates.mjs 列候选，报告在 .claude/reports/p12-candidates.md。没转发部件属性的子组件
       173 → 84：Timeline、PeoplePickerPanel、DataImport、SchemaForm、Upload、ConditionBuilder、Breadcrumbs、CommentThread、
       FilterBar、SlideCaptcha、QueryTable、JsonViewer、ImageCropper、ErrorBoundary、QuarterCalendar、Carousel、TabList、Transfer、
       XY 图、MapChart 补了按钮、勾选框、链接、头像的 propsXxx；剩下的多是按钮里的小图标、骨架、加载指示）
+      （2026-11-08 收尾：RadioGroup / CheckboxGroup 的 propsItem、ColumnSettings 的 propsCheckbox、SelectedTags 的 propsMore、
+      日期选择器的 propsPreset、NavItem 的 propsBadge，FilterBar 的计数是 count 部件，NavBar、DataImport、CommandPalette、
+      表头筛选的计数与按钮补标记——没转发 84 → 0。定下的规则写进 p12-candidates.mjs：装饰性的 Icon、Skeleton、Spinner 不要求
+      转发（改外观走所在部件的样式或主题），展开配方部件层、字段的 extra、默认的空状态（empty 能整个换掉）算处理过了。
+      手写的基础节点 37 处逐个看过保留：svg 是画布，选择框与日历的触发器、格子已用 buttonBaseStyles 与共用行为，
+      Checklist 的按钮是 role="checkbox"，Image 的预览按钮包着图，Timeline 的 time 是写好的文字带 datetime）
 
 ## 已知局限（有意的取舍，写在文档里）
 

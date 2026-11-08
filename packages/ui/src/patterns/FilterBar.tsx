@@ -133,6 +133,7 @@ export const filterBarRecipe = css.recipe({
     'advanced',
     'summary',
     'clearAdvanced',
+    'count',
   ],
   base: {
     // start（标题）单独一列，其余都在它右边：展开的条件与第一排的条件左边对齐。窄到放不下时标题自己一行
@@ -358,7 +359,7 @@ export const FilterBar = _component(
                   >
                     {expanded ? messages.filterCollapse : messages.filterExpand}
                     {!expanded && moreActive > 0 && (
-                      <Badge tone="accent" radius="full">
+                      <Badge {...s.count} tone="accent" radius="full">
                         {messages.filterActive(moreActive)}
                       </Badge>
                     )}
@@ -379,7 +380,7 @@ export const FilterBar = _component(
                   >
                     {messages.filterAdvanced}
                     {!advancedOpen && condition && (
-                      <Badge tone="accent" radius="full">
+                      <Badge {...s.count} tone="accent" radius="full">
                         {messages.filterActive(countRules(condition))}
                       </Badge>
                     )}

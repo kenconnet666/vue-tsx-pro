@@ -27,11 +27,14 @@ describe('ColumnSettings', () => {
         _hidden={hidden}
         _order={order}
         propsPanel={{ lazy: false }}
+        propsCheckbox={{ class: 'column-box', disabled: true }}
       />
     ));
     // 弹出层的面板在挂载后的下一拍才渲染
     await nextTick();
     const boxes = () => [...document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')];
+    // 部件属性合并到每个勾选框；不可用由组件管理（使用方写的 disabled 不算）
+    expect(boxes().every((box) => box.classList.contains('column-box'))).toBe(true);
     const labels = () => boxes().map((box) => box.closest('label')?.textContent);
     expect(labels()).toEqual(['金额', '单号', '客户']);
 
