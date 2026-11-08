@@ -107,9 +107,9 @@ export const FlowWorkItem = entity(
     comment: col.string(2000).nullable(),
     /** 收件箱的候选标记；直接落到人的待办是空数组 */
     candidates: col.array(col.string(150)),
-    /** 委托：原来的处理人（委托给 assignee 办，办完交回给他）；没委托时为空 */
-    delegatedFrom: col.string(64).nullable(),
-    /** 加签：是哪一份待办加的签（arrival 是 addSign.before / after / parallel） */
+    /** 转办、改派：从谁手里交过来的 */
+    fromUser: col.string(64).nullable(),
+    /** 加签、委托：是哪一份待办加的（arrival 是 delegate、addSign.before / after） */
     parentItemId: col.bigint().nullable(),
     /** 后加签：处理人选的结果先挂在这里，加签的人都办完才生效 */
     pendingOutcome: col.string(100).nullable(),

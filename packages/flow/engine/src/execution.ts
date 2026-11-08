@@ -426,7 +426,7 @@ export class Execution {
     arrival: string,
     fields: Pick<WorkItemRow, 'assignee' | 'assignment' | 'state'> &
       Partial<
-        Pick<WorkItemRow, 'signGroup' | 'signSeq' | 'candidates' | 'delegatedFrom' | 'parentItemId'>
+        Pick<WorkItemRow, 'signGroup' | 'signSeq' | 'candidates' | 'parentItemId' | 'fromUser'>
       >,
   ): Promise<WorkItemRow> {
     const values = {
@@ -444,9 +444,9 @@ export class Execution {
       outcome: null,
       comment: null,
       candidates: [],
-      delegatedFrom: null,
       parentItemId: null,
       pendingOutcome: null,
+      fromUser: null,
       ...fields,
     };
     const id = Number(await this.tx.insert(FlowWorkItem).values(values).returnId());

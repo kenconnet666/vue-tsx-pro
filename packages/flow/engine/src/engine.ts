@@ -8,7 +8,7 @@
  *   const { workItems } = await engine.run({ type: 'start', process: 'purchase', variables: { amount: 120 } }, alice);
  *   await engine.run({ type: 'complete', workItem: workItems[0].id, outcome: 'approve' }, bob);
  */
-import { and, createDb, or, type Row } from '@zerodep-dev/easy-query-ts';
+import { and, createDb, not, or, type Row } from '@zerodep-dev/easy-query-ts';
 import {
   fieldStates,
   gatewayPairs,
@@ -50,7 +50,7 @@ import {
 } from './execution.ts';
 import {
   availableOperations,
-  openSigner,
+  excludeToken,
   operationsOf,
   type OperationScope,
   type OperationView,
@@ -332,6 +332,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   /** 这个人能不能处理：落到他的，或收件箱里他是候选 */
   function isCandidate(item: WorkItemRow, actor: Actor): boolean {
     if (item.assignee) return item.assignee === actor.id;
+    if (item.candidates.includes(excludeToken(actor.id))) return false;
     const tokens = actorTokens(actor);
     return item.candidates.some((token) => tokens.includes(token));
   }
@@ -524,11 +525,12 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         const scope = scopeOf(exec, item, actor, await itemsOf(tx, item.instanceId));
         if (!operation.available(scope)) {
           const code =
-            exec.status !== 'active'
+            operation.refusal?.(scope) ??
+            (exec.status !== 'active'
               ? 'instance-not-active'
               : item.state !== 'open'
                 ? 'already-handled'
-                : (operation.refusal?.(scope) ?? 'forbidden');
+                : 'forbidden');
           throw new FlowError(code, `${actor.id} 现在不能对待办 ${item.id} ${operation.label}`);
         }
         await operation.run(
@@ -592,12 +594,6 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         if (!isCandidate(item, actor)) {
           throw new FlowError('forbidden', `${actor.id} 不能处理待办 ${item.id}`);
         }
-        if (item.delegatedFrom !== null) {
-          throw new FlowError(
-            'forbidden',
-            `待办 ${item.id} 是 ${item.delegatedFrom} 委托的，办完交回由他处理`,
-          );
-        }
         const node = exec.node(item.node) as TaskNode;
         const outcome = outcomesFor(node, item).find((o) => o.key === command.outcome);
         if (!outcome) {
@@ -608,6 +604,10 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         if (outcome.comment === 'required' && !command.comment?.trim()) {
           throw new FlowError('invalid-input', `“${outcome.label}”要写意见`, { field: 'comment' });
         }
+        // 这一步改了哪些值、原来是什么：撤回这一步时恢复
+        const before = Object.fromEntries(
+          Object.keys(command.variables ?? {}).map((key) => [key, exec.variables[key] ?? null]),
+        );
         applySubmission(exec, node, command.variables);
         for (const name of outcome.guards ?? []) {
           const guard = exec.extension('guards', name);
@@ -624,6 +624,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           actor: actor.id,
           comment: command.comment ?? null,
           returnTo: command.returnTo,
+          before,
         });
       },
       command,
@@ -640,19 +641,37 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     item: WorkItemRow,
     node: TaskNode,
     outcomeKey: string,
-    by: { actor: string | null; comment: string | null; returnTo?: string | undefined },
+    by: {
+      actor: string | null;
+      comment: string | null;
+      returnTo?: string | undefined;
+      /** 这一步改过的单据值原来是什么（记进事件，撤回这一步时恢复） */
+      before?: Readonly<Record<string, unknown>>;
+    },
   ): Promise<void> {
-    // 后加签：结果先挂着，等加签的人办完（signerDone）再生效
-    const after = exec.state.afterSigns[item.id];
-    if (after) {
-      delete exec.state.afterSigns[item.id];
+    // 后加签：结果先挂着，打开排队的加签待办，等他们办完（signerDone）再生效
+    const after = (w: any) => [
+      w.parentItemId.eq(item.id),
+      w.state.eq('waiting'),
+      w.arrival.eq('addSign.after'),
+    ];
+    if (
+      (await tx
+        .queryable(FlowWorkItem)
+        .where(after as never)
+        .count()) > 0
+    ) {
       await tx
         .update(FlowWorkItem)
         .set({ state: 'waiting', pendingOutcome: outcomeKey, comment: by.comment })
         .where((w) => [w.id.eq(item.id), w.state.eq('open')])
         .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
         .execute();
-      for (const user of after) await openSigner(exec, node, item, user, 'addSign.after');
+      await tx
+        .update(FlowWorkItem)
+        .set({ state: 'open' })
+        .where(after as never)
+        .execute();
       return;
     }
     await tx
@@ -674,7 +693,10 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       outcome: outcomeKey,
       comment: by.comment,
       actor: by.actor,
-      data: { outcomeLabel: node.outcomes.find((o) => o.key === outcomeKey)?.label ?? outcomeKey },
+      data: {
+        outcomeLabel: node.outcomes.find((o) => o.key === outcomeKey)?.label ?? outcomeKey,
+        ...(by.before && Object.keys(by.before).length > 0 ? { before: by.before } : {}),
+      },
     });
     if (item.parentItemId !== null) return signerDone(exec, tx, item, node);
     if (by.actor) {
@@ -717,7 +739,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   }
 
   /**
-   * 加签的人办完一份：同一份待办下的都办完了，前加签回到原来的处理人，后加签让挂着的结果生效——
+   * 加签（委托）的人办完一份：同一份待办下的都办完了，前加签与委托回到原来的处理人，后加签让挂着的结果生效——
    * 加签的人里有选了非通过结果的，按第一个这样的结果走
    */
   async function signerDone(exec: Execution, tx: FlowDb, signer: WorkItemRow, node: TaskNode) {
@@ -736,7 +758,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       .execute();
     const reopened = { ...parent, state: 'open' as const, pendingOutcome: null };
     if (parent.pendingOutcome === null) {
-      exec.addEvent('workItem.signReturned', { workItemId: parent.id, node: node.id });
+      exec.addEvent('workItem.resumed', { workItemId: parent.id, node: node.id });
       return;
     }
     const kindOf = (key: string | null) =>
@@ -1258,7 +1280,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         instance,
         outcomes: task ? outcomesFor(task, workItem) : [],
         claimable: candidate && workItem.assignee === null,
-        completable: candidate && workItem.delegatedFrom === null,
+        completable: candidate,
         operations: task
           ? availableOperations(operations, {
               item: workItem,
@@ -1310,7 +1332,11 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           w.state.eq('open'),
           or(
             w.assignee.eq(actor.id),
-            and(w.assignee.isNull(), w.candidates.hasAny(actorTokens(actor))),
+            and(
+              w.assignee.isNull(),
+              w.candidates.hasAny(actorTokens(actor)),
+              not(w.candidates.has(excludeToken(actor.id))),
+            ),
           ),
         ])
         .orderBy((w) => w.id)

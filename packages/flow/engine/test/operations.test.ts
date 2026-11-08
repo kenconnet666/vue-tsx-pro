@@ -53,36 +53,36 @@ const todoIds = async (engine: FlowEngine, actor: Actor) =>
   (await engine.query.todo(actor)).map((t) => t.id);
 
 describe('待办上的动作', () => {
-  it('放回收件箱：认领的人放回去，收件箱里的人又能认领', async () => {
+  it('放回收件箱：认领的人放回去（不是我的），别的候选人又能认领，他自己不再是候选', async () => {
     const { engine, item } = await claimedReview();
     assert.deepEqual(await todoIds(engine, dave), []);
-    await operate(engine, item.id, 'release', carol);
+    await operate(engine, item.id, 'release', carol, { comment: '不是我的' });
     assert.deepEqual(await todoIds(engine, dave), [item.id]);
+    assert.deepEqual(await todoIds(engine, carol), []);
+    await rejectsWith(engine.run({ type: 'claim', workItem: item.id }, carol), 'forbidden');
     await engine.run({ type: 'claim', workItem: item.id }, dave);
     await rejectsWith(operate(engine, item.id, 'release', carol), 'forbidden');
   });
 
-  it('委托：受托人只能办完交回，不能直接给结果；交回后原来的人处理', async () => {
+  it('委托：自己那份先等，受托人办完（选的结果记作意见）回到自己，再由自己处理', async () => {
     const { engine, item, instance } = await claimedReview();
     await operate(engine, item.id, 'delegate', carol, { to: helper.id, comment: '帮忙核一下价格' });
     assert.deepEqual(await todoIds(engine, carol), []);
-    const [delegated] = await engine.query.todo(helper);
-    const detail = await engine.query.workItem(delegated!.id, helper);
-    assert.equal(detail.completable, false);
-    assert.deepEqual(
-      detail.operations.map((o) => o.name),
-      ['resolve'],
-    );
     await rejectsWith(
-      engine.run({ type: 'complete', workItem: delegated!.id, outcome: 'pass' }, helper),
-      'forbidden',
+      engine.run({ type: 'complete', workItem: item.id, outcome: 'pass' }, carol),
+      'already-handled',
     );
-    await operate(engine, delegated!.id, 'resolve', helper, { comment: '价格合理' });
-    const [back] = await engine.query.todo(carol);
-    const done = await engine.run({ type: 'complete', workItem: back!.id, outcome: 'pass' }, carol);
+    const [delegated] = await engine.query.todo(helper);
+    assert.equal(delegated?.node, 'review');
+    await engine.run(
+      { type: 'complete', workItem: delegated!.id, outcome: 'pass', comment: '价格合理' },
+      helper,
+    );
+    assert.deepEqual(await todoIds(engine, carol), [item.id]);
+    const done = await engine.run({ type: 'complete', workItem: item.id, outcome: 'pass' }, carol);
     assert.equal(done.instance.status, 'completed');
     const events = (await engine.query.instance(instance)).events.map((e) => e.type);
-    assert.ok(events.includes('workItem.delegated') && events.includes('workItem.resolved'));
+    assert.ok(events.includes('workItem.delegated') && events.includes('workItem.resumed'));
   });
 
   it('前加签：加签的人都办完才回到原来的处理人', async () => {
@@ -98,10 +98,10 @@ describe('待办上的动作', () => {
       signer.outcomes.map((o) => o.key),
       ['pass', 'reject'],
     );
-    // 加签的人能转办、委托自己那份，不能再加签
+    // 加签的人能转办自己那份，不能再加签、委托
     assert.deepEqual(
       signer.operations.map((o) => o.name),
-      ['transfer', 'delegate'],
+      ['transfer'],
     );
     await engine.run({ type: 'complete', workItem: first!.id, outcome: 'pass' }, helper);
     assert.deepEqual(await todoIds(engine, carol), []);
@@ -171,12 +171,12 @@ describe('待办上的动作', () => {
     const names = async () =>
       (await engine.query.workItem(review, carol)).operations.map((o) => o.name);
     assert.deepEqual(await names(), ['withdrawStep']);
-    await rejectsWith(operate(engine, review, 'withdrawStep', dave), 'already-handled');
+    await rejectsWith(operate(engine, review, 'withdrawStep', dave), 'forbidden');
     await operate(engine, review, 'withdrawStep', carol, { comment: '金额填错了' });
     assert.deepEqual(await todoIds(engine, boss), []);
-    const [again] = await engine.query.todo(carol);
-    assert.equal(again?.node, 'review');
-    assert.deepEqual(await names(), []);
+    // 原来那份重新打开（同一个编号）
+    assert.deepEqual(await todoIds(engine, carol), [review]);
+    assert.ok(!(await names()).includes('withdrawStep'));
 
     const other = await passed();
     const [approve] = await engine.query.todo(boss);

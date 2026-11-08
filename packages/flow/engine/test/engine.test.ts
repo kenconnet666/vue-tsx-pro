@@ -286,11 +286,11 @@ describe('engine: 待办详情与催办', () => {
     assert.deepEqual((await engine.query.workItem(item.id, alice)).returnTargets, []);
   });
 
-  it('能做的动作：收件箱里没认领的只能认领，认领后能转办、委托、加签、放回；节点关掉了转办时不给', async () => {
+  it('能做的动作：收件箱里没认领的能认领、转办，认领后能转办、委托、加签、放回；节点关掉了转办时不给', async () => {
     const { engine, item } = await atLegal();
     const names = async (e: typeof engine, id: number) =>
       (await e.query.workItem(id, legal)).operations.map((o) => o.name);
-    assert.deepEqual(await names(engine, item.id), ['claim']);
+    assert.deepEqual(await names(engine, item.id), ['claim', 'transfer']);
     await engine.run({ type: 'claim', workItem: item.id }, legal);
     assert.deepEqual(await names(engine, item.id), ['release', 'transfer', 'delegate', 'addSign']);
     const transfer = (await engine.query.workItem(item.id, legal)).operations.find(

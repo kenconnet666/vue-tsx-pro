@@ -8,6 +8,7 @@ import type { Adapter } from '@zerodep-dev/easy-query-ts';
 import { postgres } from '@zerodep-dev/easy-query-ts-pg';
 import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import {
+  BUILTIN_OPERATIONS,
   FlowError,
   FlowWorkItem,
   type Actor,
@@ -62,6 +63,10 @@ const SUPPORTED = new Set([
   'skipJob',
   'reassign',
   'jump',
+  'delegate',
+  'addSigners',
+  'release',
+  'withdrawStep',
 ]);
 
 /** Java 版的错误代号 → 这里的 */
@@ -86,8 +91,13 @@ const SKIPPED: Record<string, string> = {
 };
 
 /** 只跑到某一步的场景：后面的步骤用到第一版不做的能力 */
-const PARTIAL: Record<string, { readonly before: string; readonly reason: string }> = {
+/** 只跑一部分的场景：跑到 before（步骤的 id）之前，或去掉 skip 里的步骤（从 1 数） */
+const PARTIAL: Record<
+  string,
+  { readonly before?: string; readonly skip?: readonly number[]; readonly reason: string }
+> = {
   'countersign.json': { before: 'votes', reason: '票签（votes、权重）第一版不做' },
+  'purchase-collaboration.json': { skip: [19], reason: '催办的频率限制还没做（ROADMAP 26.3）' },
 };
 
 /** 这一版产出、能比的期望 */
@@ -158,11 +168,17 @@ for (const target of targets)
         continue;
       }
       const partial = PARTIAL[file];
-      if (partial) {
+      if (partial?.before) {
         const cut = scenario.steps.findIndex((step) => step.id === partial.before);
         scenario.steps = scenario.steps.slice(0, cut);
       }
-      const note = partial ? `（只跑到 #${partial.before} 之前：${partial.reason}）` : '';
+      if (partial?.skip)
+        scenario.steps = scenario.steps.filter((_, i) => !partial.skip!.includes(i + 1));
+      const note = !partial
+        ? ''
+        : partial.before
+          ? `（只跑到 #${partial.before} 之前：${partial.reason}）`
+          : `（去掉第 ${partial.skip!.join('、')} 步：${partial.reason}）`;
       // 实库每个场景要删表、建表，比进程内的库慢得多
       it(
         `${file}：${scenario.name}${note}`,
@@ -337,6 +353,7 @@ async function runStep(
         type: 'transfer',
         workItem: Number(args['workItem']),
         to: String(args['user']),
+        ...(args['reason'] !== undefined ? { comment: args['reason'] } : {}),
       });
     case 'signal': {
       const results = await engine.signal(
@@ -394,6 +411,22 @@ async function runStep(
         type: 'reassign',
         workItem: Number(args['workItem']),
         to: String(args['user']),
+        ...(args['reason'] !== undefined ? { comment: args['reason'] } : {}),
+      });
+    case 'delegate':
+    case 'addSigners':
+    case 'release':
+    case 'withdrawStep':
+      return run({
+        type: 'operate',
+        workItem: Number(args['workItem']),
+        operation: command === 'addSigners' ? 'addSign' : command,
+        input: {
+          ...(args['user'] !== undefined ? { to: String(args['user']) } : {}),
+          ...(args['users'] !== undefined ? { users: args['users'].map(String) } : {}),
+          ...(args['mode'] !== undefined ? { mode: args['mode'] } : {}),
+          ...(args['reason'] !== undefined ? { comment: args['reason'] } : {}),
+        },
       });
     case 'jump':
       return run({ type: 'jump', instance: Number(args['instance']), node: args['node'] });
@@ -436,6 +469,10 @@ async function runStep(
         instance: detail.instance,
         claimable: detail.claimable,
         completable: detail.completable,
+        // 场景按名字问能不能做：内置的动作都列出来
+        actions: Object.fromEntries(
+          BUILTIN_OPERATIONS.map((o) => [o.name, detail.operations.some((d) => d.name === o.name)]),
+        ),
       };
     }
     case 'todo':
@@ -465,23 +502,46 @@ async function shape(engine: FlowEngine, result: RunResult): Promise<Record<stri
       parentInstanceId: null,
     },
     workItems: rows.map((row) => {
-      const inbox = row.candidates.map(parseCandidate).find((c) => c.kind !== 'user');
+      const inbox = row.candidates
+        .filter((token) => !token.startsWith('-'))
+        .map(parseCandidate)
+        .find((c) => c.kind !== 'user');
       return {
-        ...row,
-        assigneeId: row.assignee,
+        ...javaItem(row),
         inboxKind: inbox?.kind ?? null,
         inboxId: inbox?.value ?? null,
       };
     }),
-    events: result.events.map((event) => ({ ...event, actorId: event.actor })),
+    events: result.events.map((event) => ({
+      ...event,
+      actorId: event.actor,
+      // 转办、改派、委托的对象：Java 版叫 toUserId
+      data:
+        event.data && 'to' in event.data
+          ? { ...event.data, toUserId: event.data['to'] }
+          : event.data,
+    })),
     instanceId: result.instance.id,
   };
 }
 
 /** 待办行 → 场景里的字段名 */
 function javaItem(row: Record<string, any>) {
-  return { ...row, assigneeId: row['assignee'] };
+  return {
+    ...row,
+    assigneeId: row['assignee'],
+    fromUserId: row['fromUser'],
+    addMode: ADD_MODES[row['arrival']] ?? null,
+  };
 }
+
+/** 加签、委托的方式：Java 版的 addMode ← 这一版的 arrival */
+const ADD_MODES: Record<string, string> = {
+  delegate: 'delegate',
+  'addSign.before': 'before',
+  'addSign.after': 'after',
+  'addSign.parallel': 'parallel',
+};
 
 /** 参数里的引用：`$start.workItems[0]`、`$start.instance`、`$.`（上一步） */
 function resolveRefs(value: unknown, results: Map<string, unknown>, previous: unknown): unknown {

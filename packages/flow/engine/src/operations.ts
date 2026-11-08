@@ -6,7 +6,7 @@
  * 处理（选一个结果）不是动作：结果来自节点的 outcomes，走 complete。
  */
 import type { TaskNode } from '@zerodep-dev/flow-ts-model';
-import { FlowWorkItem, type FlowDb } from './entities.ts';
+import { FlowEvent, FlowWorkItem, type FlowDb } from './entities.ts';
 import { FlowError, type FlowErrorCode } from './errors.ts';
 import type { Execution, InstanceRow, WorkItemRow } from './execution.ts';
 import type { Actor } from './types.ts';
@@ -50,8 +50,8 @@ export interface WorkItemOperation<I extends Record<string, unknown> = Record<st
   /** 要填的；按待办算（比如加签的方式只在会签节点上有“并加签”） */
   readonly fields?: (scope: OperationScope) => readonly OperationField[];
   readonly available: (scope: OperationScope) => boolean;
-  /** 不能做时报什么（默认：待办办完了是 already-handled，其余是 forbidden） */
-  readonly refusal?: (scope: OperationScope) => FlowErrorCode;
+  /** 不能做时报什么；不给（或给 undefined）时：实例不在进行中、待办办完了、其余没有权限 */
+  readonly refusal?: (scope: OperationScope) => FlowErrorCode | undefined;
   readonly run: (context: OperationContext, input: I) => Promise<void>;
 }
 
@@ -70,9 +70,8 @@ const allowed = (node: TaskNode, name: keyof NonNullable<TaskNode['allow']>) =>
 const isOpen = ({ item, instance }: OperationScope) =>
   item.state === 'open' && instance.status === 'active';
 
-/** 落到他（认领了或直接指定），不在委托中 */
-const holds = ({ item, actor }: OperationScope) =>
-  item.assignee === actor.id && item.delegatedFrom === null;
+/** 落到他（认领了或直接指定） */
+const holds = ({ item, actor }: OperationScope) => item.assignee === actor.id;
 
 const COMMENT: OperationField = { name: 'comment', label: '说明', type: 'textarea' };
 
@@ -102,11 +101,18 @@ async function handOver(
   to: string,
   arrival: string,
   event: string,
-  extra: Partial<Pick<WorkItemRow, 'delegatedFrom'>> = {},
 ) {
   const { exec, item, node, actor } = context;
   const comment = text(input, 'comment', false);
   await context.cancel(comment);
+  // 先记交接、再记新待办（同 Java 版的顺序）
+  exec.addEvent(event, {
+    workItemId: item.id,
+    node: node.id,
+    actor: actor.id,
+    comment,
+    data: { to },
+  });
   await exec.insertItem(node, item.round, arrival, {
     assignee: to,
     assignment: 'direct',
@@ -114,14 +120,7 @@ async function handOver(
     signGroup: item.signGroup,
     signSeq: item.signSeq,
     parentItemId: item.parentItemId,
-    ...extra,
-  });
-  exec.addEvent(event, {
-    workItemId: item.id,
-    node: node.id,
-    actor: actor.id,
-    comment,
-    data: { to },
+    fromUser: actor.id,
   });
 }
 
@@ -132,7 +131,8 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
     label: '认领',
     available: (scope) => isOpen(scope) && scope.candidate && scope.item.assignee === null,
     // 收件箱里的被认领了（别人或自己先认领的）：已有人处理
-    refusal: ({ item }) => (item.assignee === null ? 'forbidden' : 'already-handled'),
+    refusal: (scope) =>
+      isOpen(scope) && scope.item.assignee !== null ? 'already-handled' : undefined,
     run: async ({ exec, tx, item, actor }) => {
       await tx
         .update(FlowWorkItem)
@@ -147,18 +147,28 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
     name: 'release',
     label: '放回收件箱',
     tone: 'neutral',
+    fields: () => [{ ...COMMENT, label: '原因' }],
     available: (scope) =>
       isOpen(scope) &&
       holds(scope) &&
       scope.item.assignment === 'claimed' &&
       scope.item.candidates.length > 0,
-    run: async ({ exec, tx, item }) => {
+    // 放回表示“不是我的”：他从这份待办的候选里排除（排除标记 -user:编号，查待办与判断候选时看它）
+    run: async ({ exec, tx, item, actor }, input) => {
       await tx
         .update(FlowWorkItem)
-        .set({ assignee: null, assignment: 'pool' })
+        .set({
+          assignee: null,
+          assignment: 'pool',
+          candidates: [...item.candidates, excludeToken(actor.id)],
+        })
         .where((w) => [w.id.eq(item.id), w.state.eq('open')])
         .execute();
-      exec.addEvent('workItem.released', { workItemId: item.id, node: item.node });
+      exec.addEvent('workItem.released', {
+        workItemId: item.id,
+        node: item.node,
+        comment: text(input, 'comment', false),
+      });
     },
   },
   {
@@ -166,8 +176,9 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
     label: '转办',
     tone: 'neutral',
     fields: () => [{ name: 'to', label: '转给', type: 'user', required: true }, COMMENT],
+    // 处理人、收件箱里的候选人（不用先认领）、管理员
     available: (scope) =>
-      isOpen(scope) && (holds(scope) || !!scope.actor.admin) && allowed(scope.node, 'transfer'),
+      isOpen(scope) && (scope.candidate || !!scope.actor.admin) && allowed(scope.node, 'transfer'),
     run: (context, input) =>
       handOver(context, input, users(input, 'to')[0]!, 'transfer', 'workItem.transferred'),
   },
@@ -177,28 +188,46 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
     tone: 'neutral',
     fields: () => [{ name: 'to', label: '改派给', type: 'user', required: true }, COMMENT],
     available: (scope) => isOpen(scope) && !!scope.actor.admin,
-    run: (context, input) =>
-      handOver(context, input, users(input, 'to')[0]!, 'reassign', 'workItem.reassigned'),
+    // 原地换人（同 Java 版）：不新建待办，收件箱里的也直接落到他
+    run: async ({ exec, tx, item, actor }, input) => {
+      const to = users(input, 'to')[0]!;
+      await tx
+        .update(FlowWorkItem)
+        .set({ assignee: to, assignment: 'direct', fromUser: item.assignee ?? actor.id })
+        .where((w) => [w.id.eq(item.id), w.state.eq('open')])
+        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
+        .execute();
+      exec.addEvent('workItem.reassigned', {
+        workItemId: item.id,
+        node: item.node,
+        actor: actor.id,
+        comment: text(input, 'comment', false),
+        data: { to },
+      });
+    },
   },
   {
     name: 'delegate',
     label: '委托',
     tone: 'neutral',
     fields: () => [{ name: 'to', label: '委托给', type: 'user', required: true }, COMMENT],
-    available: (scope) => isOpen(scope) && holds(scope) && allowed(scope.node, 'delegate'),
-    run: (context, input) =>
-      handOver(context, input, users(input, 'to')[0]!, 'delegate', 'workItem.delegated', {
-        delegatedFrom: context.actor.id,
-      }),
-  },
-  {
-    name: 'resolve',
-    label: '办完交回',
-    fields: () => [{ ...COMMENT, label: '办理意见' }],
     available: (scope) =>
-      isOpen(scope) && scope.item.assignee === scope.actor.id && scope.item.delegatedFrom !== null,
-    run: (context, input) =>
-      handOver(context, input, context.item.delegatedFrom!, 'resolve', 'workItem.resolved'),
+      isOpen(scope) &&
+      holds(scope) &&
+      scope.item.parentItemId === null &&
+      allowed(scope.node, 'delegate'),
+    // 只加一个人的前加签：自己这份先等，受托人办完（他选的结果记作意见）回到自己
+    run: async (context, input) => {
+      const to = users(input, 'to')[0]!;
+      await holdFor(context, [to], 'delegate');
+      context.exec.addEvent('workItem.delegated', {
+        workItemId: context.item.id,
+        node: context.node.id,
+        actor: context.actor.id,
+        comment: text(input, 'comment', false),
+        data: { to },
+      });
+    },
   },
   {
     name: 'addSign',
@@ -225,7 +254,7 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
       scope.item.parentItemId === null &&
       allowed(scope.node, 'addSign'),
     run: async (context, input) => {
-      const { exec, tx, item, node, actor } = context;
+      const { exec, item, node, actor } = context;
       const mode = text(input, 'mode');
       const signers = users(input, 'users').filter((user) => user !== actor.id);
       const comment = text(input, 'comment', false);
@@ -240,19 +269,12 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
             signGroup: item.signGroup,
           });
         }
-      } else if (mode === 'before' || mode === 'after') {
-        // 前加签：我的待办先等；后加签：等我选了结果再开给他们（见 finish 里的 pendingSigners）
-        if (mode === 'before') {
-          await tx
-            .update(FlowWorkItem)
-            .set({ state: 'waiting' })
-            .where((w) => [w.id.eq(item.id), w.state.eq('open')])
-            .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
-            .execute();
-          for (const user of signers) await openSigner(exec, node, item, user, 'addSign.before');
-        } else {
-          exec.state.afterSigns[item.id] = signers;
-        }
+      } else if (mode === 'before') {
+        await holdFor(context, signers, 'addSign.before');
+      } else if (mode === 'after') {
+        // 后加签：先给他们建好排队的待办，我选了结果时才打开（引擎的 finishItem）
+        for (const user of signers)
+          await signerItem(exec, node, item, user, 'addSign.after', 'waiting');
       } else {
         throw new FlowError('invalid-input', `没有这种加签方式 ${mode}`, { field: 'mode' });
       }
@@ -271,23 +293,34 @@ export const BUILTIN_OPERATIONS: readonly WorkItemOperation[] = [
     tone: 'danger',
     fields: () => [{ ...COMMENT, label: '撤回原因' }],
     available: (scope) => withdrawable(scope),
-    run: async ({ exec, item, node, actor }, input) => {
-      const reopened = await exec.tx
+    refusal: () => 'forbidden',
+    // 之后开出的待办取消，这一份重新打开（同一个编号），这一步改过的单据值恢复
+    run: async ({ exec, tx, item, node, actor }, input) => {
+      const later = await tx
         .queryable(FlowWorkItem)
         .where((w) => [w.instanceId.eq(item.instanceId), w.id.gt(item.id), w.state.eq('open')])
         .toList();
       await exec.cancelWhere((w) => [w.id.gt(item.id)]);
-      for (const next of reopened) exec.current.delete(next.node);
-      await exec.insertItem(node, item.round, 'withdrawStep', {
-        assignee: actor.id,
-        assignment: 'direct',
-        state: 'open',
-      });
+      for (const next of later) exec.current.delete(next.node);
+      await tx
+        .update(FlowWorkItem)
+        .set({ state: 'open', outcome: null, comment: null, completedAt: null, completedBy: null })
+        .where((w) => [w.id.eq(item.id), w.state.eq('done')])
+        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 不能再撤回`))
+        .execute();
+      const completed = await tx
+        .queryable(FlowEvent)
+        .where((e) => [e.workItemId.eq(item.id), e.type.eq('workItem.completed')])
+        .orderBy((e) => e.id.desc())
+        .first();
+      const before = (completed?.data?.['before'] ?? {}) as Record<string, unknown>;
+      if (Object.keys(before).length > 0) exec.setVariables(before);
       exec.current.add(node.id);
       exec.addEvent('workItem.withdrawn', {
         workItemId: item.id,
         node: node.id,
         actor: actor.id,
+        outcome: item.outcome,
         comment: text(input, 'comment', false),
       });
     },
@@ -309,21 +342,40 @@ function withdrawable({ item, node, instance, actor, items }: OperationScope): b
   );
 }
 
-/** 给加签的人开一份待办，挂在原来那份下面 */
-export function openSigner(
+/** 给加签（委托）的人建一份待办，挂在原来那份下面 */
+function signerItem(
   exec: Execution,
   node: TaskNode,
   parent: WorkItemRow,
   user: string,
-  arrival: 'addSign.before' | 'addSign.after',
+  arrival: 'delegate' | 'addSign.before' | 'addSign.after',
+  state: 'open' | 'waiting',
 ) {
   return exec.insertItem(node, parent.round, arrival, {
     assignee: user,
     assignment: 'direct',
-    state: 'open',
+    state,
     parentItemId: parent.id,
   });
 }
+
+/** 前加签、委托：自己这份先等，给他们各开一份；都办完时引擎让这份恢复（workItem.resumed） */
+async function holdFor(
+  { exec, tx, item, node }: OperationContext,
+  people: readonly string[],
+  arrival: 'delegate' | 'addSign.before',
+) {
+  await tx
+    .update(FlowWorkItem)
+    .set({ state: 'waiting' })
+    .where((w) => [w.id.eq(item.id), w.state.eq('open')])
+    .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
+    .execute();
+  for (const user of people) await signerItem(exec, node, item, user, arrival, 'open');
+}
+
+/** 放回收件箱的人的排除标记 */
+export const excludeToken = (user: string) => `-user:${user}`;
 
 /** 内置的加上选项里的（同名的以选项里的为准） */
 export function operationsOf(custom: readonly WorkItemOperation[] = []): WorkItemOperation[] {
