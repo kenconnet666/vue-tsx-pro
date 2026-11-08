@@ -2,7 +2,7 @@
 
 ## 1. 形状
 
-每个动作是一个插件（`engine/src/operations.ts` 的 `WorkItemOperation`）：
+每个动作是一个插件（`engine/src/commands/operations.ts` 的 `WorkItemOperation`）：
 
 - `name`、`label`、`tone`：叫什么、按钮的色调；
 - `fields(scope)`：要填什么（选人、选多人、文字、多行文字、单选），前端照着渲染对话框；

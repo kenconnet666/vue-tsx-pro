@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { describe, it } from 'vitest';
 import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import { FlowError, type Actor, type FlowEngine, type WorkItemOperation } from '../src/index.ts';
-import { createTestEngine } from '../src/testing.ts';
+import { createTestEngine } from '../src/testing/testing.ts';
 
 const processOf = (name: string): ProcessDefinition =>
   JSON.parse(

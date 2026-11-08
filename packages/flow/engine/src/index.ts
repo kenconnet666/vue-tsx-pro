@@ -1,20 +1,23 @@
 /**
  * 流程引擎：createFlowEngine 建引擎，engine.run(command, actor) 执行命令；设计见 packages/flow/docs/decisions/0001-design.md
  */
-export {
-  createFlowEngine,
-  type CcItem,
-  type FlowEngine,
-  type InstanceDetail,
-  type OutcomeView,
-  type ReturnTarget,
-  type StartView,
-  type TodoItem,
-  type WorkItemDetail,
-  type WorkItemField,
-} from './engine.ts';
-export { FlowError, type FlowErrorCode } from './errors.ts';
-export { type NextStep, type PickPrompt, type Picks } from './next-steps.ts';
+export { createFlowEngine, type FlowEngine } from './engine.ts';
+export type {
+  CcItem,
+  Incident,
+  InstanceDetail,
+  OutcomeView,
+  PublishOptions,
+  ReturnTarget,
+  StartView,
+  TodoItem,
+  TypedProcess,
+  VersionInfo,
+  WorkItemDetail,
+  WorkItemField,
+} from './views.ts';
+export { FlowError, type FlowErrorCode } from './core/errors.ts';
+export { type NextStep, type PickPrompt, type Picks } from './runtime/next-steps.ts';
 export {
   FlowCc,
   FlowDefinition,
@@ -24,7 +27,7 @@ export {
   FlowWorkItem,
   flowSchema,
   type FlowDb,
-} from './entities.ts';
+} from './core/entities.ts';
 export {
   BUILTIN_OPERATIONS,
   type OperationContext,
@@ -32,7 +35,7 @@ export {
   type OperationScope,
   type OperationView,
   type WorkItemOperation,
-} from './operations.ts';
+} from './commands/operations.ts';
 export {
   buildProject,
   compileProject,
@@ -44,6 +47,6 @@ export {
   type HostModules,
   type LinkedProject,
   type TransformCode,
-} from './project.ts';
-export type { RunState } from './state.ts';
+} from './publish/project.ts';
+export type { RunState } from './runtime/state.ts';
 export type * from './types.ts';

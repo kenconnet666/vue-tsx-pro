@@ -4,7 +4,7 @@
 
 ## 1. 单据就是字段清单
 
-- 单据的格式是模型包的字段清单（`FormManifest`，`manifest.ts`）：字段名 → `{ label, type, required, visibleWhen, requiredWhen, … }`。
+- 单据的格式是模型包的字段清单（`FormManifest`，`model/src/form/manifest.ts`）：字段名 → `{ label, type, required, visibleWhen, requiredWhen, … }`。
   Java 版、流程设计器、表单设计器、引擎都只认这一份；值的校验（`checkFieldValue`）、按环节合算的字段权限（`fieldStates`）、
   提交时的合并（`mergeSubmission`）已经有了，两边跑同一套 spec 样例。
 - 流程工程的 form.ts：`export default defineForm({ title: { label: '标题', type: 'text', required: true }, … })`。

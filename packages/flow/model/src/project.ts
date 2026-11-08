@@ -11,8 +11,8 @@
  *
  * 文件之间相对路径 import；宿主登记的模块（组件库、zod、业务服务……）按名字 import。
  */
-import type { OrgId } from './definition.ts';
-import type { FormManifest } from './manifest.ts';
+import type { OrgId } from './definition/definition.ts';
+import type { FormManifest } from './form/manifest.ts';
 
 /** 一个流程工程：路径 → 源码；`process.json` 必须有 */
 export interface FlowProject {

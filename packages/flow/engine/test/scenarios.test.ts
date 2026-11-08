@@ -18,8 +18,8 @@ import {
   type PickPrompt,
   type RunResult,
 } from '../src/index.ts';
-import { parseCandidate } from '../src/assignees.ts';
-import { createTestEngine, type TestClock } from '../src/testing.ts';
+import { parseCandidate } from '../src/runtime/assignees.ts';
+import { createTestEngine, type TestClock } from '../src/testing/testing.ts';
 
 const DIR = new URL('../../spec/scenarios/', import.meta.url);
 

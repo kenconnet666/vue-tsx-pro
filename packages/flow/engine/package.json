@@ -26,9 +26,9 @@
       "default": "./dist/index.js"
     },
     "./testing": {
-      "@vue-tsx-pro/source": "./src/testing.ts",
-      "types": "./dist/testing.d.ts",
-      "default": "./dist/testing.js"
+      "@vue-tsx-pro/source": "./src/testing/testing.ts",
+      "types": "./dist/testing/testing.d.ts",
+      "default": "./dist/testing/testing.js"
     }
   },
   "files": [

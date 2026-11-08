@@ -5,9 +5,9 @@
  */
 import type { Adapter } from '@zerodep-dev/easy-query-ts';
 import type { FieldTypeChecks, FlowProject } from '@zerodep-dev/flow-ts-model';
-import type { ASSIGNMENTS, INSTANCE_STATUSES } from './entities.ts';
-import type { WorkItemOperation } from './operations.ts';
-import type { HostModules, TransformCode } from './project.ts';
+import type { ASSIGNMENTS, INSTANCE_STATUSES } from './core/entities.ts';
+import type { WorkItemOperation } from './commands/operations.ts';
+import type { HostModules, TransformCode } from './publish/project.ts';
 
 /** 做事的人：编号与他的角色、部门（判断能不能认领收件箱里的待办）；admin 能做管理员的事 */
 export interface Actor {
@@ -181,7 +181,7 @@ export type CheckTypes = (
 export interface FlowEngineOptions {
   /** easy-query 的 PostgreSQL 适配器（pg 连接池或 PGlite）：引擎在这个库里建自己的表 */
   readonly adapter: Adapter;
-  /** 待办上的动作：加自定义的，同名的覆盖内置的（operations.ts） */
+  /** 待办上的动作：加自定义的，同名的覆盖内置的（commands/operations.ts） */
   readonly operations?: readonly WorkItemOperation[];
   /** 流程工程能 import 的宿主模块（组件库、zod、业务服务……）：模块名 → 导出或加载函数，带上声明给类型检查 */
   readonly modules?: HostModules;
@@ -228,7 +228,7 @@ export type FlowCommand =
       /** 给接下来要选处理人的节点选的人（startView 的 picks）：节点 → 用户编号 */
       readonly picks?: Readonly<Record<string, readonly (string | number)[]>>;
     }
-  /** 待办上的动作（operations.ts）：认领、转办、委托、加签……；input 是动作要填的 */
+  /** 待办上的动作（commands/operations.ts）：认领、转办、委托、加签……；input 是动作要填的 */
   | {
       readonly type: 'operate';
       readonly workItem: number;

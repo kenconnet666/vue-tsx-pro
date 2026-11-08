@@ -10,7 +10,7 @@ import {
   type Actor,
   type FlowEngineOptions,
 } from '../src/index.ts';
-import { createTestEngine } from '../src/testing.ts';
+import { createTestEngine } from '../src/testing/testing.ts';
 
 /** spec/scenarios/processes 里的定义 */
 const processOf = (name: string): ProcessDefinition =>

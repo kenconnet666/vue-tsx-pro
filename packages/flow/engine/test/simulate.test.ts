@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'vitest';
 import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
-import { simulate } from '../src/testing.ts';
+import { simulate } from '../src/testing/testing.ts';
 
 const purchase = JSON.parse(
   readFileSync(new URL('../../spec/scenarios/processes/purchase.json', import.meta.url), 'utf8'),
