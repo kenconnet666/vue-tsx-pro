@@ -125,6 +125,8 @@ const queryTableStyles = css.create({
     alignItems: 'center',
     flexWrap: 'wrap',
     gap: '_sm',
+    minWidth: 0,
+    maxWidth: '100%',
     marginInlineStart: 'auto',
   },
   title: { minWidth: 0, fontWeight: '_semibold', fontSize: '_lg' },

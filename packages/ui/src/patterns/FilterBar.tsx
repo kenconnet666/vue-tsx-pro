@@ -167,6 +167,7 @@ export const filterBarRecipe = css.recipe({
       flexGrow: 1,
       minWidth: 0,
     },
+    // 不收缩，但不宽过整排：按钮多（QueryTable 的工具栏放在这里）、屏幕窄时在里面换行，不把页面撑宽
     actions: {
       display: 'flex',
       flexWrap: 'wrap',
@@ -175,6 +176,8 @@ export const filterBarRecipe = css.recipe({
       gap: '_sm',
       minHeight: t.sizes.control,
       flexShrink: 0,
+      minWidth: 0,
+      maxWidth: '100%',
       marginInlineStart: 'auto',
     },
     more: { display: 'grid', columnGap: '_xl', rowGap: '_md', alignItems: 'start' },
