@@ -12,7 +12,24 @@ const overtime = JSON.parse(
   readFileSync(new URL('../../spec/scenarios/processes/overtime.json', import.meta.url), 'utf8'),
 ) as ProcessDefinition;
 
+const specProcess = (name: string) =>
+  JSON.parse(
+    readFileSync(new URL(`../../spec/scenarios/processes/${name}.json`, import.meta.url), 'utf8'),
+  ) as ProcessDefinition;
+
 describe('simulate', () => {
+  it('调用别的流程：processes 里的先发布；没给时停在发起这一步，说没有那个流程', async () => {
+    const kickoff = specProcess('kickoff');
+    const missing = await simulate(kickoff, { variables: { title: '新项目' } });
+    assert.equal(missing.error?.step, 0);
+    const run = await simulate(kickoff, {
+      variables: { title: '新项目' },
+      processes: [specProcess('quote')],
+    });
+    assert.equal(run.error, undefined);
+    assert.ok(run.path.some((event) => event.type === 'call.started'));
+  });
+
   it('金额大：财务复核后停在总经理，等 1004 处理', async () => {
     const run = await simulate(purchase, {
       variables: { title: '服务器', amount: '12000' },

@@ -107,7 +107,7 @@ export const OrgEditor = _component(() => {
     if (!answers) return;
     const values = answers as Record<string, string>;
     await save('已保存部门', () =>
-      center.editOrg('saveDepartment', {
+      center.call('saveDepartment', {
         id: current?.id ?? values['id']!.trim(),
         name: values['name']!.trim(),
         parentId: values['parentId'] || null,
@@ -126,7 +126,7 @@ export const OrgEditor = _component(() => {
     });
     if (!ok) return;
     await save('已删除部门', async () => {
-      await center.editOrg('removeDepartment', department.id);
+      await center.call('removeDepartment', department.id);
       selected = [];
     });
   }
@@ -182,7 +182,7 @@ export const OrgEditor = _component(() => {
     const values = answers as Record<string, string | string[]>;
     const text = (name: string) => String(values[name] ?? '').trim();
     await save('已保存员工', () =>
-      center.editOrg('saveEmployee', {
+      center.call('saveEmployee', {
         id: current?.id ?? text('id'),
         name: text('name'),
         title: text('title') || null,

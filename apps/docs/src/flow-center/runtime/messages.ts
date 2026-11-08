@@ -1,13 +1,28 @@
 /**
  * 页面与 Worker 之间演示用的消息（引擎的调用另走客户端的端口协议，带 flow 标记）：
- * 页面让 Worker 启动、换演示身份、拨时钟、重置、维护组织；Worker 报启动的进度、准备好了、现在几点、库里的组织、维护的结果。
+ * 页面让 Worker 启动、换演示身份、拨时钟、重置，调 Worker 的方法（维护组织、试运行）；Worker 报启动的进度、准备好了、
+ * 现在几点、库里的组织、方法的结果。
  */
+import type { Actor } from '@zerodep-dev/flow-ts-engine';
+import type { FlowProject } from '@zerodep-dev/flow-ts-model';
+import type { SimulationInput, SimulationResult } from '@zerodep-dev/flow-ts-engine/testing';
 import type { OrgDirectory, OrgSnapshot } from '@zerodep-dev/flow-ts-engine/org';
 
-/** 页面能调的组织维护（组织目录的方法） */
-export type OrgMethod = 'saveDepartment' | 'removeDepartment' | 'saveEmployee' | 'saveRole';
-/** 方法的参数 */
-export type OrgArgument<M extends OrgMethod> = Parameters<OrgDirectory[M]>[0];
+/** 页面能调的 Worker 方法（不属于引擎的客户端的那些）：参数 → 结果 */
+export interface WorkerMethods {
+  saveDepartment: (department: Parameters<OrgDirectory['saveDepartment']>[0]) => void;
+  removeDepartment: (id: string) => void;
+  saveEmployee: (employee: Parameters<OrgDirectory['saveEmployee']>[0]) => void;
+  saveRole: (role: Parameters<OrgDirectory['saveRole']>[0]) => void;
+  /** 引擎眼里的这个人（试运行的发起人） */
+  actorOf: (id: string) => Actor | undefined;
+  /** 工作室的试运行：在 Worker 里另一个内存库上跑，组织、解析器、动作同流程中心，已发布的流程都在 */
+  simulate: (trial: {
+    project: FlowProject;
+    input: Pick<SimulationInput, 'variables' | 'initiator' | 'steps'>;
+  }) => SimulationResult;
+}
+export type WorkerMethod = keyof WorkerMethods;
 
 /** 页面 → Worker */
 export type ToWorker =
@@ -19,11 +34,11 @@ export type ToWorker =
   | { readonly demo: 'advance'; readonly by: number }
   /** 删掉演示数据重来 */
   | { readonly demo: 'reset' }
-  /** 维护组织：call 是这次调用的编号，结果按它回 */
+  /** 调 Worker 的方法：call 是这次调用的编号，结果按它回 */
   | {
-      readonly demo: 'orgCall';
+      readonly demo: 'call';
       readonly call: number;
-      readonly method: OrgMethod;
+      readonly method: WorkerMethod;
       readonly argument: unknown;
     };
 
@@ -44,10 +59,11 @@ export type FromWorker =
   | { readonly demo: 'clock'; readonly now: string; readonly offset: number }
   /** 启动失败 */
   | { readonly demo: 'error'; readonly message: string }
-  /** 维护组织的结果：失败时带引擎的错误代号与说明 */
+  /** 方法的结果：失败时带引擎的错误代号与说明 */
   | {
-      readonly demo: 'orgReply';
+      readonly demo: 'reply';
       readonly call: number;
+      readonly value?: unknown;
       readonly error?: { readonly code: string; readonly message: string };
     };
 

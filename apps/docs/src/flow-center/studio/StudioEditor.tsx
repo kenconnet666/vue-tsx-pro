@@ -1,7 +1,8 @@
 /**
  * 流程工作室的编辑页（只给管理员）：工作副本是工程的文件。
  * - 图：设计器改 process.json；单据：表单设计器改字段清单（有 form.ts 时重写它，没有时改 process.json 里内联的清单）；
- *   代码：文件树 + 编辑器，直接改各个文件（form.ts、logic.ts……）；版本：载入某一版、回滚。
+ *   代码：文件树 + 编辑器，直接改各个文件（form.ts、logic.ts……）；试运行：拿工作副本一步步走（TrialRun）；
+ *   版本：载入某一版、回滚。
  * - 边改边查：停手半秒后把整份文件交给 Worker 里的引擎检查（编译、校验、类型检查，同发布），问题列在下面，点一下定位。
  * - 发布：检查没有错误才能发，写发布说明，成新的一版；进行中的单子按原来的版本走完。
  * 还没发布过的新流程（从列表新建）只在这个页面里，发布后才进库。
@@ -45,6 +46,7 @@ import { timeText, who } from '../parts/labels';
 import { showError, toaster } from '../parts/toaster';
 import { useFlowCenter } from '../runtime/center';
 import { ProcessCanvas } from './ProcessCanvas';
+import { TrialRun } from './TrialRun';
 import {
   definitionOf,
   fileTemplate,
@@ -535,6 +537,7 @@ export default _component(() => {
             <Tab value="design">图</Tab>
             <Tab value="form">单据</Tab>
             <Tab value="code">代码</Tab>
+            <Tab value="trial">试运行</Tab>
             <Tab value="versions">版本</Tab>
           </TabList>
           <TabPanel value="design">
@@ -565,6 +568,15 @@ export default _component(() => {
           </TabPanel>
           <TabPanel value="form">{renderForm(current)}</TabPanel>
           <TabPanel value="code">{renderCode(current)}</TabPanel>
+          <TabPanel value="trial">
+            {graph && (
+              <TrialRun
+                files={current}
+                definition={checked?.definition ?? graph}
+                manifest={manifest()}
+              />
+            )}
+          </TabPanel>
           <TabPanel value="versions">{renderVersions()}</TabPanel>
         </Tabs>
         {renderProblems()}

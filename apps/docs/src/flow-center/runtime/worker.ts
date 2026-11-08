@@ -16,8 +16,15 @@ import {
 } from '@zerodep-dev/flow-ts-engine';
 import type { OrgDirectory } from '@zerodep-dev/flow-ts-engine/org';
 import { DEFAULT_ACTOR } from '../domain/org';
-import { createBackend, prepare } from './backend';
-import { isDemoMessage, type FromWorker, type ToWorker } from './messages';
+import { simulate } from '@zerodep-dev/flow-ts-engine/testing';
+import { createBackend, definitionKey, prepare, trialOptions } from './backend';
+import {
+  isDemoMessage,
+  type FromWorker,
+  type ToWorker,
+  type WorkerMethod,
+  type WorkerMethods,
+} from './messages';
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -94,18 +101,58 @@ async function runJobs(): Promise<void> {
   if (ran > 0) endpoint?.changed();
 }
 
-/** 维护组织：改完把新的组织发给页面、重算当前身份（角色、部门可能变了），用到名字的列表也跟着刷新 */
-async function callOrg({ call, method, argument }: Extract<ToWorker, { demo: 'orgCall' }>) {
+/** 改了组织之后：把新的组织发给页面、重算当前身份（角色、部门可能变了），用到名字的列表也跟着刷新 */
+async function orgChanged(): Promise<void> {
+  post({ demo: 'org', org: await directory!.snapshot() });
+  await useActor(actorId);
+  endpoint?.changed();
+}
+
+/** Worker 的方法（页面经 center.call 调用） */
+const methods: {
+  [M in WorkerMethod]: (
+    argument: Parameters<WorkerMethods[M]>[0],
+  ) => Promise<ReturnType<WorkerMethods[M]>>;
+} = {
+  saveDepartment: async (department) => {
+    await directory!.saveDepartment(department);
+    await orgChanged();
+  },
+  removeDepartment: async (id) => {
+    await directory!.removeDepartment(id);
+    await orgChanged();
+  },
+  saveEmployee: async (employee) => {
+    await directory!.saveEmployee(employee);
+    await orgChanged();
+  },
+  saveRole: async (role) => {
+    await directory!.saveRole(role);
+    await orgChanged();
+  },
+  actorOf: (id) => directory!.actorOf(id),
+  simulate: async ({ project, input }) => {
+    const key = definitionKey(project);
+    // 被调用的流程（合同调付款）要在试运行的库里：已发布的都先发上去（同键的就是在试的这个，不发旧的）
+    const others = (await engine!.versions.catalog())
+      .filter((entry) => entry.key !== key)
+      .map((entry) => engine!.versions.project(entry.key));
+    return simulate(project, {
+      ...input,
+      processes: await Promise.all(others),
+      options: trialOptions(directory!),
+    });
+  },
+};
+
+async function call({ call, method, argument }: Extract<ToWorker, { demo: 'call' }>) {
   try {
-    if (!directory) throw new Error('流程中心还没启动好');
-    await (directory[method] as (argument: unknown) => Promise<void>)(argument);
-    post({ demo: 'orgReply', call });
-    post({ demo: 'org', org: await directory.snapshot() });
-    await useActor(actorId);
-    endpoint?.changed();
+    if (!directory || !engine) throw new Error('流程中心还没启动好');
+    const value = await (methods[method] as (argument: unknown) => Promise<unknown>)(argument);
+    post({ demo: 'reply', call, value });
   } catch (error) {
     post({
-      demo: 'orgReply',
+      demo: 'reply',
       call,
       error: {
         code: error instanceof FlowError ? error.code : 'internal',
@@ -139,8 +186,8 @@ self.addEventListener('message', (event: MessageEvent) => {
           // 时间变了：期限、超时的显示都要重算
           endpoint?.changed();
           break;
-        case 'orgCall':
-          await callOrg(message);
+        case 'call':
+          await call(message);
           break;
         case 'reset':
           await wipe();

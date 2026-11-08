@@ -9,6 +9,7 @@ import {
   type TransformCode,
 } from '@zerodep-dev/flow-ts-engine';
 import { createOrgDirectory, type OrgDirectory } from '@zerodep-dev/flow-ts-engine/org';
+import type { FlowProject } from '@zerodep-dev/flow-ts-model';
 import { isAdmin, ORG } from '../domain/org';
 import { seed, type TimeTravel } from '../domain/seed';
 import { PROCESSES } from '../processes';
@@ -42,16 +43,26 @@ const compileProjectFile: TransformCode = async (source, path) => {
   return compileInThread(source, { filename: path });
 };
 
+/** 引擎的扩展、组织、编译：流程中心与工作室的试运行同一套（试运行另开内存库，组织仍读这份目录的快照） */
+export const trialOptions = (directory: OrgDirectory) => ({
+  org: directory.org,
+  extensions: { resolvers: directory.resolvers, actions },
+  transform: compileProjectFile,
+});
+
 export function createBackend(adapter: FlowEngineOptions['adapter'], clock: () => Date): Backend {
   const directory = createOrgDirectory({ adapter, isAdmin });
-  const engine = createFlowEngine({
-    adapter,
-    clock,
-    org: directory.org,
-    extensions: { resolvers: directory.resolvers, actions },
-    transform: compileProjectFile,
-  });
+  const engine = createFlowEngine({ adapter, clock, ...trialOptions(directory) });
   return { directory, engine };
+}
+
+/** 工程的流程键（process.json 里的 key）；读不出时为空 */
+export function definitionKey(project: FlowProject): string | undefined {
+  try {
+    return (JSON.parse(project.files['process.json'] ?? '') as { key?: string }).key;
+  } catch {
+    return undefined;
+  }
 }
 
 export interface PrepareOptions {

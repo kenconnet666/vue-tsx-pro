@@ -43,6 +43,8 @@ export interface SimulationInput {
   readonly steps?: readonly SimulationStep[];
   /** 扩展、组织：试运行时多半给假的实现 */
   readonly options?: Omit<FlowEngineOptions, 'adapter' | 'clock'>;
+  /** 先发布的别的流程（试运行的流程调用它们时要有） */
+  readonly processes?: readonly (ProcessDefinition | FlowProject)[];
 }
 
 /** 停在某个节点上等谁 */
@@ -101,6 +103,7 @@ async function simulateNow(
   };
 
   try {
+    for (const other of input.processes ?? []) await engine.publish(other);
     const { key } = await engine.publish(definition);
     const started = await engine.run(
       { type: 'start', process: key, variables: input.variables ?? {} },
