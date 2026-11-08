@@ -36,6 +36,11 @@ export const flowRoutes: RouteRecordRaw = {
       meta: { title: '单据 · 流程中心' },
     },
     {
+      path: 'proxy',
+      component: () => import('./pages/Proxies'),
+      meta: { title: '代理 · 流程中心' },
+    },
+    {
       path: 'start',
       component: () => import('./pages/StartCenter'),
       meta: { title: '发起 · 流程中心' },

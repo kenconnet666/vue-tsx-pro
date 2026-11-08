@@ -32,6 +32,11 @@ declare const self: DedicatedWorkerGlobalScope;
 
 /** IndexedDB 里的库名（PGlite 存成 /pglite/<名字>） */
 const DATA_DIR = 'idb://flow-center';
+/**
+ * 库的结构版本：引擎、组织目录的表加了列时加一。createTables 只建缺的表、不补列，浏览器里存的老库对不上就删了重建
+ * （演示数据，不做迁移；服务端部署用 easy-query 的迁移）
+ */
+const SCHEMA_VERSION = 2;
 /** 跑到点作业的间隔 */
 const JOB_INTERVAL = 5_000;
 
@@ -55,8 +60,30 @@ async function useActor(id: string): Promise<void> {
   current = (await directory.actorOf(id)) ?? (await directory.actorOf(DEFAULT_ACTOR))!;
 }
 
+/** 存的库是老结构（有流程的表，版本对不上） */
+async function outdated(db: PGlite): Promise<boolean> {
+  const tables = await db.query<{ name: string }>(
+    `SELECT tablename AS name FROM pg_tables
+     WHERE schemaname = 'public' AND tablename IN ('flow_work_item', 'demo_schema')`,
+  );
+  const names = new Set(tables.rows.map((r) => r.name));
+  if (!names.has('flow_work_item')) return false;
+  if (!names.has('demo_schema')) return true;
+  const { rows } = await db.query<{ version: number }>('SELECT version FROM demo_schema');
+  return rows[0]?.version !== SCHEMA_VERSION;
+}
+
 async function boot(): Promise<void> {
   database = new PGlite(DATA_DIR);
+  if (await outdated(database)) {
+    await wipe();
+    database = new PGlite(DATA_DIR);
+  }
+  await database.exec(
+    `CREATE TABLE IF NOT EXISTS demo_schema (version int);
+     DELETE FROM demo_schema;
+     INSERT INTO demo_schema VALUES (${SCHEMA_VERSION});`,
+  );
   const backend = createBackend(pglite(database), now);
   ({ engine, directory } = backend);
   // 收听引擎的广播（推进、作业、发布都随提交发出）：数据变了就告诉页面；同服务端多实例时的接法（core/channels.ts）

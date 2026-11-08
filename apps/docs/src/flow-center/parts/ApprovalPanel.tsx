@@ -125,7 +125,14 @@ export const ApprovalPanel = _component(
             />
           )}
           {handling && item ? (
-            <Card padding="lg" header="我来处理">
+            <Card
+              padding="lg"
+              header={
+                item.workItem.proxyFor
+                  ? `我来处理（代${who(item.workItem.proxyFor)}，他设了代理）`
+                  : '我来处理'
+              }
+            >
               <HandleTask
                 key={`${item.workItem.id}`}
                 detail={current}

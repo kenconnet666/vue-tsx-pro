@@ -1,6 +1,6 @@
 /**
- * 工作台（docs/decisions/0009 第 4 节）：顶栏的页签选格子（待办、已办、抄送我的、我发起的、草稿，parts/WorkBoxes），
- * 这里把它列成整宽的表格——按关键字、流程筛；点一行在抽屉里打开审批单，抽屉里上一条、下一条（J / K）不用回到列表。
+ * 工作台（docs/decisions/0009 第 4 节）：整宽的表格，上面的页签筛格子（待办、已办、抄送我的、我发起的、草稿，带计数，parts/boxes），
+ * 再按关键字、流程筛；点一行在抽屉里打开审批单，抽屉里上一条、下一条（J / K）不用回到列表。
  * 处理完一条自动换到下一条，格子空了抽屉收起；数据变了（别人处理了、作业跑了）跟着刷新。
  * 批量：待办勾几条一起同意（各用节点上不要求写意见的同意结果，没有的不能勾），逐条给出结果，没办成的留着勾上并写出原因；
  * 抄送勾几条标为已读。
@@ -20,6 +20,9 @@ import {
   Select,
   SelectionBar,
   Small,
+  Tab,
+  TabList,
+  Tabs,
   TextField,
   useHotkeys,
   type DataTableColumn,
@@ -27,7 +30,15 @@ import {
 import { onScopeDispose, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ApprovalPanel } from '../parts/ApprovalPanel';
-import { BOXES, boxOf, entryQuery, loadBox, type Box, type Entry } from '../parts/WorkBoxes';
+import {
+  BOXES,
+  boxOf,
+  entryQuery,
+  loadBox,
+  useBoxCounts,
+  type Box,
+  type Entry,
+} from '../parts/boxes';
 import { showError, toaster } from '../parts/toaster';
 import { useFlowCenter } from '../runtime/center';
 
@@ -80,6 +91,7 @@ export default _component(() => {
   let busy = _state(false);
   let text = _state('');
   let process = _state<string | null>(null);
+  const counts = useBoxCounts(() => center);
 
   const box = () => boxOf(route.query['box']);
   const opened = () => ({
@@ -262,6 +274,25 @@ export default _component(() => {
     return (
       <div {...css.attrs(styles.page)}>
         <div {...css.attrs(styles.filters)}>
+          <Tabs
+            _value={which}
+            onUpdate:_value={(value: string) =>
+              void router.replace({ path, query: { box: value } })
+            }
+          >
+            <TabList aria-label="工作台">
+              {BOXES.map((b) => (
+                <Tab key={b.value} value={b.value}>
+                  {b.label}
+                  {counts.value[b.value] ? (
+                    <Badge tone={b.value === 'todo' ? 'danger' : 'accent'}>
+                      {counts.value[b.value]}
+                    </Badge>
+                  ) : null}
+                </Tab>
+              ))}
+            </TabList>
+          </Tabs>
           <TextField
             _value={text}
             placeholder="按标题找"

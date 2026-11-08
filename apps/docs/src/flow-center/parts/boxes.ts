@@ -1,10 +1,11 @@
 /**
- * 工作台的几个格子——待办、已办、抄送我的、我发起的、草稿（docs/decisions/0009 第 4 节）：顶栏的一排页签（NavBar），
- * 带待办数、未读抄送数；选中的格子在工作台上列成表格。这里是格子的定义、取列表（几种格子统一成 Entry）与页签。
+ * 工作台的几个格子——待办、已办、抄送我的、我发起的、草稿（docs/decisions/0009 第 4 节）：工作台表格上的页签筛选，
+ * 带待办数、未读抄送数。这里是格子的定义、取列表（几种格子统一成 Entry）与计数（侧栏的角标也用）。
  * 待办里超时、快到期的排前面并标出来。
  */
 import type { CcItem, InstanceRow, TodoItem } from '@zerodep-dev/flow-ts-engine';
-import type { NavBarItem, StatusTone } from '@zerodep-dev/vue-tsx-pro-ui';
+import type { StatusTone } from '@zerodep-dev/vue-tsx-pro-ui';
+import { shallowRef, watch } from 'vue';
 import { processOf } from '../processes';
 import type { FlowCenter } from '../runtime/center';
 import { STATUS, timeText, who } from './labels';
@@ -91,7 +92,8 @@ export async function loadBox(center: FlowCenter, which: Box): Promise<Entry[]> 
           workItem: t.id,
           title: t.title ?? processName(t.processKey),
           process: processName(t.processKey),
-          step: t.nodeName,
+          // 代理来的写上本该是谁的
+          step: t.proxyFor ? `${t.nodeName}（代${who(t.proxyFor)}）` : t.nodeName,
           at: new Date(t.createdAt),
           ...withBadge(deadline(t, now)),
           ...(t.quickOutcome ? { quickOutcome: t.quickOutcome } : {}),
@@ -143,15 +145,21 @@ export async function loadBox(center: FlowCenter, which: Box): Promise<Entry[]> 
   }
 }
 
-/** 顶栏的几个页签：计数（待办数、未读抄送数）由外壳取好传进来；current 是工作台上选中的格子 */
-export function workBoxItems(
-  current: Box | null,
-  counts: Partial<Record<Box, number>>,
-): NavBarItem[] {
-  return BOXES.map((b) => ({
-    label: b.label,
-    href: `${WORK_PATH}?box=${b.value}`,
-    badge: counts[b.value] ?? 0,
-    current: current === b.value,
-  }));
+/** 格子的计数：待办数、未读的抄送数；数据变了、换了身份重取 */
+export function useBoxCounts(center: () => FlowCenter | null) {
+  const counts = shallowRef<Partial<Record<Box, number>>>({});
+  watch(
+    () => {
+      const c = center();
+      return c && c.state.status === 'ready' && [c.state.revision, c.state.actor];
+    },
+    async (ready) => {
+      const c = center();
+      if (!ready || !c) return;
+      const [todo, cc] = await Promise.all([c.client.todo(), c.client.cc()]);
+      counts.value = { todo: todo.length, cc: cc.filter((item) => !item.readAt).length };
+    },
+    { immediate: true },
+  );
+  return counts;
 }
