@@ -23,6 +23,7 @@ import {
 import type { PeopleSource } from '../input/people';
 import type { UploadHandler } from '../input/Upload';
 import { cloneValue } from '../utils/data/clone';
+import { groupDigits, sumNumeric } from '../utils/data/numeric';
 import { toJsonSchema, unwrap, type JsonSchema } from './form-constraints';
 
 /** SchemaForm 能生成的控件 */
@@ -71,6 +72,8 @@ declare module 'zod/v4/core' {
     span?: number | 'full';
     /** 分组（SchemaForm）：同组的字段放进一个 FormSection，组名是标题 */
     group?: string;
+    /** 页签（SchemaForm）：同一页签的字段放在一个标签页里（页签里照旧分组），没写的放在页签前面 */
+    tab?: string;
     /** 枚举各值的显示文字（SchemaForm）；没写的值显示它自己 */
     options?: Readonly<Record<string, string>>;
     /** 数字的单位（SchemaForm），写在输入框的结束边：元、天、kg */
@@ -119,6 +122,8 @@ export interface SchemaField {
   span?: number | 'full';
   /** 分组 */
   group?: string;
+  /** 页签 */
+  tab?: string;
   /** 嵌套对象的字段、列表每一行的字段 */
   fields?: readonly SchemaField[];
   /** 空着时的值：新的一行、emptyValues 用它（必填的选择、数字、日期是 null，可选的是 undefined） */
@@ -176,6 +181,7 @@ const META_KEYS = [
   'control',
   'span',
   'group',
+  'tab',
   'options',
   'unit',
   'visibleWhen',
@@ -288,6 +294,7 @@ function fieldsOf(root: JsonSchema, object: JsonSchema): SchemaField[] {
     if (text(meta.placeholder)) field.placeholder = text(meta.placeholder);
     if (text(meta.unit)) field.unit = text(meta.unit);
     if (text(meta.group)) field.group = text(meta.group);
+    if (text(meta.tab)) field.tab = text(meta.tab);
     if (typeof meta.span === 'number' || meta.span === 'full') field.span = meta.span;
     if (options) field.options = options;
     if (fields) field.fields = fields;
@@ -304,6 +311,16 @@ const cache = new WeakMap<$ZodType, readonly SchemaField[]>();
 
 const isCondition = (value: unknown): value is Condition =>
   typeof value === 'object' && value !== null;
+
+/** 明细表一列的合计（写了 total: 'sum' 的列）：精确相加、带千分位与单位；没有能加的值时是 undefined */
+export function columnTotal(column: SchemaField, rows: readonly unknown[]): string | undefined {
+  if (column.total !== 'sum') return undefined;
+  const sum = sumNumeric(
+    rows.map((row) => (row as Record<string, unknown> | undefined)?.[column.key]),
+  );
+  if (sum === undefined) return undefined;
+  return column.unit ? `${groupDigits(sum)} ${column.unit}` : groupDigits(sum);
+}
 
 /** 值是不是空的（null、undefined、空文字、空数组）：必填按它判断 */
 export const isBlank = (value: unknown): boolean =>

@@ -8,6 +8,7 @@ import sectionApi from 'virtual:api/FormSectionProps';
 import labelApi from 'virtual:api/LabelProps';
 import schemaFieldsApi from 'virtual:api/SchemaFieldsProps';
 import schemaFormApi from 'virtual:api/SchemaFormProps';
+import schemaViewApi from 'virtual:api/SchemaViewProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -15,6 +16,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import Admission from './demo/Admission.tsx?demo';
 import Conditional from './demo/Conditional.tsx?demo';
 import Generated from './demo/Generated.tsx?demo';
+import ReadView from './demo/ReadView.tsx?demo';
 import Sources from './demo/Sources.tsx?demo';
 import Layout from './demo/Layout.tsx?demo';
 import Native from './demo/Native.tsx?demo';
@@ -114,6 +116,21 @@ export default _component(() => () => (
       <Code>{"control: 'file'"}</Code>
       {' 用 Upload 交给登记的上传函数。'}
     </Example>
+    <Example id="read-view" title="页签与只读视图" demo={ReadView}>
+      {'字段的 meta 写 '}
+      <Code>{"tab: '费用'"}</Code>
+      {
+        ' 分进标签页（页签里照旧分组，没写的排在页签前面）；提交没通过时错误汇总列出所有错误，点它跳到别的页签里的字段时那一页自己切过来。'
+      }
+      <Code>SchemaView</Code>
+      {
+        ' 按同一份 schema 只读地显示值（审批时看单据、打印）：选项显示文字（含登记的字典）、开关显示是否、人员与附件显示名字、对象展开成“对象 · 字段”、明细表排成表格带合计；'
+      }
+      <Code>access</Code>
+      {' 与 '}
+      <Code>visibleWhen</Code>
+      {' 不显示的不列，分组与页签各成一块。'}
+    </Example>
     <Examples>
       <ExampleColumn>
         <Example id="signup" title="注册：校验与异步校验" demo={Signup}>
@@ -199,6 +216,7 @@ export default _component(() => () => (
         sectionApi,
         schemaFormApi,
         schemaFieldsApi,
+        schemaViewApi,
         formValueApi,
         labelApi,
       ]}

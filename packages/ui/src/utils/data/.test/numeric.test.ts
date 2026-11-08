@@ -3,6 +3,7 @@ import Decimal from 'decimal.js';
 import { describe, expect, it } from 'vitest';
 import {
   compareNumeric,
+  groupDigits,
   isDecimal,
   isNumeric,
   numericText,
@@ -77,5 +78,11 @@ describe('sumNumeric', () => {
     expect(sumNumeric(['1.25', 2n, -0.5, null, '', 'abc'])).toBe('2.75');
     expect(sumNumeric(['99999999999999999999.01', '0.99'])).toBe('100000000000000000000.00');
     expect(sumNumeric([null, undefined])).toBeUndefined();
+  });
+
+  it('合计加千分位：只动整数部分，负号与小数原样', () => {
+    expect(groupDigits('-1813.50')).toBe('-1,813.50');
+    expect(groupDigits('1234567')).toBe('1,234,567');
+    expect(groupDigits('999')).toBe('999');
   });
 });

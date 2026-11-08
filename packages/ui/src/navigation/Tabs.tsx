@@ -824,6 +824,8 @@ export const TabPanel = _component(({ value, children, ...rest }: TabPanelProps)
             id: tabs.id('panel', value),
             'aria-labelledby': tabs.id('tab', value),
             hidden: !selected,
+            // 要聚焦的控件在这一页里（表单提交不通过时的出错字段，见 focusControl）：切到这一页
+            onBeforematch: () => tabs.select(value),
           },
         )}
         data-state={selected ? 'active' : 'inactive'}

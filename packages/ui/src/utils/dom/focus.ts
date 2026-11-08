@@ -4,6 +4,7 @@
  * 漫游焦点（一组项里方向键移动）见 roving-focus.ts。
  */
 import { tabbable } from 'tabbable';
+import { nextTick } from 'vue';
 
 /** 把焦点移到容器里第一个可聚焦的元素（有 autofocus 的优先）；没有时聚焦容器本身 */
 export function focusFirst(container: HTMLElement): void {
@@ -14,9 +15,24 @@ export function focusFirst(container: HTMLElement): void {
 
 /**
  * 聚焦一个控件：它本身不能聚焦时（RadioGroup 的 radiogroup、一组分段输入的容器）聚焦里面第一个能聚焦的。
- * 表单提交不通过时把焦点移到出错的控件上用它
+ * 表单提交不通过时把焦点移到出错的控件上用它；控件在收起的内容里时先展开（见下）
  */
 export function focusControl(element: HTMLElement): void {
+  // 控件在收起的内容里（没选中的标签页）：先让收着它的显示出来，渲染后再聚焦。
+  // 用 beforematch 是照浏览器页内查找展开 hidden="until-found" 的做法，收起内容的组件听它
+  const hidden: Element[] = [];
+  for (
+    let node = element.closest('[hidden]');
+    node;
+    node = node.parentElement?.closest('[hidden]') ?? null
+  )
+    hidden.push(node);
+  for (const node of hidden) node.dispatchEvent(new Event('beforematch'));
+  if (hidden.length === 0) return focusNow(element);
+  void nextTick(() => focusNow(element));
+}
+
+function focusNow(element: HTMLElement) {
   // 先看能不能聚焦，而不是聚焦后再看 activeElement：有的环境（happy-dom）让任何元素都能拿到焦点
   const target = element.matches(FOCUSABLE) ? element : tabbable(element)[0];
   target?.focus();

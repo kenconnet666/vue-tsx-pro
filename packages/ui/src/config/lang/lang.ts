@@ -199,6 +199,14 @@ export interface Lang {
   readonly formRowLabel: (label: string, index: number) => string;
   /** 明细表操作列的表头（只给读屏） */
   readonly formRowActions: string;
+  /** 表单页签那一排的读屏名 */
+  readonly formTabs: string;
+  /** 只读视图（SchemaView）里开关、复选框打开时的值 */
+  readonly formValueTrue: string;
+  /** 只读视图里开关、复选框关着时的值 */
+  readonly formValueFalse: string;
+  /** 只读视图里没有值时显示的 */
+  readonly formValueEmpty: string;
   /** 其余校验错误的文案：取 zod 自带的语言包（`zod/v4/locales` 的 localeError）；schema 里自己写的提示优先 */
   readonly formIssues: $ZodErrorMap;
   /** 未保存离开时确认对话框的标题，默认“离开这个页面？” */

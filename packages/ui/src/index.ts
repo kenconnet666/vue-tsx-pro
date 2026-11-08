@@ -997,6 +997,7 @@ export {
   type SchemaFilterOptions,
   type SchemaFormProps,
 } from './form/SchemaForm';
+export { SchemaView, type SchemaViewProps } from './form/SchemaView';
 export {
   FieldLayoutContext,
   provideFieldLayout,
@@ -1007,6 +1008,7 @@ export {
 export { createConstraints, type FieldConstraints } from './form/form-constraints';
 export { useLeaveConfirmation, type LeaveConfirmationOptions } from './form/leave-confirmation';
 export {
+  columnTotal,
   emptyValues,
   isBlank,
   schemaConditionFields,
@@ -1658,6 +1660,7 @@ export {
   compareDecimalText,
   compareNumeric,
   decimalTextOf,
+  groupDigits,
   isDecimal,
   isNumeric,
   isNumericText,

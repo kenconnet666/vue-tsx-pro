@@ -136,7 +136,8 @@ const descriptionsStyles = css.create({
   cellBordered: { paddingBlock: '_sm', paddingInline: '_md' },
   // 暗色主题的 surfaceMuted 与 surface 同色，标签格要在两种模式下都看得出来
   labelBordered: { backgroundColor: '_fill', minWidth: '8em' },
-  value: { minWidth: 0, margin: 0, color: '_text', overflowWrap: 'anywhere' },
+  // 占满标签后剩下的宽度：值是表格、可滚动的块时不被压到最窄
+  value: { flexGrow: 1, minWidth: 0, margin: 0, color: '_text', overflowWrap: 'anywhere' },
   // 有复制按钮的值：按钮紧跟在文字后面，文字换行时按钮在第一行
   valueCopyable: { display: 'flex', alignItems: 'baseline', gap: '_xs' },
   copy: { flexShrink: 0, marginBlock: '-0.25em' },

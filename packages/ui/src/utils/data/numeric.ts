@@ -215,6 +215,13 @@ export function sumNumeric(values: readonly unknown[]): string | undefined {
   return negative ? `-${text}` : text;
 }
 
+/** 十进制文本的整数部分加千分位（`'-1813.50'` → `'-1,813.50'`），小数部分原样：合计这类已经算好的文字用它 */
+export function groupDigits(text: string): string {
+  const [whole = '', fraction] = text.split('.');
+  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return fraction === undefined ? grouped : `${grouped}.${fraction}`;
+}
+
 /** value 的 times 倍（times 是整数，如 -1、10），按 kind 精确运算 */
 export function multiplyNumeric(value: NumericValue, times: number, kind: NumericKind) {
   const typed = toNumericKind(value, kind);

@@ -41,6 +41,7 @@ import { Textarea } from '../input/Textarea';
 import { Upload } from '../input/Upload';
 import { TextField } from '../input/TextField';
 import { GridItem } from '../layout/Grid';
+import { Tab, TabList, TabPanel, Tabs } from '../navigation/Tabs';
 import {
   Table,
   TableBody,
@@ -50,7 +51,6 @@ import {
   TableHeaderCell,
   TableRow,
 } from '../table/Table';
-import { sumNumeric } from '../utils/data/numeric';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { cloneValue } from '../utils/data/clone';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -59,6 +59,7 @@ import { Form, type FormProps } from './Form';
 import { FormErrorSummary } from './FormErrorSummary';
 import { FormSection, type FormSectionProps } from './FormSection';
 import {
+  columnTotal,
   pickFields,
   schemaFields,
   type FormSources,
@@ -130,18 +131,13 @@ export const schemaFormStyles = css.create({
   rowFields: { flexGrow: 1, minWidth: 0 },
   // 删除按钮与第一行输入框对齐：让开标签的高度
   rowRemove: { marginBlockStart: '1.75em' },
+  // 页签里的几组：同表单本身的间距
+  tabPanel: { display: 'flex', flexDirection: 'column', gap: '_lg', paddingBlockStart: '_md' },
   // 明细表：每格放一个控件，列至少能放下输入框；合计右对齐、等宽数字
   tableCell: { minWidth: '8em', verticalAlign: 'top' },
   tableActions: { width: '1%', verticalAlign: 'top' },
   tableTotal: { fontWeight: '_semibold', fontVariantNumeric: 'tabular-nums' },
 });
-
-/** 合计显示成带千分位的文字（小数部分原样） */
-function groupedTotal(text: string): string {
-  const [whole = '', fraction] = text.split('.');
-  const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-  return fraction === undefined ? grouped : `${grouped}.${fraction}`;
-}
 
 /**
  * 按字段的描述选控件。extra 是额外的属性：表单里不给（Field 自动绑定值），查询栏里给值的读写与 clearable
@@ -469,21 +465,14 @@ export const SchemaFields = _component(
                   <TableFoot>
                     <TableRow>
                       {columns.map((child, i) => {
-                        const sum =
-                          child.total === 'sum'
-                            ? sumNumeric(array.items.map((row) => row?.[child.key]))
-                            : undefined;
+                        const sum = columnTotal(child, array.items);
                         return (
                           <TableCell
                             key={child.key}
                             align={child.total ? 'end' : undefined}
                             sx={schemaFormStyles.tableTotal}
                           >
-                            {sum !== undefined
-                              ? groupedTotal(sum)
-                              : i === 0
-                                ? lang.tableSummary
-                                : null}
+                            {sum !== undefined ? sum : i === 0 ? lang.tableSummary : null}
                           </TableCell>
                         );
                       })}
@@ -538,11 +527,50 @@ export const SchemaFields = _component(
       );
     }
 
-    return () => {
-      const all = controller.schema ? schemaFields(controller.schema) : [];
-      return groupsOf(pickFields(all, pick, omit)).map(([group, list]) =>
-        section(group ?? '', list, '', group === undefined ? {} : { title: group }),
+    /** 字段按分组排成几组 */
+    const grouped = (list: readonly SchemaField[], key: string) =>
+      groupsOf(list).map(([group, members]) =>
+        section(`${key}${group ?? ''}`, members, '', group === undefined ? {} : { title: group }),
       );
+
+    const fieldsNow = () =>
+      pickFields(controller.schema ? schemaFields(controller.schema) : [], pick, omit);
+    /** 页签，按第一次出现的先后 */
+    const tabsOf = (list: readonly SchemaField[]) => [
+      ...new Set(list.flatMap((field) => (field.tab ? [field.tab] : []))),
+    ];
+    // 当前页签；提交没通过时 Form 聚焦出错的控件，它在别的页签里时那一页自己切过来（TabPanel 听 beforematch）
+    let tab = _state(tabsOf(fieldsNow())[0] ?? '');
+
+    return () => {
+      const list = fieldsNow();
+      const tabs = tabsOf(list);
+      if (tabs.length === 0) return grouped(list, '');
+      return [
+        ...grouped(
+          list.filter((field) => !field.tab),
+          '',
+        ),
+        <Tabs key="tabs" _value={tab}>
+          <TabList aria-label={lang.formTabs}>
+            {tabs.map((name) => (
+              <Tab key={name} value={name}>
+                {name}
+              </Tab>
+            ))}
+          </TabList>
+          {tabs.map((name) => (
+            <TabPanel key={name} value={name}>
+              <div {...css.attrs(schemaFormStyles.tabPanel)} {...schemaFormPart('tabPanel')}>
+                {grouped(
+                  list.filter((field) => field.tab === name),
+                  `${name}:`,
+                )}
+              </div>
+            </TabPanel>
+          ))}
+        </Tabs>,
+      ];
     };
   },
 );
