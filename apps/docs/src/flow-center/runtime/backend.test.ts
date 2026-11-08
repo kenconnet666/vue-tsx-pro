@@ -40,10 +40,21 @@ it('第一次准备：种子按组织里的上级、部门负责人、财务收�
   // 法务会签到一半：蒋律签过了，袁清还没签
   expect(await todo('1022')).toEqual([expect.stringContaining('维保')]);
   expect(await todo('1021')).toEqual([]);
-  // 软件许可合同生效，首付那张付款单推 ERP 付掉了
+  // 软件许可合同生效，首付那张付款单推了 ERP，在等银行回单；回单到了（外部消息）就付完
   const admin = (await backend.directory.actorOf('1001'))!;
-  const { rows } = await backend.engine.query.search(admin, { scope: 'all', text: '首付' });
-  expect(rows.map((row) => [row.status, row.result])).toEqual([['completed', 'paid']]);
+  const first = async () =>
+    (await backend.engine.query.search(admin, { scope: 'all', text: '首付' })).rows[0]!;
+  expect([(await first()).status, (await first()).current]).toEqual(['active', ['receipt']]);
+  await backend.engine.signal(
+    {
+      event: 'bank.receipt',
+      instance: (await first()).id,
+      outcome: 'paid',
+      data: { remark: '回单 0001' },
+    },
+    admin,
+  );
+  expect([(await first()).status, (await first()).result]).toEqual(['completed', 'paid']);
 
   // 合同是流程工程：版本里存着源码；logic.ts 的守卫在财务审核通过前查付款计划的合计
   const files = (await backend.engine.versions.project('contract')).files;

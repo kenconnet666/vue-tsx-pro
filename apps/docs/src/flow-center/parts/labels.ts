@@ -55,6 +55,7 @@ export const RESULT_TEXT: Readonly<Record<string, string>> = {
   approved: '通过',
   rejected: '不通过',
   paid: '已付款',
+  bounced: '退票',
   ordered: '已下单',
 };
 

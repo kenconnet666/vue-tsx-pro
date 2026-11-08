@@ -5,7 +5,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { InstanceDetail } from '@zerodep-dev/flow-ts-engine';
 import { Timeline, type TimelineItem } from '@zerodep-dev/vue-tsx-pro-ui';
-import { eventText, timeText, who } from './labels';
+import { eventText, RESULT_TEXT, timeText, who } from './labels';
 
 /** FlowTimeline 的属性 */
 export interface FlowTimelineProps {
@@ -14,13 +14,13 @@ export interface FlowTimelineProps {
   now: Date;
 }
 
-/** 处理结果的文字：节点上按钮的名字 */
+/** 处理结果的文字：人工节点是按钮的名字，等消息、自动节点带回的结果按结果的说法（已付款、退票……） */
 function outcomeLabel(detail: InstanceDetail, node: string | null, outcome: string | null) {
   if (!outcome) return '';
   const task = detail.definition.nodes.find((n) => n.id === node);
   return task?.type === 'task'
     ? (task.outcomes.find((o) => o.key === outcome)?.label ?? outcome)
-    : outcome;
+    : (RESULT_TEXT[outcome] ?? outcome);
 }
 
 /** 一个值的写法：空的写“空”，明细表这类对象写成 JSON */

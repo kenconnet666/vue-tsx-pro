@@ -4,11 +4,11 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { FlowCommand, Incident, InstanceDetail } from '@zerodep-dev/flow-ts-engine';
-import { formManifest } from '@zerodep-dev/flow-ts-model';
+import { formManifest, type ReceiveNode } from '@zerodep-dev/flow-ts-model';
 import { Button, Flex, Menu, MenuItem, useConfirm } from '@zerodep-dev/vue-tsx-pro-ui';
 import { useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { useFlowCenter } from '../runtime/center';
-import { who } from './labels';
+import { RESULT_TEXT, who } from './labels';
 import { useIncidentActions } from './incidents';
 import { showError, toaster } from './toaster';
 
@@ -115,6 +115,43 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
         instance: id(),
         node: answers.node,
         comment: answers.comment || undefined,
+      }),
+    );
+  }
+
+  /** 正在等外部消息的节点（receive）：演示里管理员替外部系统把消息送来 */
+  const waiting = () =>
+    detail.definition.nodes.filter(
+      (n): n is ReceiveNode => n.type === 'receive' && detail.instance.current.includes(n.id),
+    );
+
+  async function deliver(node: ReceiveNode) {
+    const answers = await prompt({
+      title: `模拟送达：${node.name ?? node.id}`,
+      description: `替外部系统发消息 ${node.event} 给这张单（演示用；接入时由对方系统调 signal）。`,
+      fields: [
+        ...(node.outcomes?.length
+          ? [
+              {
+                name: 'outcome',
+                label: '结果',
+                type: 'select' as const,
+                required: true,
+                options: node.outcomes.map((o) => ({ value: o, label: RESULT_TEXT[o] ?? o })),
+              },
+            ]
+          : []),
+        { name: 'remark', label: '消息里的备注', type: 'text' as const },
+      ],
+      confirmText: '送达',
+    });
+    if (!answers) return;
+    await act('已送达', () =>
+      center.client.signal({
+        event: node.event,
+        instance: id(),
+        ...(answers.outcome ? { outcome: String(answers.outcome) } : {}),
+        data: { remark: answers.remark ?? '' },
       }),
     );
   }
@@ -257,6 +294,11 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
             )}
             <MenuItem onAction={() => void jump()}>跳转</MenuItem>
             <MenuItem onAction={() => void reassign()}>改派</MenuItem>
+            {waiting().map((node) => (
+              <MenuItem key={node.id} onAction={() => void deliver(node)}>
+                模拟送达：{node.name ?? node.id}
+              </MenuItem>
+            ))}
             {editable().length > 0 && (
               <MenuItem onAction={() => void changeData()}>改数据</MenuItem>
             )}

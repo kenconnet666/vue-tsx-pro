@@ -192,7 +192,8 @@ const STEPS: readonly SeedStep[] = [
     },
   },
   {
-    label: '冯远的软件许可合同（6 万）已生效：两期付款自动发起，首付已付，尾款等财务',
+    label:
+      '冯远的软件许可合同（6 万）已生效：两期付款自动发起，首付推了 ERP、等银行回单，尾款等财务',
     run: async ({ at, start, act, runJobs, find }) => {
       at(6, 9);
       const id = await start('1017', 'contract', {

@@ -1,5 +1,6 @@
 /**
- * 付款申请：财务审核 →（超过 20 万再给总经理）→ 付款（推给 ERP 的异步动作，单笔超过 100 万 ERP 拒收，进“异常”）。
+ * 付款申请：财务审核 →（超过 20 万再给总经理）→ 付款（推给 ERP 的异步动作，单笔超过 100 万 ERP 拒收，进“异常”）→
+ * 等银行回单（外部消息 bank.receipt：付了或退票，带回的备注写进单据；3 天没回来标超时）。演示里管理员在审批单上“模拟送达”。
  * 可以单独发起（退押金、预付款），合同生效后也按付款计划每一期调用它（合同、收款方、金额由合同带过来）
  */
 import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
@@ -56,7 +57,17 @@ export const payment: ProcessDefinition = {
       mode: 'async',
       retry: { times: 1 },
     },
+    {
+      id: 'receipt',
+      type: 'receive',
+      name: '等银行回单',
+      event: 'bank.receipt',
+      outcomes: ['paid', 'bounced'],
+      due: { days: 3 },
+      output: { 'form.note': 'remark' },
+    },
     { id: 'paid', type: 'end', name: '已付款', result: 'paid' },
+    { id: 'bounced', type: 'end', name: '退票', result: 'bounced' },
     { id: 'rejected', type: 'end', name: '不予付款', result: 'rejected' },
   ],
   edges: [
@@ -73,6 +84,8 @@ export const payment: ProcessDefinition = {
     { id: 'e5', from: 'big', to: 'pay', default: true },
     { id: 'e6', from: 'ceo', to: 'pay', outcome: 'approve' },
     { id: 'e7', from: 'ceo', to: 'rejected', outcome: 'reject' },
-    { id: 'e8', from: 'pay', to: 'paid' },
+    { id: 'e8', from: 'pay', to: 'receipt' },
+    { id: 'e9', from: 'receipt', to: 'paid', outcome: 'paid' },
+    { id: 'e10', from: 'receipt', to: 'bounced', outcome: 'bounced' },
   ],
 };
