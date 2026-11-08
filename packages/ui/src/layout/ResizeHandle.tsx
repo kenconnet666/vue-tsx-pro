@@ -50,9 +50,11 @@ const resizeHandleStyles = css.create({
     width: '_space.sm',
     cursor: 'col-resize',
     touchAction: 'none',
+    // 悬停、拖动时深色，键盘聚焦时强调色（同 Splitter 的分隔条）
     backgroundColor: {
       default: 'transparent',
       _hover: '_borderStrong',
+      _dragging: '_borderStrong',
       _focusVisible: '_accent',
     },
     outlineStyle: 'none',
@@ -102,15 +104,20 @@ export const ResizeHandle = _component(
       },
     );
 
+    // 拖动中：指针离开了手柄也保持深色
+    let dragging = _state(false);
+
     function onPointerdown(event: PointerEvent) {
       const parent = parentOf(event);
       const from = sizeOf(parent);
       // 起始边的手柄往起始方向拖是变宽：方向与结束边相反；横线不受从右到左排版的影响
       const sign = (horizontal() ? 1 : isRtl(parent) ? -1 : 1) * (edge === 'start' ? -1 : 1);
       event.preventDefault();
+      dragging = true;
       startMove(event, {
         onMove: ({ deltaX, deltaY }) =>
           onWidthChange(fit(from + sign * (horizontal() ? deltaY : deltaX))),
+        onEnd: () => (dragging = false),
       });
     }
 
@@ -155,6 +162,7 @@ export const ResizeHandle = _component(
             onDblclick: defaultWidth == null ? undefined : () => onWidthChange(fit(defaultWidth)),
           },
         )}
+        data-dragging={dragging || undefined}
       />
     );
   },

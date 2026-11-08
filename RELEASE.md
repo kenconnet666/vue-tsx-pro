@@ -45,6 +45,8 @@
   FilterBar 的计数角标是 `count` 部件，NavBar 的计数、DataImport 的必填星号、CommandPalette 的快捷键提示、表头筛选的选项与“清除”带上标记。
 - 交互状态补齐：可选中的 Tag 悬停时叠一层 8% 的文字色（原来没有悬停反馈）；可移除的 Tag 的移除按钮悬停、按下的底色取标签的文字色
   （原来是灰色，彩色标签上不协调）；`tone="muted"` 的 Link 悬停时换成正文色（`underline="none"` 的导航链接原来没有悬停反馈）。
+  Splitter 的分隔条悬停、拖动时线从 1px 加粗到 3px 并变深，键盘聚焦时加粗成强调色（同 ResizeHandle，去掉了原来贯穿整栏的焦点框）；
+  Splitter 与 ResizeHandle 拖动中带 `data-dragging`，指针离开了也保持高亮。
 - 暗色主题的实色悬停改成调亮（原来调暗，在深色背景上看不出悬停）：dark 的 `accentHover` `#3758d4` → `#4a6ddf`，dark、midnight、ember、
   cyberpunk 的 `dangerHover` `#a33b3e` → `#bd5356`，白字仍有 4.6:1。midnight 的品牌色、big-screen 的危险色白字已贴着 4.5:1，仍是调暗。
 - 输入法：NumberField 在组合中的 ↑ ↓（选候选）不再加减、Enter（上屏）不再提交；Select 的搜索框在组合中按退格不再删掉已选的项。

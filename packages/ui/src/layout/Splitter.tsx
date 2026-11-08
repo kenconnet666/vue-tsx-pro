@@ -23,7 +23,6 @@ import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { startMove } from '../utils/dom/move';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { ScrollArea, type ScrollAreaProps } from './ScrollArea';
-import { focusRingStyles } from '../utils/style/styles';
 import { partAttrs } from '../config/styles';
 
 /** 两栏的排法 */
@@ -101,29 +100,46 @@ const splitterStyles = css.create({
   paneScroll: { height: '_full' },
   // 内容层和这一栏一样高：里面的表格、空状态写 100% 才有依据
   paneContent: { height: '_full' },
-  // 分隔条：看得见的是中间一条细线，能拖的范围更宽；悬停、拖动时变成强调色
   // 分隔条所在的格：分隔条铺满它，收起按钮叠在中间（不放进可聚焦的分隔条里：交互元素不能嵌套）
   track: { position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  // 分隔条：看得见的是中间一条细线，能拖的范围更宽。悬停、拖动时线加粗变深，键盘聚焦时加粗变成强调色
+  // （同 ResizeHandle）；线的粗细经变量交给里面的线（线看不到分隔条的悬停）
   handle: {
     position: 'absolute',
     inset: 0,
     touchAction: 'none',
     outlineStyle: 'none',
-    color: { default: '_borderMuted', _hover: '_borderStrong', _focusVisible: '_accent' },
+    color: {
+      default: '_borderMuted',
+      _hover: '_borderStrong',
+      _dragging: '_borderStrong',
+      _focusVisible: '_accent',
+    },
+    '--splitter-line': {
+      default: t.borderWidths.xs,
+      _hover: t.borderWidths.md,
+      _dragging: t.borderWidths.md,
+      _focusVisible: t.borderWidths.md,
+    },
   },
   handleHorizontal: { width: '_space.md', cursor: 'col-resize' },
   handleVertical: { height: '_space.md', cursor: 'row-resize' },
-  line: { position: 'absolute', backgroundColor: 'currentColor', pointerEvents: 'none' },
-  // 细线宽取主题的边框宽度，减去一半居中
+  line: {
+    position: 'absolute',
+    backgroundColor: 'currentColor',
+    pointerEvents: 'none',
+    transition: `width ${t.durations.sm} ${t.easings.standard}, height ${t.durations.sm} ${t.easings.standard}, inset ${t.durations.sm} ${t.easings.standard}`,
+  },
+  // 线宽取分隔条给的变量（平时是主题的边框宽度），减去一半居中
   lineHorizontal: {
     insetBlock: 0,
-    insetInlineStart: `calc(50% - ${t.borderWidths.xs} / 2)`,
-    width: '_borderWidths.xs',
+    insetInlineStart: 'calc(50% - var(--splitter-line) / 2)',
+    width: 'var(--splitter-line)',
   },
   lineVertical: {
     insetInline: 0,
-    top: `calc(50% - ${t.borderWidths.xs} / 2)`,
-    height: '_borderWidths.xs',
+    top: 'calc(50% - var(--splitter-line) / 2)',
+    height: 'var(--splitter-line)',
   },
   // 收起、展开的小按钮压在线上：背景盖住线
   toggle: { position: 'relative', zIndex: 1, backgroundColor: '_surface', cursor: 'pointer' },
@@ -162,6 +178,9 @@ export const Splitter = _component(
     const horizontal = () => orientation === 'horizontal';
     const fit = (value: number) => Math.round(clamp(value, minSize, maxSize) * 10) / 10;
 
+    // 拖动中：指针离开了分隔条也保持加粗变深
+    let dragging = _state(false);
+
     function onPointerdown(event: PointerEvent) {
       if (!root || (event.target as Element).closest('button')) return;
       const rect = root.getBoundingClientRect();
@@ -169,6 +188,7 @@ export const Splitter = _component(
       const from = size;
       const sign = horizontal() && isRtl(root) ? -1 : 1;
       event.preventDefault();
+      dragging = true;
       startMove(event, {
         onMove: ({ deltaX, deltaY }) => {
           const delta = (horizontal() ? deltaX * sign : deltaY) / total;
@@ -176,6 +196,7 @@ export const Splitter = _component(
           // 拖动即展开：收着的一侧被拖出来
           if (collapsed) collapsed = false;
         },
+        onEnd: () => (dragging = false),
       });
     }
 
@@ -279,8 +300,6 @@ export const Splitter = _component(
                   sx: [
                     splitterStyles.handle,
                     horizontal() ? splitterStyles.handleHorizontal : splitterStyles.handleVertical,
-                    // 把手贯穿整个分栏，焦点环画在外面时两端会被容器裁掉
-                    focusRingStyles.inset,
                   ],
                   ...splitterPart('handle'),
                 },
@@ -299,6 +318,7 @@ export const Splitter = _component(
                   onDblclick: () => (size = fit(initialSize)),
                 },
               )}
+              data-dragging={dragging || undefined}
             >
               <span
                 {...css.attrs(

@@ -871,7 +871,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [ ] P2.5 逐个组件精修样式（随 P2 的页面顺序）
       （2026-11-08 起：加了 `pnpm docs:states`（scripts/docs/states.mjs）——一个示例里的可交互元素各截默认、悬停、键盘焦点、按下，
       排成一张表，亮暗各一张，精修时对照状态是否齐全一致。Button 页过了一遍：暗色主题的实色悬停原来调暗、看不出来，改成调亮；
-      Badge / Tag、ButtonBase、Text 的链接：可选中的 Tag 补悬停，移除按钮的悬停取标签色，次要链接悬停换正文色）
+      Badge / Tag、ButtonBase、Text 的链接：可选中的 Tag 补悬停，移除按钮的悬停取标签色，次要链接悬停换正文色；
+      Code 的按钮状态齐全；布局：Splitter 的分隔条与 ResizeHandle 的悬停、聚焦、拖动统一，FloatButton 状态齐全）
 - [x] P3 组件补缺：~~ChoiceCard~~（单选、复选的 card）、~~ItemList 可选中的行~~、~~ColorPicker~~、~~ImageCropper~~、~~Carousel~~、~~Dialog 拖动~~、~~Tag 的 `selected`~~、~~`useInfiniteList`~~、
       ~~QRCode（自己写编码器）~~、~~省市区数据~~、~~Transfer 虚拟滚动~~（两侧本来就是 Listbox）、~~选文件夹~~、~~FloatButton 组~~、~~JsonViewer~~、~~SignaturePad~~、~~DataTable 横向虚拟化~~
 - [x] ~~P4 按 schema 生成表单（第一步）与 QueryTable 的查询条件~~（2026-11-08：SchemaForm / SchemaFields 按 useForm 的 schema
