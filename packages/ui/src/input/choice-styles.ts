@@ -92,8 +92,16 @@ export const choiceRecipe = css.recipe({
     disabled: { true: { root: { opacity: '_disabled', cursor: 'not-allowed' } } },
     orientation: {
       vertical: { group: { display: 'flex', flexDirection: 'column', gap: '_xs' } },
+      // 横排：至少与单行控件一样高、内容竖直居中——和输入框、选择框放在同一排（查询栏、表单）时文字在一条线上
       horizontal: {
-        group: { display: 'flex', flexWrap: 'wrap', columnGap: '_lg', rowGap: '_xs' },
+        group: {
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          columnGap: '_lg',
+          rowGap: '_xs',
+          minHeight: t.sizes.control,
+        },
       },
     },
     // 卡片外观：整块是一张带边框的卡片（套餐、配送方式、模板）；组排成栅格（排在 orientation 后面，盖过它的 flex）。
@@ -114,7 +122,8 @@ export const choiceRecipe = css.recipe({
           transition: `background-color ${t.durations.sm} ${t.easings.standard}, border-color ${t.durations.sm} ${t.easings.standard}`,
         },
         label: { flexGrow: 1 },
-        group: { display: 'grid', gap: '_sm' },
+        // 卡片一样高：盖过横排的竖直居中
+        group: { display: 'grid', gap: '_sm', alignItems: 'stretch' },
       },
     },
     // 色调经变量传给方框、圆点、轨道（toneFillStyles）；字号不写时继承
