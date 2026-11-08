@@ -99,7 +99,15 @@ export const optimizeDeps = {
     '@codemirror/state',
     '@codemirror/view',
     '@lezer/highlight',
+    // 流程工作室的语言服务：进入工作室的编辑页才加载，同上（浏览器测试里中途重新预构建会刷新页面，路由跟着丢）
+    '@codemirror/lint',
+    '@codemirror/lsp-client',
+    // 流程中心的 Worker 用的库：Worker 起来才发现的话会重新预构建并刷新页面（浏览器测试里路由跟着丢）
+    '@zerodep-dev/easy-query-ts-pg/pglite',
+    '@zerodep-dev/flow-ts-engine > @zerodep-dev/easy-query-ts',
   ],
+  // PGlite 自己按 import.meta.url 找 wasm 与数据文件，预构建后路径就不对了（PGlite 文档的建议）
+  exclude: ['@electric-sql/pglite'],
 };
 
 export default defineConfig({
@@ -114,11 +122,7 @@ export default defineConfig({
     // 启动时就编译入口引到的模块（站点外壳与它用到的组件）：打开浏览器时不用再等
     warmup: { clientFiles: ['./src/main.ts'] },
   },
-  optimizeDeps: {
-    ...optimizeDeps,
-    // PGlite 自己按 import.meta.url 找 wasm 与数据文件，预构建后路径就不对了（PGlite 文档的建议）
-    exclude: ['@electric-sql/pglite'],
-  },
+  optimizeDeps,
   worker,
   // Shiki 的每种语言语法单独成块、用到才下载（emacs-lisp、cpp 这类大语法不会被页面加载），不必为它们报警
   build: {

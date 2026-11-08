@@ -9,6 +9,8 @@ pnpm-lock.yaml
 patches/
 .mcp.json
 .claude/
+# 原样搬来的第三方代码：Go 的 wasm 启动器（流程工作室的语言服务）
+apps/docs/src/flow-center/studio/lsp/go-runtime.js
 # 地图的地理数据：压缩成一行的 TopoJSON，格式化后会大几倍
 packages/ui/src/maps/*.json
 # 原生应用的外壳（Capacitor 生成的 Gradle、Xcode 工程与同步进去的网页产物）
