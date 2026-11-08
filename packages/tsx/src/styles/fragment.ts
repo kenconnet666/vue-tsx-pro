@@ -4,6 +4,7 @@
  */
 import {
   familyOf,
+  hasCoveringDefault,
   merge,
   serialize,
   SELF,
@@ -108,8 +109,12 @@ export function segmentTable(segments: Segment['segments'], index: number): Decl
   const table = new Map<string, PropertyEntry>();
   for (const [property, entry] of prefix) {
     if (!families.has(familyOf(property))) continue;
-    // 没有无条件取值、前面的段又写过它：补一条无条件的 revert，挡住低层的规则（见上面的说明）
-    const blocked = !entry.values.has('') && earlier.some((part) => part.has(property));
+    // 没有无条件取值、前面的段又写过它：补一条无条件的 revert，挡住低层的规则（见上面的说明）；
+    // 这一层有无条件的简写重设它时不补（简写已经盖住了低层，revert 反而会盖掉简写给的值）
+    const blocked =
+      !entry.values.has('') &&
+      earlier.some((part) => part.has(property)) &&
+      !hasCoveringDefault(prefix, property);
     table.set(
       property,
       blocked

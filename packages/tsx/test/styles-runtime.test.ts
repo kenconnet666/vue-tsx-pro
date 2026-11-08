@@ -587,3 +587,26 @@ describe('绑定与 Vue 的刷新顺序', () => {
     expect(seen.at(-1)).toBe(attrs(styles.row, styles.hot).class);
   });
 });
+
+describe('简写与长属性跨片段合并', () => {
+  it('后面的片段写简写：前面片段的长属性被它重设（后写的赢）；同一片段里长属性仍赢', () => {
+    const styles = create({
+      base: { paddingBlock: 1, paddingInlineStart: 2, paddingInlineEnd: 3, borderRadius: 4 },
+      compact: { padding: 5 },
+      row: { paddingInline: 6 },
+      hover: { padding: { default: null, ':hover': 7 } },
+    });
+    const compact = rulesOf(attrs(styles.base, styles.compact).class!);
+    expect(compact).toContain('padding: 5px');
+    expect(compact).not.toMatch(/padding-inline-end|padding-block/);
+    // border-radius 不归 padding 管
+    expect(compact).toContain('border-radius: 4px');
+    const row = rulesOf(attrs(styles.base, styles.row).class!);
+    expect(row).toContain('padding-inline: 6px');
+    expect(row).not.toMatch(/padding-inline-(start|end)/);
+    expect(row).toMatch(/padding-block: 1px/);
+    // 条件对象只去掉同一条件的：无条件的长属性留着
+    const hover = rulesOf(attrs(styles.base, styles.hover).class!);
+    expect(hover).toContain('padding-inline-end: 3px');
+  });
+});

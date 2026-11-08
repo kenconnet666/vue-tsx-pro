@@ -177,12 +177,191 @@ export function walk(
   }
 }
 
+const BOX_SIDES = (prefix: string, suffix = '') =>
+  ['top', 'right', 'bottom', 'left'].map((side) => `${prefix}${side}${suffix}`);
+const LOGICAL = (prefix: string, suffix = '') => ({
+  [`${prefix}block${suffix}`]: [
+    `${prefix}block-start${suffix}`,
+    `${prefix}block-end${suffix}`,
+    `${prefix}top${suffix}`,
+    `${prefix}bottom${suffix}`,
+  ],
+  [`${prefix}inline${suffix}`]: [
+    `${prefix}inline-start${suffix}`,
+    `${prefix}inline-end${suffix}`,
+    `${prefix}left${suffix}`,
+    `${prefix}right${suffix}`,
+  ],
+});
+/** padding、margin 这类四边的简写：四个物理边、两个逻辑方向（再往下是起止两边） */
+const boxShorthand = (name: string, prefix: string, suffix = '') => ({
+  [name]: [...BOX_SIDES(prefix, suffix), `${prefix}block${suffix}`, `${prefix}inline${suffix}`],
+  ...LOGICAL(prefix, suffix),
+});
+
+/**
+ * 简写重设的长属性（连字符写法，往下一层；merge 时逐层展开）。只收组件里会写到的简写，
+ * 名字前缀相同却不归它管的不算（border 不管 border-radius，outline 不管 outline-offset，flex 不管 flex-direction）
+ */
+const LONGHANDS: Readonly<Record<string, readonly string[]>> = {
+  ...boxShorthand('padding', 'padding-'),
+  ...boxShorthand('margin', 'margin-'),
+  inset: ['top', 'right', 'bottom', 'left', 'inset-block', 'inset-inline'],
+  'inset-block': ['inset-block-start', 'inset-block-end', 'top', 'bottom'],
+  'inset-inline': ['inset-inline-start', 'inset-inline-end', 'left', 'right'],
+  ...boxShorthand('border-width', 'border-', '-width'),
+  ...boxShorthand('border-style', 'border-', '-style'),
+  ...boxShorthand('border-color', 'border-', '-color'),
+  border: ['border-width', 'border-style', 'border-color', 'border-image'],
+  ...Object.fromEntries(
+    [
+      'top',
+      'right',
+      'bottom',
+      'left',
+      'block-start',
+      'block-end',
+      'inline-start',
+      'inline-end',
+    ].map((side) => [
+      `border-${side}`,
+      ['width', 'style', 'color'].map((x) => `border-${side}-${x}`),
+    ]),
+  ),
+  'border-block': [
+    'border-block-start',
+    'border-block-end',
+    'border-block-width',
+    'border-block-style',
+    'border-block-color',
+  ],
+  'border-inline': [
+    'border-inline-start',
+    'border-inline-end',
+    'border-inline-width',
+    'border-inline-style',
+    'border-inline-color',
+  ],
+  'border-radius': [
+    ...['top-left', 'top-right', 'bottom-right', 'bottom-left'].map((c) => `border-${c}-radius`),
+    ...['start-start', 'start-end', 'end-start', 'end-end'].map((c) => `border-${c}-radius`),
+  ],
+  'border-image': [
+    'border-image-source',
+    'border-image-slice',
+    'border-image-width',
+    'border-image-outset',
+    'border-image-repeat',
+  ],
+  gap: ['row-gap', 'column-gap'],
+  overflow: ['overflow-x', 'overflow-y', 'overflow-block', 'overflow-inline'],
+  outline: ['outline-color', 'outline-style', 'outline-width'],
+  flex: ['flex-grow', 'flex-shrink', 'flex-basis'],
+  'flex-flow': ['flex-direction', 'flex-wrap'],
+  'place-items': ['align-items', 'justify-items'],
+  'place-content': ['align-content', 'justify-content'],
+  'place-self': ['align-self', 'justify-self'],
+  background: [
+    'background-color',
+    'background-image',
+    'background-position',
+    'background-size',
+    'background-repeat',
+    'background-attachment',
+    'background-origin',
+    'background-clip',
+  ],
+  'background-position': ['background-position-x', 'background-position-y'],
+  'text-decoration': [
+    'text-decoration-line',
+    'text-decoration-color',
+    'text-decoration-style',
+    'text-decoration-thickness',
+  ],
+  'list-style': ['list-style-type', 'list-style-position', 'list-style-image'],
+  font: [
+    'font-style',
+    'font-variant',
+    'font-weight',
+    'font-stretch',
+    'font-size',
+    'line-height',
+    'font-family',
+  ],
+  transition: [
+    'transition-property',
+    'transition-duration',
+    'transition-timing-function',
+    'transition-delay',
+    'transition-behavior',
+  ],
+  animation: [
+    'animation-name',
+    'animation-duration',
+    'animation-timing-function',
+    'animation-delay',
+    'animation-iteration-count',
+    'animation-direction',
+    'animation-fill-mode',
+    'animation-play-state',
+  ],
+  'grid-template': ['grid-template-rows', 'grid-template-columns', 'grid-template-areas'],
+  'grid-area': ['grid-row', 'grid-column'],
+  'grid-row': ['grid-row-start', 'grid-row-end'],
+  'grid-column': ['grid-column-start', 'grid-column-end'],
+  columns: ['column-width', 'column-count'],
+};
+
+const covering = new Map<string, readonly string[]>();
+/** 一个简写重设的全部长属性（逐层展开）；不是简写时为空 */
+function coveredBy(property: string): readonly string[] {
+  let all = covering.get(property);
+  if (!all) {
+    const direct = LONGHANDS[property] ?? [];
+    all = [...new Set([...direct, ...direct.flatMap(coveredBy)])];
+    covering.set(property, all);
+  }
+  return all;
+}
+
+/** 声明表里有没有无条件地重设这个长属性的简写（分段补 revert 时用：有它时这一层已经盖住了低层的长属性） */
+export function hasCoveringDefault(table: Declarations, longhand: string): boolean {
+  for (const [property, entry] of table)
+    if (entry.values.has('') && coveredBy(property).includes(longhand)) return true;
+  return false;
+}
+
+/**
+ * 后面的片段写了简写：去掉前面片段里被它重设的长属性（普通值全去掉，条件对象去掉同一条件的），同 CSS 的“后写的赢”。
+ * 不去掉的话两者进了同一个组合类，长属性排在简写后面（priority.ts：3000 > 2000），后写的简写反而盖不过前面的长属性
+ * （配方的基础写 paddingInlineEnd、档位写 padding）。同一个片段里两者都写时仍是长属性赢，见 serialize
+ */
+function dropCovered(
+  merged: Map<string, PropertyEntry>,
+  table: Declarations,
+  property: string,
+  entry: PropertyEntry,
+) {
+  for (const longhand of coveredBy(property)) {
+    const previous = merged.get(longhand);
+    if (!previous || table.has(longhand)) continue;
+    if (entry.replace) {
+      merged.delete(longhand);
+      continue;
+    }
+    const values = new Map([...previous.values].filter(([chain]) => !entry.values.has(chain)));
+    if (values.size) merged.set(longhand, { replace: previous.replace, values });
+    else merged.delete(longhand);
+  }
+}
+
 /** 合并几个片段的声明表（规则见文件开头），不改动片段本身 */
 export function merge(tables: readonly Declarations[]): Declarations {
   if (tables.length === 1) return tables[0]!;
   const merged = new Map<string, PropertyEntry>();
   for (const table of tables) {
     for (const [property, entry] of table) {
+      dropCovered(merged, table, property, entry);
       const previous = merged.get(property);
       if (!previous || entry.replace) merged.set(property, entry);
       else

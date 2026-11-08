@@ -213,7 +213,7 @@ describe('分段与合成一个类等价（随机）', () => {
             actual = valueIn(layered[index]!, property, state);
             if (actual !== undefined) break;
           }
-          if (actual === 'revert') actual = undefined;
+          if (actual === 'revert' || actual?.endsWith('=revert')) actual = undefined;
           expect(actual, `第 ${round} 轮 ${property} @ [${state.join(',')}]`).toBe(expected);
         }
       }
@@ -251,16 +251,31 @@ function fragmentOf(style: StyleObject): Fragment {
   return fragment(declarations(style));
 }
 
-/** 状态（成立的条件）下这一层声明表里这个属性的值：条件链都成立的规则里条件优先级最高的（同 serialize 的排序） */
+/** 重设这个长属性的简写（测试里用到的） */
+const COVERING: Readonly<Record<string, readonly string[]>> = { 'outline-color': ['outline'] };
+
+/**
+ * 状态（成立的条件）下这一层声明表里这个属性的值：条件链都成立的规则里条件优先级最高的（同 serialize 的排序）。
+ * 重设它的简写也算（浏览器把简写展开成长属性）：条件一样多时长属性排在后面、它赢；简写给的值记成“简写=值”
+ */
 function valueIn(table: Declarations, property: string, state: readonly string[]) {
-  const entry = table.get(property);
-  if (!entry) return undefined;
-  let best: { weight: number; value: string } | undefined;
-  for (const [chain, values] of entry.values) {
-    const parts = chain ? chain.split('\0') : [];
-    if (!parts.every((part) => state.includes(part))) continue;
-    const weight = parts.length;
-    if (!best || weight >= best.weight) best = { weight, value: values.join(',') };
+  let best: { weight: number; order: number; value: string } | undefined;
+  const sources = [
+    ...(COVERING[property] ?? []).map((name) => [name, 0] as const),
+    [property, 1] as const,
+  ];
+  for (const [name, order] of sources) {
+    const entry = table.get(name);
+    if (!entry) continue;
+    for (const [chain, values] of entry.values) {
+      const parts = chain ? chain.split('\0') : [];
+      if (!parts.every((part) => state.includes(part))) continue;
+      const weight = parts.length;
+      if (best && (weight < best.weight || (weight === best.weight && order < best.order)))
+        continue;
+      const value = values.join(',');
+      best = { weight, order, value: name === property ? value : `${name}=${value}` };
+    }
   }
   return best?.value;
 }
