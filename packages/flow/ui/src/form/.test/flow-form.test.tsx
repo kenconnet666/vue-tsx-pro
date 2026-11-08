@@ -107,6 +107,21 @@ describe('线上与表单里的值', () => {
   });
 });
 
+describe('引擎存的值（普通 JSON）', () => {
+  it('小数的文字读成 Decimal，带时区的时刻文字换算成本地时间；交回时按时区还原', () => {
+    const form = toFormValues(manifest, { amount: '12.50', at: '2026-11-08T01:30:00Z' }, TZ);
+    expect(form.amount).toBeInstanceOf(Decimal);
+    expect(form.at).toBe('2026-11-08T09:30:00');
+    const back = fromFormValues(manifest, form, TZ);
+    expect(String(back.at)).toBe('2026-11-08T09:30:00+08:00[Asia/Shanghai]');
+    // 已经是带时区的文字（没经过表单）也认得：同一个时刻
+    const direct = fromFormValues(manifest, { at: '2026-11-08T01:30:00Z' }, TZ).at as {
+      toDate(): Date;
+    };
+    expect(direct.toDate().toISOString()).toBe('2026-11-08T01:30:00.000Z');
+  });
+});
+
 describe('manifestAccess', () => {
   it('节点权限与条件（按线上形状的值算）合成组件库的权限', () => {
     const access = (values: Record<string, unknown>) =>

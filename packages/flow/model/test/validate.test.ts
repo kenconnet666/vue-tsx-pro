@@ -6,6 +6,7 @@ import {
   type ProcessDefinition,
   type Problem,
   type ValidationContext,
+  templates,
 } from '../src/index.ts';
 import { listSpec, readSpec } from './spec.ts';
 
@@ -64,4 +65,28 @@ describe('定义的校验（spec/definitions）', () => {
       assert.deepEqual(normalize(actual), normalize(sample.expect));
     });
   }
+});
+
+describe('单据的字段也是流程变量', () => {
+  it('标题模板、条件不写 form. 也认得清单里的字段；不存在的照样报 ref-unknown', () => {
+    const base = templates.leave();
+    const definition = {
+      ...base,
+      variables: [],
+      title: '{kind}：{days} 天',
+      form: {
+        key: 'leave',
+        manifest: {
+          kind: { label: '类型', type: 'text' },
+          days: { label: '天数', type: 'number' },
+        },
+      },
+    } as const;
+    const refs = (d: typeof definition | Record<string, unknown>) =>
+      validateProcess(d as never)
+        .filter((p) => p.code === 'ref-unknown')
+        .map((p) => p.params?.['ref']);
+    assert.deepEqual(refs(definition), []);
+    assert.deepEqual(refs({ ...definition, title: '{missing}' }), ['missing']);
+  });
 });

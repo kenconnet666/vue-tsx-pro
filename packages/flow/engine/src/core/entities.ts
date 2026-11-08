@@ -24,7 +24,8 @@ export const FlowDefinition = entity(
     processKey: text(),
     version: col.int(),
     name: text(),
-    model: col.json().$type<ProcessDefinition>(),
+    // json 不是 jsonb：jsonb 按键的长短、字母重排对象的键，单据字段的先后（清单里键的顺序）就丢了
+    model: col.json().$type<ProcessDefinition>().dbType('json'),
     enabled: col.boolean(),
     publishedBy: text().nullable(),
     publishedAt: instant(),

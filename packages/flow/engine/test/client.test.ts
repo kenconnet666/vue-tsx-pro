@@ -89,4 +89,21 @@ describe('客户端与端点', () => {
     channel.port1.close();
     channel.port2.close();
   });
+
+  it('定义存进库再取出来，单据字段的先后不变（jsonb 会按键重排）', async () => {
+    const { engine } = await createTestEngine();
+    const manifest = {
+      kind: { label: '类型', type: 'text' },
+      days: { label: '天数', type: 'number' },
+      to: { label: '结束', type: 'date' },
+      reason: { label: '事由', type: 'text' },
+    } as const;
+    await engine.publish({
+      ...templates.leave(),
+      key: 'ordered',
+      form: { key: 'ordered', manifest },
+    });
+    const definition = (await engine.query.processes()).find((p) => p.key === 'ordered')!;
+    assert.deepEqual(Object.keys(definition.form!.manifest!), ['kind', 'days', 'to', 'reason']);
+  });
 });

@@ -86,7 +86,11 @@ export function createTasks(core: EngineCore) {
         const before = Object.fromEntries(
           Object.keys(command.variables ?? {}).map((key) => [key, exec.variables[key] ?? null]),
         );
-        applySubmission(exec, node, command.variables);
+        // 驳回、退回、终止不要求把单据填全（值照旧要合格）：财务不予报销时不用先填核定金额
+        const kind = outcome.kind ?? 'approve';
+        applySubmission(exec, node, command.variables, {
+          required: kind !== 'reject' && kind !== 'return' && kind !== 'terminate',
+        });
         for (const name of outcome.guards ?? []) {
           const guard = exec.extension('guards', name);
           if (!guard) throw new FlowError('invalid-definition', `没有注册守卫 ${name}`);
@@ -278,6 +282,7 @@ export function createTasks(core: EngineCore) {
     exec: Execution,
     node: TaskNode,
     submitted: Readonly<Record<string, unknown>> = {},
+    { required }: { readonly required: boolean },
   ): void {
     const manifest = formManifest(exec.definition);
     const declared = Object.keys(manifest);
@@ -293,7 +298,7 @@ export function createTasks(core: EngineCore) {
         submitted,
         options.extensions?.fieldTypes,
       );
-      throwFormErrors(manifest, errors);
+      throwFormErrors(manifest, required ? errors : errors.filter((e) => e.code !== 'required'));
       exec.setVariables(values);
     }
     if (Object.keys(others).length > 0) exec.setVariables(others);

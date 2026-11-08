@@ -61,4 +61,5 @@ export {
   type TransformCode,
 } from './publish/project.ts';
 export type { RunState } from './runtime/state.ts';
+export type { InstanceRow, WorkItemRow } from './runtime/execution.ts';
 export type * from './types.ts';

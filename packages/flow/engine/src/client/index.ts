@@ -6,3 +6,4 @@ export { createFlowClient, type DraftInput, type FlowClient } from './client.ts'
 export { portTransport, servePort, type MessagePortLike } from './port.ts';
 export type { FlowRequest, FlowResponse, FlowTransport } from './protocol.ts';
 export { FlowError, type FlowErrorCode } from '../core/errors.ts';
+export type { InstanceRow, WorkItemRow } from '../runtime/execution.ts';

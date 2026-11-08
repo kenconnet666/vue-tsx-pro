@@ -480,7 +480,12 @@ function checkReferences(
   context: ValidationContext,
   report: Report,
 ): void {
-  const variables = new Map((definition.variables ?? []).map((v) => [v.name, v]));
+  // 单据的字段也是流程变量（引擎把单据的值存在变量里）：标题模板、条件不写 form. 也认得；声明了的变量优先
+  const manifest = context.form ?? definition.form?.manifest ?? {};
+  const variables = new Map<string, { type: string }>([
+    ...Object.entries(manifest).map(([name, field]) => [name, { type: field.type }] as const),
+    ...(definition.variables ?? []).map((v) => [v.name, v] as const),
+  ]);
   for (const ref of collectReferences(definition)) {
     const problem = resolveReference(ref, definition, graph, variables, context);
     if (problem) report(problem.code, ref.at, problem.params);

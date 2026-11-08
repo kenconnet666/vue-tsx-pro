@@ -20,6 +20,9 @@ import {
 } from '@internationalized/date';
 import { typedValue, type FieldDefinition, type FormManifest } from '@zerodep-dev/flow-ts-model';
 
+/** 文字里写了时区（Z、+08:00、[Asia/Shanghai]）：是线上的时刻，不是表单里的本地写法 */
+const hasZone = (text: string) => /(?:[zZ]|[+-]\d{2}:?\d{2})(?:\[[^\]]+\])?$/.test(text);
+
 const isObject = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
@@ -29,9 +32,15 @@ function toFormValue(field: FieldDefinition, value: unknown, timeZone: string): 
   switch (field.type) {
     case 'date':
       return typeof value === 'string' ? value : (value as CalendarDate).toString();
-    case 'datetime':
-      if (typeof value === 'string') return value;
-      return toCalendarDateTime(toTimeZone(value as ZonedDateTime, timeZone)).toString();
+    case 'decimal':
+      // 引擎存的是文字（'12.50'）：表单里是 Decimal（NumberField 按它精确运算）
+      return typeof value === 'string' ? typedValue(field, value) : value;
+    case 'datetime': {
+      // 存的是带时区的文字（'…Z'）或 ZonedDateTime：换算成这个时区的本地时间；已经是本地写法的原样
+      const zoned = typeof value === 'string' && hasZone(value) ? typedValue(field, value) : value;
+      if (typeof zoned === 'string') return zoned;
+      return toCalendarDateTime(toTimeZone(zoned as ZonedDateTime, timeZone)).toString();
+    }
     case 'select':
       // 选项的值是文字或数字
       return Array.isArray(value)
@@ -62,7 +71,9 @@ function fromFormValue(field: FieldDefinition, value: unknown, timeZone: string)
   if (value === null || value === undefined || value === '') return value;
   switch (field.type) {
     case 'datetime':
-      return typeof value === 'string' ? toZoned(parseDateTime(value), timeZone) : value;
+      if (typeof value !== 'string') return value;
+      // 带时区的文字直接读；表单里的本地写法按 timeZone 换算
+      return hasZone(value) ? typedValue(field, value) : toZoned(parseDateTime(value), timeZone);
     case 'select': {
       const options = Array.isArray(field.options) ? field.options : [];
       const original = (item: unknown) =>

@@ -358,13 +358,18 @@ describe('engine: 环节的表单权限', () => {
         name: '经理审批',
         assignees: [{ role: '1' }],
         form: { fields: { amount: 'required', note: 'hidden' } },
-        outcomes: [{ key: 'approve', label: '同意' }],
+        outcomes: [
+          { key: 'approve', label: '同意' },
+          { key: 'reject', label: '不同意', kind: 'reject' },
+        ],
       },
       { id: 'end', type: 'end', name: '结束' },
+      { id: 'rejected', type: 'end', name: '不同意', result: 'rejected' },
     ],
     edges: [
       { id: 'a', from: 'start', to: 'manager' },
       { id: 'b', from: 'manager', to: 'end', outcome: 'approve' },
+      { id: 'c', from: 'manager', to: 'rejected', outcome: 'reject' },
     ],
   };
 
@@ -405,6 +410,12 @@ describe('engine: 环节的表单权限', () => {
     );
     const { variables } = (await engine.query.instance(instance)).instance;
     assert.deepEqual([variables.item, variables.amount, variables.note], ['服务器', 72000, '加急']);
+  });
+
+  it('驳回不要求把必填的填上（值照旧要合格）', async () => {
+    const { engine, item, instance } = await atManager({ item: '服务器' });
+    await engine.run({ type: 'complete', workItem: item.id, outcome: 'reject' }, carol);
+    assert.equal((await engine.query.instance(instance)).instance.result, 'rejected');
   });
 });
 

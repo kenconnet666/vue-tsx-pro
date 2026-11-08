@@ -6,6 +6,9 @@
 import type { Adapter } from '@zerodep-dev/easy-query-ts';
 import type { FieldTypeChecks, FlowProject } from '@zerodep-dev/flow-ts-model';
 import type { ASSIGNMENTS, INSTANCE_STATUSES } from './core/entities.ts';
+
+/** 实例的状态：草稿、进行中、已完成、已终止、已撤回、已暂停 */
+export type InstanceStatus = (typeof INSTANCE_STATUSES)[number];
 import type { WorkItemOperation } from './commands/operations.ts';
 import type { HostModules, TransformCode } from './publish/project.ts';
 
@@ -348,7 +351,7 @@ export interface InstanceSummary {
   readonly id: number;
   readonly processKey: string;
   readonly version: number;
-  readonly status: (typeof INSTANCE_STATUSES)[number];
+  readonly status: InstanceStatus;
   readonly result: string | null;
   readonly title: string | null;
   /** 正在处理的节点与名称 */
