@@ -75,6 +75,8 @@ export const expense: ProcessDefinition = {
       type: 'service',
       name: '付款（推 ERP）',
       action: 'payout',
+      // 个人报销：ERP 单笔只收 2 万以内
+      args: { field: 'approved', limit: 20_000 },
       mode: 'async',
       retry: { times: 1 },
     },

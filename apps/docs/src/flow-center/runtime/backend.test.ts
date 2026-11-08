@@ -30,6 +30,15 @@ it('第一次准备：种子按组织里的上级、部门负责人、财务收�
   expect(await todo('1002')).toEqual([expect.stringContaining('事假')]);
   expect(await todo('1018')).toEqual([expect.stringContaining('演示用笔记本')]);
   expect((await todo('1001')).some((title) => title.includes('展厅'))).toBe(true);
-  // 财务的收件箱：财务部的人都看得到苏念的报销
-  expect((await todo('1012')).some((title) => title.includes('上海'))).toBe(true);
+  // 财务的收件箱：财务部的人都看得到苏念的报销、维保合同的财务审核、软件许可尾款的付款单
+  const finance = await todo('1012');
+  for (const part of ['上海', '维保', '软件许可尾款'])
+    expect(finance.some((title) => title.includes(part))).toBe(true);
+  // 法务会签到一半：蒋律签过了，袁清还没签
+  expect(await todo('1022')).toEqual([expect.stringContaining('维保')]);
+  expect(await todo('1021')).toEqual([]);
+  // 软件许可合同生效，首付那张付款单推 ERP 付掉了
+  const admin = (await backend.directory.actorOf('1001'))!;
+  const { rows } = await backend.engine.query.search(admin, { scope: 'all', text: '首付' });
+  expect(rows.map((row) => [row.status, row.result])).toEqual([['completed', 'paid']]);
 }, 60_000);

@@ -17,11 +17,18 @@ export interface Backend {
   readonly engine: FlowEngine;
 }
 
-/** 演示的自动动作：付款推给 ERP，单笔核定超过 2 万时 ERP 拒收（作业失败进异常） */
-const actions = {
-  payout: ({ variables }: { variables: Readonly<Record<string, unknown>> }) => {
-    if (Number(variables['approved'] ?? 0) > 20_000)
-      throw new Error('ERP 拒收：单笔超过 2 万要走线下审批');
+/**
+ * 演示的自动动作：付款推给 ERP。节点的参数说按哪个字段付（field）、ERP 收的单笔上限（limit）：
+ * 超过上限时 ERP 拒收，作业失败进异常，管理员重试或跳过
+ */
+const actions: NonNullable<FlowEngineOptions['extensions']>['actions'] = {
+  payout: (context) => {
+    const { args } = context;
+    const field = typeof args['field'] === 'string' ? args['field'] : 'amount';
+    const amount = Number(context.read(field) ?? 0);
+    const limit = Number(args['limit'] ?? Infinity);
+    if (amount > limit)
+      throw new Error(`ERP 拒收：单笔超过 ${(limit / 10_000).toLocaleString()} 万要走线下审批`);
   },
 };
 
@@ -44,7 +51,7 @@ export interface PrepareOptions {
   readonly progress: (step: string, done: number, total: number) => void;
 }
 
-/** 缺的表建上；组织、流程是空的才写（第一次打开、重置之后），有了流程就不再写种子 */
+/** 缺的表建上；组织是空的才同步，没发布过的流程补发；种子只在第一次打开（重置之后）写 */
 export async function prepare(
   { directory, engine }: Backend,
   { at, resume, progress }: PrepareOptions,
@@ -56,11 +63,14 @@ export async function prepare(
     progress('同步组织', 0, 1);
     await directory.sync(ORG);
   }
-  if ((await engine.query.processes()).length > 0) return;
+  // 没发布过的都发布（文档站加了新流程，老的库也补上）；种子只在第一次写
+  const published = new Set((await engine.query.processes()).map((d) => d.key));
   for (const [index, entry] of PROCESSES.entries()) {
+    if (published.has(entry.definition.key)) continue;
     progress(`发布流程：${entry.definition.name}`, index, PROCESSES.length);
     await engine.publish(entry.definition);
   }
+  if (published.size > 0) return;
   await seed(engine, {
     actor: async (id) => {
       const actor = await directory.actorOf(id);

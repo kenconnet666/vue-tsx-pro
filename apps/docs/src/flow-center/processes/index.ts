@@ -1,9 +1,11 @@
 /**
- * 流程中心的流程：Worker 第一次启动时发布；发起中心按分类列出。
+ * 流程中心的流程：Worker 第一次启动时按这里的先后发布（被调用的付款在合同前面）；发起中心按分类列出。
  */
 import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
+import { contract } from './contract';
 import { expense } from './expense';
 import { leave } from './leave';
+import { payment } from './payment';
 import { purchase } from './purchase';
 
 /** 发起中心里的一个流程 */
@@ -27,9 +29,19 @@ export const PROCESSES: readonly ProcessEntry[] = [
     description: '出差的费用报销：财务核定金额，超过 5000 给总经理，审完推 ERP 付款',
   },
   {
+    definition: payment,
+    category: '财务',
+    description: '对外付款：财务审核，超过 20 万给总经理，审完推 ERP；合同生效后按计划自动发起',
+  },
+  {
     definition: purchase,
     category: '采购',
     description: '物料采购：负责人审批时选采购员，超过 5 万给总经理',
+  },
+  {
+    definition: contract,
+    category: '法务',
+    description: '合同：法务会签与财务审核同时进行，超过 10 万给总经理，归档后按付款计划逐期付款',
   },
 ];
 
