@@ -228,7 +228,7 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
     return (
       <div
         dir={rtl ? 'rtl' : undefined}
-        {...css.attrs(styles.tools, width && [styles.framedWidth, styles[width]])}
+        {...css.attrs(styles.tools, width !== '' && [styles.framedWidth, styles[width]])}
       >
         {toolTheme ? (
           <Provider theme={toolTheme}>
