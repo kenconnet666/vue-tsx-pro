@@ -7,6 +7,8 @@
 | ----------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `@zerodep-dev/flow-ts-model`  | 定义的类型与 `defineProcess`、条件、值、图、选边、校验、表单权限、差异；两端通用                           |
 | `@zerodep-dev/flow-ts-engine` | 引擎：`createFlowEngine`、`engine.run(command, actor)`、待办与实例查询、作业；`./testing` 是内存库加假时钟 |
+| `@zerodep-dev/flow-ts-studio` | 流程工程的编译（组件库的编译器）与类型检查（`./typecheck`，TS 7）；在线工作室                              |
+| `@zerodep-dev/flow-ts-ui`     | 界面组件（建在组件库上）：按字段清单渲染单据（`useFlowForm`）、线上与表单里的值互换                        |
 
 `spec/` 是从 `flow` 仓库复制来的语言无关样例（条件、选边、值、定义校验、权限、差异、场景），各包的测试逐条跑。
 
@@ -15,4 +17,6 @@
 ```bash
 pnpm --filter @zerodep-dev/flow-ts-model typecheck
 pnpm exec vitest run --configLoader native --project flow
+pnpm -C packages/flow/ui typecheck
+pnpm -C packages/flow/ui test
 ```

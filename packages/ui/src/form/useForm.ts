@@ -150,9 +150,9 @@ export interface FormOptions<Values extends object, Output = Values> {
   schema?: $ZodType<Output, Values>;
   /**
    * 字段的权限（按字段路径，明细表的列写成 `列表.列`）：hidden 不显示、不校验，readonly 只读，required 必填；
-   * 可以是函数（随环节、随人变）。与 schema 里 meta 的 visibleWhen、requiredWhen、readonlyWhen 一起算出字段此刻的样子
+   * 可以是函数（随环节、随人、随值变：参数是当前的值）。与 schema 里 meta 的 visibleWhen、requiredWhen、readonlyWhen 一起算出字段此刻的样子
    */
-  access?: FieldAccessMap | (() => FieldAccessMap);
+  access?: FieldAccessMap | ((values: Values) => FieldAccessMap);
   /** 自定义校验：返回各字段的错误（可以是 Promise），与 schema 的结果合并 */
   validate?: (values: Values) => FormErrors | Promise<FormErrors>;
   /**
@@ -367,7 +367,8 @@ export function useForm<Values extends object, Output = Values>(
   let parsed: Output | undefined;
   const constraints = createConstraints(schema);
   const accessOf = () =>
-    (typeof options.access === 'function' ? options.access() : options.access) ?? {};
+    (typeof options.access === 'function' ? options.access(values as Values) : options.access) ??
+    {};
   /** 全部字段此刻的样子（随值、随权限重算） */
   const fieldStates = () => {
     const states = new Map<string, SchemaFieldState>();

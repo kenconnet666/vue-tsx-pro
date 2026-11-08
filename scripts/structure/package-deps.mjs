@@ -3,6 +3,7 @@
  *
  *   - 组件库（tsx、ui）不导入 easy-query：组件库要能装进普通的 Vue 项目，不带服务端的依赖
  *   - 流程引擎的模型包两端通用，不导入 vue、组件库与 easy-query；引擎在服务端，不导入 vue 与组件库
+ *   - 流程的界面组件（flow/ui）在浏览器里，不导入引擎与 easy-query
  *   - 组件库不导入框架（kit），框架不导入 easy-query 与流程引擎
  *   - 小程序运行时（mini）不导入组件库、框架与服务端的包
  *   - 移动端组件库（mobile）只依赖 vue 与 tsx：不导入桌面组件库、小程序运行时、框架与服务端的包
@@ -57,6 +58,11 @@ const RULES = [
     forbidden: ['vue', '@zerodep-dev/vue-tsx-pro-', '@zerodep-dev/easy-query-ts'],
   },
   { dirs: ['packages/flow/engine'], forbidden: ['vue', '@zerodep-dev/vue-tsx-pro-'] },
+  // 流程的界面组件在浏览器里：数据经接入方的客户端来，不导入服务端的引擎与 ORM
+  {
+    dirs: ['packages/flow/ui'],
+    forbidden: ['@zerodep-dev/flow-ts-engine', '@zerodep-dev/easy-query-ts'],
+  },
 ];
 
 function sources(dir) {
