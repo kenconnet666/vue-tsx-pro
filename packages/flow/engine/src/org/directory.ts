@@ -6,9 +6,11 @@
  *   const engine = createFlowEngine({ adapter, org: directory.org, extensions: { resolvers: directory.resolvers } });
  *
  * 引擎在事务里展开处理人，读的是内存里的一份快照，不另发查询：组织很小、很少变，快照省掉每个节点的几次往返，
- * 也不会在只有一条连接的库（PGlite）上等自己的事务。经 sync() 改的会自动刷新；绕过它直接改了表、或别的进程改了，调 refresh()
+ * 也不会在只有一条连接的库（PGlite）上等自己的事务。经目录改的（sync、save*、removeDepartment）会自动刷新；
+ * 绕过它直接改了表、或别的进程改了，调 refresh()
  */
-import { createDb, type Adapter, type Insert } from '@zerodep-dev/easy-query-ts';
+import { createDb, type Adapter } from '@zerodep-dev/easy-query-ts';
+import { FlowError } from '../core/errors.ts';
 import type { Actor, ExtensionContext, FlowOrg, Resolver } from '../types.ts';
 import {
   OrgDepartment,
@@ -29,11 +31,17 @@ export interface OrgDirectoryOptions {
   readonly groupMembers?: (group: string) => readonly string[] | Promise<readonly string[]>;
 }
 
+/** 部门的值；sort 不写时是 0 */
+export type DepartmentInput = Omit<DepartmentRow, 'sort'> & { readonly sort?: number };
+/** 员工的值；不写的：职务、上级为空，没有角色，在职 */
+export type EmployeeInput = Pick<EmployeeRow, 'id' | 'name' | 'departmentId'> &
+  Partial<Pick<EmployeeRow, 'title' | 'managerId' | 'roles' | 'active'>>;
+
 /** 整批同步的数据：三张表的全部行 */
 export interface OrgData {
-  readonly departments: readonly Insert<typeof OrgDepartment>[];
-  readonly roles: readonly Insert<typeof OrgRole>[];
-  readonly employees: readonly Insert<typeof OrgEmployee>[];
+  readonly departments: readonly DepartmentInput[];
+  readonly roles: readonly RoleRow[];
+  readonly employees: readonly EmployeeInput[];
 }
 
 /** 读出来的组织：部门按树的先序（上级在前、同级按 sort），员工、角色按编号 */
@@ -51,6 +59,14 @@ export interface OrgDirectory {
   sync(data: OrgData): Promise<void>;
   /** 重新读快照 */
   refresh(): Promise<void>;
+  /** 新增或修改部门（按编号）：上级要存在，不能是它自己或它下面的部门；负责人要是在职的员工 */
+  saveDepartment(row: DepartmentInput): Promise<void>;
+  /** 删部门：下面还有部门或员工时不删（invalid-input） */
+  removeDepartment(id: string): Promise<void>;
+  /** 新增或修改员工（按编号）：部门要存在，上级不能是他自己或他的下属；离职写 active: false，不删 */
+  saveEmployee(row: EmployeeInput): Promise<void>;
+  /** 新增或修改角色（按编号） */
+  saveRole(row: RoleRow): Promise<void>;
   /** 当前的组织（没读过时先读） */
   snapshot(): Promise<OrgSnapshot>;
   /** 给引擎的 org：角色、部门（含下级部门）展开成在职的人；部门收件箱的负责人是部门负责人 */
@@ -170,9 +186,75 @@ export function createOrgDirectory(options: OrgDirectoryOptions): OrgDirectory {
     },
   };
 
+  const invalid = (message: string) => new FlowError('invalid-input', message);
+
+  async function saveDepartment(row: DepartmentInput) {
+    const loaded = await load();
+    if (row.parentId != null) {
+      if (!loaded.department.has(row.parentId)) throw invalid(`没有上级部门 ${row.parentId}`);
+      if (subtree(loaded, row.id).has(row.parentId))
+        throw invalid('上级部门不能是它自己或它下面的部门');
+    }
+    if (row.headId != null && !active(loaded, row.headId))
+      throw invalid(`负责人 ${row.headId} 不是在职的员工`);
+    await db
+      .insert(OrgDepartment)
+      .values(row)
+      .onConflict((d) => d.id)
+      .merge()
+      .execute();
+    await refresh();
+  }
+
+  async function removeDepartment(id: string) {
+    const loaded = await load();
+    if ((loaded.children.get(id) ?? []).length > 0) throw invalid('下面还有部门，先移走或删掉它们');
+    if (loaded.employees.some((e) => e.departmentId === id))
+      throw invalid('部门里还有员工（含离职的），先调到别的部门');
+    await db
+      .delete(OrgDepartment)
+      .where((d) => d.id.eq(id))
+      .execute();
+    await refresh();
+  }
+
+  async function saveEmployee(row: EmployeeInput) {
+    const loaded = await load();
+    if (!loaded.department.has(row.departmentId)) throw invalid(`没有部门 ${row.departmentId}`);
+    // 顺着上级往上走，走回他自己就是绕成了圈
+    for (let at = row.managerId ?? null, steps = 0; at !== null; steps++) {
+      if (at === row.id || steps > loaded.employees.length)
+        throw invalid('上级不能是他自己或他的下属');
+      at = loaded.employee.get(at)?.managerId ?? null;
+    }
+    if (row.managerId != null && !loaded.employee.has(row.managerId))
+      throw invalid(`没有员工 ${row.managerId}`);
+    await db
+      .insert(OrgEmployee)
+      .values(row)
+      .onConflict((e) => e.id)
+      .merge()
+      .execute();
+    await refresh();
+  }
+
+  async function saveRole(row: RoleRow) {
+    await db
+      .insert(OrgRole)
+      .values(row)
+      .onConflict((r) => r.id)
+      .merge()
+      .execute();
+    await refresh();
+  }
+
   return {
     db,
     createTables: () => db.createTables(),
+    saveDepartment,
+    removeDepartment,
+    saveEmployee,
+    saveRole,
     sync: async (data) => {
       await db.transaction(async (tx) => {
         for (const entity of [OrgEmployee, OrgRole, OrgDepartment])

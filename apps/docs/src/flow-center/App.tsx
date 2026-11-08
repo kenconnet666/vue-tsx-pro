@@ -1,8 +1,17 @@
 /**
- * 流程中心的应用外壳（docs/decisions/0009）：侧栏是工作台、发起、单据；顶栏是演示身份（谁在用）、演示时钟（快进看超时与提醒）、
+ * 流程中心的应用外壳（docs/decisions/0009）：侧栏是工作台、发起、单据、管理（管理员）；顶栏是演示身份（谁在用）、演示时钟（快进看超时与提醒）、
  * 重置演示数据、回文档。第一次打开时 Worker 要建表、发布流程、写种子，先显示进度。
  */
-import { BookOpen, FastForward, Files, Inbox, RotateCcw, Send, Workflow } from '@lucide/icons';
+import {
+  BookOpen,
+  FastForward,
+  Files,
+  Inbox,
+  RotateCcw,
+  Send,
+  ShieldCheck,
+  Workflow,
+} from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
@@ -157,6 +166,11 @@ export default _component(() => {
               <NavItem href="/flow/documents" icon={Files}>
                 单据
               </NavItem>
+              {current?.admin() && (
+                <NavItem href="/flow/admin" icon={ShieldCheck}>
+                  管理
+                </NavItem>
+              )}
             </NavSection>
           </NavList>
         }

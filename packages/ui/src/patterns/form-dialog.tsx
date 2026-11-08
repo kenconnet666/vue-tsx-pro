@@ -44,8 +44,8 @@ export interface FormDialogField {
   options?: readonly { value: string; label: string; description?: string; group?: string }[];
   /** 多选（type 为 select）：值是选中的 value 数组，不经过 validate */
   multiple?: boolean;
-  /** 初始值 */
-  defaultValue?: string;
+  /** 初始值；多选时是选中的 value 数组 */
+  defaultValue?: string | readonly string[];
   /** 占位文字 */
   placeholder?: string;
   /** 标签下面的说明 */
@@ -114,7 +114,11 @@ const FormDialogBody = _component(
       Object.fromEntries(
         _untrack(options.fields).map((field) => [
           field.name,
-          field.multiple ? [] : (field.defaultValue ?? ''),
+          field.multiple
+            ? [...(Array.isArray(field.defaultValue) ? field.defaultValue : [])]
+            : typeof field.defaultValue === 'string'
+              ? field.defaultValue
+              : '',
         ]),
       ),
     );

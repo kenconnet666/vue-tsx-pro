@@ -8,6 +8,7 @@ import { Button, Flex, Menu, MenuItem, useConfirm } from '@zerodep-dev/vue-tsx-p
 import { useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { useFlowCenter } from '../runtime/center';
 import { who } from './labels';
+import { useIncidentActions } from './incidents';
 import { showError, toaster } from './toaster';
 
 /** InstanceActions 的属性 */
@@ -23,16 +24,15 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
   const confirm = useConfirm();
   let busy = _state('');
 
-  /** 做一件事：busy 期间按钮转圈，成功提示、失败按引擎的错误提示 */
-  async function act(name: string, done: string, work: () => Promise<unknown>) {
-    busy = name;
+  const incidentActions = useIncidentActions();
+
+  /** 做一件事：成功提示、失败按引擎的错误提示 */
+  async function act(done: string, work: () => Promise<unknown>) {
     try {
       await work();
       toaster.success(done);
     } catch (error) {
       showError(error);
-    } finally {
-      busy = '';
     }
   }
 
@@ -48,7 +48,7 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
       tone: 'danger',
     });
     if (!answers) return;
-    await act('withdraw', '已撤回', () =>
+    await act('已撤回', () =>
       run({ type: 'withdraw', instance: id(), comment: answers.comment || undefined }),
     );
   }
@@ -60,9 +60,7 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
       confirmText: '留言',
     });
     if (!answers) return;
-    await act('comment', '已留言', () =>
-      run({ type: 'comment', instance: id(), text: answers.text }),
-    );
+    await act('已留言', () => run({ type: 'comment', instance: id(), text: answers.text }));
   }
 
   async function suspend() {
@@ -73,7 +71,7 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
       confirmText: '暂停',
     });
     if (!answers) return;
-    await act('suspend', '已暂停', () =>
+    await act('已暂停', () =>
       run({ type: 'suspend', instance: id(), comment: answers.comment || undefined }),
     );
   }
@@ -87,9 +85,7 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
       tone: 'danger',
     });
     if (!answers) return;
-    await act('terminate', '已终止', () =>
-      run({ type: 'terminate', instance: id(), comment: answers.comment }),
-    );
+    await act('已终止', () => run({ type: 'terminate', instance: id(), comment: answers.comment }));
   }
 
   async function jump() {
@@ -112,7 +108,7 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
       confirmText: '跳转',
     });
     if (!answers) return;
-    await act('jump', '已跳转', () =>
+    await act('已跳转', () =>
       run({
         type: 'jump',
         instance: id(),
@@ -144,7 +140,7 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
       confirmText: '改派',
     });
     if (!answers) return;
-    await act('reassign', `已改派给${who(answers.to)}`, () =>
+    await act(`已改派给${who(answers.to)}`, () =>
       run({
         type: 'reassign',
         workItem: Number(answers.workItem),
@@ -154,47 +150,14 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
     );
   }
 
-  async function retry(incident: Incident) {
-    await act(`retry:${incident.jobId}`, '已重试', async () => {
-      if (!(await center.client.retryJob(incident.jobId)))
-        throw new Error('这个作业已经不在异常里');
-    });
-  }
-
-  async function skip(incident: Incident) {
-    const answers = await prompt({
-      title: `跳过“${incident.nodeName ?? incident.kind}”`,
-      description: '不再自动处理，按选的结果往下走。',
-      fields: [
-        ...(incident.outcomes.length > 0
-          ? [
-              {
-                name: 'outcome',
-                label: '结果',
-                type: 'select' as const,
-                required: true,
-                options: incident.outcomes.map((o) => ({ value: o, label: o })),
-              },
-            ]
-          : []),
-        { name: 'reason', label: '原因', type: 'textarea', required: true },
-      ],
-      confirmText: '跳过',
-    });
-    if (!answers) return;
-    const { outcome, reason } = answers as Record<string, string>;
-    await act(`skip:${incident.jobId}`, '已跳过', () =>
-      run({ type: 'skipJob', job: incident.jobId, outcome: outcome || undefined, reason }),
-    );
-  }
-
   async function resume() {
     if (!(await confirm({ title: '恢复这张单？', confirmText: '恢复' }))) return;
-    await act('resume', '已恢复', () => run({ type: 'resume', instance: id() }));
+    await act('已恢复', () => run({ type: 'resume', instance: id() }));
   }
 
   return () => {
     const { actions, instance } = detail;
+    // 点了就转圈，直到对话框关掉、命令做完；期间别的按钮不能点
     const button = (name: string, label: string, onClick: () => Promise<void>) => (
       <Button
         key={name}
@@ -203,7 +166,10 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
         tone="neutral"
         loading={busy === name}
         disabled={busy !== '' && busy !== name}
-        onClick={() => void onClick()}
+        onClick={() => {
+          busy = name;
+          void onClick().finally(() => (busy = ''));
+        }}
       >
         {label}
       </Button>
@@ -213,16 +179,16 @@ export const InstanceActions = _component(({ detail, incidents }: InstanceAction
         {actions.withdraw && button('withdraw', '撤回', withdraw)}
         {actions.remind &&
           button('remind', '催办', () =>
-            act('remind', '已催办', () => run({ type: 'remind', instance: id() })),
+            act('已催办', () => run({ type: 'remind', instance: id() })),
           )}
         {button('comment', '留言', comment)}
         {actions.manage &&
           incidents.flatMap((incident) => [
             button(`retry:${incident.jobId}`, `重试“${incident.nodeName ?? incident.kind}”`, () =>
-              retry(incident),
+              incidentActions.retry(incident),
             ),
             ...(incident.skippable
-              ? [button(`skip:${incident.jobId}`, '跳过', () => skip(incident))]
+              ? [button(`skip:${incident.jobId}`, '跳过', () => incidentActions.skip(incident))]
               : []),
           ])}
         {actions.manage && (

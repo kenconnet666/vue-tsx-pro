@@ -6,6 +6,7 @@ import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import { beforeAll, describe, it } from 'vitest';
 import type { ExtensionContext } from '../src/index.ts';
 import { createOrgDirectory, type OrgData } from '../src/org/index.ts';
+import { FlowError } from '../src/index.ts';
 import { createTestEngine } from '../src/testing/testing.ts';
 
 /**
@@ -167,5 +168,38 @@ describe('org directory', () => {
       approved.workItems.map((item) => item.assignee ?? '').toSorted((a, b) => a.localeCompare(b)),
       ['1002', '1003', '1004', '1005'],
     );
+  });
+});
+
+describe('org directory: 维护', () => {
+  const invalid = (error: unknown) => error instanceof FlowError && error.code === 'invalid-input';
+
+  it('上级部门、上级不能绕成圈；有员工的部门不能删；改完快照跟着变', async () => {
+    await assert.rejects(
+      directory.saveDepartment({ id: '2', name: '研发', parentId: '3', headId: '1002' }),
+      invalid,
+    );
+    await assert.rejects(
+      directory.saveEmployee({ id: '1002', name: '沈', departmentId: '2', managerId: '1004' }),
+      invalid,
+    );
+    await assert.rejects(directory.removeDepartment('3'), invalid);
+
+    await directory.saveDepartment({ id: '5', name: '测试', parentId: '2', headId: null });
+    await directory.saveEmployee({
+      id: '1004',
+      name: '陈',
+      departmentId: '4',
+      managerId: '1007',
+      roles: ['finance'],
+    });
+    assert.deepEqual(await directory.org.members({ department: '2' }), ['1002', '1003', '1005']);
+    assert.deepEqual(await directory.org.members({ role: 'finance' }), ['1004', '1007']);
+    await directory.removeDepartment('5');
+    assert.equal(
+      (await directory.snapshot()).departments.some((d) => d.id === '5'),
+      false,
+    );
+    await directory.sync(data);
   });
 });

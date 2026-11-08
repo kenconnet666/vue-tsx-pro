@@ -4,13 +4,21 @@
  */
 import {
   createFlowClient,
+  FlowError,
   portTransport,
   type FlowClient,
+  type FlowErrorCode,
 } from '@zerodep-dev/flow-ts-engine/client';
 import type { EmployeeRow, OrgSnapshot } from '@zerodep-dev/flow-ts-engine/org';
 import { markRaw, reactive, readonly } from 'vue';
 import { DEFAULT_ACTOR, isAdmin } from '../domain/org';
-import { isDemoMessage, type FromWorker, type ToWorker } from './messages';
+import {
+  isDemoMessage,
+  type FromWorker,
+  type OrgArgument,
+  type OrgMethod,
+  type ToWorker,
+} from './messages';
 
 /** 流程中心此刻的样子 */
 export interface FlowCenterState {
@@ -45,6 +53,8 @@ export interface FlowCenter {
   people(): readonly PersonOption[];
   /** 换演示身份 */
   setActor(id: string): void;
+  /** 维护组织（管理页）：改完 state.org 跟着换；不合规时是 invalid-input 的 FlowError */
+  editOrg<M extends OrgMethod>(method: M, argument: OrgArgument<M>): Promise<void>;
   /** 时钟往后拨几小时（演示超时、提醒、定时作业） */
   advance(hours: number): void;
   /** 删掉演示数据重来 */
@@ -104,6 +114,9 @@ function connect(): FlowCenter {
   });
   const send = (message: ToWorker) => worker.postMessage(message);
   let index = new Map<string, EmployeeRow>();
+  /** 维护组织的调用：编号 → 等结果的 Promise */
+  const calls = new Map<number, { resolve: () => void; reject: (error: Error) => void }>();
+  let nextCall = 0;
   let options: PersonOption[] | undefined;
 
   function setActor(id: string) {
@@ -157,6 +170,16 @@ function connect(): FlowCenter {
       case 'error':
         Object.assign(state, { status: 'error', error: message.message });
         break;
+      case 'orgReply': {
+        const pending = calls.get(message.call);
+        calls.delete(message.call);
+        if (message.error)
+          pending?.reject(
+            new FlowError(message.error.code as FlowErrorCode, message.error.message),
+          );
+        else pending?.resolve();
+        break;
+      }
     }
   });
   client.onChange(() => state.revision++);
@@ -175,6 +198,12 @@ function connect(): FlowCenter {
     },
     people,
     setActor,
+    editOrg: (method, argument) =>
+      new Promise((resolve, reject) => {
+        const call = nextCall++;
+        calls.set(call, { resolve, reject });
+        send({ demo: 'orgCall', call, method, argument });
+      }),
     advance(hours) {
       send({ demo: 'advance', by: hours * 3_600_000 });
     },

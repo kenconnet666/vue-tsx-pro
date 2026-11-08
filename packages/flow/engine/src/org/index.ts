@@ -1,6 +1,8 @@
 /** 组织目录（`@zerodep-dev/flow-ts-engine/org`）：组织的表，与接到引擎上的 org、处理人解析器、Actor */
 export {
   createOrgDirectory,
+  type DepartmentInput,
+  type EmployeeInput,
   type OrgData,
   type OrgDirectory,
   type OrgDirectoryOptions,

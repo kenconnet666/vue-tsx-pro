@@ -19,6 +19,10 @@ export interface FlowEndpointOptions<C> {
   actor: (context: C) => Actor | Promise<Actor>;
 }
 
+function requireAdmin(actor: Actor, message: string): void {
+  if (!actor.admin) throw new FlowError('forbidden', message);
+}
+
 /** 方法名 → 怎么调引擎 */
 const METHODS: Readonly<
   Record<string, (engine: FlowEngine, actor: Actor, args: any[]) => Promise<unknown>>
@@ -36,9 +40,17 @@ const METHODS: Readonly<
   workItem: (e, a, [id]) => e.query.workItem(id, a),
   startView: (e, a, [key]) => e.query.startView(key, a),
   processes: (e) => e.query.processes(),
-  incidents: (e, _a, [instance]) => e.query.incidents(instance),
+  // 引擎把“谁能看异常、重试”留给接口层：全部异常与重试只给管理员，一张单的异常要先能看这张单
+  incidents: async (e, a, [instance]) => {
+    if (instance === undefined) requireAdmin(a, '只有管理员能看全部异常');
+    else await e.query.instance(instance, a);
+    return e.query.incidents(instance);
+  },
   readCc: (e, a, [instance]) => e.readCc(instance, a),
-  retryJob: (e, a, [job]) => e.retryJob(job, a),
+  retryJob: (e, a, [job]) => {
+    requireAdmin(a, '只有管理员能重试作业');
+    return e.retryJob(job, a);
+  },
   'drafts.save': (e, a, [input]) => e.drafts.save(input, a),
   'drafts.list': (e, a) => e.drafts.list(a),
   'drafts.get': (e, a, [id]) => e.drafts.get(id, a),

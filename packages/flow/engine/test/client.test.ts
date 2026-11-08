@@ -45,6 +45,24 @@ describe('客户端与端点', () => {
     assert.deepEqual(await client.todo(), []);
   });
 
+  it('接口层的权限：别人的单看不到，全部异常与重试只给管理员', async () => {
+    const { client, as } = await setup();
+    const forbidden = (error: unknown) => error instanceof FlowError && error.code === 'forbidden';
+    const { instance } = await client.run({
+      type: 'start',
+      process: 'leave',
+      variables: { days: 1, reason: '病假' },
+    });
+    as({ id: '1009', name: '路人' });
+    await assert.rejects(client.instance(instance.id), forbidden);
+    await assert.rejects(client.incidents(instance.id), forbidden);
+    await assert.rejects(client.incidents(), forbidden);
+    await assert.rejects(client.retryJob(1), forbidden);
+    as({ id: '1000', admin: true });
+    assert.deepEqual(await client.incidents(), []);
+    assert.equal((await client.instance(instance.id)).instance.id, instance.id);
+  });
+
   it('引擎的错误带着代号还原；没有的方法报 invalid-input', async () => {
     const { client, as } = await setup();
     await client.run({ type: 'start', process: 'leave', variables: { days: 1, reason: '病假' } });

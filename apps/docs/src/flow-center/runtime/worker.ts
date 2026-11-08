@@ -7,6 +7,7 @@
 import { PGlite } from '@electric-sql/pglite';
 import { pglite } from '@zerodep-dev/easy-query-ts-pg/pglite';
 import {
+  FlowError,
   flowEndpoint,
   servePort,
   type Actor,
@@ -93,6 +94,27 @@ async function runJobs(): Promise<void> {
   if (ran > 0) endpoint?.changed();
 }
 
+/** 维护组织：改完把新的组织发给页面、重算当前身份（角色、部门可能变了），用到名字的列表也跟着刷新 */
+async function callOrg({ call, method, argument }: Extract<ToWorker, { demo: 'orgCall' }>) {
+  try {
+    if (!directory) throw new Error('流程中心还没启动好');
+    await (directory[method] as (argument: unknown) => Promise<void>)(argument);
+    post({ demo: 'orgReply', call });
+    post({ demo: 'org', org: await directory.snapshot() });
+    await useActor(actorId);
+    endpoint?.changed();
+  } catch (error) {
+    post({
+      demo: 'orgReply',
+      call,
+      error: {
+        code: error instanceof FlowError ? error.code : 'internal',
+        message: error instanceof Error ? error.message : String(error),
+      },
+    });
+  }
+}
+
 self.addEventListener('message', (event: MessageEvent) => {
   const data: unknown = event.data;
   if (!isDemoMessage(data)) return;
@@ -116,6 +138,9 @@ self.addEventListener('message', (event: MessageEvent) => {
           post({ demo: 'clock', now: now().toISOString(), offset });
           // 时间变了：期限、超时的显示都要重算
           endpoint?.changed();
+          break;
+        case 'orgCall':
+          await callOrg(message);
           break;
         case 'reset':
           await wipe();

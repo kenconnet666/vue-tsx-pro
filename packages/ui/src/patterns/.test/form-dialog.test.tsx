@@ -119,6 +119,31 @@ describe('useFormDialog', () => {
     expect(onSubmit).toHaveBeenCalledWith({ due: '2026-12-31' });
   });
 
+  it('多选的初始值是数组，原样提交', async () => {
+    const onSubmit = vi.fn();
+    const dialog = await open({
+      title: '角色',
+      fields: [
+        {
+          name: 'roles',
+          label: '角色',
+          type: 'select',
+          multiple: true,
+          defaultValue: ['a', 'c'],
+          options: [
+            { value: 'a', label: '甲' },
+            { value: 'b', label: '乙' },
+            { value: 'c', label: '丙' },
+          ],
+        },
+      ],
+      onSubmit,
+    });
+    buttonOf(dialog, '确定').click();
+    await settle();
+    expect(onSubmit).toHaveBeenCalledWith({ roles: ['a', 'c'] });
+  });
+
   it('onSubmit 失败时对话框留着（open 不变）', async () => {
     const dialog = await open({
       title: '指定承办人',
