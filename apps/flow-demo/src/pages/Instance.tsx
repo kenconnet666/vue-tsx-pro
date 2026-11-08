@@ -38,7 +38,7 @@ import {
 import { ActionError } from '@zerodep-dev/vue-tsx-pro-kit';
 import { useRoute } from 'vue-router';
 import { actions, usePageData } from '../client.ts';
-import { processDiagram, renderStep, stepLabel } from '../process-diagram.tsx';
+import { processDiagram, renderStep, stepLabel } from '@zerodep-dev/flow-ts-ui';
 
 /** 流转记录的文字 */
 const EVENTS: Record<string, string> = {

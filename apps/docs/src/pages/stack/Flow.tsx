@@ -5,11 +5,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code, CodeBlock, H2, Link, List, ListItem, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
 import { Diagram } from '@zerodep-dev/vue-tsx-pro-ui/diagram';
 import { templates } from '@zerodep-dev/flow-ts-model';
-import {
-  processDiagram,
-  renderStep,
-  stepLabel,
-} from '../../components/patterns/Workflow/process-diagram';
+import { processDiagram, renderStep, stepLabel } from '@zerodep-dev/flow-ts-ui';
 import { DocPage } from '../../site/DocPage';
 
 const leave = processDiagram(templates.leave());

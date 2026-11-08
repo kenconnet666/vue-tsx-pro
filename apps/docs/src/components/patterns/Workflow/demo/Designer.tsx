@@ -1,6 +1,6 @@
 // 流程设计器（组合）：从模板起步；画布点选环节、拖动摆位置，右边改环节的设置（NodePanel：会签规则、时限与超时、
 // 提醒、允许转办催办、表单权限、分支条件、调用流程、抄送）；问题用业务的话列出来，点一下定位；
-// “代码”页直接改定义（JSON）。流程的增删改都交给模型包的函数，画布只管显示与交互
+// “表单权限”页是字段 × 环节一张表（AccessMatrix）；“代码”页直接改定义（JSON）。流程的增删改都交给模型包的函数，画布只管显示与交互
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
@@ -39,8 +39,14 @@ import {
   type ProcessDefinition,
 } from '@zerodep-dev/flow-ts-model';
 import { watch } from 'vue';
-import { NodePanel, without } from '../node-panel';
-import { processDiagram, renderStep, stepLabel } from '../process-diagram';
+import {
+  AccessMatrix,
+  NodePanel,
+  processDiagram,
+  renderStep,
+  stepLabel,
+  without,
+} from '@zerodep-dev/flow-ts-ui';
 
 const styles = css.create({
   workspace: { display: 'flex', flexWrap: 'wrap', gap: '_lg', alignItems: 'flex-start' },
@@ -246,6 +252,7 @@ export default _component(() => {
         <Tabs _value={tab}>
           <TabList aria-label="设计器">
             <Tab value="design">设计</Tab>
+            <Tab value="access">表单权限</Tab>
             <Tab value="code">代码</Tab>
           </TabList>
           <TabPanel value="design">
@@ -280,6 +287,9 @@ export default _component(() => {
                 />
               </Card>
             </div>
+          </TabPanel>
+          <TabPanel value="access">
+            <AccessMatrix definition={definition} onChange={change} />
           </TabPanel>
           <TabPanel value="code">
             <Flex direction="column" gap="sm">

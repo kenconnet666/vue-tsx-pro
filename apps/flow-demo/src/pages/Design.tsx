@@ -44,8 +44,7 @@ import {
 import { ActionError } from '@zerodep-dev/vue-tsx-pro-kit';
 import { watch } from 'vue';
 import { actions, usePageData } from '../client.ts';
-import { NodePanel, without } from '../node-panel.tsx';
-import { processDiagram, renderStep, stepLabel } from '../process-diagram.tsx';
+import { NodePanel, processDiagram, renderStep, stepLabel, without } from '@zerodep-dev/flow-ts-ui';
 
 /** 试运行的结果 */
 type Trial = Awaited<ReturnType<typeof actions.simulate>>;

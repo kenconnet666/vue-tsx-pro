@@ -4,7 +4,7 @@
  *   按钮（文字、要不要写意见）、这一步每个字段能不能看、能不能改（表单权限）
  * - 分支：每条出线的说明与条件（ConditionBuilder 编辑，条件就是引擎认的 JSON），哪条是“其余情况”
  * - 调用流程：调哪个流程；抄送：抄给谁、附言
- * 文档站的“流程设计与审批”与 flow-demo 的设计页共用（flow-demo 里是 scripts/structure/copies.mjs 核对的副本）
+ * 设计器（文档站的“流程设计与审批”、流程中心的设计页）放在画布旁边
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
@@ -25,17 +25,23 @@ import type {
   AssigneeSource,
   CcNode,
   Duration,
-  FieldAccess,
   ProcessDefinition,
   ProcessEdge,
   ProcessNode,
   TaskNode,
   VariableDeclaration,
 } from '@zerodep-dev/flow-ts-model';
+import {
+  accessItems,
+  accessRows,
+  fallbackText,
+  patchNodeForm,
+  without,
+  withFieldAccess,
+  type DefinitionEdit,
+} from './form-access';
 
-/** 改定义的函数 */
-type Edit = (current: ProcessDefinition) => ProcessDefinition;
-
+/** NodePanel 的属性 */
 export interface NodePanelProps {
   definition: ProcessDefinition;
   /** 选中的环节；没选时显示说明 */
@@ -43,7 +49,7 @@ export interface NodePanelProps {
   /** 调用流程时能选的流程 */
   processes?: readonly { value: string; label: string }[];
   /** 改定义：设计器统一处理（模型包的函数报错时显示原因） */
-  onChange: (edit: Edit) => void;
+  onChange: (edit: DefinitionEdit) => void;
 }
 
 /** 处理人：设计器里给常用的三种，更多的写在代码里 */
@@ -75,14 +81,6 @@ const OVERDUE_ACTIONS = [
   { value: 'complete', label: '自动按“通过”处理' },
 ];
 
-const ACCESS = [
-  { value: 'default', label: '按默认（只读）' },
-  { value: 'hidden', label: '看不到' },
-  { value: 'readonly', label: '只读' },
-  { value: 'editable', label: '能改' },
-  { value: 'required', label: '必须填' },
-];
-
 /** 编号：写死的编号显示出来，引用变量（{ ref }）的在代码里改 */
 const idText = (id: unknown) =>
   typeof id === 'string' || typeof id === 'number' ? String(id) : '';
@@ -101,13 +99,6 @@ function sourcesFrom(kind: AssigneeKind, value: string): AssigneeSource[] {
   const id = value.trim() as `${bigint}`;
   if (kind === 'initiator' || !id) return [{ initiator: true }];
   return kind === 'role' ? [{ role: id }] : [{ user: id }];
-}
-
-/** 去掉一个可选字段（不改原对象） */
-export function without<T extends object, K extends keyof T>(object: T, key: K): Omit<T, K> {
-  const copy = { ...object };
-  delete copy[key];
-  return copy;
 }
 
 /** 时长的数值与单位（设计器给小时、天、工作日；分钟写在代码里） */
@@ -398,27 +389,27 @@ export const NodePanel = _component(
               ))}
             </Flex>
           </Field>
-          {(definition.variables?.length ?? 0) > 0 && (
-            <Field label="这一步的单据" description="每个字段能不能看、能不能改">
+          {accessRows(definition).length > 0 && (
+            <Field
+              label="这一步的单据"
+              description="每个字段能不能看、能不能改；全部环节一起看用权限矩阵"
+            >
               <Flex direction="column" gap="sm">
-                {definition.variables!.map((variable) => (
-                  <Flex key={variable.name} gap="sm" align="center" justify="between">
-                    <Small>{variable.label ?? variable.name}</Small>
+                {accessRows(definition).map((row) => (
+                  <Flex key={row.path} gap="sm" align="center" justify="between">
+                    <Small>{row.label}</Small>
                     <Select
-                      items={ACCESS}
+                      items={accessItems(fallbackText(task, row))}
                       size="sm"
-                      _value={task.form?.fields?.[variable.name] ?? 'default'}
+                      _value={task.form?.fields?.[row.path] ?? 'inherit'}
                       onUpdate:_value={(access: string | null) =>
-                        patchTask((n) => {
-                          const fields = { ...n.form?.fields };
-                          if (!access || access === 'default') delete fields[variable.name];
-                          else fields[variable.name] = access as FieldAccess;
-                          return Object.keys(fields).length
-                            ? { ...n, form: { ...n.form, fields } }
-                            : without(n, 'form');
-                        })
+                        onChange(
+                          patchNodeForm(task.id, (form) =>
+                            withFieldAccess(form, row.path, access ?? 'inherit'),
+                          ),
+                        )
                       }
-                      aria-label={`“${variable.label ?? variable.name}”在这一步`}
+                      aria-label={`“${row.label}”在这一步`}
                     />
                   </Flex>
                 ))}

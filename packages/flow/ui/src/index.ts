@@ -1,7 +1,19 @@
 /**
  * flow-ts 的界面组件，建在 vue-tsx-pro-ui 上：按字段清单渲染单据（useFlowForm、manifestSchema、manifestAccess），
- * 线上与表单里两种值的互换（toFormValues、fromFormValues）。
+ * 线上与表单里两种值的互换（toFormValues、fromFormValues）；流程图（processDiagram）、设计器的环节设置（NodePanel）与表单权限矩阵（AccessMatrix）。
  */
+export { AccessMatrix, type AccessMatrixProps } from './designer/AccessMatrix';
+export { accessRows, without, type AccessRow, type DefinitionEdit } from './designer/form-access';
+export { NodePanel, type NodePanelProps } from './designer/NodePanel';
+export {
+  processDiagram,
+  renderStep,
+  stepLabel,
+  type FlowItem,
+  type ProcessProgress,
+  type StepItem,
+  type StepState,
+} from './diagram/process-diagram';
 export { fromFormValues, toFormValues } from './form/form-values';
 export { manifestSchema } from './form/manifest-schema';
 export {

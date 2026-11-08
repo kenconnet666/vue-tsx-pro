@@ -23,10 +23,12 @@ export default _component(() => () => (
           {'）可以点选、拖动摆位置，位置存进定义的 '}
           <Code>layout</Code>
           {
-            '，引擎不读。右边的环节设置（源码目录里的 node-panel.tsx）按环节类型给出能改的：谁来处理、几个人一起审（全部、任一、按比例、依次）、时限与超时、到期前提醒、允许转办与催办、按钮、这一步每个字段能不能看能不能改；分支的条件用 '
+            '，引擎不读。右边的环节设置（flow-ts-ui 的 NodePanel）按环节类型给出能改的：谁来处理、几个人一起审（全部、任一、按比例、依次）、时限与超时、到期前提醒、允许转办与催办、按钮、这一步每个字段能不能看能不能改；分支的条件用 '
           }
           <Link href="/components/condition-builder">ConditionBuilder</Link>
-          {' 编辑（就是引擎认的条件 JSON）；调用流程选流程、抄送选人。增删环节经模型包的 '}
+          {
+            ' 编辑（就是引擎认的条件 JSON）；调用流程选流程、抄送选人。“表单权限”页是 AccessMatrix：字段 × 环节一张表，第一行是各环节没单独写的字段按什么，明细表的列没写时跟着明细表，最后一列是不在待办里看单据的人。增删环节经模型包的 '
+          }
           <Code>addApprovalStep</Code>、<Code>addAmountBranch</Code>、<Code>addCallStep</Code>、
           <Code>addCcStep</Code>、<Code>removeStep</Code>
           {' 写回定义；'}

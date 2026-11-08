@@ -29,6 +29,7 @@
     "@zerodep-dev/easy-query-ts-pg": "^0.2.5",
     "@zerodep-dev/flow-ts-engine": "workspace:^",
     "@zerodep-dev/flow-ts-model": "workspace:^",
+    "@zerodep-dev/flow-ts-ui": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-kit": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
     "@zerodep-dev/vue-tsx-pro-ui": "workspace:^",

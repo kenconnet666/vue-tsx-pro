@@ -23,7 +23,7 @@ import {
   type CommentItem,
 } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { templates, type Outcome } from '@zerodep-dev/flow-ts-model';
-import { processDiagram, renderStep, stepLabel } from '../process-diagram';
+import { processDiagram, renderStep, stepLabel } from '@zerodep-dev/flow-ts-ui';
 
 const definition = templates.purchase();
 const task = definition.nodes.find((node) => node.id === 'step');
