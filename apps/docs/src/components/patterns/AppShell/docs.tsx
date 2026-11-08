@@ -44,12 +44,21 @@ export default _component(() => () => (
       iframe 没写 <Code>allow="fullscreen"</Code>）照样隐藏这两块。
     </Example>
     <Example id="mixed" title="混合布局" demo={Mixed} frame="40rem">
-      顶栏放一级导航（<Code>nav</Code>，常用 <Code>NavBar</Code>
-      ，放不下的收进“更多”），侧栏放当前模块的二级导航，正文下面是页脚（<Code>footer</Code>
-      ）。只要顶部导航时不传 <Code>sidebar</Code> 即可。<Code>sidebarCollapsible</Code>{' '}
-      在侧栏底部加“收起侧栏”按钮，宽屏时把侧栏收成只有图标的窄栏（<Code>NavList</Code>{' '}
-      自动换成紧凑样式，分组悬停弹出子项），品牌格只剩标志；<Code>_sidebarCollapsed</Code>{' '}
-      可以双向绑定，存起来记住各人的设置。
+      {'顶栏放一级导航（'}
+      <Code>nav</Code>
+      {'，常用 '}
+      <Code>NavBar</Code>
+      {'，放不下的收进“更多”），侧栏放当前模块的二级导航；只要顶部导航时不传 '}
+      <Code>sidebar</Code>
+      {' 即可，正文下面要页脚时写 '}
+      <Code>footer</Code>
+      {'。'}
+      <Code>sidebarCollapsible</Code>
+      {' 在品牌格右侧加“收起侧栏”按钮，宽屏时把侧栏收成只有图标的窄栏（'}
+      <Code>NavList</Code>
+      {' 自动换成紧凑样式，分组悬停弹出子项），品牌格只剩展开按钮；'}
+      <Code>_sidebarCollapsed</Code>
+      {' 可以双向绑定，存起来记住各人的设置。'}
     </Example>
     <KeyboardReference
       keys={[

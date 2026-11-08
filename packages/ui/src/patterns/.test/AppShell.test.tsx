@@ -128,7 +128,7 @@ describe('AppShell 的导航、页脚与收起', () => {
     expect(main.nextElementSibling!.textContent).toBe('版权');
   });
 
-  it('sidebarCollapsible：宽屏时“收起侧栏”把侧栏收成图标栏，品牌只剩标志，写回 sidebarCollapsed', async () => {
+  it('sidebarCollapsible：品牌格里的“收起侧栏”把侧栏收成图标栏，品牌格只剩展开按钮，写回 sidebarCollapsed', async () => {
     const matchMedia = window.matchMedia;
     // 宽屏
     window.matchMedia = ((query: string) => ({
@@ -153,14 +153,16 @@ describe('AppShell 的导航、页脚与收起', () => {
       </AppShell>
     ));
     await nextTick();
-    const toggle = root.querySelector<HTMLButtonElement>('button[aria-label="收起侧栏"]')!;
+    // 按钮在顶栏的品牌格里、品牌后面；侧栏底部没有按钮
+    const toggle = root.querySelector<HTMLButtonElement>('header button[aria-label="收起侧栏"]')!;
+    expect(toggle.previousElementSibling?.textContent).toContain('采购管理平台');
     toggle.click();
     await nextTick();
     expect(collapsed).toBe(true);
-    expect(root.querySelector('button[aria-label="展开侧栏"]')).not.toBeNull();
-    const name = root.querySelector('header a span')!;
-    expect(name.textContent).toBe('采购管理平台');
-    expect(name.className).not.toBe('');
+    const expand = root.querySelector('header button[aria-label="展开侧栏"]')!;
+    expect(expand).not.toBeNull();
+    // 收起后品牌格只放展开按钮，不放品牌
+    expect(expand.parentElement!.querySelector('a')).toBeNull();
     window.matchMedia = matchMedia;
   });
 });

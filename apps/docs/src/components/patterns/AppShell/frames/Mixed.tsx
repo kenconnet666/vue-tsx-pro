@@ -1,4 +1,4 @@
-// 混合布局：顶栏是一级导航（NavBar），侧栏是当前模块的二级导航（可以收起成图标栏），底部是页脚
+// 混合布局：顶栏是一级导航（NavBar），侧栏是当前模块的二级导航（品牌格右侧的按钮把它收起成图标栏）
 import {
   BarChart3,
   Box,
@@ -133,12 +133,6 @@ export default _component(() => {
       }
       sidebarCollapsible
       _sidebarCollapsed={collapsed}
-      footer={
-        <Flex justify="between" wrap gap="sm">
-          <Small tone="muted">© 2026 采购协同平台</Small>
-          <Small tone="muted">版本 3.2.0</Small>
-        </Flex>
-      }
     >
       <Flex direction="column" gap="md">
         <H1>{title()}</H1>

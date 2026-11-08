@@ -25,8 +25,8 @@
  * 几种布局与区域：
  * - nav：顶栏里品牌后面的导航（NavBar）。只有 nav 时是顶部导航布局，和 sidebar 一起时是混合布局（顶栏一级、侧栏二级）。
  * - footer：正文下面的页脚，内容少时也贴着底部。
- * - sidebarCollapsible：docked 侧栏底部有“收起侧栏”，收起后只剩图标栏（宽屏时；导航变紧凑、分组悬停弹出，
- *   品牌格只剩标志），父级写 _sidebarCollapsed={x} 记住。
+ * - sidebarCollapsible：宽屏时品牌格的结束边有“收起侧栏”按钮，收起后只剩图标栏（导航变紧凑、分组悬停弹出），
+ *   品牌格变窄、只放展开按钮（不放标志）；父级写 _sidebarCollapsed={x} 记住。没写 brand 时也有这一格放按钮。
  *
  * 全屏：顶栏结束边有全屏按钮（fullscreenable，默认开，手机宽度不显示），进入后不显示顶栏和左侧栏，正文占满窗口，同时请求浏览器全屏；
  * 右上角留一个退出按钮，Esc 也退出。_fullscreen 可以双向绑定。浏览器不让全屏时（如 iframe 没有 allow="fullscreen"）照样隐藏这两块。
@@ -40,7 +40,6 @@ import { cloneVNode, isVNode, onBeforeUnmount, useId, watch, type VNodeChild } f
 import { useMessages } from '../config/lang/messages';
 import { patternsMessages } from './messages';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
-import { visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { NavCompactContext } from '../navigation/NavList';
 import { SkipLink } from '../navigation/SkipLink';
@@ -178,7 +177,7 @@ const rail = {
 /**
  * AppShell 的配方（createUi / Provider 的 components.AppShell 按它定制）：root、header、menuButton（窄屏打开抽屉）、brand、nav、
  * headerContent、headerMain（header 的内容）、fullscreenButton、fullscreenExit、body（侧栏、正文、右栏的栅格）、sidebar、
- * sidebarScroll、sidebarContent、collapseBar、collapseButton、column（正文与页脚）、main、footer、aside、asideScroll、
+ * sidebarScroll、sidebarContent、collapseButton（品牌格里收起、展开侧栏）、column（正文与页脚）、main、footer、aside、asideScroll、
  * asideContent、drawer。有没有侧栏与右栏、收起、全屏按布局变，叠在部件层之后（appShellStateStyles）
  */
 export const appShellRecipe = css.recipe({
@@ -197,7 +196,6 @@ export const appShellRecipe = css.recipe({
     'sidebar',
     'sidebarScroll',
     'sidebarContent',
-    'collapseBar',
     'collapseButton',
     'column',
     'main',
@@ -267,14 +265,11 @@ export const appShellRecipe = css.recipe({
     // 侧栏里的滚动区域：浮层滚动条；内边距放在内容层上，滚动条贴着侧栏边缘
     sidebarScroll: { height: '_full' },
     sidebarContent: { paddingBlock: '_xl', paddingInline: '_md' },
-    collapseBar: {
-      display: 'flex',
-      justifyContent: 'flex-end',
+    // 收起、展开侧栏的按钮：在品牌格的结束边，只在侧栏常驻的宽屏显示（窄屏时侧栏在抽屉里）
+    collapseButton: {
+      display: { default: 'none', [breakpoints.lg]: 'inline-flex' },
       flexShrink: 0,
-      padding: '_sm',
-      borderBlockStartWidth: '_xs',
-      borderBlockStartStyle: 'solid',
-      borderBlockStartColor: '_borderMuted',
+      marginInlineStart: 'auto',
     },
     // 正文那一列：正文、页脚上下排，页脚在内容少时也贴着底部
     column: { display: 'flex', flexDirection: 'column', minWidth: 0 },
@@ -322,7 +317,11 @@ export const appShellStateStyles = css.create({
     borderInlineEndStyle: { default: null, [breakpoints.lg]: 'solid' },
     borderInlineEndColor: { default: null, [breakpoints.lg]: '_border' },
   },
-  // 侧栏收起成图标栏：栅格的第一列、品牌格都变窄，品牌只剩标志
+  // 收起后品牌格只有展开按钮：居中
+  collapseButtonCentered: { marginInlineEnd: 'auto' },
+  // 没写 brand、只放收起按钮的品牌格：窄屏时侧栏在抽屉里，这一格不显示
+  brandOnlyWide: { display: { default: 'none', [breakpoints.lg]: 'flex' } },
+  // 侧栏收起成图标栏：栅格的第一列、品牌格都变窄，品牌格只放展开按钮
   brandRailCollapsed: {
     width: { default: null, [breakpoints.lg]: RAIL_WIDTH },
     justifyContent: { default: null, [breakpoints.lg]: 'center' },
@@ -351,15 +350,8 @@ export const appShellStateStyles = css.create({
       [breakpoints.xl]: `${RAIL_WIDTH} minmax(0, 1fr) 14rem`,
     },
   },
-  // 有收起按钮的侧栏：滚动区域占满剩下的高度，按钮在最下面
-  sidebarColumn: {
-    display: { default: 'none', [breakpoints.lg]: 'flex' },
-    flexDirection: 'column',
-  },
-  sidebarScrollColumn: { flexGrow: 1, minHeight: 0, height: 'auto' },
   // 紧凑的侧栏：两边只留一点，图标居中
   sidebarContentCompact: { paddingInline: '_xs' },
-  collapseBarCollapsed: { justifyContent: 'center' },
   // 侧栏的滚动区域滚到头不带动页面
   railViewport: { overscrollBehavior: 'contain' },
   // 全屏时不显示：留在 DOM 里，退出后侧栏的滚动位置、展开的分组都还在
@@ -410,9 +402,11 @@ export const AppShell = _component(
     const mainId = `${useId()}-main`;
 
     const wide = useMediaQuery(WIDE_QUERY);
+    // 侧栏能收起：品牌格里有收起、展开按钮（没写 brand 时也给出品牌格放它）
+    const collapsible = () => hasContent(sidebar) && ui().options.sidebarCollapsible;
+    const brandCell = () => hasContent(brand) || collapsible();
     // 收起成图标栏只在宽屏（窄屏时侧栏在抽屉里，抽屉总是完整的）
-    const collapsed = () =>
-      hasContent(sidebar) && ui().options.sidebarCollapsible && sidebarCollapsed && wide.value;
+    const collapsed = () => collapsible() && sidebarCollapsed && wide.value;
     // 正文这一排有没有侧栏：全屏时没有
     const showSidebar = () => hasContent(sidebar) && !fullscreen;
     NavCompactContext.provide(collapsed);
@@ -477,18 +471,11 @@ export const AppShell = _component(
         : appShellStateStyles.withSidebar;
     }
 
-    function renderSidebar(s: AppShellParts, columned: boolean) {
+    function renderSidebar(s: AppShellParts) {
       return (
         <div
           {...mergeAttrs<'div'>(
-            {
-              ...s.sidebar,
-              sx: [
-                s.sidebar.sx,
-                columned && appShellStateStyles.sidebarColumn,
-                fullscreen && appShellStateStyles.hidden,
-              ],
-            },
+            { ...s.sidebar, sx: [s.sidebar.sx, fullscreen && appShellStateStyles.hidden] },
             propsSidebar,
           )}
         >
@@ -496,7 +483,6 @@ export const AppShell = _component(
             {...mergePartProps<ScrollAreaProps>(
               {
                 ...s.sidebarScroll,
-                sx: [s.sidebarScroll.sx, columned && appShellStateStyles.sidebarScrollColumn],
                 propsViewport: { sx: appShellStateStyles.railViewport },
                 propsContent: {
                   ...s.sidebarContent,
@@ -511,32 +497,28 @@ export const AppShell = _component(
           >
             {sidebar}
           </ScrollArea>
-          {columned && (
-            <div
-              {...mergeAttrs<'div'>({
-                ...s.collapseBar,
-                sx: [s.collapseBar.sx, collapsed() && appShellStateStyles.collapseBarCollapsed],
-              })}
-            >
-              <IconButton
-                {...mergePartProps<IconButtonProps>(
-                  {
-                    ...s.collapseButton,
-                    icon: sidebarCollapsed ? PanelLeftOpen : PanelLeftClose,
-                    size: 'sm',
-                    variant: 'ghost',
-                    propsIcon: { flipInRtl: true },
-                    'aria-label': sidebarCollapsed
-                      ? messages.sidebarExpand
-                      : messages.sidebarCollapse,
-                  },
-                  propsCollapse,
-                  { onClick: () => (sidebarCollapsed = !sidebarCollapsed) },
-                )}
-              />
-            </div>
-          )}
         </div>
+      );
+    }
+
+    /** 品牌格里收起、展开侧栏的按钮 */
+    function renderCollapseButton(s: AppShellParts) {
+      return (
+        <IconButton
+          {...mergePartProps<IconButtonProps>(
+            {
+              ...s.collapseButton,
+              sx: [s.collapseButton.sx, collapsed() && appShellStateStyles.collapseButtonCentered],
+              icon: sidebarCollapsed ? PanelLeftOpen : PanelLeftClose,
+              size: 'sm',
+              variant: 'ghost',
+              propsIcon: { flipInRtl: true },
+              'aria-label': sidebarCollapsed ? messages.sidebarExpand : messages.sidebarCollapse,
+            },
+            propsCollapse,
+            { onClick: () => (sidebarCollapsed = !sidebarCollapsed) },
+          )}
+        />
       );
     }
 
@@ -560,7 +542,7 @@ export const AppShell = _component(
                 ...s.header,
                 sx: [
                   s.header.sx,
-                  hasContent(brand) && hasContent(sidebar) && appShellStateStyles.headerWithBrand,
+                  brandCell() && hasContent(sidebar) && appShellStateStyles.headerWithBrand,
                   fullscreen && appShellStateStyles.hidden,
                 ],
               },
@@ -576,7 +558,7 @@ export const AppShell = _component(
                 )}
               />
             )}
-            {hasContent(brand) && (
+            {brandCell() && (
               <div
                 {...mergeAttrs<'div'>(
                   {
@@ -587,12 +569,14 @@ export const AppShell = _component(
                         appShellStateStyles.brandRail,
                         collapsed() && appShellStateStyles.brandRailCollapsed,
                       ],
+                      !hasContent(brand) && appShellStateStyles.brandOnlyWide,
                     ],
                   },
                   propsBrand,
                 )}
               >
-                {brand}
+                {!collapsed() && brand}
+                {collapsible() && renderCollapseButton(s)}
               </div>
             )}
             {hasContent(nav) && <div {...mergeAttrs<'div'>(s.nav, propsNav)}>{nav}</div>}
@@ -641,7 +625,7 @@ export const AppShell = _component(
             />
           )}
           <div {...mergeAttrs<'div'>({ ...s.body, sx: [s.body.sx, bodyColumns()] }, propsBody)}>
-            {hasContent(sidebar) && renderSidebar(s, options.sidebarCollapsible)}
+            {hasContent(sidebar) && renderSidebar(s)}
             <div {...mergeAttrs<'div'>(s.column)}>
               <main {...mergeAttrs<'main'>(s.main, propsMain, { id: mainId, tabindex: -1 })}>
                 {children}
@@ -722,7 +706,6 @@ const appShellBrandStyles = css.create({
 export const AppShellBrand = _component(
   ({ href, icon, logo, propsIcon, children, ...rest }: AppShellBrandProps) => {
     const router = useRouterLink();
-    const shell = AppShellContext.inject(null);
     return () => (
       <a
         {...mergeAttrs<'a'>(
@@ -743,8 +726,7 @@ export const AppShellBrand = _component(
               {...mergePartProps<IconProps>({ icon, sx: appShellBrandStyles.mark }, propsIcon)}
             />
           ))}
-        {/* 侧栏收起成图标栏时品牌格只放得下标志：产品名留给读屏（仍是链接的名称） */}
-        <span {...css.attrs(shell?.collapsed() && visuallyHiddenStyles.hidden)}>{children}</span>
+        {children}
       </a>
     );
   },
