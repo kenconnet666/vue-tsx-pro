@@ -25,8 +25,9 @@
   Steps 可点回的步骤、Checklist 的勾选圆圈、KanbanBoard 的拖动把手悬停同幽灵按钮；Upload 照片墙上的把手、重试、移除叠状态层；
   ColorField、ColorPicker 的色块悬停略微放大（共用的 `swatchStyles.interactive`）；能看大图的 Image 悬停略微压暗；
   Carousel 的页点悬停加深；Splitter 的收起按钮恢复描边按钮的悬停。
-- FilterBar（QueryTable 的查询栏）：查询按钮与 end（工具栏按钮）之间不再有竖线；收起的条件连同常用条件一起显示、
-  总排数不变时直接显示，不出“展开”（展开只有多出一排时才有）；第二排起的条件列宽与第一排的每格相同、上下对齐。
+- FilterBar（QueryTable 的查询栏）：查询按钮与 end（工具栏按钮）之间不再有竖线；默认只显示一排——按钮区旁边放得下的条件
+  （常用的在前、more 在后），其余的（包括放不下的常用条件）都收进“展开”，全部放得下时不出“展开”；展开的几排列宽与第一排的每格相同、上下对齐。
+- 横排的 RadioGroup、CheckboxGroup 至少与单行控件一样高、内容竖直居中：和输入框、选择框放在同一排时文字在一条线上。
 - AppShell 的 sidebarCollapsible：收起、展开按钮挪到顶栏品牌格的结束边（原来在侧栏底部单独一行，`collapseBar` 部件删掉）；
   收起后品牌格只放展开按钮、不放品牌；没写 brand 时也有这一格放按钮。AppShellBrand 不再按收起状态隐藏产品名。
 

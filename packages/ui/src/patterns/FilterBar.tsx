@@ -6,10 +6,10 @@
  *     <Field label="任务类别"><Select … /></Field>
  *   </FilterBar>
  *
- * 第一排：start（QueryTable 的标题）、常用的条件、按钮区。按钮全在这一排的结束边，宽度随按钮；按剩下的宽度量出放得下几个条件
- * （每个不窄于 minFieldWidth），这几个铺满第一排，不留空。连 more 的条件一起都放得下时全部铺在第一排、不出“展开”
- * （展开只有多出一排时才有意义）；放不下的常用条件与展开的条件（more）一起从第二排起，列宽与第一排的每格相同、上下对齐；
- * more 收起时不渲染。窄到第一排一个条件也放不下时，条件在上、按钮区整体换到下面一行。
+ * 默认只显示一排：start（QueryTable 的标题）、条件、按钮区。按钮全在这一排的结束边，宽度随按钮；按剩下的宽度量出放得下几个条件
+ * （每个不窄于 minFieldWidth），常用条件在前、more 在后，放得下的铺满这一排；其余的（放不下的常用条件与 more）都收进“展开”，
+ * 展开后从第二排起，列宽与第一排的每格相同、上下对齐。全部放得下时不出“展开”。窄到一个条件也放不下时，
+ * 条件独占一排、按钮区换到下面一行，其余同样收进“展开”。
  * 按钮区依次是展开、高级筛选、actions、重置、查询，再是 end（QueryTable 的工具栏按钮）。
  * moreActive 是收起的条件里已经填了几项，显示在“展开”旁边，免得忘了还有条件生效。
  * 默认标签在起始边、宽度随文字（labelWidth 为 auto：控件紧跟着标签，不留空白；要几行对齐时写固定宽度）。在输入框里按回车就是查询（原生表单提交）。
@@ -67,9 +67,9 @@ export interface FilterBarProps extends PartProps<'form', FilterBarManaged>, Fil
   onReset?: () => void;
   /** 查询中：“查询”按钮显示加载中 */
   loading?: boolean;
-  /** 不常用的条件：默认收起，点“展开”才显示 */
+  /** 不常用的条件：排在常用条件后面，第一排放不下的点“展开”才显示 */
   more?: VNodeChild;
-  /** 是否展开了 more：父级写 _expanded={x} */
+  /** 是否展开了第一排放不下的条件：父级写 _expanded={x} */
   _expanded?: boolean;
   /** 收起的条件里已经填了几项：大于 0 时显示在“展开”旁边 */
   moreActive?: number;
@@ -77,7 +77,7 @@ export interface FilterBarProps extends PartProps<'form', FilterBarManaged>, Fil
   actions?: VNodeChild;
   /** 第一排起始边的内容：在条件前面（QueryTable 的标题） */
   start?: VNodeChild;
-  /** 按钮区最后的内容：在“查询”后面、隔一条竖线（QueryTable 的工具栏按钮） */
+  /** 按钮区最后的内容：在“查询”后面（QueryTable 的工具栏按钮） */
   end?: VNodeChild;
   /** start 右边那一列（第一排、展开的条件、高级筛选）的部件属性 */
   propsBody?: PartProps<'div'>;
@@ -242,36 +242,27 @@ function measure(
 }
 
 /**
- * 条件怎么排：第一排放几个（null 是一个也放不下：条件在上、按钮区换到下面一行），收起的条件要不要直接显示。
- * 第一排放得下 n 个：条件区 = 整排 - 按钮区 - 间距，n 格占 n × min + (n - 1) × gap。
- * 收起的条件连同常用条件一起排、去掉“展开”按钮后，总排数不比收起时多，就直接显示（展开只有多出一排时才有意义）
+ * 条件怎么排：默认只显示一排——按钮区旁边放得下几个就显示几个（常用条件在前、收起的在后），其余的都收进“展开”。
+ * 第一排放得下 n 个：条件区 = 整排 - 按钮区 - 间距，n 格占 n × min + (n - 1) × gap；一个也放不下时（first 为 null）
+ * 条件独占一排、按钮区换到下面一行。全部放得下时不出“展开”。cell 是第一排每格的宽度，展开的几排列宽跟它一样
  */
-function layoutFields(m: FilterBarMetrics, common: number, extra: number) {
+function layoutFields(m: FilterBarMetrics, total: number) {
   const fit = (actions: number) => {
     const n = Math.floor((m.row - actions) / (m.min + m.gap));
     return n > 0 ? n : null;
   };
-  // 一排排得下几格（每格宽 width）
-  const columns = (width: number) => Math.max(1, Math.floor((m.row + m.gap) / (width + m.gap)));
-  const rows = (count: number, first: number | null) => {
-    if (first == null) return Math.ceil(count / columns(m.min));
-    const inFirst = Math.min(count, first);
-    const width = (m.row - m.actions - m.gap - (inFirst - 1) * m.gap) / inFirst;
-    return 1 + Math.ceil((count - inFirst) / columns(width));
-  };
-  const withToggle = fit(m.actions);
+  // 条件独占一排时排得下几格
+  const alone = Math.max(1, Math.floor((m.row + m.gap) / (m.min + m.gap)));
   const bare = fit(m.actions - m.toggle);
-  const inline = extra > 0 && rows(common + extra, bare) <= rows(common, withToggle);
-  const first = inline ? bare : withToggle;
-  // 第一排每格的宽度（auto-fit：空列折叠，有几个条件就几格分条件区）：第二排起的列宽跟它一样
-  const count = inline ? common + extra : common;
-  const cells = first == null ? Math.min(count, columns(m.min)) : Math.min(count, first);
-  const area = first == null ? m.row : m.row - (inline ? m.actions - m.toggle : m.actions) - m.gap;
-  const cell = cells > 0 ? (area - (cells - 1) * m.gap) / cells : null;
-  return { inline, first, cell };
+  const toggle = bare == null ? alone < total : bare < total;
+  const first = toggle ? fit(m.actions) : bare;
+  const shown = Math.min(total, first ?? alone);
+  const area = first == null ? m.row : m.row - (toggle ? m.actions : m.actions - m.toggle) - m.gap;
+  const cell = shown > 0 ? (area - (shown - 1) * m.gap) / shown : null;
+  return { toggle, shown, cell };
 }
 
-/** 查询栏：筛选条件的栅格，查询、重置，不常用的条件可以展开收起 */
+/** 查询栏：默认一排条件与按钮，放不下的条件收进“展开”；查询、重置 */
 export const FilterBar = _component(
   ({
     onSearch,
@@ -355,13 +346,12 @@ export const FilterBar = _component(
       const common = childNodes(children);
       const extra = more != null ? childNodes(more) : [];
       // 量出来之前（服务端渲染、第一次渲染）常用条件都在第一排、收起的照旧收着
-      const layout = metrics && layoutFields(metrics, common.length, extra.length);
-      const inline = layout?.inline ?? false;
-      const fields = inline ? [...common, ...extra] : common;
-      const split =
-        layout?.first != null && layout.first < fields.length ? layout.first : fields.length;
-      const below = [...fields.slice(split), ...(!inline && expanded ? extra : [])];
-      const toggleShown = more != null && !inline;
+      const all = [...common, ...extra];
+      // 量出来之前（服务端渲染、第一次渲染）常用条件都在第一排、收起的收着
+      const layout = metrics && layoutFields(metrics, all.length);
+      const shown = layout?.shown ?? common.length;
+      const toggleShown = layout ? layout.toggle : extra.length > 0;
+      const below = toggleShown && expanded ? all.slice(shown) : [];
       return (
         <form
           {...mergeAttrs<'form'>(s.root, rest, {
@@ -395,7 +385,7 @@ export const FilterBar = _component(
                   propsFields,
                 )}
               >
-                {fields.slice(0, split)}
+                {all.slice(0, shown)}
               </div>
               <div
                 {...mergeAttrs<'div'>(s.actions, propsActions, {

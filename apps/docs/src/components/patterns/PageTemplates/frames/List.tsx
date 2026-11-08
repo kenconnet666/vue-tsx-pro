@@ -90,10 +90,8 @@ export default _component(() => {
         )}
         toolbar={
           <>
-            <Button size="sm" icon={Plus}>
-              新建采购单
-            </Button>
-            <Button size="sm" variant="outline" tone="neutral" icon={Download}>
+            <Button icon={Plus}>新建采购单</Button>
+            <Button variant="outline" tone="neutral" icon={Download}>
               导出
             </Button>
           </>

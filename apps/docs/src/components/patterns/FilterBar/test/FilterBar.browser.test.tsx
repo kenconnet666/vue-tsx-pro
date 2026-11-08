@@ -1,5 +1,5 @@
-// FilterBar 在真实浏览器里：第一排是 start、常用条件与全部按钮（查询后面接 end），按钮都在这一排的结束边；
-// 展开的条件从第二排起，左边、宽度和第一排的条件对齐；全部显示也不多出一排时直接显示、不出“展开”；
+// FilterBar 在真实浏览器里：默认只有一排——start、放得下的条件与全部按钮（查询后面接 end），按钮在结束边；
+// 放不下的条件（常用的与 more）收进“展开”，展开后从第二排起，左边、宽度和第一排的条件对齐；全部放得下时不出“展开”；
 // 窄到放不下时按钮区整体换到下一行
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Button, Field, TextField } from '@zerodep-dev/vue-tsx-pro-ui';
@@ -16,7 +16,7 @@ const fields = (names: string[]) =>
 
 const top = (element: Element) => Math.round(element.getBoundingClientRect().top);
 
-function render(width: string, more = ['采购员', '下单日期', '金额']) {
+function render(width: string, more = ['采购员', '下单日期', '金额'], common = ['关键字', '品类']) {
   const root = mount(
     _component(() => () => (
       <div style={`width: ${width}`}>
@@ -25,7 +25,7 @@ function render(width: string, more = ['采购员', '下单日期', '金额']) {
           more={fields(more)}
           end={<Button variant="outline">新建</Button>}
         >
-          {fields(['关键字', '品类'])}
+          {fields(common)}
         </FilterBar>
       </div>
     )),
@@ -50,27 +50,43 @@ it('第一排：标题、常用条件、展开、重置、查询、end 都在同
   expect(Math.abs(end)).toBeLessThan(1);
 });
 
-it('展开后更多的条件从第二排起，左边和第一排的条件对齐（不在标题下面）', async () => {
+it('展开后放不下的条件从第二排起，左边、宽度和第一排的条件对齐（不在标题下面）', async () => {
   const { button, label, find } = render('80rem');
+  await expect.poll(() => find('展开') != null).toBe(true);
+  // 收起时只有一排：最后一个条件还看不到
+  expect([...document.querySelectorAll('label')].some((item) => item.textContent === '金额')).toBe(
+    false,
+  );
   button('展开').click();
   await expect.poll(() => find('收起') != null).toBe(true);
-  await expect.poll(() => top(label('采购员')) > top(label('关键字'))).toBe(true);
-  const first = label('关键字').getBoundingClientRect().left;
-  expect(Math.abs(label('采购员').getBoundingClientRect().left - first)).toBeLessThan(2);
+  await expect.poll(() => top(label('金额')) > top(label('关键字'))).toBe(true);
   // 按钮仍在第一排
-  expect(top(button('查询'))).toBeLessThan(top(label('采购员')));
-  // 第二排的格子和第一排一样宽
-  // 栅格里的那一格（第一排的 fields、第二排起的 more）
-  const width = (name: string) =>
-    label(name).closest('[data-part="fields"] > *, [data-part="more"] > *')!.getBoundingClientRect()
-      .width;
-  await expect.poll(() => Math.abs(width('采购员') - width('关键字'))).toBeLessThan(2);
+  expect(top(button('查询'))).toBeLessThan(top(label('金额')));
+  // 栅格里的那一格（第一排的 fields、第二排起的 more）：左边对齐、一样宽
+  const cell = (name: string) =>
+    label(name)
+      .closest('[data-part="fields"] > *, [data-part="more"] > *')!
+      .getBoundingClientRect();
+  await expect.poll(() => Math.abs(cell('金额').width - cell('关键字').width)).toBeLessThan(2);
+  const rows = [
+    ...new Set(['关键字', '品类', '采购员', '下单日期', '金额'].map((n) => top(label(n)))),
+  ];
+  const lefts = ['关键字', '品类', '采购员', '下单日期', '金额']
+    .filter((n) => top(label(n)) === rows.at(-1))
+    .map((n) => cell(n).left);
+  expect(Math.abs(lefts[0]! - cell('关键字').left)).toBeLessThan(2);
 });
 
-it('收起的条件连同常用条件一起放得下、不多出一排时，直接显示，不出“展开”', async () => {
-  const { label, find } = render('120rem', ['采购员']);
-  await expect.poll(() => find('展开')).toBeUndefined();
-  expect(top(label('采购员'))).toBe(top(label('关键字')));
+it('常用条件第一排放不下的也收进“展开”：默认只有一排', async () => {
+  const names = ['关键字', '品类', '状态', '采购员', '部门', '项目'];
+  const { form, button, find } = render('60rem', [], names);
+  await expect.poll(() => find('展开') != null).toBe(true);
+  const inputs = () => [...form.querySelectorAll('input')];
+  const firstRow = top(inputs()[0]!);
+  expect(inputs().every((input) => top(input) === firstRow)).toBe(true);
+  expect(inputs().length).toBeLessThan(names.length);
+  button('展开').click();
+  await expect.poll(() => inputs().length).toBe(names.length);
 });
 
 it('窄到条件与按钮放不下一排时，按钮区整体换到下一行，按钮仍在一行', async () => {

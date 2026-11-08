@@ -21,14 +21,18 @@ export default _component(() => () => (
     imports="import { FilterBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';"
   >
     <Example id="tasks" title="项目任务的查询" demo={Tasks}>
-      条件是 Field。第一排是条件与全部按钮：按钮在结束边，按剩下的宽度量出放得下几个条件（每个不窄于{' '}
-      <Code>minFieldWidth</Code>，默认 14em），这几个铺满第一排；
-      {'放不下的与展开的条件从第二排起排成整行的栅格。比一格宽的条件（一排单选）包一层 '}
+      {'条件是 Field。默认只显示一排：按钮在结束边，按剩下的宽度量出放得下几个条件（每个不窄于 '}
+      <Code>minFieldWidth</Code>
+      {'，默认 14em），常用条件在前、'}
+      <Code>more</Code>
+      {
+        ' 在后，放得下的铺满这一排；其余的都收进“展开”，展开后从第二排起，列宽与第一排的每格相同。全部放得下时不出“展开”。比一格宽的条件（一排单选）包一层 '
+      }
       <Code>GridItem span={'{2}'}</Code> 跨两格。<Code>actions</Code> 是加在“重置”前面的按钮，
       <Code>end</Code> 接在“查询”后面（QueryTable 的工具栏按钮），
       <Code>start</Code> 在条件前面（标题）。标签默认在起始边、宽度随文字（
       <Code>labelWidth</Code> 默认 auto，控件紧跟着标签；条件多、要几行对齐时写固定宽度）。
-      <Code>more</Code> 是不常用的条件，默认收起；<Code>moreActive</Code>{' '}
+      <Code>moreActive</Code>{' '}
       是收起的条件里已经填了几项，显示在“展开”旁边，免得忘了还有条件生效。外层是{' '}
       <Code>role="search"</Code> 的表单：在输入框里按回车就是 <Code>onSearch</Code>，
       <Code>loading</Code> 时“查询”显示加载中。

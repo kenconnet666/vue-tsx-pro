@@ -28,8 +28,8 @@ export default _component(() => () => (
       <Code>query.search</Code>；“重置”回到 <Code>blankFilters</Code>
       （不写时是一开始的条件）并查询；
       <Code>moreFilters</Code>{' '}
-      是收起的条件。有查询栏时标题与工具栏并进查询栏的第一排，按钮都在这一排：起始边是{' '}
-      <Code>title</Code>（也是表格的名称），重置、查询后面隔一条竖线是 <Code>toolbar</Code>
+      是不常用的条件，排在常用条件后面，第一排放不下的收进“展开”。有查询栏时标题与工具栏并进查询栏的第一排，按钮都在这一排：起始边是{' '}
+      <Code>title</Code>（也是表格的名称），重置、查询后面是 <Code>toolbar</Code>
       （自己的按钮），结尾是刷新、行高、列设置（勾选显示、拖动排序、重置）与全屏。列标题带列菜单（固定、前后移动、隐藏），列宽可以拖动；
       <Code>persistKey</Code> 把列设置与行高记在浏览器里。<Code>selectionMode="multiple"</Code>{' '}
       时勾选后出现批量操作栏，
