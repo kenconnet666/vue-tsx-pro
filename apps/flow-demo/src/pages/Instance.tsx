@@ -1,5 +1,6 @@
 /**
- * 审批单：状态、单据的字段、进度图、流转记录与留言，最后是吸底的操作栏（认领、按结果处理、撤回）。
+ * 审批单：状态（有时限的标出还剩几天、超时）、单据的字段、会签各人的进度、上级与子流程、进度图、流转记录与留言，
+ * 最后是吸底的操作栏（认领、按结果处理、撤回）。
  * 审批面板是组合（照文档站“流程设计与审批”一页）：点处理按钮弹出写意见的对话框，“要写意见”的按钮意见必填
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -10,7 +11,9 @@ import {
   Descriptions,
   Flex,
   H1,
+  Link,
   Paragraph,
+  Small,
   Tab,
   TabList,
   TabPanel,
@@ -18,7 +21,12 @@ import {
   Timeline,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { Diagram } from '@zerodep-dev/vue-tsx-pro-ui/diagram';
-import { ActionBar, CommentThread, useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+import {
+  ActionBar,
+  CommentThread,
+  DeadlineBadge,
+  useFormDialog,
+} from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { ActionError } from '@zerodep-dev/vue-tsx-pro-kit';
 import { useRoute } from 'vue-router';
 import { actions, usePageData } from '../client.ts';
@@ -32,6 +40,15 @@ const EVENTS: Record<string, string> = {
   'workItem.completed': '处理',
   'instance.finished': '结束',
   'instance.withdrawn': '撤回',
+};
+
+/** 实例状态的文字（子流程的列表） */
+const STATUS: Record<string, string> = {
+  active: '进行中',
+  completed: '已完成',
+  terminated: '已终止',
+  withdrawn: '已撤回',
+  suspended: '已暂停',
 };
 
 /** 单据字段的值：对象写成 JSON，没填的是破折号 */
@@ -112,11 +129,22 @@ export default _component(() => {
             {active ? '审批中' : '已结束'}
           </Badge>
         </Flex>
-        <Paragraph data-testid="state">
-          {active
-            ? `进行中：${detail.current.map((c) => c.name).join('、')}`
-            : `已结束：${instance.result ?? instance.status}`}
-        </Paragraph>
+        <Flex gap="sm" align="center" wrap>
+          <Paragraph data-testid="state">
+            {active
+              ? `进行中：${detail.current.map((c) => c.name).join('、')}`
+              : `已结束：${instance.result ?? instance.status}`}
+          </Paragraph>
+          {active && detail.due && <DeadlineBadge due={detail.due} today={detail.today} />}
+        </Flex>
+        {detail.parent && (
+          <Paragraph>
+            上级审批单：
+            <Link href={`/instances/${detail.parent.id}`}>
+              {detail.parent.title ?? `审批单 ${detail.parent.id}`}
+            </Link>
+          </Paragraph>
+        )}
         <Descriptions
           columns="auto"
           items={(detail.definition.variables ?? []).map((variable) => ({
@@ -125,6 +153,37 @@ export default _component(() => {
             value: valueText(instance.variables[variable.name]),
           }))}
         />
+        {detail.signs.map((sign) => (
+          <Flex key={sign.node} gap="sm" align="center" wrap data-testid="countersign">
+            <Small tone="muted">{sign.node}</Small>
+            {sign.people.map((person) => (
+              <Badge
+                key={person.id}
+                variant="soft"
+                tone={
+                  person.outcome == null
+                    ? 'neutral'
+                    : person.outcome === '同意'
+                      ? 'success'
+                      : 'danger'
+                }
+              >
+                {person.name} ·{' '}
+                {person.outcome ?? (person.state === 'waiting' ? '排队中' : '待处理')}
+              </Badge>
+            ))}
+          </Flex>
+        ))}
+        {detail.children.length > 0 && (
+          <Flex gap="sm" align="center" wrap data-testid="children">
+            <Small tone="muted">子流程</Small>
+            {detail.children.map((child) => (
+              <Link key={child.id} href={`/instances/${child.id}`}>
+                {child.title ?? `审批单 ${child.id}`}（{STATUS[child.status] ?? child.status}）
+              </Link>
+            ))}
+          </Flex>
+        )}
         <Diagram
           nodes={view.nodes}
           edges={view.edges}

@@ -1,4 +1,4 @@
-/** 待办（首页）：等我处理的（收件箱里的可以认领）与我发起的 */
+/** 待办（首页）：等我处理的（收件箱里的可以认领，有时限的标出还剩几天、超时）与我发起的 */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Button,
@@ -10,6 +10,7 @@ import {
   Paragraph,
   Small,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { DeadlineBadge } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { actions, usePageData } from '../client.ts';
 
 /** 实例状态的文字 */
@@ -47,6 +48,7 @@ export default _component(() => {
                 {item.title ?? `审批单 ${item.instanceId}`}
               </Link>
               <Small>{item.node}</Small>
+              {item.due && <DeadlineBadge due={item.due} today={data.value?.today} />}
               {item.claimable && (
                 <Button
                   size="sm"

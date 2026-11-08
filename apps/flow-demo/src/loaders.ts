@@ -1,6 +1,7 @@
 /**
  * 页面的 loader（只在服务端导入）：待办、我发起的、能发起的流程、实例详情。页面里用 src/client.ts 的 usePageData 取
  */
+import { FlowInstance } from '@zerodep-dev/flow-ts-engine';
 import type { ProcessDefinition, VariableDeclaration } from '@zerodep-dev/flow-ts-model';
 import { defineLoaders } from '@zerodep-dev/vue-tsx-pro-kit';
 import { currentActor, USERS } from './server/context.ts';
@@ -8,6 +9,9 @@ import { engine } from './server/flow.ts';
 
 /** 流转记录里的人：示例的用户表里有名字的用名字 */
 const nameOf = (id: string | null) => (id ? (USERS[id]?.name ?? id) : '系统');
+
+/** 日期部分（YYYY-MM-DD，UTC）：时限标记按天算，服务端与浏览器用同一个“今天” */
+const dayOf = (date: Date) => date.toISOString().slice(0, 10);
 
 /** 节点的名字、按钮的名字（记录里存的是标识） */
 function namesOf(definition: ProcessDefinition) {
@@ -31,12 +35,14 @@ export const loaders = defineLoaders({
       engine.query.started(actor),
     ]);
     return {
+      today: dayOf(new Date()),
       todo: todo.map((item) => ({
         id: item.id,
         instanceId: item.instanceId,
         node: item.nodeName,
         title: item.title,
         claimable: item.assignee === null,
+        due: item.dueAt && dayOf(item.dueAt),
       })),
       started: started.map((i) => ({
         id: i.id,
@@ -79,6 +85,39 @@ export const loaders = defineLoaders({
         });
     }
     const names = namesOf(detail.definition);
+    // 会签：参与人各一份待办，列出每个人处理了没有、选了什么（只看最近一轮）
+    const multiNodes = detail.definition.nodes.filter((n) => n.type === 'task' && n.multi);
+    const signs = multiNodes
+      .map((node) => {
+        const items = detail.workItems.filter((w) => w.node === node.id);
+        const round = Math.max(0, ...items.map((w) => w.round));
+        return {
+          node: node.name,
+          people: items
+            .filter((w) => w.round === round && w.state !== 'canceled')
+            .map((w) => {
+              const done = detail.events.findLast(
+                (e) =>
+                  e.type === 'workItem.completed' && e.node === node.id && e.actor === w.assignee,
+              );
+              return {
+                id: w.id,
+                name: nameOf(w.assignee),
+                state: w.state,
+                outcome:
+                  w.state === 'done' && done?.outcome ? names.outcome(node.id, done.outcome) : null,
+              };
+            }),
+        };
+      })
+      .filter((sign) => sign.people.length > 0);
+    // 调用流程：上级实例与发起的子实例
+    const parentId = detail.instance.parentId;
+    const parent = parentId === null ? null : await engine.query.instance(parentId);
+    const children = await engine.db
+      .queryable(FlowInstance)
+      .where((i) => [i.parentId.eq(id)])
+      .toList();
     return {
       // 留言的相对时间按它算：服务端与浏览器一致
       now: Date.now(),
@@ -91,6 +130,21 @@ export const loaders = defineLoaders({
         variables: detail.instance.variables,
       },
       current: detail.current,
+      today: dayOf(new Date()),
+      // 正在处理的待办的时限（同一节点取最早的）
+      due:
+        detail.workItems
+          .filter((w) => w.state === 'open' && w.dueAt)
+          .map((w) => dayOf(w.dueAt!))
+          .sort()[0] ?? null,
+      signs,
+      parent: parent && { id: parent.instance.id, title: parent.instance.title },
+      children: children.map((child) => ({
+        id: child.id,
+        title: child.title,
+        status: child.status,
+        result: child.result,
+      })),
       definition: detail.definition,
       // 走过的节点与连线：流转记录里离开过的
       done: [

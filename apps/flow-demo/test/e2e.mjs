@@ -1,6 +1,8 @@
 /**
  * 端到端测试（ROADMAP 14.9）：对构建产物跑一遍审批——申请人发起 5 天的请假，经理同意，人事备案，结束；
- * 再发起一张 1 天的，经理退回、申请人重新提交后直接回到经理；管理员在设计器里用模板、试运行、发布，申请人马上能发起。按页面的模式跑一遍，整站浏览器渲染（RENDER_MODE=csr）再跑一遍。
+ * 再发起一张 1 天的，经理退回、申请人重新提交后直接回到经理；管理员在设计器里用模板、试运行、发布，申请人马上能发起；
+ * 8 万的采购：经理的待办标着时限，同意后经理与人事会签，都同意后调用“供应商核实”子流程，人事核实后采购单结束。
+ * 按页面的模式跑一遍，整站浏览器渲染（RENDER_MODE=csr）再跑一遍。
  *
  *   pnpm build && node test/e2e.mjs
  */
@@ -50,6 +52,8 @@ async function run(mode) {
   const state = () => page.getByTestId('state');
   /** 审批单上按一个处理按钮：弹出的对话框里写意见（可以不写）再确认 */
   const handle = async (name, comment) => {
+    // 上一次的对话框可能还在关闭的动画里（同名的确认按钮还在）：等它关掉
+    await page.getByRole('dialog').waitFor({ state: 'hidden' });
     await page.getByRole('button', { name, exact: true }).click();
     const dialog = page.getByRole('dialog');
     if (comment) await dialog.getByRole('textbox', { name: '意见' }).fill(comment);
@@ -120,6 +124,48 @@ async function run(mode) {
     // 我发起的：两张，一张完成
     await signIn('alice', '/');
     await page.getByRole('list', { name: '我发起的' }).getByText('已完成').waitFor();
+
+    // 采购 8 万：经理审批限时一天，待办上有时限标记
+    await signIn('alice', '/start');
+    // 报销、供应商核实也有“金额”“供应商”：在采购的表单里填
+    const form = page
+      .locator('form')
+      .filter({ has: page.getByRole('button', { name: '发起采购' }) });
+    await form.getByRole('textbox', { name: '物品' }).fill('服务器');
+    await form.getByRole('spinbutton', { name: '金额' }).fill('80000');
+    await form.getByRole('textbox', { name: '供应商' }).fill('远山精密');
+    await form.getByRole('button', { name: '发起采购' }).click();
+    await state().getByText('进行中：经理审批').waitFor();
+    const order = page.url().split('/').pop();
+    await signIn('bob', '/');
+    const todoItem = page
+      .getByRole('list', { name: '待办列表' })
+      .getByRole('listitem')
+      .filter({ hasText: '采购：服务器' });
+    await todoItem.getByTitle(/^截止 /).waitFor();
+    // 超过 5 万：经理同意后经理与人事会签，各一份
+    await todoItem.getByRole('link').click();
+    await handle('同意');
+    await state().getByText('进行中：经理与人事会签').waitFor();
+    const countersign = page.getByTestId('countersign');
+    await countersign.getByText('周启航 · 待处理').waitFor();
+    await handle('同意');
+    await countersign.getByText('周启航 · 同意').waitFor();
+    await countersign.getByText('沈若水 · 待处理').waitFor();
+    // 人事也同意：会签通过，调用“供应商核实”子流程
+    await signIn('carol', `/instances/${order}`);
+    await handle('同意');
+    await state().getByText('进行中：供应商核实').waitFor();
+    await page
+      .getByTestId('children')
+      .getByRole('link', { name: /核实供应商：远山精密/ })
+      .click();
+    await page.getByRole('link', { name: '采购：服务器（¥80000）' }).waitFor();
+    await handle('资质齐全');
+    await state().getByText('已结束：approved').waitFor();
+    // 子流程结束，采购单跟着结束
+    await page.getByRole('link', { name: '采购：服务器（¥80000）' }).click();
+    await state().getByText('已结束：approved').waitFor();
 
     assert.deepEqual(problems, [], `${mode}：没有报错与水合警告`);
     console.log(`${mode}：通过`);
