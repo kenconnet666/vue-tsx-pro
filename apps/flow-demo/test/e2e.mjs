@@ -75,7 +75,7 @@ async function run(mode) {
 
     // 经理在待办里看到、同意（收件箱里的待办直接处理等于先认领）
     await signIn('bob', '/');
-    await page.getByRole('list', { name: '待办列表' }).getByText('请假：回老家（5 天）').click();
+    await page.getByRole('list', { name: '待办' }).getByText('请假：回老家（5 天）').click();
     await handle('同意');
     await state().getByText('进行中：人事备案').waitFor();
 
@@ -122,8 +122,9 @@ async function run(mode) {
     await signIn('alice', '/design');
     await page.getByText('没有权限打开这一页').waitFor();
 
-    // 我发起的：两张，一张完成
+    // 我发起的（工作台的页签）：两张，一张完成
     await signIn('alice', '/');
+    await page.getByRole('tab', { name: '我发起的' }).click();
     await page.getByRole('list', { name: '我发起的' }).getByText('已完成').waitFor();
 
     // 采购 8 万：经理审批限时一天，待办上有时限标记
@@ -151,7 +152,7 @@ async function run(mode) {
     await page.getByText('抄送 · 给 沈若水').waitFor();
     await signIn('bob', '/');
     const todoItem = page
-      .getByRole('list', { name: '待办列表' })
+      .getByRole('list', { name: '待办' })
       .getByRole('listitem')
       .filter({ hasText: '采购：服务器' });
     await todoItem.getByTitle(/^截止 /).waitFor();
@@ -179,6 +180,28 @@ async function run(mode) {
     await countersign.getByText('管理员 · 同意').waitFor();
     await countersign.getByText('沈若水 · 待处理').waitFor();
     // 人事也同意：会签通过，调用“供应商核实”子流程
+    // 人事的工作台：抄送我的有一条未读，打开审批单后就不是未读了
+    await signIn('carol', '/');
+    await page.getByRole('tab', { name: /抄送我的/ }).click();
+    const ccList = page.getByRole('list', { name: '抄送' });
+    await ccList.getByText('未读').waitFor();
+    await ccList.getByRole('link', { name: /采购：服务器/ }).click();
+    await state().waitFor();
+    await signIn('carol', '/');
+    await page.getByRole('tab', { name: /抄送我的/ }).click();
+    await page
+      .getByRole('list', { name: '抄送' })
+      .getByRole('link', { name: /采购：服务器/ })
+      .waitFor();
+    assert.equal(await page.getByRole('list', { name: '抄送' }).getByText('未读').count(), 0);
+    // 经理的已办：处理过的环节与选的结果
+    await signIn('bob', '/');
+    await page.getByRole('tab', { name: '已办' }).click();
+    await page
+      .getByRole('list', { name: '已办' })
+      .getByText(/经理审批 · 同意/)
+      .first()
+      .waitFor();
     await signIn('carol', `/instances/${order}`);
     await handle('同意');
     await state().getByText('进行中：供应商核实').waitFor();

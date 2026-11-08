@@ -33,6 +33,7 @@
 - useFormDialog 的 select 字段可以 `multiple`：值是选中的数组；字段写成字面量时结果按名字给出类型（`FormDialogValues`）。
 - 流程引擎：待办详情（query.workItem）多了 `transferable`（能不能转办）与 `returnTargets`（退回到运行时选的节点时能选哪些）；
   催办尊重环节的 `allow.remind: false`（点名催报 forbidden，催全部时跳过）。
+- 流程引擎：待办、已办的行（TodoItem）多了 `instanceStatus`、`completedAt`、`outcome`（已办里看得出选了什么、单子结束了没有）。
 - AppShell 的 sidebarCollapsible：收起、展开按钮挪到顶栏品牌格的结束边（原来在侧栏底部单独一行，`collapseBar` 部件删掉）；
   收起后品牌格只放展开按钮、不放品牌；没写 brand 时也有这一格放按钮。AppShellBrand 不再按收起状态隐藏产品名。
 

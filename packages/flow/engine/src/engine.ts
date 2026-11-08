@@ -63,6 +63,11 @@ export interface TodoItem extends WorkItemSummary {
   readonly processKey: string;
   readonly title: string | null;
   readonly summary: Readonly<Record<string, unknown>>;
+  /** 实例现在的状态：已办里看得出单子结束了没有 */
+  readonly instanceStatus: InstanceRow['status'];
+  /** 处理的时间与选的结果（已办；待办时为空） */
+  readonly completedAt: Date | null;
+  readonly outcome: string | null;
 }
 
 /** 待办详情：待办、实例、能选的结果，这个人能不能认领、能不能处理、能不能转办，退回时能选的节点 */
@@ -1332,7 +1337,10 @@ const todoColumns = (
   arrival: w.arrival,
   createdAt: w.createdAt,
   dueAt: w.dueAt,
+  completedAt: w.completedAt,
+  outcome: w.outcome,
   processKey: w.instance.processKey,
+  instanceStatus: w.instance.status,
   title: w.instance.title,
   definitionId: w.instance.definitionId,
   variables: w.instance.variables,

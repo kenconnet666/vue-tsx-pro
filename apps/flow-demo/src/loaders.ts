@@ -35,24 +35,62 @@ function namesOf(definition: ProcessDefinition) {
 }
 
 export const loaders = defineLoaders({
+  // 工作台：待办、已办、抄送我的、我发起的；流程名与结果的文字按各流程最新的定义
   '/': async () => {
     const actor = currentActor();
-    const [todo, started] = await Promise.all([
+    const [todo, done, cc, started, processes] = await Promise.all([
       engine.query.todo(actor),
+      engine.query.done(actor),
+      engine.query.cc(actor),
       engine.query.started(actor),
+      engine.query.processes(),
     ]);
+    const byKey = new Map(processes.map((p) => [p.key as string, p]));
+    const processName = (key: string) => byKey.get(key)?.name ?? key;
+    const outcomeLabel = (key: string, node: string, outcome: string) => {
+      const definition = byKey.get(key);
+      return definition ? namesOf(definition).outcome(node, outcome) : outcome;
+    };
     return {
       today: dayOf(new Date()),
+      processes: processes.map((p) => ({ value: p.key as string, label: p.name as string })),
       todo: todo.map((item) => ({
         id: item.id,
         instanceId: item.instanceId,
+        processKey: item.processKey,
+        process: processName(item.processKey),
         node: item.nodeName,
         title: item.title,
         claimable: item.assignee === null,
         due: item.dueAt && dayOf(item.dueAt),
       })),
+      done: done.map((item) => ({
+        id: item.id,
+        instanceId: item.instanceId,
+        processKey: item.processKey,
+        process: processName(item.processKey),
+        node: item.nodeName,
+        title: item.title,
+        outcome: item.outcome && outcomeLabel(item.processKey, item.node, item.outcome),
+        completedAt: item.completedAt?.toISOString() ?? null,
+        instanceStatus: item.instanceStatus,
+      })),
+      cc: cc.map((item) => ({
+        id: item.id,
+        instanceId: item.instanceId,
+        processKey: item.processKey,
+        process: processName(item.processKey),
+        title: item.title,
+        sender: item.sender ? nameOf(item.sender) : null,
+        message: item.message,
+        at: item.at.toISOString(),
+        unread: item.readAt === null,
+        status: item.status,
+      })),
       started: started.map((i) => ({
         id: i.id,
+        processKey: i.processKey,
+        process: processName(i.processKey),
         title: i.title,
         status: i.status,
         result: i.result,
@@ -73,6 +111,8 @@ export const loaders = defineLoaders({
   '/instances/:id': async ({ params }) => {
     const actor = currentActor();
     const id = Number(params['id']);
+    // 打开了就算看过：抄送给我的这张标成已读
+    await engine.readCc(id, actor);
     const detail = await engine.query.instance(id);
     const open = detail.workItems.filter((w) => w.state === 'open');
     const mine = [];
