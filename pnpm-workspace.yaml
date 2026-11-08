@@ -111,9 +111,11 @@ catalog:
   fake-indexeddb: 6.2.6
   # 文档站样式更新基准（/bench/style-updates）的对照组：同样的声明交给 Emotion
   '@emotion/css': 11.13.5
-  # 整个仓库只用 TypeScript 7（Go 原生版），跟 7.1 的 beta：类型检查、声明生成用 tsc；脚本与文档站的 API 表用它的
-  # typescript/sync、typescript/ast；语言服务（IDE、Claude Code 的 LSP 插件、语言服务 MCP）是 tsc --lsp
-  typescript: 7.1.0-beta
+  # 整个仓库只用 TypeScript 7（Go 原生版）：类型检查、声明生成用 tsc；脚本与文档站的 API 表用它的
+  # typescript/sync、typescript/ast；语言服务（IDE、Claude Code 的 LSP 插件、语言服务 MCP）是 tsc --lsp。
+  # 钉在 7.1 的每日构建（提交 e2bc2bc）：流程工作室在浏览器里用的 tsgo-wasm 2026.11.4 是同一个提交构建的，
+  # 升级时两边成对换（挑一个 typescript 每日版，找 gitHead 相同的 tsgo-wasm），7.1 正式版出来后换成正式版
+  typescript: 7.1.0-dev.20261104.1
   '@types/node': 24.19.2
   oxlint: 1.88.0
   oxlint-tsgolint: 7.0.2004
