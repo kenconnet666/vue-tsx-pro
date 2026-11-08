@@ -7,6 +7,8 @@ import {
   createFlowClient,
   flowEndpoint,
   FlowError,
+  flowHttpHandler,
+  httpTransport,
   portTransport,
   servePort,
   type Actor,
@@ -43,6 +45,49 @@ describe('客户端与端点', () => {
     assert.ok(detail.completable);
     await client.run({ type: 'complete', workItem: item.id, outcome: 'approve' });
     assert.deepEqual(await client.todo(), []);
+  });
+
+  it('经 HTTP：身份按请求头（会话）定，错误带代号与 HTTP 状态；不是调用的请求直接拒绝', async () => {
+    const { engine } = await createTestEngine();
+    await engine.publish(templates.leave());
+    const users: Record<string, Actor> = { alice, bob };
+    const endpoint = flowEndpoint<Request>(engine, {
+      actor: (request) => {
+        const user = users[request.headers.get('x-user') ?? ''];
+        if (!user) throw new FlowError('forbidden', '没有登录');
+        return user;
+      },
+    });
+    const handle = flowHttpHandler(endpoint);
+    const statuses: number[] = [];
+    // 不起真的服务器：fetch 直接交给处理函数，请求、响应照样是 Web 标准的对象
+    const send = async (url: RequestInfo | URL, init?: RequestInit) => {
+      const response = await handle(new Request(url, init));
+      statuses.push(response.status);
+      return response;
+    };
+    const as = (user: string) =>
+      createFlowClient(
+        httpTransport('http://flow.test/api/flow', { fetch: send, headers: { 'x-user': user } }),
+      );
+    await as('alice').run({
+      type: 'start',
+      process: 'leave',
+      variables: { days: 2, reason: '探亲' },
+    });
+    const [item] = await as('bob').todo();
+    assert.ok(item?.createdAt instanceof Date);
+    await as('bob').run({ type: 'complete', workItem: item.id, outcome: 'approve' });
+    await assert.rejects(
+      as('nobody').todo(),
+      (error) => error instanceof FlowError && error.code === 'forbidden',
+    );
+    assert.deepEqual(statuses, [200, 200, 200, 403]);
+    assert.equal((await handle(new Request('http://flow.test/api/flow'))).status, 405);
+    const bad = await handle(
+      new Request('http://flow.test/api/flow', { method: 'POST', body: '{"method":1}' }),
+    );
+    assert.equal(bad.status, 400);
   });
 
   it('接口层的权限：别人的单看不到，全部异常与重试只给管理员', async () => {

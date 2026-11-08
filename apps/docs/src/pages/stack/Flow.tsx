@@ -47,6 +47,52 @@ await engine.run({ type: 'complete', workItem: workItems[0].id, outcome: 'approv
 await engine.query.todo(carol);
 await engine.jobs.runDue();                   // 定时、时限、提醒、异步动作：定时调用`;
 
+const server = `// server/flow.ts（只在服务端）import pg from 'pg';
+import { postgres } from '@zerodep-dev/easy-query-ts-pg';
+import { createFlowEngine, flowEndpoint, flowHttpHandler } from '@zerodep-dev/flow-ts-engine';
+import { createOrgDirectory } from '@zerodep-dev/flow-ts-engine/org';
+import { createInvalidationHub, type KitModule } from '@zerodep-dev/vue-tsx-pro-kit/server';
+
+const adapter = postgres(new pg.Pool({ connectionString: process.env.DATABASE_URL }));
+// 组织目录：部门、角色、员工的表；有 HR 系统时定时 directory.sync(从 HR 拉的数据)
+export const directory = createOrgDirectory({ adapter, isAdmin: (e) => e.roles.includes('admin') });
+export const engine = createFlowEngine({
+  adapter,
+  org: directory.org,
+  extensions: { resolvers: directory.resolvers },
+});
+
+// 页面的调用：身份按会话定，页面传不进来
+const endpoint = flowEndpoint<Request>(engine, {
+  actor: async (request) => (await directory.actorOf(userOfSession(request))) ?? anonymous(),
+});
+export const handleFlow = flowHttpHandler(endpoint);
+
+// 数据变了推给浏览器：接到 kit 的失效推送上（createRenderer({ invalidation: hub })）
+export const hub = createInvalidationHub();
+endpoint.onChange(() => hub.publish(['flow']));
+
+// 到点的作业（时限、提醒、异步动作）：多实例部署时靠作业表上的抢占，不会重复做
+export const flowModule: KitModule = {
+  name: 'flow',
+  start: () => void setInterval(() => void engine.jobs.runDue().then((ran) => ran > 0 && endpoint.changed()), 10_000),
+};
+
+// server/api/flow.post.ts（Nitro 的路由）
+export default defineEventHandler((event) => handleFlow(toWebRequest(event)));`;
+
+const client = `// 页面：不导入引擎，只经客户端调用；与流程中心（Worker 里的引擎）同一套页面代码
+import { createFlowClient, httpTransport } from '@zerodep-dev/flow-ts-engine/client';
+import { listenInvalidation } from '@zerodep-dev/vue-tsx-pro-kit';
+
+export const flow = createFlowClient(
+  httpTransport('/api/flow', {
+    subscribe: (changed) => listenInvalidation((tags) => (!tags || tags.includes('flow')) && changed()),
+  }),
+);
+const todo = await flow.todo();
+await flow.run({ type: 'complete', workItem: todo[0].id, outcome: 'approve' });`;
+
 const define = `import { defineProcess, type OutcomeOf } from '@zerodep-dev/flow-ts-model';
 
 export const leave = defineProcess({
@@ -135,6 +181,17 @@ export default _component(() => () => (
       在内存库与假时钟上按步骤走一遍，返回走过的路、停在哪、等谁；设计器的“试运行”经接口调用它，与真实引擎同一套规则。
     </Paragraph>
     <CodeBlock title="试运行" code={simulate} lang="ts" />
+    <H2 id="server" size="xl" anchor>
+      服务端接入（kit + PostgreSQL）
+    </H2>
+    <Paragraph>
+      引擎、组织目录跑在服务端，库是 PostgreSQL；页面经 <Code>flow-ts-engine/client</Code>{' '}
+      的客户端调用，命令与查询都不带身份——身份由服务端的端点按会话定。端点只认列出的方法，实例详情只给经手的人与管理员看，全部异常与重试只给管理员。处理函数用
+      Web 标准的 Request / Response，Nitro、Hono、Bun 的路由里都能直接挂；“数据变了”接到 kit
+      的失效推送上，列表与待办数实时刷新。
+    </Paragraph>
+    <CodeBlock title="server/flow.ts" code={server} lang="ts" />
+    <CodeBlock title="client.ts" code={client} lang="ts" />
     <H2 id="designer" size="xl" anchor>
       流程图与设计器
     </H2>
