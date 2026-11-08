@@ -11,7 +11,7 @@
  */
 import { evaluateCondition, type ConditionReader } from './condition.ts';
 import type { FieldAccess, NodeFormAccess, ProcessDefinition } from './definition.ts';
-import { checkFieldValue, type ValueProblem } from './field-values.ts';
+import { checkFieldValue, type FieldTypeChecks, type ValueError } from './field-values.ts';
 import type { FieldDefinition, FormManifest } from './manifest.ts';
 import { isBlank } from './values.ts';
 
@@ -88,8 +88,8 @@ function stateOf(field: FieldDefinition, access: FieldAccess, read: ConditionRea
 export interface SubmissionError {
   /** 字段路径；明细表的列带行号：`lines[0].price` */
   readonly field: string;
-  /** `required`：必填没填 */
-  readonly code: 'required' | ValueProblem;
+  /** `required`：必填没填；其余同 ValueError 的 code（含注册的字段类型报的） */
+  readonly code: 'required' | ValueError['code'];
 }
 
 /** 合并的结果 */
@@ -117,6 +117,7 @@ export function mergeSubmission(
   states: ReadonlyMap<string, FieldState>,
   stored: Row,
   submitted: Row,
+  fieldTypes?: FieldTypeChecks,
 ): Submission {
   const values: Record<string, unknown> = {};
   const errors: SubmissionError[] = [];
@@ -125,7 +126,16 @@ export function mergeSubmission(
     // 能改的字段没有提交（键不在）时用存着的值：只提交改了的字段不会把别的清掉；要清空就明写 null
     const given = name in submitted ? submitted[name] : stored[name];
     if (field.type === 'list' && field.fields && state.visible) {
-      values[name] = mergeRows(name, field.fields, state, states, stored[name], given, errors);
+      values[name] = mergeRows(
+        name,
+        field.fields,
+        state,
+        states,
+        stored[name],
+        given,
+        errors,
+        fieldTypes,
+      );
     } else {
       values[name] = pick(state, stored[name], given);
     }
@@ -133,7 +143,11 @@ export function mergeSubmission(
     else if (state.editable) {
       // 明细表在这里只查行数，各个格子在 mergeRows 里按列的权限查
       const { fields: _columns, ...shape } = field;
-      for (const e of checkFieldValue(field.type === 'list' ? shape : field, values[name]))
+      for (const e of checkFieldValue(
+        field.type === 'list' ? shape : field,
+        values[name],
+        fieldTypes,
+      ))
         errors.push({ field: name + e.path, code: e.code });
     }
   }
@@ -148,6 +162,7 @@ function mergeRows(
   stored: unknown,
   submitted: unknown,
   errors: SubmissionError[],
+  fieldTypes: FieldTypeChecks | undefined,
 ): Row[] {
   const storedRows: readonly Row[] = Array.isArray(stored) ? stored : [];
   const submittedRows: readonly Row[] = Array.isArray(submitted) ? submitted : [];
@@ -160,7 +175,7 @@ function mergeRows(
       if (columnState.required && isBlank(row[column]))
         errors.push({ field: `${name}[${i}].${column}`, code: 'required' });
       else if (columnState.editable) {
-        for (const e of checkFieldValue(columns[column]!, row[column]))
+        for (const e of checkFieldValue(columns[column]!, row[column], fieldTypes))
           errors.push({ field: `${name}[${i}].${column}${e.path}`, code: e.code });
       }
     }

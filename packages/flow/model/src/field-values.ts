@@ -30,8 +30,18 @@ export type ValueProblem =
 export interface ValueError {
   /** 相对这个字段的路径：字段自己是 ''，明细表的格子是 `[0].price` */
   readonly path: string;
-  readonly code: ValueProblem;
+  /** 内置的问题，或接入方注册的字段类型报的代号（如 `currency`） */
+  readonly code: ValueProblem | (string & {});
 }
+
+/**
+ * 接入方注册的字段类型怎么查值：返回问题的代号（如 `currency`），没问题是空数组；空值不会交给它（必填另查）。
+ * 字段上自定的属性（如 money 的 `currencies`）从 field 上读
+ */
+export type FieldTypeCheck = (value: unknown, field: FieldDefinition) => readonly string[];
+
+/** 注册的字段类型：类型名 → 查值的函数 */
+export type FieldTypeChecks = Readonly<Record<string, FieldTypeCheck>>;
 
 /**
  * 值是强类型的字段类型在线上（json-wire）是哪一种：提交、下发的值由 wire 还原（decimal 是 Decimal、date 是 CalendarDate、
@@ -78,8 +88,12 @@ function range(value: unknown, field: FieldDefinition, errors: ValueError[], pat
     errors.push({ path, code: 'max' });
 }
 
-/** 一个值合不合这个字段；空值（null、空文字、空数组）不查，必填由调用方另查 */
-export function checkFieldValue(field: FieldDefinition, value: unknown): ValueError[] {
+/** 一个值合不合这个字段；空值（null、空文字、空数组）不查，必填由调用方另查。注册的字段类型按 fieldTypes 查 */
+export function checkFieldValue(
+  field: FieldDefinition,
+  value: unknown,
+  fieldTypes?: FieldTypeChecks,
+): ValueError[] {
   const errors: ValueError[] = [];
   if (isBlank(value)) return errors;
   const self = '';
@@ -179,6 +193,7 @@ export function checkFieldValue(field: FieldDefinition, value: unknown): ValueEr
           for (const error of checkFieldValue(
             definition,
             (row as Record<string, unknown>)[column],
+            fieldTypes,
           )) {
             errors.push({ path: `[${i}].${column}${error.path}`, code: error.code });
           }
@@ -187,7 +202,7 @@ export function checkFieldValue(field: FieldDefinition, value: unknown): ValueEr
       return errors;
     }
     default:
-      // 接入方注册的字段类型：由注册的实现查
-      return errors;
+      // 接入方注册的字段类型：由注册的实现查；没注册的不查（发布时清单校验已经拦下不认识的类型）
+      return (fieldTypes?.[field.type]?.(value, field) ?? []).map((code) => ({ path: self, code }));
   }
 }

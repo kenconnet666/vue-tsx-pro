@@ -24,6 +24,10 @@
 
 - 发起、处理时按清单校验值：类型与约束（`checkFieldValue`），必填与显示条件按环节的权限合算；不合格报 `invalid-input`，
   `details.errors` 列出字段与原因。
+- 发布时内联的清单也要合规（`validateManifest`）：清单有错同流程定义有错一样报 `invalid-definition`。
+- 接入方注册的字段类型：选项 `extensions.fieldTypes`（类型名 → 查值的函数，返回问题的代号，如 money 的 `currency`）。
+  发布时清单校验认得这些类型，发起、处理、暂存时按它查值；字段上自定的属性（money 的 `currencies`）由函数自己读。
+  前端照常用 SchemaForm 的 `fields` 换成自己的控件（Java 场景 field-type）。
 - 草稿：
   - 处理前暂存（`saveDraft`）：收件箱里的先认领给自己；只收这一步能改的字段、只查值不查必填；存在待办上（`draft` jsonb：值与意见），
     再打开时表单显示暂存的值；处理完清掉。只有处理人看得到。
@@ -42,5 +46,5 @@
 
 1. 模型与引擎：`defineForm` 换成清单、定义内联清单、发起与处理按清单校验、两种草稿（Java 场景 save-draft、start-draft）。
 2. 组件库 SchemaForm 的增强（条件、明细表、选项来源、人员与附件控件、页签、只读与打印）。
-3. flow-ts-ui：清单渲染、审批面板、流程图与环节面板搬进来，权限矩阵。
+3. flow-ts-ui：清单渲染、流程图与环节面板搬进来，权限矩阵。审批面板随第 5 批的审批单做：它跟着客户端与待办详情的形状走。
 4. 表单设计器（拖字段、改属性、实时预览，读写 form.ts 的清单）。

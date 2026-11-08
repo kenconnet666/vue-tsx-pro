@@ -72,3 +72,30 @@ describe('清单问题的说法', () => {
     assert.ok(messages.includes('“坏名字”的字段名要小写字母开头，只用字母和数字'));
   });
 });
+
+describe('注册的字段类型', () => {
+  it('没有内置规则的类型交给注册的函数查，明细表的列也是；没注册的不查', () => {
+    const money = {
+      label: '金额',
+      type: 'money',
+      currencies: ['CNY'],
+    } as unknown as FieldDefinition;
+    const fieldTypes = {
+      money: (value: unknown, field: FieldDefinition) =>
+        (field as unknown as { currencies: string[] }).currencies.includes(
+          (value as { currency: string }).currency,
+        )
+          ? []
+          : ['currency'],
+    };
+    assert.deepEqual(checkFieldValue(money, { amount: '1', currency: 'USD' }, fieldTypes), [
+      { path: '', code: 'currency' },
+    ]);
+    assert.deepEqual(checkFieldValue(money, { amount: '1', currency: 'CNY' }, fieldTypes), []);
+    assert.deepEqual(checkFieldValue(money, { amount: '1', currency: 'USD' }), []);
+    const list = { label: '明细', type: 'list', fields: { cost: money } } as FieldDefinition;
+    assert.deepEqual(checkFieldValue(list, [{ cost: { currency: 'JPY' } }], fieldTypes), [
+      { path: '[0].cost', code: 'currency' },
+    ]);
+  });
+});

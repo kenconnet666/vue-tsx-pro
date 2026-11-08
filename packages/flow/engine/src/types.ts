@@ -4,7 +4,7 @@
  * 发生了什么（on）
  */
 import type { Adapter } from '@zerodep-dev/easy-query-ts';
-import type { FlowProject } from '@zerodep-dev/flow-ts-model';
+import type { FieldTypeChecks, FlowProject } from '@zerodep-dev/flow-ts-model';
 import type { ASSIGNMENTS, INSTANCE_STATUSES } from './entities.ts';
 import type { WorkItemOperation } from './operations.ts';
 import type { HostModules, TransformCode } from './project.ts';
@@ -135,6 +135,11 @@ export interface FlowExtensions<V extends object = Variables> {
   readonly nodes?: Readonly<Record<string, CustomNode<V>>>;
   /** 自定义会签规则：键是定义里 `multi.complete` 写的名字 */
   readonly countersign?: Readonly<Record<string, CountersignRule>>;
+  /**
+   * 接入方注册的字段类型：键是清单里的 `type`，值查一个值合不合（返回问题的代号）。
+   * 发布时清单校验认得这些类型；发起、处理、暂存时按它查值
+   */
+  readonly fieldTypes?: FieldTypeChecks;
 }
 
 /** 流转记录（监听拿到的、实例详情里列的） */

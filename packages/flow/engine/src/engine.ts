@@ -18,6 +18,8 @@ import {
   formManifest,
   typedValue,
   type FieldState,
+  type FieldTypeChecks,
+  validateManifest,
   validateProcess,
   type AssigneeSource,
   type CallNode,
@@ -697,7 +699,13 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
               const editable = Object.fromEntries(
                 Object.entries(submitted).filter(([name]) => states.get(name)?.editable),
               );
-              const { errors } = submit(manifest, states, exec.variables, editable);
+              const { errors } = submit(
+                manifest,
+                states,
+                exec.variables,
+                editable,
+                options.extensions?.fieldTypes,
+              );
               throwFormErrors(
                 manifest,
                 errors.filter((e) => e.code !== 'required'),
@@ -957,7 +965,13 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     );
     if (declared.length > 0) {
       const states = fieldStates(manifest, { access: node.form, read: exec.read });
-      const { values, errors } = submit(manifest, states, exec.variables, submitted);
+      const { values, errors } = submit(
+        manifest,
+        states,
+        exec.variables,
+        submitted,
+        options.extensions?.fieldTypes,
+      );
       throwFormErrors(manifest, errors);
       exec.setVariables(values);
     }
@@ -1300,7 +1314,13 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       return key in submitted ? submitted[key] : stored[key];
     };
     const states = fieldStates(manifest, { access: start?.form, isStart: true, read });
-    const { values, errors } = submit(manifest, states, stored, submitted);
+    const { values, errors } = submit(
+      manifest,
+      states,
+      stored,
+      submitted,
+      options.extensions?.fieldTypes,
+    );
     throwFormErrors(manifest, required ? errors : errors.filter((e) => e.code !== 'required'));
     const others = Object.fromEntries(
       Object.entries(submitted).filter(([name]) => !(name in manifest)),
@@ -1557,9 +1577,16 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       ? await buildProject(project, options.transform, options.modules)
       : undefined;
     const definition = built?.definition ?? (input as ProcessDefinition);
+    const fieldTypes = options.extensions?.fieldTypes ?? {};
     const problems = [
       ...validateProcess(definition).filter((problem) => problem.severity === 'error'),
       ...logicProblems(definition, built?.linked.logic),
+      // 内联的单据：清单自己合不合规（注册的字段类型算认得的）
+      ...(definition.form?.manifest
+        ? validateManifest(definition.form.manifest, {
+            isFieldType: (type) => Object.hasOwn(fieldTypes, type),
+          })
+        : []),
     ];
     if (problems.length > 0) {
       throw new FlowError(
@@ -2191,6 +2218,7 @@ function submit(
   states: ReadonlyMap<string, FieldState>,
   stored: Readonly<Record<string, unknown>>,
   submitted: Readonly<Record<string, unknown>>,
+  fieldTypes: FieldTypeChecks | undefined,
 ) {
   const typed = (row: Readonly<Record<string, unknown>>) =>
     Object.fromEntries(
@@ -2199,7 +2227,7 @@ function submit(
         manifest[name] ? typedValue(manifest[name], value) : value,
       ]),
     );
-  const { errors } = mergeSubmission(manifest, states, typed(stored), typed(submitted));
+  const { errors } = mergeSubmission(manifest, states, typed(stored), typed(submitted), fieldTypes);
   const { values } = mergeSubmission(manifest, states, stored, submitted);
   return { values, errors };
 }

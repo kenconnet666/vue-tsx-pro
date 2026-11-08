@@ -99,7 +99,6 @@ const ERROR_CODES: Record<string, string> = {
 
 /** 整个不跑的场景：用到第一版不做的能力（docs/decisions/0001 第 2 节） */
 const SKIPPED: Record<string, string> = {
-  'field-type.json': '接入方注册的字段类型（money）随表单模块的组件部分做（ROADMAP 26.4）',
   'pick.json': '上一步选下一步的处理人（pick）还没做（ROADMAP 26.4）',
   'preview-skip-sign.json': '发起页预测下一步还没做（ROADMAP 26.4）',
   'purchase-form-rules.json': '按字段清单校验表单在表单模块里做（ROADMAP 14.8）',
@@ -242,6 +241,14 @@ function testExtensions() {
           : items.filter((i) => i.outcome === 'ok').length >= 2
             ? 'ok'
             : undefined,
+    },
+    // 带币种的金额：值是 { amount, currency }，币种要在字段的 currencies 里
+    fieldTypes: {
+      money: (value: unknown, field: { currencies?: readonly string[] }) => {
+        if (typeof value !== 'object' || value === null || Array.isArray(value)) return ['type'];
+        const { currency } = value as { currency?: unknown };
+        return field.currencies?.includes(String(currency)) ? [] : ['currency'];
+      },
     },
     guards: {
       budget: (context: { read(field: string): unknown }) =>
