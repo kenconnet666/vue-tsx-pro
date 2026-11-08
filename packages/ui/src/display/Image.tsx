@@ -20,6 +20,7 @@ import { Lightbox, type LightboxItem, type LightboxProps } from '../overlay/Ligh
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
 import { focusRingStyles, radiusStyles, type Radius } from '../utils/style/styles';
+import { t } from '../config/theme/tokens';
 
 /** object-fit 的取值 */
 export interface ImageFits {
@@ -82,11 +83,14 @@ export const imageStyles = css.create({
     color: '_textMuted',
   },
   // 可以预览：去掉按钮外观，指针变成放大镜
+  // 能看大图的：悬停时略微压暗（同 Ant Design 图片预览的遮罩），配合放大镜指针
   button: {
     padding: 0,
     borderWidth: 0,
     font: 'inherit',
     cursor: 'zoom-in',
+    filter: { default: 'none', _hover: 'brightness(0.9)' },
+    transition: `filter ${t.durations.sm} ${t.easings.standard}`,
   },
   image: { display: 'block', width: '100%', height: '100%' },
   // 加载完之前不显示（占位在扫光）；没写尺寸时仍占位，量得出图片大小

@@ -117,6 +117,8 @@ export const stepsStyles = css.create({
     gap: '_sm',
     borderRadius: '_sm',
     textAlign: 'start',
+    // 悬停同幽灵按钮：可以点回去的步骤一眼看得出
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
   },
   link: { color: 'inherit', textDecorationLine: 'none' },
   indicator: {

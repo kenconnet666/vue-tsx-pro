@@ -132,7 +132,14 @@ export const ColorField = _component(
       return (
         <ButtonBase
           {...mergePartProps<ButtonBaseProps>(
-            { sx: [swatchStyles.checkerboard, colorFieldStyles.swatch, focusRingStyles.visible] },
+            {
+              sx: [
+                swatchStyles.checkerboard,
+                swatchStyles.interactive,
+                colorFieldStyles.swatch,
+                focusRingStyles.visible,
+              ],
+            },
             propsSwatch,
             { ...props, disabled: state.disabled || state.readonly, 'aria-label': lang.colorPick },
           )}

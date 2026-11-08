@@ -184,7 +184,14 @@ const kanbanBoardStyles = css.create({
   },
   // 键盘拿起：高亮边框
   lifted: { borderColor: '_accent', boxShadow: '_md' },
-  handle: { color: '_textMuted', borderRadius: '_sm', padding: '_xxs', cursor: 'grab' },
+  // 拖动把手：悬停同幽灵按钮（底色、文字色加深）
+  handle: {
+    color: { default: '_textMuted', _hover: '_text' },
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
+    borderRadius: '_sm',
+    padding: '_xxs',
+    cursor: 'grab',
+  },
   empty: { color: '_textMuted', fontSize: '_xs', paddingBlock: '_sm', textAlign: 'center' },
   // 拖到别的列时的落点：卡片之间的一条线
   indicator: {

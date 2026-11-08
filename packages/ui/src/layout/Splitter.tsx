@@ -142,7 +142,13 @@ const splitterStyles = css.create({
     height: 'var(--splitter-line)',
   },
   // 收起、展开的小按钮压在线上：背景盖住线
-  toggle: { position: 'relative', zIndex: 1, backgroundColor: '_surface', cursor: 'pointer' },
+  // 收起按钮叠在分隔线上，要不透明的底遮住线；悬停换成同样不透明的填充色（原来的实底盖掉了描边按钮的悬停）
+  toggle: {
+    position: 'relative',
+    zIndex: 1,
+    backgroundColor: { default: '_surface', _hover: '_fillHover' },
+    cursor: 'pointer',
+  },
 });
 
 /** Splitter 的动态样式：两栏与分隔条的轨道 */

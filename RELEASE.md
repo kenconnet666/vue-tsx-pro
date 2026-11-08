@@ -21,6 +21,10 @@
 - 包的 homepage 指向文档站。
 - Link 的下划线平时是半透明的文字色，悬停时变成实色：一直带下划线的链接也有悬停反馈。
 - 横排的 TabList 放不下、可以横向滚动时，还能滚的那一头边缘渐隐（遮罩），被截断的标签不再生硬地切开。
+- 补齐悬停反馈（交互状态审计报出的）：Switch 的轨道悬停混进一点正文色（亮色变深、暗色变亮）；soft 外观的输入框、选择框悬停底色加深一档；
+  Steps 可点回的步骤、Checklist 的勾选圆圈、KanbanBoard 的拖动把手悬停同幽灵按钮；Upload 照片墙上的把手、重试、移除叠状态层；
+  ColorField、ColorPicker 的色块悬停略微放大（共用的 `swatchStyles.interactive`）；能看大图的 Image 悬停略微压暗；
+  Carousel 的页点悬停加深；Splitter 的收起按钮恢复描边按钮的悬停。
 
 ## 每次发布
 

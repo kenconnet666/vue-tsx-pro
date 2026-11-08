@@ -55,7 +55,7 @@ import { errorCodeText } from '../utils/request/error-message';
 import { Progress, type ProgressProps } from '../feedback/Progress';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { itemStyles } from '../utils/style/item-styles';
-import { focusRingStyles } from '../utils/style/styles';
+import { focusRingStyles, stateLayerStyles } from '../utils/style/styles';
 import { FileDrop, matchesAccept, type FileDropProps } from './FileDrop';
 import { GridList, type GridProps } from '../layout/Grid';
 import { t } from '../config/theme/tokens';
@@ -290,17 +290,21 @@ export const uploadRecipe = css.recipe({
       display: 'flex',
       gap: '_xxs',
     },
-    handle: {
-      display: 'grid',
-      placeItems: 'center',
-      width: '1.75em',
-      height: '1.75em',
-      borderRadius: '_sm',
-      color: '_text',
-      backgroundColor: translucentSurface,
-      cursor: { default: 'grab', _active: 'grabbing' },
-      touchAction: 'none',
-    },
+    // 拖动把手：半透明底，悬停叠状态层
+    handle: [
+      stateLayerStyles.overlay,
+      {
+        display: 'grid',
+        placeItems: 'center',
+        width: '1.75em',
+        height: '1.75em',
+        borderRadius: '_sm',
+        color: '_text',
+        backgroundColor: translucentSurface,
+        cursor: { default: 'grab', _active: 'grabbing' },
+        touchAction: 'none',
+      },
+    ],
   },
 });
 
@@ -317,8 +321,8 @@ const uploadStateStyles = css.create({
   cardError: { borderColor: '_danger' },
   // 选文件的那一格：同样大小，图标与文字居中
   addCard: { padding: '_xs', gap: '_xs', textAlign: 'center', fontSize: '_sm' },
-  // 图片墙上的重试、移除
-  onThumbnail: { backgroundColor: { default: translucentSurface, _hover: '_surface' } },
+  // 图片墙上的重试、移除：半透明底，悬停叠状态层（换成实底在图片上几乎看不出来）
+  onThumbnail: { backgroundColor: translucentSurface },
 });
 
 /** Upload 的动态样式：缩略图的边长 */
@@ -721,7 +725,7 @@ export const Upload = _component(
                       icon: RotateCw,
                       variant: 'ghost',
                       size: 'xs',
-                      sx: [s.retry.sx, uploadStateStyles.onThumbnail],
+                      sx: [s.retry.sx, uploadStateStyles.onThumbnail, stateLayerStyles.overlay],
                       'aria-label': lang.uploadRetry(item.name),
                     },
                     propsRetry,
@@ -736,7 +740,7 @@ export const Upload = _component(
                     icon: X,
                     variant: 'ghost',
                     size: 'xs',
-                    sx: [s.remove.sx, uploadStateStyles.onThumbnail],
+                    sx: [s.remove.sx, uploadStateStyles.onThumbnail, stateLayerStyles.overlay],
                     'aria-label': lang.uploadRemove(item.name),
                   },
                   propsRemove,

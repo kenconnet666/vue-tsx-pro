@@ -158,7 +158,12 @@ const swatch = (
     key={color}
     {...mergePartProps<ButtonBaseProps>(
       {
-        sx: [swatchStyles.checkerboard, colorPickerStyles.swatch, focusRingStyles.visible],
+        sx: [
+          swatchStyles.checkerboard,
+          swatchStyles.interactive,
+          colorPickerStyles.swatch,
+          focusRingStyles.visible,
+        ],
         ...pickerPart('swatch'),
       },
       part,

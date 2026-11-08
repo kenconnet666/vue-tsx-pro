@@ -73,12 +73,24 @@ export interface SwitchProps extends PartProps<'input', SwitchManaged> {
   children?: VNodeChild;
 }
 
-/** Switch 的样式：track、trackWide、trackOff、thumb、thumbOn、content、contentOn、contentOff、contentHidden、contentText、spinner */
+/** Switch 的样式：track、trackWide、trackOff、trackOn、thumb、thumbOn、content、contentOn、contentOff、contentHidden、contentText、spinner */
 export const switchStyles = css.create({
   track: { width: '2.25em', height: '1.25em', borderRadius: '_full', borderColor: 'transparent' },
   // 轨道里有文字：宽度随文字（两份文字叠在同一格里，取较宽的，切换时宽度不跳）
   trackWide: { width: '_full', minWidth: '2.25em' },
-  trackOff: { backgroundColor: '_borderStrong' },
+  // 悬停时轨道混进一点正文色：亮色里变深、暗色里变亮（同暗色主题实色按钮的悬停调亮）
+  trackOff: {
+    backgroundColor: {
+      default: '_borderStrong',
+      _hover: `color-mix(in oklab, ${t.colors.borderStrong} 85%, ${t.colors.text})`,
+    },
+  },
+  trackOn: {
+    backgroundColor: {
+      default: null,
+      _hover: `color-mix(in oklab, var(--tone-fill) 88%, ${t.colors.text})`,
+    },
+  },
   // 滑块靠起始边，打开后移到结束边：用逻辑方向的外边距，从右到左排版自动反过来
   thumb: {
     display: 'grid',
@@ -193,7 +205,9 @@ export const Switch = _component(
                     focusRingStyles.tight,
                     switchStyles.track,
                     wide && switchStyles.trackWide,
-                    checked ? choiceInputStyles.checked : switchStyles.trackOff,
+                    checked
+                      ? [choiceInputStyles.checked, switchStyles.trackOn]
+                      : switchStyles.trackOff,
                     state.invalid && choiceInputStyles.invalid,
                   ],
                 },

@@ -114,7 +114,8 @@ export const carouselStyles = css.create({
       width: '0.5em',
       height: '0.5em',
       borderRadius: '_full',
-      backgroundColor: '_borderStrong',
+      // 悬停时圆点加深：页点也是按钮
+      backgroundColor: { default: '_borderStrong', _hover: '_textMuted' },
       transition: `width ${t.durations.md} ${t.easings.standard}, background-color ${t.durations.md} ${t.easings.standard}`,
     },
   },

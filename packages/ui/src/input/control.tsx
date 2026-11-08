@@ -129,7 +129,9 @@ export const inputRecipe = css.recipe({
       soft: {
         root: {
           borderColor: { default: 'transparent', _hover: 'transparent' },
-          backgroundColor: '_fill',
+          // 没有描边可变：悬停时底色加深一档
+          backgroundColor: { default: '_fill', _hover: '_fillHover' },
+          transition: `background-color ${t.durations.sm} ${t.easings.standard}`,
         },
       },
     },

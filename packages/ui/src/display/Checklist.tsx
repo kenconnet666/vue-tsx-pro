@@ -149,7 +149,8 @@ export const checklistStyles = css.create({
     padding: 0,
     margin: 0,
     borderWidth: 0,
-    backgroundColor: 'transparent',
+    // 悬停同幽灵按钮：圆圈后面铺一层底色
+    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
     color: 'inherit',
     font: 'inherit',
     borderRadius: '_full',
