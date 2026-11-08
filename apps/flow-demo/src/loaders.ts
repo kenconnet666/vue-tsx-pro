@@ -138,7 +138,7 @@ export const loaders = defineLoaders({
           id: item.id,
           node: item.nodeName,
           claimable: view.claimable,
-          transferable: view.transferable,
+          transferable: view.operations.some((o) => o.name === 'transfer'),
           outcomes: view.outcomes.map((o) => ({
             key: o.key,
             label: o.label,

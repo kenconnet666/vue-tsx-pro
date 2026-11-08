@@ -20,7 +20,7 @@ import { candidateToken, expandToUsers, resolveCandidates, type Candidate } from
 import { FlowCc, FlowEvent, FlowInstance, FlowJob, FlowWorkItem, type FlowDb } from './entities.ts';
 import { FlowError } from './errors.ts';
 import type { FlowLogic } from './project.ts';
-import type { RunState } from './state.ts';
+import { emptyRunState, type RunState } from './state.ts';
 import type {
   Actor,
   ExtensionContext,
@@ -100,7 +100,8 @@ export class Execution {
     this.now = now;
     this.graph = processGraph(definition);
     this.variables = { ...instance.variables };
-    this.state = structuredClone(instance.state);
+    // 新加的字段在旧实例里没有：先铺上空的
+    this.state = { ...emptyRunState(), ...structuredClone(instance.state) };
     this.current = new Set(instance.current);
     this.status = instance.status;
     this.result = instance.result;
@@ -424,7 +425,9 @@ export class Execution {
     round: number,
     arrival: string,
     fields: Pick<WorkItemRow, 'assignee' | 'assignment' | 'state'> &
-      Partial<Pick<WorkItemRow, 'signGroup' | 'signSeq' | 'candidates'>>,
+      Partial<
+        Pick<WorkItemRow, 'signGroup' | 'signSeq' | 'candidates' | 'delegatedFrom' | 'parentItemId'>
+      >,
   ): Promise<WorkItemRow> {
     const values = {
       instanceId: this.instance.id,
@@ -441,6 +444,9 @@ export class Execution {
       outcome: null,
       comment: null,
       candidates: [],
+      delegatedFrom: null,
+      parentItemId: null,
+      pendingOutcome: null,
       ...fields,
     };
     const id = Number(await this.tx.insert(FlowWorkItem).values(values).returnId());

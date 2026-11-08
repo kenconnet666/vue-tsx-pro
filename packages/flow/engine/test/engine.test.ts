@@ -286,11 +286,23 @@ describe('engine: 待办详情与催办', () => {
     assert.deepEqual((await engine.query.workItem(item.id, alice)).returnTargets, []);
   });
 
-  it('能不能转办：收件箱里没认领的不能，认领后能；节点关掉了转办时不能', async () => {
+  it('能做的动作：收件箱里没认领的只能认领，认领后能转办、委托、加签、放回；节点关掉了转办时不给', async () => {
     const { engine, item } = await atLegal();
-    assert.equal((await engine.query.workItem(item.id, legal)).transferable, false);
+    const names = async (e: typeof engine, id: number) =>
+      (await e.query.workItem(id, legal)).operations.map((o) => o.name);
+    assert.deepEqual(await names(engine, item.id), ['claim']);
     await engine.run({ type: 'claim', workItem: item.id }, legal);
-    assert.equal((await engine.query.workItem(item.id, legal)).transferable, true);
+    assert.deepEqual(await names(engine, item.id), ['release', 'transfer', 'delegate', 'addSign']);
+    const transfer = (await engine.query.workItem(item.id, legal)).operations.find(
+      (o) => o.name === 'transfer',
+    );
+    assert.deepEqual(
+      transfer?.fields.map((f) => [f.name, f.type, f.required ?? false]),
+      [
+        ['to', 'user', true],
+        ['comment', 'textarea', false],
+      ],
+    );
     const closed = processOf('return-choose');
     const locked = {
       ...closed,
@@ -298,7 +310,7 @@ describe('engine: 待办详情与催办', () => {
     } as ProcessDefinition;
     const again = await atLegal(locked);
     await again.engine.run({ type: 'claim', workItem: again.item.id }, legal);
-    assert.equal((await again.engine.query.workItem(again.item.id, legal)).transferable, false);
+    assert.ok(!(await names(again.engine, again.item.id)).includes('transfer'));
   });
 
   it('催办：环节关掉了催办（allow.remind: false）时点名催它报错，催全部时跳过它', async () => {

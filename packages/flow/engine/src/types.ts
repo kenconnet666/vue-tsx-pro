@@ -5,6 +5,7 @@
  */
 import type { Adapter } from '@zerodep-dev/easy-query-ts';
 import type { FlowProject } from '@zerodep-dev/flow-ts-model';
+import type { WorkItemOperation } from './operations.ts';
 import type { HostModules, TransformCode } from './project.ts';
 
 /** 做事的人：编号与他的角色、部门（判断能不能认领收件箱里的待办）；admin 能做管理员的事 */
@@ -120,6 +121,8 @@ export type CheckTypes = (
 export interface FlowEngineOptions {
   /** easy-query 的 PostgreSQL 适配器（pg 连接池或 PGlite）：引擎在这个库里建自己的表 */
   readonly adapter: Adapter;
+  /** 待办上的动作：加自定义的，同名的覆盖内置的（operations.ts） */
+  readonly operations?: readonly WorkItemOperation[];
   /** 流程工程能 import 的宿主模块（组件库、zod、业务服务……）：模块名 → 导出或加载函数，带上声明给类型检查 */
   readonly modules?: HostModules;
   /** 流程工程的 TS / TSX 怎么编译：Node 里用 flow-ts-studio 的 compileInPlace，浏览器页面里传 Worker 编译 */
@@ -162,7 +165,14 @@ export type FlowCommand =
       readonly businessKey?: string;
       readonly title?: string;
     }
-  /** 认领收件箱里的待办 */
+  /** 待办上的动作（operations.ts）：认领、转办、委托、加签……；input 是动作要填的 */
+  | {
+      readonly type: 'operate';
+      readonly workItem: number;
+      readonly operation: string;
+      readonly input?: Readonly<Record<string, unknown>>;
+    }
+  /** 认领收件箱里的待办（operate 的简写） */
   | { readonly type: 'claim'; readonly workItem: number }
   /** 处理：选一个结果；退回到“运行时选”的节点时写 returnTo */
   | {
@@ -173,7 +183,7 @@ export type FlowCommand =
       readonly variables?: Readonly<Record<string, unknown>>;
       readonly returnTo?: string;
     }
-  /** 转办：交给另一个人处理 */
+  /** 转办：交给另一个人处理（operate 的简写） */
   | {
       readonly type: 'transfer';
       readonly workItem: number;
@@ -199,7 +209,7 @@ export type FlowCommand =
       readonly workItem?: number;
       readonly message?: string;
     }
-  /** 管理员改派、跳转、跳过失败的异步动作 */
+  /** 管理员改派（operate 的简写）、跳转、跳过失败的异步动作 */
   | {
       readonly type: 'reassign';
       readonly workItem: number;

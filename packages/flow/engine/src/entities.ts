@@ -71,7 +71,7 @@ export const FlowInstance = entity(
   },
 );
 
-/** 待办的状态：open 等人处理，waiting 依次会签还没轮到，done 处理了，canceled 不用处理了 */
+/** 待办的状态：open 等人处理，waiting 在等加签的人办完，done 处理了，canceled 不用处理了 */
 export const WORK_ITEM_STATES = ['open', 'waiting', 'done', 'canceled'] as const;
 
 /** 落到谁：pool 收件箱里等认领，claimed 认领了，direct 直接落到人 */
@@ -107,6 +107,12 @@ export const FlowWorkItem = entity(
     comment: col.string(2000).nullable(),
     /** 收件箱的候选标记；直接落到人的待办是空数组 */
     candidates: col.array(col.string(150)),
+    /** 委托：原来的处理人（委托给 assignee 办，办完交回给他）；没委托时为空 */
+    delegatedFrom: col.string(64).nullable(),
+    /** 加签：是哪一份待办加的签（arrival 是 addSign.before / after / parallel） */
+    parentItemId: col.bigint().nullable(),
+    /** 后加签：处理人选的结果先挂在这里，加签的人都办完才生效 */
+    pendingOutcome: col.string(100).nullable(),
   },
   {
     indexes: [
@@ -114,6 +120,7 @@ export const FlowWorkItem = entity(
       { columns: ['assignee'], where: "state = 'open'" },
       { columns: ['candidates'], using: 'gin', where: "state = 'open'" },
       { columns: ['completedBy'], where: "state = 'done'" },
+      { columns: ['parentItemId'], where: 'parent_item_id IS NOT NULL' },
     ],
   },
 );

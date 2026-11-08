@@ -22,6 +22,14 @@ export {
   type FlowDb,
 } from './entities.ts';
 export {
+  BUILTIN_OPERATIONS,
+  type OperationContext,
+  type OperationField,
+  type OperationScope,
+  type OperationView,
+  type WorkItemOperation,
+} from './operations.ts';
+export {
   buildProject,
   compileProject,
   defineLogic,

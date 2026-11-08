@@ -12,6 +12,8 @@ export interface RunState {
   returnedFrom: Record<string, string>;
   /** 依次会签还没轮到的人：会签组 → 处理人 */
   queues: Record<string, string[]>;
+  /** 后加签：待办编号 → 等他选了结果后再办的人 */
+  afterSigns: Record<string, string[]>;
 }
 
 /** 新实例的运行状态 */
@@ -21,4 +23,5 @@ export const emptyRunState = (): RunState => ({
   handledBy: {},
   returnedFrom: {},
   queues: {},
+  afterSigns: {},
 });

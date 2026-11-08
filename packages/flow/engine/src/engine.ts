@@ -48,6 +48,13 @@ import {
   type InstanceRow,
   type WorkItemRow,
 } from './execution.ts';
+import {
+  availableOperations,
+  openSigner,
+  operationsOf,
+  type OperationScope,
+  type OperationView,
+} from './operations.ts';
 import { buildProject, linkProject, type FlowLogic } from './project.ts';
 import { emptyRunState } from './state.ts';
 import type {
@@ -84,9 +91,10 @@ export interface WorkItemDetail {
   readonly instance: InstanceRow;
   readonly outcomes: readonly Outcome[];
   readonly claimable: boolean;
+  /** 能选结果处理：是候选人，待办开着，不在委托中（委托出去的由受托人办完交回） */
   readonly completable: boolean;
-  /** 能转办：落到自己（认领了或直接指定）或是管理员，节点没有关掉转办 */
-  readonly transferable: boolean;
+  /** 这个人此刻能做的动作（认领、转办、委托、加签……）与要填的 */
+  readonly operations: readonly OperationView[];
   /** 结果里有“退回到运行时选的节点”（target: 'choose'）时能选的节点：上游走到过的人工节点 */
   readonly returnTargets: readonly { readonly node: string; readonly name: string }[];
   /**
@@ -250,6 +258,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   const db = createDb({ schema: flowSchema, adapter: options.adapter });
   const now = () => options.clock?.() ?? new Date();
   const definitions = new Map<number, ProcessDefinition>();
+  const operations = operationsOf(options.operations);
   /** 版本 → 流程工程的逻辑（每个版本加载一次） */
   const logics = new Map<number, Promise<FlowLogic | undefined>>();
 
@@ -497,29 +506,78 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     }
   }
 
-  async function claim(
-    command: Extract<FlowCommand, { type: 'claim' }>,
+  /** 动作：重读待办、按 available 判断，再交给动作的 run（实例已锁住） */
+  async function operate(
+    command: Extract<FlowCommand, { type: 'operate' }>,
     actor: Actor,
+    original: FlowCommand = command,
   ): Promise<RunResult> {
-    const id = command.workItem;
+    const operation = operations.find((o) => o.name === command.operation);
+    if (!operation) {
+      throw new FlowError('invalid-input', `没有动作 ${command.operation}`, { field: 'operation' });
+    }
     return withInstance(
-      await instanceOfItem(id),
+      await instanceOfItem(command.workItem),
       actor,
       async (exec, tx) => {
-        const item = await openItem(exec, tx, id);
-        if (item.assignee) throw new FlowError('already-handled', `待办 ${id} 已经有人处理`);
-        if (!isCandidate(item, actor))
-          throw new FlowError('forbidden', `${actor.id} 不能认领待办 ${id}`);
-        await tx
-          .update(FlowWorkItem)
-          .set({ assignee: actor.id, assignment: 'claimed' })
-          .where((w) => [w.id.eq(id), w.state.eq('open'), w.assignee.isNull()])
-          .expectRows(1, () => new FlowError('already-handled', `待办 ${id} 被别人认领了`))
-          .execute();
-        exec.addEvent('workItem.claimed', { workItemId: id, node: item.node });
+        const item = await tx.queryable(FlowWorkItem).findOrThrow(command.workItem);
+        const scope = scopeOf(exec, item, actor, await itemsOf(tx, item.instanceId));
+        if (!operation.available(scope)) {
+          const code =
+            exec.status !== 'active'
+              ? 'instance-not-active'
+              : item.state !== 'open'
+                ? 'already-handled'
+                : (operation.refusal?.(scope) ?? 'forbidden');
+          throw new FlowError(code, `${actor.id} 现在不能对待办 ${item.id} ${operation.label}`);
+        }
+        await operation.run(
+          {
+            ...scope,
+            exec,
+            tx,
+            cancel: async (comment) => {
+              await tx
+                .update(FlowWorkItem)
+                .set({ state: 'canceled', completedAt: exec.now, completedBy: actor.id, comment })
+                .where((w) => [w.id.eq(item.id), w.state.eq('open')])
+                .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
+                .execute();
+            },
+            finish: (outcome, comment) =>
+              finishItem(exec, tx, item, scope.node, outcome, { actor: actor.id, comment }),
+          },
+          command.input ?? {},
+        );
       },
-      command,
+      original,
     );
+  }
+
+  /** 判断动作能不能做时看的：实例的样子取推进现场的（锁住后的） */
+  function scopeOf(
+    exec: Execution,
+    item: WorkItemRow,
+    actor: Actor,
+    items: readonly WorkItemRow[],
+  ): OperationScope {
+    return {
+      item,
+      node: exec.node(item.node) as TaskNode,
+      instance: { ...exec.instance, status: exec.status },
+      actor,
+      candidate: isCandidate(item, actor),
+      items,
+    };
+  }
+
+  /** 实例上的全部待办 */
+  function itemsOf(tx: FlowDb, instanceId: number): Promise<WorkItemRow[]> {
+    return tx
+      .queryable(FlowWorkItem)
+      .where((w) => w.instanceId.eq(instanceId))
+      .orderBy((w) => w.id)
+      .toList();
   }
 
   async function complete(
@@ -534,8 +592,14 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         if (!isCandidate(item, actor)) {
           throw new FlowError('forbidden', `${actor.id} 不能处理待办 ${item.id}`);
         }
+        if (item.delegatedFrom !== null) {
+          throw new FlowError(
+            'forbidden',
+            `待办 ${item.id} 是 ${item.delegatedFrom} 委托的，办完交回由他处理`,
+          );
+        }
         const node = exec.node(item.node) as TaskNode;
-        const outcome = node.outcomes.find((o) => o.key === command.outcome);
+        const outcome = outcomesFor(node, item).find((o) => o.key === command.outcome);
         if (!outcome) {
           throw new FlowError('invalid-input', `节点 ${node.name} 没有结果 ${command.outcome}`, {
             field: 'outcome',
@@ -578,6 +642,19 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     outcomeKey: string,
     by: { actor: string | null; comment: string | null; returnTo?: string | undefined },
   ): Promise<void> {
+    // 后加签：结果先挂着，等加签的人办完（signerDone）再生效
+    const after = exec.state.afterSigns[item.id];
+    if (after) {
+      delete exec.state.afterSigns[item.id];
+      await tx
+        .update(FlowWorkItem)
+        .set({ state: 'waiting', pendingOutcome: outcomeKey, comment: by.comment })
+        .where((w) => [w.id.eq(item.id), w.state.eq('open')])
+        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
+        .execute();
+      for (const user of after) await openSigner(exec, node, item, user, 'addSign.after');
+      return;
+    }
     await tx
       .update(FlowWorkItem)
       .set({
@@ -599,6 +676,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       actor: by.actor,
       data: { outcomeLabel: node.outcomes.find((o) => o.key === outcomeKey)?.label ?? outcomeKey },
     });
+    if (item.parentItemId !== null) return signerDone(exec, tx, item, node);
     if (by.actor) {
       exec.state.handledBy[node.id] = by.actor;
       exec.lastHandler = by.actor;
@@ -638,7 +716,38 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     await advanceFromTask(exec, node, decided, by.returnTo);
   }
 
-  /** 人工节点有了结果：按结果的种类往下走 */
+  /**
+   * 加签的人办完一份：同一份待办下的都办完了，前加签回到原来的处理人，后加签让挂着的结果生效——
+   * 加签的人里有选了非通过结果的，按第一个这样的结果走
+   */
+  async function signerDone(exec: Execution, tx: FlowDb, signer: WorkItemRow, node: TaskNode) {
+    const siblings = await tx
+      .queryable(FlowWorkItem)
+      .where((w) => w.parentItemId.eq(signer.parentItemId!))
+      .orderBy((w) => w.id)
+      .toList();
+    if (siblings.some((w) => w.state === 'open' || w.state === 'waiting')) return;
+    const parent = await tx.queryable(FlowWorkItem).findOrThrow(signer.parentItemId!);
+    if (parent.state !== 'waiting') return;
+    await tx
+      .update(FlowWorkItem)
+      .set({ state: 'open', pendingOutcome: null })
+      .where((w) => w.id.eq(parent.id))
+      .execute();
+    const reopened = { ...parent, state: 'open' as const, pendingOutcome: null };
+    if (parent.pendingOutcome === null) {
+      exec.addEvent('workItem.signReturned', { workItemId: parent.id, node: node.id });
+      return;
+    }
+    const kindOf = (key: string | null) =>
+      node.outcomes.find((o) => o.key === key)?.kind ?? 'approve';
+    const objection = siblings.find((w) => w.state === 'done' && kindOf(w.outcome) !== 'approve');
+    await finishItem(exec, tx, reopened, node, objection?.outcome ?? parent.pendingOutcome, {
+      actor: parent.assignee,
+      comment: parent.comment,
+    });
+  }
+
   /**
    * 处理时提交的变量：流程声明了变量时按环节的表单权限合并（只收能改的，必填的要有值，其余用存着的；0004 的 4.5），
    * 没声明的变量照旧直接写进去
@@ -727,50 +836,6 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     return exec.leave(node.id, key);
   }
 
-  async function transfer(
-    command: Extract<FlowCommand, { type: 'transfer' }>,
-    actor: Actor,
-  ): Promise<RunResult> {
-    return withInstance(
-      await instanceOfItem(command.workItem),
-      actor,
-      async (exec, tx) => {
-        const item = await openItem(exec, tx, command.workItem);
-        if (item.assignee !== actor.id && !actor.admin) {
-          throw new FlowError('forbidden', `${actor.id} 不能转办待办 ${item.id}`);
-        }
-        const node = exec.node(item.node) as TaskNode;
-        if (node.allow?.transfer === false)
-          throw new FlowError('forbidden', `节点 ${node.name} 不允许转办`);
-        await tx
-          .update(FlowWorkItem)
-          .set({
-            state: 'canceled',
-            completedAt: exec.now,
-            completedBy: actor.id,
-            comment: command.comment ?? null,
-          })
-          .where((w) => [w.id.eq(item.id), w.state.eq('open')])
-          .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
-          .execute();
-        await exec.insertItem(node, item.round, 'transfer', {
-          assignee: command.to,
-          assignment: 'direct',
-          state: 'open',
-          signGroup: item.signGroup,
-          signSeq: item.signSeq,
-        });
-        exec.addEvent('workItem.transferred', {
-          workItemId: item.id,
-          node: node.id,
-          comment: command.comment ?? null,
-          data: { to: command.to },
-        });
-      },
-      command,
-    );
-  }
-
   async function withdraw(
     command: Extract<FlowCommand, { type: 'withdraw' }>,
     actor: Actor,
@@ -811,47 +876,6 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         if (exec.finished)
           throw new FlowError('instance-not-active', `实例 ${command.instance} 已经结束`);
         await exec.finish('terminated', command.result ?? 'terminated');
-      },
-      command,
-    );
-  }
-
-  /** 管理员改派：把开着的待办交给另一个人 */
-  async function reassign(
-    command: Extract<FlowCommand, { type: 'reassign' }>,
-    actor: Actor,
-  ): Promise<RunResult> {
-    if (!actor.admin) throw new FlowError('forbidden', '只有管理员能改派');
-    return withInstance(
-      await instanceOfItem(command.workItem),
-      actor,
-      async (exec, tx) => {
-        const item = await openItem(exec, tx, command.workItem);
-        await tx
-          .update(FlowWorkItem)
-          .set({
-            state: 'canceled',
-            completedAt: exec.now,
-            completedBy: actor.id,
-            comment: command.comment ?? null,
-          })
-          .where((w) => [w.id.eq(item.id), w.state.eq('open')])
-          .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
-          .execute();
-        const node = exec.node(item.node) as TaskNode;
-        await exec.insertItem(node, item.round, 'reassign', {
-          assignee: command.to,
-          assignment: 'direct',
-          state: 'open',
-          signGroup: item.signGroup,
-          signSeq: item.signSeq,
-        });
-        exec.addEvent('workItem.reassigned', {
-          workItemId: item.id,
-          node: node.id,
-          comment: command.comment ?? null,
-          data: { to: command.to },
-        });
       },
       command,
     );
@@ -1018,12 +1042,28 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     switch (command.type) {
       case 'start':
         return start(command, actor);
+      case 'operate':
+        return operate(command, actor);
       case 'claim':
-        return claim(command, actor);
+        return operate(
+          { type: 'operate', workItem: command.workItem, operation: 'claim' },
+          actor,
+          command,
+        );
       case 'complete':
         return complete(command, actor);
       case 'transfer':
-        return transfer(command, actor);
+      case 'reassign':
+        return operate(
+          {
+            type: 'operate',
+            workItem: command.workItem,
+            operation: command.type,
+            input: { to: command.to, comment: command.comment },
+          },
+          actor,
+          command,
+        );
       case 'withdraw':
         return withdraw(command, actor);
       case 'terminate':
@@ -1033,8 +1073,6 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         return suspendOrResume(command, actor);
       case 'skipJob':
         return skipJob(command, actor);
-      case 'reassign':
-        return reassign(command, actor);
       case 'jump':
         return jump(command, actor);
       case 'remind':
@@ -1218,13 +1256,19 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       return {
         workItem,
         instance,
-        outcomes: task?.outcomes ?? [],
+        outcomes: task ? outcomesFor(task, workItem) : [],
         claimable: candidate && workItem.assignee === null,
-        completable: candidate,
-        transferable:
-          open &&
-          (workItem.assignee === actor.id || !!actor.admin) &&
-          task?.allow?.transfer !== false,
+        completable: candidate && workItem.delegatedFrom === null,
+        operations: task
+          ? availableOperations(operations, {
+              item: workItem,
+              node: task,
+              instance,
+              actor,
+              candidate: isCandidate(workItem, actor),
+              items: await itemsOf(db, instance.id),
+            })
+          : [],
         fields: fieldsOf(definition, task, instance.variables, candidate),
         returnTargets:
           candidate && chooses
@@ -1634,6 +1678,13 @@ function fieldsOf(
 }
 
 /** 候选匹配这个人 */
+/** 这份待办能选的结果：加签的人不能退回（退回由原来的处理人决定） */
+function outcomesFor(node: TaskNode, item: WorkItemRow): readonly Outcome[] {
+  return item.parentItemId === null
+    ? node.outcomes
+    : node.outcomes.filter((o) => (o.kind ?? 'approve') !== 'return');
+}
+
 /** 版本行 → 工程：只发布过定义的，工程里只有 process.json（去掉版本号） */
 function projectOf(row: {
   readonly model: ProcessDefinition;
