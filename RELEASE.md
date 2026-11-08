@@ -43,6 +43,8 @@
 - 更多部件属性：RadioGroup、CheckboxGroup 的 `propsItem`（按 items 生成的每一项，可以按项计算）、ColumnSettings 的 `propsCheckbox`、
   SelectedTags 的 `propsMore`（“+N”）、DatePicker 与 DateRangePicker 的 `propsPreset`（快捷选项按钮）、NavItem 的 `propsBadge`；
   FilterBar 的计数角标是 `count` 部件，NavBar 的计数、DataImport 的必填星号、CommandPalette 的快捷键提示、表头筛选的选项与“清除”带上标记。
+- 暗色主题的实色悬停改成调亮（原来调暗，在深色背景上看不出悬停）：dark 的 `accentHover` `#3758d4` → `#4a6ddf`，dark、midnight、ember、
+  cyberpunk 的 `dangerHover` `#a33b3e` → `#bd5356`，白字仍有 4.6:1。midnight 的品牌色、big-screen 的危险色白字已贴着 4.5:1，仍是调暗。
 - 输入法：NumberField 在组合中的 ↑ ↓（选候选）不再加减、Enter（上屏）不再提交；Select 的搜索框在组合中按退格不再删掉已选的项。
 - 列表行（Listbox、Tree、Cascader、NavList、Menu）的高亮、已选、当前、不可用改成跟着元素上的属性走（条件别名）：
   `itemStyles.highlighted / selected / current / disabled` 合成 `itemStyles.states`，元素写 `data-highlighted`、`aria-selected`、

@@ -869,6 +869,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] P2 文档站整改：~~信息架构（合并、挪动、旧地址重定向）~~（2026-11-07：组件页 137 → 119，新组“文档工具”，小图归图表组，
       3D 9 → 5 页，旧地址跳到新页的小节）、示例改用组件库（进行中：Stat、ScrollArea、DateTime、Splitter、Tabs、Card 外框、MapChart、ButtonBase、ThemeSwitcher、Menu 账户菜单与 NotificationCenter 顶栏（新组件 UserButton）、DateTime 倒计时（Countdown 的数字块）、Flex 自动换列（共用的示例图纸）已改）、逐页问题（进行中：QueryTable、FilterBar、Card、Code、Timeline、NavList、Flex、Icon、Tree、Upload、AppShell、Text、链接下划线已改；2026-11-08 把没逐页看过的图表、3D、表格、输入、日期 59 页巡检了一遍——没有报错与溢出，Select、Upload 两列挪齐）、~~文档站功能~~（~~组件选择指南~~、~~整页模板~~、~~示例工具~~、~~搜索~~、~~无障碍一节~~）
 - [ ] P2.5 逐个组件精修样式（随 P2 的页面顺序）
+      （2026-11-08 起：加了 `pnpm docs:states`（scripts/docs/states.mjs）——一个示例里的可交互元素各截默认、悬停、键盘焦点、按下，
+      排成一张表，亮暗各一张，精修时对照状态是否齐全一致。Button 页过了一遍：暗色主题的实色悬停原来调暗、看不出来，改成调亮）
 - [x] P3 组件补缺：~~ChoiceCard~~（单选、复选的 card）、~~ItemList 可选中的行~~、~~ColorPicker~~、~~ImageCropper~~、~~Carousel~~、~~Dialog 拖动~~、~~Tag 的 `selected`~~、~~`useInfiniteList`~~、
       ~~QRCode（自己写编码器）~~、~~省市区数据~~、~~Transfer 虚拟滚动~~（两侧本来就是 Listbox）、~~选文件夹~~、~~FloatButton 组~~、~~JsonViewer~~、~~SignaturePad~~、~~DataTable 横向虚拟化~~
 - [x] ~~P4 按 schema 生成表单（第一步）与 QueryTable 的查询条件~~（2026-11-08：SchemaForm / SchemaFields 按 useForm 的 schema
@@ -878,7 +880,7 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] P5 阶段 24（含 24.4 直接删旧写法）（2026-11-08：24.1 – 24.6 都做完，见阶段 24）
 - [x] ~~P6 `/testing` 测试辅助、桌面端 `create` 模板~~（2026-11-08：/testing 做了——Select、Cascader、TreeSelect、Tree、日期、DataTable 的 harness，
       文档站的 Testing 指南与 Cascader 的浏览器测试用上；`vtp-ui create` 的桌面后台模板也做了，进了 test:consumer）
-- [ ] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计（2026-11-08：达标矩阵做了——scripts/structure/matrix.mjs 进 pnpm check，
+- [x] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计（2026-11-08：达标矩阵做了——scripts/structure/matrix.mjs 进 pnpm check，
       新组件缺单元测试、文档、键盘一节、浏览器测试、类型测试时报错，已知缺项在 matrix-baseline.json，整张表见
       .claude/reports/matrix.md；按表逐个补。同日补到 107 → 23 个组件有缺项：文档、键盘一节、浏览器测试三列清零，
       31 个泛型组件有了类型测试，二十来个组件补了单元测试；剩下的多是内部拼装件（表格行、列头按钮、滚动条、ListboxView、
@@ -886,6 +888,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       结论与命名约定在 .claude/reports/api-audit.md）
       （2026-11-08 输入法测试补齐：原有 TagsInput、Combobox、Mentions，补 NumberField、Select、CommandPalette、DateField——
       顺手修了 NumberField 组合中的方向键会加减、Enter 会提交，Select 搜索框组合中的退格会删已选项；Textarea 没有自己的按键处理，不用测）
+      （收尾判断：矩阵里剩的 22 个缺项都留在基线里——内部拼装件（表格行、列头按钮、滚动条、ModalCore、ChartFrame……）由父组件的
+      测试覆盖；ImageCropper、SignaturePad、CodeEditor、MapChart 是画布、地图，happy-dom 没有画布，行为由文档站的浏览器测试覆盖）
 - [x] ~~P10 组件规格 JSON 给下游比对、下游问题用 GitHub issue 跟踪~~（2026-11-08：文档站构建时输出 /spec/components.json——全部组件的属性、
       默认值、可选值、事件、部件属性、部件标记、能否定制，CSharpUi、Blazor 的 CI 取线上这份比对；GitHub 建了 `parity` 标签跟踪下游报的问题。
       键盘行为还在文档页里，没进规格）

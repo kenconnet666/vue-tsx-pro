@@ -33,7 +33,7 @@ export const midnightColors = css.createTheme(colors, {
   accentSoftHover: '#003848',
   accentBorder: '#045468',
   danger: '#b54548',
-  dangerHover: '#a33b3e',
+  dangerHover: '#bd5356',
   dangerContrast: '#ffffff',
   dangerText: '#ff9592',
   dangerSoft: '#3b1219',

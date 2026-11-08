@@ -77,7 +77,7 @@ export const colors = css.defineVars('vtp-colors', {
 
   /** 品牌色实色：主按钮、选中的复选框。indigo 9：两套主题都是 `#3e63dd` */
   accent: '#3e63dd',
-  /** 品牌色实色悬停。亮色 indigo 10 `#3358d4`；暗色比实色更深一点 `#3758d4`（indigo 10 `#5472e4` 配白字只有 4.28:1） */
+  /** 品牌色实色悬停。亮色 indigo 10 `#3358d4`；暗色调亮到白字仍有 4.6:1 的 `#4a6ddf`（indigo 10 `#5472e4` 配白字只有 4.28:1；暗色里调暗看不出悬停） */
   accentHover: '#3358d4',
   /** 品牌色实色上的文字与图标。Radix 规定 indigo 9 上用白字：`#ffffff` */
   accentContrast: '#ffffff',
@@ -97,7 +97,7 @@ export const colors = css.defineVars('vtp-colors', {
    * red 9 配白字只有 3.91:1，所以亮色用 red 11 `#ce2c31`（5.21:1），暗色用 red 8 `#b54548`（5.37:1）
    */
   danger: '#ce2c31',
-  /** 危险实色悬停：比实色更深一点，白字才满足 4.5:1（red 10 只有 4.37:1）。亮色 `#b8272c`，暗色 `#a33b3e` */
+  /** 危险实色悬停：亮色比实色更深一点 `#b8272c`（red 10 配白字只有 4.37:1）；暗色调亮到白字仍有 4.6:1 的 `#bd5356`（暗色里调暗看不出悬停） */
   dangerHover: '#b8272c',
   /** 危险实色上的文字与图标：`#ffffff` */
   dangerContrast: '#ffffff',

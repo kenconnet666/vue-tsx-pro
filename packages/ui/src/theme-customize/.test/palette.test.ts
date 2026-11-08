@@ -57,7 +57,7 @@ const steps: Record<string, [string, string]> = {
 };
 
 /**
- * 为满足对比度而偏离色阶的取值（scripts/themes/check.mjs 校验）：危险色实色上的白字、悬停态比实色更深，
+ * 为满足对比度而偏离色阶的取值（scripts/themes/check.mjs 校验）：危险色实色上的白字、亮色的悬停态比实色更深，
  * 文字比 11 级深一点；状态实色的悬停与字色的对比度只升不降
  */
 const adjusted: [Record<string, string>, Record<string, string>] = [
@@ -82,8 +82,9 @@ const adjusted: [Record<string, string>, Record<string, string>] = [
   },
   {
     dangerContrast: '#ffffff',
-    accentHover: '#3758d4',
-    dangerHover: '#a33b3e',
+    // 暗色的实色悬停调亮（调暗在深色背景上看不出来），亮到白字仍有 4.6:1 为止
+    accentHover: '#4a6ddf',
+    dangerHover: '#bd5356',
     // 暗色的状态实色配深色字（页面背景色），悬停调亮
     successContrast: '#111113',
     successHover: '#52af7d',

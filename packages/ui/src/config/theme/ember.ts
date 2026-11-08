@@ -31,7 +31,7 @@ export const emberColors = css.createTheme(colors, {
   accentSoftHover: '#462100',
   accentBorder: '#7e451d',
   danger: '#b54548',
-  dangerHover: '#a33b3e',
+  dangerHover: '#bd5356',
   dangerContrast: '#ffffff',
   dangerText: '#ff9592',
   dangerSoft: '#3b1219',

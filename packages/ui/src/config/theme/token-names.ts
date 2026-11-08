@@ -96,7 +96,7 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
      */
     _accent: unknown;
     /**
-     * 品牌色实色悬停。亮色 indigo 10 `#3358d4`；暗色比实色更深一点 `#3758d4`（indigo 10 `#5472e4` 配白字只有 4.28:1）
+     * 品牌色实色悬停。亮色 indigo 10 `#3358d4`；暗色调亮到白字仍有 4.6:1 的 `#4a6ddf`（indigo 10 `#5472e4` 配白字只有 4.28:1；暗色里调暗看不出悬停）
      *
      * `colors.accentHover`
      */
@@ -139,7 +139,7 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
      */
     _danger: unknown;
     /**
-     * 危险实色悬停：比实色更深一点，白字才满足 4.5:1（red 10 只有 4.37:1）。亮色 `#b8272c`，暗色 `#a33b3e`
+     * 危险实色悬停：亮色比实色更深一点 `#b8272c`（red 10 配白字只有 4.37:1）；暗色调亮到白字仍有 4.6:1 的 `#bd5356`（暗色里调暗看不出悬停）
      *
      * `colors.dangerHover`
      */
@@ -575,7 +575,7 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
      */
     '_colors.accent': unknown;
     /**
-     * 品牌色实色悬停。亮色 indigo 10 `#3358d4`；暗色比实色更深一点 `#3758d4`（indigo 10 `#5472e4` 配白字只有 4.28:1）
+     * 品牌色实色悬停。亮色 indigo 10 `#3358d4`；暗色调亮到白字仍有 4.6:1 的 `#4a6ddf`（indigo 10 `#5472e4` 配白字只有 4.28:1；暗色里调暗看不出悬停）
      *
      * `colors.accentHover`
      */
@@ -618,7 +618,7 @@ declare module '@zerodep-dev/vue-tsx-pro-tsx/styles' {
      */
     '_colors.danger': unknown;
     /**
-     * 危险实色悬停：比实色更深一点，白字才满足 4.5:1（red 10 只有 4.37:1）。亮色 `#b8272c`，暗色 `#a33b3e`
+     * 危险实色悬停：亮色比实色更深一点 `#b8272c`（red 10 配白字只有 4.37:1）；暗色调亮到白字仍有 4.6:1 的 `#bd5356`（暗色里调暗看不出悬停）
      *
      * `colors.dangerHover`
      */
