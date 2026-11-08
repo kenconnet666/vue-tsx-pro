@@ -125,7 +125,7 @@ export const CopyButton = _component(
         {...mergeAttrs<'button'>(
           {
             ...buttonPart,
-            sx: buttonSx(appearance(), { disabled, square: true }),
+            sx: buttonSx(appearance(), { square: true }),
             'aria-label': label ?? lang.copy,
           },
           rest,

@@ -89,7 +89,7 @@ export const IconLinkButton = _component(
         {...mergeAttrs<'a'>(
           {
             ...buttonPart,
-            sx: buttonSx(appearance(), { disabled, square: true }),
+            sx: buttonSx(appearance(), { square: true }),
             ...(external && externalLinkAttrs),
           },
           rest,

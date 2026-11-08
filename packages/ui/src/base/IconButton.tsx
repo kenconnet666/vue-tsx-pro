@@ -84,7 +84,7 @@ export const IconButton = _component(
     return () => (
       <button
         {...mergeAttrs<'button'>(
-          { ...buttonPart, sx: buttonSx(appearance(), { disabled, square: true }), type },
+          { ...buttonPart, sx: buttonSx(appearance(), { square: true }), type },
           rest,
           { ...behavior(), 'aria-label': label },
         )}

@@ -547,8 +547,7 @@ export const DataTableRow = _component(
             sx: [
               s.row.sx,
               tone && dataTableRowToneStyles[tone],
-              selected && dataTableStateStyles.selected,
-              active && dataTableStateStyles.active,
+              dataTableStateStyles.rowStates,
               onRowClick && dataTableStateStyles.clickable,
             ],
           },

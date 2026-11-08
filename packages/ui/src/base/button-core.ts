@@ -102,13 +102,13 @@ export const buttonBaseStyles = css.create({
     lineHeight: 'inherit',
     textAlign: 'inherit',
     textDecoration: 'none',
-    cursor: 'pointer',
+    // 不可用（disabled、aria-disabled）跟着属性走
+    cursor: { default: 'pointer', _disabled: 'not-allowed' },
     userSelect: 'none',
     // 触摸时不等双击缩放的判定，点击立即响应
     touchAction: 'manipulation',
     WebkitTapHighlightColor: 'transparent',
   },
-  disabled: { cursor: 'not-allowed' },
 });
 
 /** 按钮家族的样式：root、square、fullWidth、disabled、content、hidden 等（文档站的合并基准测试要用，不进入口） @internal */
@@ -136,7 +136,11 @@ export const buttonStyles = css.create({
     flexShrink: 0,
   },
   fullWidth: { display: 'flex', width: '_full' },
-  disabled: { opacity: '_disabled', cursor: 'not-allowed' },
+  // 不可用跟着元素的 disabled / aria-disabled（useButtonBehavior 总会写上其中一个）
+  states: {
+    opacity: { default: null, _disabled: '_disabled' },
+    cursor: { default: null, _disabled: 'not-allowed' },
+  },
   content: { display: 'inline-flex', alignItems: 'center', gap: '_sm' },
   // 加载中隐藏内容但保留占位与无障碍名称（不用 visibility: hidden，那样读屏也读不到）
   hidden: { opacity: 0 },
@@ -487,7 +491,7 @@ export function buttonParts({
  */
 export function buttonSx(
   appearance: ButtonAppearance,
-  state: { disabled: boolean; square?: boolean; fullWidth?: boolean },
+  state: { square?: boolean; fullWidth?: boolean } = {},
 ): SxStyles {
   const { attached } = appearance;
   return [
@@ -495,7 +499,7 @@ export function buttonSx(
     attached && attachedStyles[attached],
     state.square && buttonStyles.square,
     state.fullWidth && buttonStyles.fullWidth,
-    state.disabled && buttonStyles.disabled,
+    buttonStyles.states,
   ] as SxStyles;
 }
 

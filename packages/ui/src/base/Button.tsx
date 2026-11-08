@@ -70,7 +70,7 @@ export const Button = _component(
     return () => (
       <button
         {...mergeAttrs<'button'>(
-          { ...buttonPart, sx: buttonSx(appearance(), { disabled, fullWidth }), type },
+          { ...buttonPart, sx: buttonSx(appearance(), { fullWidth }), type },
           rest,
           behavior(),
         )}

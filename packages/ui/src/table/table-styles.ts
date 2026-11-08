@@ -324,10 +324,15 @@ export const dataTableStateStyles = css.create({
   start: { textAlign: 'start' },
   center: { textAlign: 'center' },
   end: { textAlign: 'end' },
-  selected: { backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' } },
-  // 主从视图里正在看的一行：同已选的底色；起始边一条强调色的竖线（与勾选区分开）画在第一个单元格上，
-  // 浏览器不给 tr 画阴影
-  active: { backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' } },
+  // 已选（aria-selected）与主从视图里正在看的一行（aria-current）跟着属性走：品牌色浅底，悬停深一档，压过行的色调
+  rowStates: {
+    backgroundColor: {
+      default: null,
+      _selected: { default: '_accentSoft', _hover: '_accentSoftHover' },
+      _current: { default: '_accentSoft', _hover: '_accentSoftHover' },
+    },
+  },
+  // 正在看的一行起始边一条强调色的竖线（与勾选区分开）画在第一个单元格上：浏览器不给 tr 画阴影
   activeEdge: {
     boxShadow: {
       default: `inset 3px 0 0 ${t.colors.accent}`,

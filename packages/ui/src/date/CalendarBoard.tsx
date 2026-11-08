@@ -147,17 +147,22 @@ const calendarBoardStyles = css.create({
     borderWidth: '_xs',
     borderStyle: 'solid',
     borderColor: '_borderMuted',
-    cursor: 'pointer',
     transition: `background-color ${t.durations.sm} ${t.easings.standard}`,
-    backgroundColor: { default: 'transparent', _hover: '_fillHover' },
+    // 选中（aria-selected）、不可用（aria-disabled）跟着属性走；不可用的格子悬停也没有底色
+    cursor: { default: 'pointer', _disabled: 'not-allowed' },
+    opacity: { default: null, _disabled: '_disabled' },
+    backgroundColor: {
+      default: 'transparent',
+      _hover: '_fillHover',
+      _selected: { default: '_accentSoft', _hover: '_accentSoftHover' },
+    },
+    boxShadow: {
+      default: null,
+      _selected: `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.accentBorder}`,
+    },
   },
   weekend: { backgroundColor: { default: '_surfaceMuted', _hover: '_fillHover' } },
   outside: { color: '_textMuted' },
-  selected: {
-    backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' },
-    boxShadow: `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.accentBorder}`,
-  },
-  disabled: { cursor: 'not-allowed', opacity: '_disabled' },
   // 只读：格子不像能点
   readonly: { cursor: 'default' },
   dayHead: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
@@ -339,8 +344,6 @@ export const CalendarBoard = _component(
                 calendarBoardStyles.cell,
                 dayState.weekend && calendarBoardStyles.weekend,
                 state.outside && calendarBoardStyles.outside,
-                state.selected && calendarBoardStyles.selected,
-                state.disabled && calendarBoardStyles.disabled,
                 readonly && calendarBoardStyles.readonly,
               ],
               ...boardPart('cell'),
@@ -349,6 +352,7 @@ export const CalendarBoard = _component(
             {
               role: 'gridcell',
               'aria-selected': state.selected,
+              'aria-disabled': state.disabled || undefined,
               onClick: (event: MouseEvent) => onCellClick(event, day),
               onPointerenter: () => calendar.hover(day),
             },

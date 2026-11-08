@@ -61,7 +61,6 @@ export const ButtonBase = _component(
               focusRingStyles.visible,
               rippleHostStyles.host,
               interactionTransitions.colors,
-              disabled && buttonBaseStyles.disabled,
             ],
             type,
           },

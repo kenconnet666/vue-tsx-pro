@@ -33,7 +33,9 @@
   `itemStyles.highlighted / selected / current / disabled` 合成 `itemStyles.states`，元素写 `data-highlighted`、`aria-selected`、
   `aria-current`（或 `data-current`）、`aria-disabled` 即可；Listbox、Tree 的 `data-active` 换成 `data-highlighted`（Tree 只在有焦点时），
   Tree 选中的节点多一个 `data-current`；`menuItemLayer` 去掉 `disabled` 参数。外观不变，当前项悬停时文字保持品牌色。
-  ItemList（`data-selected`、`data-disabled`）、NavBar（`aria-current`，下拉与“更多”按钮带 `data-current`）同样改了。
+  ItemList（`data-selected`、`data-disabled`）、NavBar（`aria-current`，下拉与“更多”按钮带 `data-current`）、按钮家族的不可用
+  （`disabled` / `aria-disabled`；`buttonSx` 去掉 `disabled`）、DataTable 的已选与正在看的行（`aria-selected`、`aria-current`）、
+  CalendarBoard 的选中与不可用格（不可用格多了 `aria-disabled`，悬停不再有底色）同样改了。
 
 ## 每次发布
 

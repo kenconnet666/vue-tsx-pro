@@ -271,7 +271,6 @@ export const ToggleItem = _component(
 
     return () => {
       const pressed = group.selected.includes(value);
-      const off = disabled || group.disabled;
       const look = {
         ...appearance(),
         // 单选时选中底色由组的滑块画
@@ -284,7 +283,7 @@ export const ToggleItem = _component(
             {
               ...buttonPart,
               sx: [
-                buttonSx(look, { disabled: off, square: children == null }),
+                buttonSx(look, { square: children == null }),
                 group.readonly && !pressed && toggleGroupStyles.readonlyItem,
               ],
             },

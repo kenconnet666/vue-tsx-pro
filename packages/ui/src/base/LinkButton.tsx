@@ -82,7 +82,7 @@ export const LinkButton = _component(
         {...mergeAttrs<'a'>(
           {
             ...buttonPart,
-            sx: buttonSx(appearance(), { disabled, fullWidth }),
+            sx: buttonSx(appearance(), { fullWidth }),
             ...(external && externalLinkAttrs),
           },
           rest,
