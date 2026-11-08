@@ -40,6 +40,10 @@
 - 批量（`engine.runMany(commands, actor)`）：每条一个事务，各自成败，结果是 `{ ok: true, result }` 或 `{ ok: false, code, message }`。
 - 管理员改单据数据（`changeData`）：只记真的变了的字段，`instance.dataChanged` 的 data 里每个字段一份改前、改后。
 - 会签的 `votes` 规则（票签）：指定的人带 `weight`，同一结果的票数先达到 `votes` 的为准，都办完没达到按 `fallback`。
+- 自定义节点（`type: 'x-名字'`）：扩展的 `nodes` 里注册，`arrive` 当场做完（按结果往下走、改变量）或 `waitFor` 停下来等事件，
+  事件由 `engine.signal` 送来时调 `received`（不写时按事件带的结果走）；节点上除共同字段以外的属性原样给它。
+- 自定义会签规则（`multi.complete: '名字'`）：扩展的 `countersign` 里注册，每有一个人处理完问一次，返回结果就结束、返回
+  undefined 再等，都办完没结果按 `fallback`（没写时按最后这个人选的）。流程工程的 logic.ts 也能写这两类。
 - 已办、我发起的按流程、时间段筛（`ListFilter`：`processKey`、`from`、`to`）。
 
 ## 4. 表
@@ -48,4 +52,4 @@
 
 ## 5. 之后
 
-提级、调用流程的 forEach 与异步、自定义节点、草稿、实例迁移，按 ROADMAP 26.3 接着做，都按这里的形状加。
+提级、草稿、实例迁移，按 ROADMAP 26.3 接着做，都按这里的形状加。

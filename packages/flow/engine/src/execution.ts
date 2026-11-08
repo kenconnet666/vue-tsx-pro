@@ -23,12 +23,23 @@ import type { FlowLogic } from './project.ts';
 import { emptyRunState, type RunState } from './state.ts';
 import type {
   Actor,
+  CustomNode,
+  CustomNodeContext,
+  CustomNodeResult,
   ExtensionContext,
   FlowEngineOptions,
   FlowEventView,
   InstanceSummary,
   WorkItemSummary,
 } from './types.ts';
+
+/** 自定义节点（`x-` 开头的类型）在定义里的样子：共同字段之外的属性引擎不解释 */
+export interface CustomNodeDef {
+  readonly id: string;
+  readonly type: string;
+  readonly name: string;
+  readonly [attribute: string]: unknown;
+}
 
 /** 实例行 */
 export type InstanceRow = Row<typeof FlowInstance>;
@@ -291,10 +302,46 @@ export class Execution {
         return;
       }
       default:
+        if (node.type.startsWith('x-')) return this.arriveCustom(node as unknown as CustomNodeDef);
         throw new FlowError('invalid-definition', `这一版不支持 ${node.type} 节点`, {
           node: nodeId,
         });
     }
+  }
+
+  /** 自定义节点的实现：流程工程 logic.ts 的 nodes，或引擎选项里注册的 */
+  customNode(type: string): CustomNode | undefined {
+    return this.logic?.nodes?.[type] ?? this.options.extensions?.nodes?.[type];
+  }
+
+  /** 自定义节点拿到的现场：节点上除共同字段以外的属性原样给出 */
+  customContext(node: CustomNodeDef): CustomNodeContext {
+    const { id: _, type: __, name: ___, ...attributes } = node;
+    const { args: ____, ...context } = this.context();
+    return { ...context, node: node.id, attributes };
+  }
+
+  /** 到达自定义节点：交给注册的实现，按它说的往下走或停下来等事件 */
+  private async arriveCustom(node: CustomNodeDef): Promise<void> {
+    const handler = this.customNode(node.type);
+    if (!handler) {
+      throw new FlowError('invalid-definition', `没有注册自定义节点 ${node.type}`, {
+        node: node.id,
+      });
+    }
+    await this.applyCustom(node, await handler.arrive(this.customContext(node)));
+  }
+
+  /** 自定义节点的结果：改变量；等事件时停在这里，否则按结果往下走 */
+  async applyCustom(node: CustomNodeDef, result: CustomNodeResult): Promise<void> {
+    if (result.variables) this.setVariables(result.variables);
+    if (result.waitFor) {
+      this.current.add(node.id);
+      this.bumpRound(node.id);
+      this.state.events[node.id] = result.waitFor;
+      return;
+    }
+    await this.leave(node.id, result.outcome ?? null);
   }
 
   /** 人工节点：解析处理人、建待办；会签每个参与人一份；可以自动跳过 */

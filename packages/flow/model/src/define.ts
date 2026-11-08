@@ -7,7 +7,8 @@
  *   type Outcome = OutcomeOf<typeof purchase, 'manager'>;   // 'approve' | 'reject'
  *   type Vars = VariablesOf<typeof purchase>;               // { amount: number; supplier: string }
  */
-import type { OrgId, ProcessDefinition, TaskNode, VariableType } from './definition.ts';
+import type { ProcessDefinition, TaskNode, VariableType } from './definition.ts';
+import type { FieldValues } from './project.ts';
 
 /** 带类型的流程定义：原样返回 */
 export const defineProcess = <const D extends ProcessDefinition>(definition: D): D => definition;
@@ -24,18 +25,6 @@ export type OutcomeOf<D extends ProcessDefinition, N extends TaskIdOf<D>> = Extr
   { readonly type: 'task'; readonly id: N }
 >['outcomes'][number]['key'];
 
-/** 流程变量的类型（按声明的 type；小数、日期、时刻是文字，同线上的写法） */
-interface VariableValues {
-  text: string;
-  number: number;
-  decimal: string;
-  boolean: boolean;
-  date: string;
-  datetime: string;
-  select: string;
-  people: OrgId[];
-}
-
 /** 流程变量：声明的名字 → 值（都可以没有值） */
 export type VariablesOf<D extends ProcessDefinition> = D['variables'] extends readonly (infer V)[]
   ? {
@@ -43,7 +32,7 @@ export type VariablesOf<D extends ProcessDefinition> = D['variables'] extends re
         readonly name: K;
         readonly type: infer T extends VariableType;
       }
-        ? VariableValues[T]
+        ? FieldValues[T]
         : never;
     }
   : Record<string, unknown>;

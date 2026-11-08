@@ -82,12 +82,59 @@ export type ComputedValue<V extends object = Variables> = (
   context: Omit<ExtensionContext<V>, 'args'>,
 ) => unknown;
 
+/** 自定义节点做完之后怎样往下：按结果走（没写结果走没写结果的出边），顺带改流程变量；或停下来等一个外部事件 */
+export interface CustomNodeResult<V extends object = Variables> {
+  readonly outcome?: string | null;
+  readonly variables?: Readonly<Partial<V>>;
+  /** 停下来等的事件名（由 engine.signal 送来）；不等时不写 */
+  readonly waitFor?: string;
+}
+
+/** 自定义节点拿到的：扩展的现场，加上节点上除共同字段以外的属性（定义里写的原样） */
+export type CustomNodeContext<V extends object = Variables> = Omit<ExtensionContext<V>, 'args'> & {
+  readonly node: string;
+  readonly attributes: Readonly<Record<string, unknown>>;
+};
+
+/** 自定义节点类型（定义里 `type: 'x-名字'`）：到达时做什么、等的事件到了怎样往下 */
+export interface CustomNode<V extends object = Variables> {
+  arrive(context: CustomNodeContext<V>): CustomNodeResult<V> | Promise<CustomNodeResult<V>>;
+  /** 等的事件到了；不写时按事件带的结果往下走 */
+  received?(
+    context: CustomNodeContext<V>,
+    event: { readonly outcome: string | null; readonly data: Readonly<Record<string, unknown>> },
+  ): CustomNodeResult<V> | Promise<CustomNodeResult<V>>;
+}
+
+/**
+ * 自定义会签规则（定义里 `multi.complete: '名字'`）：每有一个人处理完就问一次，返回结果就按它结束（其余开着的取消），
+ * 返回 undefined 再等；都处理完还没有结果时按 fallback，没写时按最后这个人选的。参与人一起处理（不是依次）
+ */
+export type CountersignRule = (context: {
+  readonly node: string;
+  /** 刚处理完的人选的结果 */
+  readonly chosen: string;
+  /** 这个节点这一轮的全部待办（含刚处理完的） */
+  readonly items: readonly {
+    readonly assignee: string | null;
+    readonly state: string;
+    readonly outcome: string | null;
+    readonly weight: number | null;
+  }[];
+  /** 还有人没处理完 */
+  readonly someoneOpen: boolean;
+}) => string | undefined;
+
 /** 接入方注册的扩展：定义里按名字引用 */
 export interface FlowExtensions<V extends object = Variables> {
   readonly resolvers?: Readonly<Record<string, Resolver<V>>>;
   readonly guards?: Readonly<Record<string, Guard<V>>>;
   readonly actions?: Readonly<Record<string, Action<V>>>;
   readonly functions?: Readonly<Record<string, ComputedValue<V>>>;
+  /** 自定义节点类型：键是 `x-` 开头的类型名 */
+  readonly nodes?: Readonly<Record<string, CustomNode<V>>>;
+  /** 自定义会签规则：键是定义里 `multi.complete` 写的名字 */
+  readonly countersign?: Readonly<Record<string, CountersignRule>>;
 }
 
 /** 流转记录（监听拿到的、实例详情里列的） */

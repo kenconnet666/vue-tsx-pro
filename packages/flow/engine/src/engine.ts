@@ -45,6 +45,7 @@ import {
   dueAt,
   Execution,
   workItemSummary,
+  type CustomNodeDef,
   type InstanceRow,
   type WorkItemRow,
 } from './execution.ts';
@@ -815,7 +816,16 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         .where((w) => [w.instanceId.eq(item.instanceId), w.signGroup.eq(group)])
         .toList();
       const queue = exec.state.queues[group] ?? [];
-      const result = decideCountersign(node.multi, node.outcomes, votes, queue.length);
+      const rule =
+        exec.logic?.countersign?.[node.multi.complete] ??
+        options.extensions?.countersign?.[node.multi.complete];
+      const result = decideCountersign(
+        node.multi,
+        node.outcomes,
+        votes,
+        queue.length,
+        rule && { rule, node: node.id, chosen: outcomeKey },
+      );
       if (result === undefined) {
         const [next, ...rest] = queue;
         if (node.multi.complete === 'sequential' && next !== undefined) {
@@ -1173,9 +1183,33 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       const result = await withInstance(id, actor, async (exec) => {
         const waiting = [...exec.current].find((nodeId) => {
           const node = exec.graph.node(nodeId);
-          return node?.type === 'receive' && node.event === command.event;
+          return (
+            (node?.type === 'receive' && node.event === command.event) ||
+            exec.state.events[nodeId] === command.event
+          );
         });
         const node = waiting ? exec.node(waiting) : undefined;
+        // 自定义节点在等这个事件：交给它的 received（不写时按事件带的结果往下走）
+        if (node && exec.status === 'active' && exec.state.events[node.id] === command.event) {
+          const custom = node as unknown as CustomNodeDef;
+          delete exec.state.events[node.id];
+          exec.current.delete(node.id);
+          exec.addEvent('signal.received', {
+            node: node.id,
+            outcome: command.outcome ?? null,
+            data: { event: command.event, data: command.data ?? null },
+          });
+          received = true;
+          const handler = exec.customNode(custom.type);
+          const event = { outcome: command.outcome ?? null, data: command.data ?? {} };
+          await exec.applyCustom(
+            custom,
+            handler?.received
+              ? await handler.received(exec.customContext(custom), event)
+              : { outcome: event.outcome },
+          );
+          return;
+        }
         if (!node || node.type !== 'receive' || exec.status !== 'active') {
           exec.addEvent('signal.ignored', {
             outcome: command.outcome ?? null,

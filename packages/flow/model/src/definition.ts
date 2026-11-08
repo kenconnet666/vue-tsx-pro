@@ -350,7 +350,16 @@ export interface Lane {
 
 /** 流程变量的类型（表单字段类型的一部分） */
 export type VariableType =
-  'text' | 'number' | 'decimal' | 'boolean' | 'date' | 'datetime' | 'select' | 'people';
+  | 'text'
+  | 'number'
+  | 'decimal'
+  | 'boolean'
+  | 'date'
+  | 'datetime'
+  | 'select'
+  | 'people'
+  /** 列表（调用流程的 forEach、收子实例的 output） */
+  | 'list';
 
 /** 流程变量的声明 */
 export interface VariableDeclaration {

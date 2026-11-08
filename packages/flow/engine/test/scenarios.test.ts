@@ -92,7 +92,6 @@ const ERROR_CODES: Record<string, string> = {
 
 /** 整个不跑的场景：用到第一版不做的能力（docs/decisions/0001 第 2 节） */
 const SKIPPED: Record<string, string> = {
-  'custom-node.json': '自定义节点类型与自定义会签规则第一版不做',
   'purchase-form-rules.json': '按字段清单校验表单在表单模块里做（ROADMAP 14.8）',
 };
 
@@ -216,6 +215,24 @@ function testExtensions() {
   const failures = new Map<string, number>();
   return {
     resolvers: { manager: () => ['1004'] },
+    // 写了 wait 时停下来等这个事件，没写时当场做完、记下 stampedBy
+    nodes: {
+      'x-stamp': {
+        arrive: ({ attributes }: { attributes: Record<string, unknown> }) =>
+          typeof attributes['wait'] === 'string'
+            ? { waitFor: attributes['wait'] }
+            : { variables: { stampedBy: attributes['by'] } },
+      },
+    },
+    // 两个人同意（ok）就按 ok 结束，有人不同意（no）就按 no 结束
+    countersign: {
+      'first-two': ({ items }: { items: readonly { outcome: string | null }[] }) =>
+        items.some((i) => i.outcome === 'no')
+          ? 'no'
+          : items.filter((i) => i.outcome === 'ok').length >= 2
+            ? 'ok'
+            : undefined,
+    },
     guards: {
       budget: (context: { read(field: string): unknown }) =>
         Number(context.read('form.amount') ?? 0) > 100000 ? '超出预算' : (true as const),
@@ -488,12 +505,12 @@ async function runStep(
       return {
         instance: { ...detail.instance, current, parentInstanceId: detail.instance.parentId },
         form: { values: detail.instance.variables },
-        // Java 版的实例详情只给管理员看全部流程变量（名字、类型、值）
+        // Java 版的实例详情只给管理员看流程变量：按定义里声明的先后（名字、类型、值）
         variables: actor.admin
-          ? Object.entries(detail.instance.variables).map(([name, value]) => ({
-              name,
-              type: Array.isArray(value) ? 'list' : typeof value === 'number' ? 'number' : 'text',
-              value,
+          ? (detail.definition.variables ?? []).map((v) => ({
+              name: v.name,
+              type: v.type,
+              value: detail.instance.variables[v.name] ?? null,
             }))
           : null,
         workItems: items.map(javaItem),
@@ -620,12 +637,18 @@ function resolveRefs(value: unknown, results: Map<string, unknown>, previous: un
   return value;
 }
 
-/** `workItems[0]` → 那个待办的编号；`instance` → 实例编号；其余按路径一段段取（`rows[0].jobId`、`timeline[3].data.jobId`） */
+/**
+ * 以 `workItems[0]` 结尾的路径（`workItems[0]`、`results[0].workItems[0]`）→ 那个待办的编号；`instance` → 实例编号；
+ * 其余按路径一段段取（`rows[0].jobId`、`timeline[3].data.jobId`）
+ */
 function readPath(base: unknown, path: string): unknown {
   const object = base as Record<string, any>;
   if (path === 'instance') return object['instanceId'];
-  const only = /^(workItems)\[(\d+)\]$/.exec(path);
-  if (only) return object[only[1]!]?.[Number(only[2])]?.id;
+  if (/(^|\.)workItems\[\d+\]$/.test(path)) return walk(object, path)?.id;
+  return walk(object, path);
+}
+
+function walk(object: Record<string, any>, path: string): any {
   let current: any = object;
   for (const part of path.split('.')) {
     const match = /^(\w+)(?:\[(\d+)\])?$/.exec(part);

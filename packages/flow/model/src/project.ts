@@ -57,6 +57,7 @@ export interface FieldValues {
   datetime: string;
   select: string;
   people: OrgId[];
+  list: unknown[];
 }
 
 /** 单据的值：必填的字段一定有，其余可以没有 */

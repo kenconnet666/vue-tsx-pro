@@ -7,6 +7,7 @@
  */
 import type { MultiInstance, Outcome } from '@zerodep-dev/flow-ts-model';
 import { FlowError } from './errors.ts';
+import type { CountersignRule } from './types.ts';
 
 /** 一组待办里的一份 */
 export interface SignVote {
@@ -14,6 +15,7 @@ export interface SignVote {
   readonly outcome: string | null;
   /** 票数；没有时一票 */
   readonly weight?: number | null;
+  readonly assignee?: string | null;
 }
 
 /** 判断：还没结束是 undefined，结束了是结果 */
@@ -22,6 +24,8 @@ export function decideCountersign(
   outcomes: readonly Outcome[],
   votes: readonly SignVote[],
   queued: number,
+  /** 自定义规则（multi.complete 不是内置的名字时）与刚处理完的人选的结果 */
+  custom?: { readonly rule: CountersignRule; readonly node: string; readonly chosen: string },
 ): string | undefined {
   const done = votes.filter((v) => v.state === 'done');
   const total = votes.filter((v) => v.state !== 'canceled').length + queued;
@@ -59,7 +63,21 @@ export function decideCountersign(
       }
       return multi.fallback;
     }
-    default:
-      throw new FlowError('invalid-definition', `这一版不支持会签规则 ${multi.complete}`);
+    default: {
+      if (!custom) throw new FlowError('invalid-definition', `没有注册会签规则 ${multi.complete}`);
+      const decided = custom.rule({
+        node: custom.node,
+        chosen: custom.chosen,
+        items: votes.map((v) => ({
+          assignee: v.assignee ?? null,
+          state: v.state,
+          outcome: v.outcome,
+          weight: v.weight ?? null,
+        })),
+        someoneOpen: !allDone,
+      });
+      if (decided !== undefined) return decided;
+      return allDone ? (multi.fallback ?? custom.chosen) : undefined;
+    }
   }
 }

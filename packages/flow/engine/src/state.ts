@@ -14,6 +14,8 @@ export interface RunState {
   queues: Record<string, string[]>;
   /** 同步的调用节点还在等几个子实例 */
   calls: Record<string, number>;
+  /** 自定义节点在等的事件：节点 → 事件名 */
+  events: Record<string, string>;
 }
 
 /** 新实例的运行状态 */
@@ -24,4 +26,5 @@ export const emptyRunState = (): RunState => ({
   returnedFrom: {},
   queues: {},
   calls: {},
+  events: {},
 });
