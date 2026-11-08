@@ -9,10 +9,7 @@ export default defineLogic(form, {
   guards: {
     // 财务审核通过前：付款计划逐期加起来要等于合同金额
     plansMatch: ({ variables }) => {
-      const total = variables.plans.reduce(
-        (sum, plan) => sum + cents((plan as { amount?: string }).amount),
-        0,
-      );
+      const total = (variables.plans ?? []).reduce((sum, plan) => sum + cents(plan.amount), 0);
       const expected = cents(variables.amount);
       return total === expected
         ? true
