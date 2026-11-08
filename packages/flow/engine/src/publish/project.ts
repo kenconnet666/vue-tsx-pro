@@ -123,6 +123,26 @@ export async function linkProject(
   };
 }
 
+/** 引擎加载的模块：除去视图（views/ 下的在页面里渲染，import 的是组件库这类引擎没有的模块） */
+export const engineModules = (modules: Readonly<Record<string, string>>) =>
+  Object.fromEntries(Object.entries(modules).filter(([path]) => !model.isViewFile(path)));
+
+/**
+ * 页面要的模块：视图，加上它们相对路径 import 到的工程文件（单据……）；页面用 linkProject 加载，宿主模块是组件库、vue 这些
+ */
+export function viewModules(modules: Readonly<Record<string, string>>): Record<string, string> {
+  const picked: Record<string, string> = {};
+  const queue = Object.keys(modules).filter(model.isViewFile);
+  while (queue.length) {
+    const path = queue.shift()!;
+    if (picked[path] !== undefined) continue;
+    picked[path] = modules[path]!;
+    for (const name of importedModules(picked[path]))
+      if (name.startsWith('.')) queue.push(resolve(path, name, modules));
+  }
+  return picked;
+}
+
 /** 编译、加载，把单据（form.ts 的字段清单）内联进定义的 form.manifest */
 export async function buildProject(
   project: FlowProject,
@@ -130,7 +150,7 @@ export async function buildProject(
   host?: HostModules,
 ): Promise<CompiledProject & { readonly linked: LinkedProject }> {
   const compiled = await compileProject(project, transform);
-  const linked = await linkProject(compiled.modules, host);
+  const linked = await linkProject(engineModules(compiled.modules), host);
   const manifest = linked.form;
   if (!manifest) return { ...compiled, linked };
   const { definition } = compiled;

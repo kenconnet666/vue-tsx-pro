@@ -13,7 +13,7 @@ import type { Ref } from '@zerodep-dev/easy-query-ts';
 import { FlowDefinition, FlowInstance, FlowWorkItem, type flowSchema } from '../core/entities.ts';
 import { FlowError } from '../core/errors.ts';
 import { FLOW_CHANNEL } from '../core/channels.ts';
-import { buildProject } from './project.ts';
+import { buildProject, viewModules } from './project.ts';
 import type { FlowLogic } from '../extensions.ts';
 import type { TypeProblem } from '../types.ts';
 import type { EngineCore } from '../core/context.ts';
@@ -301,7 +301,13 @@ export function createPublishing(core: EngineCore) {
     return row;
   }
 
-  return { publish, check, versions, versionRow };
+  /** 页面要的视图模块（views/*.tsx 编好的，加上它们 import 的工程文件）；不写版本是最新的一版，没有视图时是空的 */
+  async function views(key: string, version?: number): Promise<Record<string, string>> {
+    const row = await versionRow(key, version);
+    return row.modules ? viewModules(row.modules) : {};
+  }
+
+  return { publish, check, versions, versionRow, views };
 }
 
 /** createPublishing 给出的函数 */

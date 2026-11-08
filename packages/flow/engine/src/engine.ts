@@ -152,6 +152,11 @@ export interface FlowEngine {
   retryJob(job: number, actor: Actor): Promise<boolean>;
   /** 把抄送给我的这个实例标成已读，返回标了几条 */
   readCc(instance: number, actor: Actor): Promise<number>;
+  /**
+   * 流程工程的视图（views/*.tsx，编好的模块表格式，加上它们 import 的工程文件）：页面用 linkProject 加载、渲染；
+   * 不写版本是最新的一版。谁都能取（是界面代码）
+   */
+  views(key: string, version?: number): Promise<Record<string, string>>;
   readonly jobs: {
     /** 执行到点的作业，返回执行了几个；顺带重试发件箱里没送到的通知。Nitro 的定时任务或接入方自己定时调用 */
     runDue(options?: { limit?: number; worker?: string }): Promise<number>;
@@ -220,6 +225,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     signal: core.signals.signal,
     retryJob: core.jobs.retryJob,
     readCc,
+    views: core.publishing.views,
     createTables: () => db.createTables(),
     drafts: core.starts.drafts,
     runMany: core.commands.runMany,

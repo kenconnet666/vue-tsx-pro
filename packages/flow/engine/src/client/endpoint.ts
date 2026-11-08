@@ -36,6 +36,7 @@ const METHODS: Readonly<
   started: (e, a, [filter]) => e.query.started(a, filter),
   search: (e, a, [filter]) => e.query.search(a, filter),
   cc: (e, a) => e.query.cc(a),
+  views: (e, _a, [key, version]) => e.views(key, version),
   instance: (e, a, [id]) => e.query.instance(id, a),
   workItem: (e, a, [id]) => e.query.workItem(id, a),
   startView: (e, a, [key]) => e.query.startView(key, a),

@@ -1,4 +1,4 @@
-// 流程即 TS 工程：编译、链接（相对路径、宿主模块）、单据并进变量、logic.名字 的引用、版本与回滚、类型检查、带类型的发起
+// 流程即 TS 工程：编译、链接（相对路径、宿主模块）、单据并进变量、logic.名字 的引用、版本与回滚、类型检查、带类型的发起、视图
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { describe, it } from 'vitest';
@@ -256,6 +256,31 @@ describe('流程工程', { timeout: 30_000 }, () => {
       (error: unknown) =>
         error instanceof FlowError &&
         (error.details['types'] as { file: string }[]).some((p) => p.file === 'logic.ts'),
+    );
+  });
+  it('视图：views/*.tsx 发布时编译、引擎不加载（import 的组件库引擎没有）；views 给出视图与它 import 的单据，不含逻辑', async () => {
+    const { engine } = await createTestEngine({ transform: compileInPlace, modules });
+    const sheet = `import { h } from 'vue';
+import form from '../form';
+export const title = '金额';
+export default (props: { variables: { amount?: number } }) =>
+  h('p', null, String(Object.keys(form).length) + ':' + String(props.variables.amount));
+`;
+    await engine.publish(project({ 'views/sheet.tsx': sheet }));
+    const views = await engine.views('coded');
+    assert.deepEqual(Object.keys(views).sort(), ['form.ts', 'views/sheet.tsx']);
+    // 页面这头：同一个链接器，宿主模块给 vue
+    const { linkProject } = await import('@zerodep-dev/flow-ts-engine/client');
+    const linked = await linkProject(views, {
+      vue: {
+        exports: { h: (tag: string, _: unknown, text: string) => `<${tag}>${text}</${tag}>` },
+      },
+    });
+    const view = linked.module('views/sheet.tsx');
+    assert.equal(view['title'], '金额');
+    assert.equal(
+      (view['default'] as (p: object) => string)({ variables: { amount: 3 } }),
+      '<p>2:3</p>',
     );
   });
 });

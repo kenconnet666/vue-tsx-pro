@@ -6,7 +6,8 @@
  *                  推出单据的类型；发布时内联进定义的 form.manifest
  *   logic.ts       逻辑：`export default defineLogic(form, { resolvers, guards, actions, functions })`，
  *                  定义里写 `logic.名字` 引用
- *   views/*.tsx    需要时才写：自定义的发起页、审批单的分区、打印页
+ *   views/*.tsx    需要时才写，在页面里渲染（引擎不加载）：start.tsx 是发起页的分区，print.tsx 是打印页，别的是审批单的分区；
+ *                  默认导出组件（属性是 FlowViewProps），`export const title` 是分区的标题。只 import 单据、别的视图与页面登记的模块
  *   test.ts        场景测试
  *
  * 文件之间相对路径 import；宿主登记的模块（组件库、zod、业务服务……）按名字 import。
@@ -25,7 +26,26 @@ export const PROJECT_FILES = {
   form: 'form.ts',
   logic: 'logic.ts',
   test: 'test.ts',
+  /** 视图的目录 */
+  views: 'views/',
 } as const;
+
+/** 视图文件（views/ 下的）：在页面里渲染，引擎不加载 */
+export const isViewFile = (path: string): boolean => path.startsWith(PROJECT_FILES.views);
+
+/** 视图（views/*.tsx 默认导出的组件）拿到的属性 */
+export interface FlowViewProps<V extends object = Record<string, unknown>> {
+  /** 单据的值（发起页上是正在填的） */
+  readonly variables: Readonly<Partial<V>>;
+  /** 这张单；发起页上为空 */
+  readonly instance: {
+    readonly id: number;
+    readonly title: string | null;
+    readonly status: string;
+    /** 正在处理的节点 */
+    readonly current: readonly string[];
+  } | null;
+}
 
 /** 写单据：原样返回字段清单的字面量，字面量类型留着（推出 FormValues）；表单设计器读写的就是它 */
 export const defineForm = <const M extends FormManifest>(manifest: M): M => manifest;

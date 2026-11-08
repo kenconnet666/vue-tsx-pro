@@ -80,6 +80,8 @@ export interface FlowClient {
   incidents(instance?: number): Promise<Incident[]>;
   /** 抄送标成已读 */
   readCc(instance: number): Promise<number>;
+  /** 流程工程的视图（编好的模块）：用 linkProject 加载，宿主模块给 vue 与组件库 */
+  views(key: string, version?: number): Promise<Record<string, string>>;
   /** 重试失败的作业 */
   retryJob(job: number): Promise<boolean>;
   /** 发起前的草稿 */
@@ -156,6 +158,7 @@ export function createFlowClient(transport: FlowTransport): FlowClient {
     processes: () => call('processes'),
     incidents: (instance) => call('incidents', instance),
     readCc: (instance) => call('readCc', instance),
+    views: (key, version) => call('views', key, version),
     retryJob: (job) => call('retryJob', job),
     drafts: {
       save: (input) => call('drafts.save', input),

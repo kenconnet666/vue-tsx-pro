@@ -7,4 +7,6 @@ export { portTransport, servePort, type MessagePortLike } from './port.ts';
 export { httpTransport, type HttpTransportOptions } from './http.ts';
 export type { FlowRequest, FlowResponse, FlowTransport } from './protocol.ts';
 export { FlowError, type FlowErrorCode } from '../core/errors.ts';
+// 页面加载流程工程的视图（views/*.tsx）：与引擎加载工程同一个链接器
+export { linkProject, type HostModules } from '../publish/project.ts';
 export type { InstanceRow, WorkItemRow } from '../runtime/execution.ts';

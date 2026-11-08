@@ -15,7 +15,7 @@ import {
   type WorkItemRow,
 } from '../runtime/execution.ts';
 import { excludeToken, operationsOf } from '../commands/operations.ts';
-import { linkProject } from '../publish/project.ts';
+import { engineModules, linkProject } from '../publish/project.ts';
 import type { FlowLogic } from '../extensions.ts';
 import type { Actor, FlowCommand, FlowEngineOptions, RunResult } from '../types.ts';
 import type { Calls } from '../runtime/calls.ts';
@@ -114,7 +114,9 @@ export function createCore(options: FlowEngineOptions): EngineCore {
         .select((d) => ({ modules: d.modules }))
         .first()
         .then(async (row) =>
-          row?.modules ? (await linkProject(row.modules, options.modules)).logic : undefined,
+          row?.modules
+            ? (await linkProject(engineModules(row.modules), options.modules)).logic
+            : undefined,
         );
       logics.set(id, logic);
       logic.catch(() => logics.delete(id));
