@@ -39,10 +39,11 @@ export const choiceRecipe = css.recipe({
   name: 'Choice',
   parts: ['root', 'control', 'input', 'indicator', 'label', 'description', 'end', 'group'],
   base: {
-    // 控件与文字一行，整块可点；点击区域不小于 24px（WCAG 2.5.8）
+    // 控件与文字一行，整块可点；点击区域不小于 24px（WCAG 2.5.8）。
+    // 按基线排、控件自己贴顶：整块的基线取文字的，表单里起始边的标签（Field 按基线对齐）与文字对齐，而不是与方框、轨道的底边对齐
     root: {
       display: 'inline-flex',
-      alignItems: 'flex-start',
+      alignItems: 'baseline',
       gap: '_sm',
       minHeight: '_sizes.minTarget',
       lineHeight: '_normal',
@@ -55,6 +56,7 @@ export const choiceRecipe = css.recipe({
       display: 'inline-grid',
       placeItems: 'center',
       flexShrink: 0,
+      alignSelf: 'flex-start',
       minHeight: '1.5em',
     },
     // 去掉浏览器外观，由各组件给出形状；焦点环用 focusRingStyles.tight（排在它后面）。
