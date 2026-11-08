@@ -5,6 +5,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Approval from './demo/Approval.tsx?demo';
 import Designer from './demo/Designer.tsx?demo';
+import FormBuilder from './demo/FormBuilder.tsx?demo';
 
 export const meta = {
   title: 'Workflow 流程设计与审批',
@@ -42,6 +43,17 @@ export default _component(() => () => (
           {
             '（开始、结束画圆，网关画菱形，退回的线从下面绕回）放在这一页的源码目录里，设计器与审批面板共用。'
           }
+        </Example>
+        <Example id="form-designer" title="表单设计器" demo={FormBuilder}>
+          {'flow-ts-ui 的 '}
+          <Code>FormDesigner</Code>
+          {
+            ' 改的就是字段清单（流程工程里 form.ts 的 defineForm 字面量），代码与设计器是同一份：左边加字段，中间拖动排序（明细表的列在明细表下面），右边改名称、字段名（改名时别的字段条件里的引用跟着改）、必填、各类型的范围与选项（选项可以来自登记的字典）、显示与必填条件；“预览”按清单渲染成单据（'
+          }
+          <Code>useFlowForm</Code>
+          {'，同审批时看到的）。清单的问题用模型包的 '}
+          <Code>validateManifest</Code>
+          {' 查出，说成业务的话列在下面，点一下选中那个字段。'}
         </Example>
         <Example id="approval" title="审批面板" demo={Approval}>
           {

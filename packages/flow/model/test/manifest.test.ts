@@ -6,6 +6,7 @@ import {
   type FieldDefinition,
   type FormManifest,
   type Problem,
+  manifestProblemMessage,
 } from '../src/index.ts';
 import { fromWire } from '@zerodep-dev/json-wire';
 import { listSpec, readSpec } from './spec.ts';
@@ -54,4 +55,20 @@ describe('值的校验（spec/values）', () => {
       );
     });
   }
+});
+
+describe('清单问题的说法', () => {
+  it('用字段的名称说清楚哪里不对', () => {
+    const manifest = {
+      amount: { label: '金额', type: 'number', min: 10, max: 1 },
+      kind: { label: '类型', type: 'select', options: [] },
+      Bad: { label: '坏名字', type: 'text' },
+    } as const;
+    const messages = validateManifest(manifest).map((problem) =>
+      manifestProblemMessage(problem, manifest),
+    );
+    assert.ok(messages.includes('“金额”的取值范围下限比上限大'), messages.join('；'));
+    assert.ok(messages.includes('“类型”还没有选项'));
+    assert.ok(messages.includes('“坏名字”的字段名要小写字母开头，只用字母和数字'));
+  });
 });

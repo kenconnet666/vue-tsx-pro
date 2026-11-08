@@ -186,3 +186,60 @@ function checkCondition(
     }
   }
 }
+
+const ATTRIBUTE_TEXT: Readonly<Record<string, string>> = {
+  minLength: '最少字数',
+  maxLength: '最多字数',
+  min: '最小值',
+  max: '最大值',
+  scale: '小数位',
+  maxCount: '最多几个',
+  maxSize: '文件大小上限',
+  minItems: '最少几行',
+  maxItems: '最多几行',
+  length: '字数范围',
+  items: '行数范围',
+  value: '取值范围',
+};
+
+/** 清单问题的业务说法（表单设计器列出来）；没有专门说法的给出代号 */
+export function manifestProblemMessage(problem: Problem, manifest?: FormManifest): string {
+  const path = problem.field ?? '';
+  const label = manifest ? manifestField(manifest, path)?.label : undefined;
+  const field = `“${label || path}”`;
+  const params = problem.params ?? {};
+  const attribute = ATTRIBUTE_TEXT[params.attribute ?? ''] ?? params.attribute ?? '';
+  const condition = params.condition === 'requiredWhen' ? '必填条件' : '显示条件';
+  switch (problem.code) {
+    case 'field-name-invalid':
+      return `${field}的字段名要小写字母开头，只用字母和数字`;
+    case 'field-label-missing':
+      return `${field}还没有名称`;
+    case 'field-type-unknown':
+      return `${field}的类型“${params.type ?? ''}”不认识`;
+    case 'attribute-invalid':
+      return `${field}的${attribute}写得不对`;
+    case 'range-invalid':
+      return `${field}的${attribute}下限比上限大`;
+    case 'pattern-invalid':
+      return `${field}的格式（正则表达式）写错了`;
+    case 'options-empty':
+      return `${field}还没有选项`;
+    case 'option-duplicate':
+      return `${field}有两个选项的值都是“${params.value ?? ''}”`;
+    case 'default-invalid':
+      return `${field}的默认值不合这个字段`;
+    case 'list-nested':
+      return `${field}在明细表里，明细表里不能再放明细表`;
+    case 'list-no-columns':
+      return `明细表${field}还没有列`;
+    case 'condition-incomplete':
+      return `${field}的${condition}没写完整`;
+    case 'condition-fn-in-form':
+      return `${field}的${condition}用了函数（${params.ref ?? ''}），表单里只能比较字段`;
+    case 'ref-unknown':
+      return `${field}的${condition}引用了不存在的“${params.ref ?? ''}”`;
+    default:
+      return `${field}：${problem.code}`;
+  }
+}

@@ -52,11 +52,13 @@
     "@zerodep-dev/vue-tsx-pro-ui": "workspace:^"
   },
   "peerDependencies": {
+    "@lucide/icons": "^1.69.0",
     "decimal.js": "^10.6.0",
     "vue": "^3.5.0",
     "zod": "^4.6.0"
   },
   "devDependencies": {
+    "@lucide/icons": "catalog:",
     "@types/node": "catalog:",
     "decimal.js": "catalog:",
     "happy-dom": "catalog:",
