@@ -80,22 +80,26 @@ export const navBarStyles = css.create({
     minHeight: `max(${t.sizes.control}, ${t.sizes.minTarget})`,
     paddingInline: '_md',
     borderRadius: '_md',
-    color: { default: '_textMuted', _hover: '_text' },
+    // 当前页（aria-current、data-current）：品牌色文字，悬停也不变；下划线画在底边（与 Tabs 的下划线同色）
+    color: {
+      default: '_textMuted',
+      _hover: '_text',
+      _current: { default: '_accentText', _hover: '_accentText' },
+    },
     fontWeight: '_medium',
     whiteSpace: 'nowrap',
     textDecoration: 'none',
     backgroundColor: { default: 'transparent', _hover: '_fillHover' },
-    // 当前页的下划线画在底边（与 Tabs 的下划线同色）
-    boxShadow: 'none',
+    boxShadow: {
+      default: 'none',
+      _current: `inset 0 calc(-1 * ${t.borderWidths.sm}) 0 ${t.colors.accent}`,
+    },
+    borderEndStartRadius: { default: null, _current: 0 },
+    borderEndEndRadius: { default: null, _current: 0 },
+    opacity: { default: null, _disabled: '_disabled' },
+    pointerEvents: { default: null, _disabled: 'none' },
     transition: `color ${t.durations.sm} ${t.easings.standard}, background-color ${t.durations.sm} ${t.easings.standard}`,
   },
-  current: {
-    color: { default: '_accentText', _hover: '_accentText' },
-    boxShadow: `inset 0 calc(-1 * ${t.borderWidths.sm}) 0 ${t.colors.accent}`,
-    borderEndStartRadius: 0,
-    borderEndEndRadius: 0,
-  },
-  disabled: { opacity: '_disabled', pointerEvents: 'none' },
 });
 
 /** 子项里有没有当前页 */
@@ -133,12 +137,7 @@ export const NavBar = _component(({ items, propsList, ...rest }: NavBarProps) =>
 
   function renderItem(item: NavBarItem) {
     const current = hasActive(item, router.isActive);
-    const sx = [
-      navBarStyles.link,
-      focusRingStyles.visible,
-      current && navBarStyles.current,
-      item.disabled && navBarStyles.disabled,
-    ];
+    const sx = [navBarStyles.link, focusRingStyles.visible];
     const content = [item.icon && <Icon icon={item.icon} />, item.label, badge(item.badge)];
     if (item.children?.length) {
       return (
@@ -149,6 +148,7 @@ export const NavBar = _component(({ items, propsList, ...rest }: NavBarProps) =>
               sx={sx}
               disabled={item.disabled}
               data-state={current ? 'active' : 'inactive'}
+              data-current={current || undefined}
             >
               {content}
               <Icon icon={ChevronDown} />
@@ -183,8 +183,9 @@ export const NavBar = _component(({ items, propsList, ...rest }: NavBarProps) =>
         trigger={(props) => (
           <ButtonBase
             {...props}
-            sx={[navBarStyles.link, focusRingStyles.visible, current && navBarStyles.current]}
+            sx={[navBarStyles.link, focusRingStyles.visible]}
             aria-label={lang.navBarMore}
+            data-current={current || undefined}
           >
             <Icon icon={Ellipsis} />
           </ButtonBase>

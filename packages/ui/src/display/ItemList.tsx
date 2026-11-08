@@ -139,8 +139,15 @@ const itemListStyles = css.create({
     outlineOffset: `calc(-1 * ${t.borderWidths.sm})`,
     borderRadius: '_sm',
   },
-  selected: { backgroundColor: { default: '_accentSoft', _hover: '_accentSoftHover' } },
-  disabled: { opacity: '_disabled', cursor: 'not-allowed' },
+  // 已选（data-selected）、不可用（可点的才有 data-disabled）跟着属性走；已选 + 悬停深一档
+  states: {
+    backgroundColor: {
+      default: null,
+      _selected: { default: '_accentSoft', _hover: '_accentSoftHover' },
+    },
+    opacity: { default: null, _disabled: '_disabled' },
+    cursor: { default: null, _disabled: 'not-allowed' },
+  },
   // 标题的链接或按钮：看起来就是标题；::after 伸展盖住整条，点哪里都等于点它
   action: {
     // ButtonBase 为波纹定了位：改回 static，::after 才以整条（li）为准
@@ -250,8 +257,7 @@ export const ItemListItem = _component(
                 hoverable && itemListStyles.hoverable,
                 gutter && paddingInlineStyles[gutter],
                 interactive && itemListStyles.interactive,
-                selected && itemListStyles.selected,
-                interactive && disabled && itemListStyles.disabled,
+                itemListStyles.states,
               ],
               ...itemListPart('item'),
             },
