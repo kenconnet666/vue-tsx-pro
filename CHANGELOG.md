@@ -3,6 +3,11 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.19.0（2026-11-08）
+
+- `useFormDialog`（`/patterns`）：下拉字段的选项可以写 `group`，同组的归在一个组标题下（如选人按部门分组）；
+  多选字段（`multiple: true`）的 `defaultValue` 可以给数组，打开时就选好这些。
+
 ## 0.18.0（2026-11-08）
 
 - SchemaForm / useForm：字段的条件写在 meta 里——`visibleWhen`、`requiredWhen`、`readonlyWhen`（条件同 ConditionBuilder）；
