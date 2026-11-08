@@ -3,6 +3,50 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.15.0（2026-11-08）
+
+- 组合组件把里面的按钮、勾选框、链接、头像的部件属性转发出来（用 `mergePartProps` 合并，组件管理的点击、勾选、不可用在最后）：
+  Timeline 的 `propsAvatar`、`propsPending`；PeoplePickerPanel 的 `propsAvatar`、`propsCheckbox`、`propsSelectAll`、`propsDrill`、
+  `propsClear`、`propsRemove`；DataImport 的 `propsTemplate`、`propsPrevious`、`propsNext`、`propsAgain`、`propsOnlyErrors`；
+  SchemaFields 的 `propsAddRow`、`propsRemoveRow`，SchemaForm 的 `propsSubmit`、`propsReset`；Upload 的 `propsLink`、`propsHandle`；
+  ConditionBuilder 的 `propsAddRule`、`propsAddGroup`、`propsRemoveRule`、`propsRemoveGroup`；Breadcrumbs 的 `propsButton`；
+  CommentThread 的 `propsAttachment`、`propsReply`；FilterBar 的 `propsClearAdvanced`；SlideCaptcha 的 `propsRefresh`；
+  QueryTable、ErrorBoundary 的 `propsRetry`；JsonViewer 的 `propsExpandAll`、`propsCollapseAll`；ImageCropper 的 `propsButton`；
+  QuarterCalendar 的 `propsPrevious`、`propsNext`；Carousel 的 `propsPause`、`propsDot`；TabList 的 `propsScrollButton`；
+  Transfer、TreeTransfer 的 `propsCheckAll`；XY 图的 `propsZoomReset`；MapChart 的 `propsControl`。
+- 日历改成配方组件 `Calendar`（CalendarView 渲染的 Calendar、RangeCalendar、日期选择器的弹层，以及 QuarterCalendar 共用）：
+  `components.Calendar` 可以给 `size`、`showWeekNumbers`、`fixedWeeks` 的默认值（如全站显示周数），按部件（root、months、month、
+  header、heading、grid、weekday、weekNumber、cell、cellButton、footer）追加样式。部件标记的 `data-scope` 从 `calendar-view`、
+  `quarter-calendar` 统一成 `calendar`，格子与格子里的按钮也带上了标记。
+- CodeBlock 改成配方组件：各部件带 `data-scope="code-block"` 标记（原来没有），`components.CodeBlock` 可以给 `wrap`、`copyable`、
+  `lineNumbers`、`maxLines`、`flush` 的默认值（如全站显示行号），按部件（root、header、title、body、pre、code、line、lineNumber）
+  追加样式。
+- Tour 改成配方组件：`components.Tour` 可以给 `padding`（镂空比目标大出多少）的默认值，按部件（root、spotlight、panel、cover、
+  content）追加样式。
+- Stat 改成配方组件：各部件带 `data-scope="stat"` 标记（原来没有），`components.Stat` 可以给 `tone` 的默认值、按部件
+  （root、label、icon、value、number、unit、change、changeLabel、description、body、footer）与色调档位追加样式。
+- 新组件 UserButton：头像 + 名字（可带一行说明）+ 箭头，做账号菜单的触发器，Menu 的 `trigger` 里把触发器的 props 展开给它。
+  没有说明时是顶栏里的胶囊，有说明时占满一行（侧栏底部），`compact` 只剩头像。配方组件 `UserButton`，部件 root、avatar、text、
+  name、description、indicator；`vtp-ui create` 的模板顶栏换成了用它的账号菜单。
+- Countdown 加 `variant="blocks"`：一格一格的数字块（限时抢购），天数单独一格，字号随上下文。改成配方组件 `Countdown`，部件
+  root、segment、separator，`components.Countdown` 可以给 `variant` 的默认值、按部件追加样式（如数字块换成危险色）。
+- NavList、Menu、Toaster 改成配方组件，各部件带上标记（原来没有）：
+  `components.NavList` 按部件（root、list、item、link、icon、label、badge、group、trigger、chevron、groupList、flyout、section、
+  sectionLabel、sectionIcon、sectionText）追加样式，NavItem、NavGroup、NavSection、NavMenu 共用；`components.Menu` 可以给 `size`
+  的默认值，按部件（panel、content、item、icon、label、text、description、indicator、shortcut、chevron、group、groupLabel）追加样式，
+  ContextMenu、子菜单与各种菜单项共用；`components.Toaster` 可以给 `placement`、`max`、`stack`、`progress` 的默认值（全站的通知
+  位置、叠放），按部件（region、list、item、gap、toast、progress）追加样式。`menuItemSx` 换成 `menuItemLayer(parts, tone, disabled)`，
+  `menuItemContent` 的第一个参数是所在菜单的部件（`useMenuItem().menu.parts()`）；`toastStyles` 不再导出（用 `components.Toaster`），
+  `createToaster` 的选项类型改名 `CreateToasterOptions`（`ToasterOptions` 是 Toaster 的档位）。
+- AppShell 改成配方组件：`components.AppShell` 可以给 `sidebarCollapsible`、`fullscreenable`、`skipLink`、`pageScrollbar` 的默认值
+  （如全站不要全屏按钮），按部件（root、header、menuButton、brand、nav、headerContent、headerMain、fullscreenButton、fullscreenExit、
+  body、sidebar、sidebarScroll、sidebarContent、collapseBar、collapseButton、column、main、footer、aside、asideScroll、asideContent、
+  drawer）追加样式；headerMain、column、collapseBar 等原来没有标记的节点也带上了。
+- Transfer 改成配方组件（TreeTransfer 共用）：`components.Transfer` 可以给 `searchable` 的默认值，按部件（root、panel、header、
+  checkAll、title、count、search、searchField、list、actions、action、actionIcon）追加样式；原来没有标记的节点也带上了。
+- Timeline 改成配方组件：`createUi` / `Provider` 的 `components.Timeline` 可以给 `alternate`、`size` 的默认值，按部件
+  （root、item、rail、marker、line、content、title、meta、actor、time、description、toggleLine、toggleContent）追加样式。
+
 ## 0.14.0（2026-11-07）
 
 - 新子路径 `@zerodep-dev/vue-tsx-pro-ui/testing`：在自己的测试里按用户的操作驱动复合控件——`selectHarness`、
