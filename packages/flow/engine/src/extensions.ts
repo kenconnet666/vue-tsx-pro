@@ -1,9 +1,15 @@
 /**
- * 扩展点：做事的人、组织、处理人解析器、守卫、动作、计算值、自定义节点与会签规则，以及流程工程的 logic.ts 用的 defineLogic。
+ * 扩展点：做事的人、组织、处理人解析器、守卫、动作、计算值、自定义节点与会签规则，以及流程工程的 logic.ts 用的 defineLogic、
+ * test.ts 用的 defineScenarios（场景测试）。
  * 只依赖模型包、不碰库与实体：流程代码（logic.ts）只用到这些，工作室在浏览器里的语言服务也只带上这个文件与模型包。
  * 引擎的入口照常导出它们（types.ts、publish/project.ts 从这里导入）。
  */
-import type { FieldTypeChecks, FormManifest, FormValues } from '@zerodep-dev/flow-ts-model';
+import type {
+  Duration,
+  FieldTypeChecks,
+  FormManifest,
+  FormValues,
+} from '@zerodep-dev/flow-ts-model';
 
 /** 做事的人：编号与他的角色、部门（判断能不能认领收件箱里的待办）；admin 能做管理员的事 */
 export interface Actor {
@@ -156,5 +162,70 @@ export function defineLogic<Form extends FormManifest, const L extends FlowLogic
   logic: L,
 ): L;
 export function defineLogic(first: unknown, second?: unknown): unknown {
+  return second ?? first;
+}
+
+// ---------- 场景测试（流程工程的 test.ts）----------
+
+/** 试运行的一步 */
+export type SimulationStep =
+  /** 处理某个节点上开着的待办（以它的处理人或管理员的身份） */
+  | {
+      readonly node: string;
+      readonly outcome: string;
+      readonly variables?: Readonly<Record<string, unknown>>;
+      readonly comment?: string;
+      readonly returnTo?: string;
+    }
+  /** 时间往后拨，执行到点的作业（定时、时限、提醒、异步动作） */
+  | { readonly wait: Duration }
+  /** 外部事件 */
+  | {
+      readonly signal: string;
+      readonly outcome?: string;
+      readonly data?: Readonly<Record<string, unknown>>;
+    };
+
+/** 一个场景期望的结果：写了的才核对 */
+export interface ScenarioExpect {
+  /** 最后实例的状态 */
+  readonly status?: 'active' | 'completed' | 'terminated' | 'withdrawn' | 'suspended';
+  /** 结束时的结果（结束节点的 result、terminate 的 result） */
+  readonly result?: string;
+  /** 停在这些节点（开着的待办所在的，不论先后） */
+  readonly at?: readonly string[];
+  /** 等这些人处理（开着的待办的处理人，不论先后） */
+  readonly waitingFor?: readonly string[];
+  /** 在这一步出错（发起是第 0 步），错误里有这段文字；不写 error 时出错就算不通过 */
+  readonly error?: { readonly step?: number; readonly message?: string };
+}
+
+/** 一个场景：谁发起、单据填什么、一步步怎么处理、期望什么 */
+export interface Scenario<V extends object = Variables> {
+  /** 发起人的编号；不写时由运行的地方定 */
+  readonly initiator?: string;
+  readonly variables?: Partial<V>;
+  readonly steps?: readonly SimulationStep[];
+  readonly expect: ScenarioExpect;
+}
+
+/** 场景名 → 场景 */
+export type Scenarios<V extends object = Variables> = Readonly<Record<string, Scenario<V>>>;
+
+/**
+ * 写 test.ts：给了单据时 variables 按单据的类型来
+ * ```ts
+ * import form from './form';
+ * export default defineScenarios(form, {
+ *   '小额直接通过': { variables: { amount: '800' }, steps: [{ node: 'review', outcome: 'pass' }], expect: { status: 'completed' } },
+ * });
+ * ```
+ */
+export function defineScenarios<const S extends Scenarios>(scenarios: S): S;
+export function defineScenarios<
+  Form extends FormManifest,
+  const S extends Scenarios<FormValues<Form>>,
+>(form: Form, scenarios: S): S;
+export function defineScenarios(first: unknown, second?: unknown): unknown {
   return second ?? first;
 }

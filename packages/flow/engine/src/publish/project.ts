@@ -15,7 +15,7 @@ import {
   type ProcessDefinition,
 } from '@zerodep-dev/flow-ts-model';
 import { FlowError } from '../core/errors.ts';
-import { defineLogic, type FlowLogic } from '../extensions.ts';
+import { defineLogic, defineScenarios, type FlowLogic } from '../extensions.ts';
 
 /** 宿主登记给流程代码 import 的模块：给出导出，或用到才加载；types 是给类型检查、在线编辑器的声明 */
 export interface HostModule {
@@ -78,7 +78,7 @@ export interface LinkedProject {
 /** 引擎自带、流程代码总能 import 的模块 */
 const BUILTIN: Readonly<Record<string, object>> = {
   '@zerodep-dev/flow-ts-model': model,
-  '@zerodep-dev/flow-ts-engine': { defineLogic },
+  '@zerodep-dev/flow-ts-engine': { defineLogic, defineScenarios },
 };
 
 /** 加载编译好的模块：先把用到的宿主模块都加载好（模块表是同步取的），工程里的模块用到时才执行 */

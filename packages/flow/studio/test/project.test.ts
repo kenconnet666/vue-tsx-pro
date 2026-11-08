@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { describe, it } from 'vitest';
 import { defineForm, type FlowProject } from '@zerodep-dev/flow-ts-model';
 import { FlowError, type Actor } from '@zerodep-dev/flow-ts-engine';
-import { createTestEngine } from '@zerodep-dev/flow-ts-engine/testing';
+import { createTestEngine, runScenarios } from '@zerodep-dev/flow-ts-engine/testing';
 import { compileInPlace } from '../src/index.ts';
 import { createTypeChecker } from '../src/typecheck.ts';
 
@@ -85,8 +85,44 @@ async function rejectsWith(promise: Promise<unknown>, code: string, field?: stri
   });
 }
 
+const scenarios = `import { defineScenarios } from '@zerodep-dev/flow-ts-engine';
+import form from './form';
+
+export default defineScenarios(form, {
+  '小额走小额': {
+    variables: { amount: 100 },
+    steps: [{ node: 'review', outcome: 'ok' }],
+    expect: { status: 'completed', result: 'small' },
+  },
+  '发起后等 1004': { variables: { amount: 100 }, expect: { at: ['review'], waitingFor: ['1004'] } },
+  '超预算被拦': {
+    variables: { amount: 5000 },
+    steps: [{ node: 'review', outcome: 'ok' }],
+    expect: { error: { step: 1, message: '超出预算' } },
+  },
+  '写错的期望': { variables: { amount: 100 }, expect: { status: 'completed' } },
+});
+`;
+
 // 第一个用例要先载入 Babel，全量并行跑时机器忙会超过默认的 5 秒
 describe('流程工程', { timeout: 30_000 }, () => {
+  it('场景测试：test.ts 的 defineScenarios 逐个试运行、对照期望，写错的期望说出哪里不一样', async () => {
+    const results = await runScenarios(project({ 'test.ts': scenarios }), {
+      options: { transform: compileInPlace, modules },
+    });
+    assert.deepEqual(
+      results.map((r) => [r.name, r.passed]),
+      [
+        ['小额走小额', true],
+        ['发起后等 1004', true],
+        ['超预算被拦', true],
+        ['写错的期望', false],
+      ],
+    );
+    assert.deepEqual(results[3]?.problems, ['状态是 active，期望 completed']);
+    assert.deepEqual(await runScenarios(project()), []);
+  });
+
   it('处理人、守卫、条件、动作引用 logic.名字；相对路径与宿主模块都能 import；单据的清单内联进定义', async () => {
     const { engine } = await createTestEngine({ transform: compileInPlace, modules });
     await engine.publish(project());

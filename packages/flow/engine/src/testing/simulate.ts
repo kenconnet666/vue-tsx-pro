@@ -8,31 +8,15 @@
  *   });
  *   run.status; run.path.map((e) => e.node); run.open; run.error
  */
-import type { Duration, FlowProject, ProcessDefinition } from '@zerodep-dev/flow-ts-model';
+import type { FlowProject, ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import { parseCandidate } from '../runtime/assignees.ts';
 import { FlowWorkItem } from '../core/entities.ts';
 import { FlowError } from '../core/errors.ts';
 import { createTestEngine } from './testing.ts';
 import type { Actor, FlowEngineOptions, FlowEventView, InstanceSummary } from '../types.ts';
+import type { SimulationStep } from '../extensions.ts';
 
-/** 试运行的一步 */
-export type SimulationStep =
-  /** 处理某个节点上开着的待办（以它的处理人或管理员的身份） */
-  | {
-      readonly node: string;
-      readonly outcome: string;
-      readonly variables?: Readonly<Record<string, unknown>>;
-      readonly comment?: string;
-      readonly returnTo?: string;
-    }
-  /** 时间往后拨，执行到点的作业（定时、时限、提醒、异步动作） */
-  | { readonly wait: Duration }
-  /** 外部事件 */
-  | {
-      readonly signal: string;
-      readonly outcome?: string;
-      readonly data?: Readonly<Record<string, unknown>>;
-    };
+export type { SimulationStep };
 
 /** 试运行的输入 */
 export interface SimulationInput {

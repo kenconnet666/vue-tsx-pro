@@ -75,3 +75,10 @@ export {
   type SimulationResult,
   type SimulationStep,
 } from './simulate.ts';
+export {
+  runScenarios,
+  scenarioProblems,
+  TEST_FILE,
+  type RunScenariosOptions,
+  type ScenarioResult,
+} from './scenarios.ts';

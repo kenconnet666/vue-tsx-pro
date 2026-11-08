@@ -53,7 +53,7 @@ export {
   type OperationView,
   type WorkItemOperation,
 } from './commands/operations.ts';
-export { defineLogic, type FlowLogic } from './extensions.ts';
+export { defineLogic, defineScenarios, type FlowLogic } from './extensions.ts';
 export {
   buildProject,
   compileProject,
