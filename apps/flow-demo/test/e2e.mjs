@@ -221,6 +221,39 @@ async function run(mode) {
     await page.getByRole('link', { name: /^采购：服务器/ }).click();
     await state().getByText('已结束：approved').waitFor();
 
+    // 付款 12 万：管理员暂停、恢复；人事复核后自动推送 ERP，超过 10 万被拒，进“异常作业”，管理员跳过后结束
+    await signIn('alice', '/start');
+    const pay = page
+      .locator('form')
+      .filter({ has: page.getByRole('button', { name: '发起付款' }) });
+    await pay.getByRole('textbox', { name: '收款方' }).fill('远山精密');
+    await pay.getByRole('spinbutton', { name: '金额' }).fill('120000');
+    await pay.getByRole('button', { name: '发起付款' }).click();
+    await state().getByText('进行中：人事复核').waitFor();
+    const bill = page.url().split('/').pop();
+    await signIn('admin', `/instances/${bill}`);
+    await page.getByRole('button', { name: '管理' }).click();
+    await page.getByRole('menuitem', { name: '暂停' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: '暂停', exact: true }).click();
+    await page.getByText('已暂停', { exact: true }).waitFor();
+    await page.getByRole('button', { name: '管理' }).click();
+    await page.getByRole('menuitem', { name: '恢复' }).click();
+    await page.getByText('审批中', { exact: true }).waitFor();
+    await signIn('carol', `/instances/${bill}`);
+    await handle('复核通过');
+    await state().getByText('进行中：推送到 ERP').waitFor();
+    await signIn('admin', '/incidents');
+    await page.getByRole('button', { name: '立即执行到期作业' }).click();
+    const incident = page.getByRole('list', { name: '异常作业' }).getByRole('listitem').first();
+    await incident.getByText('ERP 拒收：单笔超过 10 万').waitFor();
+    await incident.getByRole('button', { name: '跳过' }).click();
+    const skipDialog = page.getByRole('dialog');
+    await skipDialog.getByRole('textbox', { name: '原因' }).fill('财务已手工补录');
+    await skipDialog.getByRole('button', { name: '跳过', exact: true }).click();
+    await page.getByText('没有异常作业').waitFor();
+    await signIn('admin', `/instances/${bill}`);
+    await state().getByText('已结束：approved').waitFor();
+
     assert.deepEqual(problems, [], `${mode}：没有报错与水合警告`);
     console.log(`${mode}：通过`);
   } finally {

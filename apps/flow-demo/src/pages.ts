@@ -1,4 +1,4 @@
-/** 应用的页面（nitro.config.ts 在 Node 里也加载它，只从 kit/page 导入）：工作台（首页）、发起、审批单在服务端渲染，要求登录；设计流程在浏览器里渲染，要求管理员 */
+/** 应用的页面（nitro.config.ts 在 Node 里也加载它，只从 kit/page 导入）：工作台（首页）、发起、审批单在服务端渲染，要求登录；设计流程在浏览器里渲染、异常作业服务端渲染，都要求管理员 */
 import { definePages } from '@zerodep-dev/vue-tsx-pro-kit/page';
 
 export const pages = definePages([
@@ -22,6 +22,13 @@ export const pages = definePages([
     title: '设计流程',
     permission: 'flow.admin',
     component: () => import('./pages/Design.tsx'),
+  },
+  {
+    path: '/incidents',
+    mode: 'ssr',
+    title: '异常作业',
+    permission: 'flow.admin',
+    component: () => import('./pages/Incidents.tsx'),
   },
   {
     path: '/instances/:id',

@@ -12,6 +12,14 @@ import { USERS } from './context.ts';
 export const engine = createFlowEngine({
   adapter: sqlite(new DatabaseSync(process.env.FLOW_DB ?? ':memory:')),
   admins: ['admin'],
+  // 付款流程的自动动作：推送到 ERP。示例里单笔超过 10 万时 ERP 拒收，作业失败进“异常作业”，管理员重试或跳过
+  extensions: {
+    actions: {
+      pushToErp: ({ variables }) => {
+        if (Number(variables['amount']) > 100_000) throw new Error('ERP 拒收：单笔超过 10 万');
+      },
+    },
+  },
   org: {
     members: (source) =>
       'role' in source

@@ -152,6 +152,103 @@ export const actions = defineActions({
           )),
       ),
   ),
+  // 管理员：暂停、恢复、终止、跳转、改派；异常作业的重试、跳过，立即执行到期的作业
+  suspend: defineAction(
+    {
+      input: z.object({ instance: z.number().int(), comment: z.string().optional() }),
+      permission: 'flow.admin',
+    },
+    ({ instance, comment }) =>
+      run(
+        async () =>
+          void (await engine.run(
+            { type: 'suspend', instance, ...(comment ? { comment } : {}) },
+            currentActor(),
+          )),
+      ),
+  ),
+  resume: defineAction(
+    { input: z.object({ instance: z.number().int() }), permission: 'flow.admin' },
+    ({ instance }) =>
+      run(async () => void (await engine.run({ type: 'resume', instance }, currentActor()))),
+  ),
+  terminate: defineAction(
+    {
+      input: z.object({ instance: z.number().int(), comment: z.string().min(1) }),
+      permission: 'flow.admin',
+    },
+    ({ instance, comment }) =>
+      run(
+        async () =>
+          void (await engine.run({ type: 'terminate', instance, comment }, currentActor())),
+      ),
+  ),
+  jump: defineAction(
+    {
+      input: z.object({
+        instance: z.number().int(),
+        node: z.string().min(1),
+        comment: z.string().optional(),
+      }),
+      permission: 'flow.admin',
+    },
+    ({ instance, node, comment }) =>
+      run(
+        async () =>
+          void (await engine.run(
+            { type: 'jump', instance, node, ...(comment ? { comment } : {}) },
+            currentActor(),
+          )),
+      ),
+  ),
+  reassign: defineAction(
+    {
+      input: z.object({
+        workItem: z.number().int(),
+        to: z.string().min(1),
+        comment: z.string().optional(),
+      }),
+      permission: 'flow.admin',
+    },
+    ({ workItem, to, comment }) =>
+      run(
+        async () =>
+          void (await engine.run(
+            { type: 'reassign', workItem, to, ...(comment ? { comment } : {}) },
+            currentActor(),
+          )),
+      ),
+  ),
+  retryJob: defineAction(
+    { input: z.object({ job: z.number().int() }), permission: 'flow.admin' },
+    ({ job }) => run(() => engine.retryJob(job, currentActor())),
+  ),
+  skipJob: defineAction(
+    {
+      input: z.object({
+        job: z.number().int(),
+        outcome: z.string().optional(),
+        reason: z.string().optional(),
+      }),
+      permission: 'flow.admin',
+    },
+    ({ job, outcome, reason }) =>
+      run(
+        async () =>
+          void (await engine.run(
+            {
+              type: 'skipJob',
+              job,
+              ...(outcome ? { outcome } : {}),
+              ...(reason ? { reason } : {}),
+            },
+            currentActor(),
+          )),
+      ),
+  ),
+  runJobs: defineAction({ input: z.object({}), permission: 'flow.admin' }, () =>
+    run(() => engine.jobs.runDue()),
+  ),
   withdraw: defineAction(
     { input: z.object({ instance: z.number().int() }), permission: 'flow.use' },
     ({ instance }) =>

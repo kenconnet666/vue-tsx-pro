@@ -97,6 +97,12 @@ export const loaders = defineLoaders({
       })),
     };
   },
+  // 异常作业（管理员）：重试用完还失败的作业，能跳过的带上能选的结果
+  '/incidents': async () =>
+    (await engine.query.incidents()).map((incident) => ({
+      ...incident,
+      outcomes: [...incident.outcomes],
+    })),
   // 发布过的流程（含设计器里刚发布的）：每个流程最新的启用版本
   '/start': async () =>
     (await engine.query.processes()).map((p) => ({
@@ -227,7 +233,10 @@ export const loaders = defineLoaders({
             'workItem.overdue',
             'instance.cc',
             'instance.suspended',
+            'instance.resumed',
             'instance.jumped',
+            'job.failed',
+            'job.skipped',
           ].includes(e.type),
         )
         .map((e) => ({
@@ -235,8 +244,9 @@ export const loaders = defineLoaders({
           node: e.node && names.node(e.node),
           actor: nameOf(e.actor),
           outcome: e.outcome && (e.node ? names.outcome(e.node, e.outcome) : e.outcome),
-          // 转办、改派、抄送给了谁
-          target: targetsOf(e.data),
+          // 转办、改派、抄送给了谁；跳转跳到哪个节点
+          target:
+            e.type === 'instance.jumped' ? names.node(String(e.data?.['to'])) : targetsOf(e.data),
           comment: e.comment,
           at: e.at.toISOString(),
         })),
@@ -255,6 +265,18 @@ export const loaders = defineLoaders({
         (detail.instance.startedBy === actor.id || !!actor.admin) &&
         detail.instance.status === 'active' &&
         open.length > 0,
+      // 管理员：暂停、恢复、终止、跳转（能跳到的节点）、改派（开着的待办）
+      admin: actor.admin
+        ? {
+            nodes: detail.definition.nodes
+              .filter((node) => node.type !== 'start')
+              .map((node) => ({ value: node.id, label: node.name })),
+            openItems: open.map((w) => ({
+              value: String(w.id),
+              label: `${w.nodeName} · ${w.assignee ? nameOf(w.assignee) : '收件箱'}`,
+            })),
+          }
+        : null,
       // 转办、抄送时选人：示例的用户表（除了自己）
       people: Object.values(USERS)
         .filter((user) => user.id !== actor.id)

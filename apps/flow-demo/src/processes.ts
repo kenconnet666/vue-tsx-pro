@@ -1,5 +1,5 @@
 /**
- * 示例的流程：请假（经理审批，超过 3 天再给人事；可以退回给申请人改）；
+ * 示例的流程：付款（人事复核后自动推送到 ERP，失败进异常作业）；请假（经理审批，超过 3 天再给人事；可以退回给申请人改）；
  * 采购（经理审批限时一天、超时标出来，金额超过 5 万经理与人事会签，最后调用“供应商核实”子流程）
  */
 import { defineProcess } from '@zerodep-dev/flow-ts-model';
@@ -156,5 +156,34 @@ export const purchase = defineProcess({
   ],
 });
 
+/** 付款：人事复核后自动推送到 ERP（异步作业；失败进“异常作业”，管理员重试或跳过） */
+export const payment = defineProcess({
+  key: 'payment',
+  name: '付款',
+  title: '付款：{payee}（¥{amount}）',
+  summary: ['payee', 'amount'],
+  variables: [
+    { name: 'payee', type: 'text', label: '收款方' },
+    { name: 'amount', type: 'number', label: '金额' },
+  ],
+  nodes: [
+    { id: 'start', type: 'start', name: '提交' },
+    {
+      id: 'review',
+      type: 'task',
+      name: '人事复核',
+      assignees: [{ role: '2', name: '人事' }],
+      outcomes: [{ key: 'approve', label: '复核通过' }],
+    },
+    { id: 'erp', type: 'service', name: '推送到 ERP', action: 'pushToErp', mode: 'async' },
+    { id: 'paid', type: 'end', name: '已付款', result: 'approved' },
+  ],
+  edges: [
+    { id: 'submit', from: 'start', to: 'review' },
+    { id: 'reviewed', from: 'review', to: 'erp', outcome: 'approve' },
+    { id: 'pushed', from: 'erp', to: 'paid' },
+  ],
+});
+
 /** 发布的流程：子流程先发布（调用它的流程发布时校验它存在） */
-export const processes = [leave, vendorCheck, purchase] as const;
+export const processes = [leave, vendorCheck, purchase, payment] as const;

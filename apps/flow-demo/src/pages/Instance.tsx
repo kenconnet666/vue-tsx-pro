@@ -15,6 +15,8 @@ import {
   Grid,
   H1,
   Link,
+  Menu,
+  MenuItem,
   NumberField,
   Paragraph,
   Small,
@@ -52,6 +54,9 @@ const EVENTS: Record<string, string> = {
   'workItem.overdue': '超时',
   'instance.cc': '抄送',
   'instance.suspended': '暂停',
+  'instance.resumed': '恢复',
+  'job.failed': '自动动作失败',
+  'job.skipped': '跳过自动动作',
   'instance.jumped': '跳转',
 };
 
@@ -222,6 +227,77 @@ export default _component(() => {
     await run(() => actions.remind({ instance, ...(message ? { message } : {}) }));
   }
 
+  /** 管理员：暂停（写原因）、恢复 */
+  async function suspend(instance: number) {
+    const values = await prompt({
+      title: '暂停',
+      description: '暂停期间不能认领、处理，到期的作业往后推。',
+      fields: [commentField(false, '原因')],
+      confirmText: '暂停',
+    });
+    if (!values) return;
+    const comment = values.comment;
+    await run(() => actions.suspend({ instance, ...(comment ? { comment } : {}) }));
+  }
+
+  /** 管理员：终止（要写原因） */
+  async function terminate(instance: number) {
+    const values = await prompt({
+      title: '终止',
+      description: '终止后流程不再往下走，开着的待办一并取消。',
+      fields: [commentField(true, '原因')],
+      confirmText: '终止',
+      tone: 'danger',
+    });
+    if (!values) return;
+    await run(() => actions.terminate({ instance, comment: values.comment }));
+  }
+
+  /** 管理员：跳到指定节点（开着的待办取消） */
+  async function jump(instance: number, nodes: readonly Choice[]) {
+    const values = await prompt({
+      title: '跳转',
+      description: '取消开着的待办，从选的节点重新开始。',
+      fields: [
+        { name: 'node', label: '跳到', type: 'select', required: true, options: nodes },
+        commentField(false, '原因'),
+      ],
+      confirmText: '跳转',
+    });
+    if (!values) return;
+    const comment = values.comment;
+    await run(() => actions.jump({ instance, node: values.node, ...(comment ? { comment } : {}) }));
+  }
+
+  /** 管理员：把开着的待办改派给别人 */
+  async function reassign(items: readonly Choice[], people: readonly Choice[]) {
+    const values = await prompt({
+      title: '改派',
+      fields: [
+        {
+          name: 'item',
+          label: '待办',
+          type: 'select',
+          required: true,
+          options: items,
+          defaultValue: items[0]?.value,
+        },
+        { name: 'to', label: '改派给', type: 'select', required: true, options: people },
+        commentField(false, '原因'),
+      ],
+      confirmText: '改派',
+    });
+    if (!values) return;
+    const comment = values.comment;
+    await run(() =>
+      actions.reassign({
+        workItem: Number(values.item),
+        to: values.to,
+        ...(comment ? { comment } : {}),
+      }),
+    );
+  }
+
   /** 抄送：让别人也看到这张单子（不用处理） */
   async function cc(instance: number, people: readonly Choice[]) {
     const values = await prompt({
@@ -257,8 +333,18 @@ export default _component(() => {
       <Flex direction="column" gap="lg">
         <Flex gap="sm" align="center" wrap>
           <H1>{instance.title ?? `审批单 ${instance.id}`}</H1>
-          <Badge tone={active ? 'accent' : instance.result === 'approved' ? 'success' : 'neutral'}>
-            {active ? '审批中' : '已结束'}
+          <Badge
+            tone={
+              active
+                ? 'accent'
+                : instance.status === 'suspended'
+                  ? 'warning'
+                  : instance.result === 'approved'
+                    ? 'success'
+                    : 'neutral'
+            }
+          >
+            {active ? '审批中' : instance.status === 'suspended' ? '已暂停' : '已结束'}
           </Badge>
         </Flex>
         <Flex gap="sm" align="center" wrap>
@@ -389,8 +475,40 @@ export default _component(() => {
             />
           </TabPanel>
         </Tabs>
-        {(detail.actions.length > 0 || detail.withdrawable || active) && (
+        {(detail.actions.length > 0 || detail.withdrawable || active || detail.admin) && (
           <ActionBar start={detail.actions.map((item) => item.node).join('、') || undefined}>
+            {detail.admin && (instance.status === 'active' || instance.status === 'suspended') && (
+              <Menu
+                trigger={(props) => (
+                  <Button {...props} variant="ghost" tone="neutral" disabled={busy}>
+                    管理
+                  </Button>
+                )}
+              >
+                {instance.status === 'active' ? (
+                  <MenuItem onAction={() => void suspend(instance.id)}>暂停</MenuItem>
+                ) : (
+                  <MenuItem
+                    onAction={() => void run(() => actions.resume({ instance: instance.id }))}
+                  >
+                    恢复
+                  </MenuItem>
+                )}
+                {active && (
+                  <MenuItem onAction={() => void jump(instance.id, detail.admin!.nodes)}>
+                    跳转…
+                  </MenuItem>
+                )}
+                {active && detail.admin.openItems.length > 0 && (
+                  <MenuItem onAction={() => void reassign(detail.admin!.openItems, detail.people)}>
+                    改派…
+                  </MenuItem>
+                )}
+                <MenuItem tone="danger" onAction={() => void terminate(instance.id)}>
+                  终止…
+                </MenuItem>
+              </Menu>
+            )}
             {active && (
               <Button
                 variant="ghost"
