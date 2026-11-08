@@ -1,6 +1,7 @@
 /**
  * 流程工作室的编辑页（只给管理员）：工作副本是工程的文件。
- * - 图：设计器改 process.json；代码：文件树 + 编辑器，直接改各个文件（form.ts、logic.ts……）；版本：载入某一版、回滚。
+ * - 图：设计器改 process.json；单据：表单设计器改字段清单（有 form.ts 时重写它，没有时改 process.json 里内联的清单）；
+ *   代码：文件树 + 编辑器，直接改各个文件（form.ts、logic.ts……）；版本：载入某一版、回滚。
  * - 边改边查：停手半秒后把整份文件交给 Worker 里的引擎检查（编译、校验、类型检查，同发布），问题列在下面，点一下定位。
  * - 发布：检查没有错误才能发，写发布说明，成新的一版；进行中的单子按原来的版本走完。
  * 还没发布过的新流程（从列表新建）只在这个页面里，发布后才进库。
@@ -10,7 +11,14 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { CheckResult, VersionInfo } from '@zerodep-dev/flow-ts-engine';
 import { FlowError } from '@zerodep-dev/flow-ts-engine/client';
-import { problemMessage, type ProcessDefinition, type Problem } from '@zerodep-dev/flow-ts-model';
+import {
+  formFileSource,
+  problemMessage,
+  type FormManifest,
+  type ProcessDefinition,
+  type Problem,
+} from '@zerodep-dev/flow-ts-model';
+import { FormDesigner } from '@zerodep-dev/flow-ts-ui';
 import {
   Alert,
   Badge,
@@ -82,6 +90,8 @@ export default _component(() => {
   let checking = _state(false);
   let publishing = _state(false);
   let focus = _state.raw<{ node: string } | null>(null);
+  /** 表单设计器刚改的清单：重写的 form.ts 检查完之前先显示它（不然要等编译才看得到改动） */
+  let formDraft = _state.raw<FormManifest | null>(null);
 
   async function load() {
     try {
@@ -123,7 +133,9 @@ export default _component(() => {
         void center.client
           .check({ files: current })
           .then((result) => {
-            if (mine === round) checked = result;
+            if (mine !== round) return;
+            checked = result;
+            formDraft = null;
           })
           .catch(showError)
           .finally(() => mine === round && (checking = false));
@@ -155,6 +167,68 @@ export default _component(() => {
       : (checked.error ? 1 : 0) +
         checked.problems.filter((p) => p.severity === 'error').length +
         checked.types.length;
+
+  /** 单据的清单：form.ts 编译出来的（检查结果里），或 process.json 里内联的 */
+  function manifest(): FormManifest | undefined {
+    if (formDraft) return formDraft;
+    if (files?.['form.ts'] !== undefined) return checked?.definition?.form?.manifest;
+    return definition()?.form?.manifest;
+  }
+
+  function setManifest(next: FormManifest) {
+    if (!files) return;
+    formDraft = next;
+    if (files['form.ts'] !== undefined) {
+      files = { ...files, 'form.ts': formFileSource(next) };
+      return;
+    }
+    const current = definition();
+    if (current)
+      setDefinition({
+        ...current,
+        form: { ...current.form, key: current.form?.key ?? key, manifest: next },
+      });
+  }
+
+  function renderForm(current: Files) {
+    const fields = manifest();
+    if (current['form.ts'] === undefined && !definition()?.form?.manifest)
+      return (
+        <Alert
+          tone="info"
+          title="这个流程还没有单据"
+          description="加一个 form.ts：字段清单，推出单据的类型给 logic.ts 用。"
+          action={
+            <Button
+              size="sm"
+              onClick={() => (files = { ...current, 'form.ts': fileTemplate('form.ts') })}
+            >
+              加 form.ts
+            </Button>
+          }
+        />
+      );
+    if (!fields)
+      return checked?.error ? (
+        <Alert
+          tone="danger"
+          title="form.ts 编译不过"
+          description="先到“代码”里改对，这里才读得出字段。"
+        />
+      ) : (
+        <SkeletonText lines={4} />
+      );
+    return (
+      <Flex direction="column" gap="sm">
+        {current['form.ts'] !== undefined && (
+          <Small tone="muted">
+            改动会重写 form.ts：清单照原样写回，form.ts 里手写的注释、别的代码不保留。
+          </Small>
+        )}
+        <FormDesigner manifest={fields} onChange={setManifest} sources={['suppliers']} />
+      </Flex>
+    );
+  }
 
   function setDefinition(next: ProcessDefinition) {
     if (files) files = { ...files, [PROCESS_FILE]: stringify(next) };
@@ -459,6 +533,7 @@ export default _component(() => {
         <Tabs _value={tab}>
           <TabList aria-label="编辑">
             <Tab value="design">图</Tab>
+            <Tab value="form">单据</Tab>
             <Tab value="code">代码</Tab>
             <Tab value="versions">版本</Tab>
           </TabList>
@@ -488,6 +563,7 @@ export default _component(() => {
               />
             )}
           </TabPanel>
+          <TabPanel value="form">{renderForm(current)}</TabPanel>
           <TabPanel value="code">{renderCode(current)}</TabPanel>
           <TabPanel value="versions">{renderVersions()}</TabPanel>
         </Tabs>
