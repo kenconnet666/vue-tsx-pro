@@ -93,6 +93,7 @@ export const AsideLayout = _component(
             gapStyles[gap],
             asideLayoutDynamicStyles.columns(asideWidth),
           )}
+          {...asideLayoutPart('grid')}
         >
           <div
             {...mergeAttrs<'div'>(

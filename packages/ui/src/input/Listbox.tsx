@@ -116,10 +116,10 @@ type Row<T> =
 const SKELETON_ROWS = 4;
 const MORE_SKELETON_ROWS = 2;
 
-/** Listbox 的样式：root、scroll、sizer、row、groupLabel、content 等 */
-/** 列表本身的部件标记（data-scope="listbox" data-part="root"）：使用方的全局样式能选中它，也让它和别的部件一样 border-box */
-const listboxPart = partAttrs({ name: 'Listbox' }, 'root');
+/** 部件的标记（data-scope="listbox"）：使用方的全局样式能选中它们，也让它们和别的部件一样 border-box */
+const listboxPart = (part: string) => partAttrs({ name: 'Listbox' }, part);
 
+/** Listbox 的样式：root、scroll、sizer、row、groupLabel、content 等 */
 const listboxStyles = css.create({
   root: { position: 'relative', padding: '_xs', lineHeight: '_normal', outlineStyle: 'none' },
   // 自己是滚动容器时（单独使用的 Listbox）：限制高度，滚动不传给页面
@@ -319,7 +319,7 @@ export const ListboxView = _component(
           ) : (
             <>
               {option.icon && <Icon icon={option.icon} />}
-              <span {...css.attrs(listboxStyles.content)}>
+              <span {...css.attrs(listboxStyles.content)} {...listboxPart('content')}>
                 <span {...css.attrs(itemStyles.label)}>{option.label}</span>
                 {option.description && (
                   <Text size="sm" sx={listboxStyles.description}>
@@ -381,6 +381,7 @@ export const ListboxView = _component(
           ref={_toRef(sizer)}
           role="presentation"
           {...css.attrs(listboxStyles.sizer, listboxPositionStyles.height(virtual.total))}
+          {...listboxPart('sizer')}
         >
           {virtual.items.map((item) => {
             const row = rows[item.index]!;
@@ -391,6 +392,7 @@ export const ListboxView = _component(
                 data-index={item.index}
                 role="presentation"
                 {...css.attrs(listboxStyles.row, listboxPositionStyles.y(item.start))}
+                {...listboxPart('row')}
               >
                 {row.kind === 'group' ? (
                   <Text
@@ -419,7 +421,7 @@ export const ListboxView = _component(
       // 先不编译 sx：自己滚动时这些属性交给 ScrollArea 的视口，和视口自己的样式一次合并
       const props = mergeProps<'div'>(
         {
-          ...listboxPart,
+          ...listboxPart('root'),
           // 自己滚动时它就是滚动区域的视口，外面一圈会被滚动区域裁掉：焦点环画在里面
           sx: [
             listboxStyles.root,

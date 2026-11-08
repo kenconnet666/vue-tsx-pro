@@ -294,7 +294,7 @@ export const PeoplePickerPanel = _component(
         <ItemListItem
           key={id}
           start={
-            <span {...css.attrs(peoplePickerPanelStyles.start)}>
+            <span {...css.attrs(peoplePickerPanelStyles.start)} {...peoplePickerPanelPart('start')}>
               {pickable(entry) && (
                 <Checkbox
                   {...mergePartProps<CheckboxProps>({ 'aria-label': entry.name }, propsCheckbox, {
@@ -408,7 +408,10 @@ export const PeoplePickerPanel = _component(
             }}
           >
             {loading ? (
-              <div {...css.attrs(peoplePickerPanelStyles.status)}>
+              <div
+                {...css.attrs(peoplePickerPanelStyles.status)}
+                {...peoplePickerPanelPart('status')}
+              >
                 <Spinner label={lang.loading} />
               </div>
             ) : items.length === 0 ? (
@@ -437,7 +440,7 @@ export const PeoplePickerPanel = _component(
             propsSelected,
           )}
         >
-          <div {...css.attrs(peoplePickerPanelStyles.header)}>
+          <div {...css.attrs(peoplePickerPanelStyles.header)} {...peoplePickerPanelPart('header')}>
             <Strong size="sm">{lang.peopleCount(value.length, max)}</Strong>
             {value.length > 0 && (
               <Button
@@ -492,7 +495,7 @@ export const PeoplePickerPanel = _component(
           rest,
         )}
       >
-        <div {...css.attrs(peoplePickerPanelStyles.grid)}>
+        <div {...css.attrs(peoplePickerPanelStyles.grid)} {...peoplePickerPanelPart('grid')}>
           {renderBrowse()}
           {renderSelected()}
         </div>

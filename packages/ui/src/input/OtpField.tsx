@@ -18,6 +18,7 @@ import { controlParts, useControlAppearance, type ControlOptions } from './contr
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { fontSizeStyles, relativeFontSizes, type TextSize } from '../utils/style/typography';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 能输入的字符 */
 export interface OtpCharsets {
@@ -66,6 +67,9 @@ export interface OtpFieldProps
 }
 
 const blink = css.keyframes({ '50%': { opacity: 0 } });
+
+/** 部件的标记（data-scope="otp-field"） */
+const otpFieldPart = (part: string) => partAttrs({ name: 'OtpField' }, part);
 
 /** OtpField 的样式：root、input、slot、active、caret、separator（格子的外观来自输入框的配方） */
 const otpFieldStyles = css.create({
@@ -209,7 +213,9 @@ export const OtpField = _component(
                   ? mask
                     ? '•'
                     : char
-                  : active && <span {...css.attrs(otpFieldStyles.caret)} />}
+                  : active && (
+                      <span {...css.attrs(otpFieldStyles.caret)} {...otpFieldPart('caret')} />
+                    )}
               </div>,
               ends.has(index) && (
                 <span

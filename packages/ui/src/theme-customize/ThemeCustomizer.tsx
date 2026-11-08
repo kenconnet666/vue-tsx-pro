@@ -45,6 +45,7 @@ import {
 } from './palette';
 import { readToken, type Theme } from '../config/theme/theme';
 import { colors } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div 上 */
 export interface ThemeCustomizerProps extends PartProps<'div'> {
@@ -65,6 +66,9 @@ export interface ThemeCustomizerProps extends PartProps<'div'> {
   /** 恢复默认按钮的部件属性 */
   propsReset?: Omit<Partial<ButtonProps>, 'onClick'>;
 }
+
+/** 部件的标记（data-scope="theme-customizer"） */
+const themeCustomizerPart = (part: string) => partAttrs({ name: 'ThemeCustomizer' }, part);
 
 /** ThemeCustomizer 的样式：root、group、groupHeader、field、fieldHeader、options、option、optionContent 等 */
 const themeCustomizerStyles = css.create({
@@ -204,7 +208,10 @@ export const ThemeCustomizer = _component(
 
     const group = (title: string, hint: string, children: VNodeChild) => (
       <section {...mergeAttrs<'section'>({ sx: themeCustomizerStyles.group }, propsGroup)}>
-        <div {...css.attrs(themeCustomizerStyles.groupHeader)}>
+        <div
+          {...css.attrs(themeCustomizerStyles.groupHeader)}
+          {...themeCustomizerPart('groupHeader')}
+        >
           <Text weight="semibold">{title}</Text>
           <Text size="sm" tone="muted">
             {hint}
@@ -223,8 +230,11 @@ export const ThemeCustomizer = _component(
       onChange: (next: string) => void,
       layout: OptionLayout = 'list',
     ) => (
-      <div {...css.attrs(themeCustomizerStyles.field)}>
-        <div {...css.attrs(themeCustomizerStyles.fieldHeader)}>
+      <div {...css.attrs(themeCustomizerStyles.field)} {...themeCustomizerPart('field')}>
+        <div
+          {...css.attrs(themeCustomizerStyles.fieldHeader)}
+          {...themeCustomizerPart('fieldHeader')}
+        >
           <Text size="sm" weight="medium">
             {label}
           </Text>
@@ -259,9 +269,17 @@ export const ThemeCustomizer = _component(
                   <VisuallyHidden>{option.label}</VisuallyHidden>
                 </>
               ) : (
-                <span {...css.attrs(themeCustomizerStyles.optionContent)}>
+                <span
+                  {...css.attrs(themeCustomizerStyles.optionContent)}
+                  {...themeCustomizerPart('optionContent')}
+                >
                   {option.preview}
-                  <span {...css.attrs(themeCustomizerStyles.optionLabel)}>{option.label}</span>
+                  <span
+                    {...css.attrs(themeCustomizerStyles.optionLabel)}
+                    {...themeCustomizerPart('optionLabel')}
+                  >
+                    {option.label}
+                  </span>
                 </span>
               )}
             </ToggleItem>
@@ -287,6 +305,7 @@ export const ThemeCustomizer = _component(
               themeCustomizerStyles.swatchLarge,
               themeCustomizerStyles.swatchDefault,
             )}
+            {...themeCustomizerPart('swatch')}
           />
         ),
         label: messages.themeDefault,
@@ -305,6 +324,7 @@ export const ThemeCustomizer = _component(
                 swatchStyles.ring,
                 themeCustomizerDynamicStyles.fill(color),
               )}
+              {...themeCustomizerPart('swatch')}
             />
           ),
           label: messages.colorNames[scale],
@@ -374,6 +394,7 @@ export const ThemeCustomizer = _component(
                 preview: (
                   <span
                     {...css.attrs(themeCustomizerStyles.corner, themeCustomizerCornerStyles[value])}
+                    {...themeCustomizerPart('corner')}
                   />
                 ),
               })),
@@ -392,6 +413,7 @@ export const ThemeCustomizer = _component(
                       themeCustomizerStyles.sample,
                       themeCustomizerDynamicStyles.scale(factor),
                     )}
+                    {...themeCustomizerPart('sample')}
                   >
                     Aa
                   </span>
@@ -414,6 +436,7 @@ export const ThemeCustomizer = _component(
                       themeCustomizerStyles.sample,
                       value === 'sans' ? themeCustomizerStyles.sans : themeCustomizerStyles.serif,
                     )}
+                    {...themeCustomizerPart('sample')}
                   >
                     Aa
                   </span>

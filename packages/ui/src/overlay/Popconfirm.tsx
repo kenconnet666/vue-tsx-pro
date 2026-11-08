@@ -27,6 +27,7 @@ import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils
 import { statusIcons, type StatusTone } from '../utils/style/tone-styles';
 import { toneStyles } from '../utils/style/typography';
 import { Popover, type PopoverProps } from './Popover';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到弹出层的 div 上；位置、箭头、触发器同 Popover */
 export interface PopconfirmProps extends Omit<PopoverProps, 'role' | 'children' | 'title'> {
@@ -59,6 +60,9 @@ export interface PopconfirmProps extends Omit<PopoverProps, 'role' | 'children' 
   /** 取消按钮的部件属性 */
   propsCancel?: Partial<ButtonProps>;
 }
+
+/** 部件的标记（data-scope="popconfirm"） */
+const popconfirmPart = (part: string) => partAttrs({ name: 'Popconfirm' }, part);
 
 /** Popconfirm 的样式：body、icon、title、description、footer */
 const popconfirmStyles = css.create({
@@ -150,7 +154,7 @@ export const Popconfirm = _component(
           _open={open}
           onOpenChange={onOpenChange}
         >
-          <div {...css.attrs(popconfirmStyles.body)}>
+          <div {...css.attrs(popconfirmStyles.body)} {...popconfirmPart('body')}>
             {shownIcon && (
               <Icon
                 {...mergePartProps<IconProps>(

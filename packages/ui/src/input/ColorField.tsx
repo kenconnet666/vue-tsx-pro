@@ -23,6 +23,7 @@ import { swatchStyles } from '../utils/style/swatch-styles';
 import { focusRingStyles } from '../utils/style/styles';
 import { ColorPicker, type ColorPickerProps } from './ColorPicker';
 import { controlParts, focusOnShell, useControlAppearance, type ControlOptions } from './control';
+import { partAttrs } from '../config/styles';
 
 /** 值、状态与无障碍关联由组件管理 */
 export type ColorFieldManaged =
@@ -60,6 +61,9 @@ export interface ColorFieldProps extends PartProps<'input', ColorFieldManaged>, 
   /** 弹出层（Popover）的部件属性 */
   propsPopover?: Partial<PopoverProps>;
 }
+
+/** 部件的标记（data-scope="color-field"） */
+const colorFieldPart = (part: string) => partAttrs({ name: 'ColorField' }, part);
 
 /** ColorField 的样式：swatch、fill、input */
 const colorFieldStyles = css.create({
@@ -139,6 +143,7 @@ export const ColorField = _component(
               swatchStyles.ring,
               colorFieldDynamicStyles.fill(value),
             )}
+            {...colorFieldPart('fill')}
           />
         </ButtonBase>
       );

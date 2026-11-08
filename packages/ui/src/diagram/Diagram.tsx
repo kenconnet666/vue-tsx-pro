@@ -706,7 +706,9 @@ const EdgeView = _component(
             },
           )}
         >
-          {selectable && <path d={path} {...css.attrs(diagramStyles.edgeHit)} />}
+          {selectable && (
+            <path d={path} {...css.attrs(diagramStyles.edgeHit)} {...diagramPart('edgeHit')} />
+          )}
           <path d={path} {...css.attrs(diagramStyles.edgeLine)} {...diagramPart('edgeLine')} />
           <polygon
             points={arrowHead(points, ARROW)}
@@ -1379,6 +1381,7 @@ export const Diagram = _component(
             {(!!drag?.guides.length || !!link || ends.length > 0) && (
               <svg
                 {...css.attrs(diagramStyles.edges, diagramStyles.above)}
+                {...diagramPart('edges')}
                 width="1"
                 height="1"
                 aria-hidden="true"
@@ -1419,14 +1422,16 @@ export const Diagram = _component(
                   }),
                 )}
                 {link && (
-                  <g {...css.attrs(diagramStyles.preview)}>
+                  <g {...css.attrs(diagramStyles.preview)} {...diagramPart('preview')}>
                     <path
                       d={polylinePath(trimEnd([link.from, link.to], ARROW * 0.7))}
                       {...css.attrs(diagramStyles.edgeLine)}
+                      {...diagramPart('edgeLine')}
                     />
                     <polygon
                       points={arrowHead([link.from, link.to], ARROW)}
                       {...css.attrs(diagramStyles.edgeArrow)}
+                      {...diagramPart('edgeArrow')}
                     />
                   </g>
                 )}

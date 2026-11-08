@@ -26,6 +26,7 @@ import { ScrollArea } from '../layout/ScrollArea';
 import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import type { VirtualScrollOptions, VisibleRange } from '../utils/virtual/virtualizer';
+import { partAttrs } from '../config/styles';
 
 /** 跟着谁滚动 */
 export interface VirtualListScrolls {
@@ -88,6 +89,9 @@ type ItemProps = PartProps<'div', 'role' | 'aria-setsize' | 'aria-posinset'>;
 const SKELETON_ROWS = 5;
 const MORE_SKELETON_ROWS = 2;
 
+/** 部件的标记（data-scope="virtual-list"） */
+const virtualListPart = (part: string) => partAttrs({ name: 'VirtualList' }, part);
+
 /** VirtualList 的样式：root、container、list、item、itemVertical、itemHorizontal 等 */
 const virtualListStyles = css.create({
   // 自己调整滚动位置（见 virtualizer.ts），不要浏览器再按锚点调整一次
@@ -142,6 +146,7 @@ export const VirtualList = _component(
           key={`skeleton-${index}`}
           aria-hidden="true"
           {...css.attrs(virtualListStyles.skeletonRow)}
+          {...virtualListPart('skeletonRow')}
         >
           <Skeleton
             {...mergePartProps<SkeletonProps>(

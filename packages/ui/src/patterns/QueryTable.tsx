@@ -212,7 +212,7 @@ export const QueryTable = _component(
 
     function renderTools() {
       return (
-        <div {...css.attrs(queryTableStyles.tools)}>
+        <div {...css.attrs(queryTableStyles.tools)} {...queryTablePart('tools')}>
           <IconButton
             {...toolButton({
               icon: RefreshCw,
@@ -294,7 +294,9 @@ export const QueryTable = _component(
                   more: moreFilters?.(draft),
                   // 全屏的只有表格那一块（查询栏不在里面）：那时工具栏回到表格上方
                   start: fullscreen.active ? undefined : (
-                    <div {...css.attrs(queryTableStyles.title)}>{title}</div>
+                    <div {...css.attrs(queryTableStyles.title)} {...queryTablePart('title')}>
+                      {title}
+                    </div>
                   ),
                   end: fullscreen.active ? undefined : renderToolbar(),
                 },
@@ -318,8 +320,10 @@ export const QueryTable = _component(
             )}
           >
             {(!filters || fullscreen.active) && (
-              <div {...css.attrs(queryTableStyles.toolbarRow)}>
-                <div {...css.attrs(queryTableStyles.title)}>{title}</div>
+              <div {...css.attrs(queryTableStyles.toolbarRow)} {...queryTablePart('toolbarRow')}>
+                <div {...css.attrs(queryTableStyles.title)} {...queryTablePart('title')}>
+                  {title}
+                </div>
                 {renderToolbar()}
               </div>
             )}

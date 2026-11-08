@@ -18,9 +18,13 @@ import { Popover } from '../overlay/Popover';
 import { plainText } from '../utils/data/text';
 import { mergePartProps } from '../utils/props';
 import type { ColumnFilterOption, ColumnStickies, SortState } from './columns';
+import { partAttrs } from '../config/styles';
 
 /** 选项多于这么多时，筛选里多一个搜索框 */
 const SEARCH_THRESHOLD = 8;
+
+/** 部件的标记（data-scope="column-header-actions"） */
+const columnHeaderActionsPart = (part: string) => partAttrs({ name: 'ColumnHeaderActions' }, part);
 
 /** ColumnHeaderActions 的样式：trigger、active、panel、options、footer */
 const columnHeaderActionStyles = css.create({
@@ -137,9 +141,12 @@ export const ColumnFilterButton = _component(
             />
           )}
         >
-          <div {...css.attrs(columnHeaderActionStyles.panel)}>
+          <div {...css.attrs(columnHeaderActionStyles.panel)} {...columnHeaderActionsPart('panel')}>
             {renderOptions()}
-            <div {...css.attrs(columnHeaderActionStyles.footer)}>
+            <div
+              {...css.attrs(columnHeaderActionStyles.footer)}
+              {...columnHeaderActionsPart('footer')}
+            >
               <Button size="sm" variant="ghost" disabled={!active} onClick={() => onChange([])}>
                 {lang.tableFilterClear}
               </Button>

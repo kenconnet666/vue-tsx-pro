@@ -18,6 +18,7 @@ import { toElement } from '../utils/dom/element';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { TextSize } from '../utils/style/typography';
 import { ListboxView, type ListboxViewProps } from './Listbox';
+import { partAttrs } from '../config/styles';
 
 /** 弹层的属性由组件管理 */
 export type ListPopoverManaged = 'popover';
@@ -47,6 +48,9 @@ export interface ListPopoverProps<T> {
   /** 使用方给弹层面板的部件属性 */
   propsPopover?: PartProps<'div', ListPopoverManaged>;
 }
+
+/** 部件的标记（data-scope="list-popover"） */
+const listPopoverPart = (part: string) => partAttrs({ name: 'ListPopover' }, part);
 
 /** ListPopover 的样式：panel、header（组件之间共用，不进入口） @internal */
 export const listPopoverStyles = css.create({
@@ -87,7 +91,11 @@ export const ListPopover = _component(
         )}
       >
         {/* 使用方常写 cond && <…/>：false 同 undefined，不渲染带分隔线的空头部 */}
-        {hasContent(header) && <div {...css.attrs(listPopoverStyles.header)}>{header}</div>}
+        {hasContent(header) && (
+          <div {...css.attrs(listPopoverStyles.header)} {...listPopoverPart('header')}>
+            {header}
+          </div>
+        )}
         <ScrollArea
           focusable={false}
           sx={floatingStyles.scrollArea}

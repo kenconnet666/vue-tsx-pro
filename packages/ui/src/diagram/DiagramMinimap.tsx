@@ -137,6 +137,7 @@ export const DiagramMinimap = _component(
           <svg
             ref={(element: unknown) => (svg = element as SVGSVGElement | null)}
             {...css.attrs(diagramMinimapStyles.svg)}
+            {...diagramMinimapPart('svg')}
             width={width}
             height={height}
             viewBox={`${frame.x - pad} ${frame.y - pad} ${frame.width + pad * 2} ${frame.height + pad * 2}`}

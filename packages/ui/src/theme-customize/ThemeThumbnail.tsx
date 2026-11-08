@@ -12,6 +12,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { swatchStyles } from '../utils/style/swatch-styles';
 import { themeAttrs, type Theme } from '../config/theme/theme';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 span 上 */
 export interface ThemeThumbnailProps extends PartProps<'span', 'aria-hidden'> {
@@ -20,6 +21,9 @@ export interface ThemeThumbnailProps extends PartProps<'span', 'aria-hidden'> {
   /** 卡片的部件属性 */
   propsCard?: PartProps<'span'>;
 }
+
+/** 部件的标记（data-scope="theme-thumbnail"） */
+const themeThumbnailPart = (part: string) => partAttrs({ name: 'ThemeThumbnail' }, part);
 
 /** ThemeThumbnail 的样式：root、card、title、line、button */
 const themeThumbnailStyles = css.create({
@@ -76,9 +80,9 @@ export const ThemeThumbnail = _component(({ theme, propsCard, ...rest }: ThemeTh
         data-theme={name}
       >
         <span {...mergeAttrs<'span'>({ sx: themeThumbnailStyles.card }, propsCard)}>
-          <span {...css.attrs(themeThumbnailStyles.title)} />
-          <span {...css.attrs(themeThumbnailStyles.line)} />
-          <span {...css.attrs(themeThumbnailStyles.button)} />
+          <span {...css.attrs(themeThumbnailStyles.title)} {...themeThumbnailPart('title')} />
+          <span {...css.attrs(themeThumbnailStyles.line)} {...themeThumbnailPart('line')} />
+          <span {...css.attrs(themeThumbnailStyles.button)} {...themeThumbnailPart('button')} />
         </span>
       </span>
     );

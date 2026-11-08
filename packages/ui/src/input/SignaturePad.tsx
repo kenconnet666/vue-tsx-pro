@@ -24,6 +24,7 @@ import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { paperStyles } from '../utils/style/paper';
 import { controlParts, useControlAppearance, type ControlOptions } from './control';
+import { partAttrs } from '../config/styles';
 
 /** 笔画上的一个点（相对画布左上角，CSS px）与它的笔宽 */
 interface StrokePoint {
@@ -81,6 +82,9 @@ export interface SignaturePadProps extends PartProps<'div'>, Pick<ControlOptions
   /** 清空按钮的部件属性 */
   propsClear?: Partial<IconButtonProps>;
 }
+
+/** 部件的标记（data-scope="signature-pad"） */
+const signaturePadPart = (part: string) => partAttrs({ name: 'SignaturePad' }, part);
 
 /** SignaturePad 的样式：root、writable、canvas、placeholder、toolbar */
 export const signaturePadStyles = css.create({
@@ -397,12 +401,16 @@ export const SignaturePad = _component(
             {signed ? lang.signatureSigned : lang.signatureEmpty}
           </span>
           {!signed && (
-            <span {...css.attrs(signaturePadStyles.placeholder)} aria-hidden="true">
+            <span
+              {...css.attrs(signaturePadStyles.placeholder)}
+              {...signaturePadPart('placeholder')}
+              aria-hidden="true"
+            >
               {writable ? lang.signaturePlaceholder : lang.signatureEmpty}
             </span>
           )}
           {writable && signed && (
-            <div {...css.attrs(signaturePadStyles.toolbar)}>
+            <div {...css.attrs(signaturePadStyles.toolbar)} {...signaturePadPart('toolbar')}>
               <IconButton
                 {...mergePartProps<IconButtonProps>(
                   {

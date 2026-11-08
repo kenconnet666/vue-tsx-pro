@@ -227,7 +227,12 @@ export const QRCode = _component(
               )}
             >
               {typeof logo === 'string' ? (
-                <img src={logo} alt="" {...css.attrs(qrCodeStyles.logoImage)} />
+                <img
+                  src={logo}
+                  alt=""
+                  {...css.attrs(qrCodeStyles.logoImage)}
+                  {...qRCodePart('logoImage')}
+                />
               ) : (
                 logo
               )}

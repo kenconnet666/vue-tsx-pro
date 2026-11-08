@@ -261,10 +261,17 @@ export const SchemaFields = _component(
             })}
           >
             <GridItem span="full">
-              <div {...css.attrs(schemaFormStyles.list)}>
+              <div {...css.attrs(schemaFormStyles.list)} {...schemaFormPart('list')}>
                 {array.items.map((_, index) => (
-                  <div key={array.keys[index]} {...css.attrs(schemaFormStyles.row)}>
-                    <div {...css.attrs(schemaFormStyles.rowFields)}>
+                  <div
+                    key={array.keys[index]}
+                    {...css.attrs(schemaFormStyles.row)}
+                    {...schemaFormPart('row')}
+                  >
+                    <div
+                      {...css.attrs(schemaFormStyles.rowFields)}
+                      {...schemaFormPart('rowFields')}
+                    >
                       {section(`${path}.${index}`, children, `${path}.${index}.`)}
                     </div>
                     <IconButton
@@ -357,7 +364,11 @@ export const SchemaForm = _component(
             propsActions,
           )}
         >
-          <div {...css.attrs(schemaFormStyles.actionsStart)} aria-live="polite">
+          <div
+            {...css.attrs(schemaFormStyles.actionsStart)}
+            {...schemaFormPart('actionsStart')}
+            aria-live="polite"
+          >
             {children}
           </div>
           {resettable && (

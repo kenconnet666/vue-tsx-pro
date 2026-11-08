@@ -767,6 +767,7 @@ export const Tree = _component(
                 dropZone === 'before' ? treeStyles.dropBefore : treeStyles.dropAfter,
                 treeDynamicStyles.lineStart(row.depth * indent + 1.75),
               )}
+              {...treePart('dropLine')}
             />
           )}
         </div>
@@ -833,6 +834,7 @@ export const Tree = _component(
             ref={_toRef(sizer)}
             role="presentation"
             {...css.attrs(treeStyles.sizer, treeDynamicStyles.height(virtual.total))}
+            {...treePart('sizer')}
           >
             {virtual.items.map((item) => (
               <div

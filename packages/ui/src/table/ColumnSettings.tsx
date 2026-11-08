@@ -20,6 +20,7 @@ import { Popover, type PopoverProps } from '../overlay/Popover';
 import { plainText } from '../utils/data/text';
 import { mergePartProps } from '../utils/props';
 import { arrangeColumns, type DataTableColumn } from './columns';
+import { partAttrs } from '../config/styles';
 
 /** ColumnSettings 的属性 */
 export interface ColumnSettingsProps<T> {
@@ -40,6 +41,9 @@ export interface ColumnSettingsProps<T> {
   /** “重置”按钮的部件属性 */
   propsReset?: Partial<ButtonProps>;
 }
+
+/** 部件的标记（data-scope="column-settings"） */
+const columnSettingsPart = (part: string) => partAttrs({ name: 'ColumnSettings' }, part);
 
 /** ColumnSettings 的样式：panel、list、header */
 const columnSettingsStyles = css.create({
@@ -98,9 +102,11 @@ export const ColumnSettings = _component(
           />
         )}
       >
-        <div {...css.attrs(columnSettingsStyles.panel)}>
-          <div {...css.attrs(columnSettingsStyles.header)}>
-            <span {...css.attrs(columnSettingsStyles.title)}>{lang.tableColumnSettings}</span>
+        <div {...css.attrs(columnSettingsStyles.panel)} {...columnSettingsPart('panel')}>
+          <div {...css.attrs(columnSettingsStyles.header)} {...columnSettingsPart('header')}>
+            <span {...css.attrs(columnSettingsStyles.title)} {...columnSettingsPart('title')}>
+              {lang.tableColumnSettings}
+            </span>
             <Button
               {...mergePartProps<ButtonProps>({ size: 'sm', variant: 'ghost' }, propsReset, {
                 disabled: hidden.length === 0 && order.length === 0,

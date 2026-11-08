@@ -34,6 +34,10 @@
   areas、area、dots、dot、band、target、event、mark、crosshair…），各图自己的部分用自己的名字（`graph-chart`、`map-chart`、
   `funnel-chart`、`radar-chart`、`treemap-chart`、`sankey-chart`、`chord-chart`、`timeline-chart`、`donut-chart`、`sparkline`）。
   原来手写的 `data-part`（bar、line、area、node、link、segment…）名字不变，多了 `data-scope`；Donut 中心的说明文字改叫 centerTitle。
+- 又一批内部节点带上部件标记（部件名取样式键）：ThemeCustomizer、ThemeThumbnail、Diagram、DiagramMinimap、QueryTable、Listbox、
+  PeoplePickerPanel、SchemaForm、FieldCompare、Tree、ColumnSettings、ColumnHeaderActions、TreeDataTable、Cascader、ItemList、
+  PageSizeSelect、Splitter、ImageCropper、SignaturePad、CalendarView、DatePicker、StepsForm、Popconfirm、Affix、AsideLayout、
+  ColorField、ListPopover、OtpField、FormSection、LoadingBar、QRCode、VirtualList。
 - 列表行（Listbox、Tree、Cascader、NavList、Menu）的高亮、已选、当前、不可用改成跟着元素上的属性走（条件别名）：
   `itemStyles.highlighted / selected / current / disabled` 合成 `itemStyles.states`，元素写 `data-highlighted`、`aria-selected`、
   `aria-current`（或 `data-current`）、`aria-disabled` 即可；Listbox、Tree 的 `data-active` 换成 `data-highlighted`（Tree 只在有焦点时），

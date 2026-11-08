@@ -825,7 +825,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       （2026-11-08 做了五批：CommentThread、Checklist、Cascader、KanbanBoard、CalendarBoard、ColorPicker、Diagram、DiagramNode 补部件属性与标记，
       已有部件属性的十几个组件统一补标记；第七批给 NotificationList、Upload、ConditionBuilder、ColorPicker、JsonViewer、Lightbox、
       Timeline、ProportionBar 的内部节点补标记；部件名一律小驼峰，scripts/structure/part-names.mjs 检查；第八批是图表：外框、绘图区、
-      标记、XY 图共用 data-scope="chart"，各图自己的部分用自己的名字（2026-11-08，没标记的文件 63 → 56）；下一批：Gauge、QuarterCalendar、Rating、NavBar……）
+      标记、XY 图共用 data-scope="chart"，各图自己的部分用自己的名字（2026-11-08，没标记的文件 63 → 56）；
+      第九批用 codemod 给其余 32 个文件的内部节点按样式键补标记（56 → 31，剩下的多是读屏专用的隐藏文字、动态样式）……）
       部件多却没有配方的改成配方并在 `UiComponents` 登记（~~AppShell~~、~~Transfer~~、~~NavList~~、~~NotificationCenter~~、~~FilterBar~~、~~Upload~~、~~Timeline~~、~~CalendarView~~、~~CodeBlock~~、~~Tour~~、~~Stat~~、~~Menu~~、~~Toast~~；
       2026-11-08 又做了 Countdown、UserButton（新）、NavList、Menu、Toaster、AppShell、Transfer、NotificationList / NotificationCenter、FilterBar、Upload，清单里的都改完了；先前做了三个：档位进配方的 variants，按项、按状态变的留在 xxxStateStyles 叠在部件层后，Options 可在 components 里给默认值）
 - [x] 24.2 状态写法换条件别名（约 45 处 `条件 && styles.selected / disabled…`）：随 24.1 把状态样式搬进配方时一起换；

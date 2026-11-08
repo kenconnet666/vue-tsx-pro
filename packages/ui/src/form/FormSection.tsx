@@ -240,7 +240,7 @@ export const FormSection = _component(
                 propsHeader,
               )}
             >
-              <div {...css.attrs(formSectionStyles.headerText)}>
+              <div {...css.attrs(formSectionStyles.headerText)} {...formSectionPart('headerText')}>
                 {hasContent(title) &&
                   h(
                     `h${headingLevel}`,

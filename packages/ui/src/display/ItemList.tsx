@@ -269,7 +269,7 @@ export const ItemListItem = _component(
           {hasContent(start) && (
             <span {...css.attrs(align === 'start' && itemListStyles.startAligned)}>{start}</span>
           )}
-          <span {...css.attrs(itemListStyles.body)}>
+          <span {...css.attrs(itemListStyles.body)} {...itemListPart('body')}>
             {hasContent(title) && (
               <span
                 {...mergeAttrs<'span'>(
@@ -293,7 +293,10 @@ export const ItemListItem = _component(
             {children}
           </span>
           {end != null ? (
-            <span {...css.attrs(itemListStyles.end, interactive && itemListStyles.raised)}>
+            <span
+              {...css.attrs(itemListStyles.end, interactive && itemListStyles.raised)}
+              {...itemListPart('end')}
+            >
               {end}
             </span>
           ) : (

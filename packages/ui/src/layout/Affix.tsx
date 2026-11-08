@@ -18,6 +18,7 @@ import type { VNodeChild } from 'vue';
 import { useIntersectionObserver } from '../utils/dom/intersection';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** onChange 换成报告是否贴住 */
 export type AffixManaged = 'onChange';
@@ -36,6 +37,9 @@ export interface AffixProps extends PartProps<'div', AffixManaged> {
   onChange?: (stuck: boolean) => void;
   children?: VNodeChild;
 }
+
+/** 部件的标记（data-scope="affix"） */
+const affixPart = (part: string) => partAttrs({ name: 'Affix' }, part);
 
 /** Affix 的样式：root、stuck、sentinel（测试要用，不进入口） @internal */
 export const affixStyles = css.create({
@@ -91,6 +95,7 @@ export const Affix = _component(
           aria-hidden="true"
           ref={(element: unknown) => (sentinel = element instanceof HTMLElement ? element : null)}
           {...css.attrs(affixStyles.sentinel)}
+          {...affixPart('sentinel')}
         />
       );
       return (

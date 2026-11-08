@@ -9,7 +9,7 @@
 - packages/ui/src/input/Cascader.tsx:702 <button>
 - packages/ui/src/input/PeoplePicker.tsx:160 <button>
 - packages/ui/src/input/Select.tsx:494 <button>
-- packages/ui/src/input/SignaturePad.tsx:243 <svg>
+- packages/ui/src/input/SignaturePad.tsx:247 <svg>
 - packages/ui/src/input/ToggleGroup.tsx:281 <button>
 - packages/ui/src/input/TreeSelect.tsx:440 <button>
 - packages/ui/src/feedback/Progress.tsx:385 <svg>
@@ -21,14 +21,14 @@
 - packages/ui/src/display/Sparkline.tsx:150 <svg>
 - packages/ui/src/display/Timeline.tsx:52 <time>
 - packages/ui/src/display/Timeline.tsx:330 <time>
-- packages/ui/src/diagram/Diagram.tsx:1331 <svg>
-- packages/ui/src/diagram/Diagram.tsx:1380 <svg>
+- packages/ui/src/diagram/Diagram.tsx:1333 <svg>
+- packages/ui/src/diagram/Diagram.tsx:1382 <svg>
 - packages/ui/src/diagram/DiagramMinimap.tsx:137 <svg>
 - packages/ui/src/diagram/DiagramNode.tsx:243 <svg>
 - packages/ui/src/date/CalendarBoard.tsx:365 <button>
 - packages/ui/src/date/CalendarBoard.tsx:444 <button>
-- packages/ui/src/date/CalendarView.tsx:349 <button>
-- packages/ui/src/date/CalendarView.tsx:573 <button>
+- packages/ui/src/date/CalendarView.tsx:350 <button>
+- packages/ui/src/date/CalendarView.tsx:576 <button>
 - packages/ui/src/date/DateTime.tsx:49 <time>
 - packages/ui/src/date/QuarterCalendar.tsx:250 <button>
 - packages/ui/src/date/RelativeTime.tsx:80 <time>
@@ -45,9 +45,9 @@
 
 ## 没转发部件属性的子组件（84）
 
-- packages/ui/src/table/ColumnHeaderActions.tsx:143 <Button>
-- packages/ui/src/table/ColumnHeaderActions.tsx:104 <Checkbox>
-- packages/ui/src/table/ColumnSettings.tsx:129 <Checkbox>
+- packages/ui/src/table/ColumnHeaderActions.tsx:150 <Button>
+- packages/ui/src/table/ColumnHeaderActions.tsx:108 <Checkbox>
+- packages/ui/src/table/ColumnSettings.tsx:135 <Checkbox>
 - packages/ui/src/table/DataTable.tsx:396 <ButtonBase>
 - packages/ui/src/table/DataTable.tsx:402 <Icon>
 - packages/ui/src/patterns/CommentThread.tsx:542 <Icon>
@@ -87,7 +87,7 @@
 - packages/ui/src/input/Listbox.tsx:321 <Icon>
 - packages/ui/src/input/PeoplePicker.tsx:191 <Icon>
 - packages/ui/src/input/PeoplePickerPanel.tsx:283 <Icon>
-- packages/ui/src/input/PeoplePickerPanel.tsx:412 <Spinner>
+- packages/ui/src/input/PeoplePickerPanel.tsx:415 <Spinner>
 - packages/ui/src/input/Rating.tsx:138 <Icon>
 - packages/ui/src/input/Rating.tsx:144 <Icon>
 - packages/ui/src/input/SelectedTags.tsx:100 <Tag>
@@ -130,59 +130,34 @@
 - packages/ui/src/base/Heading.tsx:140 <Icon>
 - packages/ui/src/base/Tag.tsx:106 <ButtonBase>
 
-## 没有部件标记的内部节点（按文件计数）（56）
+## 没有部件标记的内部节点（按文件计数）（31）
 
 - packages/ui/src/charts/XYChart.tsx：11
-- packages/ui/src/theme-customize/ThemeCustomizer.tsx：10
-- packages/ui/src/diagram/Diagram.tsx：5
 - packages/ui/src/charts/TimelineChart.tsx：5
-- packages/ui/src/patterns/QueryTable.tsx：4
-- packages/ui/src/input/Listbox.tsx：4
-- packages/ui/src/input/PeoplePickerPanel.tsx：4
-- packages/ui/src/form/SchemaForm.tsx：4
-- packages/ui/src/display/FieldCompare.tsx：4
-- packages/ui/src/display/Tree.tsx：4
 - packages/ui/src/charts/GraphChart.tsx：4
-- packages/ui/src/theme-customize/ThemeThumbnail.tsx：3
-- packages/ui/src/table/ColumnSettings.tsx：3
 - packages/ui/src/table/DataTableView.tsx：3
-- packages/ui/src/input/Cascader.tsx：3
 - packages/ui/src/input/PeoplePicker.tsx：3
 - packages/ui/src/input/TreeSelect.tsx：3
-- packages/ui/src/display/ItemList.tsx：3
 - packages/ui/src/charts/ChordChart.tsx：3
-- packages/ui/src/table/ColumnHeaderActions.tsx：2
-- packages/ui/src/table/TreeDataTable.tsx：2
-- packages/ui/src/navigation/PageSizeSelect.tsx：2
-- packages/ui/src/layout/Splitter.tsx：2
-- packages/ui/src/input/ImageCropper.tsx：2
+- packages/ui/src/input/Cascader.tsx：2
 - packages/ui/src/input/Rating.tsx：2
 - packages/ui/src/input/Select.tsx：2
-- packages/ui/src/input/SignaturePad.tsx：2
+- packages/ui/src/display/Tree.tsx：2
 - packages/ui/src/date/CalendarView.tsx：2
-- packages/ui/src/date/DatePicker.tsx：2
 - packages/ui/src/config/Provider.tsx：2
 - packages/ui/src/charts/SankeyChart.tsx：2
 - packages/ui/src/charts/TreemapChart.tsx：2
+- packages/ui/src/table/TreeDataTable.tsx：1
 - packages/ui/src/patterns/AppShell.tsx：1
-- packages/ui/src/patterns/StepsForm.tsx：1
-- packages/ui/src/overlay/Popconfirm.tsx：1
 - packages/ui/src/navigation/NavBar.tsx：1
-- packages/ui/src/layout/Affix.tsx：1
-- packages/ui/src/layout/AsideLayout.tsx：1
-- packages/ui/src/input/ColorField.tsx：1
-- packages/ui/src/input/ListPopover.tsx：1
-- packages/ui/src/input/OtpField.tsx：1
-- packages/ui/src/form/FormSection.tsx：1
-- packages/ui/src/feedback/LoadingBar.tsx：1
+- packages/ui/src/input/Listbox.tsx：1
 - packages/ui/src/display/Checklist.tsx：1
+- packages/ui/src/display/FieldCompare.tsx：1
+- packages/ui/src/display/ItemList.tsx：1
 - packages/ui/src/display/JsonViewer.tsx：1
 - packages/ui/src/display/ProportionBar.tsx：1
-- packages/ui/src/display/QRCode.tsx：1
 - packages/ui/src/display/Stat.tsx：1
 - packages/ui/src/display/Timeline.tsx：1
-- packages/ui/src/display/VirtualList.tsx：1
-- packages/ui/src/diagram/DiagramMinimap.tsx：1
 - packages/ui/src/date/QuarterCalendar.tsx：1
 - packages/ui/src/code-editor/CodeEditor.tsx：1
 - packages/ui/src/charts/DonutChart.tsx：1

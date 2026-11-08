@@ -38,6 +38,7 @@ import { columnValue, sortRows, type SortState } from './columns';
 import { DataTable, type DataTableProps } from './DataTable';
 import type { DataTableRowModel } from './DataTableView';
 import { disclosureStyles } from '../utils/style/transitions';
+import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到 table 上；aria-label 或 aria-labelledby 是表格的名称 */
 export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'leading'> {
@@ -60,6 +61,9 @@ export interface TreeDataTableProps<T> extends Omit<DataTableProps<T>, 'leading'
   /** 展开按钮的部件属性；加载中、展开状态与点击由组件管理 */
   propsToggle?: Omit<Partial<IconButtonProps>, 'loading' | 'aria-expanded' | 'onClick'>;
 }
+
+/** 部件的标记（data-scope="tree-data-table"） */
+const treeDataTablePart = (part: string) => partAttrs({ name: 'TreeDataTable' }, part);
 
 /** TreeDataTable 的样式：toggle、placeholder */
 const treeDataTableStyles = css.create({
@@ -179,7 +183,10 @@ export const TreeDataTable = _component(
               )}
             />
           ) : (
-            <span {...css.attrs(treeDataTableStyles.placeholder)} />
+            <span
+              {...css.attrs(treeDataTableStyles.placeholder)}
+              {...treeDataTablePart('placeholder')}
+            />
           )}
         </>
       );

@@ -187,14 +187,18 @@ export const FieldCompare = _component(
             ? toneStyles.success
             : toneStyles.danger;
       return (
-        <span {...css.attrs(fieldCompareStyles.change, tone)}>
+        <span {...css.attrs(fieldCompareStyles.change, tone)} {...fieldComparePart('change')}>
           {delta}
           {ratio && `（${ratio}）`}
         </span>
       );
     };
 
-    const none = () => <span {...css.attrs(fieldCompareStyles.none)}>{lang.fieldCompareNone}</span>;
+    const none = () => (
+      <span {...css.attrs(fieldCompareStyles.none)} {...fieldComparePart('none')}>
+        {lang.fieldCompareNone}
+      </span>
+    );
 
     const table = (list: FieldCompareRow<T>[]) => {
       const [field, from, to, delta] = lang.fieldCompareHeaders;
@@ -205,7 +209,11 @@ export const FieldCompare = _component(
           key: 'before',
           align: 'start',
           header: from,
-          cell: (row) => <span {...css.attrs(fieldCompareStyles.unchanged)}>{shown(row, 0)}</span>,
+          cell: (row) => (
+            <span {...css.attrs(fieldCompareStyles.unchanged)} {...fieldComparePart('unchanged')}>
+              {shown(row, 0)}
+            </span>
+          ),
         },
         {
           key: 'after',

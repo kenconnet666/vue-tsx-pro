@@ -313,6 +313,7 @@ export const ImageCropper = _component(
               alt=""
               draggable={false}
               {...css.attrs(imageCropperStyles.image)}
+              {...imageCropperPart('image')}
               style={{ transform: view.transform }}
               onLoad={(event: Event) => {
                 const element = event.target as HTMLImageElement;
@@ -326,6 +327,7 @@ export const ImageCropper = _component(
                 shape === 'round' && imageCropperStyles.round,
                 imageCropperSizeStyles.frame(box.x, box.y, box.width, box.height),
               )}
+              {...imageCropperPart('frame')}
             />
           </div>
           <span id={hintId} hidden>

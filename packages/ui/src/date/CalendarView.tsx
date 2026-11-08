@@ -45,6 +45,7 @@ import { t } from '../config/theme/tokens';
 import { useComponent } from '../config/components';
 import type { PartLayer } from '../config/styles';
 import { variantOf } from '../utils/style/styles';
+import { partAttrs } from '../config/styles';
 
 /** 角色由组件管理 */
 export type CalendarViewManaged = 'role';
@@ -552,7 +553,9 @@ export const CalendarView = _component(
           )}
         />
       );
-      const spacer = <span {...css.attrs(calendarStateStyles.spacer)} />;
+      const spacer = (
+        <span {...css.attrs(calendarStateStyles.spacer)} {...partAttrs(calendarRecipe, 'spacer')} />
+      );
       return (
         <div
           {...mergeAttrs<'div'>(s.root, rest, {

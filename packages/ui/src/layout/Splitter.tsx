@@ -271,6 +271,7 @@ export const Splitter = _component(
               splitterStyles.track,
               horizontal() ? splitterStyles.handleHorizontal : splitterStyles.handleVertical,
             )}
+            {...splitterPart('track')}
           >
             <div
               {...mergeAttrs<'div'>(
@@ -304,6 +305,7 @@ export const Splitter = _component(
                   splitterStyles.line,
                   horizontal() ? splitterStyles.lineHorizontal : splitterStyles.lineVertical,
                 )}
+                {...splitterPart('line')}
               />
             </div>
             {collapsible && (

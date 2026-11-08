@@ -16,6 +16,7 @@ import { useLang } from '../config/context';
 import { Select, type SelectProps } from '../input/Select';
 import { mergePartProps } from '../utils/props';
 import type { SingleSelectionProps } from '../utils/data/selection';
+import { partAttrs } from '../config/styles';
 
 /** 单选的 Select 属性 */
 type SingleSelectProps = Extract<SelectProps, SingleSelectionProps>;
@@ -32,6 +33,9 @@ export interface PageSizeSelectProps extends Omit<
   /** 用户换了条数后调用（通常把页码回到第 1 页） */
   onSizeChange?: (size: number) => void;
 }
+
+/** 部件的标记（data-scope="page-size-select"） */
+const pageSizeSelectPart = (part: string) => partAttrs({ name: 'PageSizeSelect' }, part);
 
 /** PageSizeSelect 的样式：stack、option、hidden */
 const pageSizeSelectStyles = css.create({
@@ -78,7 +82,7 @@ export const PageSizeSelect = _component(
             'aria-label': lang.pageSizeLabel,
             size: 'sm',
             renderValue: () => (
-              <span {...css.attrs(pageSizeSelectStyles.stack)}>
+              <span {...css.attrs(pageSizeSelectStyles.stack)} {...pageSizeSelectPart('stack')}>
                 {options.map((size) => (
                   <span
                     key={size}
@@ -87,6 +91,7 @@ export const PageSizeSelect = _component(
                       pageSizeSelectStyles.option,
                       size !== value && pageSizeSelectStyles.hidden,
                     )}
+                    {...pageSizeSelectPart('option')}
                   >
                     {lang.pageSizeOption(size)}
                   </span>

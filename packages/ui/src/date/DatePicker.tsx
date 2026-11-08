@@ -51,6 +51,7 @@ import {
   usePickerPopover,
   type PickerPopoverParts,
 } from './picker-popover';
+import { partAttrs } from '../config/styles';
 
 /** 自定义的快捷选项（一周前、上个月末） */
 export interface DatePreset<V extends DateInput = string> {
@@ -81,6 +82,9 @@ export interface DatePickerProps<V extends DateInput = string>
     'granularity' | 'min' | 'max' | 'isDateUnavailable' | 'valueType' | 'onPick'
   >;
 }
+
+/** 部件的标记（data-scope="date-picker"） */
+const datePickerPart = (part: string) => partAttrs({ name: 'DatePicker' }, part);
 
 /** DatePicker 的样式：popover、main（日历与“今天”）、footer（快捷选项的样式见 pickerPresetStyles） */
 const datePickerStyles = css.create({
@@ -267,7 +271,7 @@ export const DatePicker = _component(
               lang.datePickerPresets,
               propsPresets,
             ),
-            <div {...css.attrs(datePickerStyles.main)}>
+            <div {...css.attrs(datePickerStyles.main)} {...datePickerPart('main')}>
               {granularity === 'quarter' ? (
                 <QuarterCalendar
                   _value={typeof value === 'string' || value == null ? value : toIsoQuarter(value)}
@@ -299,7 +303,7 @@ export const DatePicker = _component(
                 />
               )}
               {showToday && (
-                <div {...css.attrs(datePickerStyles.footer)}>
+                <div {...css.attrs(datePickerStyles.footer)} {...datePickerPart('footer')}>
                   <Button
                     {...mergePartProps<ButtonProps>({ size: 'sm', variant: 'ghost' }, propsToday, {
                       disabled: !selectable(periodOf(todayIso(locale.timeZone))),

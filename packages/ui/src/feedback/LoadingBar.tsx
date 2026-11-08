@@ -17,6 +17,7 @@ import { useLang } from '../config/context';
 import { useMounted } from '../utils/dom/mounted';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { t } from '../config/theme/tokens';
+import { partAttrs } from '../config/styles';
 
 /** 加载条的状态 */
 export interface LoadingBarState {
@@ -108,6 +109,9 @@ export interface LoadingBarProps extends PartProps<'div', 'role'> {
   controller: LoadingBarController;
 }
 
+/** 部件的标记（data-scope="loading-bar"） */
+const loadingBarPart = (part: string) => partAttrs({ name: 'LoadingBar' }, part);
+
 /** LoadingBar 的样式：root、visible、bar、failed（测试要用，不进入口） @internal */
 export const loadingBarStyles = css.create({
   root: {
@@ -170,6 +174,7 @@ export const LoadingBar = _component(({ controller, ...rest }: LoadingBarProps) 
             failed && loadingBarStyles.failed,
             loadingBarScaleStyles.at(progress),
           )}
+          {...loadingBarPart('bar')}
         />
       </div>
     );

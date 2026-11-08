@@ -28,6 +28,7 @@ import { Flex, type FlexProps } from '../layout/Flex';
 import { Steps, type StepItem, type StepsProps } from '../navigation/Steps';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { patternsMessages } from './messages';
+import { partAttrs } from '../config/styles';
 
 /** 一步 */
 export interface FormStep {
@@ -64,6 +65,9 @@ export interface StepsFormProps extends Omit<FormProps, 'controller' | 'children
   /** 提交按钮的部件属性 */
   propsSubmit?: Partial<ButtonProps>;
 }
+
+/** 部件的标记（data-scope="steps-form"） */
+const stepsFormPart = (part: string) => partAttrs({ name: 'StepsForm' }, part);
 
 /** StepsForm 的样式：root、panel */
 const stepsFormStyles = css.create({
@@ -131,7 +135,7 @@ export const StepsForm = _component(
       const last = current >= steps.length - 1;
       return (
         <Form {...rest} controller={form}>
-          <div {...css.attrs(stepsFormStyles.root)}>
+          <div {...css.attrs(stepsFormStyles.root)} {...stepsFormPart('root')}>
             <Steps
               {...mergePartProps<StepsProps>({ items: items() }, propsSteps, {
                 items: items(),

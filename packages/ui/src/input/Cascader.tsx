@@ -779,7 +779,11 @@ export const Cascader = _component(
               </div>
             )}
             {open && (
-              <div ref={_toRef(columnsFrame)} {...css.attrs(cascaderStyles.columnsFrame)}>
+              <div
+                ref={_toRef(columnsFrame)}
+                {...css.attrs(cascaderStyles.columnsFrame)}
+                {...cascaderPart('columnsFrame')}
+              >
                 <div
                   ref={_toRef(columnsScroller)}
                   {...css.attrs(cascaderStyles.columns)}
