@@ -264,6 +264,17 @@ export function problemMessage(problem: Problem, definition?: ProcessDefinition)
       return `${node}有两个一样的按钮`;
     case 'multi-no-fallback':
       return `${node}按比例会签时要写“都办完还没达到比例按哪个结果”`;
+    case 'logic.missing': {
+      // 引擎发布时查的：定义里写了 logic.名字，logic.ts 的那一类里没有
+      const kinds: Record<string, string> = {
+        resolvers: '处理人解析器',
+        guards: '守卫',
+        actions: '动作',
+        functions: '计算值',
+      };
+      const kind = String(params['kind'] ?? '');
+      return `logic.ts 里没有${kinds[kind] ?? kind}“${String(params['name'] ?? '')}”：在 defineLogic 的 ${kind} 里加上，或改掉定义里的引用`;
+    }
     default:
       return `${node}：${problem.code}`;
   }

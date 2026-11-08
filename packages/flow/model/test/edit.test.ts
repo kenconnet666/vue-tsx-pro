@@ -98,4 +98,14 @@ describe('设计器的编辑操作', () => {
       messages.join('\n'),
     );
   });
+
+  it('logic.missing（发布时引擎查的）说成要在 logic.ts 里加什么', () => {
+    const message = problemMessage({
+      severity: 'error',
+      code: 'logic.missing',
+      field: '$.nodes[3].outcomes[0].guards[0]',
+      params: { kind: 'guards', name: 'plansMatch' },
+    });
+    assert.ok(message.startsWith('logic.ts 里没有守卫“plansMatch”'), message);
+  });
 });
