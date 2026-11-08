@@ -1,6 +1,16 @@
 /** 指南：在已有的 Vue 项目里装上 vue-tsx-pro，写第一个 TSX 页面 */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Alert, Code, CodeBlock, Flex, H2, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import {
+  Alert,
+  Code,
+  CodeBlock,
+  Flex,
+  H2,
+  Link,
+  List,
+  ListItem,
+  Paragraph,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { CodePreview } from '@zerodep-dev/vue-tsx-pro-ui/docs-kit';
 import { h } from 'vue';
 import Counter from '../demo/Counter.tsx?demo';
@@ -103,6 +113,48 @@ export default _component(() => () => (
       >
         {h(Counter.component)}
       </CodePreview>
+    </Flex>
+    <Flex direction="column" gap="md">
+      <H2 id="support" size="xl" anchor>
+        浏览器与环境
+      </H2>
+      <Paragraph>
+        {
+          '浏览器：Chrome、Edge 123 以上，Firefox 125 以上，Safari 17.5 以上（含 iOS）。下限由用到的平台能力定：浮层、菜单、提示、通知用原生的 popover；二维码、手写签名的“纸面”用 '
+        }
+        <Code>light-dark()</Code>
+        {
+          ' 保持浅底深色。CI 在三种浏览器的最新版上跑浏览器测试，并截从右到左、Windows 高对比的图比对。'
+        }
+      </Paragraph>
+      <Paragraph>
+        {
+          'Vite 8 默认的构建目标（Chrome 111、Firefox 114、Safari 16.4）只转语法、不加 polyfill，比上面的下限低，不用改。更新的能力只做增强，不支持时直接略过：进场动画（'
+        }
+        <Code>@starting-style</Code>
+        {'）、高度过渡（'}
+        <Code>interpolate-size</Code>
+        {'）、视图过渡、标题的均衡换行。'}
+      </Paragraph>
+      <List>
+        <ListItem>
+          {
+            '依赖：Vue 3.5 以上、Vite 8；可选的 vue-router 5、zod 4.6、@lucide/icons 1.69、shiki 4、three 0.170 以上。CI 按这些下限另装一遍跑使用方测试。'
+          }
+        </ListItem>
+        <ListItem>构建时的 Node：20.19 以上或 22.12 以上（与 Vite 8 一致）。</ListItem>
+        <ListItem>
+          {
+            '服务端渲染：组件能在服务端渲染并水合，样式按页面收集成一个 style 标签，主题与语言写在 html 的属性上（'
+          }
+          <Link href="/stack/framework">全栈框架</Link>
+          {
+            '里有完整的接法）。只能在浏览器里画的（图表、3D、要量尺寸的布局）和弹层面板挂载后才渲染；记在浏览器里的界面设置、'
+          }
+          <Code>useMediaQuery</Code>
+          {' 的结果与服务端不同时，水合会对不上那一处，版式尽量交给 CSS 媒体查询。'}
+        </ListItem>
+      </List>
     </Flex>
   </DocPage>
 ));

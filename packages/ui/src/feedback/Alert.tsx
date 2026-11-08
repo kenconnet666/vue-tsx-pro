@@ -26,7 +26,7 @@ import {
 } from '../utils/style/tone-styles';
 import { presenceStyles } from '../utils/style/transitions';
 import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/style/typography';
-import { radiusStyles, variantOf, type Radius } from '../utils/style/styles';
+import { radiusStyles, variantOf, type Radius, stateLayerStyles } from '../utils/style/styles';
 import { t } from '../config/theme/tokens';
 
 /** 提示条的样式（实底不用于大块文字，不提供） */
@@ -126,7 +126,11 @@ export const alertRecipe = css.recipe({
     description: { color: '_text' },
     content: { minWidth: 0 },
     action: { flexShrink: 0, alignSelf: 'center' },
-    close: { flexShrink: 0, marginBlock: `calc(-1 * ${t.space.xs})`, color: 'inherit' },
+    // 关闭按钮的悬停、按下底色取提示条的文字色（状态层）：彩色提示条、横幅上不是一块灰
+    close: [
+      stateLayerStyles.ghost,
+      { flexShrink: 0, marginBlock: `calc(-1 * ${t.space.xs})`, color: 'inherit' },
+    ],
   },
   // 圆角、字号用共用的档位
   variants: {

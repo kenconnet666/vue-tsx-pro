@@ -126,6 +126,29 @@ export const columnGapStyles = css.create({
 });
 
 /**
+ * 状态层（同 Material 的 state layer）：悬停、按下时叠一层自己的文字色，各色调、亮暗主题上都协调——
+ * 用在有底色的容器（提示条、横幅、彩色标签）里的按钮，那里幽灵按钮的灰色悬停底与底色不搭。
+ * - ghost：本身透明的按钮（关闭、移除），悬停 14%、按下 22% 的文字色作底色；
+ * - overlay：本身有底色的（可选中的标签），悬停时在底色上叠 8% 的文字色（背景图层，不改底色）
+ */
+export const stateLayerStyles = css.create({
+  ghost: {
+    backgroundColor: {
+      default: 'transparent',
+      _hover: 'color-mix(in srgb, currentColor 14%, transparent)',
+      _active: 'color-mix(in srgb, currentColor 22%, transparent)',
+    },
+  },
+  overlay: {
+    backgroundImage: {
+      default: 'none',
+      _hover:
+        'linear-gradient(color-mix(in srgb, currentColor 8%, transparent), color-mix(in srgb, currentColor 8%, transparent))',
+    },
+  },
+});
+
+/**
  * 焦点环：宽度、颜色全站一致，只有触发的伪类与偏移不同。
  * - visible：键盘聚焦本元素（Link、Button 等），环离开元素一点；
  * - tight：同上但贴着边框（勾选框、单选、开关这类小控件，环离远了显得松）；

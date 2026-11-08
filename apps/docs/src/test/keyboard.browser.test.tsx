@@ -1,13 +1,19 @@
 // 键盘：真实浏览器里按键操作有自己键盘逻辑的组件（达标矩阵的浏览器测试一项）。
 // Accordion 的方向键与 Home / End，NumberField 的 ↑ / ↓ / PageUp，Mentions 的 @ 与 ↓ Enter，FloatButtonGroup 速拨的 Esc，
-// Menu 里 MenuSub 的 → 与 ←，ResizeHandle 的方向键，DateField 的分段（DateSegmentGroup）↑ 与 →，CommentComposer 的 Ctrl+Enter
+// Menu 里 MenuSub 的 → 与 ←，ResizeHandle 与 Splitter 的方向键，DateField 的分段（DateSegmentGroup）↑ 与 →，
+// CommentComposer 的 Ctrl+Enter 与 Esc，ToggleGroup 的漫游焦点，TreeSelect、Cascader 打开后在树、列里走，
+// KanbanBoard 的拿起与换列，Drawer 的 Esc（经过 beforeClose）与拖宽手柄，ColorField 的 Enter，Checkbox、Switch 的空格
 import { Plus } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Accordion,
   AccordionItem,
   Button,
+  Cascader,
+  Checkbox,
+  ColorField,
   DateField,
+  Drawer,
   Field,
   Menu,
   MenuItem,
@@ -15,15 +21,25 @@ import {
   Mentions,
   NumberField,
   ResizeHandle,
+  Splitter,
+  Switch,
+  ToggleGroup,
+  ToggleItem,
+  TreeSelect,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 import { FloatButton, FloatButtonGroup } from '@zerodep-dev/vue-tsx-pro-ui';
-import { CommentComposer } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+import { CommentComposer, KanbanBoard } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { describe, expect, it } from 'vitest';
 import { userEvent } from 'vitest/browser';
 import { mount } from './mount';
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 60));
 const focused = () => document.activeElement as HTMLElement | null;
+// 焦点留在容器上、当前项经 aria-activedescendant 指出的（Tree、Cascader 的列）：当前项的文字
+const active = () => {
+  const id = focused()?.getAttribute('aria-activedescendant');
+  return id ? document.getElementById(id)?.textContent : undefined;
+};
 
 describe('键盘', () => {
   it('Accordion：↓ / ↑ 在标题之间移动、到头循环，Home / End 到两端，Enter 展开', async () => {
@@ -197,5 +213,284 @@ describe('键盘', () => {
     await userEvent.keyboard('收到，下午确认');
     await userEvent.keyboard('{Control>}{Enter}{/Control}');
     await expect.poll(() => sent).toEqual(['收到，下午确认']);
+  });
+
+  it('CommentComposer：Esc 取消（给了 onCancel 时）', async () => {
+    let cancelled = 0;
+    const root = mount(() => <CommentComposer onSend={() => {}} onCancel={() => cancelled++} />);
+    await userEvent.click(root.querySelector('textarea')!);
+    await userEvent.keyboard('{Escape}');
+    expect(cancelled).toBe(1);
+  });
+
+  it('Splitter：← / → 每次 5%，Home / End 到最小、最大，Enter 收起可收起的一侧', async () => {
+    const root = mount(() => (
+      <Splitter collapsible="end" start="列表" end="预览" style="height: 120px" />
+    ));
+    const handle = root.querySelector<HTMLElement>('[role="separator"]')!;
+    const now = () => handle.getAttribute('aria-valuenow');
+    handle.focus();
+    await userEvent.keyboard('{ArrowRight}');
+    expect(now()).toBe('55');
+    await userEvent.keyboard('{ArrowLeft}{ArrowLeft}');
+    expect(now()).toBe('45');
+    await userEvent.keyboard('{Home}');
+    expect(now()).toBe('20');
+    await userEvent.keyboard('{End}');
+    expect(now()).toBe('80');
+    const end = handle.parentElement!.nextElementSibling as HTMLElement;
+    await userEvent.keyboard('{Enter}');
+    await tick();
+    expect(end.hidden).toBe(true);
+    await userEvent.keyboard('{Enter}');
+    await tick();
+    expect(end.hidden).toBe(false);
+  });
+
+  it('ToggleGroup：整组一个 Tab 位置，方向键移动焦点不改选择、到头循环，空格按下', async () => {
+    let view: string | null = 'grid';
+    const root = mount(
+      _component(() => {
+        let value = _state<string | null>('grid');
+        return () => (
+          <div>
+            <button>前面</button>
+            <ToggleGroup
+              _value={value}
+              onUpdate:_value={(next: string | null) => {
+                value = next;
+                view = next;
+              }}
+              aria-label="视图"
+            >
+              <ToggleItem value="list">列表</ToggleItem>
+              <ToggleItem value="grid">网格</ToggleItem>
+              <ToggleItem value="board">看板</ToggleItem>
+            </ToggleGroup>
+            <button>后面</button>
+          </div>
+        );
+      }),
+    );
+    const [, list, grid, board, after] = [...root.querySelectorAll<HTMLButtonElement>('button')];
+    root.querySelector('button')!.focus();
+    await userEvent.tab();
+    expect(focused()).toBe(grid);
+    await userEvent.keyboard('{ArrowRight}');
+    expect(focused()).toBe(board);
+    expect(view).toBe('grid');
+    await userEvent.keyboard('{ArrowRight}');
+    expect(focused()).toBe(list);
+    await userEvent.keyboard('{End}');
+    expect(focused()).toBe(board);
+    await userEvent.keyboard(' ');
+    expect(view).toBe('board');
+    // 整组只占一个 Tab 位置：再按 Tab 就到了组后面的按钮
+    await userEvent.tab();
+    expect(focused()).toBe(after);
+  });
+
+  const orgs = [
+    {
+      id: 'assembly',
+      name: '生产制造中心',
+      children: [
+        { id: 'system', name: '技术集成团队' },
+        { id: 'testing', name: '测试团队' },
+      ],
+    },
+    { id: 'purchase', name: '采购部' },
+  ];
+
+  it('TreeSelect：↓ 打开并进到树里，→ 展开、↓ 移动，Enter 选中、关闭并回到触发按钮', async () => {
+    let picked: string | null = null;
+    const root = mount(
+      _component(() => {
+        let value = _state<string | null>(null);
+        return () => (
+          <TreeSelect
+            items={orgs}
+            getKey={(org) => org.id}
+            getLabel={(org) => org.name}
+            getChildren={(org) => org.children}
+            _value={value}
+            onUpdate:_value={(next: string | null) => {
+              value = next;
+              picked = next;
+            }}
+            aria-label="单位"
+          />
+        );
+      }),
+    );
+    const trigger = root.querySelector<HTMLButtonElement>('button[role="combobox"]')!;
+    trigger.focus();
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.poll(() => focused()?.getAttribute('role')).toBe('tree');
+    expect(active()).toContain('生产制造中心');
+    await userEvent.keyboard('{ArrowRight}');
+    await tick();
+    await userEvent.keyboard('{ArrowDown}{ArrowDown}');
+    await expect.poll(active).toContain('测试团队');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => picked).toBe('testing');
+    await expect.poll(() => focused()).toBe(trigger);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('Cascader：↓ 打开进到第一列（高亮项的下一级跟着显示），→ 进到下一列，Enter 选中叶子并关闭', async () => {
+    let picked: readonly string[] | null = null;
+    const root = mount(
+      _component(() => {
+        let value = _state<readonly string[] | null>(null);
+        return () => (
+          <Cascader
+            items={orgs}
+            getKey={(org) => org.id}
+            getLabel={(org) => org.name}
+            getChildren={(org) => org.children}
+            _value={value}
+            onUpdate:_value={(next: readonly string[] | null) => {
+              value = next;
+              picked = next;
+            }}
+            aria-label="单位"
+          />
+        );
+      }),
+    );
+    const trigger = root.querySelector<HTMLButtonElement>('button[role="combobox"]')!;
+    trigger.focus();
+    await userEvent.keyboard('{ArrowDown}');
+    await expect.poll(active).toBe('生产制造中心');
+    expect(document.querySelectorAll('[role="listbox"]')).toHaveLength(2);
+    await userEvent.keyboard('{ArrowRight}');
+    await expect.poll(active).toBe('技术集成团队');
+    await userEvent.keyboard('{ArrowDown}');
+    expect(active()).toBe('测试团队');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => picked).toEqual(['assembly', 'testing']);
+    expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  });
+
+  it('KanbanBoard：空格拿起，→ 换到下一列，Enter 放下；Esc 取消', async () => {
+    const moves: string[] = [];
+    const cards = [
+      { id: 'a', title: '写文档', stage: 'todo' },
+      { id: 'b', title: '修 bug', stage: 'doing' },
+    ];
+    const root = mount(() => (
+      <KanbanBoard
+        aria-label="看板"
+        columns={[
+          { key: 'todo', label: '待处理' },
+          { key: 'doing', label: '处理中' },
+        ]}
+        items={cards}
+        getKey={(card) => card.id}
+        getColumn={(card) => card.stage}
+        getLabel={(card) => card.title}
+        onMove={(card, to) => void moves.push(`${card.id}→${to}`)}
+      >
+        {(card) => <span>{card.title}</span>}
+      </KanbanBoard>
+    ));
+    const handle = root.querySelector<HTMLButtonElement>('[aria-label="移动 写文档"]')!;
+    handle.focus();
+    await userEvent.keyboard(' ');
+    await tick();
+    expect(handle.getAttribute('aria-pressed')).toBe('true');
+    await userEvent.keyboard('{Escape}');
+    await tick();
+    expect(handle.getAttribute('aria-pressed')).toBe('false');
+    expect(moves).toEqual([]);
+    await userEvent.keyboard(' ');
+    await userEvent.keyboard('{ArrowRight}');
+    await userEvent.keyboard('{Enter}');
+    await expect.poll(() => moves).toEqual(['a→doing']);
+  });
+
+  it('Drawer：Esc 先问 beforeClose，不同意时不关；拖宽手柄 ← / → 调宽、调窄', async () => {
+    const asked: string[] = [];
+    let allow = false;
+    const widths: number[] = [];
+    mount(
+      _component(() => {
+        let open = _state(true);
+        let width = _state<number | null>(320);
+        return () => (
+          <Drawer
+            _open={open}
+            title="编辑项目"
+            _width={width}
+            onUpdate:_width={(next: number | null) => {
+              width = next;
+              if (next != null) widths.push(next);
+            }}
+            beforeClose={({ reason }) => {
+              asked.push(reason);
+              return allow;
+            }}
+          >
+            内容
+          </Drawer>
+        );
+      }),
+    );
+    const dialog = () => document.querySelector<HTMLDialogElement>('dialog');
+    await expect.poll(() => dialog()?.open).toBe(true);
+    const handle = dialog()!.querySelector<HTMLElement>('[role="separator"]')!;
+    handle.focus();
+    // 右侧抽屉的手柄在左边：← 调宽，→ 调窄
+    await userEvent.keyboard('{ArrowLeft}');
+    await expect.poll(() => widths.at(-1)).toBeGreaterThan(320);
+    await userEvent.keyboard('{ArrowRight}{ArrowRight}');
+    await expect.poll(() => widths.at(-1)).toBeLessThan(320);
+    await userEvent.keyboard('{Escape}');
+    await tick();
+    expect(asked).toHaveLength(1);
+    expect(dialog()?.open).toBe(true);
+    allow = true;
+    await userEvent.keyboard('{Escape}');
+    await expect.poll(() => dialog()?.open ?? false).toBe(false);
+  });
+
+  it('ColorField：输入颜色后 Enter 写回', async () => {
+    let color = '';
+    const root = mount(
+      _component(() => {
+        let value = _state('#000000');
+        return () => (
+          <ColorField
+            _value={value}
+            onUpdate:_value={(next: string) => {
+              value = next;
+              color = next;
+            }}
+            aria-label="主色"
+          />
+        );
+      }),
+    );
+    await userEvent.tripleClick(root.querySelector('input')!);
+    await userEvent.keyboard('#3366ff{Enter}');
+    expect(color).toBe('#3366ff');
+  });
+
+  it('Checkbox、Switch：空格切换', async () => {
+    const root = mount(() => (
+      <div>
+        <Checkbox>同意条款</Checkbox>
+        <Switch>接收通知</Switch>
+      </div>
+    ));
+    const [checkbox, toggle] = [...root.querySelectorAll<HTMLInputElement>('input')];
+    checkbox!.focus();
+    await userEvent.keyboard(' ');
+    expect(checkbox!.checked).toBe(true);
+    await userEvent.tab();
+    expect(focused()).toBe(toggle);
+    await userEvent.keyboard(' ');
+    expect(toggle!.checked).toBe(true);
   });
 });

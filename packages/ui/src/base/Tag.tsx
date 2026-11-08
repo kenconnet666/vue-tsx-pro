@@ -26,6 +26,7 @@ import { ButtonBase, type ButtonBaseProps } from './ButtonBase';
 import { CloseButton, type PresetIconButtonProps } from './CloseButton';
 import { Icon, type IconData, type IconProps } from './Icon';
 import { t } from '../config/theme/tokens';
+import { stateLayerStyles } from '../utils/style/styles';
 
 /** 未声明的属性落到 span 上 */
 export interface TagProps extends PartProps<'span'>, BadgeOptions {
@@ -52,32 +53,20 @@ const tagStyles = css.create({
   },
   // 移除按钮紧贴右侧，比独立的图标按钮紧凑（标签之间留有间距，满足目标尺寸的间距例外）
   removable: { paddingInlineEnd: '_xs' },
-  // 悬停、按下的底色取标签的文字色（各色调的标签上都协调），而不是幽灵按钮的灰色
   remove: {
     width: '1.5em',
     minHeight: '1.5em',
     marginBlock: `calc(-1 * ${t.space.xs})`,
     color: 'inherit',
-    backgroundColor: {
-      default: 'transparent',
-      _hover: 'color-mix(in srgb, currentColor 14%, transparent)',
-      _active: 'color-mix(in srgb, currentColor 22%, transparent)',
-    },
   },
   removing: {
     opacity: 0,
     scale: 0.8,
     transition: `opacity ${t.durations.sm} ${t.easings.exit}, scale ${t.durations.sm} ${t.easings.exit}`,
   },
-  // 可选中：手形指针；颜色随选中切换时过渡。悬停叠一层 8% 的文字色（同 Material 的状态层）：
-  // 各色调、各样式都适用，亮色里变深、暗色里变亮
+  // 可选中：手形指针；颜色随选中切换时过渡（悬停的状态层见 stateLayerStyles.overlay）
   selectable: {
     cursor: 'pointer',
-    backgroundImage: {
-      default: 'none',
-      _hover:
-        'linear-gradient(color-mix(in srgb, currentColor 8%, transparent), color-mix(in srgb, currentColor 8%, transparent))',
-    },
     transition: `background-color ${t.durations.sm} ${t.easings.standard}, color ${t.durations.sm} ${t.easings.standard}, border-color ${t.durations.sm} ${t.easings.standard}`,
   },
 });
@@ -117,7 +106,7 @@ export const Tag = _component(
         return (
           <ButtonBase
             {...mergeProps<ButtonBaseProps>(
-              { ...root, sx: [root.sx, tagStyles.selectable] },
+              { ...root, sx: [root.sx, tagStyles.selectable, stateLayerStyles.overlay] },
               rest as Partial<ButtonBaseProps>,
               { 'aria-pressed': selected, onClick: () => (selected = !selected) },
             )}
@@ -153,7 +142,12 @@ export const Tag = _component(
           {onRemove && (
             <CloseButton
               {...mergeProps<PresetIconButtonProps>(
-                { sx: tagStyles.remove, 'aria-label': label, radius: 'full' },
+                // 悬停、按下的底色取标签的文字色：各色调的标签上都协调
+                {
+                  sx: [tagStyles.remove, stateLayerStyles.ghost],
+                  'aria-label': label,
+                  radius: 'full',
+                },
                 propsRemove,
                 { onClick: dismissible.dismiss },
               )}

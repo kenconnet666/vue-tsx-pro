@@ -1355,6 +1355,7 @@ export {
   paddingInlineStyles,
   radiusStyles,
   rowGapStyles,
+  stateLayerStyles,
   variantOf,
   type LayoutTag,
   type Radius,
