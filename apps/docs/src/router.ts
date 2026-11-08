@@ -56,6 +56,30 @@ export function createDocsRouter(
       },
       // 合并、挪走了的页：跳到新页的对应小节
       ...Object.entries(redirects).map(([path, redirect]) => ({ path, redirect })),
+      // 流程中心（docs/decisions 0009）：自己的应用外壳，引擎跑在浏览器的 Worker 里
+      {
+        path: '/flow',
+        component: () => import('./flow-center/App'),
+        meta: { title: '流程中心' },
+        children: [
+          { path: '', redirect: '/flow/work' },
+          {
+            path: 'work',
+            component: () => import('./flow-center/pages/Workbench'),
+            meta: { title: '工作台 · 流程中心' },
+          },
+          {
+            path: 'start',
+            component: () => import('./flow-center/pages/StartCenter'),
+            meta: { title: '发起 · 流程中心' },
+          },
+          {
+            path: 'start/:key',
+            component: () => import('./flow-center/pages/StartForm'),
+            meta: { title: '发起 · 流程中心' },
+          },
+        ],
+      },
       // 整页示例：示例卡片里的 iframe 打开它，不套站点外壳（见 isFrame）
       { path: '/frame/:path(.*)', component: () => import('./pages/Frame'), meta: { title: '' } },
       {

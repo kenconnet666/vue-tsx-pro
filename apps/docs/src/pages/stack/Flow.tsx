@@ -2,7 +2,18 @@
  * 全栈：流程引擎（@zerodep-dev/flow-ts-*）。定义、引擎、扩展点、试运行、流程图与设计器
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Code, CodeBlock, H2, Link, List, ListItem, Paragraph } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Workflow } from '@lucide/icons';
+import {
+  Alert,
+  Code,
+  CodeBlock,
+  H2,
+  Link,
+  LinkButton,
+  List,
+  ListItem,
+  Paragraph,
+} from '@zerodep-dev/vue-tsx-pro-ui';
 import { Diagram } from '@zerodep-dev/vue-tsx-pro-ui/diagram';
 import { templates } from '@zerodep-dev/flow-ts-model';
 import { processDiagram, renderStep, stepLabel } from '@zerodep-dev/flow-ts-ui';
@@ -62,6 +73,16 @@ run.status; run.open; run.path; run.error;`;
 
 export default _component(() => () => (
   <DocPage meta={meta} wide>
+    <Alert
+      tone="accent"
+      title="流程中心"
+      description="引擎、PostgreSQL（PGlite）都跑在浏览器里的一个完整演示：工作台、审批单、发起，可以切换演示身份、快进时钟。"
+      action={
+        <LinkButton href="/flow/work" size="sm" icon={Workflow}>
+          打开流程中心
+        </LinkButton>
+      }
+    />
     <H2 id="definition" size="xl" anchor>
       定义
     </H2>

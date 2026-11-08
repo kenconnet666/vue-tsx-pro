@@ -108,7 +108,13 @@ export default defineConfig({
     // 启动时就编译入口引到的模块（站点外壳与它用到的组件）：打开浏览器时不用再等
     warmup: { clientFiles: ['./src/main.ts'] },
   },
-  optimizeDeps,
+  optimizeDeps: {
+    ...optimizeDeps,
+    // PGlite 自己按 import.meta.url 找 wasm 与数据文件，预构建后路径就不对了（PGlite 文档的建议）
+    exclude: ['@electric-sql/pglite'],
+  },
+  // 流程中心的 Worker（src/flow-center/runtime/worker.ts）：同样按源码解析各包，打成 ES 模块
+  worker: { format: 'es', plugins: () => [workspaceSource()] },
   // Shiki 的每种语言语法单独成块、用到才下载（emacs-lisp、cpp 这类大语法不会被页面加载），不必为它们报警
   build: {
     chunkSizeWarningLimit: 1000,

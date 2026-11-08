@@ -123,8 +123,8 @@ export const App = _component(() => {
   };
 
   return () => {
-    // 整页示例在 iframe 里单独渲染，不套站点外壳
-    if (isFrame) return <RouterView />;
+    // 整页示例在 iframe 里单独渲染，流程中心有自己的应用外壳：都不套站点外壳
+    if (isFrame || route.path === '/flow' || route.path.startsWith('/flow/')) return <RouterView />;
     const isHome = route.path === '/';
     return (
       <>

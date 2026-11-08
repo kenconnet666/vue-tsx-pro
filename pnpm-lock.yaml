@@ -445,6 +445,9 @@ importers:
       '@codemirror/view':
         specifier: 'catalog:'
         version: 6.43.14
+      '@electric-sql/pglite':
+        specifier: 'catalog:'
+        version: 0.5.10
       '@floating-ui/dom':
         specifier: 'catalog:'
         version: 1.8.0
@@ -460,6 +463,12 @@ importers:
       '@shikijs/langs':
         specifier: 'catalog:'
         version: 4.5.0
+      '@zerodep-dev/easy-query-ts-pg':
+        specifier: ^0.2.5
+        version: 0.2.5(@zerodep-dev/easy-query-ts@0.2.5)(pg@8.13.1)
+      '@zerodep-dev/flow-ts-engine':
+        specifier: workspace:^
+        version: link:../../packages/flow/engine
       '@zerodep-dev/flow-ts-model':
         specifier: workspace:^
         version: link:../../packages/flow/model
