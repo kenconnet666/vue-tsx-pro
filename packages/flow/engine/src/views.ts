@@ -24,6 +24,11 @@ export interface TodoItem extends WorkItemSummary {
   /** 处理的时间与选的结果（已办；待办时为空） */
   readonly completedAt: Date | null;
   readonly outcome: string | null;
+  /**
+   * 批量处理（勾几条一起同意）时选的结果：节点上第一个同意类、不要求写意见的结果；没有时这份不能批量处理，已办里为空。
+   * 单据没填全、要给下一步选人的，批量时由引擎逐条拒绝（runMany 的结果里写着原因）
+   */
+  readonly quickOutcome: string | null;
 }
 
 /** 退回到运行时选的节点时能选的一个：上游走到过的人工节点与它上次的处理人 */

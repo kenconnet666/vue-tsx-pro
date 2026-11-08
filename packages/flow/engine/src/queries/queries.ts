@@ -44,7 +44,10 @@ const startedWithin = (i: InstanceRef, filter: ListFilter) => [
 /** 待办列表的列：待办加所属实例的流程与标题 */
 const todoColumns = (
   w: any,
-): Record<Exclude<keyof TodoItem, 'summary'> | 'definitionId' | 'variables', any> => ({
+): Record<
+  Exclude<keyof TodoItem, 'summary' | 'quickOutcome'> | 'definitionId' | 'variables',
+  any
+> => ({
   id: w.id,
   instanceId: w.instanceId,
   node: w.node,
@@ -130,16 +133,30 @@ export function createQueries(core: EngineCore) {
       ),
     );
 
-  /** 列表行补上摘要列：按实例的定义里 summary 列出的字段取流程变量 */
+  /** 列表行补上摘要列（按实例的定义里 summary 列出的字段取流程变量）与批量处理时选的结果 */
   async function withSummary(rows: Record<string, any>[]): Promise<TodoItem[]> {
     const result: TodoItem[] = [];
     for (const { definitionId, variables, ...row } of rows) {
-      const fields = (await definitionOf(db, definitionId as number)).summary ?? [];
+      const definition = await definitionOf(db, definitionId as number);
       const values = variables as Record<string, unknown>;
       const summary = Object.fromEntries(
-        fields.map((field) => [field, values[field.startsWith('form.') ? field.slice(5) : field]]),
+        (definition.summary ?? []).map((field) => [
+          field,
+          values[field.startsWith('form.') ? field.slice(5) : field],
+        ]),
       );
-      result.push({ ...(row as Omit<TodoItem, 'summary'>), summary });
+      const node = definition.nodes.find((n) => n.id === row['node']);
+      const quick =
+        row['state'] === 'open' && node?.type === 'task'
+          ? node.outcomes.find(
+              (o) => (o.kind ?? 'approve') === 'approve' && o.comment !== 'required',
+            )
+          : undefined;
+      result.push({
+        ...(row as Omit<TodoItem, 'summary' | 'quickOutcome'>),
+        summary,
+        quickOutcome: quick?.key ?? null,
+      });
     }
     return result;
   }

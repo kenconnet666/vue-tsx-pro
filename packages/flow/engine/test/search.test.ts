@@ -102,4 +102,13 @@ describe('query.search', () => {
       manage: false,
     });
   });
+
+  it('待办的 quickOutcome：同意类、不要求写意见的结果；已办里为空', async () => {
+    const { engine, chair } = await setup();
+    const [review] = (await engine.query.todo(carol)).filter((item) => item.instanceId === chair);
+    assert.equal(review?.quickOutcome, 'pass');
+    await engine.run({ type: 'complete', workItem: review!.id, outcome: 'pass' }, carol);
+    const [done] = await engine.query.done(carol);
+    assert.equal(done?.quickOutcome, null);
+  });
 });

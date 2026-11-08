@@ -217,7 +217,8 @@ export const HandleTask = _component(({ detail, item, onDone }: HandleTaskProps)
           )
         }
       >
-        <div {...css.attrs(styles.outcomes)}>
+        {/* 工作台按回车时把焦点移到这里的第一个结果 */}
+        <div {...css.attrs(styles.outcomes)} data-flow-outcomes>
           {item.outcomes.map((outcome) => (
             <div key={outcome.key} {...css.attrs(styles.outcome)}>
               <Button
