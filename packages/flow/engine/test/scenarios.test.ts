@@ -2,15 +2,12 @@
 // 否则列出缺的命令（第一版不做的能力，见 docs/decisions/0001 第 2 节）；期望只比写出来、这一版产出的字段
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
-import { createPool, type Pool } from 'mysql2/promise';
 import pg from 'pg';
 import { afterAll, describe, it } from 'vitest';
 import type { Adapter } from '@zerodep-dev/easy-query-ts';
-import { mysql } from '@zerodep-dev/easy-query-ts-mysql';
 import { postgres } from '@zerodep-dev/easy-query-ts-pg';
 import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import {
-  FlowCandidate,
   FlowError,
   FlowWorkItem,
   type Actor,
@@ -18,6 +15,7 @@ import {
   type FlowEngine,
   type RunResult,
 } from '../src/index.ts';
+import { parseCandidate } from '../src/assignees.ts';
 import { createTestEngine, type TestClock } from '../src/testing.ts';
 
 const DIR = new URL('../../spec/scenarios/', import.meta.url);
@@ -114,7 +112,7 @@ const files = readdirSync(DIR)
   .filter((name) => name.endsWith('.json'))
   .sort();
 
-/** 实库：EQTS_MYSQL_URLS、EQTS_PG_URLS（逗号分隔，同 easy-query 的实库套件）；MySQL 用单独的 flow_test 库 */
+/** 实库：EQTS_PG_URLS（逗号分隔，同 easy-query 的实库套件；CI 里是 PG 17） */
 const urlsOf = (name: string) =>
   (process.env[name] ?? '')
     .split(',')
@@ -125,25 +123,9 @@ afterAll(async () => {
   for (const pool of pools) await pool.end();
 });
 
-/** 跑场景的库：SQLite 内存库，加上设了环境变量的实库 */
+/** 跑场景的库：PGlite，加上设了环境变量的实库 */
 const targets: { name: string; adapter: () => Promise<Adapter | undefined> }[] = [
-  { name: 'sqlite', adapter: async () => undefined },
-  ...urlsOf('EQTS_MYSQL_URLS').map((url) => {
-    let pool: Pool | undefined;
-    return {
-      name: `mysql ${new URL(url).port}`,
-      adapter: async () => {
-        if (!pool) {
-          const bootstrap = createPool({ uri: url, connectionLimit: 1 });
-          await bootstrap.query('CREATE DATABASE IF NOT EXISTS flow_test');
-          await bootstrap.end();
-          pool = createPool({ uri: url, database: 'flow_test', connectionLimit: 5, timezone: 'Z' });
-          pools.push(pool);
-        }
-        return mysql(pool);
-      },
-    };
-  }),
+  { name: 'pglite', adapter: async () => undefined },
   ...urlsOf('EQTS_PG_URLS').map((url) => {
     let pool: pg.Pool | undefined;
     return {
@@ -181,11 +163,11 @@ for (const target of targets)
         scenario.steps = scenario.steps.slice(0, cut);
       }
       const note = partial ? `（只跑到 #${partial.before} 之前：${partial.reason}）` : '';
-      // 实库每个场景要删表、建表，比内存库慢得多
+      // 实库每个场景要删表、建表，比进程内的库慢得多
       it(
         `${file}：${scenario.name}${note}`,
         async () => runScenario(scenario, await target.adapter()),
-        target.name === 'sqlite' ? 5_000 : 60_000,
+        target.name === 'pglite' ? 10_000 : 60_000,
       );
     }
   });
@@ -477,19 +459,13 @@ async function runStep(
 async function shape(engine: FlowEngine, result: RunResult): Promise<Record<string, unknown>> {
   const ids = result.workItems.map((item) => item.id);
   const rows = ids.length ? await engine.db.queryable(FlowWorkItem).whereKeys(ids).toList() : [];
-  const candidates = ids.length
-    ? await engine.db
-        .queryable(FlowCandidate)
-        .where((c) => c.workItemId.in(ids))
-        .toList()
-    : [];
   return {
     instance: {
       ...result.instance,
       parentInstanceId: null,
     },
     workItems: rows.map((row) => {
-      const inbox = candidates.find((c) => c.workItemId === row.id && c.kind !== 'user');
+      const inbox = row.candidates.map(parseCandidate).find((c) => c.kind !== 'user');
       return {
         ...row,
         assigneeId: row.assignee,

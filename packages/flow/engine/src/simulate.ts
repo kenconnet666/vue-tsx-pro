@@ -9,7 +9,8 @@
  *   run.status; run.path.map((e) => e.node); run.open; run.error
  */
 import type { Duration, ProcessDefinition } from '@zerodep-dev/flow-ts-model';
-import { FlowCandidate, FlowWorkItem } from './entities.ts';
+import { parseCandidate } from './assignees.ts';
+import { FlowWorkItem } from './entities.ts';
 import { FlowError } from './errors.ts';
 import { createTestEngine } from './testing.ts';
 import type { Actor, FlowEngineOptions, FlowEventView, InstanceSummary } from './types.ts';
@@ -68,10 +69,22 @@ export interface SimulationResult {
   readonly error?: { readonly step: number; readonly code: string; readonly message: string };
 }
 
-/** 按步骤试运行一个流程定义（不用先发布到真实的库） */
-export async function simulate(
+/** 试运行共用一个测试库，一次只跑一个 */
+let queue: Promise<unknown> = Promise.resolve();
+
+/** 按步骤试运行一个流程定义（不用先发布到真实的库）；同时调用时排队 */
+export function simulate(
   definition: ProcessDefinition,
   input: SimulationInput = {},
+): Promise<SimulationResult> {
+  const run = queue.then(() => simulateNow(definition, input));
+  queue = run.catch(() => undefined);
+  return run;
+}
+
+async function simulateNow(
+  definition: ProcessDefinition,
+  input: SimulationInput,
 ): Promise<SimulationResult> {
   const { engine, clock } = await createTestEngine({ admins: ['admin'], ...input.options });
   const initiator = input.initiator ?? { id: 'initiator' };
@@ -128,10 +141,7 @@ export async function simulate(
           .first();
         if (!item) throw new FlowError('not-found', `节点 ${step.node} 上没有开着的待办`);
         // 以能处理它的人的身份：落到的人，或收件箱里候选的角色、部门的成员
-        const pool = await engine.db
-          .queryable(FlowCandidate)
-          .where((c) => c.workItemId.eq(item.id))
-          .toList();
+        const pool = item.candidates.map(parseCandidate);
         const of = (kind: string) => pool.filter((c) => c.kind === kind).map((c) => c.value);
         const actor: Actor = {
           id: item.assignee ?? of('user')[0] ?? 'simulator',
@@ -173,12 +183,6 @@ export async function simulate(
     .where((w) => [w.instanceId.eq(instanceId!), w.state.eq('open')])
     .orderBy((w) => w.id)
     .toList();
-  const candidates = items.length
-    ? await engine.db
-        .queryable(FlowCandidate)
-        .where((c) => c.workItemId.in(items.map((i) => i.id)))
-        .toList()
-    : [];
   return {
     status: detail.instance.status,
     result: detail.instance.result,
@@ -189,9 +193,9 @@ export async function simulate(
       node: item.node,
       nodeName: item.nodeName,
       assignee: item.assignee,
-      candidates: candidates
-        .filter((c) => c.workItemId === item.id)
-        .map((c) => (c.kind === 'user' ? c.value : `${c.kind}:${c.value}`)),
+      candidates: item.candidates.map((token) =>
+        token.startsWith('user:') ? token.slice(5) : token,
+      ),
       dueAt: item.dueAt,
     })),
     ...(error ? { error } : {}),

@@ -4,6 +4,7 @@
  * 发生了什么（on）
  */
 import type { Adapter } from '@zerodep-dev/easy-query-ts';
+import type { CompileCode } from './code.ts';
 
 /** 做事的人：编号与他的角色、部门（判断能不能认领收件箱里的待办）；admin 能做管理员的事 */
 export interface Actor {
@@ -94,8 +95,10 @@ export type FlowListeners = Readonly<
 
 /** createFlowEngine 的选项 */
 export interface FlowEngineOptions {
-  /** easy-query 的适配器（sqlite、mysql、pg、hana）：引擎在这个库里建自己的表 */
+  /** easy-query 的 PostgreSQL 适配器（pg 连接池或 PGlite）：引擎在这个库里建自己的表 */
   readonly adapter: Adapter;
+  /** 流程自带的 TS 怎么去类型；默认用 Node 的 stripTypeScriptTypes，浏览器里要给（例如 sucrase、esbuild-wasm） */
+  readonly compileCode?: CompileCode;
   readonly org?: FlowOrg;
   readonly extensions?: FlowExtensions;
   readonly on?: FlowListeners;

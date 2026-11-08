@@ -1,9 +1,15 @@
-// 引擎的核心：发起、认领、处理、网关、会签、退回、撤回、终止、定时与异步作业、外部事件、监听（SQLite 内存库、假时钟）
+// 引擎的核心：发起、认领、处理、网关、会签、退回、撤回、终止、定时与异步作业、外部事件、监听（PGlite、假时钟）
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'vitest';
 import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
-import { FlowError, type Actor, type FlowEngineOptions } from '../src/index.ts';
+import {
+  FlowError,
+  FlowInstance,
+  FlowWorkItem,
+  type Actor,
+  type FlowEngineOptions,
+} from '../src/index.ts';
 import { createTestEngine } from '../src/testing.ts';
 
 /** spec/scenarios/processes 里的定义 */
@@ -476,3 +482,43 @@ async function completeAs(
       : undefined;
   return engine.run({ type: 'complete', workItem: id, outcome: outcome!.key }, actor);
 }
+
+describe('engine: PostgreSQL', () => {
+  it('收件箱的候选存成标记数组，查待办按标记取交集', async () => {
+    const { engine } = await engineWith(['purchase']);
+    const started = await engine.run(
+      { type: 'start', process: 'purchase', variables: { title: '显示器', amount: '900' } },
+      alice,
+    );
+    const row = await engine.db.queryable(FlowWorkItem).findOrThrow(started.workItems[0]!.id);
+    assert.deepEqual(row.candidates, ['role:1']);
+    assert.equal((await engine.query.todo({ id: '2001', roles: ['2', '1'] })).length, 1);
+    assert.equal((await engine.query.todo({ id: '2001', roles: ['2'] })).length, 0);
+  });
+
+  it('两个进程同时做到期作业：SKIP LOCKED 各抢各的，每个作业只做一次', async () => {
+    let calls = 0;
+    const { engine } = await engineWith(['erp-sync'], {
+      extensions: {
+        actions: {
+          explode: () => {
+            calls++;
+          },
+        },
+      },
+    });
+    for (let i = 0; i < 6; i++) await engine.run({ type: 'start', process: 'erp-sync' }, alice);
+    const ran = await Promise.all([
+      engine.jobs.runDue({ worker: 'a', limit: 4 }),
+      engine.jobs.runDue({ worker: 'b', limit: 4 }),
+    ]);
+    assert.equal(ran[0] + ran[1], 6);
+    assert.equal(calls, 6);
+    assert.equal(await engine.jobs.runDue(), 0);
+    const statuses = await engine.db
+      .queryable(FlowInstance)
+      .select((i) => ({ status: i.status }))
+      .toList();
+    assert.ok(statuses.every((row) => row.status === 'completed'));
+  });
+});

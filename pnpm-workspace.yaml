@@ -84,8 +84,8 @@ catalog:
   culori: 4.0.2
   '@types/culori': 4.0.1
   # 流程引擎的实库测试用的驱动
-  mysql2: 3.11.5
   pg: 8.13.1
+  '@electric-sql/pglite': 0.5.10
   '@types/pg': 8.11.10
   # typed JSON 的线上格式（独立仓库 json-wire）：流程引擎的模型包按它比较与还原值
   '@zerodep-dev/json-wire': 0.1.0
@@ -125,10 +125,9 @@ minimumReleaseAgeExclude:
   # 自己的包（json-wire 仓库），发布即用
   - '@zerodep-dev/json-wire@0.1.0'
   # 自己的包（easy-query-ts 仓库），发布即用
-  - '@zerodep-dev/easy-query-ts@0.2.0'
-  - '@zerodep-dev/easy-query-ts-sqlite@0.2.0'
-  - '@zerodep-dev/easy-query-ts-mysql@0.2.0'
-  - '@zerodep-dev/easy-query-ts-pg@0.2.0'
+  - '@zerodep-dev/easy-query-ts@0.2.4'
+  - '@zerodep-dev/easy-query-ts-sqlite@0.2.4'
+  - '@zerodep-dev/easy-query-ts-pg@0.2.4'
   # 自己的包（rune-ui-font 仓库），发布即用
   - 'rune-ui-font@0.2.0'
 

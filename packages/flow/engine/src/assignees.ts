@@ -4,12 +4,32 @@
  */
 import { isRef, type AssigneeSource } from '@zerodep-dev/flow-ts-model';
 import { FlowError } from './errors.ts';
-import type { ExtensionContext, FlowEngineOptions, Resolver } from './types.ts';
+import type { Actor, ExtensionContext, FlowEngineOptions, Resolver } from './types.ts';
 
 /** 一个候选 */
 export interface Candidate {
   readonly kind: 'user' | 'role' | 'department' | 'group';
   readonly value: string;
+}
+
+/** 候选 → 存进待办 candidates 列的标记：`role:finance`、`group:岗位:p1` */
+export const candidateToken = (candidate: Candidate): string =>
+  `${candidate.kind}:${candidate.value}`;
+
+/** 标记 → 候选 */
+export function parseCandidate(token: string): Candidate {
+  const colon = token.indexOf(':');
+  return { kind: token.slice(0, colon) as Candidate['kind'], value: token.slice(colon + 1) };
+}
+
+/** 这个人的标记：自己、角色、部门、扩展种类；和待办的 candidates 有交集就是候选 */
+export function actorTokens(actor: Actor): string[] {
+  return [
+    `user:${actor.id}`,
+    ...(actor.roles ?? []).map((role) => `role:${role}`),
+    ...(actor.departments ?? []).map((department) => `department:${department}`),
+    ...(actor.groups ?? []).map((group) => `group:${group}`),
+  ];
 }
 
 /** 解析时用到的：取值、最后的处理人、发起人、扩展 */

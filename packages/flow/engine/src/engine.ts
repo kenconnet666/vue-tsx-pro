@@ -8,8 +8,7 @@
  *   const { workItems } = await engine.run({ type: 'start', process: 'purchase', variables: { amount: 120 } }, alice);
  *   await engine.run({ type: 'complete', workItem: workItems[0].id, outcome: 'approve' }, bob);
  */
-import { AsyncLocalStorage } from 'node:async_hooks';
-import { and, createDb, or, type Cond, type Row } from '@zerodep-dev/easy-query-ts';
+import { and, createDb, or, type Row } from '@zerodep-dev/easy-query-ts';
 import {
   fieldStates,
   gatewayPairs,
@@ -25,10 +24,10 @@ import {
   type TaskNode,
   type VariableDeclaration,
 } from '@zerodep-dev/flow-ts-model';
+import { actorTokens } from './assignees.ts';
 import { compileCode } from './code.ts';
 import { decideCountersign } from './countersign.ts';
 import {
-  FlowCandidate,
   FlowCc,
   FlowDefinition,
   FlowEvent,
@@ -191,7 +190,6 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   const db = createDb({ schema: flowSchema, adapter: options.adapter });
   const now = () => options.clock?.() ?? new Date();
   const definitions = new Map<number, ProcessDefinition>();
-  const running = new AsyncLocalStorage<FlowCommand>();
 
   async function definitionOf(tx: FlowDb, id: number): Promise<ProcessDefinition> {
     const cached = definitions.get(id);
@@ -201,11 +199,12 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     return row.model;
   }
 
-  /** 锁住实例，在推进现场里做事，最后写回 */
+  /** 锁住实例，在推进现场里做事，最后写回；是命令时提交前交给 intercept.after */
   async function withInstance(
     id: number,
     actor: Actor | null,
     work: (exec: Execution, tx: FlowDb) => Promise<void>,
+    command?: FlowCommand,
   ): Promise<RunResult> {
     return db.transaction(async (tx) => {
       if (!(await tx.lock(FlowInstance, id))) throw new FlowError('not-found', `没有实例 ${id}`);
@@ -220,7 +219,6 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       const { instance: summary, events } = await exec.flush();
       await afterFlush(tx, exec);
       const result = { instance: summary, workItems: exec.created.map(workItemSummary), events };
-      const command = running.getStore();
       if (command && actor) await options.intercept?.after?.(command, result, actor);
       return result;
     });
@@ -244,13 +242,10 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   }
 
   /** 这个人能不能处理：落到他的，或收件箱里他是候选 */
-  async function isCandidate(tx: FlowDb, item: WorkItemRow, actor: Actor): Promise<boolean> {
+  function isCandidate(item: WorkItemRow, actor: Actor): boolean {
     if (item.assignee) return item.assignee === actor.id;
-    const candidates = await tx
-      .queryable(FlowCandidate)
-      .where((c) => c.workItemId.eq(item.id))
-      .toList();
-    return candidates.some((c) => matches(c, actor));
+    const tokens = actorTokens(actor);
+    return item.candidates.some((token) => tokens.includes(token));
   }
 
   /** 建推进现场：调用流程时由引擎发起子实例 */
@@ -422,59 +417,73 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     }
   }
 
-  async function claim(id: number, actor: Actor): Promise<RunResult> {
-    return withInstance(await instanceOfItem(id), actor, async (exec, tx) => {
-      const item = await openItem(exec, tx, id);
-      if (item.assignee) throw new FlowError('already-handled', `待办 ${id} 已经有人处理`);
-      if (!(await isCandidate(tx, item, actor)))
-        throw new FlowError('forbidden', `${actor.id} 不能认领待办 ${id}`);
-      await tx
-        .update(FlowWorkItem)
-        .set({ assignee: actor.id, assignment: 'claimed' })
-        .where((w) => [w.id.eq(id), w.state.eq('open'), w.assignee.isNull()])
-        .expectRows(1, () => new FlowError('already-handled', `待办 ${id} 被别人认领了`))
-        .execute();
-      exec.addEvent('workItem.claimed', { workItemId: id, node: item.node });
-    });
+  async function claim(
+    command: Extract<FlowCommand, { type: 'claim' }>,
+    actor: Actor,
+  ): Promise<RunResult> {
+    const id = command.workItem;
+    return withInstance(
+      await instanceOfItem(id),
+      actor,
+      async (exec, tx) => {
+        const item = await openItem(exec, tx, id);
+        if (item.assignee) throw new FlowError('already-handled', `待办 ${id} 已经有人处理`);
+        if (!isCandidate(item, actor))
+          throw new FlowError('forbidden', `${actor.id} 不能认领待办 ${id}`);
+        await tx
+          .update(FlowWorkItem)
+          .set({ assignee: actor.id, assignment: 'claimed' })
+          .where((w) => [w.id.eq(id), w.state.eq('open'), w.assignee.isNull()])
+          .expectRows(1, () => new FlowError('already-handled', `待办 ${id} 被别人认领了`))
+          .execute();
+        exec.addEvent('workItem.claimed', { workItemId: id, node: item.node });
+      },
+      command,
+    );
   }
 
   async function complete(
     command: Extract<FlowCommand, { type: 'complete' }>,
     actor: Actor,
   ): Promise<RunResult> {
-    return withInstance(await instanceOfItem(command.workItem), actor, async (exec, tx) => {
-      const item = await openItem(exec, tx, command.workItem);
-      if (!(await isCandidate(tx, item, actor))) {
-        throw new FlowError('forbidden', `${actor.id} 不能处理待办 ${item.id}`);
-      }
-      const node = exec.node(item.node) as TaskNode;
-      const outcome = node.outcomes.find((o) => o.key === command.outcome);
-      if (!outcome) {
-        throw new FlowError('invalid-input', `节点 ${node.name} 没有结果 ${command.outcome}`, {
-          field: 'outcome',
+    return withInstance(
+      await instanceOfItem(command.workItem),
+      actor,
+      async (exec, tx) => {
+        const item = await openItem(exec, tx, command.workItem);
+        if (!isCandidate(item, actor)) {
+          throw new FlowError('forbidden', `${actor.id} 不能处理待办 ${item.id}`);
+        }
+        const node = exec.node(item.node) as TaskNode;
+        const outcome = node.outcomes.find((o) => o.key === command.outcome);
+        if (!outcome) {
+          throw new FlowError('invalid-input', `节点 ${node.name} 没有结果 ${command.outcome}`, {
+            field: 'outcome',
+          });
+        }
+        if (outcome.comment === 'required' && !command.comment?.trim()) {
+          throw new FlowError('invalid-input', `“${outcome.label}”要写意见`, { field: 'comment' });
+        }
+        applySubmission(exec, node, command.variables);
+        for (const name of outcome.guards ?? []) {
+          const guard = exec.extension('guards', name);
+          if (!guard) throw new FlowError('invalid-definition', `没有注册守卫 ${name}`);
+          const verdict = await guard({
+            ...exec.context(),
+            node: node.id,
+            outcome: outcome.key,
+            actor,
+          });
+          if (verdict !== true) throw new FlowError('guard-rejected', verdict, { guard: name });
+        }
+        await finishItem(exec, tx, item, node, outcome.key, {
+          actor: actor.id,
+          comment: command.comment ?? null,
+          returnTo: command.returnTo,
         });
-      }
-      if (outcome.comment === 'required' && !command.comment?.trim()) {
-        throw new FlowError('invalid-input', `“${outcome.label}”要写意见`, { field: 'comment' });
-      }
-      applySubmission(exec, node, command.variables);
-      for (const name of outcome.guards ?? []) {
-        const guard = exec.extension('guards', name);
-        if (!guard) throw new FlowError('invalid-definition', `没有注册守卫 ${name}`);
-        const verdict = await guard({
-          ...exec.context(),
-          node: node.id,
-          outcome: outcome.key,
-          actor,
-        });
-        if (verdict !== true) throw new FlowError('guard-rejected', verdict, { guard: name });
-      }
-      await finishItem(exec, tx, item, node, outcome.key, {
-        actor: actor.id,
-        comment: command.comment ?? null,
-        returnTo: command.returnTo,
-      });
-    });
+      },
+      command,
+    );
   }
 
   /**
@@ -642,62 +651,72 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     command: Extract<FlowCommand, { type: 'transfer' }>,
     actor: Actor,
   ): Promise<RunResult> {
-    return withInstance(await instanceOfItem(command.workItem), actor, async (exec, tx) => {
-      const item = await openItem(exec, tx, command.workItem);
-      if (item.assignee !== actor.id && !actor.admin) {
-        throw new FlowError('forbidden', `${actor.id} 不能转办待办 ${item.id}`);
-      }
-      const node = exec.node(item.node) as TaskNode;
-      if (node.allow?.transfer === false)
-        throw new FlowError('forbidden', `节点 ${node.name} 不允许转办`);
-      await tx
-        .update(FlowWorkItem)
-        .set({
-          state: 'canceled',
-          completedAt: exec.now,
-          completedBy: actor.id,
+    return withInstance(
+      await instanceOfItem(command.workItem),
+      actor,
+      async (exec, tx) => {
+        const item = await openItem(exec, tx, command.workItem);
+        if (item.assignee !== actor.id && !actor.admin) {
+          throw new FlowError('forbidden', `${actor.id} 不能转办待办 ${item.id}`);
+        }
+        const node = exec.node(item.node) as TaskNode;
+        if (node.allow?.transfer === false)
+          throw new FlowError('forbidden', `节点 ${node.name} 不允许转办`);
+        await tx
+          .update(FlowWorkItem)
+          .set({
+            state: 'canceled',
+            completedAt: exec.now,
+            completedBy: actor.id,
+            comment: command.comment ?? null,
+          })
+          .where((w) => [w.id.eq(item.id), w.state.eq('open')])
+          .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
+          .execute();
+        await exec.insertItem(node, item.round, 'transfer', {
+          assignee: command.to,
+          assignment: 'direct',
+          state: 'open',
+          signGroup: item.signGroup,
+          signSeq: item.signSeq,
+        });
+        exec.addEvent('workItem.transferred', {
+          workItemId: item.id,
+          node: node.id,
           comment: command.comment ?? null,
-        })
-        .where((w) => [w.id.eq(item.id), w.state.eq('open')])
-        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
-        .execute();
-      await exec.insertItem(node, item.round, 'transfer', {
-        assignee: command.to,
-        assignment: 'direct',
-        state: 'open',
-        signGroup: item.signGroup,
-        signSeq: item.signSeq,
-      });
-      exec.addEvent('workItem.transferred', {
-        workItemId: item.id,
-        node: node.id,
-        comment: command.comment ?? null,
-        data: { to: command.to },
-      });
-    });
+          data: { to: command.to },
+        });
+      },
+      command,
+    );
   }
 
   async function withdraw(
     command: Extract<FlowCommand, { type: 'withdraw' }>,
     actor: Actor,
   ): Promise<RunResult> {
-    return withInstance(command.instance, actor, async (exec, tx) => {
-      if (exec.status !== 'active')
-        throw new FlowError('instance-not-active', `实例 ${command.instance} 不在进行中`);
-      if (exec.instance.startedBy !== actor.id)
-        throw new FlowError('forbidden', '只有发起人能撤回');
-      const mode = exec.definition.settings?.withdraw ?? 'beforeAction';
-      const items = await tx
-        .queryable(FlowWorkItem)
-        .where((w) => w.instanceId.eq(command.instance))
-        .toList();
-      const acted = items.some((w) => w.state === 'done' && w.completedBy !== actor.id);
-      const claimed = items.some((w) => w.assignment === 'claimed');
-      if (mode === 'never' || acted || (mode === 'beforeClaim' && claimed)) {
-        throw new FlowError('forbidden', '已经有人处理了，不能撤回');
-      }
-      await exec.finish('withdrawn', 'withdrawn');
-    });
+    return withInstance(
+      command.instance,
+      actor,
+      async (exec, tx) => {
+        if (exec.status !== 'active')
+          throw new FlowError('instance-not-active', `实例 ${command.instance} 不在进行中`);
+        if (exec.instance.startedBy !== actor.id)
+          throw new FlowError('forbidden', '只有发起人能撤回');
+        const mode = exec.definition.settings?.withdraw ?? 'beforeAction';
+        const items = await tx
+          .queryable(FlowWorkItem)
+          .where((w) => w.instanceId.eq(command.instance))
+          .toList();
+        const acted = items.some((w) => w.state === 'done' && w.completedBy !== actor.id);
+        const claimed = items.some((w) => w.assignment === 'claimed');
+        if (mode === 'never' || acted || (mode === 'beforeClaim' && claimed)) {
+          throw new FlowError('forbidden', '已经有人处理了，不能撤回');
+        }
+        await exec.finish('withdrawn', 'withdrawn');
+      },
+      command,
+    );
   }
 
   async function terminate(
@@ -705,11 +724,16 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     actor: Actor,
   ): Promise<RunResult> {
     if (!actor.admin) throw new FlowError('forbidden', '只有管理员能终止');
-    return withInstance(command.instance, actor, async (exec) => {
-      if (exec.finished)
-        throw new FlowError('instance-not-active', `实例 ${command.instance} 已经结束`);
-      await exec.finish('terminated', command.result ?? 'terminated');
-    });
+    return withInstance(
+      command.instance,
+      actor,
+      async (exec) => {
+        if (exec.finished)
+          throw new FlowError('instance-not-active', `实例 ${command.instance} 已经结束`);
+        await exec.finish('terminated', command.result ?? 'terminated');
+      },
+      command,
+    );
   }
 
   /** 管理员改派：把开着的待办交给另一个人 */
@@ -718,34 +742,39 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     actor: Actor,
   ): Promise<RunResult> {
     if (!actor.admin) throw new FlowError('forbidden', '只有管理员能改派');
-    return withInstance(await instanceOfItem(command.workItem), actor, async (exec, tx) => {
-      const item = await openItem(exec, tx, command.workItem);
-      await tx
-        .update(FlowWorkItem)
-        .set({
-          state: 'canceled',
-          completedAt: exec.now,
-          completedBy: actor.id,
+    return withInstance(
+      await instanceOfItem(command.workItem),
+      actor,
+      async (exec, tx) => {
+        const item = await openItem(exec, tx, command.workItem);
+        await tx
+          .update(FlowWorkItem)
+          .set({
+            state: 'canceled',
+            completedAt: exec.now,
+            completedBy: actor.id,
+            comment: command.comment ?? null,
+          })
+          .where((w) => [w.id.eq(item.id), w.state.eq('open')])
+          .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
+          .execute();
+        const node = exec.node(item.node) as TaskNode;
+        await exec.insertItem(node, item.round, 'reassign', {
+          assignee: command.to,
+          assignment: 'direct',
+          state: 'open',
+          signGroup: item.signGroup,
+          signSeq: item.signSeq,
+        });
+        exec.addEvent('workItem.reassigned', {
+          workItemId: item.id,
+          node: node.id,
           comment: command.comment ?? null,
-        })
-        .where((w) => [w.id.eq(item.id), w.state.eq('open')])
-        .expectRows(1, () => new FlowError('already-handled', `待办 ${item.id} 已经处理过`))
-        .execute();
-      const node = exec.node(item.node) as TaskNode;
-      await exec.insertItem(node, item.round, 'reassign', {
-        assignee: command.to,
-        assignment: 'direct',
-        state: 'open',
-        signGroup: item.signGroup,
-        signSeq: item.signSeq,
-      });
-      exec.addEvent('workItem.reassigned', {
-        workItemId: item.id,
-        node: node.id,
-        comment: command.comment ?? null,
-        data: { to: command.to },
-      });
-    });
+          data: { to: command.to },
+        });
+      },
+      command,
+    );
   }
 
   /** 管理员跳转：取消所有开着的待办、清掉等待状态，从指定节点重新走 */
@@ -754,24 +783,29 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     actor: Actor,
   ): Promise<RunResult> {
     if (!actor.admin) throw new FlowError('forbidden', '只有管理员能跳转');
-    return withInstance(command.instance, actor, async (exec) => {
-      if (exec.status !== 'active') {
-        throw new FlowError('instance-not-active', `实例 ${command.instance} 不在进行中`);
-      }
-      const target = exec.graph.node(command.node);
-      if (!target || target.type === 'start') {
-        throw new FlowError('invalid-input', `不能跳到 ${command.node}`, { field: 'node' });
-      }
-      await exec.cancelWhere(() => []);
-      exec.current.clear();
-      exec.state.waiting = {};
-      exec.state.queues = {};
-      exec.addEvent('instance.jumped', {
-        comment: command.comment ?? null,
-        data: { to: command.node },
-      });
-      await exec.enter(command.node, 'jump');
-    });
+    return withInstance(
+      command.instance,
+      actor,
+      async (exec) => {
+        if (exec.status !== 'active') {
+          throw new FlowError('instance-not-active', `实例 ${command.instance} 不在进行中`);
+        }
+        const target = exec.graph.node(command.node);
+        if (!target || target.type === 'start') {
+          throw new FlowError('invalid-input', `不能跳到 ${command.node}`, { field: 'node' });
+        }
+        await exec.cancelWhere(() => []);
+        exec.current.clear();
+        exec.state.waiting = {};
+        exec.state.queues = {};
+        exec.addEvent('instance.jumped', {
+          comment: command.comment ?? null,
+          data: { to: command.node },
+        });
+        await exec.enter(command.node, 'jump');
+      },
+      command,
+    );
   }
 
   async function suspendOrResume(
@@ -779,55 +813,65 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     actor: Actor,
   ): Promise<RunResult> {
     if (!actor.admin) throw new FlowError('forbidden', '只有管理员能暂停、恢复');
-    return withInstance(command.instance, actor, async (exec) => {
-      const from = command.type === 'suspend' ? 'active' : 'suspended';
-      if (exec.status !== from) {
-        throw new FlowError(
-          'instance-not-active',
-          `实例 ${command.instance} 不是${from === 'active' ? '进行中' : '暂停'}的`,
-        );
-      }
-      exec.status = command.type === 'suspend' ? 'suspended' : 'active';
-      exec.addEvent(command.type === 'suspend' ? 'instance.suspended' : 'instance.resumed', {
-        comment: command.type === 'suspend' ? (command.comment ?? null) : null,
-      });
-    });
+    return withInstance(
+      command.instance,
+      actor,
+      async (exec) => {
+        const from = command.type === 'suspend' ? 'active' : 'suspended';
+        if (exec.status !== from) {
+          throw new FlowError(
+            'instance-not-active',
+            `实例 ${command.instance} 不是${from === 'active' ? '进行中' : '暂停'}的`,
+          );
+        }
+        exec.status = command.type === 'suspend' ? 'suspended' : 'active';
+        exec.addEvent(command.type === 'suspend' ? 'instance.suspended' : 'instance.resumed', {
+          comment: command.type === 'suspend' ? (command.comment ?? null) : null,
+        });
+      },
+      command,
+    );
   }
 
   async function remind(
     command: Extract<FlowCommand, { type: 'remind' }>,
     actor: Actor,
   ): Promise<RunResult> {
-    return withInstance(command.instance, actor, async (exec, tx) => {
-      if (exec.status !== 'active')
-        throw new FlowError('instance-not-active', `实例 ${command.instance} 不在进行中`);
-      if (exec.instance.startedBy !== actor.id && !actor.admin) {
-        throw new FlowError('forbidden', '只有发起人或管理员能催办');
-      }
-      const items = await tx
-        .queryable(FlowWorkItem)
-        .where((w) => [
-          w.instanceId.eq(command.instance),
-          w.state.eq('open'),
-          ...(command.workItem !== undefined ? [w.id.eq(command.workItem)] : []),
-        ])
-        .toList();
-      // 环节关掉了催办（allow.remind: false）：点名催它时报错，催全部时跳过它
-      const remindable = (node: string) => {
-        const found = exec.graph.node(node);
-        return found?.type !== 'task' || found.allow?.remind !== false;
-      };
-      if (command.workItem !== undefined && items[0] && !remindable(items[0].node))
-        throw new FlowError('forbidden', `节点 ${items[0].nodeName} 不允许催办`);
-      for (const item of items.filter((i) => remindable(i.node))) {
-        exec.addEvent('workItem.reminded', {
-          workItemId: item.id,
-          node: item.node,
-          comment: command.message ?? null,
-          data: { reason: 'manual' },
-        });
-      }
-    });
+    return withInstance(
+      command.instance,
+      actor,
+      async (exec, tx) => {
+        if (exec.status !== 'active')
+          throw new FlowError('instance-not-active', `实例 ${command.instance} 不在进行中`);
+        if (exec.instance.startedBy !== actor.id && !actor.admin) {
+          throw new FlowError('forbidden', '只有发起人或管理员能催办');
+        }
+        const items = await tx
+          .queryable(FlowWorkItem)
+          .where((w) => [
+            w.instanceId.eq(command.instance),
+            w.state.eq('open'),
+            ...(command.workItem !== undefined ? [w.id.eq(command.workItem)] : []),
+          ])
+          .toList();
+        // 环节关掉了催办（allow.remind: false）：点名催它时报错，催全部时跳过它
+        const remindable = (node: string) => {
+          const found = exec.graph.node(node);
+          return found?.type !== 'task' || found.allow?.remind !== false;
+        };
+        if (command.workItem !== undefined && items[0] && !remindable(items[0].node))
+          throw new FlowError('forbidden', `节点 ${items[0].nodeName} 不允许催办`);
+        for (const item of items.filter((i) => remindable(i.node))) {
+          exec.addEvent('workItem.reminded', {
+            workItemId: item.id,
+            node: item.node,
+            comment: command.message ?? null,
+            data: { reason: 'manual' },
+          });
+        }
+      },
+      command,
+    );
   }
 
   /** 外部事件：在等它的实例往下走，返回这些实例的结果；不在等的只记一条 signal.ignored */
@@ -884,10 +928,10 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     return results;
   }
 
-  /** 拦截之后执行命令；正在执行的命令记在 running 里，提交前的 after 钩子从这里取 */
+  /** 拦截之后执行命令 */
   async function run(input: FlowCommand, actor: Actor): Promise<RunResult> {
     const command = (await options.intercept?.before?.(input, actor)) ?? input;
-    return running.run(command, () => dispatch(command, actor));
+    return dispatch(command, actor);
   }
 
   async function dispatch(command: FlowCommand, actor: Actor): Promise<RunResult> {
@@ -895,7 +939,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       case 'start':
         return start(command, actor);
       case 'claim':
-        return claim(command.workItem, actor);
+        return claim(command, actor);
       case 'complete':
         return complete(command, actor);
       case 'transfer':
@@ -916,20 +960,30 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       case 'remind':
         return remind(command, actor);
       case 'comment':
-        return withInstance(command.instance, actor, async (exec) => {
-          exec.addEvent('instance.commented', { comment: command.text });
-        });
+        return withInstance(
+          command.instance,
+          actor,
+          async (exec) => {
+            exec.addEvent('instance.commented', { comment: command.text });
+          },
+          command,
+        );
       case 'cc':
         if (command.users.length === 0) {
           throw new FlowError('invalid-input', '抄送要选人', { field: 'users', code: 'required' });
         }
-        return withInstance(command.instance, actor, async (exec) => {
-          await exec.sendCc(
-            null,
-            command.users.map((user) => ({ user: user as `${bigint}` })),
-            command.message,
-          );
-        });
+        return withInstance(
+          command.instance,
+          actor,
+          async (exec) => {
+            await exec.sendCc(
+              null,
+              command.users.map((user) => ({ user: user as `${bigint}` })),
+              command.message,
+            );
+          },
+          command,
+        );
     }
   }
 
@@ -957,7 +1011,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           ? {
               code: {
                 source: definition.code.source,
-                compiled: compileCode(definition.code.source),
+                compiled: compileCode(definition.code.source, options.compileCode),
               },
             }
           : {}),
@@ -1013,7 +1067,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       const node = definition.nodes.find((n) => n.id === workItem.node);
       const task = node?.type === 'task' ? node : undefined;
       const open = workItem.state === 'open' && instance.status === 'active';
-      const candidate = open && (await isCandidate(db, workItem, actor));
+      const candidate = open && isCandidate(workItem, actor);
       const graph = processGraph(definition);
       const chooses = task?.outcomes.some((o) => o.kind === 'return' && o.target === 'choose');
       return {
@@ -1067,10 +1121,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
           w.state.eq('open'),
           or(
             w.assignee.eq(actor.id),
-            and(
-              w.assignee.isNull(),
-              w.candidates.any((c) => or(...candidateConditions(c, actor))),
-            ),
+            and(w.assignee.isNull(), w.candidates.hasAny(actorTokens(actor))),
           ),
         ])
         .orderBy((w) => w.id)
@@ -1108,30 +1159,35 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     },
   };
 
-  async function runDue({ limit = 50, worker = `worker-${process.pid}` } = {}): Promise<number> {
+  /** 这个引擎的作业租约名：多个进程、多个标签页各不相同 */
+  const workerId = `worker-${crypto.randomUUID().slice(0, 8)}`;
+
+  async function runDue({ limit = 50, worker = workerId } = {}): Promise<number> {
     const at = now();
-    const due = await db
-      .queryable(FlowJob)
-      .where((j) => [
-        j.state.eq('pending'),
-        j.dueAt.le(at),
-        or(j.lockedUntil.isNull(), j.lockedUntil.lt(at)),
-      ])
-      .orderBy((j) => j.dueAt)
-      .limit(limit)
-      .toList();
-    let ran = 0;
-    for (const job of due) {
-      const claimed = await db
-        .update(FlowJob)
-        .set({ lockedBy: worker, lockedUntil: new Date(at.getTime() + LEASE_MS) })
+    // 一次抢一批：别人锁着的行跳过（SKIP LOCKED），各拿各的；租约写在行上，进程中途退出时租约过期后别人再抢
+    const due = await db.transaction(async (tx) => {
+      const rows = await tx
+        .queryable(FlowJob)
         .where((j) => [
-          j.id.eq(job.id),
           j.state.eq('pending'),
+          j.dueAt.le(at),
           or(j.lockedUntil.isNull(), j.lockedUntil.lt(at)),
         ])
-        .execute();
-      if (claimed === 0) continue;
+        .orderBy((j) => j.dueAt)
+        .limit(limit)
+        .forUpdateSkipLocked()
+        .toList();
+      if (rows.length > 0) {
+        await tx
+          .update(FlowJob)
+          .set({ lockedBy: worker, lockedUntil: new Date(at.getTime() + LEASE_MS) })
+          .where((j) => j.id.in(rows.map((row) => row.id)))
+          .execute();
+      }
+      return rows;
+    });
+    let ran = 0;
+    for (const job of due) {
       try {
         await withInstance(job.instanceId, null, async (exec, tx) => {
           // 暂停的实例：作业往后推一小时，恢复后再做
@@ -1322,35 +1378,40 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
       throw new FlowError('not-found', `没有能跳过的失败作业 ${command.job}`);
     }
     const node = job.node;
-    return withInstance(job.instanceId, actor, async (exec, tx) => {
-      if (exec.status !== 'active') {
-        throw new FlowError('instance-not-active', `实例 ${job.instanceId} 不在进行中`);
-      }
-      const outcomes = skipOutcomes(exec.definition, node);
-      if (!command.outcome && outcomes.length > 0) {
-        throw new FlowError('invalid-input', '跳过要选结果', {
-          field: 'outcome',
-          code: 'required',
+    return withInstance(
+      job.instanceId,
+      actor,
+      async (exec, tx) => {
+        if (exec.status !== 'active') {
+          throw new FlowError('instance-not-active', `实例 ${job.instanceId} 不在进行中`);
+        }
+        const outcomes = skipOutcomes(exec.definition, node);
+        if (!command.outcome && outcomes.length > 0) {
+          throw new FlowError('invalid-input', '跳过要选结果', {
+            field: 'outcome',
+            code: 'required',
+          });
+        }
+        if (command.outcome && !outcomes.includes(command.outcome)) {
+          throw new FlowError('invalid-input', `${node} 的出边上没有结果 ${command.outcome}`, {
+            field: 'outcome',
+            code: 'unknown-outcome',
+          });
+        }
+        await tx
+          .delete(FlowJob)
+          .where((j) => j.id.eq(job.id))
+          .execute();
+        exec.current.delete(node);
+        exec.addEvent('job.skipped', {
+          node,
+          outcome: command.outcome ?? null,
+          comment: command.reason ?? null,
         });
-      }
-      if (command.outcome && !outcomes.includes(command.outcome)) {
-        throw new FlowError('invalid-input', `${node} 的出边上没有结果 ${command.outcome}`, {
-          field: 'outcome',
-          code: 'unknown-outcome',
-        });
-      }
-      await tx
-        .delete(FlowJob)
-        .where((j) => j.id.eq(job.id))
-        .execute();
-      exec.current.delete(node);
-      exec.addEvent('job.skipped', {
-        node,
-        outcome: command.outcome ?? null,
-        comment: command.reason ?? null,
-      });
-      await exec.leave(node, command.outcome ?? null);
-    });
+        await exec.leave(node, command.outcome ?? null);
+      },
+      command,
+    );
   }
 
   const readCc = (instance: number, actor: Actor) =>
@@ -1426,31 +1487,6 @@ function fieldsOf(
 }
 
 /** 候选匹配这个人 */
-function matches(candidate: { kind: string; value: string }, actor: Actor): boolean {
-  switch (candidate.kind) {
-    case 'user':
-      return candidate.value === actor.id;
-    case 'role':
-      return actor.roles?.includes(candidate.value) ?? false;
-    case 'department':
-      return actor.departments?.includes(candidate.value) ?? false;
-    default:
-      return actor.groups?.includes(candidate.value) ?? false;
-  }
-}
-
-/** 待办查询里“候选是这个人”的条件 */
-function candidateConditions(c: any, actor: Actor): Cond[] {
-  const conditions: Cond[] = [and(c.kind.eq('user'), c.value.eq(actor.id))];
-  const add = (kind: string, values: readonly string[] | undefined) => {
-    if (values && values.length > 0) conditions.push(and(c.kind.eq(kind), c.value.in([...values])));
-  };
-  add('role', actor.roles);
-  add('department', actor.departments);
-  add('group', actor.groups);
-  return conditions;
-}
-
 /**
  * 退回时能选的节点：沿前进的连线往上游找、走到过的人工节点；已经汇合了的并行区域里的节点不算（那些分支已经结束）
  */

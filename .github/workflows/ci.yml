@@ -77,17 +77,10 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7
 
-  # 流程引擎的实库套件：MySQL 8.0.18（PolarDB 基线）、PG 17 的服务容器（ORM 各方言的实库测试在 easy-query-ts 仓库）
+  # 流程引擎的实库套件：PG 17 的服务容器（本地与 test 任务跑 PGlite；ORM 各方言的实库测试在 easy-query-ts 仓库）
   db:
     runs-on: ubuntu-latest
     services:
-      mysql:
-        image: mysql:8.0.18
-        env:
-          MYSQL_ROOT_PASSWORD: root
-        ports: ['3306:3306']
-        options: >-
-          --health-cmd="mysqladmin ping -uroot -proot" --health-interval=5s --health-timeout=5s --health-retries=30
       postgres:
         image: postgres:17
         env:
@@ -101,7 +94,6 @@ jobs:
       - uses: ./.github/actions/setup
       - run: pnpm exec vitest run --configLoader native --project flow
         env:
-          EQTS_MYSQL_URLS: mysql://root:root@127.0.0.1:3306
           EQTS_PG_URLS: postgres://postgres:postgres@127.0.0.1:5432/eqts
 
   build:

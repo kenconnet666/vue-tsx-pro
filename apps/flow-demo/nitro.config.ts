@@ -7,4 +7,6 @@ export default defineConfig({
   serverDir: './server',
   // mode: 'static' 的页面构建时预渲染成 HTML
   routeRules: prerenderRules(pages),
+  // PGlite 在自己的目录旁读 .wasm、.data：整个包原样带进产物、不打进 bundle
+  traceDeps: ['@electric-sql/pglite*'],
 });

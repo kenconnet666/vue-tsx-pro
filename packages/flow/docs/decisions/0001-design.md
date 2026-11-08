@@ -139,7 +139,7 @@ npm 上 `@zerodep-dev/flow-model` 是 `flow` 仓库的包，这里加 `-ts`（�
 
 - `spec/` 的纯函数用例（条件、选边、值、定义校验、权限、差异）复制进 `packages/flow/spec`，model 的测试逐条跑；
 - 场景用例（`spec/scenarios`）写一个适配器按新命令跑，第一版不支持的场景列出原因；
-- 引擎测试用 SQLite 内存库与假时钟（`createTestEngine()`），并发与锁另在 MySQL、PG 实库上跑。
+- 引擎只认 PostgreSQL（2026-11-08 起）：测试用 PGlite 与假时钟（`createTestEngine()`），CI 另在 PG 17 实库上跑场景。
 
 ## 9. 运行时的规则（沿用 Java 版验证过的，14.4 照此实现）
 

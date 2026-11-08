@@ -12,7 +12,6 @@ export {
 } from './engine.ts';
 export { FlowError, type FlowErrorCode } from './errors.ts';
 export {
-  FlowCandidate,
   FlowCc,
   FlowDefinition,
   FlowEvent,
@@ -22,5 +21,6 @@ export {
   flowSchema,
   type FlowDb,
 } from './entities.ts';
+export type { CompileCode } from './code.ts';
 export type { RunState } from './state.ts';
 export type * from './types.ts';

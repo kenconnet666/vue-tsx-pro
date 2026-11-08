@@ -224,6 +224,9 @@ catalogs:
     '@codemirror/view':
       specifier: 6.43.14
       version: 6.43.14
+    '@electric-sql/pglite':
+      specifier: 0.5.10
+      version: 0.5.10
     '@emotion/css':
       specifier: 11.13.5
       version: 11.13.5
@@ -302,9 +305,6 @@ catalogs:
     mdn-data:
       specifier: 2.37.2
       version: 2.37.2
-    mysql2:
-      specifier: 3.11.5
-      version: 3.11.5
     nitro:
       specifier: 3.0.260903-beta
       version: 3.0.260903-beta
@@ -551,6 +551,9 @@ importers:
       '@codemirror/view':
         specifier: 'catalog:'
         version: 6.43.14
+      '@electric-sql/pglite':
+        specifier: 'catalog:'
+        version: 0.5.10
       '@floating-ui/dom':
         specifier: 'catalog:'
         version: 1.8.0
@@ -558,11 +561,11 @@ importers:
         specifier: 'catalog:'
         version: 1.69.0
       '@zerodep-dev/easy-query-ts':
-        specifier: ^0.2.0
-        version: 0.2.0
-      '@zerodep-dev/easy-query-ts-sqlite':
-        specifier: ^0.2.0
-        version: 0.2.0(@zerodep-dev/easy-query-ts@0.2.0)
+        specifier: ^0.2.4
+        version: 0.2.4
+      '@zerodep-dev/easy-query-ts-pg':
+        specifier: ^0.2.4
+        version: 0.2.4(@zerodep-dev/easy-query-ts@0.2.4)(pg@8.13.1)
       '@zerodep-dev/flow-ts-engine':
         specifier: workspace:^
         version: link:../../packages/flow/engine
@@ -616,11 +619,11 @@ importers:
         specifier: 'catalog:'
         version: 1.69.0
       '@zerodep-dev/easy-query-ts':
-        specifier: ^0.2.0
-        version: 0.2.0
+        specifier: ^0.2.4
+        version: 0.2.4
       '@zerodep-dev/easy-query-ts-sqlite':
-        specifier: ^0.2.0
-        version: 0.2.0(@zerodep-dev/easy-query-ts@0.2.0)
+        specifier: ^0.2.4
+        version: 0.2.4(@zerodep-dev/easy-query-ts@0.2.4)
       '@zerodep-dev/storage':
         specifier: workspace:^
         version: link:../../packages/storage
@@ -805,27 +808,21 @@ importers:
   packages/flow/engine:
     dependencies:
       '@zerodep-dev/easy-query-ts':
-        specifier: ^0.2.0
-        version: 0.2.0
-      '@zerodep-dev/easy-query-ts-sqlite':
-        specifier: ^0.2.0
-        version: 0.2.0(@zerodep-dev/easy-query-ts@0.2.0)
+        specifier: ^0.2.4
+        version: 0.2.4
+      '@zerodep-dev/easy-query-ts-pg':
+        specifier: ^0.2.4
+        version: 0.2.4(@zerodep-dev/easy-query-ts@0.2.4)(pg@8.13.1)
       '@zerodep-dev/flow-ts-model':
         specifier: workspace:^
         version: link:../model
     devDependencies:
+      '@electric-sql/pglite':
+        specifier: 'catalog:'
+        version: 0.5.10
       '@types/pg':
         specifier: 'catalog:'
         version: 8.11.10
-      '@zerodep-dev/easy-query-ts-mysql':
-        specifier: ^0.2.0
-        version: 0.2.0(@zerodep-dev/easy-query-ts@0.2.0)(mysql2@3.11.5)
-      '@zerodep-dev/easy-query-ts-pg':
-        specifier: ^0.2.0
-        version: 0.2.0(@zerodep-dev/easy-query-ts@0.2.0)(pg@8.13.1)
-      mysql2:
-        specifier: 'catalog:'
-        version: 3.11.5
       pg:
         specifier: 'catalog:'
         version: 8.13.1
@@ -1346,6 +1343,9 @@ packages:
 
   '@dimforge/rapier3d-compat@0.12.0':
     resolution: {integrity: sha512-uekIGetywIgopfD97oDL5PfeezkFpNhwlzlaEYNOA0N6ghdsOvh/HYjSMek5Q2O1PYvRSDFcqFVJl4r4ZBwOow==}
+
+  '@electric-sql/pglite@0.5.10':
+    resolution: {integrity: sha512-tXc/25U3ulOkiRQuTFdwIv+JhBqtMdAF7Gvo6CfZZWtSB4+hgC4Wr2vwK5ngvvN5PJfAAEGIsfyCVy1JhCOBYw==}
 
   '@emnapi/core@1.11.1':
     resolution: {integrity: sha512-RSvbQmHzdKzNsLYa/wHrbc3KN4sYLKAdPZxqiM2HATqv/SBk2/ENSHpvXGaLOMcsAyz0poEGqkmmKYG3OWiJEQ==}
@@ -2368,25 +2368,19 @@ packages:
   '@yuku-toolchain/types@0.19.0':
     resolution: {integrity: sha512-tFkNbsP4WXX9UMUC5syJGdK9dPMLK0PPaIuXCcCYH75sZ8MrebfBZ2XvCILRTw8AgLivSSCfDa4R67iYBDa4Kg==}
 
-  '@zerodep-dev/easy-query-ts-mysql@0.2.0':
-    resolution: {integrity: sha512-X+Gd+yehheZ2AAEuYM+1hlyAtWrPlZzjSzWV8KYa0mWHBQYU8sdwWrElBBRyMODvTjSLAhiW+rIF8S+wTXnaTw==}
+  '@zerodep-dev/easy-query-ts-pg@0.2.4':
+    resolution: {integrity: sha512-K/Co8LWmup2eQjNGkM7Kl6m+S5VHXK0txJ0GJWe0jZLZXR/OrjTNLsgdvQtYru4l4SsD4QjKih9hSurg3324Dg==}
     peerDependencies:
-      '@zerodep-dev/easy-query-ts': ^0.2.0
-      mysql2: ^3.11.0
-
-  '@zerodep-dev/easy-query-ts-pg@0.2.0':
-    resolution: {integrity: sha512-Nl/gEFLmHaK9uN4CY8KsyvpVeOapITCUgLcqH60/b8JM0o5whvwDQJes1Tqtr4/RL5kMHZtyPnaFADzbP2xNDQ==}
-    peerDependencies:
-      '@zerodep-dev/easy-query-ts': ^0.2.0
+      '@zerodep-dev/easy-query-ts': ^0.2.4
       pg: ^8.11.0
 
-  '@zerodep-dev/easy-query-ts-sqlite@0.2.0':
-    resolution: {integrity: sha512-MrezKcUfNwWd6QM/MD3g/aZfKUKVhGBUXNezq+vpyDVTiAUXNSE/RB3vo0Ti4vplpO1rH0KVvG4a/mutkVrM4g==}
+  '@zerodep-dev/easy-query-ts-sqlite@0.2.4':
+    resolution: {integrity: sha512-KA2/UYnfJ+DMLhs1xO7e3Sf0ahfW4fxTvHdprdXr1lgjY6uwqf/EiMELHMUu5V7dx9qbIVv0cHYJ8koxvgWehA==}
     peerDependencies:
-      '@zerodep-dev/easy-query-ts': ^0.2.0
+      '@zerodep-dev/easy-query-ts': ^0.2.4
 
-  '@zerodep-dev/easy-query-ts@0.2.0':
-    resolution: {integrity: sha512-v5wcCYWus+K7whHwuCA23sZzAD6+9MiGKZNzq6D5MqhkVN4LqHXI/3BhkYpr04pCwxhtbZrcdDupaqqQtLIBJQ==}
+  '@zerodep-dev/easy-query-ts@0.2.4':
+    resolution: {integrity: sha512-g89FUG2qbgK1x3JbNNklWSYyKQ1Om30Je0AacJhpVX8UazG6zv1CA2drNucdLDFX9TZaKR5g/lnC9rG3ttNGSQ==}
 
   '@zerodep-dev/json-wire@0.1.0':
     resolution: {integrity: sha512-T3wTZeaUOc4Z9eC+jYT9vJMf1n608hbDZrj0rWhH89g7UPHuN4FDZqGT47BfDX3p9DiDPFYZQ43DWSgG8vSWeA==}
@@ -2479,10 +2473,6 @@ packages:
   available-typed-arrays@1.0.7:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
-
-  aws-ssl-profiles@1.1.2:
-    resolution: {integrity: sha512-NZKeq9AfyQvEeNlN0zSYAaWrmBffJh3IELMZfRpJVWgrpEbtEpnjvzqBPf+mxoI287JohRDoa+/nsfqqiZmF6g==}
-    engines: {node: '>= 6.0.0'}
 
   axe-core@4.14.0:
     resolution: {integrity: sha512-9WTZxEjsZ7b13TH8JPmbV2z8CHbl80/2hm3XPEG4JgNdQLK81IBRXmSxHfMAOkSqQeRxT/0dwNDz2GOm3zzpcQ==}
@@ -2785,10 +2775,6 @@ packages:
   defu@6.1.7:
     resolution: {integrity: sha512-7z22QmUWiQ/2d0KkdYmANbRUVABpZ9SNYyH5vx6PZ+nE5bcC0l7uFvEfHlyld/HcGBFTL536ClDt3DEcSlEJAQ==}
 
-  denque@2.1.0:
-    resolution: {integrity: sha512-HVQE3AAb/pxF8fQAoiqpvg9i3evqug3hoiwakOyZAwJm+6vZehbkYXZ0l4JxS+I3QxM97v5aaRNhj8v5oBhekw==}
-    engines: {node: '>=0.10'}
-
   depd@2.0.0:
     resolution: {integrity: sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==}
     engines: {node: '>= 0.8'}
@@ -3041,9 +3027,6 @@ packages:
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  generate-function@2.3.1:
-    resolution: {integrity: sha512-eeB5GfMNeevm/GRYq20ShmsaGcmI81kIX2K9XQx5miC8KdHaC6Jm0qQ8ZNeGOi7wYB8OsdxKs+Y2oVuTFuVwKQ==}
-
   generator-function@2.0.1:
     resolution: {integrity: sha512-SFdFmIJi+ybC0vjlHN0ZGVGHc3lgE0DxPAT0djjVg+kjOnSqclqmj0KQ7ykTOLP6YxoqOvuAODGdcHJn+43q3g==}
     engines: {node: '>= 0.4'}
@@ -3164,10 +3147,6 @@ packages:
   httpxy@0.5.6:
     resolution: {integrity: sha512-iqc3nOxvNb5FxbhJozt8wNmHgjlmk4zzba512jMEXVwHCEBCbGAj49eGfy5PI8ts3/LFSFq8siiSNqwfY1AlfQ==}
 
-  iconv-lite@0.6.3:
-    resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
-    engines: {node: '>=0.10.0'}
-
   iconv-lite@0.7.3:
     resolution: {integrity: sha512-IKXpvIzjnC9XTAUbVBcMfGS0EPaIXtW6v+zr+RRp+hqULEpo0owZax6wyRwPOJbWbzjYspQwusTsfVr0ifh4uQ==}
     engines: {node: '>=0.10.0'}
@@ -3285,9 +3264,6 @@ packages:
 
   is-promise@4.0.0:
     resolution: {integrity: sha512-hvpoI6korhJMnej285dSg6nu1+e6uxs7zG3BYAm5byqDsgJNWwxzM6z6iZiAgQR4TJ30JmBTOwqZUw3WlyH3AQ==}
-
-  is-property@1.0.2:
-    resolution: {integrity: sha512-Ks/IoX00TtClbGQr4TWXemAnktAQvYB7HzcCxDGqEZU6oCmb2INHuOoKxbtR+HFkmYWBKv/dOZtGRiAjDhj92g==}
 
   is-regex@1.2.1:
     resolution: {integrity: sha512-MjYsKHO5O7mCsmRGxWcLWheFqN9DJ/2TmngvjKXihe6efViPqc274+Fx/4fYj/r03+ESvBdTXK0V6tA3rgez1g==}
@@ -3515,16 +3491,9 @@ packages:
   lodash.uniq@4.5.0:
     resolution: {integrity: sha512-xfBaXQd9ryd9dlSDvnvI0lvxfLJlYAZzXomUYzLKtUeOQvOP5piqAWuGtrhWeqaXK9hhoM/iyJc5AV+XfsX3HQ==}
 
-  long@5.3.2:
-    resolution: {integrity: sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==}
-
   lru-cache@11.5.3:
     resolution: {integrity: sha512-U4N8FgzmWxc8k1VH8Kr6lQg18U7Fjvby6wXHVRX/ZZ7IwWbRMgrRbP0Wrb5q5NVinryp4SQampHKdvtecItxUg==}
     engines: {node: 20 || >=22}
-
-  lru.min@1.1.5:
-    resolution: {integrity: sha512-5J9ysMYUpYIg9RF2vJpy9SinEmSviFSe0GyPpCQ4L5QSkLAgeLXlTAOu2ZwWUU5m+0SBl6gUU1R1ZQB3aKypfA==}
-    engines: {bun: '>=1.0.0', deno: '>=1.30.0', node: '>=8.0.0'}
 
   magic-string-ast@1.0.3:
     resolution: {integrity: sha512-CvkkH1i81zl7mmb94DsRiFeG9V2fR2JeuK8yDgS8oiZSFa++wWLEgZ5ufEOyLHbvSbD1gTRKv9NdX69Rnvr9JA==}
@@ -3638,14 +3607,6 @@ packages:
   mute-stream@3.0.0:
     resolution: {integrity: sha512-dkEJPVvun4FryqBmZ5KhDo0K9iDXAwn08tMLDinNdRBNPcYEDiWYysLcc6k3mjTMlbP9KyylvRpd4wFtwrT9rw==}
     engines: {node: ^20.17.0 || >=22.9.0}
-
-  mysql2@3.11.5:
-    resolution: {integrity: sha512-0XFu8rUmFN9vC0ME36iBvCUObftiMHItrYFhlCRvFWbLgpNqtC4Br/NmZX1HNCszxT0GGy5QtP+k3Q3eCJPaYA==}
-    engines: {node: '>= 8.0'}
-
-  named-placeholders@1.1.6:
-    resolution: {integrity: sha512-Tz09sEL2EEuv5fFowm419c1+a/jSMiBjI9gHxVLrVdbUkkNUUfjsVYs9pVZu5oCon/kmRh9TfLEObFtkVxmY0w==}
-    engines: {node: '>=8.0.0'}
 
   nanoid@3.3.20:
     resolution: {integrity: sha512-uKdg2G3GNCKQn9byYOpxbGqrT2fGO5KRt5J/8b3pok8rT6qxGWF6hxMyJiEYtAf+FVyYuD9hRaDqX5uPFYJ4ZQ==}
@@ -4119,9 +4080,6 @@ packages:
     resolution: {integrity: sha512-1gnZf7DFcoIcajTjTwjwuDjzuz4PPcY2StKPlsGAQ1+YH20IRVrBaXSWmdjowTJ6u8Rc01PoYOGHXfP1mYcZNQ==}
     engines: {node: '>= 18'}
 
-  seq-queue@0.0.5:
-    resolution: {integrity: sha512-hr3Wtp/GZIc/6DAGPDcV4/9WoZhjrkXsi5B/07QgX8tsdc6ilr7BFM6PM6rbdAX1kFSDYeZGLipIZZKyQP0O5Q==}
-
   serve-static@2.2.1:
     resolution: {integrity: sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==}
     engines: {node: '>= 18'}
@@ -4214,10 +4172,6 @@ packages:
   split2@4.2.0:
     resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
     engines: {node: '>= 10.x'}
-
-  sqlstring@2.3.3:
-    resolution: {integrity: sha512-qC9iz2FlN7DQl3+wjwn3802RTyjCx7sDvfQEXchwa6CWOx07/WVfh91gBmQ9fahw8snwGEWU3xGzOt4tFyHLxg==}
-    engines: {node: '>= 0.6'}
 
   srvx@1.0.8:
     resolution: {integrity: sha512-ngFS/J6St4PJfHRHGjr78xkPPtbyXtdMOLNE4x/XZunEK3OhV7aGUWMHf9WTUEy6wm1U0W4okkd82ZFFWRVQTw==}
@@ -5149,6 +5103,8 @@ snapshots:
 
   '@dimforge/rapier3d-compat@0.12.0': {}
 
+  '@electric-sql/pglite@0.5.10': {}
+
   '@emnapi/core@1.11.1':
     dependencies:
       '@emnapi/wasi-threads': 1.2.2
@@ -6076,21 +6032,16 @@ snapshots:
 
   '@yuku-toolchain/types@0.19.0': {}
 
-  '@zerodep-dev/easy-query-ts-mysql@0.2.0(@zerodep-dev/easy-query-ts@0.2.0)(mysql2@3.11.5)':
+  '@zerodep-dev/easy-query-ts-pg@0.2.4(@zerodep-dev/easy-query-ts@0.2.4)(pg@8.13.1)':
     dependencies:
-      '@zerodep-dev/easy-query-ts': 0.2.0
-      mysql2: 3.11.5
-
-  '@zerodep-dev/easy-query-ts-pg@0.2.0(@zerodep-dev/easy-query-ts@0.2.0)(pg@8.13.1)':
-    dependencies:
-      '@zerodep-dev/easy-query-ts': 0.2.0
+      '@zerodep-dev/easy-query-ts': 0.2.4
       pg: 8.13.1
 
-  '@zerodep-dev/easy-query-ts-sqlite@0.2.0(@zerodep-dev/easy-query-ts@0.2.0)':
+  '@zerodep-dev/easy-query-ts-sqlite@0.2.4(@zerodep-dev/easy-query-ts@0.2.4)':
     dependencies:
-      '@zerodep-dev/easy-query-ts': 0.2.0
+      '@zerodep-dev/easy-query-ts': 0.2.4
 
-  '@zerodep-dev/easy-query-ts@0.2.0': {}
+  '@zerodep-dev/easy-query-ts@0.2.4': {}
 
   '@zerodep-dev/json-wire@0.1.0(@internationalized/date@3.12.4)(decimal.js@10.6.0)':
     dependencies:
@@ -6208,8 +6159,6 @@ snapshots:
   available-typed-arrays@1.0.7:
     dependencies:
       possible-typed-array-names: 1.1.0
-
-  aws-ssl-profiles@1.1.2: {}
 
   axe-core@4.14.0: {}
 
@@ -6489,8 +6438,6 @@ snapshots:
       object-keys: 1.1.1
 
   defu@6.1.7: {}
-
-  denque@2.1.0: {}
 
   depd@2.0.0: {}
 
@@ -6819,10 +6766,6 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  generate-function@2.3.1:
-    dependencies:
-      is-property: 1.0.2
-
   generator-function@2.0.1: {}
 
   gensync@1.0.0-beta.2: {}
@@ -6968,10 +6911,6 @@ snapshots:
 
   httpxy@0.5.6: {}
 
-  iconv-lite@0.6.3:
-    dependencies:
-      safer-buffer: 2.1.2
-
   iconv-lite@0.7.3:
     dependencies:
       safer-buffer: 2.1.2
@@ -7083,8 +7022,6 @@ snapshots:
       has-tostringtag: 1.0.2
 
   is-promise@4.0.0: {}
-
-  is-property@1.0.2: {}
 
   is-regex@1.2.1:
     dependencies:
@@ -7263,11 +7200,7 @@ snapshots:
 
   lodash.uniq@4.5.0: {}
 
-  long@5.3.2: {}
-
   lru-cache@11.5.3: {}
-
-  lru.min@1.1.5: {}
 
   magic-string-ast@1.0.3:
     dependencies:
@@ -7387,22 +7320,6 @@ snapshots:
 
   mute-stream@3.0.0:
     optional: true
-
-  mysql2@3.11.5:
-    dependencies:
-      aws-ssl-profiles: 1.1.2
-      denque: 2.1.0
-      generate-function: 2.3.1
-      iconv-lite: 0.6.3
-      long: 5.3.2
-      lru.min: 1.1.5
-      named-placeholders: 1.1.6
-      seq-queue: 0.0.5
-      sqlstring: 2.3.3
-
-  named-placeholders@1.1.6:
-    dependencies:
-      lru.min: 1.1.5
 
   nanoid@3.3.20: {}
 
@@ -7933,8 +7850,6 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  seq-queue@0.0.5: {}
-
   serve-static@2.2.1:
     dependencies:
       encodeurl: 2.0.0
@@ -8052,8 +7967,6 @@ snapshots:
   space-separated-tokens@2.0.2: {}
 
   split2@4.2.0: {}
-
-  sqlstring@2.3.3: {}
 
   srvx@1.0.8: {}
 

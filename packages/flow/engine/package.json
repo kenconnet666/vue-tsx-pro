@@ -1,7 +1,7 @@
 {
   "name": "@zerodep-dev/flow-ts-engine",
   "version": "0.1.0",
-  "description": "Approval workflow engine in TypeScript: graph definitions, one command entry point, easy-query persistence, jobs for timers and async actions",
+  "description": "Approval workflow engine in TypeScript on PostgreSQL: graph definitions, one command entry point, easy-query persistence, jobs for timers and async actions",
   "license": "Apache-2.0",
   "author": "lionheart (https://github.com/kenconnet666)",
   "homepage": "https://github.com/kenconnet666/vue-tsx-pro/tree/master/packages/flow#readme",
@@ -45,15 +45,21 @@
     "prepack": "tsc -b tsconfig.build.json"
   },
   "dependencies": {
-    "@zerodep-dev/easy-query-ts": "^0.2.0",
-    "@zerodep-dev/flow-ts-model": "workspace:^",
-    "@zerodep-dev/easy-query-ts-sqlite": "^0.2.0"
+    "@zerodep-dev/easy-query-ts": "^0.2.4",
+    "@zerodep-dev/easy-query-ts-pg": "^0.2.4",
+    "@zerodep-dev/flow-ts-model": "workspace:^"
+  },
+  "peerDependencies": {
+    "@electric-sql/pglite": "^0.5.10"
+  },
+  "peerDependenciesMeta": {
+    "@electric-sql/pglite": {
+      "optional": true
+    }
   },
   "devDependencies": {
+    "@electric-sql/pglite": "catalog:",
     "@types/pg": "catalog:",
-    "@zerodep-dev/easy-query-ts-mysql": "^0.2.0",
-    "@zerodep-dev/easy-query-ts-pg": "^0.2.0",
-    "mysql2": "catalog:",
     "pg": "catalog:"
   }
 }

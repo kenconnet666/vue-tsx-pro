@@ -16,16 +16,8 @@ import {
   type TaskNode,
 } from '@zerodep-dev/flow-ts-model';
 import type { Row } from '@zerodep-dev/easy-query-ts';
-import { expandToUsers, resolveCandidates, type Candidate } from './assignees.ts';
-import {
-  FlowCc,
-  FlowEvent,
-  FlowInstance,
-  FlowJob,
-  FlowWorkItem,
-  FlowCandidate,
-  type FlowDb,
-} from './entities.ts';
+import { candidateToken, expandToUsers, resolveCandidates, type Candidate } from './assignees.ts';
+import { FlowCc, FlowEvent, FlowInstance, FlowJob, FlowWorkItem, type FlowDb } from './entities.ts';
 import { loadCode } from './code.ts';
 import { FlowError } from './errors.ts';
 import type { RunState } from './state.ts';
@@ -400,20 +392,15 @@ export class Execution {
   ): Promise<void> {
     const assignee =
       target.users.length === 1 && target.pool.length === 0 ? target.users[0]! : null;
-    const row = await this.insertItem(node, round, arrival, {
-      assignee,
-      assignment: assignee ? 'direct' : 'pool',
-      state: 'open',
-    });
     const pool = assignee
       ? []
       : [...target.pool, ...target.users.map((value) => ({ kind: 'user' as const, value }))];
-    if (pool.length > 0) {
-      await this.tx
-        .insert(FlowCandidate)
-        .values(pool.map((c) => ({ workItemId: row.id, kind: c.kind, value: c.value })))
-        .execute();
-    }
+    await this.insertItem(node, round, arrival, {
+      assignee,
+      assignment: assignee ? 'direct' : 'pool',
+      state: 'open',
+      candidates: pool.map(candidateToken),
+    });
     this.current.add(node.id);
   }
 
@@ -446,7 +433,7 @@ export class Execution {
     round: number,
     arrival: string,
     fields: Pick<WorkItemRow, 'assignee' | 'assignment' | 'state'> &
-      Partial<Pick<WorkItemRow, 'signGroup' | 'signSeq'>>,
+      Partial<Pick<WorkItemRow, 'signGroup' | 'signSeq' | 'candidates'>>,
   ): Promise<WorkItemRow> {
     const values = {
       instanceId: this.instance.id,
@@ -462,6 +449,7 @@ export class Execution {
       completedBy: null,
       outcome: null,
       comment: null,
+      candidates: [],
       ...fields,
     };
     const id = Number(await this.tx.insert(FlowWorkItem).values(values).returnId());

@@ -17,13 +17,14 @@ const leave = processDiagram(templates.leave());
 const meta = {
   title: 'Flow 流程引擎',
   description:
-    '审批流程引擎：图是数据，设计器与代码读写同一份定义；一个命令入口，扩展点是选项里的函数；持久层是 easy-query，界面是组件库。',
+    '审批流程引擎：图是数据，设计器与代码读写同一份定义；一个命令入口，扩展点是选项里的函数；持久层是 PostgreSQL 上的 easy-query，界面是组件库。',
 };
 
 const engine = `import { createFlowEngine } from '@zerodep-dev/flow-ts-engine';
+import { postgres } from '@zerodep-dev/easy-query-ts-pg';
 
 const engine = createFlowEngine({
-  adapter: mysql(pool),                       // easy-query 的适配器，引擎在这个库里建自己的表
+  adapter: postgres(pool),                    // PostgreSQL（pg 连接池或 PGlite），引擎在这个库里建自己的表
   org: { members: (source) => findMembers(source) },
   extensions: {
     resolvers: { deptLeader: ({ instance }) => leaderOf(instance.startedBy) },
