@@ -245,7 +245,7 @@ function stabilizeChildren(
     slots = context.imports.runtime('forwardChildren', [propsOf(setup)]);
     // vue-jsx 只对带源码位置的调用子节点做运行时的插槽判断（_isSlot），没有位置的当成内容再包一层。
     // 分几遍编译时重新解析会补上位置，同一遍里接着跑 vue-jsx（代码演练场）就要自己借元素的
-    slots.loc = element.node.loc;
+    slots.loc = element.node.loc ?? null;
   } else {
     // 唯一的子节点是导入的标识符：可能是渲染函数，也可能是内容，看不出来，保持 vue-jsx 的运行时判断（_isSlot）
     if (only && t.isIdentifier(only) && isImported(only, element)) return;

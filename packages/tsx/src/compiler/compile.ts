@@ -53,8 +53,13 @@ export interface CompileOptions {
   jsx?: VueJSXPluginOptions;
   /** 去掉 TS 类型的插件的选项 */
   typescript?: TypeScriptOptions;
-  /** 追加在最后一遍末尾的插件（只在文件需要编译时运行） */
+  /** 追加在最后一遍末尾的插件（只在文件需要编译时运行；给了 always 时总运行） */
   plugins?: PluginItem[];
+  /**
+   * 文件不需要符文、JSX 时也编译：.ts 也去掉类型、照样跑 plugins。Vite 预设不开（.ts 交给 Vite 自己转换），
+   * 浏览器里编译成能执行的模块时开（browser-compile）
+   */
+  always?: boolean;
   /** 生成 source map，默认 true */
   sourceMaps?: boolean;
 }
@@ -70,7 +75,7 @@ export interface CompileResult {
   /** 不影响正确性、但多半不是作者本意的写法（符文） */
   warnings: RunesWarning[];
   /** 开了 styleHot 且文件里有顶层样式时：去掉样式参数后的源码哈希（style-hot.ts） */
-  styleSkeleton?: string;
+  styleSkeleton?: string | undefined;
 }
 
 /**
@@ -96,8 +101,8 @@ export async function compile(
   if (lang === 'tsx' || lang === 'jsx') {
     second.push([vueJsx, options.jsx ?? {}], mergePropsPlugin);
     if (lang === 'tsx') second.push([typescript, options.typescript ?? {}]);
-  }
-  if (!first.length && !second.length) return null;
+  } else if (lang === 'ts' && options.always) second.push([typescript, options.typescript ?? {}]);
+  if (!first.length && !second.length && !(options.always && options.plugins?.length)) return null;
 
   const passes = [first, [...second, ...(options.plugins ?? [])]].filter((pass) => pass.length);
   if (first.length && passes.length === 2) passes[1]!.unshift(rescope);

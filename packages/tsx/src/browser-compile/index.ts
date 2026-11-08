@@ -36,7 +36,7 @@ export interface CompileRequest {
   /** 源码 */
   source: string;
   /** 编译选项（插件不能跨线程，只有文件名） */
-  filename?: string;
+  filename?: string | undefined;
 }
 
 /** 编译 Worker 的回复 */

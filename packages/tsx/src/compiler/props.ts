@@ -92,7 +92,7 @@ export function declareProps(setup: NodePath<t.Function>, context: PropsContext)
     }
 
     // 参数换成 (__props: 原类型, __ctx)，声明按书写顺序放到函数体开头
-    propsId.typeAnnotation = pattern.node.typeAnnotation;
+    propsId.typeAnnotation = pattern.node.typeAnnotation ?? null;
     setup.node.params = [propsId, ctxId];
     prependToBody(setup, declarations);
   }

@@ -13,7 +13,7 @@
  * 绑定只会多一个 effect。
  */
 import { types as t, type NodePath, type PluginObject } from '@babel/core';
-import { isStyleNamespace, renderFunctionOf, STYLE_SOURCE } from './ast.ts';
+import { isNamed, isStyleNamespace, renderFunctionOf, STYLE_SOURCE } from './ast.ts';
 
 /** 粗筛：文件里有样式入口的导入、也有 create 调用 */
 export const needsStyleBindings = (code: string) =>
@@ -186,7 +186,7 @@ function isCreateCall(
   return (
     t.isMemberExpression(callee) &&
     !callee.computed &&
-    t.isIdentifier(callee.object, { name: imports.namespace }) &&
+    isNamed(callee.object, imports.namespace) &&
     t.isIdentifier(callee.property, { name: 'create' })
   );
 }
@@ -203,9 +203,9 @@ function inStyleSlot(path: NodePath, imports: StyleImports) {
   if (parent.isCallExpression() && current.listKey === 'arguments') {
     const callee = parent.node.callee;
     return (
-      t.isIdentifier(callee, { name: imports.attrs }) ||
+      isNamed(callee, imports.attrs) ||
       (t.isMemberExpression(callee) &&
-        t.isIdentifier(callee.object, { name: imports.namespace }) &&
+        isNamed(callee.object, imports.namespace) &&
         t.isIdentifier(callee.property, { name: 'attrs' }))
     );
   }

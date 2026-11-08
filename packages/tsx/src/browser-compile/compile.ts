@@ -33,6 +33,8 @@ export async function compileModule(
     // 值的导入都留着：importsFromTable 把它们换成从模块表取
     typescript: { onlyRemoveTypeImports: true },
     plugins: [...(options.plugins ?? []), importsFromTable],
+    // 没有符文、JSX 的 .ts / .js 也要去类型、改写导入导出
+    always: true,
     sourceMaps: false,
   });
   return result?.code ?? '';

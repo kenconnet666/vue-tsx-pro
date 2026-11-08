@@ -10,7 +10,7 @@
  * 只认顶层声明里的 create、recipe：函数里的调用每次执行都是新对象，不能按 id 合并。
  */
 import { types as t, type NodePath, type PluginObject, type PluginPass } from '@babel/core';
-import { isStyleNamespace, STYLE_INTERNAL_SOURCE, STYLE_SOURCE } from './ast.ts';
+import { isNamed, isStyleNamespace, STYLE_INTERNAL_SOURCE, STYLE_SOURCE } from './ast.ts';
 
 /** 能原地更新的样式函数 */
 const HOT_FUNCTIONS = new Set(['create', 'recipe']);
@@ -92,7 +92,7 @@ function isHotCall(node: t.CallExpression, imports: HotImports) {
   return (
     t.isMemberExpression(callee) &&
     !callee.computed &&
-    t.isIdentifier(callee.object, { name: imports.namespace }) &&
+    isNamed(callee.object, imports.namespace) &&
     t.isIdentifier(callee.property) &&
     HOT_FUNCTIONS.has(callee.property.name)
   );

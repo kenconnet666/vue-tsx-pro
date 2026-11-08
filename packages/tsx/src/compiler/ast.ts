@@ -13,6 +13,11 @@ export {
   type Language,
 } from './detect.ts';
 
+/** 是这个名字的标识符；名字没有（没导入）时不是 */
+export function isNamed(node: t.Node | null | undefined, name: string | undefined): boolean {
+  return name !== undefined && t.isIdentifier(node, { name });
+}
+
 /**
  * 把样式入口整个当一个值导入的说明符：`import * as css`，或具名的 `import { css }`（入口导出的 css 就是它自己的模块对象）。
  * 命名空间导入的名字由使用方起，编辑器的自动导入推不出来；具名的 css 能被自动导入，两种写法编译结果一样

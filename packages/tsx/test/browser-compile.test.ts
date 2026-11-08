@@ -32,6 +32,20 @@ export default function Form() { return all.double(1); }`);
     expect((anonymous.default as () => number)()).toBe(7);
   });
 
+  it('没有符文、JSX 的 .ts 文件也去掉类型、改写导入导出', async () => {
+    const code = await compileInThread(
+      `import { base } from './base';
+type Limit = number;
+export const limit: Limit = base * 2;
+export default <T,>(value: T): T => value;`,
+      { filename: 'rules.ts' },
+    );
+    expect(code).not.toMatch(/Limit|^\s*(import|export) /m);
+    const exports = evaluateModule(code, { './base': { base: 21 } });
+    expect(exports.limit).toBe(42);
+    expect((exports.default as (n: number) => number)(1)).toBe(1);
+  });
+
   it('语法写错时报带文件名与位置的错误；从别的模块再导出报错', async () => {
     await expect(
       compileInThread('export default () => (<div>', { filename: 'Form.tsx' }),

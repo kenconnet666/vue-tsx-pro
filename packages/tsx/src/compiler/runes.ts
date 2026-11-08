@@ -76,5 +76,5 @@ export interface TrackedInfo {
   /** 报错时告诉作者它来自哪里：某个符文，或组件 prop */
   source: Rune | 'prop';
   /** children 的所属组件：读取会执行插槽，不能直接写在 setup 函数体里 */
-  childrenOf?: t.Function;
+  childrenOf?: t.Function | undefined;
 }
