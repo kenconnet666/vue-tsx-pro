@@ -870,7 +870,8 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       3D 9 → 5 页，旧地址跳到新页的小节）、示例改用组件库（进行中：Stat、ScrollArea、DateTime、Splitter、Tabs、Card 外框、MapChart、ButtonBase、ThemeSwitcher、Menu 账户菜单与 NotificationCenter 顶栏（新组件 UserButton）、DateTime 倒计时（Countdown 的数字块）、Flex 自动换列（共用的示例图纸）已改）、逐页问题（进行中：QueryTable、FilterBar、Card、Code、Timeline、NavList、Flex、Icon、Tree、Upload、AppShell、Text、链接下划线已改；2026-11-08 把没逐页看过的图表、3D、表格、输入、日期 59 页巡检了一遍——没有报错与溢出，Select、Upload 两列挪齐）、~~文档站功能~~（~~组件选择指南~~、~~整页模板~~、~~示例工具~~、~~搜索~~、~~无障碍一节~~）
 - [ ] P2.5 逐个组件精修样式（随 P2 的页面顺序）
       （2026-11-08 起：加了 `pnpm docs:states`（scripts/docs/states.mjs）——一个示例里的可交互元素各截默认、悬停、键盘焦点、按下，
-      排成一张表，亮暗各一张，精修时对照状态是否齐全一致。Button 页过了一遍：暗色主题的实色悬停原来调暗、看不出来，改成调亮）
+      排成一张表，亮暗各一张，精修时对照状态是否齐全一致。Button 页过了一遍：暗色主题的实色悬停原来调暗、看不出来，改成调亮；
+      Badge / Tag、ButtonBase、Text 的链接：可选中的 Tag 补悬停，移除按钮的悬停取标签色，次要链接悬停换正文色）
 - [x] P3 组件补缺：~~ChoiceCard~~（单选、复选的 card）、~~ItemList 可选中的行~~、~~ColorPicker~~、~~ImageCropper~~、~~Carousel~~、~~Dialog 拖动~~、~~Tag 的 `selected`~~、~~`useInfiniteList`~~、
       ~~QRCode（自己写编码器）~~、~~省市区数据~~、~~Transfer 虚拟滚动~~（两侧本来就是 Listbox）、~~选文件夹~~、~~FloatButton 组~~、~~JsonViewer~~、~~SignaturePad~~、~~DataTable 横向虚拟化~~
 - [x] ~~P4 按 schema 生成表单（第一步）与 QueryTable 的查询条件~~（2026-11-08：SchemaForm / SchemaFields 按 useForm 的 schema

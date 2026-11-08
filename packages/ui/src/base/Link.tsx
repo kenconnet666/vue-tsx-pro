@@ -74,6 +74,8 @@ export const linkRecipe = css.recipe({
       hover: { root: { textDecorationLine: { default: 'none', _hover: 'underline' } } },
       none: { root: { textDecorationLine: 'none' } },
     },
+    // 次要链接（导航、页脚）悬停时换成正文色：不画下划线时也有悬停反馈
+    tone: { muted: { root: { color: { default: null, _hover: '_text' } } } },
   },
 });
 

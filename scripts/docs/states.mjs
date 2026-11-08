@@ -54,6 +54,12 @@ for (const theme of themes) {
   for (const id of which.split(',')) {
     const demo = page.locator(`[id="${id}"]`).locator('xpath=..').locator('[data-demo]');
     const targets = demo.locator(selector);
+    // 示例卡片推迟渲染：滚到它那里，等里面的元素出来（最多 5 秒；本来就没有可交互元素的示例照样往下走）
+    await page.locator(`[id="${id}"]`).scrollIntoViewIfNeeded();
+    await targets
+      .first()
+      .waitFor({ timeout: 5000 })
+      .catch(() => undefined);
     const count = Math.min(await targets.count(), LIMIT);
     const rows = [];
     for (let index = 0; index < count; index++) {
