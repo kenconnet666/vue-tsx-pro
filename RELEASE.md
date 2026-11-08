@@ -23,7 +23,8 @@
 只有一条线：每批改动在 master 上 CI 全部通过后就发一版，使用方一律用最新版；没有补丁分支，也不来回改版本号。
 
 1. **写变化**：这一版对使用方能察觉的变化写进上面的“下一版对使用方的变化”（破坏性改动写清怎么改）。
-2. **发版**：`node scripts/release.mjs <版本>`。它先确认在 master、工作区干净、与 origin 一致、HEAD 的 CI 全部通过，
+2. **发版**：推送后直接 `node scripts/release.mjs <版本> --wait`。它先确认在 master、工作区干净、与 origin 一致，再等 HEAD 的 CI 里把关的任务
+   全部通过（只报告的截图比对 `visual` 不等；有一个失败就停），
    再把四个包的 `version` 改成这个版本、把上面那一节搬进 [CHANGELOG.md](CHANGELOG.md)（原处清回“（暂无）”），提交 `chore(release): <版本>`，
    打标签 `v<版本>` 并推送。
 3. **发布**由标签触发的 `.github/workflows/release.yml` 完成：核对版本号，`pnpm test:consumer`（`pnpm pack` 的包在仓库外的独立应用里安装、

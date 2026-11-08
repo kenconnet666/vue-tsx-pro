@@ -1,7 +1,8 @@
 // 发版：改四个包的版本号、把 RELEASE.md 的“下一版对使用方的变化”搬进 CHANGELOG.md、提交、打标签并推送；
 // 标签触发 .github/workflows/release.yml，在 CI 里验证打包产物、带 provenance 发布 npm、建 GitHub Release。
 //
-//   node scripts/release.mjs 0.12.0          发版（要求：在 master、工作区干净、与 origin 一致、HEAD 的 CI 全部通过）
+//   node scripts/release.mjs 0.12.0          发版（要求：在 master、工作区干净、与 origin 一致、HEAD 的 CI 把关的任务全部通过）
+//   node scripts/release.mjs 0.12.0 --wait   推送后直接运行：等 CI 把关的任务跑完再发（只报告的截图比对不等）
 //   node scripts/release.mjs --verify 0.12.0 四个包的版本号都是 0.12.0（发布工作流用）
 //   node scripts/release.mjs --notes 0.12.0  打印 CHANGELOG.md 里这一版的说明（发布工作流建 GitHub Release 用）
 import { execFileSync } from 'node:child_process';
@@ -13,11 +14,10 @@ const PACKAGES = ['tsx', 'ui', 'mobile', 'mini'];
 const HEADING = '## 下一版对使用方的变化';
 const EMPTY = '（暂无）';
 
-const [mode, version] = process.argv[2]?.startsWith('--')
-  ? [process.argv[2], process.argv[3]]
-  : ['--release', process.argv[2]];
+const args = process.argv.slice(2).filter((arg) => arg !== '--wait');
+const [mode, version] = args[0]?.startsWith('--') ? [args[0], args[1]] : ['--release', args[0]];
 if (!/^\d+\.\d+\.\d+(?:-[\w.]+)?$/.test(version ?? '')) {
-  console.error('用法：node scripts/release.mjs [--verify | --notes] <版本，如 0.12.0>');
+  console.error('用法：node scripts/release.mjs [--verify | --notes] <版本，如 0.12.0> [--wait]');
   process.exit(1);
 }
 
@@ -37,6 +37,47 @@ function notesOf(changelog, target) {
   return match?.[1]?.trim();
 }
 
+/** 只报告、不把关的 CI 任务：截图比对（外观的改动由人看差异图确认），发版不等它 */
+const REPORT_ONLY = new Set(['visual']);
+const gh = (...args) => JSON.parse(execFileSync('gh', args, { cwd: root, encoding: 'utf8' }));
+
+/**
+ * HEAD 的 CI 里把关的任务都通过了才发；带 --wait 时等它们跑完（每 30 秒看一次），有一个失败就停。
+ * 推送之后直接 `node scripts/release.mjs <版本> --wait`，不用另外盯着 CI
+ */
+async function waitForCi(head) {
+  const wait = process.argv.includes('--wait');
+  for (;;) {
+    const [run] = gh(
+      'run',
+      'list',
+      '--commit',
+      head,
+      '--workflow',
+      'ci.yml',
+      '--json',
+      'databaseId',
+    );
+    const jobs = run
+      ? gh('run', 'view', String(run.databaseId), '--json', 'jobs').jobs.filter(
+          (job) => !REPORT_ONLY.has(job.name),
+        )
+      : [];
+    const failed = jobs.filter((job) => job.status === 'completed' && job.conclusion !== 'success');
+    if (failed.length)
+      fail(`HEAD（${head.slice(0, 8)}）的 CI 没通过：${failed.map((job) => job.name).join('、')}`);
+    const pending = jobs.filter((job) => job.status !== 'completed');
+    if (run && jobs.length && !pending.length) return;
+    if (!wait) fail(`HEAD（${head.slice(0, 8)}）的 CI 还没跑完，等绿了再发（或加 --wait）`);
+    console.log(
+      run
+        ? `等 CI：还有 ${pending.map((job) => job.name).join('、') || '任务没排上'}`
+        : '等 CI 开始',
+    );
+    await new Promise((resolve) => setTimeout(resolve, 30_000));
+  }
+}
+
 if (mode === '--verify') {
   const wrong = PACKAGES.filter(
     (name) => JSON.parse(read(`packages/${name}/package.json`)).version !== version,
@@ -54,16 +95,7 @@ if (mode === '--verify') {
   const head = git('rev-parse', 'HEAD');
   if (head !== git('rev-parse', 'origin/master'))
     fail('本地 master 与 origin/master 不一致，先推送或拉取');
-  const runs = JSON.parse(
-    execFileSync(
-      'gh',
-      ['run', 'list', '--commit', head, '--workflow', 'ci.yml', '--json', 'status,conclusion'],
-      { cwd: root, encoding: 'utf8' },
-    ),
-  );
-  if (!runs.some((run) => run.status === 'completed' && run.conclusion === 'success')) {
-    fail(`HEAD（${head.slice(0, 8)}）的 CI 还没全部通过，等绿了再发`);
-  }
+  await waitForCi(head);
 
   const release = read('RELEASE.md');
   const start = release.indexOf(HEADING);
