@@ -958,13 +958,13 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       ORM 的缺口只有 PGlite 的 `listen`，已在 easy-query-ts 0.2.4 补上。迁移基线等 26.2–26.4 的表定下来再冻结。
       2026-11-08 表按 PG 的习惯重排：文字 text、时刻 timestamptz（easy-query-ts 0.2.5 补的 `col.datetime({ timeZone: true })`）、
       状态用原生枚举、正在处理的节点 text[]、单据数据 GIN 索引、表注释；只有逻辑外键（实体的关系），不建库里的外键约束
-- [ ] 26.2 流程即 TS 工程：多文件、宿主模块登记、编译与类型检查、版本与回滚、浏览器与服务端加载；类型贯通的客户端
+- [x] 26.2 流程即 TS 工程：多文件、宿主模块登记、编译与类型检查、版本与回滚、浏览器与服务端加载；类型贯通的客户端
       （已有，决定见 `packages/flow/docs/decisions/0002-projects.md`：process.json、form.ts（`defineForm`）、logic.ts（`defineLogic(form, …)`，
       `logic.名字` 引用、发布时核对）；新包 flow-ts-studio 用组件库的 browser-compile 编译（纯 .ts 也去类型），引擎自己的链接器加载相对路径、自带与宿主模块；
       TS 7 的类型检查 `flow-ts-studio/typecheck`；版本列出、取源码、回滚；`engine.process<typeof form>(key)` 带类型的发起与处理。
       浏览器里在 Worker 编译：流程中心的合同审批就是流程工程，Worker 发布时用 compileInThread 就地编译（Node 的测试同一条路）。
       宿主模块的声明给工作室的编辑器（流程中心登记了业务库 `@app/business`，合同的守卫读它）。
-      还差：views/*.tsx 的约定（自定义的发起页、审批单分区、打印页））
+      视图 views/*.tsx：页面里渲染（发起页分区、审批单分区、打印页），引擎不加载，`engine.views` 给编好的模块（决定 0002 第 6 节））
 - [x] 26.3 动作插件化与补齐能力（委托、加签减签、撤回这一步、释放、指定承办人、批量、改数据、票签、提级、forEach / 异步、
       自定义节点、草稿、实例迁移）
       （已有，决定见 `packages/flow/docs/decisions/0003-operations.md`：动作插件 `WorkItemOperation`、`operate` 命令、待办详情的
@@ -1005,7 +1005,7 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       flow-demo 的端到端测试与删除挪到 26.6 做完了。业务库（供应商、物料、成本中心与预算的实体，与流程同一个库）登记成宿主模块
       `@app/business`，读准备时载入的快照（PGlite 只有一条连接，守卫在推进的事务里）；演示库带结构版本，老库自动重建。
       管理员在审批单上改数据；父流程经手的人看得到子流程）
-- [ ] 26.6 流程工作室：在线 IDE、语言服务、预览、场景测试、对比、发布、迁移
+- [x] 26.6 流程工作室：在线 IDE、语言服务、预览、场景测试、对比、发布、迁移
       （已有，在流程中心的 /flow/studio，只给管理员：引擎补了 versions.catalog / setEnabled / migrationPreview 与 engine.check
       （与发布同样编译、校验、类型检查，不发布），端点开放管理员的发布与版本方法；列表（启停、新建从空白或模板）；编辑页——
       图（设计器改 process.json，按 prettier 的写法重写）、单据（表单设计器与 form.ts 是同一份清单，模型包 formFileSource 写回）、
@@ -1017,7 +1017,7 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       两个仓库都换成 7.1.0-dev.20261104.1），内存文件系统里放工程文件与模型包、引擎扩展点的类型；补全、悬停、跳转、拉取式诊断。
       场景测试：test.ts 写 defineScenarios（单据的值按 form.ts 的类型），引擎 testing 的 runScenarios 逐个试运行、对照期望；
       工作室的“测试”页签在 Worker 里跑，合同工程带三个场景，Node 的测试也跑它们。
-      还差：views/*.tsx 的约定）
+      迁移：预览给出能对应的同类型节点，对不上的逐张手动对应；付款流程的“等银行回单”与管理员的“模拟送达”）
 - [x] 26.7 事件与通知（发件箱、NOTIFY）、代理、监控看板、统计
       （决定见 `packages/flow/docs/decisions/0010-notifications.md`：`flow_notification` 站内信箱兼发件箱，与推进同一个事务写入，
       外部投递 `notifications.deliver` 失败的到点重试、先占用再投递；推进、作业、发布随提交 NOTIFY `FLOW_CHANNEL`，组织目录发
