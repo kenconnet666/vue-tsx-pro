@@ -204,22 +204,27 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ### 8.1 §8 的缺口：测试
 
-- [ ] §8 的达标矩阵进 COMPONENTS.md（每个组件：运行时测试、浏览器测试、类型测试、键盘一节），用脚本生成并进 `pnpm check`，
-      新组件缺项时报出来
-- [ ] 键盘的浏览器测试（三种浏览器）：Accordion、CalendarBoard、Cascader、ColorField、FieldCompare、KanbanBoard、
+- [x] §8 的达标矩阵进 COMPONENTS.md（每个组件：运行时测试、浏览器测试、类型测试、键盘一节），用脚本生成并进 `pnpm check`，
+      新组件缺项时报出来（2026-11-08，阶段 25 的 P9：scripts/structure/matrix.mjs，整张表在 .claude/reports/matrix.md）
+- [x] 键盘的浏览器测试（三种浏览器）：Accordion、CalendarBoard、Cascader、ColorField、FieldCompare、KanbanBoard、
       Mentions、NumberField 与 NumberRangeField、TreeSelect、ResizeHandle、Splitter、CommentThread、NotificationCenter、
       Checkbox、Switch、ToggleGroup、Drawer 的拖宽与 beforeClose
-- [ ] 输入法的浏览器测试（组字中的回车、空格不触发提交、选择、跳转）：Combobox、TagsInput、Mentions、NumberField、Textarea、
-      DateField、CommandPalette 的过滤框、Select 的按字母跳转
-- [ ] 类型测试（`*.test-d.tsx`，§8 第 4 条）：值类型跟着数据走、`_bind` 的约束、事件参数。先做可绑定值与泛型最常用的：
+      （2026-11-08：apps/docs/src/test/keyboard.browser.test.tsx 补齐；CalendarBoard、NotificationCenter 在各自的浏览器测试里。
+      FieldCompare 没有自己的按键处理，NumberRangeField 是两个 NumberField，不另测）
+- [x] 输入法的浏览器测试（组字中的回车、空格不触发提交、选择、跳转）：Combobox、TagsInput、Mentions、NumberField、Textarea、
+      DateField、CommandPalette 的过滤框、Select 的按字母跳转（2026-11-08，阶段 25 的 P9；Textarea 没有自己的按键处理，不用测）
+- [x] 类型测试（`*.test-d.tsx`，§8 第 4 条）：值类型跟着数据走、`_bind` 的约束、事件参数。先做可绑定值与泛型最常用的：
       Select、Combobox、Autocomplete、Cascader、TreeSelect、Transfer、ToggleGroup、Tabs、Slider、DatePicker、DateRangePicker、
       DataTable、QueryTable、PivotTable、Tree、KanbanBoard、StepsForm、FilterBar、Pagination；图表的 data / series 键名约束
+      （2026-11-08，阶段 25 的 P9：31 个泛型组件与图表的键名约束有了类型测试。ToggleGroup、Tabs、StepsForm、FilterBar、Pagination
+      不是泛型——值是字符串、页码，类型就是属性表，不另写）
 
 ### 8.2 §8 的缺口：文档站
 
-- [ ] 键盘一节补上：AppShell、NotificationCenter、ResizeHandle、ModelViewer、FieldCompare
-- [ ] 无障碍一节：KeyboardReference 扩成“无障碍”（角色与名称、键盘、读屏念什么、减少动态效果），有交互的组件页都写
-- [ ] 搜索：命令面板搜得到组件的属性名、示例标题（从 API 表与示例生成索引，结果直达对应小节）
+- [x] 键盘一节补上：AppShell、NotificationCenter、ResizeHandle、ModelViewer、FieldCompare（2026-11-08：AppShell 补了；
+      ResizeHandle 写在 Splitter 页，FieldCompare 没有按键处理，矩阵的键盘一列已清零）
+- [x] 无障碍一节：KeyboardReference 扩成“无障碍”（角色与名称、键盘、读屏念什么、减少动态效果），有交互的组件页都写（阶段 25 的 P2）
+- [x] 搜索：命令面板搜得到组件的属性名、示例标题（从 API 表与示例生成索引，结果直达对应小节）（阶段 25 的 P2）
 - [ ] 示例卡片的工具：切换视口宽度（手机、平板、桌面）、从右到左、紧凑密度，不用离开文档页
 - [x] 发布前的逐页巡检（2026-10-26）：`pnpm docs:review` 记控制台错误、桌面与手机宽度的溢出并截下每个示例，
       `pnpm docs:sheets` 拼成联系表逐页看；修了 ColumnTable 部件样式没合成一个类（透视表热力着色被盖住）、Stat 窄卡片挤字、
@@ -227,9 +232,11 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ### 8.3 视觉回归进 CI
 
-- [ ] 在固定的 Linux 容器里（Playwright 官方镜像，字体、渲染一致）截每个示例的亮、暗主题，与仓库里的基线比对；
-      只在 ubuntu 任务跑，差异图作为 CI 产物上传。基线更新用一条命令重拍（`pnpm docs:shot --update`），随改动一起提交
-- [ ] 先覆盖基础、输入、浮层、表格（最常被顺手改到的），稳定后扩到全部示例；动画、随机、时间相关的示例固定种子与时钟
+- [x] ~~在固定的 Linux 容器里（Playwright 官方镜像，字体、渲染一致）截每个示例的亮、暗主题，与仓库里的基线比对；
+      只在 ubuntu 任务跑，差异图作为 CI 产物上传。基线更新用一条命令重拍（`pnpm docs:shot --update`），随改动一起提交~~
+      （阶段 25 的 P0：CI 的 `visual` 任务截全部示例，与上一次 master 全绿运行的截图比对、上传差异图——基线不进仓库，不用手动重拍）
+- [x] 先覆盖基础、输入、浮层、表格（最常被顺手改到的），稳定后扩到全部示例；动画、随机、时间相关的示例固定种子与时钟
+      （已是全部示例；shot.mjs 固定随机种子与时钟，基础、输入、浮层、表格另截从右到左、高对比、手机三种变体）
 
 ### 8.4 发布 0.x
 
@@ -238,17 +245,22 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
       与 Vite 8 一致），ui 包跑在浏览器里不写
 - [x] ~~peer 范围放宽到实际测过的区间（Vite、Vue、各可选 peer），`test:consumer` 按区间的两端各跑一遍~~（2026-11-08：现有区间的下限
       vue 3.5.0、vite 8.0.0、vue-router 5.0.0、zod 4.6.0、@lucide/icons 1.69.0、shiki 4.0.0 测过能用，不用再改区间；CI 的 consumer-min 任务一直跑下限）
-- [ ] changesets：每次改动带一条变更说明，合并后自动开“版本 PR”，生成 CHANGELOG；npm 发布走 GitHub Actions（带 provenance）
+- [x] ~~changesets：每次改动带一条变更说明，合并后自动开“版本 PR”，生成 CHANGELOG~~；npm 发布走 GitHub Actions（带 provenance）
+      （阶段 25 的 P7：不用 changesets——变更写进 RELEASE.md，`scripts/release.mjs` 打标签时搬进 CHANGELOG.md，release.yml 带 provenance 发布）
 - [x] ~~体积预算：主入口与各子路径打包后的大小进 CI（size-limit），超了报出来~~（2026-11-08：不加 size-limit，packages/ui/scripts/size.mjs
       用 Vite 自带的 rolldown 把 18 个入口各打成一个压缩文件量 gzip，与 size-budgets.json 比对，CI 的 consumer 任务构建后跑）
-- [ ] 文档站部署（每次推送 master 自动更新），README 与 npm 页链过去
+- [x] 文档站部署（每次推送 master 自动更新），README 与 npm 页链过去（CI 的 deploy-docs 任务发到 Cloudflare；
+      2026-11-08 根 README、两个包的 README 与 homepage 指向 https://vue-tsx-pro.zerodep.dpdns.org）
 - [x] 两个包的版本定为 0.1.0，[RELEASE.md](RELEASE.md) 写手动发布的步骤（预检、`pnpm test:consumer`、`pnpm publish`）
 - [x] 发 0.1.0（2026-10-26 已发布；包名是 `@zerodep-dev/vue-tsx-pro-tsx`、`@zerodep-dev/vue-tsx-pro-ui`）
 
 ### 8.5 1.0
 
-- [ ] API 冻结前的审计：全部公共 API 的命名、默认值、事件参数对一遍 COMPONENTS.md §1–§2，出一份清单逐条改完
-- [ ] 浏览器与环境的支持说明（Chrome、Edge、Firefox、Safari 的版本下限，SSR 的边界）、迁移说明（0.x 到 1.0 的破坏性改动）
+- [x] API 冻结前的审计：全部公共 API 的命名、默认值、事件参数对一遍 COMPONENTS.md §1–§2，出一份清单逐条改完
+      （阶段 25 的 P9，结论在 .claude/reports/api-audit.md）
+- [x] 浏览器与环境的支持说明（Chrome、Edge、Firefox、Safari 的版本下限，SSR 的边界）、~~迁移说明（0.x 到 1.0 的破坏性改动）~~
+      （2026-11-08：文档站“快速开始”的“浏览器与环境”一节——Chrome、Edge 123+，Firefox 125+，Safari 17.5+，由原生 popover 与
+      light-dark() 定；peer 下限、Node、服务端渲染的边界。迁移说明不单写：还没有使用方，文档不写版本号，每版的破坏性改动在 CHANGELOG.md）
 - [ ] 发 1.0.0，之后按语义化版本：破坏性改动只进大版本
 
 每个阶段新做的组件当场达到 §8；顺手动到的老组件一起补齐。
@@ -872,7 +884,9 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       （2026-11-08 起：加了 `pnpm docs:states`（scripts/docs/states.mjs）——一个示例里的可交互元素各截默认、悬停、键盘焦点、按下，
       排成一张表，亮暗各一张，精修时对照状态是否齐全一致。Button 页过了一遍：暗色主题的实色悬停原来调暗、看不出来，改成调亮；
       Badge / Tag、ButtonBase、Text 的链接：可选中的 Tag 补悬停，移除按钮的悬停取标签色，次要链接悬停换正文色；
-      Code 的按钮状态齐全；布局：Splitter 的分隔条与 ResizeHandle 的悬停、聚焦、拖动统一，FloatButton 状态齐全）
+      Code 的按钮状态齐全；布局：Splitter 的分隔条与 ResizeHandle 的悬停、聚焦、拖动统一，FloatButton 状态齐全；
+      反馈：有底色的容器里的关闭、移除按钮改用状态层（`stateLayerStyles`：Alert、Banner、Toast、Tag），Progress、Empty、Skeleton
+      亮暗都看过不用改，对话框的关闭按钮在浮起的面板上，幽灵按钮的灰色悬停合适、保留）
 - [x] P3 组件补缺：~~ChoiceCard~~（单选、复选的 card）、~~ItemList 可选中的行~~、~~ColorPicker~~、~~ImageCropper~~、~~Carousel~~、~~Dialog 拖动~~、~~Tag 的 `selected`~~、~~`useInfiniteList`~~、
       ~~QRCode（自己写编码器）~~、~~省市区数据~~、~~Transfer 虚拟滚动~~（两侧本来就是 Listbox）、~~选文件夹~~、~~FloatButton 组~~、~~JsonViewer~~、~~SignaturePad~~、~~DataTable 横向虚拟化~~
 - [x] ~~P4 按 schema 生成表单（第一步）与 QueryTable 的查询条件~~（2026-11-08：SchemaForm / SchemaFields 按 useForm 的 schema

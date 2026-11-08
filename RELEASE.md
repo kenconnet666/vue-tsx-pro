@@ -16,7 +16,9 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- 有底色的容器里的关闭、移除按钮（Alert、Banner、Toast 的关闭，Tag 的移除）悬停、按下时叠一层自己文字色的状态层，
+  不再是幽灵按钮的灰底；可选中的 Tag 悬停时在底色上叠一层。共用的样式是 `stateLayerStyles`（ghost、overlay），自己拼的彩色容器也能用。
+- 包的 homepage 指向文档站。
 
 ## 每次发布
 
