@@ -8,12 +8,13 @@ import {
   type ProcessDefinition,
   validateProcess,
 } from '@zerodep-dev/flow-ts-model';
-import { FlowDefinition } from '../core/entities.ts';
+import type { Ref } from '@zerodep-dev/easy-query-ts';
+import { FlowDefinition, type flowSchema } from '../core/entities.ts';
 import { FlowError } from '../core/errors.ts';
 import { buildProject, type FlowLogic } from './project.ts';
 import type { TypeProblem } from '../types.ts';
 import type { EngineCore } from '../core/context.ts';
-import type { PublishOptions } from '../views.ts';
+import type { CatalogEntry, PublishOptions } from '../views.ts';
 import type { FlowEngine } from '../engine.ts';
 
 /** 版本行 → 工程：只发布过定义的，工程里只有 process.json（去掉版本号） */
@@ -137,28 +138,66 @@ export function createPublishing(core: EngineCore) {
     });
   }
 
+  const versionColumns = (d: Ref<typeof flowSchema, 'FlowDefinition'>) => ({
+    id: d.id,
+    key: d.processKey,
+    version: d.version,
+    name: d.name,
+    enabled: d.enabled,
+    publishedBy: d.publishedBy,
+    publishedAt: d.publishedAt,
+    note: d.note,
+  });
+
   const versions: FlowEngine['versions'] = {
-    list: (key) =>
-      db
+    catalog: async () => {
+      const rows = await db
         .queryable(FlowDefinition)
-        .where((d) => d.processKey.eq(key))
-        .orderBy((d) => d.version.desc())
-        .select((d) => ({
-          id: d.id,
-          version: d.version,
-          name: d.name,
-          enabled: d.enabled,
-          publishedBy: d.publishedBy,
-          publishedAt: d.publishedAt,
-          note: d.note,
-        }))
-        .toList(),
+        .orderBy((d) => [d.processKey, d.version.desc()])
+        .select(versionColumns)
+        .toList();
+      const entries = new Map<string, CatalogEntry>();
+      for (const row of rows) {
+        const entry = entries.get(row.key);
+        if (!entry) entries.set(row.key, { ...row, versions: 1, startable: row.enabled });
+        else
+          entries.set(row.key, {
+            ...entry,
+            versions: entry.versions + 1,
+            startable: entry.startable || row.enabled,
+          });
+      }
+      return [...entries.values()];
+    },
+    list: async (key) =>
+      (
+        await db
+          .queryable(FlowDefinition)
+          .where((d) => d.processKey.eq(key))
+          .orderBy((d) => d.version.desc())
+          .select(versionColumns)
+          .toList()
+      ).map(({ key: _key, ...info }) => info),
     project: async (key, version) => projectOf(await versionRow(key, version)),
     rollback: async (key, version, rest) =>
       publish(projectOf(await versionRow(key, version)), {
         ...rest,
         note: `回滚到第 ${version} 版`,
       }),
+    setEnabled: async (key, enabled) => {
+      const latest = await versionRow(key);
+      await db
+        .update(FlowDefinition)
+        .set({ enabled: false })
+        .where((d) => d.processKey.eq(key))
+        .execute();
+      if (enabled)
+        await db
+          .update(FlowDefinition)
+          .set({ enabled: true })
+          .where((d) => d.id.eq(latest.id))
+          .execute();
+    },
   };
 
   async function versionRow(key: string, version?: number) {

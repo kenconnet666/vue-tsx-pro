@@ -13,6 +13,7 @@ export type {
   StartView,
   TodoItem,
   TypedProcess,
+  CatalogEntry,
   VersionInfo,
   WorkItemDetail,
   WorkItemField,

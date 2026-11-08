@@ -50,6 +50,7 @@ import type {
   Incident,
   InstanceDetail,
   PublishOptions,
+  CatalogEntry,
   VersionInfo,
   TypedProcess,
 } from './views.ts';
@@ -66,8 +67,10 @@ export interface FlowEngine {
     input: ProcessDefinition | FlowProject,
     options?: PublishOptions,
   ): Promise<{ key: string; version: number }>;
-  /** 版本：列出、取某版的工程（在线编辑）、回滚 */
+  /** 版本：全部流程、列出、取某版的工程（在线编辑）、回滚、启停 */
   readonly versions: {
+    /** 全部流程（含停用的）：每个流程最新的一版，带版本数；按流程的键排 */
+    catalog(): Promise<CatalogEntry[]>;
     list(key: string): Promise<VersionInfo[]>;
     /** 某个版本的工程（不写版本时是最新的）；只发布过定义的，工程里只有 process.json */
     project(key: string, version?: number): Promise<FlowProject>;
@@ -77,6 +80,8 @@ export interface FlowEngine {
       version: number,
       options?: Omit<PublishOptions, 'note'>,
     ): Promise<{ key: string; version: number }>;
+    /** 启停：停用时这个流程的版本都不能再发起（运行中的照常走完）；启用时最新一版能发起 */
+    setEnabled(key: string, enabled: boolean): Promise<void>;
   };
   /** 按单据类型用一个流程：发起、处理时变量写错字段是编译错误（`engine.process<typeof form>('purchase')`） */
   process<Form extends FormManifest>(key: string): TypedProcess<FormValues<Form>>;

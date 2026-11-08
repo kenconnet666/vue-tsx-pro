@@ -90,6 +90,36 @@ describe('客户端与端点', () => {
     assert.equal(bad.status, 400);
   });
 
+  it('工作室：发布、版本、启停只给管理员；停用后不能发起，启用后最新一版能发起', async () => {
+    const { client, as } = await setup();
+    const forbidden = (error: unknown) => error instanceof FlowError && error.code === 'forbidden';
+    await assert.rejects(client.versions.catalog(), forbidden);
+    await assert.rejects(client.publish(templates.leave()), forbidden);
+    as({ id: '1000', admin: true });
+    assert.deepEqual(await client.publish(templates.leave(), '改了说明'), {
+      key: 'leave',
+      version: 2,
+    });
+    const [entry] = await client.versions.catalog();
+    assert.equal(entry?.key, 'leave');
+    assert.equal(entry?.versions, 2);
+    assert.equal(entry?.note, '改了说明');
+    assert.ok(entry?.publishedAt instanceof Date);
+    await client.versions.setEnabled('leave', false);
+    assert.deepEqual(await client.processes(), []);
+    assert.equal((await client.versions.catalog())[0]?.startable, false);
+    await client.versions.setEnabled('leave', true);
+    assert.deepEqual(
+      (await client.versions.list('leave')).map((v) => [v.version, v.enabled]),
+      [
+        [2, true],
+        [1, false],
+      ],
+    );
+    assert.equal((await client.versions.rollback('leave', 1)).version, 3);
+    assert.ok('process.json' in (await client.versions.project('leave')).files);
+  });
+
   it('接口层的权限：别人的单看不到，全部异常与重试只给管理员', async () => {
     const { client, as } = await setup();
     const forbidden = (error: unknown) => error instanceof FlowError && error.code === 'forbidden';

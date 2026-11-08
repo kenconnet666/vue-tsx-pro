@@ -163,6 +163,14 @@ export interface VersionInfo {
   readonly note: string | null;
 }
 
+/** 全部流程里的一个：最新一版的信息，加上流程的键、发布过几版、现在能不能发起 */
+export interface CatalogEntry extends VersionInfo {
+  readonly key: string;
+  readonly versions: number;
+  /** 有哪一版是启用的（能发起） */
+  readonly startable: boolean;
+}
+
 /** 带单据类型的流程 */
 export interface TypedProcess<V extends object> {
   start(

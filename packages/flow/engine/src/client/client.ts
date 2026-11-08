@@ -7,7 +7,7 @@
  *   await flow.run({ type: 'complete', workItem: todo[0].id, outcome: 'approve' });
  *   const stop = flow.onChange(() => refresh());
  */
-import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
+import type { FlowProject, ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import { parseWire, parseWireJson, stringifyWire, type WireReader } from '@zerodep-dev/json-wire';
 import { FlowError, type FlowErrorCode } from '../core/errors.ts';
 import type { InstanceRow } from '../runtime/execution.ts';
@@ -21,11 +21,13 @@ import type {
   SignalInput,
 } from '../types.ts';
 import type {
+  CatalogEntry,
   CcItem,
   Incident,
   InstanceDetail,
   StartView,
   TodoItem,
+  VersionInfo,
   WorkItemDetail,
 } from '../views.ts';
 import type { FlowTransport } from './protocol.ts';
@@ -86,6 +88,19 @@ export interface FlowClient {
     get(id: number): Promise<InstanceRow>;
     discard(id: number): Promise<boolean>;
   };
+  /** 工作室（只给管理员）：发布定义或流程工程，校验、类型检查不过是 invalid-definition */
+  publish(
+    input: ProcessDefinition | FlowProject,
+    note?: string,
+  ): Promise<{ key: string; version: number }>;
+  /** 工作室的版本：全部流程、某个流程的版本、某版的源码、回滚、启停（只给管理员） */
+  readonly versions: {
+    catalog(): Promise<CatalogEntry[]>;
+    list(key: string): Promise<VersionInfo[]>;
+    project(key: string, version?: number): Promise<FlowProject>;
+    rollback(key: string, version: number): Promise<{ key: string; version: number }>;
+    setEnabled(key: string, enabled: boolean): Promise<void>;
+  };
   /** 数据变了（任何人执行了命令）：列表、计数跟着刷新；返回取消订阅的函数 */
   onChange(listener: () => void): () => void;
 }
@@ -127,6 +142,14 @@ export function createFlowClient(transport: FlowTransport): FlowClient {
       list: () => call('drafts.list'),
       get: (id) => call('drafts.get', id),
       discard: (id) => call('drafts.discard', id),
+    },
+    publish: (input, note) => call('publish', input, note),
+    versions: {
+      catalog: () => call('versions.catalog'),
+      list: (key) => call('versions.list', key),
+      project: (key, version) => call('versions.project', key, version),
+      rollback: (key, version) => call('versions.rollback', key, version),
+      setEnabled: (key, enabled) => call('versions.setEnabled', key, enabled),
     },
     onChange: (listener) => transport.subscribe?.(listener) ?? (() => {}),
   };

@@ -55,6 +55,31 @@ const METHODS: Readonly<
   'drafts.list': (e, a) => e.drafts.list(a),
   'drafts.get': (e, a, [id]) => e.drafts.get(id, a),
   'drafts.discard': (e, a, [id]) => e.drafts.discard(id, a),
+  // 工作室（只给管理员）：发布、版本、启停；源码只给管理员看
+  publish: (e, a, [input, note]) => {
+    requireAdmin(a, '只有管理员能发布流程');
+    return e.publish(input, { actor: a, ...(note ? { note } : {}) });
+  },
+  'versions.catalog': (e, a) => {
+    requireAdmin(a, '只有管理员能看全部流程');
+    return e.versions.catalog();
+  },
+  'versions.list': (e, a, [key]) => {
+    requireAdmin(a, '只有管理员能看版本');
+    return e.versions.list(key);
+  },
+  'versions.project': (e, a, [key, version]) => {
+    requireAdmin(a, '只有管理员能看流程的源码');
+    return e.versions.project(key, version);
+  },
+  'versions.rollback': (e, a, [key, version]) => {
+    requireAdmin(a, '只有管理员能回滚');
+    return e.versions.rollback(key, version, { actor: a });
+  },
+  'versions.setEnabled': (e, a, [key, enabled]) => {
+    requireAdmin(a, '只有管理员能启停流程');
+    return e.versions.setEnabled(key, enabled);
+  },
 };
 
 /** 改数据的方法：成功后通知 */
@@ -66,6 +91,9 @@ const MUTATIONS: ReadonlySet<string> = new Set([
   'retryJob',
   'drafts.save',
   'drafts.discard',
+  'publish',
+  'versions.rollback',
+  'versions.setEnabled',
 ]);
 
 /** 端点 */

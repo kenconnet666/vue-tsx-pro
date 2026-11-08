@@ -62,12 +62,15 @@ export interface CompiledProject {
 
 const isCode = (path: string) => /\.tsx?$/.test(path);
 
-/** 编译：读 process.json、转换每个 .ts / .tsx；写得不对报 invalid-definition（field 是文件路径） */
+/**
+ * 编译：读 process.json、转换每个 .ts / .tsx；写得不对报 invalid-definition（field 是文件路径）。
+ * 只有 process.json 的工程（只发布过定义的版本、回滚到它）不用编译器
+ */
 export async function compileProject(
   project: FlowProject,
   transform: TransformCode | undefined,
 ): Promise<CompiledProject> {
-  if (!transform) {
+  if (!transform && Object.keys(project.files).some(isCode)) {
     throw new FlowError(
       'invalid-definition',
       '发布流程工程要在引擎选项里给 transform（@zerodep-dev/flow-ts-studio 的 compileInPlace）',
@@ -82,7 +85,7 @@ export async function compileProject(
   const definition = attempt(PROJECT_FILES.process, () => upgradeDefinition(JSON.parse(json)));
   const modules: Record<string, string> = {};
   for (const [path, source] of Object.entries(project.files)) {
-    if (isCode(path)) modules[path] = await attemptAsync(path, () => transform(source, path));
+    if (isCode(path)) modules[path] = await attemptAsync(path, () => transform!(source, path));
   }
   return { definition, modules };
 }
