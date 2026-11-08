@@ -13,4 +13,4 @@
 
 - 中文说明用自己的话写，不复制 MDN 正文（MDN 正文为 CC-BY-SA），只通过 `@see` 链接到 MDN。
 - 事实字段（初始值、继承、Baseline）只从数据包读取，不在 `docs.json` 里手写。
-- StyleX 升级后运行 `pnpm css-docs`：新增的属性缺少中文说明时脚本报错并列出属性名，补进 `docs.json` 即可。
+- StyleX 升级后运行 `pnpm -C packages/tsx css-docs`：新增的属性缺少中文说明时脚本报错并列出属性名，补进 `docs.json` 即可。

@@ -2,7 +2,7 @@
  * 注释检查：导出的声明（组件、函数、类型、常量、类）与导出接口、类型字面量、类的成员都要有 JSDoc，
  * 补全列表与悬停才看得到说明（COMPONENTS.md §1 的注释约定）。文件开头的说明不会挂到导出上，所以单独检查。
  *
- * 用法：pnpm docs:check。生成的文件、测试与只在类型里出现的 children 不检查。
+ * 用法：各包的 `pnpm check:doc-comments`（node scripts/doc-comments/check.mjs --package tsx|ui）。生成的文件、测试与只在类型里出现的 children 不检查。
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -23,13 +23,18 @@ import {
 } from 'typescript/ast';
 import { parseSource, root } from '../lib/repo.mjs';
 
-/** 检查范围：已发布的两个包 */
-const INCLUDE = [
-  'packages/tsx/src/**/*.ts',
-  'packages/tsx/types/*.d.ts',
-  'packages/ui/src/**/*.ts',
-  'packages/ui/src/**/*.tsx',
-];
+/** 检查范围：已发布的两个包；`--package tsx` / `--package ui` 只查一个（各包的 check:doc-comments） */
+const PACKAGES = {
+  tsx: ['packages/tsx/src/**/*.ts', 'packages/tsx/types/*.d.ts'],
+  ui: ['packages/ui/src/**/*.ts', 'packages/ui/src/**/*.tsx'],
+};
+const only = process.argv[process.argv.indexOf('--package') + 1];
+if (process.argv.includes('--package') && !(only in PACKAGES)) {
+  throw new Error(`--package 只能是 ${Object.keys(PACKAGES).join('、')}`);
+}
+const INCLUDE = process.argv.includes('--package')
+  ? PACKAGES[only]
+  : Object.values(PACKAGES).flat();
 /** 生成的文件（注释由生成器负责）与测试 */
 const EXCLUDE = [/\/\.test\//, /\/test\//, /styles\/documented\.ts$/, /token-names\.ts$/];
 

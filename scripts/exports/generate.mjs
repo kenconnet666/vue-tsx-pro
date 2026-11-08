@@ -171,7 +171,7 @@ function mainEntry() {
   const body = GROUPS.filter(([dir]) => groups.get(dir).length)
     .map(([dir, title]) => `// ${title}\n${groups.get(dir).join('\n')}`)
     .join('\n\n');
-  return `// 由 pnpm exports（scripts/exports/generate.mjs）生成，不要手改：模块里加了导出后重新生成\n\n${body}\n`;
+  return `// 由 pnpm -C packages/ui exports（scripts/exports/generate.mjs）生成，不要手改：模块里加了导出后重新生成\n\n${body}\n`;
 }
 
 /** 子路径目录的入口：保留文件开头的说明（写明子路径名、怎么导入、为什么不在主入口），export 语句重新生成 */
@@ -207,7 +207,7 @@ for (const [output, generated] of outputs) {
   if (!check) {
     writeFileSync(output, code);
   } else if (readFileSync(output, 'utf8') !== code) {
-    console.error(`${toPath(output)} 与生成结果不一致：运行 pnpm exports 重新生成`);
+    console.error(`${toPath(output)} 与生成结果不一致：运行 pnpm -C packages/ui exports 重新生成`);
     process.exitCode = 1;
   }
 }

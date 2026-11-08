@@ -3,7 +3,7 @@
  * data-scope 由 partAttrs 从组件名转成连字符小写。CSharpUi、Blazor 的对照按这条规则配对，写成连字符（day-head）就配不上。
  * 检查组件库里写死的部件名：xxxPart('…')、partAttrs(…, '…')、data-part="…" 与 'data-part': '…'。
  *
- * 用法：node scripts/structure/part-names.mjs（pnpm layers:check 里一起跑）
+ * 用法：node scripts/structure/part-names.mjs（pnpm -C packages/ui check:parts）
  */
 import { globSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';

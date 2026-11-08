@@ -1,10 +1,10 @@
 // 交互状态审计：逐页逐个示例，把可交互元素的默认、悬停、键盘焦点三张裁图两两比对，一模一样的报出来——
 // 悬停没有反馈、键盘焦点看不见。逐个组件精修时先跑它找漏的状态，再对报出的元素用 docs:states 看图。
-// 先开着文档站的开发服务器（pnpm dev:docs，端口 5174）。报告在 node_modules/.cache/docs-states/audit-<主题>[-compact].md。
+// 先开着文档站的开发服务器（pnpm -C apps/docs dev，端口 5174）。报告在 node_modules/.cache/docs-states/audit-<主题>[-compact].md。
 //
-//   pnpm docs:states-audit overlay,navigation        按分类（apps/docs/src/components 下的目录名）
-//   pnpm docs:states-audit select,tabs --themes=dark  或页名
-//   pnpm docs:states-audit input --compact            紧凑密度（主题设置缩放到 0.9）
+//   pnpm -C apps/docs states-audit overlay,navigation        按分类（apps/docs/src/components 下的目录名）
+//   pnpm -C apps/docs states-audit select,tabs --themes=dark  或页名
+//   pnpm -C apps/docs states-audit input --compact            紧凑密度（主题设置缩放到 0.9）
 //   --jobs=4                                          并发几页
 //
 // 不可用的元素不查悬停；焦点落不上的（选项经 aria-activedescendant 指出、焦点留在容器上）不查焦点
@@ -20,7 +20,7 @@ const option = (name, fallback) =>
 const wanted = args.find((arg) => !arg.startsWith('--'))?.split(',');
 if (!wanted) {
   console.error(
-    '用法：pnpm docs:states-audit <分类或页名,…> [--themes=light,dark] [--compact] [--jobs=4]',
+    '用法：pnpm -C apps/docs states-audit <分类或页名,…> [--themes=light,dark] [--compact] [--jobs=4]',
   );
   process.exit(1);
 }

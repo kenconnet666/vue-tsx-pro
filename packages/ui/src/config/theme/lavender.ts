@@ -5,7 +5,7 @@ import { colors, radii, shadows } from './tokens';
 
 /**
  * 薰衣草主题的颜色：淡紫白的页面、紫罗兰的品牌色。中性色按 Radix mauve 各级的亮度略微加紫，品牌色取 Radix violet 色阶。
- * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
+ * 先按风格取色，再按对比度要求调深浅（pnpm -C packages/ui check:themes 校验）
  */
 export const lavenderColors = css.createTheme(colors, {
   background: '#f7f4fc',

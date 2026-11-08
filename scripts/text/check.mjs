@@ -6,8 +6,8 @@
  * - TSX 里的中文文本不跨行、中文标点后不加空格：JSX 把文本中间的换行渲染成一个空格，中文之间就多出空格。
  *   接成一行即可，Prettier 不会在没有空格的中文里断行；紧挨标签的换行会被 JSX 去掉，不受影响。
  *
- * 用法：pnpm text:check。检查 git 跟踪的文件，本地加上还没提交的新文件。
- * pnpm text:check --fix 自动修正 TSX 里中文跨行与标点后的空格（改完再跑一遍 Prettier）。
+ * 用法：pnpm check:text。检查 git 跟踪的文件，本地加上还没提交的新文件。
+ * pnpm check:text --fix 自动修正 TSX 里中文跨行与标点后的空格（改完再跑一遍 Prettier）。
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';

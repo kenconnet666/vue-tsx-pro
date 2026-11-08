@@ -5,7 +5,7 @@ import { colors, shadows } from './tokens';
 
 /**
  * 森林主题的颜色：带一点叶绿的页面、林木绿的品牌色。中性色按 slate 各级亮度换成绿色相（oklch 145°），品牌色取 Radix grass 色阶、实色加深到林木绿 `#2b7a3b`；成功色换成 jade，和品牌色区分开。
- * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
+ * 先按风格取色，再按对比度要求调深浅（pnpm -C packages/ui check:themes 校验）
  */
 export const forestColors = css.createTheme(colors, {
   background: '#f6fbf6',

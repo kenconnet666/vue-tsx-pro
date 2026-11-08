@@ -1,10 +1,10 @@
 // 交互状态表：一个示例里的可交互元素各截默认、悬停、键盘焦点、按下四种状态（不可用的另标出来），排成一张表，
-// 逐个组件精修样式时对照状态是否齐全、亮暗两套是否一致用。先开着文档站的开发服务器（pnpm dev:docs，端口 5174）。
+// 逐个组件精修样式时对照状态是否齐全、亮暗两套是否一致用。先开着文档站的开发服务器（pnpm -C apps/docs dev，端口 5174）。
 // 结果在 node_modules/.cache/docs-states/<页面>-<示例>-<主题>.png。
 //
-//   pnpm docs:states /components/button variants
-//   pnpm docs:states /components/button variants,tones --themes=dark
-//   pnpm docs:states /components/listbox single --selector='[role="option"]'   换成别的元素（默认按钮与链接）
+//   pnpm -C apps/docs states /components/button variants
+//   pnpm -C apps/docs states /components/button variants,tones --themes=dark
+//   pnpm -C apps/docs states /components/listbox single --selector='[role="option"]'   换成别的元素（默认按钮与链接）
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireFrom, root } from '../lib/repo.mjs';
@@ -15,7 +15,7 @@ const { chromium } = requireFrom('apps/host-demo')('playwright');
 const [path, which] = process.argv.slice(2).filter((arg) => !arg.startsWith('--'));
 if (!path?.startsWith('/') || !which) {
   console.error(
-    '用法：pnpm docs:states /components/<页面> <示例 id,…> [--themes=light,dark] [--selector=…]',
+    '用法：pnpm -C apps/docs states /components/<页面> <示例 id,…> [--themes=light,dark] [--selector=…]',
   );
   process.exit(1);
 }

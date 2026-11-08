@@ -5,7 +5,7 @@
  *   - 元素：div、span、button、img、input、textarea、svg（JSX 里的小写标签）
  *   - 样式条件：不能用 :hover、:focus 系列、伪元素、:nth-child 一类结构伪类，以及 _hover、_focus 系列、_placeholder 别名
  *
- * 用法：node scripts/structure/mobile-rules.mjs（pnpm layers:check 里一起跑）
+ * 用法：node scripts/structure/mobile-rules.mjs（pnpm -C packages/mobile check:rules）
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';

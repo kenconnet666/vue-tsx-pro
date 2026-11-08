@@ -1,7 +1,7 @@
 // 把 docs:review 的示例截图按页拼成联系表（两列、缩小），一页一张，逐页过目用；结果在 node_modules/.cache/docs-review/sheets。
 //
-//   pnpm docs:sheets              全部页（先跑 pnpm docs:review）
-//   pnpm docs:sheets button,menu  只拼这几页
+//   pnpm -C apps/docs sheets              全部页（先跑 pnpm -C apps/docs review）
+//   pnpm -C apps/docs sheets button,menu  只拼这几页
 
 import { mkdirSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';

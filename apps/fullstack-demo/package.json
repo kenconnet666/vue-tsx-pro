@@ -9,7 +9,10 @@
     "build": "vite build --configLoader native",
     "start": "node .output/server/index.mjs",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
-    "test:e2e": "node test/e2e.mjs"
+    "test:e2e": "node test/e2e.mjs",
+    "lint": "oxlint . --deny-warnings -c ../../.oxlintrc.json",
+    "format": "prettier --write . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore --cache --cache-strategy content"
   },
   "dependencies": {
     "@floating-ui/dom": "catalog:",

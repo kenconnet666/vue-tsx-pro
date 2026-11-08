@@ -21,7 +21,7 @@
 - **每一层都能单独用、单独发布**：组件库不依赖服务端；easy-query 不依赖 Vue；SSR 包不依赖 easy-query；流程引擎的核心不依赖 Vue 与 Nitro，
   HTTP、作业轮询、SSR 都是外面一层薄的适配。
 - **依赖只朝一个方向**：应用（flow）→ 服务端底座、easy-query；flow 的界面 → 组件库。用 `layers:check` 的同一套办法检查到包这一级。
-- **一套工具链**：pnpm 12、TypeScript 7.1 beta、Vitest、oxlint、prettier、`pnpm check`，全部沿用本仓库现有的。迁进来的代码向本仓库看齐。
+- **一套工具链**：pnpm 12、TypeScript 7.1 beta、Vitest、oxlint、prettier、`node scripts/dev/check.mjs`，全部沿用本仓库现有的。迁进来的代码向本仓库看齐。
 - **每个阶段都有可验收的交付**，做完一个阶段可以停下来，不留半成品。
 - **整个仓库随做随维护**（用户 2026-10-28）：做后面的阶段时碰到的基础设施（编译器、运行时、样式引擎、脚本、CI）与组件的问题当场修，
   不因为"在做别的阶段"而绕开；整理与功能改动分开提交。
@@ -103,7 +103,7 @@ packages/flow/docs/decisions/                     新引擎的决定；Java 版�
   边角记进一份 BACKLOG（放根目录，每行带包名，用到时再建）。不写过程流水账。
 - **原来的 PLAN（工程规划）已拆掉**（2026-10-28）：定位与决定并进 README，仓库结构、约定、测试分层、技术约束并进 HANDOFF §4、§5。
 - **本文（FULLSTACK.md）定稿后拆掉**：阶段进 ROADMAP，取舍进 `docs/decisions/`。
-- 搬文档时同步改引用（2026-10-28 已做）：代码注释里写文件名即可，`pnpm refs:check`（在 `pnpm check` 里）检查文档与注释里提到的大写 `.md` 与 Markdown 的相对链接都找得到。
+- 搬文档时同步改引用（2026-10-28 已做）：代码注释里写文件名即可，`pnpm check:refs`（在 `node scripts/dev/check.mjs` 里）检查文档与注释里提到的大写 `.md` 与 Markdown 的相对链接都找得到。
 - **ORM 的文档示例在构建时真跑一遍**：用 SQLite 执行，页面上显示生成的 SQL 与结果，示例和实现不会对不上（建议，未做）。
 
 ## 4. 阶段 A：迁入 easy-query TS（小）

@@ -5,16 +5,16 @@ iOS / Android 应用里。页面在 `src/pages`，入口：H5 与原生应用是
 
 ## 命令
 
-| 命令                | 做什么                                                                     |
-| ------------------- | -------------------------------------------------------------------------- |
-| `pnpm dev`          | H5 开发服务器                                                              |
-| `pnpm build`        | 出微信、支付宝两端工程（`dist/wx`、`dist/my`），配置在 `mini.config.ts`    |
-| `pnpm dev:mini`     | 微信端的监听模式                                                           |
-| `pnpm build:h5`     | H5 构建到 `dist/h5`（原生应用的外壳从这里取）                              |
-| `pnpm cap:sync`     | H5 构建后同步进 `android/`、`ios/`；之后用 Android Studio / Xcode 打开运行 |
-| `pnpm cap:assets`   | 从 `assets/logo.svg` 生成两端的图标与启动图（含暗色），结果提交进仓库      |
-| `pnpm test:browser` | 真实浏览器里的测试（Chromium、WebKit，手机视口、触摸屏）                   |
-| `pnpm screenshots`  | 各页截图：`node screenshots.ts [h5\|wx] [--dark] [--out 目录]`             |
+| 命令                             | 做什么                                                                     |
+| -------------------------------- | -------------------------------------------------------------------------- |
+| `pnpm dev`                       | H5 开发服务器                                                              |
+| `pnpm build`                     | 出微信、支付宝两端工程（`dist/wx`、`dist/my`），配置在 `mini.config.ts`    |
+| `pnpm dev:mini`                  | 微信端的监听模式                                                           |
+| `pnpm build:h5`                  | H5 构建到 `dist/h5`（原生应用的外壳从这里取）                              |
+| `pnpm cap:sync`                  | H5 构建后同步进 `android/`、`ios/`；之后用 Android Studio / Xcode 打开运行 |
+| `pnpm cap:assets`                | 从 `assets/logo.svg` 生成两端的图标与启动图（含暗色），结果提交进仓库      |
+| `pnpm -C apps/docs test:browser` | 真实浏览器里的测试（Chromium、WebKit，手机视口、触摸屏）                   |
+| `pnpm screenshots`               | 各页截图：`node screenshots.ts [h5\|wx] [--dark] [--out 目录]`             |
 
 组件库按 dist 引用：改了 `packages/mobile` 先 `pnpm --filter @zerodep-dev/vue-tsx-pro-mobile build`。
 

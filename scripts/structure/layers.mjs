@@ -7,7 +7,7 @@
  *   4. 模块之间没有环
  *
  * 扩展有哪些以 package.json 的 exports 为准；入口文件（index.ts）只是转出，不检查。
- * 用法：node scripts/structure/layers.mjs（pnpm layers:check，在 pnpm check 里）
+ * 用法：node scripts/structure/layers.mjs（pnpm -C packages/ui check:layers，在 node scripts/dev/check.mjs 里）
  */
 import { existsSync, readdirSync, statSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';

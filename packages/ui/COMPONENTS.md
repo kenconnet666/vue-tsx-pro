@@ -24,7 +24,7 @@
 | 禁用         | `disabled` 同时作用于交互与样式；只读用 `readonly`；加载中用 `loading`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | 尺寸与外观   | `size`（见 §3）、`variant`（外观变体）、`sx`（外部样式覆盖）三个通用 prop；列表类的行高叫 `density`（DataTable：compact / standard / comfortable），不占用 `size`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 | variant 词表 | 同名就同义，新组件从这里挑：`solid` 实底（品牌色或色调色）；`soft` 浅色底、没有描边；`surface` 有底色加描边（按钮、标记用浅色调底，卡片、表格、输入框用表面色）；`outline` 只有描边、底透明；`ghost` 没有底色与描边（按钮悬停时才有底）；`elevated` 表面色加阴影（Card）；`line` 只有一条指示线（Tabs）；`link` 像链接（Button）。现有取值：Button solid / soft / surface / outline / ghost / link，Badge、Tag solid / soft / surface / outline，Alert soft / surface / outline，Banner、Avatar soft / solid，Card surface / outline / elevated / ghost，DataTable surface / ghost，输入框 surface / soft，Tabs line / soft。`variant` 只表示这里的外观：形状叫 `shape`（Skeleton），画法叫 `type`（Sparkline、ComboChart 与 TimelineChart 的系列、WaveGrid） |
-| 注释         | 所有导出的 prop、选项、函数参数都写注释；枚举类取值写成带注释接口的 `keyof`（如 `align?: keyof FlexAligns`，接口每个键一条注释），补全列表与悬停取值时能看到每个取值的效果；共用档位见 `utils/style/styles`（SizeScale、SpaceScale）与 `utils/style/typography`（TextSizes、TextTones 等）。导出的组件、函数、类型本身也写 JSDoc（文件开头的说明不会挂到导出上）；`pnpm docs:check`（CI 的静态检查）逐个检查                                                                                                                                                                                                                                                                                                                                                  |
+| 注释         | 所有导出的 prop、选项、函数参数都写注释；枚举类取值写成带注释接口的 `keyof`（如 `align?: keyof FlexAligns`，接口每个键一条注释），补全列表与悬停取值时能看到每个取值的效果；共用档位见 `utils/style/styles`（SizeScale、SpaceScale）与 `utils/style/typography`（TextSizes、TextTones 等）。导出的组件、函数、类型本身也写 JSDoc（文件开头的说明不会挂到导出上）；`pnpm -C packages/ui check:doc-comments`（CI 的静态检查）逐个检查                                                                                                                                                                                                                                                                                                                           |
 
 ## 2. 部件与透传
 
@@ -89,7 +89,7 @@
 
 使用方定制要用的都对外导出：组件、配方与部件类型、共用的样式件（`utils/style`）与样式函数、上下文与状态类型、工厂、组合式函数。组件内部的样式表不导出：外观的定制走 `createUi` / `Provider` 的 `components.Xxx`（配方的 `styles`、`variants`）与部件的 `propsXxx.sx`，不靠拼组件的样式表。模块内部状态（计数器、缓存、注册表）与一两行的私有帮助函数同样不导出。
 
-入口 `packages/ui/src/index.ts` 由 `pnpm exports` 生成，模块里写了 `export` 的就进入口；只在模块之间（或测试里）要用、不给使用方的，在文档注释里写 `@internal`，照样 `export` 但不进入口。名字要全局唯一（规则见 §4），重名时生成脚本报错。
+入口 `packages/ui/src/index.ts` 由 `pnpm -C packages/ui exports` 生成，模块里写了 `export` 的就进入口；只在模块之间（或测试里）要用、不给使用方的，在文档注释里写 `@internal`，照样 `export` 但不进入口。名字要全局唯一（规则见 §4），重名时生成脚本报错。
 
 ### 2.6 渲染性能
 
@@ -209,7 +209,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 | `easings`        | `standard`、`enter`、`exit`                                                                                                                                                                              |
 
 - 分档规则：一般 `xs`–`xl` 五档，需要时加 `none`（去掉）与 `full`（全圆）；样式里写 `padding: '_md'`、`borderRadius: '_full'`（§4），计算时写 `` `calc(${t.space.md} * 2)` ``；运行时的值也可以从 `t` 取（`t.space.md`）。
-- 字符串写法的类型由 `pnpm css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
+- 字符串写法的类型由 `pnpm -C packages/tsx css-docs` 根据 tokens 生成（`token-names.ts`，CI 检查是否过期），改了 tokens 要重新生成。
 - 不设 z-index：弹出层、对话框用原生 popover / dialog，在顶层（top layer）渲染；只在局部叠放时写层级：AppShell 的顶栏（10）与抽屉（9）、整页滚动条（20）、SkipLink（100）、Toast 的叠放、LoadingOverlay、Indicator 的角标、ActionBar、按钮组里悬停与聚焦的按钮。断点是普通常量 `breakpoints`（`tokens.ts`，`sm` / `md` / `lg` / `xl` 与 `sizes` 的容器宽度一致：40/48/64/80rem）：媒体查询不能用 CSS 变量，样式里写 `[breakpoints.lg]: …`，运行时去掉 `@media ` 前缀交给 `useMediaQuery`。同一个属性写几个断点时，除最后一档外用不重叠的 `smOnly` / `mdOnly` / `lgOnly`：样式引擎不按宽度给媒体查询排序，重叠时可能窄的那档盖住宽的。组件仍优先用容器查询；断点只给整页骨架（AppShell）、命令面板的触发器与页面级布局，不再各写各的数值。
 - 主题文件：`theme.ts`（类型、`defineTheme`）、`light.ts`（默认，即 tokens 的默认值）、`dark.ts`（覆盖颜色与阴影）、`paper.ts`（纸张：米黄纸色、深棕墨色文字、墨蓝品牌色，覆盖颜色、阴影与字体，标题用衬线）。
 - 实现：tokens 每组一个 `defineVars('vtp-组名', 取值)`，在 `:root` 上声明 `--vtp-组名-token`；`config/theme/tokens.ts` 用 `defineTokens` 登记各组（样式里的 `'_md'` 靠它查到变量），`utils/props.ts` 导入它，组件渲染前一定登记过，package.json 的 `sideEffects` 也只把它列为有副作用。内置主题（`lightTheme`、`darkTheme`、`paperTheme`）用 `createTheme` 生成只改变量的类，第一次用到时插入。
@@ -218,7 +218,7 @@ app.use(createUi({ theme: lightTheme, lang: zhCN }));
 - 让用户选主题并记住：`createThemePreference({ themes })` 记录“跟随系统”或某一套（localStorage，多个标签页同步），`app.use(createUi({ theme: () => preference.theme, paintDocument: true }))` 让页面根元素也用主题的底色；`preference.set('paper', { origin })` 从点击处圆形展开（`revealTransition`，View Transitions API，不支持或减少动态效果时直接切换）。防闪烁：把 `themeBootScript({ themes: 各主题的底色、文字色、配色方案 })` 生成的脚本内联进 HTML 的 `<head>`。切换界面用 `<ThemeSwitcher preference={preference} />`（图标按钮 + 单选菜单，从按钮处圆形展开）。定制品牌色、中性色、圆角、缩放、字体、动效用 `customizeTheme(preference.theme, settings)`（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`，要用颜色库，用到时再导入），界面是 `ThemeCustomizer`（§10.19）。`paintDocument` 时页面根元素也用主题的字体与行高（字号不设，留给 rem 的基准）。
 - 作用范围：Provider 渲染一个不产生盒子的容器（`display: contents`），主题变量挂在它上面，只影响内部；应用级配置挂在页面根元素上。变量名带 `vtp-` 前缀，不会和宿主冲突。
 - 色板：Radix Colors（slate 中性色、indigo 品牌色，红/绿/琥珀表示危险/成功/警告），按 Radix 12 级的用途约定映射到语义 token（1–3 背景与表面，4 悬停，7–8 边框，9–10 实色，11–12 文字）。色值写死在 tokens 里（主题检查脚本按字面量读取），`packages/ui/src/config/.test/palette.test.ts` 对照 `@radix-ui/colors`（开发依赖）校验。偏离色阶的都是为了对比度：焦点环用 9 级（7–8 级在亮色下不到 3:1）；实色的悬停态比实色更深（白字才到 4.5:1）；个别文字比 11 级深一点，测试里单独列出。纸张主题的中性色是自定的暖色 12 级。
-- 对比度：`pnpm themes:check`（`scripts/themes/check.mjs`，CI 静态检查）按 token 的用途把全部内置主题里的文字与背景、实色上的文字、悬停态、提示条、代码高亮、焦点环逐对检查 WCAG AA；演示页的 axe 检查跑亮色与暗色。改颜色前后都跑一遍。
+- 对比度：`pnpm -C packages/ui check:themes`（`scripts/themes/check.mjs`，CI 静态检查）按 token 的用途把全部内置主题里的文字与背景、实色上的文字、悬停态、提示条、代码高亮、焦点环逐对检查 WCAG AA；演示页的 axe 检查跑亮色与暗色。改颜色前后都跑一遍。
 - 代码高亮用专门的一组颜色（`codeKeyword`、`codeString`、`codeNumber`、`codeFunction`、`codeType`、`codeComment`、`codeTag`、`codeAttribute`，diff 的 `codeInserted`、`codeDeleted`），Shiki 适配器映射到它们；另有选中文字的 `selection`、高亮标记的 `highlight`、吸顶顶栏用的 `surfaceTranslucent`；字体加了 `serif` 与 `heading`（标题，默认同正文）。
 
 ### 6.3 语言 `lang`：地区、时间、文案平铺在一个对象里
@@ -291,7 +291,7 @@ interface Lang {
 
 ## 7. 现状、依赖与待办
 
-**目录与分层**（`pnpm layers:check` 检查，规则见 ROADMAP.md“分层”）：
+**目录与分层**（`pnpm -C packages/ui check:layers` 检查，规则见 ROADMAP.md“分层”）：
 
 | 层       | 目录                                                                                                                 | 入口                                                           |
 | -------- | -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
@@ -300,7 +300,7 @@ interface Lang {
 | 扩展     | `patterns`、`diagram`、`charts`、`three`、`effects`、`theme-customize`、`docs-kit`                                   | 子路径 `@zerodep-dev/vue-tsx-pro-ui/<目录名>`                  |
 
 组件平铺在 `packages/ui/src/<目录>/<Name>.tsx`。基础设施不在运行时导入组件，核心不导入扩展，扩展只依赖核心与基础设施（扩展之间的依赖要登记），模块之间没有环。
-子路径只在 `packages/ui/package.json` 的 `exports` 里登记：构建入口、`pnpm exports`（同时生成各子路径目录的 index.ts）、文档站的 API 表都从它读，代码演练场漏登记时文档站测试报错。
+子路径只在 `packages/ui/package.json` 的 `exports` 里登记：构建入口、`pnpm -C packages/ui exports`（同时生成各子路径目录的 index.ts）、文档站的 API 表都从它读，代码演练场漏登记时文档站测试报错。
 挪文件用 `pnpm move 旧=新`：改写相对导入、重新生成入口，并把应用里从包入口导入的名字改到它现在所在的入口。
 页面组合、画布这类扩展的文案自带中英文的表（`patternsMessages`、`diagramMessages`），在 `Lang.messages` 里按字段改写；`Lang` 只放核心组件的文案。
 测试集中在各目录下的 `.test/`，一个组件一个测试文件（挂载工具 `utils/.test/mount.ts`）。TypeScript 的 `include` 不匹配以点开头的目录，tsconfig 里单独列了 `src/**/.test/**/*`。
@@ -649,7 +649,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 | 项     | 改动                                                                                                                                                                                                                                 |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | 目录   | utils 按职责分成 `style/`、`dom/`、`data/`、`virtual/`（之后又加了 `motion/`）；Dialog.tsx 拆成 Modal、Dialog、Drawer；DataTableView 的列宽计算挪到 columns.ts，列宽手柄成为 ColumnResizer；`button-styles.ts` 改名 `button-core.ts` |
-| 导出   | 工具全部导出、名字全局唯一（§2.5、§4）；入口由 `pnpm exports` 生成并进 CI；重复的 `DataTable<K>` 类型、`toArray`、`isWindow` 合并                                                                                                    |
+| 导出   | 工具全部导出、名字全局唯一（§2.5、§4）；入口由 `pnpm -C packages/ui exports` 生成并进 CI；重复的 `DataTable<K>` 类型、`toArray`、`isWindow` 合并                                                                                     |
 | 默认值 | `useDefaults(name, read, fallback)` 一次合并，去掉散落的约 30 处 `x ?? defaults.x ?? '…'`                                                                                                                                            |
 | 按钮   | `useButtonBehavior`：Button、IconButton、LinkButton 共用不可用、加载中、拦截点击、波纹与 data 属性                                                                                                                                   |
 | 选择   | `selectionMode` 统一命名、`SelectionProps` 合并三份单选 / 多选 props；Listbox、Select、Combobox 的 `toOption`；列表状态缓存 值 → 位置                                                                                                |
@@ -701,7 +701,7 @@ FlexList、GridList 是 ul：去掉圆点与缩进并补上 `role="list"`。工�
 
 | 项       | 改动                                                                                                                                                                                                                                                                                                                                           |
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 主题     | 第三套内置主题 `paperTheme`（米黄纸色、深棕墨色、墨蓝品牌色、衬线标题）；新 tokens：`selection`、`highlight`、`surfaceTranslucent`、代码高亮 `code*`、`fonts.serif` / `heading`；`pnpm themes:check` 逐对检查三套主题的 WCAG AA 对比度（CI）                                                                                                   |
+| 主题     | 第三套内置主题 `paperTheme`（米黄纸色、深棕墨色、墨蓝品牌色、衬线标题）；新 tokens：`selection`、`highlight`、`surfaceTranslucent`、代码高亮 `code*`、`fonts.serif` / `heading`；`pnpm -C packages/ui check:themes` 逐对检查三套主题的 WCAG AA 对比度（CI）                                                                                    |
 | 主题切换 | `createThemePreference`（跟随系统或某一套，localStorage 记住、多标签页同步，`names` 列出可选主题）、`themeBootScript`（防闪烁）、`revealTransition`（从一点圆形展开，View Transitions API）、`paintDocument`（页面根元素用主题的底色、文字色、字体与行高）；`ThemeSwitcher` 是现成的切换界面                                                   |
 | 基础组件 | `ButtonBase`（无外观的按钮）：菜单项、标签页、折叠标题、步骤、排序按钮、拖动把手、导航分组都建在它上面；过渡写法抽成 `interactionTransitions` / `disclosureStyles` / `presenceStyles`；8 处手写的 ul / ol 改用 `FlexList` / `FlexOrderedList` / `GridList`                                                                                     |
 | 改名     | 虚拟滚动表格 `Table` / `TreeTable` → `DataTable` / `TreeDataTable`，`Table` 留给静态表格；列表状态的类型 `ListItem` → `ListStateEntry`（`ListItem` 是列表项组件）                                                                                                                                                                              |
@@ -732,7 +732,7 @@ apps/docs/src/components/base/Button/
 
 | 机制   | 做法                                                                                                                                                                                                                                                                                  |
 | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 开发   | `pnpm dev:docs`（端口固定 5174）；Vite 按 `@vue-tsx-pro/source` 条件解析各包源码，改组件、示例、文档页都热更新；配置文件经 `pnpm-workspace.yaml` 的 `nodeOptions` 与 `--configLoader native` 也走源码，不用先构建                                                                     |
+| 开发   | `pnpm -C apps/docs dev`（端口固定 5174）；Vite 按 `@vue-tsx-pro/source` 条件解析各包源码，改组件、示例、文档页都热更新；配置文件经 `pnpm-workspace.yaml` 的 `nodeOptions` 与 `--configLoader native` 也走源码，不用先构建                                                             |
 | 示例   | `import Basic from './demo/Basic.tsx?demo'` 一次拿到 `{ component, source }`（`build/demo.ts`）；`Example` 渲染标题、说明与 CodePreview，`Examples` 在宽屏时分两列                                                                                                                    |
 | 路由   | `virtual:doc-pages`（`build/pages.ts`）收集所有 `docs.tsx`，构建时静态读出 meta：侧栏、命令面板、翻页都来自它，页面本身按需加载                                                                                                                                                       |
 | API 表 | `virtual:api/ButtonProps`（`build/api.ts`）用 TypeScript 检查器读组件库的类型与 JSDoc：说明、类型、必填、默认值（`@default` 优先，其次组件参数解构的默认值）、`_bindable`、档位类型展开成带注释的可选值；`ApiReference` 按属性、事件、内容、部件属性分表，渲染用组件库的 `PropsTable` |
@@ -761,8 +761,8 @@ apps/docs/src/components/base/Button/
 | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 颜色工具   | `utils/data/color.ts`（culori，按函数引入）：解析、#hex、半透明叠加、WCAG 对比度、实色上的文字色（白字够 4.5:1 用白字，否则对比度更高的那个）、`withAlpha`                                                                                    |
 | 色阶规则   | `theme-customize/palette.ts`：每个颜色 token 取 Radix 色阶的哪一级（从测试里提升成库代码），`paletteColors` 按选中的品牌色、中性色整组生成；内置主题由 palette.test 核对                                                                      |
-| 对比度规则 | `theme-customize/contrast.ts`：要检查的颜色组合与 `checkContrast`，`pnpm themes:check` 与编辑器共用                                                                                                                                           |
-| token 清单 | `theme-customize/token-catalog.ts`（`pnpm css-docs` 从 tokens.ts 生成）：每个 token 的默认值与说明                                                                                                                                            |
+| 对比度规则 | `theme-customize/contrast.ts`：要检查的颜色组合与 `checkContrast`，`pnpm -C packages/ui check:themes` 与编辑器共用                                                                                                                            |
+| token 清单 | `theme-customize/token-catalog.ts`（`pnpm -C packages/tsx css-docs` 从 tokens.ts 生成）：每个 token 的默认值与说明                                                                                                                            |
 | 定制逻辑   | `theme-customize/customize.ts`：`ThemeSettings`（品牌色、中性色、圆角、缩放、字体、动效）→ `themeSettingsOverrides` → `customizeTheme(base, settings)`；`themeSettingsCode` 生成可以粘贴的 `defineTheme(…)`                                   |
 | 入口       | 色阶、对比度、token 清单、定制逻辑与编辑界面 `ThemeCustomizer`、`ThemeThumbnail` 一起在子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`（目录 `theme-customize/`）：它们要用 culori 与 Radix 色板，主入口不带，应用只在真要套用设置时导入 |
 | 界面       | `ThemeCustomizer`：色块单选与分段选项（ToggleGroup）、实时对比度提示（读页面上实际生效的颜色）、导出代码、恢复默认；新输入组件 `ColorField`（色块 + 文字输入，接入 Field）                                                                    |
@@ -819,16 +819,16 @@ apps/docs/src/components/base/Button/
 
 子路径 `@zerodep-dev/vue-tsx-pro-ui/three` 封装 three（可选 peer），主入口不导入。不依赖 three 的卡片效果是 Card 的 `effect`（tilt、spotlight、beam），跑马灯 Marquee 在主入口（展示）。
 
-| 项       | 做法                                                                                                                                                                                                            |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 生命周期 | `three/core/renderer.ts` 的 `useThree`：第一次进入视口才建渲染器；共用一个动画帧循环；滚出视口、标签页隐藏、`paused` 时停；卸载、被回收时释放几何体、材质、纹理与渲染器并 `forceContextLoss`                    |
-| 静止     | 系统要求减少动态效果，或主题时长为 0（主题编辑器关掉动效）时只画一帧，尺寸、主题变化时重画                                                                                                                      |
-| 上下文   | 同时最多 8 个（`setMaxThreeContexts`）：满了回收最久没在视口里的，它回来时换一块新 canvas 重建（`generation` 作 key）；都在视口里时排队；上下文丢失三次后降级                                                   |
-| 主题色   | `context.themeColors` / `useThemeColors`：探针元素让浏览器解析 token（color-mix、light-dark 都行），culori 转成 `THREE.Color`；换主题时按 lg 时长原地过渡，材质直接引用同一个对象                               |
-| 画质     | `quality`：auto / low / medium / high → 像素比上限、密度系数、抗锯齿；auto 看触屏、核数、内存、省流量                                                                                                           |
-| 降级     | 没有 WebGL 时显示主题色的柔和渐变（可换）；默认 `aria-hidden`，有 `aria-label` 时 `role="img"`；状态写在 `data-state`                                                                                           |
-| 公共片段 | `shaderChunks`：simplex 噪声、fbm、主题色板 `themePalette`；`usePointer`：指针相对元素的位置，useSpring 阻尼                                                                                                    |
-| 组件     | 画布 `ThreeCanvas`、`EffectSurface`；背景 `AuroraBackground`、`MeshGradient`、`ShaderBackground`；效果 `ParticleField`、`WaveGrid`、`Confetti`；`Globe`（陆地位图由 `pnpm gen:globe-land` 生成）；`ModelViewer` |
+| 项       | 做法                                                                                                                                                                                                                           |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 生命周期 | `three/core/renderer.ts` 的 `useThree`：第一次进入视口才建渲染器；共用一个动画帧循环；滚出视口、标签页隐藏、`paused` 时停；卸载、被回收时释放几何体、材质、纹理与渲染器并 `forceContextLoss`                                   |
+| 静止     | 系统要求减少动态效果，或主题时长为 0（主题编辑器关掉动效）时只画一帧，尺寸、主题变化时重画                                                                                                                                     |
+| 上下文   | 同时最多 8 个（`setMaxThreeContexts`）：满了回收最久没在视口里的，它回来时换一块新 canvas 重建（`generation` 作 key）；都在视口里时排队；上下文丢失三次后降级                                                                  |
+| 主题色   | `context.themeColors` / `useThemeColors`：探针元素让浏览器解析 token（color-mix、light-dark 都行），culori 转成 `THREE.Color`；换主题时按 lg 时长原地过渡，材质直接引用同一个对象                                              |
+| 画质     | `quality`：auto / low / medium / high → 像素比上限、密度系数、抗锯齿；auto 看触屏、核数、内存、省流量                                                                                                                          |
+| 降级     | 没有 WebGL 时显示主题色的柔和渐变（可换）；默认 `aria-hidden`，有 `aria-label` 时 `role="img"`；状态写在 `data-state`                                                                                                          |
+| 公共片段 | `shaderChunks`：simplex 噪声、fbm、主题色板 `themePalette`；`usePointer`：指针相对元素的位置，useSpring 阻尼                                                                                                                   |
+| 组件     | 画布 `ThreeCanvas`、`EffectSurface`；背景 `AuroraBackground`、`MeshGradient`、`ShaderBackground`；效果 `ParticleField`、`WaveGrid`、`Confetti`；`Globe`（陆地位图由 `pnpm -C packages/ui gen:globe-land` 生成）；`ModelViewer` |
 
 ### 10.23 流程（已删除）
 

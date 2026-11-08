@@ -87,7 +87,13 @@
     "build": "tsdown",
     "prepack": "pnpm run build",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
-    "test": "vitest run --configLoader native"
+    "test": "vitest run --configLoader native",
+    "lint": "oxlint . --deny-warnings -c ../../.oxlintrc.json",
+    "format": "prettier --write . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "css-docs": "node ../../scripts/css-docs/generate.mjs",
+    "check:css-docs": "node ../../scripts/css-docs/generate.mjs --check",
+    "check:doc-comments": "node ../../scripts/doc-comments/check.mjs --package tsx"
   },
   "dependencies": {
     "@babel/core": "catalog:",

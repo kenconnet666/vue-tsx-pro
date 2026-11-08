@@ -8,7 +8,7 @@
  *   - 移动端组件库（mobile）只依赖 vue 与 tsx：不导入桌面组件库、小程序运行时、框架与服务端的包
  *   - 前端存储（storage）零依赖、不绑框架：组件库按形状对接它，它也不导入组件库
  *
- * 用法：node scripts/structure/package-deps.mjs（pnpm layers:check 里一起跑）
+ * 用法：node scripts/structure/package-deps.mjs（pnpm check:deps）
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';

@@ -1,5 +1,5 @@
 // 样式更新基准：打开文档站的 /bench/style-updates，逐个场景改状态，统计样式层动了什么。
-// 先开着文档站（pnpm dev:docs，端口 5174）。
+// 先开着文档站（pnpm -C apps/docs dev，端口 5174）。
 //
 //   node scripts/docs/style-updates.mjs                 四种写法（sx、attr、emotion、vars）都跑
 //   node scripts/docs/style-updates.mjs sx --json=out.json

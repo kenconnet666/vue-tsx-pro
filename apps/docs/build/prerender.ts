@@ -4,6 +4,9 @@
  * 原来的入口页存成 dist/spa.html：没有预渲染的地址（整页示例 /frame/...、找不到的页面）回到它，由浏览器渲染，
  * 不会拿首页的 HTML 去水合别的页面。
  *
+ * 顺带做每页的服务端体检（原来的 ssr、pages 两个单元测试）：渲染时 Vue 报了警告或错误、h1 不是页面标题、
+ * 锚点 id 重复，都列出来并以 1 退出（CI 的 build、hydration 任务都跑它）。
+ *
  * 用法：node build/prerender.ts（pnpm build 的最后一步）
  */
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -65,9 +68,31 @@ function page({ body, teleports, title, attrs, styles, themeBootScript }: Render
   );
 }
 
+/** 渲染时的警告与错误：记下来，每页渲染完核对 */
+const messages: string[] = [];
+for (const level of ['warn', 'error'] as const) {
+  console[level] = (...args: unknown[]) =>
+    messages.push(args.map(String).join(' ').split('\n')[0]!);
+}
+const text = (html: string) =>
+  html
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g, '&')
+    .trim();
+const problems: string[] = [];
+
 let count = 0;
 for (const path of entry.prerenderPaths()) {
+  messages.length = 0;
   const rendered = await entry.render(path);
+  if (messages.length) problems.push(`${path}：${messages[0]}`);
+  const heading = /<h1[^>]*>([\s\S]*?)<\/h1>/.exec(rendered.body)?.[1];
+  if (path !== '/' && rendered.title && text(heading ?? '') !== rendered.title)
+    problems.push(`${path}：h1 是“${text(heading ?? '')}”，页面标题是“${rendered.title}”`);
+  const ids = [...rendered.body.matchAll(/\sid="([^"]+)"/g)].map((match) => match[1]!);
+  const repeated = ids.filter((id, i) => ids.indexOf(id) !== i);
+  if (repeated.length)
+    problems.push(`${path}：锚点 id 重复（${[...new Set(repeated)].join('、')}）`);
   // 写成 <地址>.html 而不是 <地址>/index.html：后者要带斜杠访问，浏览器里的路由地址就和服务端渲染时差一个斜杠
   const file = path === '/' ? join(dist, 'index.html') : join(dist, `${path}.html`);
   mkdirSync(dirname(file), { recursive: true });
@@ -75,6 +100,10 @@ for (const path of entry.prerenderPaths()) {
   count++;
 }
 rmSync(serverBuild, { recursive: true, force: true });
+if (problems.length) {
+  process.stdout.write(`预渲染时有 ${problems.length} 处问题：\n${problems.join('\n')}\n`);
+  process.exit(1);
+}
 console.log(`预渲染了 ${count} 页`);
 // 服务端包里的模块会留下定时器、监听（加载条、主题偏好等浏览器里常驻的东西），进程不会自己退出
 process.exit(0);

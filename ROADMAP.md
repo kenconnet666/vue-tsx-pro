@@ -64,7 +64,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
   遇到问题直接改。
 - **架构意识**：同一个问题在多处出现时修根因；改公共 API 时调用方、类型、测试、文档、COMPONENTS.md 一起改，不留半截。
 - **文档站同步**：动到哪个组件就在用户的 Chrome（Claude in Chrome，宽屏优先）里看它的文档页：示例饱满、贴近真实场景，
-  外观、交互与 API 的灵活性不够就一起改；示例里重复出现的写法抽成组件或工具。阶段 9 起每个组件都开着文档站（`pnpm dev:docs`）
+  外观、交互与 API 的灵活性不够就一起改；示例里重复出现的写法抽成组件或工具。阶段 9 起每个组件都开着文档站（`pnpm -C apps/docs dev`）
   边做边看：动手前先截图现状、列出要改的外观与 API，做的过程中随时看效果，做完在文档页上逐项核对。
 - **验证**：本地只跑与改动相关的检查与测试，放后台；全量测试、浏览器测试交给 CI。检查链用 `&&` 串起来，不用管道吞掉退出码。
   推送前看一眼上一次 CI。
@@ -92,7 +92,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 ```
 
 核心不强行再分层，同 Ant Design、Mantine、Element Plus 的核心包（平铺），页面级与领域组件放扩展（同 ProComponents、
-`@mantine/notifications` 这类扩展包）。`pnpm layers:check` 检查四条规则：
+`@mantine/notifications` 这类扩展包）。`pnpm -C packages/ui check:layers` 检查四条规则：
 
 1. 基础设施在运行时不导入组件（只导入类型可以：组件默认值、语言包的文案类型）
 2. 核心不导入任何扩展
@@ -101,10 +101,10 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ## 阶段 0：整理（只动结构与登记，不加功能）
 
-- [x] 子路径只在 package.json 的 `exports` 里登记：Vite 的构建入口、`pnpm exports`、文档站的 API 表与两个演练场都从它读
-      （演练场漏登记时 page-imports 测试报错）；`pnpm exports` 同时生成各子路径的 index.ts（保留开头的说明），名字在所有入口里全局唯一；
+- [x] 子路径只在 package.json 的 `exports` 里登记：Vite 的构建入口、`pnpm -C packages/ui exports`、文档站的 API 表与两个演练场都从它读
+      （演练场漏登记时 page-imports 测试报错）；`pnpm -C packages/ui exports` 同时生成各子路径的 index.ts（保留开头的说明），名字在所有入口里全局唯一；
       `pnpm move` 挪完自动改应用里的入口导入（entry-imports.mjs）；文档页顶部的导入文字由 page-imports 测试检查
-- [x] `pnpm layers:check`（进 `pnpm check` 与 CI）
+- [x] `pnpm -C packages/ui check:layers`（进 `node scripts/dev/check.mjs` 与 CI）
 - [x] `@zerodep-dev/vue-tsx-pro-ui/patterns`（页面组合）：AppShell（Brand 并入为 AppShellBrand）、ActionBar、FilterBar、NotificationCenter、
       KanbanBoard、DeadlineBadge（原 DeadlineTag）、ThemeSwitcher、useFormDialog；文案进 patternsMessages；文档站加“页面组合”分类。
       PageHeader 删除（占一整块却没几项信息，页面里直接用 Breadcrumbs、标题与操作排）
@@ -204,7 +204,7 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 
 ### 8.1 §8 的缺口：测试
 
-- [x] §8 的达标矩阵进 COMPONENTS.md（每个组件：运行时测试、浏览器测试、类型测试、键盘一节），用脚本生成并进 `pnpm check`，
+- [x] §8 的达标矩阵进 COMPONENTS.md（每个组件：运行时测试、浏览器测试、类型测试、键盘一节），用脚本生成并进 `node scripts/dev/check.mjs`，
       新组件缺项时报出来（2026-11-08，阶段 25 的 P9：scripts/structure/matrix.mjs，整张表在 .claude/reports/matrix.md）
 - [x] 键盘的浏览器测试（三种浏览器）：Accordion、CalendarBoard、Cascader、ColorField、FieldCompare、KanbanBoard、
       Mentions、NumberField 与 NumberRangeField、TreeSelect、ResizeHandle、Splitter、CommentThread、NotificationCenter、
@@ -227,14 +227,14 @@ API 审计按“流程界面用到的先审”拆进阶段 9。
 - [x] 搜索：命令面板搜得到组件的属性名、示例标题（从 API 表与示例生成索引，结果直达对应小节）（阶段 25 的 P2）
 - [x] 示例卡片的工具：切换视口宽度（手机、平板、桌面）、从右到左、紧凑密度，不用离开文档页
       （2026-11-08：宽度手机 375 / 平板 768 / 不限，从右到左，反色主题，缩放紧凑 90% / 宽松 110%——紧凑密度就是主题编辑器的缩放）
-- [x] 发布前的逐页巡检（2026-10-26）：`pnpm docs:review` 记控制台错误、桌面与手机宽度的溢出并截下每个示例，
-      `pnpm docs:sheets` 拼成联系表逐页看；修了 ColumnTable 部件样式没合成一个类（透视表热力着色被盖住）、Stat 窄卡片挤字、
+- [x] 发布前的逐页巡检（2026-10-26）：`pnpm -C apps/docs review` 记控制台错误、桌面与手机宽度的溢出并截下每个示例，
+      `pnpm -C apps/docs sheets` 拼成联系表逐页看；修了 ColumnTable 部件样式没合成一个类（透视表热力着色被盖住）、Stat 窄卡片挤字、
       Textarea 不随外壳拉伸、目标线文字压在柱子上看不清、ThemeCustomizer 色板竖成一列，示例用词换成通用场景
 
 ### 8.3 视觉回归进 CI
 
 - [x] ~~在固定的 Linux 容器里（Playwright 官方镜像，字体、渲染一致）截每个示例的亮、暗主题，与仓库里的基线比对；
-      只在 ubuntu 任务跑，差异图作为 CI 产物上传。基线更新用一条命令重拍（`pnpm docs:shot --update`），随改动一起提交~~
+      只在 ubuntu 任务跑，差异图作为 CI 产物上传。基线更新用一条命令重拍（`pnpm -C apps/docs shot --update`），随改动一起提交~~
       （阶段 25 的 P0：CI 的 `visual` 任务截全部示例，与上一次 master 全绿运行的截图比对、上传差异图——基线不进仓库，不用手动重拍）
 - [x] 先覆盖基础、输入、浮层、表格（最常被顺手改到的），稳定后扩到全部示例；动画、随机、时间相关的示例固定种子与时钟
       （已是全部示例；shot.mjs 固定随机种子与时钟，基础、输入、浮层、表格另截从右到左、高对比、手机三种变体）
@@ -369,7 +369,7 @@ SSR 的支持分两层放，组件库这一层不依赖 Nitro 与框架，用 Nu
 | 文档站预渲染                                                              | `apps/docs` 的构建，直接用组件库这一层的接口                                                | 12.6       |
 
 - [x] 12.1 SSR 体检进 CI：文档站的示例逐个在 node 环境 `renderToString`，再在浏览器里水合，统计报错与不一致；输出清单（12.4 按它修）
-      （实现：`apps/docs/src/test/ssr.test.ts` 逐个示例 `renderToString`；`scripts/docs/hydration.mjs` 逐页水合，CI 的 hydration 任务）
+      （实现：预渲染 `apps/docs/build/prerender.ts` 逐页服务端渲染，有警告、报错、h1 与标题不符、锚点重复就失败；`scripts/docs/hydration.mjs` 逐页水合，CI 的 hydration 任务）
 - [x] 12.2 样式按请求收集：请求级的登记表，输出 `<style data-vue-tsx-pro>`，客户端接管这张表、不重复插入（STYLE-ENGINE.md 第 7 条的设计）（实现：`renderStyleTag(整页 HTML)` 按用到的类名输出；类名按内容哈希，不必按请求隔离）
 - [x] 12.3 首屏主题与语言：`createUi` 在服务端把主题 class、变量、`lang` / `dir` 写进 HTML 属性；明暗偏好服务端读 cookie；`themeBootScript` 继续挡闪烁（实现：`createUi(...).documentAttrs()`；明暗偏好服务端按亮色给，`themeBootScript` 加载前改成用户的选择，读 cookie 留给 kit）
 - [x] 12.4 按 12.1 的清单修水合不一致：Teleport 的内容一起输出；与"现在"有关的输出从配置取同一个时刻；只能在浏览器里画的（图表、3D、测量布局）给 `ClientOnly` 一类的包装
@@ -628,7 +628,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 - [x] 17.1.4 宿主约定 `useHost()`：异步测量（rect）、滚动到位置、聚焦、系统信息（窗口、状态栏、安全区）、页面滚动锁、浮层根、震动、剪贴板、选图；
       Web 版在 mobile 里，小程序版在 mini 里（17.2.4），经 `Symbol.for('vue-tsx-pro.host')` provide 对接，互不导入
 - [x] 17.1.5 mobile 包的组件规范文档（对标 COMPONENTS.md）：上面的写法约束、命名与 API 约定、完成标准；
-      检查元素与样式条件的白名单（`packages/mobile/MOBILE.md`；`scripts/structure/mobile-rules.mjs` 进 `pnpm layers:check`）
+      检查元素与样式条件的白名单（`packages/mobile/MOBILE.md`；`scripts/structure/mobile-rules.mjs` 是 `pnpm -C packages/mobile check:rules`）
 - [x] 17.1.6 测试底座：单测（happy-dom）；小程序渲染测试（mini 导出页面测试工具：挂组件、按路径应用 setData、断言数据树与行内样式）；
       H5 浏览器测试（Vitest 浏览器模式，手机视口、触摸事件）；三端截图脚本（H5 用 Playwright，微信用开发者工具的截图，支付宝用 minidev 加截图）（单测与小程序渲染测试：`@zerodep-dev/vue-tsx-pro-mini/testing`；浏览器测试在 mobile-demo 的 `test/*.browser.test.tsx`，Chromium 与 WebKit 带触摸屏；截图脚本 mobile-demo 的 `screenshots.ts`，支付宝没有命令行截图，手动截）
 
@@ -673,7 +673,7 @@ apps/mobile-demo  三端演示与验证（由 mini-demo 改名）
 
 ### 17.6 工程与发布
 
-- [x] 17.6.1 CI：mobile、mini 的测试与浏览器测试，两端构建，`minidev build` 编译支付宝产物，`wcsc` 检查 WXSS（CI 里没有开发者工具，模拟器验证在本地做）（单测在 pnpm test、浏览器测试在 pnpm test:browser、小程序任务两端构建加 minidev；wcsc 只在 Windows / macOS 的开发者工具里有，WXSS 检查在本地做，app 样式表里 WXSS 不认的写法构建时提示）
+- [x] 17.6.1 CI：mobile、mini 的测试与浏览器测试，两端构建，`minidev build` 编译支付宝产物，`wcsc` 检查 WXSS（CI 里没有开发者工具，模拟器验证在本地做）（单测在 pnpm test、浏览器测试在 pnpm -C apps/docs test:browser、小程序任务两端构建加 minidev；wcsc 只在 Windows / macOS 的开发者工具里有，WXSS 检查在本地做，app 样式表里 WXSS 不认的写法构建时提示）
 - [x] 17.6.2 使用方的命令：dev / build / 打开开发者工具，新项目模板（mini 的 `vtp-mini` 命令：build / dev / open / create，配置在 mini.config.ts（defineMiniConfig）；模板在 packages/mini/template，使用方测试就用它建项目、用命令构建）
 - [x] 17.6.3 发布：mobile 与 mini 随 0.x 发布（RELEASE.md 加上这两个包）（四个包版本一起走，mobile、mini 改成 0.4.0-dev、去掉 private，补上 README、LICENSE；发布本身照 RELEASE.md 由维护者在本机做）
 
@@ -890,13 +890,13 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] P2 文档站整改：~~信息架构（合并、挪动、旧地址重定向）~~（2026-11-07：组件页 137 → 119，新组“文档工具”，小图归图表组，
       3D 9 → 5 页，旧地址跳到新页的小节）、示例改用组件库（进行中：Stat、ScrollArea、DateTime、Splitter、Tabs、Card 外框、MapChart、ButtonBase、ThemeSwitcher、Menu 账户菜单与 NotificationCenter 顶栏（新组件 UserButton）、DateTime 倒计时（Countdown 的数字块）、Flex 自动换列（共用的示例图纸）已改）、逐页问题（进行中：QueryTable、FilterBar、Card、Code、Timeline、NavList、Flex、Icon、Tree、Upload、AppShell、Text、链接下划线已改；2026-11-08 把没逐页看过的图表、3D、表格、输入、日期 59 页巡检了一遍——没有报错与溢出，Select、Upload 两列挪齐）、~~文档站功能~~（~~组件选择指南~~、~~整页模板~~、~~示例工具~~、~~搜索~~、~~无障碍一节~~）
 - [x] P2.5 逐个组件精修样式（随 P2 的页面顺序）
-      （2026-11-08 起：加了 `pnpm docs:states`（scripts/docs/states.mjs）——一个示例里的可交互元素各截默认、悬停、键盘焦点、按下，
+      （2026-11-08 起：加了 `pnpm -C apps/docs states`（scripts/docs/states.mjs）——一个示例里的可交互元素各截默认、悬停、键盘焦点、按下，
       排成一张表，亮暗各一张，精修时对照状态是否齐全一致。Button 页过了一遍：暗色主题的实色悬停原来调暗、看不出来，改成调亮；
       Badge / Tag、ButtonBase、Text 的链接：可选中的 Tag 补悬停，移除按钮的悬停取标签色，次要链接悬停换正文色；
       Code 的按钮状态齐全；布局：Splitter 的分隔条与 ResizeHandle 的悬停、聚焦、拖动统一，FloatButton 状态齐全；
       反馈：有底色的容器里的关闭、移除按钮改用状态层（`stateLayerStyles`：Alert、Banner、Toast、Tag），Progress、Empty、Skeleton
       亮暗都看过不用改，对话框的关闭按钮在浮起的面板上，幽灵按钮的灰色悬停合适、保留）
-      （2026-11-08 起成批检查：`pnpm docs:states-audit` 逐页比对可交互元素默认、悬停、焦点三张裁图，一样的报出来；
+      （2026-11-08 起成批检查：`pnpm -C apps/docs states-audit` 逐页比对可交互元素默认、悬停、焦点三张裁图，一样的报出来；
       紧凑密度用主题编辑器的缩放 0.9（示例工具的“缩放”、`docs:shot --variant=compact`、`docs:review --compact`），不另做密度开关。
       全部 130 页亮色审计：焦点环无缺，补了 Switch、soft 外观的输入框、Steps、Checklist、KanbanBoard 把手、Upload 照片墙按钮、
       色块、Image 预览、Carousel 页点、Splitter 收起按钮、Link 的悬停；紧凑密度下 130 页没有溢出与报错。
@@ -914,7 +914,7 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 - [x] P5 阶段 24（含 24.4 直接删旧写法）（2026-11-08：24.1 – 24.6 都做完，见阶段 24）
 - [x] ~~P6 `/testing` 测试辅助、桌面端 `create` 模板~~（2026-11-08：/testing 做了——Select、Cascader、TreeSelect、Tree、日期、DataTable 的 harness，
       文档站的 Testing 指南与 Cascader 的浏览器测试用上；`vtp-ui create` 的桌面后台模板也做了，进了 test:consumer）
-- [x] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计（2026-11-08：达标矩阵做了——scripts/structure/matrix.mjs 进 pnpm check，
+- [x] P9 §8 达标矩阵、键盘 / 输入法 / 类型测试、API 审计（2026-11-08：达标矩阵做了——scripts/structure/matrix.mjs 进 node scripts/dev/check.mjs，
       新组件缺单元测试、文档、键盘一节、浏览器测试、类型测试时报错，已知缺项在 matrix-baseline.json，整张表见
       .claude/reports/matrix.md；按表逐个补。同日补到 107 → 23 个组件有缺项：文档、键盘一节、浏览器测试三列清零，
       31 个泛型组件有了类型测试，二十来个组件补了单元测试；剩下的多是内部拼装件（表格行、列头按钮、滚动条、ListboxView、

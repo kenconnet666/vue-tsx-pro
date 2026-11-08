@@ -132,7 +132,7 @@ export default _component(() => () => (
     </H2>
     <Paragraph>
       小程序按标签选模板、样式在运行时判定条件，所以页面与组件里只用判定得了的写法（组件库自己由{' '}
-      <Code>pnpm layers:check</Code> 检查）：
+      <Code>pnpm -C packages/ui check:layers</Code> 检查）：
     </Paragraph>
     <List>
       <ListItem>

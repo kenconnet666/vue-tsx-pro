@@ -1,7 +1,7 @@
 /**
  * 两个包各放一份的文件（包之间不能互相导入时，比如移动端与桌面组件库共用的省市区数据、文档站与 flow-demo 共用的流程设计组合）：以第一份为准，核对第二份一模一样。
  *
- * 用法：node scripts/structure/copies.mjs（pnpm layers:check 里一起跑）；--write 时把第一份抄过去
+ * 用法：node scripts/structure/copies.mjs（pnpm check:copies）；--write 时把第一份抄过去
  */
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

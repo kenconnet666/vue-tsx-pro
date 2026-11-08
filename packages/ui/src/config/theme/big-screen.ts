@@ -6,7 +6,7 @@ import { colors, radii, shadows } from './tokens';
 /**
  * 大屏主题的颜色：饱和的深蓝底、高亮的青蓝品牌色（配深色字），面板比底色亮一档、边框带蓝，远处也分得清层级。
  * 图表色都够亮、色相拉开，深底上一眼能分辨；文字比午夜主题更白。
- * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
+ * 先按风格取色，再按对比度要求调深浅（pnpm -C packages/ui check:themes 校验）
  */
 export const bigScreenColors = css.createTheme(colors, {
   background: '#061332',

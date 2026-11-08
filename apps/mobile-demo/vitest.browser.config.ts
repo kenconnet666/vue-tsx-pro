@@ -12,6 +12,9 @@ const tap: BrowserCommand<[text: string]> = async (context, text) => {
 
 const phone = playwright({ contextOptions: { hasTouch: true, isMobile: true } });
 
+// 只跑某几个浏览器：VTP_BROWSERS=chromium（CI 的 Windows 只跑 Chromium，Firefox、WebKit 在 Ubuntu 上跑全）
+const only = process.env['VTP_BROWSERS']?.split(',');
+
 export default defineConfig({
   // 组件库按源码读：不用先构建 dist
   plugins: [workspaceSource(), ...vueTsxPro()],
@@ -27,9 +30,9 @@ export default defineConfig({
       commands: { tap },
       connectTimeout: process.env.CI ? 180_000 : 60_000,
       instances: [
-        { browser: 'chromium', provider: phone },
-        { browser: 'webkit', provider: phone },
-      ],
+        { browser: 'chromium' as const, provider: phone },
+        { browser: 'webkit' as const, provider: phone },
+      ].filter((instance) => !only || only.includes(instance.browser)),
     },
   },
 });

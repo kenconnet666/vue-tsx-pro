@@ -2,7 +2,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { Theme } from './theme';
 import { colors, fonts, radii, shadows } from './tokens';
 
-// 取值与 tokens.ts 的默认值相同（pnpm themes:check 核对）。默认值本来不用再写一遍，但 Provider 套在别的主题里时，
+// 取值与 tokens.ts 的默认值相同（pnpm -C packages/ui check:themes 核对）。默认值本来不用再写一遍，但 Provider 套在别的主题里时，
 // 只有显式写出的变量才能盖过外层继承下来的：每套内置主题都写全颜色、阴影、字体、圆角四组，没改的组用这里的默认值。
 /** 亮色主题的颜色（默认值） */
 export const lightColors = css.createTheme(colors, {

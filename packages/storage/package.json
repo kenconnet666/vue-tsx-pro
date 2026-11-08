@@ -40,7 +40,10 @@
     "build": "tsc -b tsconfig.build.json",
     "prepack": "tsc -b tsconfig.build.json",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
-    "test": "vitest run --configLoader native"
+    "test": "vitest run --configLoader native",
+    "lint": "oxlint . --deny-warnings -c ../../.oxlintrc.json",
+    "format": "prettier --write . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore --cache --cache-strategy content"
   },
   "devDependencies": {
     "fake-indexeddb": "catalog:",

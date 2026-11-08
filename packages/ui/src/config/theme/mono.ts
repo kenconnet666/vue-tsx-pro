@@ -5,7 +5,7 @@ import { colors, radii, shadows } from './tokens';
 
 /**
  * 墨白主题的颜色：纯白的页面、墨黑的品牌色，中性色不带色相。只有提示色和图表保留颜色，
- * 其余靠黑白灰和线条分层次。先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
+ * 其余靠黑白灰和线条分层次。先按风格取色，再按对比度要求调深浅（pnpm -C packages/ui check:themes 校验）
  */
 export const monoColors = css.createTheme(colors, {
   background: '#fafafa',

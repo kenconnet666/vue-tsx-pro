@@ -73,7 +73,7 @@ export const builtinSystemThemes = {
 
 /**
  * 内置主题（builtinThemes）的底色、文字色与配色方案，给 themeBootScript 用。
- * 与主题文件里的 background、text 一致（pnpm themes:check 核对）
+ * 与主题文件里的 background、text 一致（pnpm -C packages/ui check:themes 核对）
  */
 export const builtinThemeBootColors = {
   light: { background: '#f9f9fb', text: '#1c2024', colorScheme: 'light' },

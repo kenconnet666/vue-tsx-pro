@@ -1,11 +1,11 @@
 // 文档站巡检：逐页打开组件文档，记下控制台错误、示例在桌面与手机宽度下的横向溢出，并截下每个示例（发布前逐个组件过一遍用）。
-// 先开着文档站的开发服务器（pnpm dev:docs，端口 5174）。结果在 node_modules/.cache/docs-review：report.md 与各示例的截图。
+// 先开着文档站的开发服务器（pnpm -C apps/docs dev，端口 5174）。结果在 node_modules/.cache/docs-review：report.md 与各示例的截图。
 //
-//   pnpm docs:review                         全部组件页，亮色主题截图
-//   pnpm docs:review menu,date-picker        只看某几页（页名或地址前缀，逗号分隔）：其他页的截图与报告条目保留
-//   pnpm docs:review --themes=light,dark --no-shots
-//   pnpm docs:review --columns-only           只量两列示例齐不齐（之后 node scripts/docs/balance-columns.mjs --apply）
-//   pnpm docs:review input,date --compact      紧凑密度（主题设置缩放到 0.9，同 docs:shot 的 --variant=compact）下量溢出、截图
+//   pnpm -C apps/docs review                         全部组件页，亮色主题截图
+//   pnpm -C apps/docs review menu,date-picker        只看某几页（页名或地址前缀，逗号分隔）：其他页的截图与报告条目保留
+//   pnpm -C apps/docs review --themes=light,dark --no-shots
+//   pnpm -C apps/docs review --columns-only           只量两列示例齐不齐（之后 node scripts/docs/balance-columns.mjs --apply）
+//   pnpm -C apps/docs review input,date --compact      紧凑密度（主题设置缩放到 0.9，同 docs:shot 的 --variant=compact）下量溢出、截图
 //
 // 溢出：示例区（[data-demo]）的内容比它宽（scrollWidth > clientWidth），或整页出现横向滚动条；手机宽度是 390px。
 // 两列不齐：1920 宽时并排的两列示例（apps/docs/src/site/Examples.tsx）底边差得多、挪一下能明显变齐时报出挪法

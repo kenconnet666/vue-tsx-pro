@@ -1,13 +1,13 @@
 // 文档页的示例截图：每个示例一张（卡片连同打开的弹层），各主题各一张，PNG 存到 node_modules/.cache/docs-shots。
-// 先开着文档站的开发服务器（pnpm dev:docs，端口 5174）。改完示例后看一眼效果用，不进 CI。
+// 先开着文档站的开发服务器（pnpm -C apps/docs dev，端口 5174）。改完示例后看一眼效果用，不进 CI。
 //
-//   pnpm docs:shot /components/menu                       全部示例，亮、暗两套主题
-//   pnpm docs:shot /components/menu basic,groups --themes=dark
-//   pnpm docs:shot /components/menu page                  整页；keyboard 是键盘小节
-//   pnpm docs:shot /components/select basic --click=basic:城市    截图前点开一个按钮或下拉框（按名称找）
-//   pnpm docs:shot /components/select --variant=rtl        从右到左；forced 是强制颜色（Windows 高对比），mobile 是手机（390 宽、触屏），
+//   pnpm -C apps/docs shot /components/menu                       全部示例，亮、暗两套主题
+//   pnpm -C apps/docs shot /components/menu basic,groups --themes=dark
+//   pnpm -C apps/docs shot /components/menu page                  整页；keyboard 是键盘小节
+//   pnpm -C apps/docs shot /components/select basic --click=basic:城市    截图前点开一个按钮或下拉框（按名称找）
+//   pnpm -C apps/docs shot /components/select --variant=rtl        从右到左；forced 是强制颜色（Windows 高对比），mobile 是手机（390 宽、触屏），
 //                                                          compact 是紧凑密度（主题设置的缩放 0.9）
-//   pnpm docs:shot /components/menu --open                 每个示例再截一张打开后的（点示例里的第一个按钮）
+//   pnpm -C apps/docs shot /components/menu --open                 每个示例再截一张打开后的（点示例里的第一个按钮）
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { requireFrom, root } from '../lib/repo.mjs';
@@ -17,7 +17,7 @@ const { chromium } = requireFrom('apps/host-demo')('playwright');
 const [path, which = 'all'] = process.argv.slice(2).filter((arg) => !arg.startsWith('--'));
 if (!path?.startsWith('/')) {
   console.error(
-    '用法：pnpm docs:shot /components/<页面> [示例 id,…|all|page|keyboard] [--themes=light,dark]',
+    '用法：pnpm -C apps/docs shot /components/<页面> [示例 id,…|all|page|keyboard] [--themes=light,dark]',
   );
   process.exit(1);
 }

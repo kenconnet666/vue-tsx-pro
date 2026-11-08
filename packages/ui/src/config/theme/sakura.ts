@@ -5,7 +5,7 @@ import { colors, radii, shadows } from './tokens';
 
 /**
  * 樱花主题的颜色：淡粉的页面、樱粉的品牌色。中性色按 slate 各级亮度换成粉色相（oklch 355°），品牌色取 Radix pink 色阶，实色加深到白字够对比度。
- * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
+ * 先按风格取色，再按对比度要求调深浅（pnpm -C packages/ui check:themes 校验）
  */
 export const sakuraColors = css.createTheme(colors, {
   background: '#fef7f9',

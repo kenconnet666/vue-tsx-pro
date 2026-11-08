@@ -56,7 +56,7 @@ const sections: { id: string; title: string; intro: string; items: string[] }[] 
     title: '视觉',
     intro: '颜色、尺寸都来自主题 token，内置主题在构建时逐对检查对比度。',
     items: [
-      '内置的每套主题，正文文字对比度不低于 4.5:1、图形与界面部件（边框、焦点环）不低于 3:1（WCAG 2.2 AA），pnpm themes:check 逐对 token 检查；高对比主题更高。',
+      '内置的每套主题，正文文字对比度不低于 4.5:1、图形与界面部件（边框、焦点环）不低于 3:1（WCAG 2.2 AA），pnpm -C packages/ui check:themes 逐对 token 检查；高对比主题更高。',
       'Windows 的高对比模式（forced-colors）下，状态改用系统颜色表示（选中、焦点、当前项），不靠背景色。',
       '尺寸都用 em：放大浏览器字号、或给一块区域设更大的字号，组件跟着缩放；可以点的区域不小于 24 × 24 px。',
       '状态不只靠颜色：出错有图标与文字，选中有对勾，必填有星号、控件带 aria-required。',

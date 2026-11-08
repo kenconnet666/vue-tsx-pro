@@ -4,7 +4,7 @@
 写法基础见 [RUNES.md](../tsx/RUNES.md)，路线与进度见 [ROADMAP.md](../../ROADMAP.md) 的阶段 17，小程序运行时的做法与踩过的坑见 [packages/mini/README.md](../mini/README.md)。
 
 与桌面组件库（`-ui`）的关系：同一个设计语言（配色取自同一套 Radix 色板、API 约定一致），但代码独立——只依赖 vue 与 `-tsx`，
-不导入 `-ui`，也不从 `-ui` 抽公共部分（`pnpm layers:check` 检查）。
+不导入 `-ui`，也不从 `-ui` 抽公共部分（`pnpm -C packages/ui check:layers` 检查）。
 
 ---
 
@@ -41,7 +41,7 @@
 不加色调变量这类间接层。token 定义在 `theme/tokens.ts`（变量前缀 `--vtm-`），暗色主题与"跟随系统"在 `theme/dark.ts`。
 
 小程序不能在运行时插样式规则：渲染运行时把组合类按节点状态**展开成行内样式**。所以条件只能用运行时判定得了的那些
-（`pnpm layers:check` 里的 `mobile-rules.mjs` 检查）：
+（`pnpm -C packages/ui check:layers` 里的 `mobile-rules.mjs` 检查）：
 
 | 可以用                                                                                       | 不能用（小程序里展开不了）                                                 |
 | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |

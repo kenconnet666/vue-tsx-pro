@@ -1,6 +1,6 @@
 /**
  * 颜色工具（culori）：解析、格式化、半透明颜色的叠加、WCAG 对比度、按对比度挑文字色。
- * 主题编辑器的实时对比度提示与 pnpm themes:check 用的是同一套计算。
+ * 主题编辑器的实时对比度提示与 pnpm -C packages/ui check:themes 用的是同一套计算。
  *
  *   contrastRatio('#3e63dd', '#ffffff')            → 4.6
  *   contrastRatio('rgba(0,0,0,0.5)', '#fff')       半透明前景先叠到背景上再算

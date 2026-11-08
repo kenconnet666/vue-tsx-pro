@@ -133,7 +133,18 @@
     "prepack": "pnpm run build",
     "size": "node scripts/size.mjs",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
-    "test": "vitest run --configLoader native"
+    "test": "vitest run --configLoader native",
+    "lint": "oxlint . --deny-warnings -c ../../.oxlintrc.json",
+    "format": "prettier --write . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "exports": "node ../../scripts/exports/generate.mjs",
+    "check:exports": "node ../../scripts/exports/generate.mjs --check",
+    "check:themes": "node ../../scripts/themes/check.mjs",
+    "check:layers": "node ../../scripts/structure/layers.mjs",
+    "check:parts": "node ../../scripts/structure/part-names.mjs",
+    "check:matrix": "node ../../scripts/structure/matrix.mjs",
+    "check:doc-comments": "node ../../scripts/doc-comments/check.mjs --package ui",
+    "gen:globe-land": "node ../../scripts/globe/land.mjs"
   },
   "dependencies": {
     "@floating-ui/dom": "catalog:",

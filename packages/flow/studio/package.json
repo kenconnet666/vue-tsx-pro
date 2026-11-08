@@ -42,7 +42,11 @@
   "sideEffects": false,
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
-    "prepack": "tsc -b tsconfig.build.json"
+    "prepack": "tsc -b tsconfig.build.json",
+    "lint": "oxlint . --deny-warnings -c ../../../.oxlintrc.json",
+    "format": "prettier --write . --ignore-path ../../../.prettierignore --cache --cache-strategy content",
+    "format:check": "prettier --check . --ignore-path ../../../.prettierignore --cache --cache-strategy content",
+    "test": "vitest run --configLoader native --root .. studio/"
   },
   "dependencies": {
     "@zerodep-dev/flow-ts-engine": "workspace:^",

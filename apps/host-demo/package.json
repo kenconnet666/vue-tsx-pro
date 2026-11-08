@@ -8,7 +8,11 @@
     "dev": "vite --configLoader native",
     "build": "vite build --configLoader native",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
-    "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts"
+    "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts",
+    "lint": "oxlint . --deny-warnings -c ../../.oxlintrc.json",
+    "format": "prettier --write . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "test": "vitest run --configLoader native"
   },
   "dependencies": {
     "@floating-ui/dom": "catalog:",

@@ -27,7 +27,7 @@
   流程组件在 `flow` 仓库重做；本库的 `/workflow` 子路径（FlowDiagram、FlowDesigner、ApprovalActions、流程定义与校验）与文档站的
   “流程”分类 2026-10-26 已删除，旧实现在提交 `f7bfdc2e`。
 - **发布**：0.1.0 已于 2026-10-26 发布到 npm（`@zerodep-dev/vue-tsx-pro-tsx`、`@zerodep-dev/vue-tsx-pro-ui`，标签 `v0.1.0`），现在的版本是 0.2.0-dev；之后按 [RELEASE.md](RELEASE.md) 手动发布（CI 不发布）；`flow` 引擎以发布的包为依赖。
-  发布前做过一轮文档站巡检（`pnpm docs:review`、`pnpm docs:sheets` 逐页看截图，修外观、示例用词与几处组件的布局）。
+  发布前做过一轮文档站巡检（`pnpm -C apps/docs review`、`pnpm -C apps/docs sheets` 逐页看截图，修外观、示例用词与几处组件的布局）。
 - **与 query 的配合**：表格请求（`useTableQuery` 的 `-amount,name` 排序、表头筛选、已知总数、`tableParams`）、线上的 typed JSON
   （`utils/request/wire.ts`、`http` 的 `wire` 选项）、`buildTree` 对应 query 的 0015、0016，2026-10-25 合进 master。
 - **定位**：在已有的 Vue 3.5 项目里，用 TSX + 下划线符文（语义对标 Svelte 5）写独立页面，配自己的组件库（运行时样式，写法像 StyleX）。见 [README.md](README.md) 的“定位与决定”。
@@ -50,7 +50,7 @@
   - 3D（子路径 `@zerodep-dev/vue-tsx-pro-ui/three`，three 是可选 peer）：ThreeCanvas、ShaderBackground、MeshGradient、AuroraBackground、ParticleField、WaveGrid、Confetti、Globe、ModelViewer
   - 卡片的装饰效果是 Card 的 `effect`（tilt 倾斜、spotlight 聚光、beam 流光边框，纯 CSS）；跑马灯 Marquee 在主入口（展示）。原 `@zerodep-dev/vue-tsx-pro-ui/effects` 子路径 2026-10-24 取消
   - 主题定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`）：customizeTheme、对比度、设计令牌、ThemeCustomizer、ThemeThumbnail；文档站组件在 `@zerodep-dev/vue-tsx-pro-ui/docs-kit`（CodePreview、PropsTable、CodeGroup、ColorSwatch、DocArticle / DocSection、TextTable、GithubIcon）
-- **主题**：16 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher`（patterns）切换，`ThemeCustomizer` 定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm themes:check` 逐对检查对比度。
+- **主题**：16 套内置主题（亮、暗、纸张、高对比与几套风格主题），`createThemePreference` 记住选择，`ThemeSwitcher`（patterns）切换，`ThemeCustomizer` 定制（子路径 `@zerodep-dev/vue-tsx-pro-ui/theme-customize`），`themeBootScript` 防闪烁，`pnpm -C packages/ui check:themes` 逐对检查对比度。
 - **文档站**（`apps/docs`）：每个组件一页，示例饱满、带 API 表与键盘一节；示例卡片只展示，右上角“编辑”在演练场里改。指南有快速开始、主题定制、演练场；侧栏固定在左侧。文档站不收案例页。
 - **host-demo**（`apps/host-demo`）：模拟宿主项目，留着几个综合页面与组件行为的浏览器测试（`test/*.browser.test.tsx`）。
 - **CI**：GitHub Actions 五个并行任务：check（静态检查）、test（Ubuntu 与 Windows）、browser（三种浏览器的浏览器测试，每个系统分三片并行与文档站的 axe）、build、consumer（发布产物验证）。
@@ -67,9 +67,9 @@
 | [COMPONENTS.md](packages/ui/COMPONENTS.md)      | 组件库规范：API 约定、部件与透传、样式与 token、依赖与待办、每批组件的设计与取舍（§10）                                                                                                |
 
 文档的放法：给使用者的只在文档站（`apps/docs`）；仓库里的 Markdown 是给维护者的，全局的放根目录，模块的跟着包走（`packages/<包>/`）。
-代码注释里写文件名（`COMPONENTS.md §4`）即可，`pnpm refs:check` 检查文档与注释里提到的 `.md` 都找得到。
+代码注释里写文件名（`COMPONENTS.md §4`）即可，`pnpm check:refs` 检查文档与注释里提到的 `.md` 都找得到。
 | `.claude/reports/` | 调研报告：全站审查（2026-10-22，标出已修与待办）、构建与加载性能 |
-| `packages/ui/src/index.ts` | 组件库的全部导出，按目录分组；由 `pnpm exports` 生成，不要手改 |
+| `packages/ui/src/index.ts` | 组件库的全部导出，按目录分组；由 `pnpm -C packages/ui exports` 生成，不要手改 |
 | `apps/docs/src/components/<分类>/<Name>/` | 文档页 `docs.tsx`、示例 `demo/`（整页示例在 `frames/`）；站点自己的组件在 `apps/docs/src/site/` |
 
 ## 3. 上手
@@ -79,7 +79,7 @@
 ```bash
 pnpm install
 pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium firefox webkit   # 首次跑浏览器测试、截图前
-pnpm dev:docs        # 文档站开发服务器，端口 5174（.claude/launch.json 里的 docs）
+pnpm -C apps/docs dev        # 文档站开发服务器，端口 5174（.claude/launch.json 里的 docs）
 ```
 
 流程引擎的实库测试用本仓库自己的数据库（WSL Debian 的 Docker，compose 项目 `vue-tsx-pro-dev`）；ORM 各方言的容器在 easy-query-ts 仓库：
@@ -95,21 +95,24 @@ wsl -d Debian -- bash -lc 'cd /mnt/c/Users/lionheart/IdeaProjects/vue-tsx-pro &&
 ```bash
 pnpm typecheck                                   # 各包并行、增量，之后每次两三秒
 pnpm -C packages/ui test src/input               # 只跑相关目录（走包里的 test 脚本：exec vitest 会读到 tsx 包过时的构建产物）
-pnpm check                                       # 推送前必跑：lint、格式、生成文件、注释、导出、对比度、文字
+pnpm -C packages/ui lint                         # 各项目的 lint、format:check、typecheck、test、check:*（ui 的导出、对比度、分层……）
+node scripts/dev/check.mjs                       # 提交前：只查改到的项目（--all 全部查，同 CI 的 check 任务）
 ```
 
 - 直接用 `node` / `npx vitest` 而不经 pnpm 脚本时，要自己带上 `NODE_OPTIONS=--conditions=@vue-tsx-pro/source`（pnpm 的 nodeOptions 会加），否则 Node 读到的是 tsx 包的构建产物。
-- `pnpm check` 看退出码：`pnpm check && git commit …`。用管道过滤输出会把失败藏起来。
+- 根目录只留全局的（build、typecheck、test、lint、format、跨包的 check:deps / copies / refs / text），其余在各项目的 package.json，
+  一条脚本只做一件事，按需精确地跑。
+- `node scripts/dev/check.mjs` 看退出码：`node scripts/dev/check.mjs && git commit …`。用管道过滤输出会把失败藏起来。
 - 文档站的单元测试：`npx vitest run --configLoader native --project docs`（约 40 秒，放后台）。
 
 文档工具（不进 CI，补示例时用）：
 
 ```bash
-pnpm docs:shot /components/select basic,states --themes=light,dark   # 示例截图，存到 node_modules/.cache/docs-shots
-pnpm docs:coverage input/                                            # 各页 API 里示例没用到的属性
-pnpm docs:review                                                     # 逐页巡检：控制台错误、桌面与手机宽度的溢出、每个示例的截图
-pnpm docs:review stat,splitter                                       # 只看几页（其他页的截图与报告保留）
-pnpm docs:sheets                                                     # 把巡检的截图拼成每页一张联系表，逐页过目
+pnpm -C apps/docs shot /components/select basic,states --themes=light,dark   # 示例截图，存到 node_modules/.cache/docs-shots
+pnpm -C apps/docs coverage input/                                            # 各页 API 里示例没用到的属性
+pnpm -C apps/docs review                                                     # 逐页巡检：控制台错误、桌面与手机宽度的溢出、每个示例的截图
+pnpm -C apps/docs review stat,splitter                                       # 只看几页（其他页的截图与报告保留）
+pnpm -C apps/docs sheets                                                     # 把巡检的截图拼成每页一张联系表，逐页过目
 ```
 
 `docs:shot` 的路径以 `/` 开头，Git Bash 会把它改写成 Windows 路径：在 PowerShell 里跑，或前面加 `MSYS_NO_PATHCONV=1`。
@@ -117,12 +120,12 @@ pnpm docs:sheets                                                     # 把巡检
 日常提交用 `scripts/dev/` 里的三个脚本（Git Bash 里跑）：
 
 ```bash
-bash scripts/dev/check.sh && git commit …   # 新文件 intent-to-add、文字与格式自动修、pnpm exports、pnpm check；失败退出 1
+node scripts/dev/check.mjs && git commit …  # 新文件 intent-to-add、文字与格式自动修、改到 ui 时重新生成导出、改到的项目的 lint / typecheck / check:*；失败退出 1
 bash scripts/dev/push.sh                    # master 上次跑完的 CI 失败就不推（修复本身的推送加 --fix）
 node scripts/dev/hmr-watch.mjs              # 文档站开着时放后台监视：只在编译出错、恢复、断线时打印一行
 ```
 
-挪 `packages/ui/src` 里的文件用 `pnpm move 旧=新`（git mv 并改写所有相对导入），之后 `pnpm exports`。
+挪 `packages/ui/src` 里的文件用 `pnpm move 旧=新`（git mv 并改写所有相对导入），之后 `pnpm -C packages/ui exports`。
 
 ## 4. 架构速览
 
@@ -135,7 +138,7 @@ packages/
     src/styles/     运行时样式引擎与类型（属性中文注释由 scripts/css-docs 生成）
     types/          符文全局类型、jsx-runtime 类型
     RUNES.md  STYLE-ENGINE.md
-  ui/    @zerodep-dev/vue-tsx-pro-ui（基础设施 utils/ config/、核心（主入口的分类目录）、扩展（子路径），见 COMPONENTS.md §7；pnpm layers:check 检查）
+  ui/    @zerodep-dev/vue-tsx-pro-ui（基础设施 utils/ config/、核心（主入口的分类目录）、扩展（子路径），见 COMPONENTS.md §7；pnpm -C packages/ui check:layers 检查）
     COMPONENTS.md
 apps/
   docs/        文档站：TSX 与本组件库写的网站（Vite + vue-router）；组件页、示例与示例测试在 src/components/<分类>/<Name>/
@@ -255,7 +258,7 @@ tests/consumer 发布产物验证
 7. **配置接入**：有外观档位的组件登记到 `ComponentDefaults`；可点击的组件接入波纹；链接用路由适配。
 8. **目录**：组件平铺在 `packages/ui/src/<分类>/<Name>.tsx`，测试在同级 `.test/`；文档与示例在 `apps/docs`。
 9. **对比度**：所有内置主题满足 WCAG AA 4.5:1；文档站的 axe 测试跑亮色与暗色。
-10. **工具全部导出**：名字全局唯一（`<组件>Styles`、`<组件>Managed`）；入口由 `pnpm exports` 生成。
+10. **工具全部导出**：名字全局唯一（`<组件>Styles`、`<组件>Managed`）；入口由 `pnpm -C packages/ui exports` 生成。
 11. **依赖用起来**：表单校验用 zod，JS 动画用 `useAnimate`，日期用 `@internationalized/date`；先看已有依赖能不能做，再自己写。
 12. **上层组件用好基础组件与工具**：ButtonBase、ListPopover、ChartFrame、controlIcon、Field……重复的逻辑出现第三次就抽出来。
 13. **`_` 前缀保留给符文**：项目代码里普通函数和变量不用 `_` 开头。
@@ -274,7 +277,7 @@ tests/consumer 发布产物验证
   全量测试、浏览器测试、实库测试交给 CI 与打包产物验证，不因等全量结果而停下改代码；下一次提交前看上一次 CI，红了先修再继续。
 - **推送**：每块提交后直接 `git push origin master`，不用问。推送前用 `gh run list` 看上一次 CI，失败先修；master 上每次推送的 CI 都会跑完（只有 PR 上新提交取消旧的），不用等它，下次推送前看结果。
 - **验证页面**：在用户自己的宽屏 Chrome 里看（Claude in Chrome，不用应用内置的浏览器面板），宽屏（约 2000px）好看第一位；
-  `pnpm docs:shot` 截图比开浏览器快；交互用 Playwright 脚本或浏览器验证。文档站开发服务器（5174）由 Claude 自己起，
+  `pnpm -C apps/docs shot` 截图比开浏览器快；交互用 Playwright 脚本或浏览器验证。文档站开发服务器（5174）由 Claude 自己起，
   再用后台监视跑 `scripts/dev/hmr-watch.mjs` 盯编译报错（监视 30 分钟到期，到期重开），不用 IDEA 的运行配置。
   在用户浏览器里别真的触发文件下载、浏览器原生弹窗。
 - **改完先自己挑毛病**：每个看得见的改动都截图，逐区看大片空白、折行、对不齐、截断、数据不合理（金额、日期、编号矛盾），修完再汇报，不等用户指出。
@@ -294,45 +297,45 @@ tests/consumer 发布产物验证
 
 ## 7. 踩过的坑
 
-| 现象                                                           | 原因与解决                                                                                                                                                                                    |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 改了编译器或组件库，测试结果没变                               | 直接用 `node` / `vitest` 而不经 pnpm 脚本时没带 `--conditions=@vue-tsx-pro/source`，读的是构建产物；Vitest 还要 `--configLoader native`                                                       |
-| 新加的示例在测试里找不到                                       | Vitest 的 fsModuleCache 缓存了含 `import.meta.glob` 的模块；预设的缓存键已对这类模块返回 false                                                                                                |
-| 组件库的测试里新加的依赖报 “… is not a function”，页面上没事   | ui 的测试用 `vmForks` 池：CommonJS 包装的默认导出拿到的是对象。把它连同引到它的包加进 `packages/ui/vitest.config.ts` 的 `server.deps.inline`                                                  |
-| 测试里 `showPopover is not a function`                         | happy-dom 没有原生 popover：弹出层的交互放到浏览器测试里测，单元测试只断言属性                                                                                                                |
-| axe 报不可用控件的标签对比度不足                               | 标签的 `for` 指向的元素没有 `aria-disabled`（分段的日期框是 `role="group"`，TagsInput 的标签在外壳里），axe 不知道整个控件不可用；在那个元素上写 `aria-disabled`                              |
-| `onCopied?.(await copy(text))` 什么也没复制                    | 可选调用在函数不存在时连参数都不求值：有副作用的表达式先算出来再传                                                                                                                            |
-| 和原生属性重名的 prop 出怪事                                   | 组件 props 继承了元素属性（`hidden`、`onToggle`、`color`、`onLoad`、`onError`、`onSelect` 都踩过）：改名或放进受管属性                                                                        |
-| `_value={…}` 没有双向绑定                                      | 值要是可写的位置（let 声明的响应式变量、`_bindable` 的 prop、对象属性）；表达式只传值。自己处理更新写 `onUpdate:_value`                                                                       |
-| 子组件显示旧内容                                               | `children` 用不缓存的 `childrenProp`（编译器生成）                                                                                                                                            |
-| 覆盖样式不生效（如 `borderColor`）                             | 长属性总是优先于简写（引擎把简写排在前面），要写同一个长属性                                                                                                                                  |
-| `dir="rtl"` 下图标不镜像                                       | lightningcss 把 `:dir()` 降级成 `:lang()`；预设已关掉。从右到左里混排的中文与数字会被双向算法重排，示例里别让数字打头                                                                         |
-| `width: '_lg'` 变成 64rem                                      | 短写按属性找组，`width` 属于 sizes；间距写 `'_space.lg'`                                                                                                                                      |
-| 构建报 TS2883（类型无法命名）                                  | 推导出的类型引用了没导出的类型：泛型组件需要的类型要从入口导出                                                                                                                                |
-| axe 只在 Firefox 报 label-content-name-mismatch（中文）        | 它把看得见的字连成一串、用 Intl.Segmenter 分词后比对名称，各浏览器的中文分词不同。aria-label 里要包含节点上看得见的每段字，同一段别拆开；多出来的说明（类型、状态）写进名称、不写成节点上的字 |
-| axe 在暗色主题报对比度不足，背景是 #ffffff                     | 元素溢出到视口外，axe 取不到背景；容器里的滚动元素外层要 `minWidth: 0`                                                                                                                        |
-| Firefox / WebKit 里 axe 测试超时、过渡测试偶发失败             | 等动画结束要设上限并跳过无限循环的动画；WebKit 不一定在下一帧建好过渡，用 `expect.poll`                                                                                                       |
-| “ResizeObserver loop completed with undelivered notifications” | 不要在 ResizeObserver 回调里同步改布局                                                                                                                                                        |
-| `docs:check` 没查新文件                                        | 它按 `git ls-files` 取文件，新文件先 `git add`                                                                                                                                                |
-| CI 的 `exports:check` 失败、`pnpm exports` 报重名              | 模块里加、改了导出后运行 `pnpm exports`；重名按 COMPONENTS §4 改成全局唯一的名字（例：List 的 `ListState` → `ListMarkerState`）                                                               |
-| `text:check --fix` 之后 `format:check` 失败                    | 它把拆开的中文行接回去，行可能超长：修完再跑一次 Prettier                                                                                                                                     |
-| 改了 tokens 后 `css-docs:check` 失败                           | `token-names.ts` 由 `pnpm css-docs` 生成                                                                                                                                                      |
-| 宽的内容把 grid / flex 容器撑宽，页面横向溢出                  | 网格项、弹性项的最小宽度默认等于内容宽度；外层加 `minWidth: 0`                                                                                                                                |
-| 勾选一行，表格的所有可见行都重渲染                             | 传给 DataTable 的 `getKey`、`columns` 每次渲染都新建：在 setup 或模块里定义                                                                                                                   |
-| 选项、行上万时页面很卡                                         | 渲染路径里不要每项做 O(n) 的查找；用 computed 缓存集合或映射                                                                                                                                  |
-| WebKit 里点开下拉后方向键无效                                  | Safari 点击按钮不会聚焦它：焦点要留在按钮上的组件在 click 里自己 `focus()`                                                                                                                    |
-| 改了 `apps/docs/build/api.ts` 或 `vite.config.ts` 后页面不对   | Vite 在进程内重启，新加的文档页可能要刷新一次；文件改名后开发服务器还引用旧路径时重启它                                                                                                       |
-| 新加的重依赖、Shiki 语言让 CI 的浏览器测试中途重载             | 加进文档站的 `optimizeDeps`                                                                                                                                                                   |
-| Windows 上新文件覆盖了大小写不同的同名文件                     | 文件系统不分大小写：`Foo.tsx` 和 `foo.tsx` 是同一个文件，新建前先查                                                                                                                           |
-| 脚本里的反斜杠、引号、模板字符串被转义坏                       | 不要在 bash heredoc、`node -e` 里写这类内容：用编辑器（Write / Edit）写成文件再跑                                                                                                             |
-| 挪了导出之后本地测试报 “x is not a function”                   | Vitest 的文件缓存还带着旧的导入路径：先移走 `node_modules/.vitest-cache` 再判断（CI 每次从空缓存开始）                                                                                        |
-| package.json 加了子路径导出，开发服务器还是解析不到            | 重启文档站开发服务器（5174 被旧进程占着时先结束它）                                                                                                                                           |
-| JSX 文字里写 `=>`、`>` 编译报错                                | 包成字符串：`<Code>{'useX(() => a)'}</Code>`                                                                                                                                                  |
-| 单元测试里测不了对话框（useConfirm、AlertDialog）              | happy-dom 的 dialog 不完整：单元测试里 `vi.mock` 掉 `useConfirm` 只测接线，对话框本身在浏览器里验证                                                                                           |
-| 解构出来的方法触发 oxlint 的 unbound-method                    | 返回对象里写箭头函数属性（`read: (q) => …`），不写方法简写                                                                                                                                    |
-| `check.sh … \| tail` 显示 FAILED，退出码却是 0                 | 管道取的是 tail 的退出码：要看结果就重定向到文件再看，或者只用 `&&` 串                                                                                                                        |
-| IDEA 里悬停、跳转还是旧行为，设置里显示 TypeScript 6           | IDEA 的 TypeScript 指向 `node_modules/typescript`（7.1）后重启语言服务；仓库里已没有 TS 6                                                                                                     |
-| 脚本里查类型检查器很慢                                         | 7.1 的检查器在 tsc 子进程里，每次调用一次往返：成批的查询用 `api.batch(...xs.map((x) => checker.foo.gen(x)))`，能按程序缓存的就缓存                                                           |
+| 现象                                                             | 原因与解决                                                                                                                                                                                    |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 改了编译器或组件库，测试结果没变                                 | 直接用 `node` / `vitest` 而不经 pnpm 脚本时没带 `--conditions=@vue-tsx-pro/source`，读的是构建产物；Vitest 还要 `--configLoader native`                                                       |
+| 新加的示例在测试里找不到                                         | Vitest 的 fsModuleCache 缓存了含 `import.meta.glob` 的模块；预设的缓存键已对这类模块返回 false                                                                                                |
+| 组件库的测试里新加的依赖报 “… is not a function”，页面上没事     | ui 的测试用 `vmForks` 池：CommonJS 包装的默认导出拿到的是对象。把它连同引到它的包加进 `packages/ui/vitest.config.ts` 的 `server.deps.inline`                                                  |
+| 测试里 `showPopover is not a function`                           | happy-dom 没有原生 popover：弹出层的交互放到浏览器测试里测，单元测试只断言属性                                                                                                                |
+| axe 报不可用控件的标签对比度不足                                 | 标签的 `for` 指向的元素没有 `aria-disabled`（分段的日期框是 `role="group"`，TagsInput 的标签在外壳里），axe 不知道整个控件不可用；在那个元素上写 `aria-disabled`                              |
+| `onCopied?.(await copy(text))` 什么也没复制                      | 可选调用在函数不存在时连参数都不求值：有副作用的表达式先算出来再传                                                                                                                            |
+| 和原生属性重名的 prop 出怪事                                     | 组件 props 继承了元素属性（`hidden`、`onToggle`、`color`、`onLoad`、`onError`、`onSelect` 都踩过）：改名或放进受管属性                                                                        |
+| `_value={…}` 没有双向绑定                                        | 值要是可写的位置（let 声明的响应式变量、`_bindable` 的 prop、对象属性）；表达式只传值。自己处理更新写 `onUpdate:_value`                                                                       |
+| 子组件显示旧内容                                                 | `children` 用不缓存的 `childrenProp`（编译器生成）                                                                                                                                            |
+| 覆盖样式不生效（如 `borderColor`）                               | 长属性总是优先于简写（引擎把简写排在前面），要写同一个长属性                                                                                                                                  |
+| `dir="rtl"` 下图标不镜像                                         | lightningcss 把 `:dir()` 降级成 `:lang()`；预设已关掉。从右到左里混排的中文与数字会被双向算法重排，示例里别让数字打头                                                                         |
+| `width: '_lg'` 变成 64rem                                        | 短写按属性找组，`width` 属于 sizes；间距写 `'_space.lg'`                                                                                                                                      |
+| 构建报 TS2883（类型无法命名）                                    | 推导出的类型引用了没导出的类型：泛型组件需要的类型要从入口导出                                                                                                                                |
+| axe 只在 Firefox 报 label-content-name-mismatch（中文）          | 它把看得见的字连成一串、用 Intl.Segmenter 分词后比对名称，各浏览器的中文分词不同。aria-label 里要包含节点上看得见的每段字，同一段别拆开；多出来的说明（类型、状态）写进名称、不写成节点上的字 |
+| axe 在暗色主题报对比度不足，背景是 #ffffff                       | 元素溢出到视口外，axe 取不到背景；容器里的滚动元素外层要 `minWidth: 0`                                                                                                                        |
+| Firefox / WebKit 里 axe 测试超时、过渡测试偶发失败               | 等动画结束要设上限并跳过无限循环的动画；WebKit 不一定在下一帧建好过渡，用 `expect.poll`                                                                                                       |
+| “ResizeObserver loop completed with undelivered notifications”   | 不要在 ResizeObserver 回调里同步改布局                                                                                                                                                        |
+| `docs:check` 没查新文件                                          | 它按 `git ls-files` 取文件，新文件先 `git add`                                                                                                                                                |
+| CI 的 `exports:check` 失败、`pnpm -C packages/ui exports` 报重名 | 模块里加、改了导出后运行 `pnpm -C packages/ui exports`；重名按 COMPONENTS §4 改成全局唯一的名字（例：List 的 `ListState` → `ListMarkerState`）                                                |
+| `text:check --fix` 之后 `format:check` 失败                      | 它把拆开的中文行接回去，行可能超长：修完再跑一次 Prettier                                                                                                                                     |
+| 改了 tokens 后 `css-docs:check` 失败                             | `token-names.ts` 由 `pnpm -C packages/tsx css-docs` 生成                                                                                                                                      |
+| 宽的内容把 grid / flex 容器撑宽，页面横向溢出                    | 网格项、弹性项的最小宽度默认等于内容宽度；外层加 `minWidth: 0`                                                                                                                                |
+| 勾选一行，表格的所有可见行都重渲染                               | 传给 DataTable 的 `getKey`、`columns` 每次渲染都新建：在 setup 或模块里定义                                                                                                                   |
+| 选项、行上万时页面很卡                                           | 渲染路径里不要每项做 O(n) 的查找；用 computed 缓存集合或映射                                                                                                                                  |
+| WebKit 里点开下拉后方向键无效                                    | Safari 点击按钮不会聚焦它：焦点要留在按钮上的组件在 click 里自己 `focus()`                                                                                                                    |
+| 改了 `apps/docs/build/api.ts` 或 `vite.config.ts` 后页面不对     | Vite 在进程内重启，新加的文档页可能要刷新一次；文件改名后开发服务器还引用旧路径时重启它                                                                                                       |
+| 新加的重依赖、Shiki 语言让 CI 的浏览器测试中途重载               | 加进文档站的 `optimizeDeps`                                                                                                                                                                   |
+| Windows 上新文件覆盖了大小写不同的同名文件                       | 文件系统不分大小写：`Foo.tsx` 和 `foo.tsx` 是同一个文件，新建前先查                                                                                                                           |
+| 脚本里的反斜杠、引号、模板字符串被转义坏                         | 不要在 bash heredoc、`node -e` 里写这类内容：用编辑器（Write / Edit）写成文件再跑                                                                                                             |
+| 挪了导出之后本地测试报 “x is not a function”                     | Vitest 的文件缓存还带着旧的导入路径：先移走 `node_modules/.vitest-cache` 再判断（CI 每次从空缓存开始）                                                                                        |
+| package.json 加了子路径导出，开发服务器还是解析不到              | 重启文档站开发服务器（5174 被旧进程占着时先结束它）                                                                                                                                           |
+| JSX 文字里写 `=>`、`>` 编译报错                                  | 包成字符串：`<Code>{'useX(() => a)'}</Code>`                                                                                                                                                  |
+| 单元测试里测不了对话框（useConfirm、AlertDialog）                | happy-dom 的 dialog 不完整：单元测试里 `vi.mock` 掉 `useConfirm` 只测接线，对话框本身在浏览器里验证                                                                                           |
+| 解构出来的方法触发 oxlint 的 unbound-method                      | 返回对象里写箭头函数属性（`read: (q) => …`），不写方法简写                                                                                                                                    |
+| `check.sh … \| tail` 显示 FAILED，退出码却是 0                   | 管道取的是 tail 的退出码：要看结果就重定向到文件再看，或者只用 `&&` 串                                                                                                                        |
+| IDEA 里悬停、跳转还是旧行为，设置里显示 TypeScript 6             | IDEA 的 TypeScript 指向 `node_modules/typescript`（7.1）后重启语言服务；仓库里已没有 TS 6                                                                                                     |
+| 脚本里查类型检查器很慢                                           | 7.1 的检查器在 tsc 子进程里，每次调用一次往返：成批的查询用 `api.batch(...xs.map((x) => checker.foo.gen(x)))`，能按程序缓存的就缓存                                                           |
 
 ## 8. 下一步
 
@@ -348,7 +351,7 @@ tests/consumer 发布产物验证
 做图表时照 SankeyChart / ChordChart 的结构：数据类型、布局（`charts/layout/`）或 XYChart、`ChartFrame` + `usePlotArea`；样式直接写 tokens；
 导出加到 `charts/index.ts`，测试加到 `charts/.test/charts.test.tsx`，文档页放 `apps/docs/src/components/charts/<Name>/`。
 
-新组件的页面照现有的做：示例饱满、贴近真实场景、键盘一节、API 表；`pnpm docs:coverage` 列出示例没用到的属性。
+新组件的页面照现有的做：示例饱满、贴近真实场景、键盘一节、API 表；`pnpm -C apps/docs coverage` 列出示例没用到的属性。
 
 ## 9. 已知局限
 

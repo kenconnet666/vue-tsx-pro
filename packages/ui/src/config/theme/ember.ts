@@ -6,7 +6,7 @@ import { colors } from './tokens';
 
 /**
  * 余烬主题的颜色：暖炭黑的页面、炭火橙的品牌色（配深色字）。中性色带一点暖调，长时间看比冷色的暗色主题柔和；
- * 品牌色取 Radix orange 暗色色阶。先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
+ * 品牌色取 Radix orange 暗色色阶。先按风格取色，再按对比度要求调深浅（pnpm -C packages/ui check:themes 校验）
  */
 export const emberColors = css.createTheme(colors, {
   background: '#171310',

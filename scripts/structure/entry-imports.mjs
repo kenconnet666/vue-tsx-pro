@@ -1,6 +1,6 @@
 /**
  * 应用（apps/、tests/consumer）里从组件库入口导入的名字，改到真正导出它的入口：组件在主入口与子路径之间挪动后用。
- * 名字在所有入口里全局唯一（pnpm exports 保证），所以按名字就能找到它现在属于哪个入口。
+ * 名字在所有入口里全局唯一（pnpm -C packages/ui exports 保证），所以按名字就能找到它现在属于哪个入口。
  *
  *   import { AppShell, Button } from '@zerodep-dev/vue-tsx-pro-ui';
  *   → import { Button } from '@zerodep-dev/vue-tsx-pro-ui';

@@ -1,4 +1,4 @@
-// 一批文档页的示例截图，存进指定目录（对比样式改动前后用）：先开着文档站（pnpm dev:docs），
+// 一批文档页的示例截图，存进指定目录（对比样式改动前后用）：先开着文档站（pnpm -C apps/docs dev），
 //
 //   node scripts/docs/shots-batch.mjs before            截到 node_modules/.cache/docs-shots-before（常用的 21 页）
 //   node scripts/docs/shots-batch.mjs before all        全部组件页

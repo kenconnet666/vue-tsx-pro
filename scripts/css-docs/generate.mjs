@@ -451,7 +451,7 @@ const check = process.argv.includes('--check');
 for (const [file, code] of outputs) {
   if (!check) writeFileSync(file, code);
   else if (!existsSync(file) || readFileSync(file, 'utf8') !== code) {
-    console.error(`${relative(root, file)} 与数据不一致，请运行 pnpm css-docs`);
+    console.error(`${relative(root, file)} 与数据不一致，请运行 pnpm -C packages/tsx css-docs`);
     process.exitCode = 1;
   }
 }

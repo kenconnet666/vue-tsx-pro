@@ -8,7 +8,7 @@ import { colors, shadows } from './tokens';
  * 喜庆主题的颜色：暖白宣纸色的页面、朱红的品牌色 `#c42b1c`（按钮、链接同一色系）、赤金点缀（焦点环、选中、高亮）。
  * 中性色按 slate 各级亮度换成暖色相（oklch 45°）；危险色用 ruby，和品牌色区分开。
  * 图表色按传统色排：朱红配黛青（石青）开头，赤金放第三：浅底上金色要到 3:1 只能压暗，紧挨着红色会显得发土。
- * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
+ * 先按风格取色，再按对比度要求调深浅（pnpm -C packages/ui check:themes 校验）
  */
 export const festiveColors = css.createTheme(colors, {
   background: '#fff7f3',

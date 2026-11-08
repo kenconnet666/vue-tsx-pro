@@ -1,7 +1,7 @@
 /**
  * 生成文档站 ModelViewer 示例用的模型（apps/docs/public/models/trophy.glb）：一座奖杯，
  * 金属的杯身、把手、杯脚，石质的底座；全部由 three 的几何体拼成，没有贴图，用 GLTFExporter 导出成 GLB。
- * 改了造型时重跑：pnpm gen:trophy
+ * 改了造型时重跑：pnpm -C apps/docs gen:trophy
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

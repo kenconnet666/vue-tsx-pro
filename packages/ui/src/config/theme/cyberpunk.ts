@@ -4,7 +4,7 @@ import { colors, fonts, radii, shadows } from './tokens';
 
 /**
  * 赛博朋克主题的颜色：深紫黑的页面、霓虹品红的品牌色 `#ff2bd6`（配深色字）、霓虹青的焦点环与信息色。中性色按 slate 暗色各级亮度换成紫色相（oklch 290°）并加大色度；图表与代码高亮用荧光色。
- * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
+ * 先按风格取色，再按对比度要求调深浅（pnpm -C packages/ui check:themes 校验）
  */
 export const cyberpunkColors = css.createTheme(colors, {
   background: '#110e20',

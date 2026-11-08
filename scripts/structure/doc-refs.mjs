@@ -6,7 +6,7 @@
  *      带路径的按仓库根目录或所在目录解析，只写文件名的要有同名文档
  *
  * 小写的 `.md`（`docs/frontend.md`）多半是别的仓库里的文档，不查。`.claude/` 下是历史调研报告，不查。
- * 用法：node scripts/structure/doc-refs.mjs（pnpm refs:check，在 pnpm check 里）
+ * 用法：node scripts/structure/doc-refs.mjs（pnpm check:refs，在 node scripts/dev/check.mjs 里）
  */
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';

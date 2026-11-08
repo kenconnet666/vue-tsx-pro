@@ -2,7 +2,7 @@
  * 移动 packages/ui/src 里的文件，并改写所有受影响的相对导入（import、export from、import()、vi.mock，保留 ?raw 这类后缀）。
  * 用 git mv 移动，历史跟得上；移走后空下来的目录一并删掉。
  *
- * 挪完重新生成入口（pnpm exports），再把应用里从包入口导入的名字改到它现在所在的入口（entry-imports.mjs）：
+ * 挪完重新生成入口（pnpm -C packages/ui exports），再把应用里从包入口导入的名字改到它现在所在的入口（entry-imports.mjs）：
  * 组件在主入口与子路径之间挪动时，应用的导入跟着改。
  *
  * 用法：pnpm move <旧路径>=<新路径> …（路径相对 packages/ui/src）

@@ -5,7 +5,7 @@
  *   createThemePreference({ themes: { light: lightTheme, dark: darkTheme, forest: forestTheme } })
  *
  * 加一套内置主题：在这里登记，再补上语言包里的名字（builtinThemeLabel）、boot.ts 的底色、ThemeSwitcher 的图标——
- * 后三处按 BuiltinThemeName 写成完整的表，漏了类型检查会报错；pnpm themes:check 从这里读出主题文件核对颜色。
+ * 后三处按 BuiltinThemeName 写成完整的表，漏了类型检查会报错；pnpm -C packages/ui check:themes 从这里读出主题文件核对颜色。
  */
 import { bigScreenTheme } from './big-screen';
 import { celadonTheme } from './celadon';

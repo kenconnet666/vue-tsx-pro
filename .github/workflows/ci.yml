@@ -21,9 +21,23 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      # 与本地推送前跑的是同一个脚本
-      - run: pnpm check
+      # 每项检查单独一步：哪一项没过一眼看到，本地按项目跑同一条命令（packages/*、apps/* 的 package.json）
+      - run: pnpm lint
+      - run: pnpm format:check
       - run: pnpm typecheck
+      - run: pnpm check:deps
+      - run: pnpm check:copies
+      - run: pnpm check:refs
+      - run: pnpm check:text
+      - run: pnpm -C packages/tsx check:css-docs
+      - run: pnpm -C packages/tsx check:doc-comments
+      - run: pnpm -C packages/ui check:doc-comments
+      - run: pnpm -C packages/ui check:exports
+      - run: pnpm -C packages/ui check:themes
+      - run: pnpm -C packages/ui check:layers
+      - run: pnpm -C packages/ui check:parts
+      - run: pnpm -C packages/ui check:matrix
+      - run: pnpm -C packages/mobile check:rules
 
   test:
     strategy:
@@ -40,10 +54,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        # 最慢的任务（Windows 上近 10 分钟）分三片并行，每片跑三分之一的测试文件
-        shard: [1, 2, 3]
+        include:
+          # Ubuntu 上三个浏览器都跑，分三片并行
+          - { os: ubuntu-latest, shard: 1, shards: 3, browsers: 'chromium,firefox,webkit' }
+          - { os: ubuntu-latest, shard: 2, shards: 3, browsers: 'chromium,firefox,webkit' }
+          - { os: ubuntu-latest, shard: 3, shards: 3, browsers: 'chromium,firefox,webkit' }
+          # Windows 只跑 Chromium（Windows 上的 WebKit 不是真的 Safari，Firefox 连不上会话是最常见的偶发失败；
+          # 系统相关的问题——路径、字体、换行——Chromium 就能暴露）
+          - { os: windows-latest, shard: 1, shards: 2, browsers: chromium }
+          - { os: windows-latest, shard: 2, shards: 2, browsers: chromium }
     runs-on: ${{ matrix.os }}
+    env:
+      VTP_BROWSERS: ${{ matrix.browsers }}
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
@@ -53,20 +75,22 @@ jobs:
         shell: bash
         run: |
           for attempt in 1 2 3; do
-            timeout 600 pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium firefox webkit && exit 0
+            timeout 600 pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps ${VTP_BROWSERS//,/ } && exit 0
             echo "playwright install failed (attempt $attempt), retrying"
             sleep 15
           done
           exit 1
-      # Windows 上 Firefox 偶尔三分钟都连不上测试服务器：整个浏览器实例没跑，用例的重试轮不到它。
-      # 只在这种情况下整步再跑一次，用例失败照常算失败
-      - name: Browser tests
+      # 三个应用各跑一步，各自按同一个分片号分片。浏览器会话偶尔三分钟都连不上（整个浏览器实例没跑，用例的重试轮不到它）：
+      # 只在这种情况下这一步再跑一次，用例失败照常算失败
+      - name: Browser tests (docs)
         shell: bash
-        run: |
-          pnpm test:browser --shard=${{ matrix.shard }}/3 2>&1 | tee browser.log && exit 0
-          grep -q "Failed to connect to the browser session" browser.log || exit 1
-          echo "::warning::浏览器会话没连上，整步重跑一次"
-          pnpm test:browser --shard=${{ matrix.shard }}/3
+        run: bash .github/scripts/browser-tests.sh apps/docs ${{ matrix.shard }}/${{ matrix.shards }}
+      - name: Browser tests (host-demo)
+        shell: bash
+        run: bash .github/scripts/browser-tests.sh apps/host-demo ${{ matrix.shard }}/${{ matrix.shards }}
+      - name: Browser tests (mobile-demo)
+        shell: bash
+        run: bash .github/scripts/browser-tests.sh apps/mobile-demo ${{ matrix.shard }}/${{ matrix.shards }}
       # 偶发失败只在 CI 上出现时，靠失败截图判断是谁挡住了点击、停在了哪一步
       - if: failure()
         uses: actions/upload-artifact@v7
@@ -92,7 +116,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm exec vitest run --configLoader native --project flow
+      - run: pnpm -C packages/flow/engine test
         env:
           EQTS_PG_URLS: postgres://postgres:postgres@127.0.0.1:5432/eqts
 
@@ -105,8 +129,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm build:docs
-      - run: pnpm build:host
+      - run: pnpm -C apps/docs build
+      - run: pnpm -C apps/host-demo build
 
   # 文档站的预渲染页逐页在浏览器里水合，有不一致就失败（构建时打开不一致的细节，日志里能看到是哪个节点）
   hydration:
@@ -124,10 +148,10 @@ jobs:
             sleep 15
           done
           exit 1
-      - run: pnpm build:docs
+      - run: pnpm -C apps/docs build
         env:
           VTP_HYDRATION_DETAILS: '1'
-      - run: node scripts/docs/hydration.mjs
+      - run: pnpm -C apps/docs hydration
       - uses: actions/upload-artifact@v7
         with:
           name: docs-dist
@@ -163,7 +187,7 @@ jobs:
       - name: Serve the built docs
         shell: bash
         run: |
-          pnpm --filter @vue-tsx-pro/docs preview --port 5174 --strictPort > preview.log 2>&1 &
+          pnpm -C apps/docs preview --port 5174 --strictPort > preview.log 2>&1 &
           for i in $(seq 1 60); do curl -sf http://localhost:5174/ > /dev/null && exit 0; sleep 1; done
           cat preview.log
           exit 1
@@ -209,8 +233,8 @@ jobs:
             sleep 15
           done
           exit 1
-      - run: pnpm --filter @vue-tsx-pro/fullstack-demo build
-      - run: pnpm --filter @vue-tsx-pro/fullstack-demo test:e2e
+      - run: pnpm -C apps/fullstack-demo build
+      - run: pnpm -C apps/fullstack-demo test:e2e
 
   # 流程引擎示例：构建产物上的审批端到端测试，两种渲染模式各一遍
   flow-demo:
@@ -228,16 +252,13 @@ jobs:
             sleep 15
           done
           exit 1
-      - run: pnpm --filter @vue-tsx-pro/flow-demo build
-      - run: pnpm --filter @vue-tsx-pro/flow-demo test:e2e
+      - run: pnpm -C apps/flow-demo build
+      - run: pnpm -C apps/flow-demo test:e2e
 
   # 发布产物：pnpm pack 的包在仓库之外的独立应用里安装、类型检查、构建并在浏览器里运行
+  # 打成 tarball 装进仓库外的项目：只在 Ubuntu 上（Windows 的路径问题由 test、build 两个任务覆盖）
   consumer:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
@@ -254,7 +275,7 @@ jobs:
           exit 1
       - run: pnpm test:consumer
       # 体积预算：test:consumer 构建过 dist，组件库各入口打包后的 gzip 大小不超过 size-budgets.json
-      - run: pnpm --filter @zerodep-dev/vue-tsx-pro-ui size
+      - run: pnpm -C packages/ui size
 
   # peer 区间的下限：按组件库与框架 peerDependencies 里最低的版本（vue 3.5.0、vite 8.0.0……）再装一遍、构建、在浏览器里跑
   consumer-min:
@@ -283,8 +304,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - run: pnpm --filter @zerodep-dev/vue-tsx-pro-tsx --filter @zerodep-dev/vue-tsx-pro-mobile --filter @zerodep-dev/vue-tsx-pro-mini build
-      - run: pnpm --filter @vue-tsx-pro/mobile-demo build
+      - run: pnpm -C packages/tsx build
+      - run: pnpm -C packages/mobile build
+      - run: pnpm -C packages/mini build
+      - run: pnpm -C apps/mobile-demo build
       - run: pnpm dlx minidev@2.2.5 build -p apps/mobile-demo/dist/my -o "${{ runner.temp }}/minidev" --machine-output
 
   # 把通过检查的产物上传到 Cloudflare：内容没变的文件不会重传，所以每次推送都跑也不费事

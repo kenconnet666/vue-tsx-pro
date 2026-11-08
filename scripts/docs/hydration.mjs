@@ -4,7 +4,7 @@
  * 页面上出现系统滚动条就是漏了（多行输入框除外，它没法换）。
  *
  * 要看到具体哪里不一致，构建时带上 VTP_HYDRATION_DETAILS=1（打开 __VUE_PROD_HYDRATION_MISMATCH_DETAILS__）：
- *   VTP_HYDRATION_DETAILS=1 pnpm build:docs && node scripts/docs/hydration.mjs
+ *   VTP_HYDRATION_DETAILS=1 pnpm -C apps/docs build && node scripts/docs/hydration.mjs
  * 不带时只能知道"这页有不一致"。脚本自己起一个预览服务器（端口 4175），跑完关掉。
  * 只查几页时把地址写在后面：node scripts/docs/hydration.mjs /components/popover /guide/data
  */

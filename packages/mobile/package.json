@@ -46,7 +46,11 @@
     "build": "vite build --configLoader native && tsc -p tsconfig.build.json",
     "prepack": "pnpm run build",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
-    "test": "vitest run --configLoader native"
+    "test": "vitest run --configLoader native",
+    "lint": "oxlint . --deny-warnings -c ../../.oxlintrc.json",
+    "format": "prettier --write . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "check:rules": "node ../../scripts/structure/mobile-rules.mjs"
   },
   "dependencies": {
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^"

@@ -1,4 +1,4 @@
-// 由 pnpm exports（scripts/exports/generate.mjs）生成，不要手改：模块里加了导出后重新生成
+// 由 pnpm -C packages/ui exports（scripts/exports/generate.mjs）生成，不要手改：模块里加了导出后重新生成
 
 // 基础：文字、图标、链接、按钮家族、标记、代码、加载
 export { Badge, StatusBadge, type BadgeProps, type StatusBadgeProps } from './base/Badge';

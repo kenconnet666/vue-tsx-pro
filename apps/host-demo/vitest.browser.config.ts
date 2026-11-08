@@ -3,6 +3,9 @@ import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 import { plugins } from './vite.config.ts';
 
+// 只跑某几个浏览器：VTP_BROWSERS=chromium（CI 的 Windows 只跑 Chromium，Firefox、WebKit 在 Ubuntu 上跑全）
+const only = process.env['VTP_BROWSERS']?.split(',');
+
 export default defineConfig({
   plugins,
   // 测试用到的依赖一开始就预构建：否则 Vite 跑到一半发现新依赖会重新预构建并刷新页面，
@@ -22,7 +25,9 @@ export default defineConfig({
       provider: playwright(),
       // CI 的 Windows 机器上文档站与宿主的六个浏览器同时启动，Firefox 偶尔要一分多钟才连上（默认 60 秒就判失败）
       connectTimeout: process.env.CI ? 180_000 : 60_000,
-      instances: [{ browser: 'chromium' }, { browser: 'firefox' }, { browser: 'webkit' }],
+      instances: (['chromium', 'firefox', 'webkit'] as const)
+        .filter((browser) => !only || only.includes(browser))
+        .map((browser) => ({ browser })),
     },
   },
 });

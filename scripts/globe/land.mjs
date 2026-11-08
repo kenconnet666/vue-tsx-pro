@@ -1,7 +1,7 @@
 /**
  * 生成 Globe 的陆地位图（packages/ui/src/three/globe/land.ts）：世界地图（Natural Earth 1:110m，组件库
  * `@zerodep-dev/vue-tsx-pro-ui/maps` 的 worldCountries）按 1° 的经纬网格判断每格中心是不是陆地，一格一位，打包成 base64。
- * 地图数据更新时重跑：pnpm gen:globe-land
+ * 地图数据更新时重跑：pnpm -C packages/ui gen:globe-land
  *
  * Natural Earth 的多边形已在反子午线处切开，经纬度当平面坐标判断点在不在多边形里（射线法、奇偶规则）即可。
  */

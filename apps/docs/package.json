@@ -9,7 +9,19 @@
     "build": "vite build --configLoader native && vite build --configLoader native --ssr src/entry-server.ts --outDir dist-ssr && node build/prerender.ts",
     "preview": "vite preview --configLoader native",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
-    "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts"
+    "test:browser": "vitest run --configLoader native --config vitest.browser.config.ts",
+    "lint": "oxlint . --deny-warnings -c ../../.oxlintrc.json",
+    "format": "prettier --write . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "format:check": "prettier --check . --ignore-path ../../.prettierignore --cache --cache-strategy content",
+    "test": "vitest run --configLoader native",
+    "hydration": "node ../../scripts/docs/hydration.mjs",
+    "shot": "node ../../scripts/docs/shot.mjs",
+    "review": "node ../../scripts/docs/review.mjs",
+    "sheets": "node ../../scripts/docs/contact-sheet.mjs",
+    "states": "node ../../scripts/docs/states.mjs",
+    "states-audit": "node ../../scripts/docs/states-audit.mjs",
+    "coverage": "node ../../scripts/docs/coverage.mjs",
+    "gen:trophy": "node ../../scripts/models/trophy.mjs"
   },
   "dependencies": {
     "@codemirror/autocomplete": "catalog:",

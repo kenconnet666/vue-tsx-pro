@@ -265,7 +265,10 @@ async function run(mode) {
     console.log(`${mode}：通过`);
   } finally {
     await browser.close();
+    // 等进程真退出再进下一轮：PGlite 收尾要一会儿，不等的话下一轮起服务器时端口还占着
+    const exited = new Promise((resolve) => server.once('exit', resolve));
     server.kill();
+    await exited;
   }
 }
 

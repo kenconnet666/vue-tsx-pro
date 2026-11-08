@@ -7,7 +7,7 @@ import { colors, shadows } from './tokens';
 /**
  * 青瓷主题的颜色：青白釉的淡青页面、青瓷绿的品牌色，衬线标题，和纸张、喜庆是一组中式风格。
  * 中性色带一点青调、饱和度低，长时间看不累；图表色取赭石、青花蓝、赤金这些传统色，和青绿拉开。
- * 先按风格取色，再按对比度要求调深浅（pnpm themes:check 校验）
+ * 先按风格取色，再按对比度要求调深浅（pnpm -C packages/ui check:themes 校验）
  */
 export const celadonColors = css.createTheme(colors, {
   background: '#f0f6f3',
