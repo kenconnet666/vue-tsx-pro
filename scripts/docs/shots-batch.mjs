@@ -78,6 +78,8 @@ rmSync(target, { recursive: true, force: true });
 mkdirSync(target, { recursive: true });
 
 const jobs = Number(option('jobs', 4));
+/** 一页最多截多久：偶尔有一页卡住（浏览器不退出），不让它拖住整批（CI 那一步 40 分钟超时）；超时的再试一次 */
+const PAGE_TIMEOUT = 3 * 60_000;
 const origin = option('origin', 'http://localhost:5174');
 const queue = [...tasks];
 const failed = [];
@@ -88,8 +90,8 @@ async function worker() {
     const started = performance.now();
     // 每一项的耗时：CI 里看慢在哪一页
     const took = () => `${((performance.now() - started) / 1000).toFixed(1)}s`;
-    try {
-      await run(
+    const shoot = () =>
+      run(
         'node',
         [
           join(root, 'scripts/docs/shot.mjs'),
@@ -99,12 +101,21 @@ async function worker() {
           ...(variant ? [`--variant=${variant}`, '--themes=light'] : []),
           ...(categories.get(page) === 'overlay' ? ['--open'] : []),
         ],
-        { maxBuffer: 1 << 24 },
+        { maxBuffer: 1 << 24, timeout: PAGE_TIMEOUT, killSignal: 'SIGKILL' },
       );
+    try {
+      try {
+        await shoot();
+      } catch (error) {
+        if (!error.killed) throw error;
+        console.log(`… ${name} 超过 ${PAGE_TIMEOUT / 60_000} 分钟，重试`);
+        await shoot();
+      }
       console.log(`✓ ${name} ${took()}`);
     } catch (error) {
       failed.push(name);
-      console.log(`✗ ${name} ${took()}：${String(error.stderr ?? error.message).split('\n')[0]}`);
+      const reason = error.killed ? '超时' : String(error.stderr ?? error.message).split('\n')[0];
+      console.log(`✗ ${name} ${took()}：${reason}`);
     }
   }
 }
