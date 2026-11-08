@@ -16,25 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- SchemaForm / useForm：字段的条件写在 meta 里——`visibleWhen`、`requiredWhen`、`readonlyWhen`（条件同 ConditionBuilder）；
-  useForm 的 `access` 按字段路径给权限（hidden、readonly、editable、required；可以是函数，参数是当前的值），`form.fieldState(path)`
-  给出字段此刻的样子。不显示的字段不校验，条件必填的空着报“必填”。
-- SchemaForm 的明细表：对象数组写 `control: 'table'` 排成表格（一行一条、能增删行），列写 `total: 'sum'` 在表底精确合计（带千分位与单位）。
-- 表单的数据来源 `formSources`（`createUi`、`Provider`，SchemaFields 的 `sources` 局部覆盖）：meta 的 `source` 按名字取字典或远程搜索；
-  `control: 'people'` 用 PeoplePicker（要登记 `people`，没登记时报错说明在哪里给），`control: 'file'` 用 Upload。
-- SchemaForm 的页签：meta 写 `tab` 分进标签页。新组件 SchemaView：按 schema 只读地显示值（查看、打印），选项显示文字、开关显示是否、
-  人员与附件显示名字、明细表带合计；`access` 与 `visibleWhen` 不显示的不列。
-- `decimalSchema` 加 `type`（Decimal 的构造函数）：SchemaForm 生成的字段一开始为空时也写回 Decimal；`bigintSchema` 写回 bigint。
-- 下拉（Select、Combobox 等的 Listbox）与 TreeSelect 的弹层按最宽的一项定宽：触发框窄时选项文字不再被截断。
-- Tabs 的 id 里，值的字母、数字、`-` 以外的字符写成 `_码位_`（原来都换成 `_`，中文的页签会撞成同一个 id）；按 id 写的样式、测试要跟着改。
-- PeoplePicker 的触发框是 `role="combobox"`（弹出对话框的组合框）：必填、只读、出错的状态合规地带在它上面。
-- 聚焦收起内容里的控件（错误汇总的链接、提交后聚焦出错字段）时先发 `beforematch`，TabPanel 收到就切过去。
-- Descriptions 的值占满标签后剩下的宽度（值是表格时不再被压窄）；起始边的标签与开关、单个复选框的文字基线对齐。
-- 语言包新键：`formRowLabel`、`formRowActions`、`formTabs`、`formValueTrue`、`formValueFalse`、`formValueEmpty`。
-- tsx：浏览器里编译纯 `.ts` 模块也去掉类型、改写导入导出。
-- 流程引擎（还没发布到 npm）：只认 PostgreSQL（测试用 PGlite，浏览器里能跑）；流程即 TS 工程；待办动作插件化与补齐（委托、加签减签、
-  撤回这一步、指定承办人、票签、批量、forEach 与异步调用、自定义节点、迁移版本）；单据就是字段清单、两种草稿；注册的字段类型；
-  预测下一步与上一步选处理人。新包 flow-ts-ui：按清单渲染单据、流程图与环节设置、表单权限矩阵、表单设计器。
+（暂无）
 
 ## 每次发布
 
