@@ -5,6 +5,8 @@
 import { templates, type FlowProject, type ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 
 export const PROCESS_FILE = 'process.json';
+/** 场景测试的文件 */
+export const TEST_FILE = 'test.ts';
 
 /** 新建时能选的起点 */
 export const STARTERS = [
@@ -72,9 +74,9 @@ export function definitionOf(
   }
 }
 
-/** 文件的先后：process.json、form.ts、logic.ts 在前，其余按路径 */
+/** 文件的先后：process.json、form.ts、logic.ts、test.ts 在前，其余按路径 */
 export function sortedPaths(files: Readonly<Record<string, string>>): string[] {
-  const rank = (path: string) => [PROCESS_FILE, 'form.ts', 'logic.ts'].indexOf(path);
+  const rank = (path: string) => [PROCESS_FILE, 'form.ts', 'logic.ts', TEST_FILE].indexOf(path);
   return Object.keys(files).sort((a, b) => {
     const ra = rank(a);
     const rb = rank(b);
@@ -89,5 +91,16 @@ export function fileTemplate(path: string): string {
     return `import { defineForm } from '@zerodep-dev/flow-ts-model';\n\nexport default defineForm({\n  title: { label: '事由', type: 'text', required: true },\n});\n`;
   if (path === 'logic.ts')
     return `import { defineLogic } from '@zerodep-dev/flow-ts-engine';\nimport form from './form';\n\nexport default defineLogic(form, {\n  guards: {},\n});\n`;
+  if (path === TEST_FILE)
+    return `import { defineScenarios } from '@zerodep-dev/flow-ts-engine';
+import form from './form';
+
+export default defineScenarios(form, {
+  '发起后停在第一步': {
+    variables: {},
+    expect: { status: 'active' },
+  },
+});
+`;
   return '';
 }

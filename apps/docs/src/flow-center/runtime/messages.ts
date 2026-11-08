@@ -5,7 +5,11 @@
  */
 import type { Actor } from '@zerodep-dev/flow-ts-engine';
 import type { FlowProject } from '@zerodep-dev/flow-ts-model';
-import type { SimulationInput, SimulationResult } from '@zerodep-dev/flow-ts-engine/testing';
+import type {
+  ScenarioResult,
+  SimulationInput,
+  SimulationResult,
+} from '@zerodep-dev/flow-ts-engine/testing';
 import type { OrgDirectory, OrgSnapshot } from '@zerodep-dev/flow-ts-engine/org';
 
 /** 页面能调的 Worker 方法（不属于引擎的客户端的那些）：参数 → 结果 */
@@ -21,6 +25,8 @@ export interface WorkerMethods {
     project: FlowProject;
     input: Pick<SimulationInput, 'variables' | 'initiator' | 'steps'>;
   }) => SimulationResult;
+  /** 工作室的场景测试：跑工程 test.ts 里的全部场景（同试运行的库与扩展） */
+  runTests: (trial: { project: FlowProject }) => ScenarioResult[];
 }
 export type WorkerMethod = keyof WorkerMethods;
 

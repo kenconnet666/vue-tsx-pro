@@ -1,7 +1,7 @@
 /**
  * 流程工作室的编辑页（只给管理员）：工作副本是工程的文件。
  * - 图：设计器改 process.json；单据：表单设计器改字段清单（有 form.ts 时重写它，没有时改 process.json 里内联的清单）；
- *   代码：文件树 + 编辑器，直接改各个文件（form.ts、logic.ts……），TS 文件有浏览器里的 TypeScript 7 语言服务（lsp/）；试运行：拿工作副本一步步走（TrialRun）；
+ *   测试：跑 test.ts 的场景（TestsPanel）；代码：文件树 + 编辑器，直接改各个文件（form.ts、logic.ts……），TS 文件有浏览器里的 TypeScript 7 语言服务（lsp/）；试运行：拿工作副本一步步走（TrialRun）；
  *   版本：和工作副本对比（图的变化、逐行的代码差异）、载入某一版、回滚、把进行中的单子迁到某一版（MigrationPanel）。
  * - 边改边查：停手半秒后把整份文件交给 Worker 里的引擎检查（编译、校验、类型检查，同发布），问题列在下面，点一下定位。
  * - 发布：检查没有错误才能发，写发布说明，成新的一版；进行中的单子按原来的版本走完。
@@ -47,6 +47,7 @@ import { timeText, who } from '../parts/labels';
 import { showError, toaster } from '../parts/toaster';
 import { useFlowCenter } from '../runtime/center';
 import { ProcessCanvas } from './ProcessCanvas';
+import { TestsPanel } from './TestsPanel';
 import { TrialRun } from './TrialRun';
 import { languageServicePlugin, lspState, syncLanguageService } from './lsp/client';
 import { MigrationPanel } from './MigrationPanel';
@@ -55,6 +56,7 @@ import {
   definitionOf,
   fileTemplate,
   PROCESS_FILE,
+  TEST_FILE,
   sortedPaths,
   starterProject,
   stringify,
@@ -594,6 +596,7 @@ export default _component(() => {
             <Tab value="form">单据</Tab>
             <Tab value="code">代码</Tab>
             <Tab value="trial">试运行</Tab>
+            <Tab value="tests">测试</Tab>
             <Tab value="versions">版本</Tab>
           </TabList>
           <TabPanel value="design">
@@ -632,6 +635,15 @@ export default _component(() => {
                 manifest={manifest()}
               />
             )}
+          </TabPanel>
+          <TabPanel value="tests">
+            <TestsPanel
+              files={current}
+              onCreate={() => {
+                files = { ...current, [TEST_FILE]: fileTemplate(TEST_FILE) };
+                openFile(TEST_FILE);
+              }}
+            />
           </TabPanel>
           <TabPanel value="versions">{renderVersions(current)}</TabPanel>
         </Tabs>

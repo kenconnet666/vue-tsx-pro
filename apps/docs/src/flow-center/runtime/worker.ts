@@ -16,7 +16,8 @@ import {
 } from '@zerodep-dev/flow-ts-engine';
 import type { OrgDirectory } from '@zerodep-dev/flow-ts-engine/org';
 import { DEFAULT_ACTOR } from '../domain/org';
-import { simulate } from '@zerodep-dev/flow-ts-engine/testing';
+import { runScenarios, simulate } from '@zerodep-dev/flow-ts-engine/testing';
+import type { FlowProject } from '@zerodep-dev/flow-ts-model';
 import { createBackend, definitionKey, prepare, trialOptions } from './backend';
 import {
   isDemoMessage,
@@ -108,6 +109,15 @@ async function orgChanged(): Promise<void> {
   endpoint?.changed();
 }
 
+/** 被调用的流程（合同调付款）要在试运行的库里：已发布的都先发上去（同键的就是在试的这个，不发旧的） */
+async function otherProcesses(project: FlowProject) {
+  const key = definitionKey(project);
+  const others = (await engine!.versions.catalog())
+    .filter((entry) => entry.key !== key)
+    .map((entry) => engine!.versions.project(entry.key));
+  return Promise.all(others);
+}
+
 /** Worker 的方法（页面经 center.call 调用） */
 const methods: {
   [M in WorkerMethod]: (
@@ -131,18 +141,18 @@ const methods: {
     await orgChanged();
   },
   actorOf: (id) => directory!.actorOf(id),
-  simulate: async ({ project, input }) => {
-    const key = definitionKey(project);
-    // 被调用的流程（合同调付款）要在试运行的库里：已发布的都先发上去（同键的就是在试的这个，不发旧的）
-    const others = (await engine!.versions.catalog())
-      .filter((entry) => entry.key !== key)
-      .map((entry) => engine!.versions.project(entry.key));
-    return simulate(project, {
+  simulate: async ({ project, input }) =>
+    simulate(project, {
       ...input,
-      processes: await Promise.all(others),
+      processes: await otherProcesses(project),
       options: trialOptions(directory!),
-    });
-  },
+    }),
+  runTests: async ({ project }) =>
+    runScenarios(project, {
+      options: trialOptions(directory!),
+      processes: await otherProcesses(project),
+      actorOf: (id) => directory!.actorOf(id),
+    }),
 };
 
 async function call({ call, method, argument }: Extract<ToWorker, { demo: 'call' }>) {

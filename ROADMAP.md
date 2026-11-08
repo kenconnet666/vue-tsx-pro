@@ -1011,7 +1011,9 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
       CI 去掉 flow-demo 任务。
       语言服务：浏览器 Worker 里跑 TypeScript 7 的 tsc --lsp（社区的 tsgo-wasm，与仓库的 typescript 钉在同一个提交，
       两个仓库都换成 7.1.0-dev.20261104.1），内存文件系统里放工程文件与模型包、引擎扩展点的类型；补全、悬停、跳转、拉取式诊断。
-      还差：test.ts 的场景测试、views/*.tsx 的约定；
+      场景测试：test.ts 写 defineScenarios（单据的值按 form.ts 的类型），引擎 testing 的 runScenarios 逐个试运行、对照期望；
+      工作室的“测试”页签在 Worker 里跑，合同工程带三个场景，Node 的测试也跑它们。
+      还差：views/*.tsx 的约定；
       供应商、物料、预算的 ORM 实体）
 - [ ] 26.7 事件与通知（发件箱、NOTIFY）、代理、监控看板、统计
 - [ ] 26.8 收尾：服务端部署文档、决定文档改写、两个仓库发版、下游通知

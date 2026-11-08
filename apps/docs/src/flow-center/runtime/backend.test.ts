@@ -4,7 +4,10 @@ import { PGlite } from '@electric-sql/pglite';
 import { pglite } from '@zerodep-dev/easy-query-ts-pg/pglite';
 import { expect, it } from 'vitest';
 import { PROCESSES } from '../processes';
-import { createBackend, prepare } from './backend';
+import { runScenarios } from '@zerodep-dev/flow-ts-engine/testing';
+import { contractProject } from '../processes/contract';
+import { payment } from '../processes/payment';
+import { createBackend, prepare, trialOptions } from './backend';
 
 it('第一次准备：种子按组织里的上级、部门负责人、财务收件箱落到各人名下', async () => {
   let fixed: Date | null = null;
@@ -44,7 +47,7 @@ it('第一次准备：种子按组织里的上级、部门负责人、财务收�
 
   // 合同是流程工程：版本里存着源码；logic.ts 的守卫在财务审核通过前查付款计划的合计
   const files = (await backend.engine.versions.project('contract')).files;
-  expect(Object.keys(files).sort()).toEqual(['form.ts', 'logic.ts', 'process.json']);
+  expect(Object.keys(files).sort()).toEqual(['form.ts', 'logic.ts', 'process.json', 'test.ts']);
   const { engine, directory } = backend;
   const as = async (id: string) => (await directory.actorOf(id))!;
   const started = await engine.run(
@@ -67,4 +70,13 @@ it('第一次准备：种子按组织里的上级、部门负责人、财务收�
   };
   await step('1015');
   await expect(step('1011')).rejects.toThrow('付款计划合计 40000.00，与合同金额 50000.00 不一致');
+
+  // 合同工程自带的场景测试（test.ts）：同工作室的“测试”页签，全部通过
+  const results = await runScenarios(contractProject, {
+    options: trialOptions(directory),
+    processes: [payment],
+    actorOf: (id) => directory.actorOf(id),
+  });
+  expect(results.map((r) => [r.name, r.problems])).toEqual(results.map((r) => [r.name, []]));
+  expect(results).toHaveLength(3);
 }, 60_000);
