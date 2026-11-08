@@ -24,6 +24,7 @@ import { fontSizeStyles, relativeFontSizeStyles, type TextSize } from '../utils/
 import type { AlertLives } from './Alert';
 import { t } from '../config/theme/tokens';
 import { partAttrs } from '../config/styles';
+import { stateLayerStyles } from '../utils/style/styles';
 
 /** 横幅的样式 */
 export interface BannerVariants {
@@ -186,7 +187,11 @@ export const Banner = _component(
           {onClose && (
             <CloseButton
               {...mergeProps<PresetIconButtonProps>(
-                { sx: [bannerStyles.close, relativeFontSizeStyles.sm] },
+                // 悬停、按下的底色取横幅的文字色（状态层）：彩色横幅上不是一块灰
+                {
+                  sx: [stateLayerStyles.ghost, bannerStyles.close, relativeFontSizeStyles.sm],
+                  ...bannerPart('close'),
+                },
                 propsClose,
                 { onClick: dismissible.dismiss },
               )}
