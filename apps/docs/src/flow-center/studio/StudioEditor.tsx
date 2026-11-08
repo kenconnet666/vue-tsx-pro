@@ -2,7 +2,7 @@
  * 流程工作室的编辑页（只给管理员）：工作副本是工程的文件。
  * - 图：设计器改 process.json；单据：表单设计器改字段清单（有 form.ts 时重写它，没有时改 process.json 里内联的清单）；
  *   测试：跑 test.ts 的场景（TestsPanel）；代码：文件树 + 编辑器，直接改各个文件（form.ts、logic.ts……），TS 文件有浏览器里的 TypeScript 7 语言服务（lsp/）；试运行：拿工作副本一步步走（TrialRun）；
- *   版本：和工作副本对比（图的变化、逐行的代码差异）、载入某一版、回滚、把进行中的单子迁到某一版（MigrationPanel）。
+ *   版本：和工作副本对比、载入某一版、回滚、迁移进行中的单子（VersionsPanel）。
  * - 边改边查：停手半秒后把整份文件交给 Worker 里的引擎检查（编译、校验、类型检查，同发布），问题列在下面，点一下定位。
  * - 发布：检查没有错误才能发，写发布说明，成新的一版；进行中的单子按原来的版本走完。
  * 还没发布过的新流程（从列表新建）只在这个页面里，发布后才进库。
@@ -43,15 +43,13 @@ import { javascript } from '@codemirror/lang-javascript';
 import { useFormDialog } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { onScopeDispose, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { timeText, who } from '../parts/labels';
 import { showError, toaster } from '../parts/toaster';
 import { useFlowCenter } from '../runtime/center';
 import { ProcessCanvas } from './ProcessCanvas';
 import { TestsPanel } from './TestsPanel';
 import { TrialRun } from './TrialRun';
 import { languageServicePlugin, lspState, syncLanguageService } from './lsp/client';
-import { MigrationPanel } from './MigrationPanel';
-import { VersionCompare } from './VersionCompare';
+import { VersionsPanel } from './VersionsPanel';
 import {
   definitionOf,
   fileTemplate,
@@ -101,7 +99,6 @@ export default _component(() => {
   /** 表单设计器刚改的清单：重写的 form.ts 检查完之前先显示它（不然要等编译才看得到改动） */
   let formDraft = _state.raw<FormManifest | null>(null);
   /** 版本页里正在和工作副本比的那一版 */
-  let comparing = _state.raw<{ label: string; files: Files } | null>(null);
 
   async function load() {
     try {
@@ -340,41 +337,6 @@ export default _component(() => {
     }
   }
 
-  async function loadVersion(info: VersionInfo) {
-    if (
-      dirty() &&
-      !(await confirm({
-        title: '放弃现在的改动？',
-        description: `换成第 ${info.version} 版的文件。`,
-        confirmText: '换',
-      }))
-    )
-      return;
-    try {
-      files = (await center.client.versions.project(key, info.version)).files;
-      tab = 'design';
-    } catch (error) {
-      showError(error);
-    }
-  }
-
-  async function rollback(info: VersionInfo) {
-    const ok = await confirm({
-      title: `回滚到第 ${info.version} 版？`,
-      description: '把那一版原样发布成新的一版；进行中的单子不受影响。',
-      confirmText: '回滚',
-    });
-    if (!ok) return;
-    try {
-      const { version } = await center.client.versions.rollback(key, info.version);
-      toaster.success(`已回滚：现在是第 ${version} 版`);
-      files = null;
-      await load();
-    } catch (error) {
-      showError(error);
-    }
-  }
-
   function renderProblems() {
     if (!checked) return checking ? <SkeletonText lines={1} /> : null;
     const { error, problems, types } = checked;
@@ -477,68 +439,6 @@ export default _component(() => {
           sx={styles.editor}
         />
       </div>
-    );
-  }
-
-  async function compare(info: VersionInfo) {
-    try {
-      comparing = {
-        label: `第 ${info.version} 版`,
-        files: (await center.client.versions.project(key, info.version)).files,
-      };
-    } catch (error) {
-      showError(error);
-    }
-  }
-
-  function renderVersions(current: Files) {
-    if (versions.length === 0) return <Small tone="muted">还没发布过。</Small>;
-    return (
-      <Flex direction="column" gap="lg">
-        <ItemList aria-label="版本">
-          {versions.map((info) => (
-            <ItemListItem
-              key={info.version}
-              title={`第 ${info.version} 版${info.note ? ` · ${info.note}` : ''}`}
-              description={`${info.publishedBy ? who(info.publishedBy) : '系统'} · ${timeText(info.publishedAt, center.state.now)}${info.enabled ? ' · 能发起' : ''}`}
-              end={
-                <Flex gap="xs">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    tone="neutral"
-                    onClick={() => void compare(info)}
-                  >
-                    和现在比
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    tone="neutral"
-                    onClick={() => void loadVersion(info)}
-                  >
-                    载入
-                  </Button>
-                  {info.version !== versions[0]?.version && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      tone="neutral"
-                      onClick={() => void rollback(info)}
-                    >
-                      回滚到这版
-                    </Button>
-                  )}
-                </Flex>
-              }
-            />
-          ))}
-        </ItemList>
-        {comparing && (
-          <VersionCompare before={comparing.files} after={current} label={comparing.label} />
-        )}
-        <MigrationPanel processKey={key} versions={versions} />
-      </Flex>
     );
   }
 
@@ -645,7 +545,22 @@ export default _component(() => {
               }}
             />
           </TabPanel>
-          <TabPanel value="versions">{renderVersions(current)}</TabPanel>
+          <TabPanel value="versions">
+            <VersionsPanel
+              processKey={key}
+              versions={versions}
+              files={current}
+              dirty={dirty()}
+              onLoad={(loaded) => {
+                files = loaded;
+                tab = 'design';
+              }}
+              onRollback={() => {
+                files = null;
+                void load();
+              }}
+            />
+          </TabPanel>
         </Tabs>
         {renderProblems()}
       </Flex>

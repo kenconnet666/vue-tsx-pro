@@ -19,8 +19,6 @@ export const BOXES: readonly { value: Box; label: string }[] = [
   { value: 'drafts', label: '草稿' },
 ];
 
-export const WORK_PATH = '/flow/work';
-
 /** 地址栏里的格子（不认识的当待办） */
 export const boxOf = (value: unknown): Box =>
   BOXES.some((b) => b.value === value) ? (value as Box) : 'todo';

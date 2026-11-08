@@ -15,8 +15,8 @@
 import type { NotifyEvent, NotifySettings } from '@zerodep-dev/flow-ts-model';
 import { FlowWorkItem } from '../core/entities.ts';
 import type { FlowEventView } from '../types.ts';
-import { expandToUsers, parseCandidate } from './assignees.ts';
-import { renderTitle, type Execution, type WorkItemRow } from './execution.ts';
+import { expandToUsers, parseCandidate } from '../runtime/assignees.ts';
+import { renderTitle, type Execution, type WorkItemRow } from '../runtime/execution.ts';
 
 /** 要写进 flow_notification 的一行 */
 export interface NotificationInsert {

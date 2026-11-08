@@ -1,5 +1,5 @@
 /**
- * 通知的信箱与发件箱（docs/decisions/0010）：我的通知、未读数、标为已读；外部投递——
+ * 通知的信箱与发件箱（docs/decisions/0010；推进时怎么生成见 collect.ts）：我的通知、未读数、标为已读；外部投递——
  * 引擎选项给了 notifications.deliver 时，提交后把还没送到的逐条交给它，抛错的记下原因、留着，到点作业再试（最多 MAX_ATTEMPTS 次）。
  */
 import type { Row } from '@zerodep-dev/easy-query-ts';

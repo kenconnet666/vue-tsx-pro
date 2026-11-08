@@ -13,6 +13,8 @@ import {
   type ProcessGraph,
   type ProcessNode,
   type CallNode,
+  type Due,
+  type Duration,
   type TaskNode,
   plainValue,
 } from '@zerodep-dev/flow-ts-model';
@@ -33,7 +35,7 @@ import {
   type FlowDb,
   FlowNotification,
 } from '../core/entities.ts';
-import { collectNotifications } from './notifications.ts';
+import { collectNotifications } from '../notify/collect.ts';
 import { agentOf } from '../proxy/proxies.ts';
 import { FLOW_CHANNEL } from '../core/channels.ts';
 import { FlowError } from '../core/errors.ts';
@@ -881,8 +883,8 @@ export function renderTitle(
   });
 }
 
-/** 一段时长的毫秒数（工作日按自然日算，只用于提醒的间隔） */
-function durationMs(duration: import('@zerodep-dev/flow-ts-model').Duration): number {
+/** 一段时长的毫秒数（工作日按自然日算：提醒的间隔用它；时限的工作日由 dueAt 按日历数） */
+function durationMs(duration: Duration): number {
   if ('minutes' in duration) return duration.minutes * 60_000;
   if ('hours' in duration) return duration.hours * 3_600_000;
   if ('days' in duration) return duration.days * 86_400_000;
@@ -891,7 +893,7 @@ function durationMs(duration: import('@zerodep-dev/flow-ts-model').Duration): nu
 
 /** 时长或时刻 → 到点的时刻（工作日跳过非工作日） */
 export function dueAt(
-  due: import('@zerodep-dev/flow-ts-model').Due,
+  due: Due,
   from: Date,
   read: (field: string) => unknown,
   options: FlowEngineOptions,
@@ -900,9 +902,7 @@ export function dueAt(
     const value = typeof due.until === 'string' ? due.until : read(due.until.ref);
     return new Date(value as string);
   }
-  if ('minutes' in due) return new Date(from.getTime() + due.minutes * 60_000);
-  if ('hours' in due) return new Date(from.getTime() + due.hours * 3_600_000);
-  if ('days' in due) return new Date(from.getTime() + due.days * 86_400_000);
+  if (!('workdays' in due)) return new Date(from.getTime() + durationMs(due));
   const isWorkday =
     options.isWorkday ?? ((day: Date) => day.getUTCDay() !== 0 && day.getUTCDay() !== 6);
   const at = new Date(from);
