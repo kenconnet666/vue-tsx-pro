@@ -81,6 +81,17 @@ const sections: { id: string; title: string; intro: string; items: string[] }[] 
       '示例卡片右上角的“示例工具”可以把任何一个示例切到从右到左、窄屏、放大字号与反色主题，看看是否还对。',
     ],
   },
+  {
+    id: 'touch',
+    title: '触屏与窄屏',
+    intro: '手机上组件照样能用，不用另外的移动端版本（H5 专用的组件见“移动端”）。',
+    items: [
+      '点击区域不小于 24px（minTarget）：框里的小按钮、勾选框也是。',
+      '触屏上输入框（含日期的分段、代码编辑器）的字号不小于 16px：iOS 的 Safari 聚焦小于 16px 的输入框时会放大整页。自己写的原生输入框用 touchInputStyles.font 得到同样的规则。',
+      '筛选栏、表格的工具栏放不下时在里面换行，不把页面撑宽；自己的响应式样式用 @zerodep-dev/vue-tsx-pro-ui/tokens 的 breakpoints，与组件（侧栏、抽屉）的断点一致。',
+      '仓库里的 scripts/docs/mobile-audit.mjs 在 375 宽的手机上逐页打开全部组件页（--open 再点开每个示例的浮层），列出撑宽页面的元素与小字号的输入框。',
+    ],
+  },
 ];
 
 export default _component(() => () => (
