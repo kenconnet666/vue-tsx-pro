@@ -28,6 +28,7 @@ import type { Commands } from '../commands/dispatch.ts';
 import type { Publishing } from '../publish/publish.ts';
 import type { Queries } from '../queries/queries.ts';
 import type { Jobs } from '../jobs/jobs.ts';
+import type { Notifications } from '../notify/inbox.ts';
 
 /** 引擎核心：共用的部分，加上各模块（createFlowEngine 依次装上） */
 export interface EngineCore {
@@ -81,6 +82,8 @@ export interface EngineCore {
   queries: Queries;
   /** 作业（jobs/jobs.ts） */
   jobs: Jobs;
+  /** 通知的信箱与发件箱（notify/inbox.ts） */
+  notifications: Notifications;
 }
 
 /** 建引擎核心；各模块的槽由 createFlowEngine 依次装上 */
@@ -180,6 +183,7 @@ export function createCore(options: FlowEngineOptions): EngineCore {
   ): Promise<Execution> {
     const exec = new Execution(tx, options, definition, instance, actor, now());
     exec.startChild = (parent, node) => core.calls.startChild(parent, node);
+    exec.onNotified = () => core.notifications.deliverPending();
     exec.logic = await logicOf(tx, instance.definitionId);
     return exec;
   }
@@ -232,6 +236,7 @@ export function createCore(options: FlowEngineOptions): EngineCore {
     publishing: undefined as never,
     queries: undefined as never,
     jobs: undefined as never,
+    notifications: undefined as never,
   };
   return core;
 }

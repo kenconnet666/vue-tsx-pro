@@ -12,6 +12,7 @@ export type InstanceStatus = (typeof INSTANCE_STATUSES)[number];
 import type { WorkItemOperation } from './commands/operations.ts';
 import type { HostModules, TransformCode } from './publish/project.ts';
 import type { Actor, FlowExtensions, FlowOrg } from './extensions.ts';
+import type { NotificationView } from './views.ts';
 export type * from './extensions.ts';
 
 /** 流转记录（监听拿到的、实例详情里列的） */
@@ -64,6 +65,13 @@ export interface FlowEngineOptions {
   readonly org?: FlowOrg;
   readonly extensions?: FlowExtensions;
   readonly on?: FlowListeners;
+  /**
+   * 通知的外部投递（邮件、短信、IM）：每条通知提交后交给 deliver，抛错的留在发件箱、到点作业再试（最多 5 次）；
+   * 不给时只有站内信箱（engine.notifications）
+   */
+  readonly notifications?: {
+    readonly deliver?: (notification: NotificationView) => void | Promise<void>;
+  };
   /** 处理人解析为空、节点要求交给管理员时，交给这些人 */
   readonly admins?: readonly string[];
   /** 时钟；测试用假时钟 */

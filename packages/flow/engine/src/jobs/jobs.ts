@@ -60,6 +60,8 @@ export function createJobs(core: EngineCore) {
       }
       return rows;
     });
+    // 发件箱里没送到的通知：每次跑作业顺带再试
+    await core.notifications.deliverPending();
     let ran = 0;
     for (const job of due) {
       try {

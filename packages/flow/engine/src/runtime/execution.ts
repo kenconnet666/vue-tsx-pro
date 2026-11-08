@@ -25,7 +25,9 @@ import {
   FlowJob,
   FlowWorkItem,
   type FlowDb,
+  FlowNotification,
 } from '../core/entities.ts';
+import { collectNotifications } from './notifications.ts';
 import { FlowError } from '../core/errors.ts';
 import type { FlowLogic } from '../extensions.ts';
 import { emptyRunState, type RunState } from './state.ts';
@@ -104,6 +106,8 @@ export class Execution {
   readonly instance: InstanceRow;
   readonly actor: Actor | null;
   readonly now: Date;
+  /** 这一步生成了通知、事务提交之后：引擎核心接上外部投递（notify/inbox.ts 的 deliverPending） */
+  onNotified?: () => Promise<unknown>;
 
   constructor(
     tx: FlowDb,
@@ -642,18 +646,23 @@ export class Execution {
   }
 
   /** 抄送：展开成人，每人一条；手动抄送时节点为空 */
-  async sendCc(
-    nodeId: string | null,
-    sources: Parameters<typeof resolveCandidates>[0],
-    message?: string,
-  ): Promise<void> {
+  /** 处理人的来源解析成人（抄送、通知加的收件人）：角色、部门经 org 展开，去重 */
+  async resolveUsers(sources: Parameters<typeof resolveCandidates>[0]): Promise<string[]> {
     const scope = {
       context: this.context(),
       handledBy: this.state.handledBy,
       options: this.options,
       resolver: (name: string) => this.extension('resolvers', name),
     };
-    const users = await expandToUsers(await resolveCandidates(sources, scope), this.options);
+    return expandToUsers(await resolveCandidates(sources, scope), this.options);
+  }
+
+  async sendCc(
+    nodeId: string | null,
+    sources: Parameters<typeof resolveCandidates>[0],
+    message?: string,
+  ): Promise<void> {
+    const users = await this.resolveUsers(sources);
     if (users.length === 0) return;
     await this.tx
       .insert(FlowCc)
@@ -772,6 +781,11 @@ export class Execution {
         .insert(FlowEvent)
         .values(this.events.map((event) => ({ ...event })))
         .execute();
+      const notices = await collectNotifications(this, this.events, title);
+      if (notices.length > 0) {
+        await this.tx.insert(FlowNotification).values(notices).execute();
+        if (this.options.notifications?.deliver) this.tx.afterCommit(() => this.onNotified?.());
+      }
       const listeners = this.options.on;
       if (listeners) {
         const events = [...this.events];

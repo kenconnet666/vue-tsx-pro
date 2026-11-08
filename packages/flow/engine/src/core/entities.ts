@@ -214,6 +214,45 @@ export const FlowJob = entity(
   },
 );
 
+/**
+ * 通知：站内信箱兼发件箱（docs/decisions/0010）。与推进同一个事务写入，所以“提交了才有通知”；
+ * readAt 是收件人读过，sentAt 是外部投递（邮件、IM，引擎选项的 notifications.deliver）送到了，没送到的到点作业重试。
+ * 只存事件与当时的标题、环节名，文案由界面按事件拼（语言包）；流程配了模板时 message 是渲染好的文字
+ */
+export const FlowNotification = entity(
+  'flow_notification',
+  {
+    id: col.bigint().primaryKey().generated(),
+    recipient: text(),
+    /** 到达、退回、催办、快到期、超时、抄送、结束（模型包的 NotifyEvent） */
+    event: text(),
+    instanceId: col.bigint(),
+    workItemId: col.bigint().nullable(),
+    node: text().nullable(),
+    nodeName: text().nullable(),
+    processKey: text(),
+    /** 当时实例的标题 */
+    title: text().nullable(),
+    /** 流程配了模板时渲染好的文字 */
+    message: text().nullable(),
+    /** 谁的动作引起的（催办的人、抄送的人）；作业、系统引起的为空 */
+    sender: text().nullable(),
+    createdAt: instant(),
+    readAt: instant().nullable(),
+    sentAt: instant().nullable(),
+    attempts: col.int(),
+    lastError: text().nullable(),
+  },
+  {
+    comment: '通知（站内信箱兼发件箱）',
+    indexes: [
+      { columns: ['recipient', 'id'] },
+      { columns: ['recipient'], where: 'read_at IS NULL' },
+      { columns: ['id'], where: 'sent_at IS NULL' },
+    ],
+  },
+);
+
 /** 抄送 */
 export const FlowCc = entity(
   'flow_cc',
@@ -234,7 +273,7 @@ export const FlowCc = entity(
 
 /** 引擎的 schema；关联是逻辑外键（只在查询里导航，库里不建约束） */
 export const flowSchema = defineSchema(
-  { FlowDefinition, FlowInstance, FlowWorkItem, FlowEvent, FlowJob, FlowCc },
+  { FlowDefinition, FlowInstance, FlowWorkItem, FlowEvent, FlowJob, FlowCc, FlowNotification },
   {
     FlowInstance: (r) => ({
       definition: r.one('FlowDefinition', { from: 'definitionId', to: 'id' }),
@@ -247,6 +286,9 @@ export const flowSchema = defineSchema(
     FlowEvent: (r) => ({ instance: r.one('FlowInstance', { from: 'instanceId', to: 'id' }) }),
     FlowJob: (r) => ({ instance: r.one('FlowInstance', { from: 'instanceId', to: 'id' }) }),
     FlowCc: (r) => ({ instance: r.one('FlowInstance', { from: 'instanceId', to: 'id' }) }),
+    FlowNotification: (r) => ({
+      instance: r.one('FlowInstance', { from: 'instanceId', to: 'id' }),
+    }),
   },
 );
 

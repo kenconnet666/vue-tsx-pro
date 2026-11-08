@@ -42,6 +42,7 @@ import { createCommands } from './commands/dispatch.ts';
 import { createPublishing } from './publish/publish.ts';
 import { createQueries } from './queries/queries.ts';
 import { createJobs } from './jobs/jobs.ts';
+import { createNotifications } from './notify/inbox.ts';
 import type {
   TodoItem,
   WorkItemDetail,
@@ -53,6 +54,7 @@ import type {
   CatalogEntry,
   CheckResult,
   MigrationCandidate,
+  NotificationView,
   VersionInfo,
   TypedProcess,
 } from './views.ts';
@@ -145,8 +147,18 @@ export interface FlowEngine {
   /** 把抄送给我的这个实例标成已读，返回标了几条 */
   readCc(instance: number, actor: Actor): Promise<number>;
   readonly jobs: {
-    /** 执行到点的作业，返回执行了几个；Nitro 的定时任务或接入方自己定时调用 */
+    /** 执行到点的作业，返回执行了几个；顺带重试发件箱里没送到的通知。Nitro 的定时任务或接入方自己定时调用 */
     runDue(options?: { limit?: number; worker?: string }): Promise<number>;
+  };
+  /** 通知（docs/decisions/0010）：我的通知、没读的有几条、标为已读 */
+  readonly notifications: {
+    list(
+      actor: Actor,
+      filter?: { unreadOnly?: boolean; limit?: number },
+    ): Promise<NotificationView[]>;
+    unread(actor: Actor): Promise<number>;
+    /** 给了编号只标这些（只能标自己的），不给时全部；返回标了几条 */
+    read(actor: Actor, ids?: readonly number[]): Promise<number>;
   };
   /** 引擎用的 Db（查询自己的表、和业务表做报表） */
   readonly db: FlowDb;
@@ -165,6 +177,7 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   core.publishing = createPublishing(core);
   core.queries = createQueries(core);
   core.jobs = createJobs(core);
+  core.notifications = createNotifications(core);
   const { db, now } = core;
 
   function process<Form extends FormManifest>(key: string): TypedProcess<FormValues<Form>> {
@@ -196,5 +209,10 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     run: core.commands.run,
     query: core.queries.query,
     jobs: { runDue: core.jobs.runDue },
+    notifications: {
+      list: core.notifications.list,
+      unread: core.notifications.unread,
+      read: core.notifications.read,
+    },
   };
 }

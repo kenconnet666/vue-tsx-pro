@@ -26,6 +26,7 @@ import type {
   CheckResult,
   Incident,
   MigrationCandidate,
+  NotificationView,
   InstanceDetail,
   StartView,
   TodoItem,
@@ -90,6 +91,12 @@ export interface FlowClient {
     get(id: number): Promise<InstanceRow>;
     discard(id: number): Promise<boolean>;
   };
+  /** 我的通知：列表（新的在前）、没读的有几条、标为已读（不给编号时全部） */
+  readonly notifications: {
+    list(filter?: { unreadOnly?: boolean; limit?: number }): Promise<NotificationView[]>;
+    unread(): Promise<number>;
+    read(ids?: readonly number[]): Promise<number>;
+  };
   /** 工作室（只给管理员）：发布定义或流程工程，校验、类型检查不过是 invalid-definition */
   publish(
     input: ProcessDefinition | FlowProject,
@@ -147,6 +154,11 @@ export function createFlowClient(transport: FlowTransport): FlowClient {
       list: () => call('drafts.list'),
       get: (id) => call('drafts.get', id),
       discard: (id) => call('drafts.discard', id),
+    },
+    notifications: {
+      list: (filter) => call('notifications.list', filter),
+      unread: () => call('notifications.unread'),
+      read: (ids) => call('notifications.read', ids),
     },
     publish: (input, note) => call('publish', input, note),
     check: (input) => call('check', input),

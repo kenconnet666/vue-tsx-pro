@@ -5,6 +5,7 @@
 import {
   type NodeFormAccess,
   type FormManifest,
+  type NotifyEvent,
   type Outcome,
   type Problem,
   type ProcessDefinition,
@@ -192,6 +193,25 @@ export interface MigrationCandidate {
   }[];
   /** 都对应得上，能直接迁（不用写节点的对应） */
   readonly ready: boolean;
+}
+
+/** 一条通知（我的通知、外部投递拿到的）：文案由界面按 event 拼，message 是流程配了模板时渲染好的文字 */
+export interface NotificationView {
+  readonly id: number;
+  readonly recipient: string;
+  readonly event: NotifyEvent;
+  readonly instanceId: number;
+  readonly workItemId: number | null;
+  readonly node: string | null;
+  readonly nodeName: string | null;
+  readonly processKey: string;
+  /** 当时实例的标题 */
+  readonly title: string | null;
+  readonly message: string | null;
+  /** 谁的动作引起的（催办、抄送的人） */
+  readonly sender: string | null;
+  readonly createdAt: Date;
+  readonly readAt: Date | null;
 }
 
 /** 全部流程里的一个：最新一版的信息，加上流程的键、发布过几版、现在能不能发起 */
