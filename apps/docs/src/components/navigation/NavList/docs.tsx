@@ -69,10 +69,8 @@ export default _component(() => () => (
         </Example>
         <Example id="nav-bar" title="顶栏一行：NavBar" demo={TopBar}>
           <Code>NavBar</Code> 是顶栏的一行链接与下拉菜单：<Code>items</Code> 里有 <Code>href</Code>{' '}
-          的是链接，有 <Code>children</Code> 的是下拉菜单（菜单项是链接），有 <Code>panel</Code>{' '}
-          的是下拉面板——菜单放不下的内容（带说明与状态的列表、批量操作），选完调 <Code>close</Code>{' '}
-          收起。当前页同样按路由适配判断，同一个地址靠查询参数区分的几项用 <Code>current</Code>{' '}
-          自己判断；子项是当前页时它的下拉按钮也高亮；放不下时后面的项收进“更多”菜单（有面板的列成它的链接），藏起来的项不占位、读屏与
+          的是链接，有 <Code>children</Code>{' '}
+          的是下拉菜单（菜单项是链接）。当前页同样按路由适配判断，子项是当前页时它的下拉按钮也高亮；放不下时后面的项收进“更多”菜单，藏起来的项不占位、读屏与
           Tab 都跳过。
         </Example>
       </ExampleColumn>

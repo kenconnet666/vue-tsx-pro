@@ -1,4 +1,4 @@
-// NavBar：链接按路由判断当前页（aria-current），子项是当前页时下拉按钮也高亮；量不到布局时全部显示、“更多”藏起来；下拉面板与 current。
+// NavBar：链接按路由判断当前页（aria-current），子项是当前页时下拉按钮也高亮；量不到布局时全部显示、“更多”藏起来。
 // NavList：计数角标（展开时 Badge，紧凑时图标上的小圆点），紧凑分组弹出子项、组里有当前页时图标高亮
 import { House, Package } from '@lucide/icons';
 import { describe, expect, it, vi } from 'vitest';
@@ -44,40 +44,6 @@ describe('NavBar', () => {
     // 量不到布局：全部显示，“更多”藏起来（读屏、Tab 都跳过）
     const more = nav.querySelector('button[aria-label="更多"]')!.closest('li')!;
     expect(more.getAttribute('aria-hidden')).toBe('true');
-  });
-
-  it('下拉面板：点了弹出内容，面板调 close 收起；current 自己判断当前项（同一地址靠查询参数区分）', async () => {
-    const root = withRouter('/work', () => (
-      <NavBar
-        aria-label="工作台"
-        items={[
-          {
-            label: '待办',
-            href: '/work?box=todo',
-            badge: 2,
-            current: true,
-            panel: (close) => (
-              <button type="button" onClick={close}>
-                采购单
-              </button>
-            ),
-          },
-          { label: '已办', href: '/work?box=done', current: false },
-        ]}
-      />
-    ));
-    const trigger = root.querySelector<HTMLButtonElement>('button[aria-haspopup="dialog"]')!;
-    expect([trigger.textContent, trigger.dataset.state]).toEqual(['待办2', 'active']);
-    expect(root.querySelector('a')!.hasAttribute('aria-current')).toBe(false);
-    trigger.click();
-    await nextTick();
-    expect(trigger.getAttribute('aria-expanded')).toBe('true');
-    const pick = [
-      ...root.ownerDocument.querySelectorAll<HTMLButtonElement>('[role="dialog"] button'),
-    ].find((b) => b.textContent === '采购单')!;
-    pick.click();
-    await nextTick();
-    expect(trigger.getAttribute('aria-expanded')).toBe('false');
   });
 });
 
