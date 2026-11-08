@@ -21,6 +21,17 @@ export {
   flowSchema,
   type FlowDb,
 } from './entities.ts';
-export type { CompileCode } from './code.ts';
+export {
+  buildProject,
+  compileProject,
+  defineLogic,
+  linkProject,
+  type CompiledProject,
+  type FlowLogic,
+  type HostModule,
+  type HostModules,
+  type LinkedProject,
+  type TransformCode,
+} from './project.ts';
 export type { RunState } from './state.ts';
 export type * from './types.ts';

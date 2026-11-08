@@ -22,6 +22,8 @@
     "model/test/**/*.ts",
     "engine/src/**/*.ts",
     "engine/test/**/*.ts",
+    "studio/src/**/*.ts",
+    "studio/test/**/*.ts",
     "vitest.config.ts"
   ]
 }

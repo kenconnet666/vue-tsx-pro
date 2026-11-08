@@ -1,0 +1,64 @@
+{
+  "name": "@zerodep-dev/flow-ts-studio",
+  "version": "0.1.0",
+  "description": "Tooling for flow projects written in TypeScript: compile with the vue-tsx-pro compiler, type-check with TypeScript 7, and the online studio",
+  "license": "Apache-2.0",
+  "author": "lionheart (https://github.com/kenconnet666)",
+  "homepage": "https://github.com/kenconnet666/vue-tsx-pro/tree/master/packages/flow#readme",
+  "bugs": {
+    "url": "https://github.com/kenconnet666/vue-tsx-pro/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kenconnet666/vue-tsx-pro.git",
+    "directory": "packages/flow/studio"
+  },
+  "keywords": [
+    "workflow",
+    "bpm",
+    "typescript",
+    "studio"
+  ],
+  "exports": {
+    ".": {
+      "@vue-tsx-pro/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./typecheck": {
+      "@vue-tsx-pro/source": "./src/typecheck.ts",
+      "types": "./dist/typecheck.d.ts",
+      "default": "./dist/typecheck.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "type": "module",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -b tsconfig.build.json",
+    "prepack": "tsc -b tsconfig.build.json"
+  },
+  "dependencies": {
+    "@zerodep-dev/flow-ts-engine": "workspace:^",
+    "@zerodep-dev/flow-ts-model": "workspace:^",
+    "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^"
+  },
+  "peerDependencies": {
+    "typescript": "^7.0.0"
+  },
+  "peerDependenciesMeta": {
+    "typescript": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "catalog:",
+    "typescript": "catalog:"
+  }
+}

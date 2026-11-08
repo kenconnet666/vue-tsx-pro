@@ -7,7 +7,7 @@ import { col, defineSchema, entity, type Db } from '@zerodep-dev/easy-query-ts';
 import type { ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import type { RunState } from './state.ts';
 
-/** 已发布的版本：一行一个版本，发布后不改 */
+/** 已发布的版本：一行一个版本，发布后不改（只有 enabled 会变）；流程工程的版本带着全部源码与编译结果 */
 export const FlowDefinition = entity(
   'flow_definition',
   {
@@ -19,6 +19,12 @@ export const FlowDefinition = entity(
     enabled: col.boolean(),
     publishedBy: col.string(64).nullable(),
     publishedAt: col.datetime(),
+    /** 发布说明 */
+    note: col.string(500).nullable(),
+    /** 流程工程的源码（路径 → 源码）；只发布了定义时为空 */
+    files: col.json().$type<Record<string, string>>().nullable(),
+    /** 编译好的模块（路径 → JS），执行时加载 */
+    modules: col.json().$type<Record<string, string>>().nullable(),
   },
   { indexes: [{ columns: ['processKey', 'version'], unique: true }] },
 );

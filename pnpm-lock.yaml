@@ -840,6 +840,25 @@ importers:
         specifier: 'catalog:'
         version: 7.1.0-beta
 
+  packages/flow/studio:
+    dependencies:
+      '@zerodep-dev/flow-ts-engine':
+        specifier: workspace:^
+        version: link:../engine
+      '@zerodep-dev/flow-ts-model':
+        specifier: workspace:^
+        version: link:../model
+      '@zerodep-dev/vue-tsx-pro-tsx':
+        specifier: workspace:^
+        version: link:../../tsx
+    devDependencies:
+      '@electric-sql/pglite':
+        specifier: 'catalog:'
+        version: 0.5.10
+      typescript:
+        specifier: 'catalog:'
+        version: 7.1.0-beta
+
   packages/kit:
     devDependencies:
       '@types/node':

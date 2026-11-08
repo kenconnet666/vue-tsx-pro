@@ -37,7 +37,7 @@ export interface ResolveScope {
   readonly context: ExtensionContext;
   readonly handledBy: Readonly<Record<string, string>>;
   readonly options: FlowEngineOptions;
-  /** 按名字找处理人解析器（引擎选项里注册的，或流程自带的 `code.名字`） */
+  /** 按名字找处理人解析器（引擎选项里注册的，或流程工程的 `logic.名字`） */
   readonly resolver: (name: string) => Resolver | undefined;
 }
 

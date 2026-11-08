@@ -71,8 +71,9 @@ export const purchase = defineProcess({
 
 1. **条件树**（`{ field, op, value }` 与 all / any / not，同组件库的 `ConditionBuilder`）：业务人员在设计器里配；
 2. **按名字引用接入方注册的扩展**（`resolver`、`guards`、`action`、`fn.名字`）：接入方在代码里注册，名字靠声明合并有补全；
-3. **流程自带的 TS 模块**（`code` 字段，ROADMAP 14.8b 已做：发布时用 Node 的 `stripTypeScriptTypes` 去掉类型，按 data URL 加载）：受信任的管理员在设计器里写 TS，发布时编译成 JS 与定义一起存（按版本不可变），
-   引擎在宿主进程里直接执行（已定的决定第 7 条：不做沙箱）。模块导出的函数与注册的扩展同名同形，定义里写 `code.名字` 引用。
+3. **流程工程的 TS**（2026-11-08 起取代原来单个 `code` 模块，见 [0002](0002-projects.md)）：一个流程是 process.json、form.ts、logic.ts 等几份文件，
+   受信任的管理员在线写，发布时编译、按版本存下（不可变），引擎在宿主里直接执行（已定的决定第 7 条：不做沙箱）。
+   logic.ts 按种类导出的函数与注册的扩展同形，定义里写 `logic.名字` 引用。
 
 ## 4. 表（easy-query 实体）
 

@@ -47,7 +47,7 @@ export const actions = defineActions({
   ),
   publish: defineAction(
     { input: z.object({ definition: definitionInput }), permission: 'flow.admin' },
-    ({ definition }) => run(() => engine.publish(definition, currentActor())),
+    ({ definition }) => run(() => engine.publish(definition, { actor: currentActor() })),
   ),
   start: defineAction(
     {

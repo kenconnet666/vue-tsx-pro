@@ -952,11 +952,15 @@ H5 的构建产物装进 Capacitor 的原生外壳，页面与组件不改；宿
 流程即一个小 TS 工程（图、表单、逻辑、视图、场景测试），管理员在线编写；引擎只认 PostgreSQL、用好 easy-query-ts；
 表单模块做全；演示是文档站里跑 PGlite 的“流程中心”，`apps/flow-demo` 搬完测试后删掉。
 
-- [ ] 26.1 只认 PG：测试换 PGlite（共用一个实例、每次清空），CI 的 db 任务只留 PG 17；引擎去掉 Node 专属依赖
+- [x] 26.1 只认 PG：测试换 PGlite（共用一个实例、每次清空），CI 的 db 任务只留 PG 17；引擎去掉 Node 专属依赖
       （AsyncLocalStorage、process.pid、stripTypeScriptTypes 改成可注入的 `compileCode`），浏览器里能跑；候选人改成待办上的
       `text[]` 标记 + 部分 GIN 索引（去掉 flow_candidate 表）；作业用 FOR UPDATE SKIP LOCKED 成批抢占；各表补索引。
       ORM 的缺口只有 PGlite 的 `listen`，已在 easy-query-ts 0.2.4 补上。迁移基线等 26.2–26.4 的表定下来再冻结
 - [ ] 26.2 流程即 TS 工程：多文件、宿主模块登记、编译与类型检查、版本与回滚、浏览器与服务端加载；类型贯通的客户端
+      （已有，决定见 `packages/flow/docs/decisions/0002-projects.md`：process.json、form.ts（`defineForm`）、logic.ts（`defineLogic(form, …)`，
+      `logic.名字` 引用、发布时核对）；新包 flow-ts-studio 用组件库的 browser-compile 编译（纯 .ts 也去类型），引擎自己的链接器加载相对路径、自带与宿主模块；
+      TS 7 的类型检查 `flow-ts-studio/typecheck`；版本列出、取源码、回滚；`engine.process<typeof form>(key)` 带类型的发起与处理。
+      还差：浏览器里 Worker 编译的接法与测试（随 26.5 的流程中心一起）、views/*.tsx 的约定（随 26.4）、test.ts 的场景测试（随 26.6））
 - [ ] 26.3 动作插件化与补齐能力（委托、加签减签、撤回这一步、释放、指定承办人、批量、改数据、票签、提级、forEach / 异步、
       自定义节点、草稿、实例迁移）
 - [ ] 26.4 表单模块（SchemaForm 增强、表单设计器、权限矩阵、字典、明细表、计算、联动、打印）

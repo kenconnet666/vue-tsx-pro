@@ -8,7 +8,7 @@
  *   });
  *   run.status; run.path.map((e) => e.node); run.open; run.error
  */
-import type { Duration, ProcessDefinition } from '@zerodep-dev/flow-ts-model';
+import type { Duration, FlowProject, ProcessDefinition } from '@zerodep-dev/flow-ts-model';
 import { parseCandidate } from './assignees.ts';
 import { FlowWorkItem } from './entities.ts';
 import { FlowError } from './errors.ts';
@@ -72,9 +72,9 @@ export interface SimulationResult {
 /** 试运行共用一个测试库，一次只跑一个 */
 let queue: Promise<unknown> = Promise.resolve();
 
-/** 按步骤试运行一个流程定义（不用先发布到真实的库）；同时调用时排队 */
+/** 按步骤试运行一个流程定义或流程工程（不用先发布到真实的库）；同时调用时排队 */
 export function simulate(
-  definition: ProcessDefinition,
+  definition: ProcessDefinition | FlowProject,
   input: SimulationInput = {},
 ): Promise<SimulationResult> {
   const run = queue.then(() => simulateNow(definition, input));
@@ -83,7 +83,7 @@ export function simulate(
 }
 
 async function simulateNow(
-  definition: ProcessDefinition,
+  definition: ProcessDefinition | FlowProject,
   input: SimulationInput,
 ): Promise<SimulationResult> {
   const { engine, clock } = await createTestEngine({ admins: ['admin'], ...input.options });
@@ -101,9 +101,9 @@ async function simulateNow(
   };
 
   try {
-    await engine.publish(definition);
+    const { key } = await engine.publish(definition);
     const started = await engine.run(
-      { type: 'start', process: definition.key, variables: input.variables ?? {} },
+      { type: 'start', process: key, variables: input.variables ?? {} },
       initiator,
     );
     instanceId = started.instance.id;

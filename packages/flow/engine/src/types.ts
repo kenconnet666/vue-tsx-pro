@@ -4,7 +4,8 @@
  * 发生了什么（on）
  */
 import type { Adapter } from '@zerodep-dev/easy-query-ts';
-import type { CompileCode } from './code.ts';
+import type { FlowProject } from '@zerodep-dev/flow-ts-model';
+import type { HostModules, TransformCode } from './project.ts';
 
 /** 做事的人：编号与他的角色、部门（判断能不能认领收件箱里的待办）；admin 能做管理员的事 */
 export interface Actor {
@@ -26,28 +27,33 @@ export interface FlowOrg {
 }
 
 /** 扩展函数拿到的：实例、流程变量、按字段名取值 */
-export interface ExtensionContext {
+/** 流程变量的默认形状（没有单据类型时） */
+export type Variables = Readonly<Record<string, unknown>>;
+
+/** 扩展拿到的现场；V 是单据的值（流程工程里由 form.ts 推出） */
+export interface ExtensionContext<V extends object = Variables> {
   readonly instance: {
     readonly id: number;
     readonly processKey: string;
     readonly businessKey: string | null;
     readonly startedBy: string;
   };
-  readonly variables: Readonly<Record<string, unknown>>;
+  readonly variables: Readonly<V>;
   /** 按字段名取值：流程变量、`sys.名字`、`fn.名字` */
+  read<K extends keyof V & string>(field: K): V[K] | undefined;
   read(field: string): unknown;
   /** 定义里写的参数 */
   readonly args: Readonly<Record<string, unknown>>;
 }
 
 /** 处理人解析器：返回处理人的编号 */
-export type Resolver = (
-  context: ExtensionContext,
+export type Resolver<V extends object = Variables> = (
+  context: ExtensionContext<V>,
 ) => readonly string[] | Promise<readonly string[]>;
 
 /** 守卫：提交前检查，返回 true 放行，返回文字是拒绝的原因 */
-export type Guard = (
-  context: ExtensionContext & {
+export type Guard<V extends object = Variables> = (
+  context: ExtensionContext<V> & {
     readonly node: string;
     readonly outcome: string;
     readonly actor: Actor;
@@ -55,23 +61,24 @@ export type Guard = (
 ) => true | string | Promise<true | string>;
 
 /** 自动节点的动作：可以给出结果（按它选出边）、改流程变量 */
-export type Action = (context: ExtensionContext & { readonly node: string }) =>
+export type Action<V extends object = Variables> = (
+  context: ExtensionContext<V> & { readonly node: string },
+) =>
   | void
-  | { readonly outcome?: string; readonly variables?: Readonly<Record<string, unknown>> }
-  | Promise<void | {
-      readonly outcome?: string;
-      readonly variables?: Readonly<Record<string, unknown>>;
-    }>;
+  | { readonly outcome?: string; readonly variables?: Readonly<Partial<V>> }
+  | Promise<void | { readonly outcome?: string; readonly variables?: Readonly<Partial<V>> }>;
 
 /** 计算值（条件里的 `fn.名字`）：同步，按当时的变量算 */
-export type ComputedValue = (context: Omit<ExtensionContext, 'args'>) => unknown;
+export type ComputedValue<V extends object = Variables> = (
+  context: Omit<ExtensionContext<V>, 'args'>,
+) => unknown;
 
 /** 接入方注册的扩展：定义里按名字引用 */
-export interface FlowExtensions {
-  readonly resolvers?: Readonly<Record<string, Resolver>>;
-  readonly guards?: Readonly<Record<string, Guard>>;
-  readonly actions?: Readonly<Record<string, Action>>;
-  readonly functions?: Readonly<Record<string, ComputedValue>>;
+export interface FlowExtensions<V extends object = Variables> {
+  readonly resolvers?: Readonly<Record<string, Resolver<V>>>;
+  readonly guards?: Readonly<Record<string, Guard<V>>>;
+  readonly actions?: Readonly<Record<string, Action<V>>>;
+  readonly functions?: Readonly<Record<string, ComputedValue<V>>>;
 }
 
 /** 流转记录（监听拿到的、实例详情里列的） */
@@ -93,12 +100,32 @@ export type FlowListeners = Readonly<
   Record<string, (event: FlowEventView) => void | Promise<void>>
 >;
 
+/** 类型检查的一处问题 */
+export interface TypeProblem {
+  readonly file: string;
+  /** 从 1 数 */
+  readonly line: number;
+  readonly column: number;
+  readonly code: number;
+  readonly message: string;
+}
+
+/** 类型检查：工程的文件与宿主模块的声明 → 问题 */
+export type CheckTypes = (
+  project: FlowProject,
+  modules: HostModules,
+) => readonly TypeProblem[] | Promise<readonly TypeProblem[]>;
+
 /** createFlowEngine 的选项 */
 export interface FlowEngineOptions {
   /** easy-query 的 PostgreSQL 适配器（pg 连接池或 PGlite）：引擎在这个库里建自己的表 */
   readonly adapter: Adapter;
-  /** 流程自带的 TS 怎么去类型；默认用 Node 的 stripTypeScriptTypes，浏览器里要给（例如 sucrase、esbuild-wasm） */
-  readonly compileCode?: CompileCode;
+  /** 流程工程能 import 的宿主模块（组件库、zod、业务服务……）：模块名 → 导出或加载函数，带上声明给类型检查 */
+  readonly modules?: HostModules;
+  /** 流程工程的 TS / TSX 怎么编译：Node 里用 flow-ts-studio 的 compileInPlace，浏览器页面里传 Worker 编译 */
+  readonly transform?: TransformCode;
+  /** 发布流程工程前做类型检查（`@zerodep-dev/flow-ts-studio/typecheck` 的 createTypeChecker）；有错不让发布 */
+  readonly checkTypes?: CheckTypes;
   readonly org?: FlowOrg;
   readonly extensions?: FlowExtensions;
   readonly on?: FlowListeners;

@@ -10,5 +10,7 @@ export default defineConfig({
     name: 'flow',
     environment: 'node',
     include: ['*/test/**/*.test.ts'],
+    // 每个 worker 第一次启动 PGlite 要一两秒，全量并行时机器忙会超过默认的 5 秒
+    testTimeout: 20_000,
   },
 });

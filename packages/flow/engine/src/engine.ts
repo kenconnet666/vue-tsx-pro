@@ -19,13 +19,16 @@ import {
   validateProcess,
   type AssigneeSource,
   type CallNode,
+  type FlowProject,
+  type FormDefinition,
+  type FormValues,
   type Outcome,
+  type Problem,
   type ProcessDefinition,
   type TaskNode,
   type VariableDeclaration,
 } from '@zerodep-dev/flow-ts-model';
 import { actorTokens } from './assignees.ts';
-import { compileCode } from './code.ts';
 import { decideCountersign } from './countersign.ts';
 import {
   FlowCc,
@@ -45,10 +48,12 @@ import {
   type InstanceRow,
   type WorkItemRow,
 } from './execution.ts';
+import { buildProject, linkProject, type FlowLogic } from './project.ts';
 import { emptyRunState } from './state.ts';
 import type {
   Actor,
   FlowCommand,
+  TypeProblem,
   FlowEngineOptions,
   FlowEventView,
   RunResult,
@@ -145,12 +150,67 @@ export interface InstanceDetail {
   readonly events: readonly FlowEventView[];
 }
 
+/** 发布的选项 */
+export interface PublishOptions {
+  readonly actor?: Actor;
+  /** 发布说明 */
+  readonly note?: string;
+}
+
+/** 一个已发布的版本 */
+export interface VersionInfo {
+  readonly id: number;
+  readonly version: number;
+  readonly name: string;
+  readonly enabled: boolean;
+  readonly publishedBy: string | null;
+  readonly publishedAt: Date;
+  readonly note: string | null;
+}
+
+/** 带单据类型的流程 */
+export interface TypedProcess<V extends object> {
+  start(
+    input: { readonly variables: V; readonly title?: string; readonly businessKey?: string },
+    actor: Actor,
+  ): Promise<RunResult>;
+  complete(
+    input: {
+      readonly workItem: number;
+      readonly outcome: string;
+      readonly variables?: Partial<V>;
+      readonly comment?: string;
+    },
+    actor: Actor,
+  ): Promise<RunResult>;
+}
+
 /** 流程引擎 */
 export interface FlowEngine {
   /** 建引擎的表（开发、测试；生产用自己的迁移脚本） */
   createTables(): Promise<void>;
-  /** 发布一个版本：校验不过报 invalid-definition，details.problems 是问题列表 */
-  publish(definition: ProcessDefinition, actor?: Actor): Promise<{ key: string; version: number }>;
+  /**
+   * 发布一个版本：流程定义，或流程工程（编译、加载、单据并进变量、类型检查）。
+   * 校验不过报 invalid-definition：details.problems 是定义的问题，details.types 是类型错误
+   */
+  publish(
+    input: ProcessDefinition | FlowProject,
+    options?: PublishOptions,
+  ): Promise<{ key: string; version: number }>;
+  /** 版本：列出、取某版的工程（在线编辑）、回滚 */
+  readonly versions: {
+    list(key: string): Promise<VersionInfo[]>;
+    /** 某个版本的工程（不写版本时是最新的）；只发布过定义的，工程里只有 process.json */
+    project(key: string, version?: number): Promise<FlowProject>;
+    /** 回滚：把那个版本的工程原样发布成新版本，运行中的实例留在各自的版本上 */
+    rollback(
+      key: string,
+      version: number,
+      options?: Omit<PublishOptions, 'note'>,
+    ): Promise<{ key: string; version: number }>;
+  };
+  /** 按单据类型用一个流程：发起、处理时变量写错字段是编译错误（`engine.process<typeof form>('purchase')`） */
+  process<Form extends FormDefinition>(key: string): TypedProcess<FormValues<Form>>;
   /** 执行一个命令 */
   run(command: FlowCommand, actor: Actor): Promise<RunResult>;
   /** 外部事件（对方盖章、付款到账）：在等它的实例往下走，返回这些实例的结果 */
@@ -190,6 +250,25 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   const db = createDb({ schema: flowSchema, adapter: options.adapter });
   const now = () => options.clock?.() ?? new Date();
   const definitions = new Map<number, ProcessDefinition>();
+  /** 版本 → 流程工程的逻辑（每个版本加载一次） */
+  const logics = new Map<number, Promise<FlowLogic | undefined>>();
+
+  function logicOf(tx: FlowDb, id: number): Promise<FlowLogic | undefined> {
+    let logic = logics.get(id);
+    if (!logic) {
+      logic = tx
+        .queryable(FlowDefinition)
+        .where((d) => d.id.eq(id))
+        .select((d) => ({ modules: d.modules }))
+        .first()
+        .then(async (row) =>
+          row?.modules ? (await linkProject(row.modules, options.modules)).logic : undefined,
+        );
+      logics.set(id, logic);
+      logic.catch(() => logics.delete(id));
+    }
+    return logic;
+  }
 
   async function definitionOf(tx: FlowDb, id: number): Promise<ProcessDefinition> {
     const cached = definitions.get(id);
@@ -257,7 +336,8 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
   ): Promise<Execution> {
     const exec = new Execution(tx, options, definition, instance, actor, now());
     exec.startChild = startChild;
-    return exec.prepare();
+    exec.logic = await logicOf(tx, instance.definitionId);
+    return exec;
   }
 
   /** 流程的最新启用版本 */
@@ -987,8 +1067,19 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     }
   }
 
-  async function publish(definition: ProcessDefinition, actor?: Actor) {
-    const problems = validateProcess(definition).filter((problem) => problem.severity === 'error');
+  async function publish(
+    input: ProcessDefinition | FlowProject,
+    { actor, note }: PublishOptions = {},
+  ): Promise<{ key: string; version: number }> {
+    const project = 'files' in input ? input : undefined;
+    const built = project
+      ? await buildProject(project, options.transform, options.modules)
+      : undefined;
+    const definition = built?.definition ?? (input as ProcessDefinition);
+    const problems = [
+      ...validateProcess(definition).filter((problem) => problem.severity === 'error'),
+      ...logicProblems(definition, built?.linked.logic),
+    ];
     if (problems.length > 0) {
       throw new FlowError(
         'invalid-definition',
@@ -996,40 +1087,94 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
         { problems },
       );
     }
+    const types: readonly TypeProblem[] =
+      project && options.checkTypes ? await options.checkTypes(project, options.modules ?? {}) : [];
+    if (types.length > 0) {
+      const [first] = types;
+      throw new FlowError(
+        'invalid-definition',
+        `流程 ${definition.key} 有 ${types.length} 处类型错误，第一处：${first!.file}:${first!.line} ${first!.message}`,
+        { types },
+      );
+    }
     return db.transaction(async (tx) => {
+      // 同一个流程的发布串行：版本号不撞
+      await tx.advisoryLock(`flow.publish:${definition.key}`);
       const latest = await tx
         .queryable(FlowDefinition)
         .where((d) => d.processKey.eq(definition.key))
         .orderBy((d) => d.version.desc())
         .first();
       const version = (latest?.version ?? 0) + 1;
-      // 流程自带的 TS：去掉类型存进这个版本，之后不变
-      const model = {
-        ...definition,
-        version,
-        ...(definition.code
-          ? {
-              code: {
-                source: definition.code.source,
-                compiled: compileCode(definition.code.source, options.compileCode),
-              },
-            }
-          : {}),
-      };
-      await tx
-        .insert(FlowDefinition)
-        .values({
-          processKey: definition.key,
-          version,
-          name: definition.name,
-          model,
-          enabled: true,
-          publishedBy: actor?.id ?? null,
-          publishedAt: now(),
-        })
-        .execute();
+      const id = Number(
+        await tx
+          .insert(FlowDefinition)
+          .values({
+            processKey: definition.key,
+            version,
+            name: definition.name,
+            model: { ...definition, version },
+            enabled: true,
+            publishedBy: actor?.id ?? null,
+            publishedAt: now(),
+            note: note ?? null,
+            files: project ? { ...project.files } : null,
+            modules: built ? { ...built.modules } : null,
+          })
+          .returnId(),
+      );
+      logics.set(id, Promise.resolve(built?.linked.logic));
       return { key: definition.key, version };
     });
+  }
+
+  const versions: FlowEngine['versions'] = {
+    list: (key) =>
+      db
+        .queryable(FlowDefinition)
+        .where((d) => d.processKey.eq(key))
+        .orderBy((d) => d.version.desc())
+        .select((d) => ({
+          id: d.id,
+          version: d.version,
+          name: d.name,
+          enabled: d.enabled,
+          publishedBy: d.publishedBy,
+          publishedAt: d.publishedAt,
+          note: d.note,
+        }))
+        .toList(),
+    project: async (key, version) => projectOf(await versionRow(key, version)),
+    rollback: async (key, version, rest) =>
+      publish(projectOf(await versionRow(key, version)), {
+        ...rest,
+        note: `回滚到第 ${version} 版`,
+      }),
+  };
+
+  async function versionRow(key: string, version?: number) {
+    const row = await db
+      .queryable(FlowDefinition)
+      .where((d) => [
+        d.processKey.eq(key),
+        ...(version === undefined ? [] : [d.version.eq(version)]),
+      ])
+      .orderBy((d) => d.version.desc())
+      .first();
+    if (!row) {
+      throw new FlowError(
+        'not-found',
+        `没有流程 ${key}${version === undefined ? '' : ` 的第 ${version} 版`}`,
+      );
+    }
+    return row;
+  }
+
+  function process<Form extends FormDefinition>(key: string): TypedProcess<FormValues<Form>> {
+    return {
+      start: (input, actor) => run({ type: 'start', process: key, ...input }, actor),
+      complete: (input, actor) => run({ type: 'complete', ...input }, actor),
+    };
   }
 
   /** 列表行补上摘要列：按实例的定义里 summary 列出的字段取流程变量 */
@@ -1427,6 +1572,8 @@ export function createFlowEngine(options: FlowEngineOptions): FlowEngine {
     retryJob,
     readCc,
     createTables: () => db.createTables(),
+    versions,
+    process,
     publish,
     run,
     query,
@@ -1487,6 +1634,55 @@ function fieldsOf(
 }
 
 /** 候选匹配这个人 */
+/** 版本行 → 工程：只发布过定义的，工程里只有 process.json（去掉版本号） */
+function projectOf(row: {
+  readonly model: ProcessDefinition;
+  readonly files: Record<string, string> | null;
+}): FlowProject {
+  if (row.files) return { files: row.files };
+  const { version: _, ...definition } = row.model;
+  return { files: { 'process.json': JSON.stringify(definition, null, 2) } };
+}
+
+/** 定义里 `logic.名字` 的引用要在 logic.ts 对应的那一类里有 */
+function logicProblems(definition: ProcessDefinition, logic: FlowLogic | undefined) {
+  const problems: Problem[] = [];
+  const check = (kind: keyof FlowLogic, ref: unknown, path: string) => {
+    if (typeof ref !== 'string' || !ref.startsWith('logic.')) return;
+    const name = ref.slice(6);
+    if (!logic?.[kind]?.[name])
+      problems.push({
+        severity: 'error',
+        code: 'logic.missing',
+        field: path,
+        params: { kind, name },
+      });
+  };
+  const walk = (value: unknown, path: string, node?: { readonly type?: unknown }) => {
+    if (typeof value === 'string') {
+      if (value.startsWith('fn.logic.')) check('functions', value.slice(3), path);
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach((item, i) => walk(item, `${path}[${i}]`, node));
+      return;
+    }
+    if (typeof value !== 'object' || value === null) return;
+    const record = value as Record<string, unknown>;
+    const here = 'type' in record ? (record as { type?: unknown }) : node;
+    for (const [key, item] of Object.entries(record)) {
+      const at = `${path}.${key}`;
+      if (key === 'resolver') check('resolvers', item, at);
+      else if (key === 'guards' && Array.isArray(item))
+        item.forEach((guard, i) => check('guards', guard, `${at}[${i}]`));
+      else if (key === 'action' && here?.type === 'service') check('actions', item, at);
+      else walk(item, at, here);
+    }
+  };
+  walk(definition, '$');
+  return problems;
+}
+
 /**
  * 退回时能选的节点：沿前进的连线往上游找、走到过的人工节点；已经汇合了的并行区域里的节点不算（那些分支已经结束）
  */
