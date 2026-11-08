@@ -267,7 +267,12 @@ export interface TabListProps extends PartProps<'div', TabListManaged> {
   children?: VNodeChild;
 }
 
-/** TabList 的样式：bar、barLine、root、scrollable、line、lineVertical、soft、softVertical、indicator（横排、竖排各一份位置） */
+/** 横向滚动的列表两端的渐隐遮罩：to 是行内方向（从右到左时 left），start、end 是哪头渐隐 */
+function fadeMask(to: 'right' | 'left', start: boolean, end: boolean) {
+  return `linear-gradient(to ${to}, ${start ? 'transparent, #000 1.5em' : '#000'}, ${end ? '#000 calc(100% - 1.5em), transparent' : '#000'})`;
+}
+
+/** TabList 的样式：bar、barLine、root、scrollable、fadeStart、fadeEnd、fadeBoth、line、lineVertical、soft、softVertical、indicator（横排、竖排各一份位置） */
 const tabListStyles = css.create({
   // 横排时包着标签列表与右边的按钮（滚动、全部标签页、新建）：列表按内容宽，放不下时收缩并滚动
   bar: { display: 'flex', alignItems: 'center', gap: '_xs', minWidth: 0 },
@@ -285,6 +290,16 @@ const tabListStyles = css.create({
     overflowX: 'auto',
     overflowY: 'hidden',
     scrollbarWidth: 'none',
+  },
+  // 还能往哪头滚，哪头的边缘渐隐（被截断的标签不是生硬地切开）；从右到左时镜像
+  fadeStart: {
+    maskImage: { default: fadeMask('right', true, false), _rtl: fadeMask('left', true, false) },
+  },
+  fadeEnd: {
+    maskImage: { default: fadeMask('right', false, true), _rtl: fadeMask('left', false, true) },
+  },
+  fadeBoth: {
+    maskImage: { default: fadeMask('right', true, true), _rtl: fadeMask('left', true, true) },
   },
   // 指示条按标签的 offsetLeft / offsetTop 定位，列表要是它的定位容器
   line: { position: 'relative', gap: '_md' },
@@ -493,6 +508,9 @@ export const TabList = _component(
               sx: [
                 tabListStyles.root,
                 !vertical && tabListStyles.scrollable,
+                !vertical && overflow.start && overflow.end && tabListStyles.fadeBoth,
+                !vertical && overflow.start && !overflow.end && tabListStyles.fadeStart,
+                !vertical && !overflow.start && overflow.end && tabListStyles.fadeEnd,
                 tabs.variant === 'line'
                   ? [tabListStyles.line, vertical && tabListStyles.lineVertical]
                   : [tabListStyles.soft, vertical && tabListStyles.softVertical],
