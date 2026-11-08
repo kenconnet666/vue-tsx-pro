@@ -1,4 +1,4 @@
-// 示例工具：默认不包；勾“从右到左”“窄屏”后示例包进带 dir 与限宽的一层；反色主题给示例换一套 token；
+// 示例工具：默认不包；勾“从右到左”、选宽度后示例包进带 dir 与限宽的一层；反色主题给示例换一套 token；
 // 缩放给示例换上套了 scaling 的主题（紧凑时按钮变矮）
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Button } from '@zerodep-dev/vue-tsx-pro-ui';
@@ -13,7 +13,7 @@ const demo = {
   path: 'test/Save',
 };
 
-it('勾选示例工具后包一层：从右到左、窄屏、反色主题', async () => {
+it('勾选示例工具后包一层：从右到左、手机宽度、反色主题', async () => {
   await page.viewport(1000, 800);
   const root = mount(_component(() => () => <Example id="save" title="保存" demo={demo} />));
   const button = () => root.querySelector<HTMLButtonElement>('[data-demo] button')!;
@@ -26,7 +26,9 @@ it('勾选示例工具后包一层：从右到左、窄屏、反色主题', asyn
     )!;
   await expect.poll(() => item('从右到左')).toBeTruthy();
   item('从右到左').click();
-  item('窄屏').click();
+  [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')]
+    .find((element) => element.textContent?.includes('手机'))!
+    .click();
   await expect.poll(() => button().closest('[dir="rtl"]')).not.toBeNull();
   expect(button().closest('[dir="rtl"]')!.getBoundingClientRect().width).toBeLessThanOrEqual(375);
 

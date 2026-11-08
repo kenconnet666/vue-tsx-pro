@@ -43,17 +43,18 @@ const styles = css.create({
   framed: { padding: 0 },
   frame: { display: 'block', width: '100%', borderStyle: 'none' },
   description: { color: '_textMuted' },
-  // 示例工具：包住示例的一层不占位；窄屏时是一块 375px 宽、虚线框住的区域
+  // 示例工具：包住示例的一层不占位；限宽时是一块手机（375px）或平板（768px）宽、虚线框住的区域
   tools: { display: 'contents' },
-  narrow: {
+  framedWidth: {
     display: 'block',
-    width: 'min(375px, 100%)',
     alignSelf: 'center',
     outlineWidth: '1px',
     outlineStyle: 'dashed',
     outlineColor: '_border',
     outlineOffset: '0.5em',
   },
+  phone: { width: 'min(375px, 100%)' },
+  tablet: { width: 'min(768px, 100%)' },
   // 反色主题：Provider 只换 token，底色要自己铺
   inverted: { padding: '_md', borderRadius: '_md', backgroundColor: '_surface', color: '_text' },
   // 还没渲染的示例卡片：大致一张卡片的高度，补上时下面的内容少跳一点
@@ -124,7 +125,8 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
   onBeforeUnmount(() => stop());
 
   // 示例工具的开关：只影响这一个示例
-  let narrow = _state(false);
+  // 限宽：'' 不限，phone 是手机（375px），tablet 是平板（768px）
+  let width = _state<'' | 'phone' | 'tablet'>('');
   let rtl = _state(false);
   let invert = _state(false);
   // 缩放：主题编辑器的 scaling，0.9 是紧凑、1.1 是宽松（字号缩放，间距、控件高度以 em 计跟着变）
@@ -185,9 +187,9 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
     );
   }
 
-  /** 示例工具：窄屏、从右到左、反色主题、缩放（紧凑、宽松），看示例在这些条件下是否还对 */
+  /** 示例工具：宽度（手机、平板）、从右到左、反色主题、缩放（紧凑、宽松），看示例在这些条件下是否还对 */
   function renderTools() {
-    const active = narrow || rtl || invert || scale !== '1';
+    const active = width !== '' || rtl || invert || scale !== '1';
     return (
       <Menu
         trigger={(props) => (
@@ -202,10 +204,14 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
         )}
       >
         <MenuGroup label="示例工具">
-          <MenuCheckboxItem _checked={narrow}>窄屏（375 px）</MenuCheckboxItem>
           <MenuCheckboxItem _checked={rtl}>从右到左</MenuCheckboxItem>
           <MenuCheckboxItem _checked={invert}>反色主题</MenuCheckboxItem>
         </MenuGroup>
+        <MenuRadioGroup label="宽度" _value={width}>
+          <MenuRadioItem value="phone">手机（375 px）</MenuRadioItem>
+          <MenuRadioItem value="tablet">平板（768 px）</MenuRadioItem>
+          <MenuRadioItem value="">不限</MenuRadioItem>
+        </MenuRadioGroup>
         <MenuRadioGroup label="缩放" _value={scale}>
           <MenuRadioItem value="0.9">紧凑（90%）</MenuRadioItem>
           <MenuRadioItem value="1">默认</MenuRadioItem>
@@ -218,9 +224,12 @@ export const Example = _component(({ id, title, demo, align, frame, children }: 
   /** 示例本身；开了示例工具时包一层（没开时原样，示例的排版不受影响） */
   function renderDemo() {
     const content = h(demo.component);
-    if (!narrow && !rtl && !toolTheme) return content;
+    if (!width && !rtl && !toolTheme) return content;
     return (
-      <div dir={rtl ? 'rtl' : undefined} {...css.attrs(styles.tools, narrow && styles.narrow)}>
+      <div
+        dir={rtl ? 'rtl' : undefined}
+        {...css.attrs(styles.tools, width && [styles.framedWidth, styles[width]])}
+      >
         {toolTheme ? (
           <Provider theme={toolTheme}>
             {invert ? <div {...css.attrs(styles.inverted)}>{content}</div> : content}
