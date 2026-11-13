@@ -40,6 +40,7 @@ import {
 } from '../input/Mentions';
 import type { ListboxOption } from '../input/list-state';
 import { Upload, type UploadFile, type UploadHandler, type UploadProps } from '../input/Upload';
+import { isComposingKey } from '../utils/dom/hotkeys';
 import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { patternsMessages } from './messages';
 
@@ -280,6 +281,8 @@ export const CommentComposer = _component(
     }
 
     function onKeydown(event: KeyboardEvent) {
+      // 输入法组合中的 Esc 是取消候选，不是取消这条回复
+      if (isComposingKey(event)) return;
       if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
         event.preventDefault();
         void send();

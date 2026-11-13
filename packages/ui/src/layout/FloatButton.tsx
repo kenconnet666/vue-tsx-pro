@@ -71,6 +71,8 @@ export interface FloatButtonProps extends Partial<Omit<IconButtonProps, 'icon'>>
 export const FloatButton = _component(({ icon, tooltip, badge, ...rest }: FloatButtonProps) => {
   const grouped = FloatButtonGroupContext.inject(false);
   return () => {
+    // badge={count > 0} 没有未读时是 false：和没写一样，不套角标
+    const badged = badge != null && badge !== false;
     const button = (props: object = {}) => (
       <IconButton
         {...mergePartProps<IconButtonProps>(
@@ -81,7 +83,7 @@ export const FloatButton = _component(({ icon, tooltip, badge, ...rest }: FloatB
             tone: 'neutral',
             radius: 'full',
             size: 'lg',
-            sx: [floatButtonStyles.button, !grouped && badge == null && floatButtonStyles.corner],
+            sx: [floatButtonStyles.button, !grouped && !badged && floatButtonStyles.corner],
           },
           rest,
           props,
@@ -89,7 +91,7 @@ export const FloatButton = _component(({ icon, tooltip, badge, ...rest }: FloatB
       />
     );
     const withBadge = (node: VNodeChild) =>
-      badge == null || badge === false ? (
+      !badged ? (
         node
       ) : (
         <Indicator

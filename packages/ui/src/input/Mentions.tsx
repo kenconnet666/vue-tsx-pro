@@ -270,7 +270,8 @@ export const Mentions = _component(
     /** 看光标前面是不是正在写的提及：是就按 @ 后面的文字过滤并打开，不是就关闭 */
     function detect(event?: Event) {
       const element = textarea();
-      if (!element || rest.readonly || rest.disabled) return;
+      // 看元素本身：只读、不可用也可能来自所在的 Field、Form
+      if (!element || element.readOnly || element.disabled) return;
       const caret = element.selectionStart;
       const before = element.value.slice(0, caret);
       const at = before.lastIndexOf(prefix);

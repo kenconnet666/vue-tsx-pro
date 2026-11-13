@@ -33,6 +33,11 @@ export function isNumeric(value: unknown): value is NumericValue {
   return typeof value === 'number' || typeof value === 'bigint' || isDecimal(value);
 }
 
+/** 数据里的一个值当数值用：数值原样，十进制字符串（'19.90'）转成 number，别的（空值、文字）是 null */
+export function numericOf(value: unknown): NumericValue | null {
+  return isNumeric(value) ? value : isNumericText(value) ? Number(value) : null;
+}
+
 /** 转成 number：只给需要浮点数的地方用（动画的中间帧、图表坐标、aria-valuenow），会丢精度 */
 export function toNumber(value: NumericValue): number {
   if (typeof value === 'number') return value;

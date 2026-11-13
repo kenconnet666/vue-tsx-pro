@@ -118,21 +118,27 @@ export const Popconfirm = _component(
       () => open,
       (now) => {
         if (now) confirmed = false;
-        else if (!confirmed) onCancel?.();
+        // 等确认的时候被 Esc、点外面关掉：操作还在进行，结果出来之前不算取消
+        else if (!confirmed && !pending) onCancel?.();
       },
     );
 
     async function confirm() {
       if (pending) return;
       pending = true;
+      let done = false;
       try {
-        if ((await onConfirm()) === false) return;
+        done = (await onConfirm()) !== false;
       } catch (error) {
         // 调用方负责提示失败原因；这里只保持打开，并留下记录
         console.error('Popconfirm 的 onConfirm 失败，保持打开', error);
-        return;
       } finally {
         pending = false;
+      }
+      if (!done) {
+        // 没确认成，弹层又已经在等的时候关掉了：这时才算取消
+        if (!open) onCancel?.();
+        return;
       }
       confirmed = true;
       setOpen(false, 'confirm');

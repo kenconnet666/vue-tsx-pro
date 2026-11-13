@@ -97,6 +97,25 @@ describe('Listbox', () => {
     expect(active()!.getAttribute('aria-selected')).toBe('true');
   });
 
+  it('不可用：点选项不改值，也不触发 onPick', async () => {
+    let value = _state<string | null>('cherry');
+    const picked: string[] = [];
+    const root = mount(() => (
+      <Listbox
+        items={fruits}
+        _value={value}
+        disabled
+        onPick={(item) => picked.push(item)}
+        aria-label="水果"
+      />
+    ));
+    await nextTick();
+    root.querySelector<HTMLElement>('[role="option"]')!.click();
+    await nextTick();
+    expect(value).toBe('cherry');
+    expect(picked).toEqual([]);
+  });
+
   it('多选：点击切换，aria-multiselectable；没有选项时显示空状态', async () => {
     let picked = _state<string[]>([]);
     const root = mount(() => (

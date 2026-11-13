@@ -157,6 +157,26 @@ describe('翻页与视图', () => {
     expect(value()).toEqual(['2026-10-20']);
   });
 
+  it('选的单位从日换成月：视图跟着换，点一格是选中这个月', async () => {
+    const unit = shallowRef<DateUnit>('day');
+    const value = shallowRef<readonly CalendarDate[]>([date('2026-10-20')]);
+    const state = useCalendarState({
+      mode: () => 'single',
+      selected: () => value.value,
+      onChange: (next) => (value.value = next),
+      today: () => date('2026-10-20'),
+      limits: () => ({}),
+      week: () => ({ locale: 'zh-CN' }),
+      unit: () => unit.value,
+    });
+    unit.value = 'month';
+    await nextTick();
+    expect([state.view, state.page.toString()]).toEqual(['month', '2026-01-01']);
+    state.activate(date('2026-03-01'));
+    expect(state.view).toBe('month');
+    expect(iso(value.value)[0]!.slice(0, 7)).toBe('2026-03');
+  });
+
   it('粗的视图里聚焦一格（点击前浏览器先聚焦）：焦点保留原来的日；父级改值时焦点就是那天', async () => {
     const { state, setValue } = setup({ selected: ['1995-06-18'] });
     state.setView('year');

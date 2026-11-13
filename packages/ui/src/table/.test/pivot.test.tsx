@@ -50,6 +50,23 @@ describe('pivot', () => {
     );
     expect(String(pivot(records, { ...base, value, aggregate: 'max' }).grandTotal)).toBe('4');
   });
+
+  it('接口给的十进制字符串：avg、min、max 和 sum 认同样的值', () => {
+    const texts = [
+      { region: '华东', amount: '19.90' },
+      { region: '华东', amount: '0.10' },
+      { region: '华东', amount: '' },
+    ];
+    const of = (aggregate: 'sum' | 'avg' | 'min' | 'max') =>
+      pivot(texts, { rows: [(r) => r.region], value: (r) => r.amount, aggregate }).cell(
+        ['华东'],
+        '',
+      );
+    expect(of('sum')).toBe(20);
+    expect(of('avg')).toBe(10);
+    expect(of('min')).toBe(0.1);
+    expect(of('max')).toBe(19.9);
+  });
 });
 
 describe('PivotTable', () => {

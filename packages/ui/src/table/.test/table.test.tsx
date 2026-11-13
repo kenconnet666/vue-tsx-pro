@@ -825,6 +825,62 @@ describe('TreeDataTable', () => {
     expect(names).toEqual(['研发部', '小王', '小李', '市场部']);
   });
 
+  it('表头筛选掉几行后，留下的行仍是自己的 key（展开按钮、勾选不串行）', async () => {
+    const root = mount(() => (
+      <TreeDataTable
+        rows={tree}
+        columns={[{ ...columns[0]!, filter: true }, columns[1]!]}
+        getKey={(p) => p.id}
+        getChildren={(p) => p.children}
+        _expanded={['dept']}
+        _filters={{ name: ['小李', '市场部'] }}
+        aria-label="组织"
+      />
+    ));
+    await flush();
+    const rows = [...root.querySelectorAll<HTMLTableRowElement>('tbody tr[data-key]')];
+    expect(rows.map((row) => [row.dataset.key, row.cells[0]!.textContent])).toEqual([
+      ['y', '小李'],
+      ['lazy', '市场部'],
+    ]);
+  });
+
+  it('multiSort：同级之间按 sorts 里的几列依次排', async () => {
+    const flatRows: Person[] = [
+      { id: 'a', name: '乙', age: 30 },
+      { id: 'b', name: '甲', age: 30 },
+      { id: 'c', name: '丙', age: 20 },
+    ];
+    const root = mount(() => (
+      <TreeDataTable
+        rows={flatRows}
+        columns={columns}
+        getKey={(p) => p.id}
+        getChildren={(p) => p.children}
+        multiSort
+        _sorts={[
+          { key: 'age', direction: 'ascending' },
+          { key: 'name', direction: 'descending' },
+        ]}
+        aria-label="组织"
+      />
+    ));
+    await flush();
+    const keys = [...root.querySelectorAll<HTMLElement>('tbody tr[data-key]')].map(
+      (row) => row.dataset.key,
+    );
+    expect(keys[0]).toBe('c');
+    expect(new Set(keys.slice(1))).toEqual(new Set(['a', 'b']));
+    // 年龄相同的两行按姓名降序：与只按年龄排时的顺序相反
+    const byName = sortRows(
+      flatRows.slice(0, 2),
+      columns,
+      { key: 'name', direction: 'descending' },
+      'zh-CN',
+    ).map((p) => p.id);
+    expect(keys.slice(1)).toEqual(byName);
+  });
+
   it('性能：两万个展开的节点挂载在 1 秒内', async () => {
     // 展开时曾经对每个节点在 expanded 里逐个 includes（O(n²)）
     const parents: Person[] = Array.from({ length: 20_000 }, (_, index) => ({

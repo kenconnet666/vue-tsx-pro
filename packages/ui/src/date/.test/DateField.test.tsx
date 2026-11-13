@@ -285,6 +285,16 @@ describe('TimeField', () => {
     segment(plain, 'day').focus();
     await press('Enter');
     expect(onSubmit).toHaveBeenCalledOnce();
+
+    // 不可用的日期框：段点一下仍能拿到焦点，Enter 不提交表单
+    const off = mount(() => (
+      <form onSubmit={(event: Event) => (event.preventDefault(), onSubmit())}>
+        <DateField _value="2026-10-20" disabled aria-label="日期" />
+      </form>
+    ));
+    segment(off, 'day').focus();
+    await press('Enter');
+    expect(onSubmit).toHaveBeenCalledOnce();
   });
 
   it('季度、周：按语言包的排法显示（“2026年第4季度”），逐段输入写回 ISO 形式', async () => {

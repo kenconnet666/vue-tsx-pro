@@ -14,7 +14,7 @@
  * 行、列的顺序：给了 order 时按它（没列出的排在后面），否则按值排序（数字按大小、文字按当前语言）。
  */
 import type { SortValue } from '../utils/data/collation';
-import { compareNumeric, isNumeric, toNumber, type NumericValue } from '../utils/data/numeric';
+import { compareNumeric, numericOf, toNumber, type NumericValue } from '../utils/data/numeric';
 import { sumColumn } from './columns';
 
 /** 聚合的方式 */
@@ -79,13 +79,10 @@ function aggregateOf<T>(
   if (!value || rows.length === 0) return null;
   const column = { key: '', header: '', value };
   if (how === 'sum') return sumColumn(column, rows);
-  if (how === 'avg') {
-    const numbers = rows.map(value).filter(isNumeric);
-    const total = sumColumn(column, rows);
-    return total == null || numbers.length === 0 ? null : toNumber(total) / numbers.length;
-  }
-  const numbers = rows.map(value).filter(isNumeric);
+  // 和合计认同样的值：接口给的十进制字符串也算数
+  const numbers = rows.flatMap((row) => numericOf(value(row)) ?? []);
   if (numbers.length === 0) return null;
+  if (how === 'avg') return toNumber(sumColumn(column, rows)!) / numbers.length;
   return numbers.reduce((best, current) =>
     (how === 'min' ? compareNumeric(current, best) < 0 : compareNumeric(current, best) > 0)
       ? current

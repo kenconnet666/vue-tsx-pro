@@ -498,6 +498,65 @@ describe('数组字段、dirty、单字段异步校验', () => {
       vi.useRealTimers();
     }
   });
+
+  it('单字段校验本身出错（接口失败）：上一个值留下的错误清掉，不挡提交', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const onSubmit = vi.fn();
+      const form = useForm({
+        initial: { username: '' },
+        fields: {
+          username: {
+            validate: (name: string) => {
+              if (name === 'bob') return '用户名已占用';
+              throw new Error('网络错误');
+            },
+          },
+        },
+        onSubmit,
+      });
+      form.values.username = 'bob';
+      expect(await form.submit()).toBe(false);
+      expect(form.errors.username).toBe('用户名已占用');
+      form.values.username = 'alice';
+      expect(await form.submit()).toBe(true);
+      expect(form.errors.username).toBeUndefined();
+      expect(onSubmit).toHaveBeenCalledWith({ username: 'alice' });
+      expect(error).toHaveBeenCalled();
+    } finally {
+      error.mockRestore();
+    }
+  });
+
+  it('提交等校验的时候值又改了：按最新的值再校验，交给 onSubmit 的是它解析后的结果', async () => {
+    const resolvers: (() => void)[] = [];
+    const onSubmit = vi.fn();
+    const form = useForm({
+      schema: z.object({ username: z.string().transform((name) => name.trim()) }),
+      initial: { username: '' },
+      fields: {
+        username: {
+          validate: (_name: string, _values: unknown, signal: AbortSignal) =>
+            new Promise<undefined>((resolve) => {
+              resolvers.push(() => resolve(undefined));
+              signal.addEventListener('abort', () => resolve(undefined));
+            }),
+        },
+      },
+      onSubmit,
+    });
+    form.values.username = ' ada ';
+    const submitted = form.submit();
+    await flush();
+    form.values.username = ' grace ';
+    await flush();
+    for (const resolve of resolvers) resolve();
+    await flush();
+    for (const resolve of resolvers) resolve();
+    expect(await submitted).toBe(true);
+    expect(onSubmit).toHaveBeenCalledTimes(1);
+    expect(onSubmit).toHaveBeenCalledWith({ username: 'grace' });
+  });
 });
 
 describe('局部校验与字段联动', () => {

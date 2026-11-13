@@ -45,6 +45,7 @@ import { TextField } from '../input/TextField';
 import { plainText } from '../utils/data/text';
 import { useLang } from '../config/context';
 import { focusFirst } from '../utils/dom/focus';
+import { isComposingKey } from '../utils/dom/hotkeys';
 import { useSortable } from '../utils/dom/sortable';
 import { useDefaults } from '../config/defaults';
 import { useRecipe } from '../config/styles';
@@ -295,8 +296,8 @@ export const DataTable = _component(
     }
 
     function onEditKeydown(event: KeyboardEvent) {
-      // 编辑器自己处理了的键（下拉框的 Enter 打开列表）不再当作提交
-      if (event.defaultPrevented) return;
+      // 编辑器自己处理了的键（下拉框的 Enter 打开列表）不再当作提交；输入法组合中的 Enter、Esc 是给输入法的
+      if (event.defaultPrevented || isComposingKey(event)) return;
       if (event.key === 'Escape') {
         event.preventDefault();
         event.stopPropagation();

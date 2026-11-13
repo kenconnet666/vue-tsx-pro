@@ -51,6 +51,7 @@ import {
   useAnchoredPopover,
   type FloatingPlacement,
 } from '../utils/dom/floating';
+import { isComposingKey } from '../utils/dom/hotkeys';
 import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { disclosureStyles } from '../utils/style/transitions';
@@ -344,6 +345,8 @@ export const TreeSelect = _component(
 
     // 搜索框里 ↓ 进到树；Tab 关闭后照常移到下一个
     function onSearchKeydown(event: KeyboardEvent) {
+      // 输入法组合中的 ↓ 是选候选，不进到树里
+      if (isComposingKey(event)) return;
       if (event.key === 'Tab') {
         setOpen(false, 'focus', event);
         return;

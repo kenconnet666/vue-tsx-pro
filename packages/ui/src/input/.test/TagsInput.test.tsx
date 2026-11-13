@@ -69,6 +69,31 @@ describe('TagsInput', () => {
     expect(tags(root)).toEqual(['a', 'c', 'd']);
   });
 
+  it('只读时粘贴不加标签；从建议里选的也受 max 限制', async () => {
+    let locked = _state<string[]>(['a']);
+    let cities = _state<string[]>(['北京']);
+    const root = mount(() => (
+      <>
+        <TagsInput _value={locked} readonly aria-label="只读" />
+        <TagsInput _value={cities} max={1} items={['北京', '上海']} aria-label="城市" />
+      </>
+    ));
+    const [first, second] = root.querySelectorAll('input');
+    const paste = new Event('paste', { cancelable: true }) as ClipboardEvent;
+    Object.defineProperty(paste, 'clipboardData', { value: { getData: () => 'b,c' } });
+    first!.dispatchEvent(paste);
+    expect(locked).toEqual(['a']);
+
+    await type(second!, '上');
+    await nextTick();
+    const option = [...document.querySelectorAll<HTMLElement>('[role="option"]')].find((item) =>
+      item.textContent!.includes('上海'),
+    )!;
+    option.click();
+    await nextTick();
+    expect(cities).toEqual(['北京']);
+  });
+
   it('异步搜索（filter={false}）：还没有建议时也是 combobox；没有 items、也不是异步时不是', () => {
     const root = mount(() => (
       <>

@@ -157,6 +157,8 @@ export const OtpField = _component(
     let focused = _state(false);
 
     function onInput(event: Event) {
+      // 输入法组合中不改写输入框（会打断组合）：组合结束时再过滤
+      if ((event as InputEvent).isComposing) return;
       const input = event.target as HTMLInputElement;
       const next = SANITIZE[type](input.value).slice(0, length);
       // 过滤掉的字符不留在输入框里
@@ -248,6 +250,7 @@ export const OtpField = _component(
                 'aria-invalid': state.invalid || undefined,
                 'aria-describedby': state.describedBy,
                 onInput,
+                onCompositionend: onInput,
                 onFocus: () => (focused = true),
                 onBlur: () => (focused = false),
               },

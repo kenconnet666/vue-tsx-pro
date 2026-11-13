@@ -22,7 +22,7 @@ import { useId, watch } from 'vue';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useLang } from '../config/context';
-import { useFieldControl } from '../form/Field';
+import { useFieldControl, useFormReset } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import {
   controlClear,
@@ -231,21 +231,31 @@ export const DateRangePicker = _component(
     let written: DateRange<V> | null | undefined;
     // 值清空后再填：仍按清空前的类型写回
     let lastLike: V | undefined;
+    const syncEnds = (next: DateRange<V> | null) => {
+      start = next ? toIso(next.start) : null;
+      end = next ? toIso(next.end) : null;
+    };
     watch(
       () => value,
       (next) => {
-        if (next === written) return;
-        start = next ? toIso(next.start) : null;
-        end = next ? toIso(next.end) : null;
+        // 只认这一次：之后父级再给同一个值（撤销、又清空）要照常同步
+        const own = next === written;
+        written = undefined;
+        if (!own) syncEnds(next);
       },
       { immediate: true },
     );
+    // 表单重置：只填了一端时值一直是 null，重置前后没有变化，两端要自己放回去（写在两组分段各自的重置之前）
+    useFormReset(() => syncEnds(value));
 
     function commit() {
       lastLike = value?.start ?? lastLike;
       const like = (iso: string) => isoToValue(iso, lastLike, granularity, valueType) as V;
-      written = start && end ? { start: like(start), end: like(end) } : null;
-      if (written !== null || value !== null) value = written;
+      const next = start && end ? { start: like(start), end: like(end) } : null;
+      // 值本来就是空的：不写，也不记（没有写就没有要跳过的那次同步）
+      if (next === null && value === null) return;
+      written = next;
+      value = next;
     }
 
     const startSegments = useFieldSegments(

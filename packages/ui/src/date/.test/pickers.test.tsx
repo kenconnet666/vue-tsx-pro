@@ -1,6 +1,7 @@
 // DatePicker 与 DateRangePicker 的快捷选项：点了写回并关闭、当前值对应的那一项按下、超出范围的不可用；
 // DatePicker 的“今天”（选月份时“本月”）；DateRangePicker 的自定义快捷区间（函数时按当时算）；
 // 不可选的时间：TimeField、DateField 键入时出错，TimePicker 的列表里不可用
+import { CalendarDate, CalendarDateTime } from '@internationalized/date';
 import { describe, expect, it } from 'vitest';
 import { nextTick } from 'vue';
 import { todayIso } from '../../utils/data/date';
@@ -67,6 +68,28 @@ describe('DatePicker', () => {
     expect(month).toBe(todayIso().slice(0, 7));
   });
 
+  it('“今天”和当前值同一种类型写回：CalendarDate 仍是 CalendarDate，带时间的保留原来的时间', async () => {
+    let day = _state.raw<CalendarDate | null>(new CalendarDate(2020, 1, 2));
+    let moment = _state.raw<CalendarDateTime | null>(new CalendarDateTime(2020, 1, 2, 9, 30));
+    mount(() => (
+      <>
+        <DatePicker _value={day} _open aria-label="日期" />
+        <DatePicker _value={moment} granularity="minute" _open aria-label="时间" />
+      </>
+    ));
+    await flush();
+    const today = [
+      ...document.querySelectorAll<HTMLButtonElement>('[role="dialog"] button'),
+    ].filter((item) => item.textContent === '今天');
+    today[0]!.click();
+    today[1]!.click();
+    await flush();
+    expect(day).toBeInstanceOf(CalendarDate);
+    expect(String(day)).toBe(todayIso());
+    expect(moment).toBeInstanceOf(CalendarDateTime);
+    expect(String(moment)).toBe(`${todayIso()}T09:30:00`);
+  });
+
   it('showToday={false} 时没有“今天”', async () => {
     mount(() => <DatePicker _open showToday={false} aria-label="日期" />);
     await flush();
@@ -99,6 +122,34 @@ describe('DateRangePicker', () => {
     open = true;
     await flush();
     expect(button('第三季度').getAttribute('aria-pressed')).toBe('true');
+  });
+});
+
+describe('DateRangePicker 跟随父级的值', () => {
+  const texts = (root: HTMLElement) =>
+    [...root.querySelectorAll('[role="spinbutton"]')].map((item) => item.textContent).join('|');
+
+  it('清空后父级再给值、再清空，输入框都跟着；同一个区间对象再给一次也照常显示', async () => {
+    const range: DateRange<string> = { start: '2026-10-01', end: '2026-10-07' };
+    let value = _state.raw<DateRange<string> | null>(range);
+    const root = mount(() => <DateRangePicker _value={value} clearable aria-label="区间" />);
+    await flush();
+    const filled = texts(root);
+    expect(filled).toContain('2026');
+    root.querySelector<HTMLButtonElement>('button[aria-label="清空"]')!.click();
+    await flush();
+    expect(value).toBeNull();
+    const empty = texts(root);
+    expect(empty).not.toContain('2026');
+    value = range;
+    await flush();
+    expect(texts(root)).toBe(filled);
+    value = null;
+    await flush();
+    expect(texts(root)).toBe(empty);
+    value = range;
+    await flush();
+    expect(texts(root)).toBe(filled);
   });
 });
 

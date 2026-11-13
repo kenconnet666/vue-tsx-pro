@@ -7,7 +7,7 @@
  *
  * 只要导出部分列时先筛 columns（去掉操作列）；raw 时数值、日期导出原值，便于表格软件再计算。
  * 文字列里以 = + - @ 开头的内容前面加 '，打开时不会被当成公式执行（CSV 注入；同 PapaParse 的 escapeFormulae）；
- * 数字、金额、日期列是格式化出来的，不会是公式，负数照常。
+ * 真正的数值格式化出来不会是公式，负数照常；数字、日期列里混进来的字符串照样要防。
  */
 import type { useFormat } from '../config/lang/format';
 import { isNumeric, isNumericText, numericText } from '../utils/data/numeric';
@@ -48,11 +48,13 @@ export function tableToCsv<T>(
     columns.map((column, index) => {
       const value = columnValue(column, row);
       if (value == null) return '';
-      if (column.statuses && typeof value === 'string') return column.statuses.label(value);
+      // 真正的数值不会是公式；其余的（状态名、文字、数字列里混进来的字符串）都过一遍 guardFormula
       if (isNumeric(value))
         return raw ? numericText(value) : formatCell(value, types[index]!, format, column.format);
+      if (column.statuses && typeof value === 'string')
+        return guardFormula(column.statuses.label(value));
       if (raw || types[index] === 'text') return guardFormula(rawText(value));
-      return formatCell(value, types[index]!, format, column.format);
+      return guardFormula(formatCell(value, types[index]!, format, column.format));
     }),
   );
   const text = [header, ...lines].map((line) => line.map(field).join(',')).join('\r\n');

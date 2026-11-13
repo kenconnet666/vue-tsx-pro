@@ -1,7 +1,7 @@
 /**
  * 树形表格：有层级的行（部门 → 小组 → 成员、文件夹 → 文件），第一列带缩进与展开按钮。
  * 建在 DataTable 上：列定义、排序、勾选、列宽、虚拟滚动、加载与空状态、外观都和 DataTable 一样；
- * 这里只做两件事：按展开状态把树展开成一列行（同级之间按 sort 排序），以及第一列前面的缩进与展开按钮。
+ * 这里只做两件事：按展开状态把树展开成一列行（同级之间按 sort 排序，multiSort 时按 sorts），以及第一列前面的缩进与展开按钮。
  *
  *   <TreeDataTable
  *     rows={departments}
@@ -93,6 +93,8 @@ export const TreeDataTable = _component(
     checkStrictly = false,
     propsToggle,
     _sort: sort = _bindable<SortState | null>(null),
+    multiSort = false,
+    _sorts: sorts = _bindable<SortState[]>([]),
     manualSort = false,
     _selected: selected = _bindable<string[]>([]),
     _columnWidths: columnWidths = _bindable<Record<string, number>>({}),
@@ -112,7 +114,8 @@ export const TreeDataTable = _component(
     /** 按展开状态深度优先展开成一列；同级之间按当前排序（manualSort 时按数据里的顺序） */
     const flat = _derived.by(() =>
       flattenTree(rows, accessors(), new Set(expanded), {
-        order: (level) => (manualSort ? level : sortRows(level, columns, sort, lang.code)),
+        order: (level) =>
+          manualSort ? level : sortRows(level, columns, multiSort ? sorts : sort, lang.code),
       }),
     );
 
@@ -147,7 +150,9 @@ export const TreeDataTable = _component(
     const byKey = _derived.by(() => new Map(flat.map((item) => [item.key, item])));
     // 交给 DataTable 的行与取 key 的函数要保持同一个引用：每次渲染都新建的话，DataTable 会重排全部行
     const nodes = _derived(flat.map((item) => item.node));
-    const keyOf = (_: T, index: number) => flat[index]!.key;
+    // 按行本身找 key：DataTable 筛掉几行后给的下标是筛过的那一列里的，和 flat 对不上
+    const keys = _derived.by(() => new Map(flat.map((item) => [item.node, item.key])));
+    const keyOf = (row: T) => keys.get(row)!;
 
     function leading(model: DataTableRowModel<T>) {
       const item = byKey.get(model.key);
@@ -199,7 +204,9 @@ export const TreeDataTable = _component(
         getKey={keyOf}
         columns={columns}
         manualSort
+        multiSort={multiSort}
         _sort={sort}
+        _sorts={sorts}
         _selected={checkedKeys as string[]}
         onUpdate:_selected={writeSelected}
         partialKeys={partialKeys}

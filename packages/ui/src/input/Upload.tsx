@@ -621,7 +621,7 @@ export const Upload = _component(
                   'aria-label': lang.uploadRetry(fileName),
                 },
                 propsRetry,
-                { onClick: () => void start(item) },
+                { disabled: state.disabled, onClick: () => void start(item) },
               )}
             />
           )}
@@ -717,7 +717,7 @@ export const Upload = _component(
                   <Icon icon={GripVertical} />
                 </ButtonBase>
               )}
-              {failed && uploader() && !item.rejected && (
+              {failed && uploader() && !item.rejected && !state.readonly && (
                 <IconButton
                   {...mergePartProps<IconButtonProps>(
                     {
@@ -729,7 +729,7 @@ export const Upload = _component(
                       'aria-label': lang.uploadRetry(item.name),
                     },
                     propsRetry,
-                    { onClick: () => void start(item) },
+                    { disabled: state.disabled, onClick: () => void start(item) },
                   )}
                 />
               )}

@@ -33,6 +33,7 @@ import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
 import { isExpandable } from '../utils/data/tree';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
+import { isComposingKey } from '../utils/dom/hotkeys';
 import {
   anchoredPanelSx,
   floatingStyles,
@@ -415,6 +416,8 @@ export const Cascader = _component(
     });
 
     function onSearchKeydown(event: KeyboardEvent) {
+      // 输入法组合中的方向键、Enter 是选候选、上屏，不动搜索结果
+      if (isComposingKey(event)) return;
       const list = hits;
       if (event.key === 'Tab') {
         setOpen(false, 'focus', event);

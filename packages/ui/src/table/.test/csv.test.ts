@@ -55,6 +55,16 @@ describe('tableToCsv', () => {
     expect(lines[1]).toContain('"-1,234.50"');
   });
 
+  it('没登记的状态值、数字与日期列里混进来的字符串同样防公式', () => {
+    const odd = [
+      { ...rows[0]!, amount: '=1+1' as never, due: '@SUM(A1)', status: '=HYPERLINK("x")' },
+    ];
+    const cells = tableToCsv(odd, columns, useFormat(), { bom: false })
+      .split('\r\n')[1]!
+      .split(',');
+    expect(cells.slice(-3)).toEqual(["'=1+1", "'@SUM(A1)", '"\'=HYPERLINK(""x"")"']);
+  });
+
   it('groups：组里的列表头写成“组标题 / 列标题”', () => {
     const csv = tableToCsv(rows, columns, useFormat(), {
       bom: false,

@@ -136,6 +136,8 @@ export const TextField = _component(
 
     /** 有 format 时的输入：取出原文写回，再按格式显示，光标放回刚才那个字符的后面 */
     function onFormattedInput(event: Event) {
+      // 输入法组合中不改写输入框（会打断组合）：组合结束时再整理一次
+      if ((event as InputEvent).isComposing) return;
       const element = event.target as HTMLInputElement;
       const caret = element.selectionStart ?? element.value.length;
       const before = format!.parse(element.value.slice(0, caret)).length;
@@ -191,7 +193,12 @@ export const TextField = _component(
           {controlIcon(s, icon, propsIcon)}
           {controlAffix(s, prefix, inputId, propsPrefix)}
           {format ? (
-            <input {...inputAttrs} value={format.format(value)} onInput={onFormattedInput} />
+            <input
+              {...inputAttrs}
+              value={format.format(value)}
+              onInput={onFormattedInput}
+              onCompositionend={onFormattedInput}
+            />
           ) : (
             // _bind 编译为 v-model：复用 Vue 对输入法组合输入的处理，组合结束才写回
             <input {...inputAttrs} _value={value} />

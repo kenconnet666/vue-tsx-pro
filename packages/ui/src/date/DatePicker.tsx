@@ -194,11 +194,11 @@ export const DatePicker = _component(
         else value = (hasTime() && !('hour' in day) ? toCalendarDateTime(day) : day) as V;
         return;
       }
-      if (!hasTime()) value = periodOf(day) as V;
-      else {
-        const time = typeof value === 'string' && value.length > 10 ? value.slice(10) : undefined;
-        value = `${day}${time ?? (granularity === 'second' ? 'T00:00:00' : 'T00:00')}` as V;
-      }
+      // “今天”给的总是 ISO 字符串：和当前值同一种类型写回（绑定的是 DateValue 时不能变成字符串）
+      if (!hasTime()) return pickPeriod(periodOf(day));
+      const current = value == null ? '' : valueToIso(value, granularity);
+      const midnight = granularity === 'second' ? 'T00:00:00' : 'T00:00';
+      pickPeriod(`${day}${current.length > 10 ? current.slice(10) : midnight}`);
     }
 
     /** 季度面板、选周的日历给的 'YYYY-Qn' / 'YYYY-Www'：和当前值同一种类型写回（DateValue 时是这一段的第一天） */

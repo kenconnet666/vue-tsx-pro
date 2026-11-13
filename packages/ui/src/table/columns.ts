@@ -21,6 +21,7 @@ import {
   isDecimal,
   isNumeric,
   isNumericText,
+  numericOf,
   numericKind,
   type NumericKind,
   type NumericValue,
@@ -365,8 +366,7 @@ export function sumColumn<T>(column: DataTableColumn<T>, rows: Iterable<T>): Num
   const values: NumericValue[] = [];
   let kind: NumericKind | undefined;
   for (const row of rows) {
-    const value = columnValue(column, row);
-    const numeric = isNumeric(value) ? value : isNumericText(value) ? Number(value) : null;
+    const numeric = numericOf(columnValue(column, row));
     if (numeric == null) continue;
     values.push(numeric);
     // 有 Decimal 就按 Decimal；否则全是 bigint 才按 bigint

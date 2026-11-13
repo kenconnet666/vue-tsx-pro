@@ -428,8 +428,12 @@ export function useForm<Values extends object, Output = Values>(
         entry.checked = value;
         state.fieldErrors = { ...state.fieldErrors, [path]: message };
       } catch (error) {
-        // 校验本身失败（接口出错）：当作没有结论，不挡提交（服务端还会再校验），但要报出来
-        if (!controller.signal.aborted) console.error(`useForm：字段 ${path} 的校验出错`, error);
+        if (controller.signal.aborted) return;
+        // 校验本身失败（接口出错）：当作没有结论，不挡提交（服务端还会再校验），但要报出来。
+        // 上一个值留下的错误也不再作数：它说的不是现在这个值
+        if (state.fieldErrors[path])
+          state.fieldErrors = { ...state.fieldErrors, [path]: undefined };
+        console.error(`useForm：字段 ${path} 的校验出错`, error);
       } finally {
         if (entry.running?.controller === controller) {
           entry.running = undefined;
@@ -695,7 +699,13 @@ export function useForm<Values extends object, Output = Values>(
         for (const path of submitErrorPaths)
           controller.setError(path as FieldPath<Values>, undefined);
         submitErrorPaths.clear();
-        const valid = await check(true);
+        // 等校验的时候值又变了（另一次校验接了手，parsed 不是这一次的）：按最新的值再校验
+        let valid: boolean;
+        let mine: number;
+        do {
+          mine = run + 1;
+          valid = await check(true);
+        } while (mine !== run);
         if (!valid || !onSubmit) return valid;
         state.submitting = true;
         try {

@@ -510,7 +510,11 @@ export const Listbox = _component(
       selected: () => selectedValues(value),
       mode: () => selectionMode,
       required: () => control().required,
-      onChange: (next) => (value = selectionMode === 'multiple' ? [...next] : (next[0] ?? null)),
+      // 不可用时哪条路（点击、键盘）都不改值
+      onChange: (next) => {
+        if (control().disabled) return;
+        value = selectionMode === 'multiple' ? [...next] : (next[0] ?? null);
+      },
     });
 
     function onKeydown(event: KeyboardEvent) {
@@ -531,7 +535,7 @@ export const Listbox = _component(
               id: prefix,
               multiple: selectionMode === 'multiple',
               renderOption: children,
-              onPick,
+              onPick: state.disabled ? undefined : onPick,
             },
             rest as Partial<ListboxViewProps<T>>,
             {

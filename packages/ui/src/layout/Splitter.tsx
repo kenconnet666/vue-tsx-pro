@@ -257,10 +257,11 @@ export const Splitter = _component(
     return () => {
       const hideStart = collapsed && collapsible === 'start';
       const hideEnd = collapsed && collapsible === 'end';
+      // 收起的那一栏是 hidden（display: none），不占格子：模板只留分隔条与剩下那一栏的两轨
       const template = hideStart
-        ? '0 auto minmax(0, 1fr)'
+        ? 'auto minmax(0, 1fr)'
         : hideEnd
-          ? 'minmax(0, 1fr) auto 0'
+          ? 'minmax(0, 1fr) auto'
           : `minmax(0, ${size}fr) auto minmax(0, ${100 - size}fr)`;
       return (
         <div

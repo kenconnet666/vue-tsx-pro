@@ -148,6 +148,8 @@ export const DateSegmentGroup = _component(
     }
 
     function onKeydown(event: KeyboardEvent) {
+      // 不可用的段点一下仍能拿到焦点（tabindex=-1）：什么键都不处理，Enter 也不提交表单
+      if (disabled) return;
       // Enter 同原生的输入框：写回打了一半的年份，再提交所在的表单（查询栏、对话框里的表单）
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -155,7 +157,7 @@ export const DateSegmentGroup = _component(
         root?.closest('form')?.requestSubmit();
         return;
       }
-      if (!root || disabled) return;
+      if (!root) return;
       // 只读时只能换段
       if (readonly && !['ArrowLeft', 'ArrowRight'].includes(event.key)) return;
       if (handleSegmentKeydown(segments, event, isRtl(root))) event.preventDefault();

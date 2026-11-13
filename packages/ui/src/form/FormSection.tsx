@@ -233,7 +233,7 @@ export const FormSection = _component(
           })}
           data-state={collapsible ? state : undefined}
         >
-          {(title != null || extra != null) && (
+          {(hasContent(title) || hasContent(extra)) && (
             <div
               {...mergeAttrs<'div'>(
                 { sx: formSectionStyles.header, ...formSectionPart('header') },

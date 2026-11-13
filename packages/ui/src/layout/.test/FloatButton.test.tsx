@@ -25,6 +25,18 @@ describe('FloatButton', () => {
     expect(group.contains(root.querySelector('[aria-label="回到顶部"]'))).toBe(true);
   });
 
+  it('badge={false}（没有未读）和没写角标一样：照常固定在角落', () => {
+    const root = mount(() => (
+      <>
+        <FloatButton icon={MessageCircle} aria-label="没写" tooltip={false} />
+        <FloatButton icon={MessageCircle} aria-label="没有未读" tooltip={false} badge={false} />
+      </>
+    ));
+    expect(root.querySelector('[aria-label="没有未读"]')!.className).toBe(
+      root.querySelector('[aria-label="没写"]')!.className,
+    );
+  });
+
   it('速拨：主按钮 aria-expanded 跟着切换、关联展开的那一列；Esc 收起', async () => {
     let open = _state(false);
     const root = mount(() => (

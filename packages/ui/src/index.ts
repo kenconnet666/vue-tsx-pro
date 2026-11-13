@@ -1668,6 +1668,7 @@ export {
   isNumericText,
   multiplyNumeric,
   numericKind,
+  numericOf,
   numericText,
   sameNumeric,
   shiftDecimal,

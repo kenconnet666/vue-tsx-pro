@@ -364,6 +364,11 @@ export function useCalendarState(config: CalendarStateOptions): CalendarState {
       };
     },
   };
+  // 选的单位换了（按日改成按月）：视图回到新的单位。停在原来的视图上时，它可能比新单位更细，再点一格就没有下一级可进
+  watch(unit, (next) => {
+    view.value = next;
+    page.value = pageOf(focused.value, next);
+  });
   // 父级从外面改了值（快捷按钮、重置）且不在这一页：翻到它那里（焦点就是那天，不保留原来的日）
   watch(
     () => config.selected()[0],

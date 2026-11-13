@@ -75,6 +75,15 @@ describe('Splitter', () => {
     expect(plain.querySelector('button')).toBeNull();
   });
 
+  it('收起开始那一栏：它是 hidden、不占格子，模板只留分隔条与结束那一栏两轨', () => {
+    const root = mount(() => <Splitter collapsible="start" _collapsed start="a" end="b" />);
+    const splitter = root.firstElementChild!;
+    expect((splitter.firstElementChild as HTMLElement).hidden).toBe(true);
+    const text = styleTextOf(splitter);
+    expect(text).toContain('auto minmax(0, 1fr)');
+    expect(text).not.toContain('0 auto minmax(0, 1fr)');
+  });
+
   it('上下排列：分隔条是横向的，用 ↑/↓', () => {
     const size = shallowRef(50);
     const root = mount(() => (

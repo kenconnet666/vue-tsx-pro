@@ -55,6 +55,7 @@ import { VisuallyHidden } from '../base/VisuallyHidden';
 import { cloneValue } from '../utils/data/clone';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { Field } from './Field';
+import { FieldLayoutContext } from './field-layout';
 import { Form, type FormProps } from './Form';
 import { FormErrorSummary } from './FormErrorSummary';
 import { FormSection, type FormSectionProps } from './FormSection';
@@ -277,6 +278,9 @@ export const SchemaFields = _component(
   }: SchemaFieldsProps<Values>) => {
     const lang = useLang();
     const config = useConfig();
+    // 所在的 Form、FormSection 整组只读或不可用时，列表与表格也不能增删行（里面的控件已经跟着只读）
+    const layout = FieldLayoutContext.inject(null);
+    const locked = () => !!layout?.readonly || !!layout?.disabled;
     /** 登记的来源加上这里给的 */
     const merged = (): FormSources => {
       const base = config.formSources ?? {};
@@ -499,8 +503,8 @@ export const SchemaFields = _component(
       const path = `${prefix}${field.key}`;
       const state = controller.fieldState(path);
       if (!state.visible) return null;
-      if (field.control === 'list') return rows(field, path, state.readonly);
-      if (field.control === 'table') return table(field, path, state.readonly);
+      if (field.control === 'list') return rows(field, path, state.readonly || locked());
+      if (field.control === 'table') return table(field, path, state.readonly || locked());
       if (field.control === 'object') {
         return (
           <GridItem key={path} span="full">

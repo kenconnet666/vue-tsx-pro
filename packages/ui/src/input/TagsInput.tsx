@@ -201,7 +201,11 @@ export const TagsInput = _component(
       toOption: optionOf,
       selected: () => value,
       mode: () => 'multiple',
-      onChange: (next) => void layout.change(() => (value = [...next])),
+      onChange: (next) => {
+        // 从建议里选的也受 max 限制，同键入与粘贴（取消选中照常）
+        if (max != null && next.length > max && next.length > value.length) return;
+        void layout.change(() => (value = [...next]));
+      },
     });
 
     /** 把一段文字变成值：是建议的文字或值时取建议的值，否则（允许时）原样 */
@@ -216,8 +220,10 @@ export const TagsInput = _component(
       return allowCustomValue ? trimmed : undefined;
     }
 
-    /** 加入几段文字；重复的、超出上限的不加；返回是否加入了 */
+    /** 加入几段文字；重复的、超出上限的不加，只读与不可用时都不加；返回是否加入了 */
     function add(texts: readonly string[]) {
+      const state = control();
+      if (state.disabled || state.readonly) return false;
       const next = [...value];
       for (const text of texts) {
         const tag = resolve(text);

@@ -233,12 +233,13 @@ describe('Upload', () => {
     let list = _state<UploadFile[]>([
       { id: 'a', name: 'a.txt', file: file('a.txt'), status: 'error', error: '网络错误' },
     ]);
+    let disabled = _state(true);
     const upload = vi.fn<UploadHandler>(() => new Promise(() => {}));
     const root = mount(() => (
       <Upload
         _value={list}
         upload={upload}
-        disabled
+        disabled={disabled}
         propsIcon={{ class: 'icon' }}
         propsRetry={{ class: 'retry', variant: 'soft' }}
         propsRemove={{ class: 'remove' }}
@@ -249,6 +250,10 @@ describe('Upload', () => {
     const retry = root.querySelector<HTMLButtonElement>('button.retry')!;
     // 名称带文件名：列表里每一项的按钮读屏能区分
     expect(retry.getAttribute('aria-label')).toBe('重新上传 a.txt');
+    // 不可用时重试也不可用，同移除
+    expect(retry.disabled).toBe(true);
+    disabled = false;
+    await flush();
     retry.click();
     await flush();
     expect(upload).toHaveBeenCalledTimes(1);
