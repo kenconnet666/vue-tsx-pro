@@ -136,6 +136,8 @@ export interface PatternsMessages {
   readonly dataImportSubmit: (count: number) => string;
   /** 导入：完成：`(118)` → “已导入 118 行” */
   readonly dataImportDone: (count: number) => string;
+  /** 导入：onImport 失败时提示的标题（下面是错误的说明），默认“导入失败” */
+  readonly dataImportFailed: string;
   /** 导入：再导入一份，默认“再导入一份” */
   readonly dataImportAgain: string;
   /** 导入：数字列里不是数字，默认“不是数字” */
@@ -257,6 +259,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     dataImportEditHint: '有错的格子可以直接改，改完重新校验',
     dataImportSubmit: (count) => `导入 ${count} 行`,
     dataImportDone: (count) => `已导入 ${count} 行`,
+    dataImportFailed: '导入失败',
     dataImportAgain: '再导入一份',
     dataImportNotNumber: '不是数字',
     dataImportPreview: '导入预览',
@@ -354,6 +357,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     dataImportEditHint: 'Fix cells in place; they are checked again',
     dataImportSubmit: (count) => `Import ${count} rows`,
     dataImportDone: (count) => `Imported ${count} rows`,
+    dataImportFailed: 'Import failed',
     dataImportAgain: 'Import another file',
     dataImportNotNumber: 'Not a number',
     dataImportPreview: 'Import preview',

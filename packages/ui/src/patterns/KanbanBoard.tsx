@@ -168,7 +168,6 @@ const kanbanBoardStyles = css.create({
     borderRadius: '_md',
     backgroundColor: '_surfaceRaised',
     cursor: 'grab',
-    touchAction: 'none',
     transition: `translate ${t.durations.md} ${t.easings.standard}`,
   },
   // 指针拖动中：原位的卡片变淡，跟着指针走的是影子卡（画在滚动区域外面，不被列裁掉）
@@ -191,6 +190,8 @@ const kanbanBoardStyles = css.create({
     borderRadius: '_sm',
     padding: '_xxs',
     cursor: 'grab',
+    // 触屏从把手拖：按住把手时不滚动（卡片的其余部分照常滚）
+    touchAction: 'none',
   },
   empty: { color: '_textMuted', fontSize: '_xs', paddingBlock: '_sm', textAlign: 'center' },
   // 拖到别的列时的落点：卡片之间的一条线
@@ -265,9 +266,13 @@ export const KanbanBoard = _component(
       },
     });
 
-    /** 整张卡片都能拖：卡片里的链接、按钮（把手除外）、输入框照常点 */
+    /**
+     * 鼠标下整张卡片都能拖：卡片里的链接、按钮（把手除外）、输入框照常点。
+     * 触屏、触控笔只能从把手拖：卡片要留给手指滚动（列里上下滚、看板左右滚），不然一屏卡片的看板在手机上滚不动
+     */
     function onPointerdown(event: PointerEvent, key: string) {
       const target = event.target as Element;
+      if (/touch|pen/.test(event.pointerType) && !target.closest('[data-handle]')) return;
       if (target.closest('a, input, select, textarea, button:not([data-handle])')) return;
       (sortable.handleProps(key).onPointerdown as (event: PointerEvent) => void)(event);
     }

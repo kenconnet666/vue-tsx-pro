@@ -6,7 +6,7 @@ import { EllipsisVertical, Funnel } from '@lucide/icons';
 import { ScrollArea } from '../layout/ScrollArea';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { VNodeChild } from 'vue';
+import { onScopeDispose, watch, type VNodeChild } from 'vue';
 import { Button } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang, useTextMatcher } from '../config/context';
@@ -43,6 +43,9 @@ const columnHeaderActionStyles = css.create({
   footer: { display: 'flex', justifyContent: 'flex-end' },
 });
 
+/** 关键字筛选停手多久生效（ms） */
+const KEYWORD_DELAY = 300;
+
 /** 表头筛选按钮的属性 */
 export interface ColumnFilterButtonProps {
   /** 列标题的文字：按钮的名称 */
@@ -63,6 +66,30 @@ export const ColumnFilterButton = _component(
     const lang = useLang();
     const matcher = useTextMatcher();
     let search = _state('');
+    // 关键字筛选：输入框里的是草稿，停手一会儿才生效（服务端筛选时不是每敲一个字发一次请求）
+    let keyword = _state(options === 'text' ? (values[0] ?? '') : '');
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const applied = () => (options === 'text' ? (values[0] ?? '') : '');
+    // 外面改了筛选（清除、恢复保存的视图）：草稿跟上；自己刚生效的那次不用管
+    watch(applied, (value) => {
+      if (value === keyword) return;
+      clearTimeout(timer);
+      keyword = value;
+    });
+    onScopeDispose(() => clearTimeout(timer));
+
+    function applyKeyword() {
+      clearTimeout(timer);
+      if (keyword !== applied()) onChange(keyword ? [keyword] : []);
+    }
+
+    function onKeyword(text: string) {
+      keyword = text;
+      clearTimeout(timer);
+      // 清空立即生效；打字等停手
+      if (text) timer = setTimeout(applyKeyword, KEYWORD_DELAY);
+      else applyKeyword();
+    }
 
     const shown = () => {
       if (options === 'text' || !search) return options === 'text' ? [] : options;
@@ -78,8 +105,11 @@ export const ColumnFilterButton = _component(
       if (options === 'text')
         return (
           <TextField
-            _value={values[0] ?? ''}
-            onUpdate:_value={(text: string) => onChange(text ? [text] : [])}
+            _value={keyword}
+            onUpdate:_value={onKeyword}
+            onKeydown={(event: KeyboardEvent) => {
+              if (event.key === 'Enter' && !event.isComposing) applyKeyword();
+            }}
             aria-label={lang.tableFilterSearch}
             placeholder={lang.tableFilterSearch}
             clearable

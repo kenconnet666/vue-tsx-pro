@@ -207,7 +207,9 @@ export const calendarStateStyles = css.create({
   periodGrid: { width: `calc(7 * max(2.25em, ${t.sizes.minTarget}))` },
   // 区间的底色画在 td 上，相邻的格连成一条；两端与每行的首尾是圆的
   inRange: {
-    backgroundColor: '_accentSoft',
+    // 高对比下背景色被系统换掉：区间用系统的高亮色（格子里的字跟着换，见 middle）
+    backgroundColor: { default: '_accentSoft', _forcedColors: 'Highlight' },
+    forcedColorAdjust: { default: null, _forcedColors: 'none' },
     borderStartStartRadius: { default: 0, ':first-of-type': '_md' },
     borderEndStartRadius: { default: 0, ':first-of-type': '_md' },
     borderStartEndRadius: { default: 0, ':last-of-type': '_md' },
@@ -220,16 +222,24 @@ export const calendarStateStyles = css.create({
   today: {
     fontWeight: '_semibold',
     boxShadow: `inset 0 0 0 ${t.borderWidths.xs} ${t.colors.accentBorder}`,
+    // 高对比下阴影画的那一圈没有了：加下划线
+    textDecorationLine: { default: null, _forcedColors: 'underline' },
   },
+  // 高对比下背景色被系统换掉、和没选的一样：选中的用系统的高亮色
   selected: {
-    backgroundColor: { default: '_accent', _hover: '_accentHover' },
-    color: '_accentContrast',
+    backgroundColor: {
+      default: '_accent',
+      _hover: { default: '_accentHover', _forcedColors: 'Highlight' },
+      _forcedColors: 'Highlight',
+    },
+    color: { default: '_accentContrast', _forcedColors: 'HighlightText' },
+    forcedColorAdjust: { default: null, _forcedColors: 'none' },
     boxShadow: 'none',
   },
   // 区间中间的格：按钮透明，底色是 td 的那一条
   middle: {
     backgroundColor: { default: 'transparent', _hover: '_accentSoftHover' },
-    color: '_accentText',
+    color: { default: '_accentText', _forcedColors: 'HighlightText' },
   },
   unavailable: { color: '_textMuted', textDecorationLine: 'line-through' },
   disabled: {

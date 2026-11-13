@@ -72,6 +72,39 @@ describe('明细表', () => {
     expect(root.querySelector('tbody')?.textContent).toBe('暂无数据');
   });
 
+  it('添加后焦点到新行的第一个控件；删掉一行后焦点到相邻的行，没有行了到“添加”按钮', async () => {
+    const { root } = setup([
+      { item: '高铁', cost: 553 },
+      { item: '酒店', cost: 300 },
+    ]);
+    await flush();
+    const add = [...root.querySelectorAll('button')].find((b) => b.textContent === '添加明细')!;
+    add.click();
+    await flush();
+    const rows = () => [...root.querySelectorAll('tbody tr')];
+    expect(rows()).toHaveLength(3);
+    expect(document.activeElement).toBe(rows()[2]!.querySelector('input'));
+
+    const remove = (index: number) =>
+      rows()[index]!.querySelector<HTMLButtonElement>('button[aria-label^="删除"]')!;
+    const mutated = () => new Promise((resolve) => setTimeout(resolve));
+    remove(1).focus();
+    remove(1).click();
+    await flush();
+    await mutated();
+    // 第 2 行没了：焦点到后面那一行（现在的第 2 行）的第一个控件
+    expect(document.activeElement).toBe(rows()[1]!.querySelector('input'));
+
+    for (const _ of [0, 1]) {
+      remove(0).focus();
+      remove(0).click();
+      await flush();
+      await mutated();
+    }
+    expect(root.querySelector('tbody')?.textContent).toBe('暂无数据');
+    expect(document.activeElement).toBe(add);
+  });
+
   it('只读时不能增删行；整列不显示时不出这一列', async () => {
     const { root } = setup([{ item: '高铁', cost: 553 }], {
       lines: 'readonly',

@@ -51,7 +51,15 @@ export function useNow(interval: (now: number) => number | null): Readonly<Ref<n
   }
 
   if (hydrating != null) onMounted(() => (now.value = Date.now()));
-  watch(() => interval(now.value), schedule, { immediate: true });
+  schedule();
+  // 间隔变了（倒计时的终点从过去改到将来、精度换了）：先对一次表，不然到下一跳之前是按停下时的时刻算的
+  watch(
+    () => interval(now.value),
+    () => {
+      now.value = Date.now();
+      schedule();
+    },
+  );
   watch(visible, (shown) => {
     if (shown) now.value = Date.now();
     schedule();

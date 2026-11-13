@@ -25,7 +25,8 @@
 import { Plus, Trash2 } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { VNode, VNodeChild } from 'vue';
+import { tabbable } from 'tabbable';
+import { nextTick, type VNode, type VNodeChild } from 'vue';
 import type { $ZodType } from 'zod/v4/core';
 import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
@@ -54,6 +55,7 @@ import {
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { cloneValue } from '../utils/data/clone';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { focusAfterRemoval } from '../utils/dom/focus';
 import { Field } from './Field';
 import { FieldLayoutContext } from './field-layout';
 import { Form, type FormProps } from './Form';
@@ -290,7 +292,7 @@ export const SchemaFields = _component(
         options: { ...base.options, ...sources?.options },
       };
     };
-    const custom = renderers as Partial<Record<string, (field: SchemaField) => VNodeChild>>;
+    const custom = () => renderers as Partial<Record<string, (field: SchemaField) => VNodeChild>>;
 
     /** 一组字段：标题是组名或对象的标签 */
     function section(
@@ -309,13 +311,42 @@ export const SchemaFields = _component(
       );
     }
 
+    /** 一行（rows 的一组字段、table 的一个 tr）与它所在的明细 */
+    const ROW = 'tbody > tr, [data-scope="schema-form"][data-part="row"]';
+    const rowsOf = (element: Element | null) =>
+      element?.closest<HTMLElement>('[data-scope="schema-form"][data-part="rows"]');
+
+    /** 添加一行：焦点到新行的第一个控件上，接着就能填 */
+    function appendRow(event: MouseEvent, array: FieldArray<unknown>, blank: object) {
+      const rows = rowsOf(event.currentTarget as Element);
+      array.append(cloneValue(blank));
+      void nextTick(() => {
+        const added = [...(rows?.querySelectorAll<HTMLElement>(ROW) ?? [])].filter(
+          (row) => rowsOf(row) === rows,
+        );
+        const last = added.at(-1);
+        if (last) tabbable(last)[0]?.focus();
+      });
+    }
+
+    /** 删掉一行：焦点到相邻的行，没有行了到“添加”按钮（不然焦点掉回页面开头） */
+    function removeRow(event: MouseEvent, array: FieldArray<unknown>, index: number) {
+      const row = (event.currentTarget as Element).closest<HTMLElement>(ROW);
+      if (row)
+        focusAfterRemoval(
+          row,
+          rowsOf(row)?.querySelector<HTMLElement>('[data-scope="schema-form"][data-part="addRow"]'),
+        );
+      array.remove(index);
+    }
+
     /** 对象的数组：每一行是一组字段加删除按钮，标题旁是添加按钮；只读时不能增删行 */
     function rows(field: SchemaField, path: string, readonly: boolean) {
       const array = controller.array(path as never) as FieldArray<unknown>;
       const children = field.fields ?? [];
       const blank = Object.fromEntries(children.map((child) => [child.key, child.empty]));
       return (
-        <GridItem key={path} span="full">
+        <GridItem key={path} span="full" {...schemaFormPart('rows')}>
           <FormSection
             {...mergePartProps<FormSectionProps>({}, propsSection, {
               title: field.label,
@@ -323,9 +354,9 @@ export const SchemaFields = _component(
               extra: readonly ? undefined : (
                 <Button
                   {...mergePartProps<ButtonProps>(
-                    { size: 'sm', variant: 'soft', icon: Plus },
+                    { size: 'sm', variant: 'soft', icon: Plus, ...schemaFormPart('addRow') },
                     propsAddRow,
-                    { onClick: () => array.append(cloneValue(blank)) },
+                    { onClick: (event: MouseEvent) => appendRow(event, array, blank) },
                   )}
                 >
                   {lang.formAddRow(field.label)}
@@ -358,7 +389,7 @@ export const SchemaFields = _component(
                             sx: schemaFormStyles.rowRemove,
                           },
                           propsRemoveRow,
-                          { onClick: () => array.remove(index) },
+                          { onClick: (event: MouseEvent) => removeRow(event, array, index) },
                         )}
                       />
                     )}
@@ -400,14 +431,14 @@ export const SchemaFields = _component(
                 {...(state.readonly ? { readonly: true } : {})}
                 {...(state.required ? { required: true } : {})}
               >
-                {custom?.[`${path}.${child.key}`]?.(child) ?? controlOf(child, {}, merged())}
+                {custom()?.[`${path}.${child.key}`]?.(child) ?? controlOf(child, {}, merged())}
               </Field>
             )}
           </TableCell>
         );
       };
       return (
-        <GridItem key={path} span="full">
+        <GridItem key={path} span="full" {...schemaFormPart('rows')}>
           <FormSection
             {...mergePartProps<FormSectionProps>({}, propsSection, {
               title: field.label,
@@ -415,9 +446,9 @@ export const SchemaFields = _component(
               extra: readonly ? undefined : (
                 <Button
                   {...mergePartProps<ButtonProps>(
-                    { size: 'sm', variant: 'soft', icon: Plus },
+                    { size: 'sm', variant: 'soft', icon: Plus, ...schemaFormPart('addRow') },
                     propsAddRow,
-                    { onClick: () => array.append(cloneValue(blank)) },
+                    { onClick: (event: MouseEvent) => appendRow(event, array, blank) },
                   )}
                 >
                   {lang.formAddRow(field.label)}
@@ -463,7 +494,7 @@ export const SchemaFields = _component(
                                   'aria-label': lang.formRemoveRow(field.label, index + 1),
                                 },
                                 propsRemoveRow,
-                                { onClick: () => array.remove(index) },
+                                { onClick: (event: MouseEvent) => removeRow(event, array, index) },
                               )}
                             />
                           </TableCell>
@@ -515,7 +546,7 @@ export const SchemaFields = _component(
           </GridItem>
         );
       }
-      const control = custom?.[path]?.(field) ?? controlOf(field, {}, merged());
+      const control = custom()?.[path]?.(field) ?? controlOf(field, {}, merged());
       const node = (
         <Field
           key={path}

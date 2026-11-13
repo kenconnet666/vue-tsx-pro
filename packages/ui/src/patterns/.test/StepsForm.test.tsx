@@ -113,9 +113,30 @@ describe('StepsForm', () => {
     expect(step()).toBe(0);
     expect(root.querySelector('ol li')!.textContent).toContain('出错');
 
+    // 回到了第一步：这里的提交（回车、“下一步”）是下一步，到最后一步才是整份提交
     form().values.company = '华辰精密';
     root.querySelector('form')!.dispatchEvent(new Event('submit', { cancelable: true }));
     await flush();
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(step()).toBe(1);
+    root.querySelector('form')!.dispatchEvent(new Event('submit', { cancelable: true }));
+    await flush();
     expect(onSubmit).toHaveBeenCalledWith({ company: '华辰精密', password: '12345678' });
+  });
+
+  it('不在最后一步时表单的提交是下一步：只校验这一步，没通过时焦点到出错的控件上，不调用 onSubmit', async () => {
+    const onSubmit = vi.fn();
+    const { root, form, step, button } = setup(onSubmit);
+    await flush();
+    expect(button('下一步').type).toBe('submit');
+    const submit = new Event('submit', { cancelable: true });
+    root.querySelector('form')!.dispatchEvent(submit);
+    await flush();
+    // 原生提交被拦下，后面步骤的字段没有因为整份校验而报错
+    expect(submit.defaultPrevented).toBe(true);
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(step()).toBe(0);
+    expect(form().visibleError('password')).toBeUndefined();
+    expect(document.activeElement).toBe(root.querySelector('input[aria-invalid="true"]'));
   });
 });

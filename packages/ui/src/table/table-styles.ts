@@ -331,6 +331,15 @@ export const dataTableStateStyles = css.create({
       _selected: { default: '_accentSoft', _hover: '_accentSoftHover' },
       _current: { default: '_accentSoft', _hover: '_accentSoftHover' },
     },
+    // 高对比下底色、起始边的竖线（阴影）都被系统去掉：这两种行画一圈系统的高亮色
+    outlineStyle: {
+      default: null,
+      _selected: { default: null, _forcedColors: 'solid' },
+      _current: { default: null, _forcedColors: 'solid' },
+    },
+    outlineWidth: { default: null, _forcedColors: '_borderWidths.md' },
+    outlineColor: { default: null, _forcedColors: 'Highlight' },
+    outlineOffset: { default: null, _forcedColors: `calc(-1 * ${t.borderWidths.md})` },
   },
   // 正在看的一行起始边一条强调色的竖线（与勾选区分开）画在第一个单元格上：浏览器不给 tr 画阴影
   activeEdge: {

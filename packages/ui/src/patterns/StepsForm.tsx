@@ -11,7 +11,8 @@
  *     ]}
  *   />
  *
- * - “下一步”只校验这一步的字段（form.validate(fields)），通过才往后走，没通过的错误立即显示；走过的步骤可以点回去。
+ * - “下一步”只校验这一步的字段（form.validate(fields)），通过才往后走，没通过的错误立即显示、焦点到第一个出错的控件上；
+ *   输入框里按回车也是下一步（最后一步才是提交）；走过的步骤可以点回去。
  * - 最后一步是“提交”（表单的原生提交）：整份校验没通过时跳到第一个有错的步骤，那一步在步骤条上标成出错。
  * - 换了一步焦点移到这一步的内容上（读屏念出第几步、标题），键盘接着往下填。
  *
@@ -23,6 +24,7 @@ import { nextTick, useId, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { useMessages } from '../config/lang/messages';
 import { Form, type FormProps } from '../form/Form';
+import { focusControl } from '../utils/dom/focus';
 import type { FormControllerBase } from '../form/useForm';
 import { Flex, type FlexProps } from '../layout/Flex';
 import { Steps, type StepItem, type StepsProps } from '../navigation/Steps';
@@ -111,7 +113,22 @@ export const StepsForm = _component(
 
     async function next() {
       const step = steps[current];
-      if (step && (await form.validate(step.fields))) go(current + 1);
+      if (!step) return;
+      if (await form.validate(step.fields)) return go(current + 1);
+      // 没通过：等错误渲染出来（aria-invalid 写到控件上），焦点到这一步第一个出错的控件上（同 Form 提交没通过）
+      await nextTick();
+      const invalid = panel?.querySelector<HTMLElement>('[aria-invalid="true"]');
+      if (invalid) focusControl(invalid);
+    }
+
+    /**
+     * 不在最后一步时，表单的提交（点“下一步”、输入框里按回车）是下一步，不是整份提交：
+     * 不然只有一个输入框的步骤里按回车会直接提交整份表单，后面没填的步骤全报错
+     */
+    function onSubmit(event: Event) {
+      if (current >= steps.length - 1 || form.validating()) return;
+      event.preventDefault();
+      void next();
     }
 
     // 整份提交没通过：跳到第一个有错的步骤
@@ -134,7 +151,10 @@ export const StepsForm = _component(
       const step = steps[current];
       const last = current >= steps.length - 1;
       return (
-        <Form {...rest} controller={form}>
+        <Form
+          {...mergePartProps<Omit<FormProps, 'controller' | 'children'>>({}, rest, { onSubmit })}
+          controller={form}
+        >
           <div {...css.attrs(stepsFormStyles.root)} {...stepsFormPart('root')}>
             <Steps
               {...mergePartProps<StepsProps>({ items: items() }, propsSteps, {
@@ -179,8 +199,8 @@ export const StepsForm = _component(
               ) : (
                 <Button
                   {...mergePartProps<ButtonProps>({}, propsNext, {
+                    type: 'submit',
                     loading: form.validating(),
-                    onClick: () => void next(),
                   })}
                 >
                   {messages.stepsFormNext}

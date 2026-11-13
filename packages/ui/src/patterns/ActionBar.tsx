@@ -57,7 +57,13 @@ const actionBarStyles = css.create({
     transition: `box-shadow ${t.durations.md} ${t.easings.standard}`,
   },
   // 往下多出一条线宽：贴着底边时有 1px 在滚动区域外，交叉比例小于 1，据此判断“盖着下面的内容”
-  sticky: { position: 'sticky', insetBlockEnd: `calc(-1 * ${t.borderWidths.xs})`, zIndex: 1 },
+  // 贴着视口底边时让开手机的安全区（主屏幕指示条），按钮不被它压住
+  sticky: {
+    position: 'sticky',
+    insetBlockEnd: `calc(-1 * ${t.borderWidths.xs})`,
+    zIndex: 1,
+    paddingBlockEnd: `calc(${t.space.md} + env(safe-area-inset-bottom, 0px))`,
+  },
   // 盖着下面的内容：阴影提示还能往下滚
   stuck: { boxShadow: '_md', borderBlockStartColor: '_border' },
   // 说明文字比所在文字小一档（0.93em ≈ 默认字号下的 sm）

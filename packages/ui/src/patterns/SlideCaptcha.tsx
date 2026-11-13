@@ -25,6 +25,7 @@ import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Spinner } from '../base/Spinner';
 import { VisuallyHidden } from '../base/VisuallyHidden';
 import { useMessages } from '../config/lang/messages';
+import { t } from '../config/theme/tokens';
 import { focusRingStyles } from '../utils/style/styles';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { patternsMessages } from './messages';
@@ -122,7 +123,7 @@ const slideCaptchaStyles = css.create({
   },
   pieceSettle: { transition: `left ${SETTLE}` },
   refresh: { position: 'absolute', top: '_xs', insetInlineEnd: '_xs' },
-  // 盖在图上的结果条：底色固定为深色半透明，白字在任何背景图上都读得清
+  // 盖在图上的结果条：主题的状态色（实色）略透一点，字用它的对比色，在任何背景图上都读得清
   banner: {
     position: 'absolute',
     insetInline: 0,
@@ -131,10 +132,15 @@ const slideCaptchaStyles = css.create({
     paddingInline: '_md',
     fontSize: '_sm',
     textAlign: 'center',
-    color: '_onScrim',
   },
-  bannerSuccess: { backgroundColor: 'rgb(22 163 74 / 0.88)' },
-  bannerError: { backgroundColor: 'rgb(220 38 38 / 0.88)' },
+  bannerSuccess: {
+    backgroundColor: `color-mix(in srgb, ${t.colors.success} 88%, transparent)`,
+    color: '_successContrast',
+  },
+  bannerError: {
+    backgroundColor: `color-mix(in srgb, ${t.colors.danger} 88%, transparent)`,
+    color: '_dangerContrast',
+  },
   loading: {
     display: 'flex',
     alignItems: 'center',
@@ -155,10 +161,11 @@ const slideCaptchaStyles = css.create({
     borderColor: '_border',
     backgroundColor: '_fill',
   },
+  // 滑块按画面的左右走（缺口在图上的位置是物理的），滑过的一段也从左边起
   fill: {
     position: 'absolute',
     insetBlock: 0,
-    insetInlineStart: 0,
+    left: 0,
     backgroundColor: '_accentSoft',
   },
   fillSuccess: { backgroundColor: '_successSoft' },

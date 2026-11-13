@@ -409,6 +409,8 @@ export const QueryTable = _component(
                   flexible: fill || fullscreen.active,
                   resizable: true,
                   columnMenu: true,
+                  // 加载失败时没有行不等于没有数据：不写“暂无数据”
+                  ...(query.error !== undefined && { propsEmpty: { title: lang.listLoadFailed } }),
                 },
                 propsTable,
               )}

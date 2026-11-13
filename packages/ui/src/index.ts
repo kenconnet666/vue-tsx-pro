@@ -1691,6 +1691,7 @@ export {
   type NumericKind,
   type NumericValue,
 } from './utils/data/numeric';
+export { withoutUndefined } from './utils/data/object';
 export {
   paginationItems,
   type PaginationEllipsis,

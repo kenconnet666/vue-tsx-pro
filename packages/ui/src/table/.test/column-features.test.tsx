@@ -192,6 +192,42 @@ describe('DataTable 的表头筛选、多列排序与列菜单', () => {
     expect(root.querySelector('button[aria-label="筛选“状态”（已筛选）"]')).not.toBeNull();
   });
 
+  it('关键字筛选：停手一会儿才生效，回车立即生效，清空立即生效', async () => {
+    let filters = _state<Record<string, string[]>>({});
+    const root = mount(() => (
+      <DataTable
+        rows={orders}
+        columns={columns}
+        getKey={(order) => order.id}
+        _filters={filters}
+        aria-label="订单"
+      />
+    ));
+    await flush();
+    root.querySelector<HTMLButtonElement>('button[aria-label="筛选“金额”"]')!.click();
+    await flush();
+    const input = document.querySelector<HTMLInputElement>('input[aria-label="搜索"]')!;
+    const type = (text: string) => {
+      input.value = text;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    };
+    type('1');
+    await flush();
+    // 还在打字：不生效
+    expect(filters).toEqual({});
+    await new Promise((resolve) => setTimeout(resolve, 350));
+    expect(filters).toEqual({ amount: ['1'] });
+
+    type('12');
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+    await flush();
+    expect(filters).toEqual({ amount: ['12'] });
+
+    type('');
+    await flush();
+    expect(filters).toEqual({ amount: [] });
+  });
+
   it('multiSort：点是只按这一列，Shift 点追加；第一排序列带 aria-sort，其余的写给读屏', async () => {
     let sorts = _state<SortState[]>([]);
     const root = mount(() => (

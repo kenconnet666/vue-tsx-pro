@@ -423,6 +423,7 @@ export const AppShell = _component(
     // 全屏：状态是这里的 fullscreen，浏览器全屏只是顺带的。请求被拒绝时（iframe、不支持）照样隐藏顶栏和侧栏，
     // 所以要记下有没有真的进去：只有进去过，离开浏览器全屏（用户按 Esc）才算退出
     let inBrowserFullscreen = false;
+    let root: HTMLElement | null = null;
     watch(
       () => fullscreen,
       (on) => {
@@ -433,6 +434,25 @@ export const AppShell = _component(
           void document.exitFullscreen().catch(() => undefined);
         }
       },
+    );
+    // 进入、退出后焦点跟到对应的按钮上：原来聚焦的按钮随顶栏隐藏（或被移除），焦点会掉到页面开头。
+    // 焦点还在看得见的地方（正文里的控件、用 Esc 退出时）不动
+    watch(
+      () => fullscreen,
+      (on) => {
+        const active = document.activeElement;
+        const lost =
+          !active ||
+          active === document.body ||
+          (active as HTMLElement).checkVisibility?.() === false;
+        if (!lost) return;
+        root
+          ?.querySelector<HTMLElement>(
+            `[data-part="${on ? 'fullscreenExit' : 'fullscreenButton'}"]`,
+          )
+          ?.focus();
+      },
+      { flush: 'post' },
     );
     useEventListener(
       () => (typeof document === 'undefined' ? null : document),
@@ -532,6 +552,7 @@ export const AppShell = _component(
               sx: [s.root.sx, fullscreen ? appShellFullscreenOffset : appShellOffset],
             },
             rest,
+            { ref: (element: unknown) => (root = element instanceof HTMLElement ? element : null) },
           )}
         >
           {options.skipLink && <SkipLink href={`#${mainId}`} />}

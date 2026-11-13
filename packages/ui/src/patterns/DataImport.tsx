@@ -21,7 +21,7 @@
 import { CircleAlert, CircleCheck, Download } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { shallowRef, type VNodeChild } from 'vue';
+import { nextTick, shallowRef, watch, type VNodeChild } from 'vue';
 import type { $ZodType } from 'zod/v4/core';
 import { safeParse } from 'zod/v4/core';
 import { Badge } from '../base/Badge';
@@ -41,6 +41,7 @@ import { ColumnTable } from '../table/ColumnTable';
 import { DataTable, type DataTableProps } from '../table/DataTable';
 import { readCsvFile, type SheetTable, type SheetValue } from '../table/sheet';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
+import { useErrorMessage } from '../utils/request/error-message';
 import { patternsMessages } from './messages';
 import { partAttrs } from '../config/styles';
 
@@ -116,6 +117,8 @@ const dataImportPart = (part: string) => partAttrs({ name: 'DataImport' }, part)
 /** DataImport 的样式：root、previewTable、validIcon、invalidIcon */
 const dataImportStyles = css.create({
   root: { display: 'flex', flexDirection: 'column', gap: '_lg', minWidth: 0 },
+  // 换步后焦点在这里：不画焦点环（内容本身不是控件），读屏念出这一步的名称
+  panel: { minWidth: 0, outline: 'none' },
   previewTable: { maxHeight: '24rem' },
   validIcon: { color: '_successText' },
   invalidIcon: { color: '_dangerText' },
@@ -179,7 +182,15 @@ export const DataImport = _component(
     let parseError = _state('');
     let onlyErrors = _state(false);
     let importing = _state(false);
+    let importError = _state('');
     let imported = _state(0);
+    let panel = _state.raw<HTMLElement | null>(null);
+    const describe = useErrorMessage();
+    // 换了一步：原来聚焦的东西（拖放区、“导入”按钮）没有了，焦点跟到这一步的内容上，不掉回页面开头
+    watch(
+      () => step,
+      () => void nextTick(() => panel?.focus()),
+    );
     // 预览的行：就地改时整个换掉
     const rows = shallowRef<ImportRow[]>([]);
 
@@ -273,11 +284,14 @@ export const DataImport = _component(
     async function submit() {
       const valid = rows.value.filter((row) => Object.keys(row.errors).length === 0);
       importing = true;
+      importError = '';
       try {
         await onImport(valid.map((row) => row.value as Row));
         imported = valid.length;
         step = 3;
       } catch (error) {
+        // 留在预览，把原因说出来：不然按钮转完圈什么都没发生，用户不知道是没导进去
+        importError = describe(error);
         console.error('DataImport 的 onImport 失败，留在预览', error);
       } finally {
         importing = false;
@@ -288,6 +302,7 @@ export const DataImport = _component(
       sheets = [];
       sheetName = null;
       rows.value = [];
+      importError = '';
       step = 0;
     }
 
@@ -486,18 +501,32 @@ export const DataImport = _component(
             )}
             _current={step}
           />
-          {step === 0 && renderUpload()}
-          {step === 1 && renderMapping()}
-          {step === 2 && renderPreview()}
-          {step === 3 && (
-            <Alert tone="success" title={messages.dataImportDone(imported)}>
-              <Button
-                {...mergePartProps<ButtonProps>({ size: 'sm', variant: 'soft' }, propsAgain, {
-                  onClick: restart,
-                })}
-              >
-                {messages.dataImportAgain}
-              </Button>
+          <div
+            ref={_toRef(panel)}
+            tabindex={-1}
+            role="group"
+            aria-label={messages.dataImportSteps[step]}
+            {...css.attrs(dataImportStyles.panel)}
+            {...dataImportPart('panel')}
+          >
+            {step === 0 && renderUpload()}
+            {step === 1 && renderMapping()}
+            {step === 2 && renderPreview()}
+            {step === 3 && (
+              <Alert tone="success" title={messages.dataImportDone(imported)}>
+                <Button
+                  {...mergePartProps<ButtonProps>({ size: 'sm', variant: 'soft' }, propsAgain, {
+                    onClick: restart,
+                  })}
+                >
+                  {messages.dataImportAgain}
+                </Button>
+              </Alert>
+            )}
+          </div>
+          {step === 2 && importError && (
+            <Alert tone="danger" live="assertive" title={messages.dataImportFailed}>
+              {importError}
             </Alert>
           )}
           {(step === 1 || step === 2) && (

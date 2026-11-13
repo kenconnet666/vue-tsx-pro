@@ -93,4 +93,27 @@ describe('DataImport', () => {
     ]);
     expect(root.textContent).toContain('已导入 2 行');
   });
+
+  it('onImport 失败：留在预览，说出原因；换步后焦点在这一步的内容上', async () => {
+    const onImport = vi.fn().mockRejectedValueOnce(new Error('库存系统没有响应'));
+    const { root, button } = setup(onImport);
+    await upload(root);
+    const panel = root.querySelector<HTMLElement>('[data-part="panel"]')!;
+    expect(document.activeElement).toBe(panel);
+    expect(panel.getAttribute('aria-label')).toBe('对应列');
+    button('下一步').click();
+    await flush();
+    button('导入 2 行').click();
+    await flush();
+    const alert = root.querySelector('[role="alert"]')!;
+    expect(alert.textContent).toContain('导入失败');
+    expect(alert.textContent).toContain('库存系统没有响应');
+    expect(root.textContent).not.toContain('已导入');
+
+    // 再试一次成功：提示收掉
+    button('导入 2 行').click();
+    await flush();
+    expect(root.querySelector('[role="alert"]')).toBeNull();
+    expect(root.textContent).toContain('已导入 2 行');
+  });
 });
