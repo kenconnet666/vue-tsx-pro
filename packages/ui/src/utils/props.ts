@@ -7,7 +7,10 @@
  *   - class、style：依次排列成数组，交给 Vue 统一处理（它们也可能是数组或对象）
  *   - 事件 onXxx：使用方先执行，调用了 event.preventDefault() 就跳过组件自己的处理
  *   - ref：各方都拿到元素
+ *   - aria-describedby：各层的 id 拼在一起（Field 的说明与使用方自己的提示都念得到）
+ *   - 嵌套的部件属性 propsXxx：按这里的规则再合并一次，不整个替换
  *   - 其他属性：受管 > 使用方 > 默认
+ *   - 值是 undefined 的键哪一层都不表态，留着前面几层的；要去掉前面的值写 null
  */
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { IntrinsicProps, JSX } from '@zerodep-dev/vue-tsx-pro-tsx/jsx-runtime';
@@ -79,7 +82,36 @@ export function mergeProps<Target = Props>(
   const own = ownProps(user as Props | undefined);
   const fixed = ownProps(managed as Props | undefined);
   if (!own && !fixed) return defaults;
-  const merged: Props = { ...base, ...own, ...fixed };
+  const merged: Props = { ...base };
+
+  // 值是 undefined 的键不表态（`title: error`、`onClick={cond ? fn : undefined}` 没有值的时候）：留着前面几层的
+  if (own) {
+    for (const key in own) {
+      const value = own[key];
+      if (value === undefined) continue;
+      const inner = base[key];
+      const forced = fixed?.[key];
+      if (inner == null && forced == null) merged[key] = value;
+      else if (isHandlerKey(key)) merged[key] = chainHandlers(value as Handler, inner, forced);
+      else if (isPartKey(key)) merged[key] = mergeParts(inner, value, forced);
+      else merged[key] = value;
+    }
+  }
+  if (fixed) {
+    for (const key in fixed) {
+      const value = fixed[key];
+      if (value === undefined) continue;
+      const mine = own?.[key];
+      const inner = base[key];
+      // 使用方也给了的事件与部件属性，上面已经连同受管层一起合并
+      if (isHandlerKey(key)) {
+        if (mine == null)
+          merged[key] = inner == null ? value : chainHandlers(undefined, inner, value);
+      } else if (isPartKey(key)) {
+        if (mine == null) merged[key] = inner == null ? value : mergeParts(inner, undefined, value);
+      } else merged[key] = value;
+    }
+  }
 
   for (const key of LISTED_KEYS) {
     const values = present3(base[key], own?.[key], fixed?.[key]);
@@ -92,30 +124,49 @@ export function mergeProps<Target = Props>(
   const refs = present3(base.ref, own?.ref, fixed?.ref) as RefSetter[] | undefined;
   if (refs && refs.length > 1) merged.ref = mergeRefs(refs);
 
-  // 同名事件：使用方的与组件的（默认层、受管层）合并；只有组件两层都有时也要合并
-  if (own) {
-    for (const key in own) {
-      if (!isHandlerKey(key)) continue;
-      if (base[key] == null && fixed?.[key] == null) {
-        // 受管层写了 onXxx: undefined（这时没有自己的处理）也不盖掉使用方的事件
-        merged[key] = own[key];
-        continue;
-      }
-      // 使用方传了 undefined（onClick={cond ? fn : undefined}）时也保留组件自己的
-      merged[key] =
-        mergeHandlers(own[key] as Handler | undefined, [base[key], fixed?.[key]]) ??
-        fixed?.[key] ??
-        base[key];
-    }
-  }
-  if (fixed) {
-    for (const key in fixed) {
-      if (!isHandlerKey(key) || base[key] == null || (own && key in own)) continue;
-      const handler = mergeHandlers(undefined, [base[key], fixed[key]]);
-      if (handler) merged[key] = handler;
-    }
-  }
+  const described = joinIds(base[DESCRIBED_BY], own?.[DESCRIBED_BY], fixed?.[DESCRIBED_BY]);
+  if (described !== undefined) merged[DESCRIBED_BY] = described;
   return merged as PropsLayer<Target>;
+}
+
+const DESCRIBED_BY = 'aria-describedby';
+
+/** 两层以上都写了 id 列表（aria-describedby）时拼在一起、去掉重复的；不足两层时返回 undefined，留着展开合并的结果 */
+function joinIds(a: unknown, b: unknown, c: unknown): string | undefined {
+  const lists = present3(a, b, c) as string[] | undefined;
+  if (!lists || lists.length < 2) return undefined;
+  return [...new Set(lists.join(' ').split(' ').filter(Boolean))].join(' ');
+}
+
+/** propsIcon、propsRemove：props 后面跟大写字母，值是另一个部件的属性（对象，或按项给属性的函数） */
+function isPartKey(key: string) {
+  const sixth = key.charCodeAt(5);
+  return sixth >= 65 && sixth <= 90 && key.startsWith('props');
+}
+
+type PartLayer = Props | ((...args: unknown[]) => Props | undefined) | null | undefined;
+
+/**
+ * 嵌套的部件属性按同样的三层规则再合并一次：组件给子部件的默认（`propsRemove: { tabindex: -1 }`）
+ * 不会因为使用方也写了这个部件就整个丢掉。有一层是按项给属性的函数时，结果也是函数
+ */
+function mergeParts(defaults: unknown, user: unknown, managed: unknown): unknown {
+  const layers = [defaults, user, managed] as PartLayer[];
+  // 不是对象也不是函数的值（写错了类型）：按普通属性处理，后面的层优先
+  if (
+    layers.some(
+      (layer) => layer != null && typeof layer !== 'object' && typeof layer !== 'function',
+    )
+  )
+    return managed ?? user ?? defaults;
+  if (!layers.some((layer) => typeof layer === 'function'))
+    return mergeProps((defaults ?? {}) as Props, user as Props, managed as Props);
+  return (...args: unknown[]) => {
+    const [inner, own, forced] = layers.map((layer) =>
+      typeof layer === 'function' ? layer(...args) : layer,
+    );
+    return mergeProps(inner ?? {}, own ?? undefined, forced ?? undefined);
+  };
 }
 
 /**
@@ -192,22 +243,18 @@ function isHandlerKey(key: string) {
 }
 
 /**
- * 使用方的回调先执行，它调用了 event.preventDefault() 就跳过组件自己的回调。
- * 只有一方提供回调时返回 undefined，保留展开合并的结果即可。
+ * 同名事件合成一个：使用方的回调先执行，它调用了 event.preventDefault() 就跳过组件自己的（默认层、受管层依次）。
+ * 调用前至少有两方给了回调
  */
-function mergeHandlers(user: Handler | undefined, internal: unknown[]): Handler | undefined {
-  const own = present(internal) as Handler[];
-  if (own.length + (user ? 1 : 0) < 2) return undefined;
+function chainHandlers(user: Handler | undefined, inner: unknown, forced: unknown): Handler {
   return (...args) => {
     user?.(...args);
     const event = args[0];
     if (event instanceof Event && event.defaultPrevented) return;
-    own.forEach((handler) => handler(...args));
+    (inner as Handler | null | undefined)?.(...args);
+    (forced as Handler | null | undefined)?.(...args);
   };
 }
-
-const present = <T>(values: readonly (T | null | undefined)[]) =>
-  values.filter((value): value is T => value != null);
 
 /** 按层排列、要合并成数组的属性 */
 const LISTED_KEYS = ['sx', 'class', 'style'] as const;

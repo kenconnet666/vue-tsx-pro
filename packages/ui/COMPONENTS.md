@@ -84,6 +84,9 @@
 | `ref`                                                                                 | 内部与使用方都拿到元素                                                                                                                                            |
 | 状态类属性（`role`、`aria-expanded`、`aria-checked`、`aria-selected`、`tabindex` 等） | 以内部为准，并在类型上去掉，避免意外破坏无障碍语义                                                                                                                |
 | 静态属性（`id`、`aria-label`、`title`、`data-*` 等）                                  | 以使用方为准                                                                                                                                                      |
+| `aria-describedby`                                                                    | 各层的 id 拼在一起、去掉重复的：Field 的说明、错误与使用方自己写的提示都念得到                                                                                    |
+| 嵌套的部件属性 `propsXxx`                                                             | 按这张表再合并一次，不整个替换：组件给子部件的默认（`propsRemove: { tabindex: -1 }`）不会因为使用方也写了这个部件就丢掉；有一层是按项给属性的函数时结果也是函数   |
+| 值是 `undefined` 的键                                                                 | 哪一层都不表态，留着前面几层的（`title: error` 没有错误时不抹掉使用方的 `title`）；确实要去掉前面的值写 `null`                                                    |
 
 ### 2.5 导出
 

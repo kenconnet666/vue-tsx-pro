@@ -24,11 +24,23 @@ export function mergeRefs(refs: readonly RefSetter[]): RefSetter | undefined {
   };
 }
 
-/** 编译产物里 JSX 属性的合并：同 Vue 的 mergeProps，另外几层都给了 ref 时合成一个 */
+/**
+ * 编译产物里 JSX 属性的合并：同 Vue 的 mergeProps，另外
+ *   - 几层都给了 ref 时合成一个；
+ *   - 几层都给了同名事件时合成一个函数（Vue 给的是数组）：本库的组件把 onXxx 当普通的回调 prop 直接调用，
+ *     `<Menu {...propsMenu} onOpenChange={…}>` 两处都写时收到数组会抛错
+ */
 export function mergeJsxProps(
   ...layers: Parameters<typeof mergeProps>
 ): ReturnType<typeof mergeProps> {
   const merged = mergeProps(...layers);
+  for (const key in merged) {
+    const handlers = merged[key] as unknown;
+    if (!Array.isArray(handlers) || !/^on[A-Z]/.test(key)) continue;
+    merged[key] = (...args: unknown[]) => {
+      for (const handler of handlers as ((...args: unknown[]) => void)[]) handler(...args);
+    };
+  }
   let refs: RefSetter[] | undefined;
   for (const layer of layers) {
     const ref = (layer as { ref?: unknown } | null)?.ref;

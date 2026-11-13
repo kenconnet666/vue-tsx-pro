@@ -16,6 +16,66 @@ describe('mergeProps', () => {
     expect(merged).toMatchObject({ id: 'mine', title: 'a', role: 'switch' });
   });
 
+  it('值是 undefined 的键不表态：留着前面几层的；null 才去掉', () => {
+    const merged = mergeProps(
+      { title: 'default', lang: 'zh' },
+      { title: undefined, 'aria-label': '名字', id: 'mine' },
+      { 'aria-label': undefined, id: undefined, lang: null } as never,
+    );
+    expect(merged).toMatchObject({ title: 'default', 'aria-label': '名字', id: 'mine' });
+    expect(merged.lang).toBeNull();
+    // 受管层没有自己的处理时，默认层的事件也留着
+    const onClick = () => {};
+    expect(mergeProps({ onClick }, {}, { onClick: undefined }).onClick).toBe(onClick);
+  });
+
+  it('aria-describedby：各层的 id 拼在一起，重复的只留一个；只有一层写时原样', () => {
+    expect(
+      mergeProps({}, { 'aria-describedby': 'hint' }, { 'aria-describedby': 'error hint' })[
+        'aria-describedby'
+      ],
+    ).toBe('hint error');
+    expect(
+      mergeProps({}, { 'aria-describedby': 'hint' }, { 'aria-describedby': undefined })[
+        'aria-describedby'
+      ],
+    ).toBe('hint');
+  });
+
+  it('嵌套的部件属性按同样的规则再合并：使用方写了这个部件，组件给它的默认与受管也都还在', () => {
+    type Tag = { propsRemove?: Record<string, unknown> };
+    const keepFocus = vi.fn();
+    const merged = mergeProps<Tag>(
+      { propsRemove: { tabindex: -1, sx: 'a', onPointerdown: keepFocus } },
+      { propsRemove: { 'aria-label': '移除', sx: 'b', tabindex: 0 } },
+      { propsRemove: { disabled: true } },
+    );
+    expect(merged.propsRemove).toMatchObject({
+      tabindex: 0,
+      'aria-label': '移除',
+      disabled: true,
+      onPointerdown: keepFocus,
+    });
+    expect(merged.propsRemove!.sx).toHaveLength(3);
+    // 只有一层给了时原样
+    const only = { tabindex: -1 };
+    expect(mergeProps<Tag>({ propsRemove: only }, { propsRemove: undefined }).propsRemove).toBe(
+      only,
+    );
+  });
+
+  it('嵌套的部件属性有一层是按项给属性的函数时，结果也是函数', () => {
+    type List = { propsItem?: unknown };
+    const merged = mergeProps<List>(
+      { propsItem: { role: 'option' } },
+      { propsItem: (index: number) => ({ 'data-index': index }) },
+    );
+    expect((merged.propsItem as (index: number) => object)(2)).toEqual({
+      role: 'option',
+      'data-index': 2,
+    });
+  });
+
   it('sx、class、style 依次排列成数组；使用方写了 sx 时三层分段（受管的没写，是空的一段）', () => {
     const merged = mergeProps(
       { sx: 'a', class: 'x', style: 'color: red' },

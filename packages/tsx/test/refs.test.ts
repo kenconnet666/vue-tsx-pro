@@ -49,6 +49,18 @@ describe('mergeJsxProps', () => {
     expect(mergeJsxProps({ ref: one }, { ref: 'name' }).ref).toBe('name');
   });
 
+  it('几层都给了同名事件：合成一个函数依次调用（不是 Vue 的数组），只有一层给时原样', () => {
+    const calls: string[] = [];
+    const first = (value: string) => calls.push(`first:${value}`);
+    const merged = mergeJsxProps(
+      { onOpenChange: first, onClose: first },
+      { onOpenChange: (value: string) => calls.push(`second:${value}`) },
+    );
+    expect(merged.onClose).toBe(first);
+    (merged.onOpenChange as (value: string) => void)('x');
+    expect(calls).toEqual(['first:x', 'second:x']);
+  });
+
   it('mergeRefs：回调与 Ref 都拿到元素，卸载时都拿到 null', () => {
     const seen: unknown[] = [];
     const box = ref<unknown>(undefined);
