@@ -18,6 +18,7 @@ import type { VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { Icon } from '../base/Icon';
 import { Spinner } from '../base/Spinner';
+import { VisuallyHidden } from '../base/VisuallyHidden';
 import { Text } from '../base/Text';
 import { useLang } from '../config/context';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -159,7 +160,15 @@ export const QRCode = _component(
     const path = _derived.by(() => modulesPath(matrix, margin));
 
     const overlay = (): VNodeChild => {
-      if (status === 'loading') return <Spinner size="lg" />;
+      if (status === 'loading') {
+        // 状态层是 role="status"：转圈之外留一句看不见的字给读屏念
+        return (
+          <>
+            <Spinner size="lg" />
+            <VisuallyHidden>{lang.loading}</VisuallyHidden>
+          </>
+        );
+      }
       if (status === 'scanned') {
         return (
           <>

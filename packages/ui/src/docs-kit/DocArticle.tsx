@@ -14,7 +14,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { H1, H2, type HeadingProps } from '../base/Heading';
 import { Paragraph, type TextProps } from '../base/Text';
-import { mergeAttrs, mergeProps, type PartProps } from '../utils/props';
+import { hasContent, mergeAttrs, mergeProps, type PartProps } from '../utils/props';
 
 /** 未声明的属性落到 article 上 */
 export interface DocArticleProps extends PartProps<'article', 'title'> {
@@ -66,7 +66,7 @@ export const DocArticle = _component(
       <article {...mergeAttrs<'article'>({ sx: docArticleStyles.article }, rest)}>
         <div {...mergeAttrs<'div'>({ sx: docArticleStyles.header }, propsHeader)}>
           <H1 {...propsTitle}>{title}</H1>
-          {description != null && (
+          {hasContent(description) && (
             <Paragraph
               {...mergeProps<TextProps>(
                 { size: 'lg', tone: 'muted', sx: docArticleStyles.description },

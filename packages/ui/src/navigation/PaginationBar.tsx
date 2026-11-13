@@ -44,6 +44,8 @@ export interface PaginationBarProps extends PartProps<'div'> {
   pageSizeOptions?: readonly number[];
   /** 起始边的总数：默认 true（“第 1–20 条，共 320 条”），也可以给函数自己写 */
   showTotal?: boolean | ((range: PageRange) => VNodeChild);
+  /** 不可用：页码、每页条数、跳页都不能操作 */
+  disabled?: boolean;
   /** 每页条数选择，默认 true */
   showSizeSelect?: boolean;
   /** 跳页，默认 true（窄于 36em 时不显示） */
@@ -104,6 +106,7 @@ export const PaginationBar = _component(
     showSizeSelect = true,
     showJump = true,
     size = 'sm',
+    disabled = false,
     propsTotal,
     propsControls,
     propsPagination,
@@ -160,7 +163,7 @@ export const PaginationBar = _component(
           )}
         >
           <Pagination
-            {...mergePartProps<PaginationProps>({ size }, propsPagination)}
+            {...mergePartProps<PaginationProps>({ size, disabled }, propsPagination)}
             _page={page}
             total={total}
             pageSize={pageSize}
@@ -168,7 +171,7 @@ export const PaginationBar = _component(
           {showSizeSelect && (
             <PageSizeSelect
               {...mergePartProps<PageSizeSelectProps>(
-                { options: pageSizeOptions, size },
+                { options: pageSizeOptions, size, disabled },
                 propsSizeSelect,
                 { onSizeChange: () => (page = 1) },
               )}
@@ -178,7 +181,7 @@ export const PaginationBar = _component(
           {showJump && pageCount > 1 && (
             <PageJump
               {...mergePartProps<PageJumpProps>(
-                { pageCount, size, sx: paginationBarStyles.jump },
+                { pageCount, size, sx: paginationBarStyles.jump, propsInput: { disabled } },
                 propsJump,
               )}
               _page={page}

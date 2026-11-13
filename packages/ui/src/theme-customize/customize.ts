@@ -176,14 +176,19 @@ export function customizeTheme(
 
 /**
  * 生成套用这些设置的代码：`defineTheme(lightTheme, { … })`，可以直接粘贴到项目里。
- * baseName 是代码里基础主题的变量名；导出的取值不受“减少动态效果”影响
+ * baseName 是代码里基础主题的变量名，base 是那套主题（自带圆角的主题要给，圆角才按它的取值缩放）；
+ * 导出的取值不受“减少动态效果”影响
  */
 export function themeSettingsCode(
   baseName: string,
   settings: ThemeSettings,
   appearance: 'light' | 'dark',
+  base?: Theme,
 ): string {
-  const body = toCode(themeSettingsOverrides(settings, appearance), '');
+  // 给了基础主题时圆角按它自己的取值缩放（同 customizeTheme）：导出的代码与预览看到的一致
+  const scaled = settings.radius != null && settings.radius !== 'medium';
+  const radii = base && scaled ? themeRadii(base) : undefined;
+  const body = toCode(themeSettingsOverrides(settings, appearance, { radii }), '');
   return `import { defineTheme, ${baseName} } from '@zerodep-dev/vue-tsx-pro-ui';\n\nexport const myTheme = defineTheme(${baseName}, ${body});\n`;
 }
 

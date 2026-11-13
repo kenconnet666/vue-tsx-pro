@@ -108,9 +108,11 @@ export type AvatarPart = (typeof avatarRecipe.parts)[number];
 export function initials(name: string): string {
   const trimmed = name.trim();
   if (!trimmed) return '';
-  if (/[㐀-鿿]/.test(trimmed)) return trimmed.at(-1)!;
+  // 按码点取：表情、扩展区的汉字是两个码元，取半个会显示成乱码
+  if (/[㐀-鿿]/.test(trimmed)) return Array.from(trimmed).at(-1)!;
   const words = trimmed.split(/\s+/);
-  return (words[0]![0]! + (words.length > 1 ? words.at(-1)![0]! : '')).toUpperCase();
+  const first = (word: string) => String.fromCodePoint(word.codePointAt(0)!);
+  return (first(words[0]!) + (words.length > 1 ? first(words.at(-1)!) : '')).toUpperCase();
 }
 
 /** 头像：图片 + 后备内容（首字母或图标） */

@@ -41,6 +41,8 @@ export interface PaginationProps extends PartProps<'nav'> {
   href?: (page: number) => string;
   /** 字号档位，按钮随之缩放，默认 sm */
   size?: TextSize;
+  /** 不可用：页码、上一页、下一页都不能点 */
+  disabled?: boolean;
   /** 列表（ul）的部件属性 */
   propsList?: Partial<FlexProps<'ul'>>;
   /** 每一项（li，包着按钮或省略号）的部件属性 */
@@ -85,6 +87,7 @@ export const Pagination = _component(
     showTotal = false,
     href,
     size = 'sm',
+    disabled = false,
     propsList,
     propsItem,
     propsPage,
@@ -113,6 +116,7 @@ export const Pagination = _component(
           variant: isCurrent ? 'soft' : 'ghost',
           tone: isCurrent ? 'accent' : 'neutral',
           'aria-label': lang.pageLabel(target),
+          disabled: disabled || undefined,
         },
         own,
         // 换页写在受管层：使用方 propsPage 里的 onClick 先执行，preventDefault 可以拦下
@@ -130,7 +134,8 @@ export const Pagination = _component(
     /** 上一页、下一页：到头时不可用；有 href 时也是链接（rel="prev" / "next"），与页码一样可分享 */
     function stepButton(direction: -1 | 1) {
       const target = current + direction;
-      const disabled = target < 1 || target > count;
+      const out = target < 1 || target > count;
+      const blocked = disabled || out;
       const shared = {
         size,
         variant: 'ghost',
@@ -142,15 +147,19 @@ export const Pagination = _component(
       return href ? (
         <IconLinkButton
           {...mergePartProps<IconLinkButtonProps>(
-            { ...shared, href: href(disabled ? current : target) },
+            { ...shared, href: href(out ? current : target) },
             propsStep,
-            { disabled, rel: direction < 0 ? 'prev' : 'next', onClick: () => go(target) },
+            {
+              disabled: blocked,
+              rel: direction < 0 ? 'prev' : 'next',
+              onClick: () => go(target),
+            },
           )}
         />
       ) : (
         <IconButton
           {...mergePartProps<IconButtonProps>(shared, propsStep, {
-            disabled,
+            disabled: blocked,
             onClick: () => go(target),
           })}
         />

@@ -63,7 +63,13 @@ export const BackTop = _component(({ target, threshold = 400, ...rest }: BackTop
     element.scrollTo({ top: 0, behavior: reduced.value ? 'instant' : 'smooth' });
     // 焦点回到开头：整页时是 body 的第一个可聚焦位置，容器时是容器本身
     const focusTarget = target ? element : document.body;
-    if (!focusTarget.hasAttribute('tabindex')) focusTarget.setAttribute('tabindex', '-1');
+    // 为了能聚焦临时加的 tabindex，焦点离开后去掉：不把 body、滚动容器一直留成可聚焦的
+    if (!focusTarget.hasAttribute('tabindex')) {
+      focusTarget.setAttribute('tabindex', '-1');
+      focusTarget.addEventListener('blur', () => focusTarget.removeAttribute('tabindex'), {
+        once: true,
+      });
+    }
     focusTarget.focus({ preventScroll: true });
   }
 

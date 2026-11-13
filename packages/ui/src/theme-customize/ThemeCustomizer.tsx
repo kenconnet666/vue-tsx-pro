@@ -366,6 +366,7 @@ export const ThemeCustomizer = _component(
           (base.colorScheme === 'dark' ? 'darkTheme' : 'lightTheme'),
         settings,
         base.colorScheme,
+        base,
       );
       const customized = Object.values(settings).some((value) => value !== undefined);
 
@@ -462,28 +463,28 @@ export const ThemeCustomizer = _component(
             checked && (
               <Alert
                 {...mergePartProps<AlertProps>({ title: messages.contrast }, propsContrast, {
-                tone: issues.length === 0 ? 'success' : 'warning',
-              })}
-            >
-              {issues.length === 0 ? (
-                messages.contrastOk(CONTRAST_PAIRS.length)
-              ) : (
-                <Flex direction="column" gap="xs">
-                  {issues.map((issue) => (
-                    <span key={`${issue.foreground}-${issue.background}`}>
-                      {messages.contrastIssue(
-                        `${issue.foreground} / ${issue.background}`,
-                        format.number(issue.ratio, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        }),
-                        issue.minimum,
-                      )}
-                    </span>
-                  ))}
-                </Flex>
-              )}
-            </Alert>
+                  tone: issues.length === 0 ? 'success' : 'warning',
+                })}
+              >
+                {issues.length === 0 ? (
+                  messages.contrastOk(CONTRAST_PAIRS.length)
+                ) : (
+                  <Flex direction="column" gap="xs">
+                    {issues.map((issue) => (
+                      <span key={`${issue.foreground}-${issue.background}`}>
+                        {messages.contrastIssue(
+                          `${issue.foreground} / ${issue.background}`,
+                          format.number(issue.ratio, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          }),
+                          issue.minimum,
+                        )}
+                      </span>
+                    ))}
+                  </Flex>
+                )}
+              </Alert>
             ),
             <CodeBlock
               {...mergePartProps<CodeBlockProps>(
