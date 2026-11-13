@@ -40,6 +40,8 @@ export interface ModelViewerStatuses {
   loaded: unknown;
   /** 加载失败 */
   error: unknown;
+  /** 没有 WebGL（或 quality 为 off）：显示降级内容，模型不加载 */
+  fallback: unknown;
 }
 
 /** 未声明的属性落到外层 div 上 */
@@ -179,13 +181,20 @@ export const ModelViewer = _component(
           { sx: modelViewerStyles.content },
           rest.propsContent,
         )}
+        propsCanvas={mergePartProps<NonNullable<EffectProps['propsCanvas']>>({}, rest.propsCanvas, {
+          // 降级时场景不会搭（setup 不运行）：不能一直停在“加载中”，转圈盖着降级内容
+          onStatusChange: (next) => {
+            if (next === 'fallback') status = 'fallback';
+          },
+        })}
         sceneKey={src ?? object?.uuid}
         setup={({ renderer, scene, still, invalidate }) => {
           redraw = invalidate;
           renderer.toneMapping = ACESFilmicToneMapping;
           renderer.toneMappingExposure = exposure;
-          const environment = new PMREMGenerator(renderer);
-          scene.environment = environment.fromScene(new RoomEnvironment(), 0.04).texture;
+          // 环境光等模型到了再生成：软件渲染（没有显卡、无头浏览器）下这一步要几秒并占住主线程，
+          // 一页几个查看器排着做时，地址错了的那个要等前面的都做完才报得出错
+          let environment: PMREMGenerator | undefined;
 
           const camera = new PerspectiveCamera(FOV, 1, 0.01, 100);
           // 合适的距离：外接球（半径 1）正好占短边的 FIT
@@ -201,6 +210,8 @@ export const ModelViewer = _component(
           source.then(
             (model) => {
               if (disposed) return;
+              environment = new PMREMGenerator(renderer);
+              scene.environment = environment.fromScene(new RoomEnvironment(), 0.04).texture;
               // 居中，缩放到外接球半径为 1
               const sphere = new Box3().setFromObject(model).getBoundingSphere(new Sphere());
               const scale = sphere.radius > 0 ? 1 / sphere.radius : 1;
@@ -246,13 +257,13 @@ export const ModelViewer = _component(
             dispose: () => {
               disposed = true;
               scene.environment?.dispose();
-              environment.dispose();
+              environment?.dispose();
               redraw = () => {};
             },
           };
         }}
       >
-        {status !== 'loaded' && (
+        {(status === 'loading' || status === 'error') && (
           <div {...css.attrs(modelViewerStyles.overlay)}>
             {status === 'loading' ? (
               <Spinner label={lang.modelViewerLoading} />

@@ -20,6 +20,7 @@ import { useId, type VNodeChild } from 'vue';
 import type { IconData } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Indicator } from '../base/Indicator';
+import { useLang } from '../config/context';
 import { t } from '../config/theme/tokens';
 import { Tooltip } from '../overlay/Tooltip';
 import { useEventListener } from '../utils/dom/event-listener';
@@ -117,7 +118,7 @@ export const FloatButton = _component(({ icon, tooltip, badge, ...rest }: FloatB
 export interface FloatButtonGroupProps extends PartProps<'div'> {
   /** 给了就是速拨：主按钮用这个图标，点一下展开、收起其余按钮 */
   icon?: IconData;
-  /** 速拨的主按钮的名称（读屏） */
+  /** 速拨的主按钮的名称（读屏），默认取语言包的“更多操作” */
   'aria-label'?: string;
   /** 速拨是否展开：父级写 _open={x} */
   _open?: boolean;
@@ -142,6 +143,7 @@ export const FloatButtonGroup = _component(
   }: FloatButtonGroupProps) => {
     FloatButtonGroupContext.provide(true);
     const actionsId = useId();
+    const lang = useLang();
     let root = _state.raw<HTMLElement | null>(null);
     let trigger = _state.raw<HTMLElement | null>(null);
 
@@ -193,7 +195,7 @@ export const FloatButtonGroup = _component(
                     icon: open ? X : icon,
                     variant: 'solid',
                     tone: 'accent',
-                    'aria-label': label ?? '',
+                    'aria-label': label ?? lang.floatButtonMore,
                     tooltip: false,
                   },
                   propsTrigger,

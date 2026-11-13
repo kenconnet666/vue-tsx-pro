@@ -193,12 +193,14 @@ const codeBlockStateStyles = css.create({
   withCopy: {
     paddingInlineEnd: `calc(${t.space.md} + max(${t.sizes.control}, ${t.sizes.minTarget}))`,
   },
-  // 不透明的底色：横向滚动的长行从按钮下面经过时，字不和图标叠在一起
+  // 不透明的底色：横向滚动的长行从按钮下面经过时，字不和图标叠在一起；
+  // 按钮离外框还有一小段，四周再补一圈同色的底，长行不从这道缝里露出半个字
   copy: {
     position: 'absolute',
     top: '_space.xs',
     insetInlineEnd: '_space.xs',
     backgroundColor: { default: '_surface', _hover: '_fill' },
+    boxShadow: `0 0 0 ${t.space.xs} ${t.colors.surface}`,
   },
   // 复制按钮（右上角或标题栏里）贴着外框，外框为圆角裁掉了溢出：焦点环画在里面
   copyRing: { outlineOffset: `calc(-1 * ${t.borderWidths.sm})` },

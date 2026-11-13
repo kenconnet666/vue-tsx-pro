@@ -270,6 +270,7 @@ export const zhCN: Lang = {
   tabClose: (label) => `关闭 ${label}`,
   tabAdd: '新建标签页',
   navBarMore: '更多',
+  floatButtonMore: '更多操作',
   tabList: '全部标签页',
   tabScrollPrevious: '往前滚',
   tabScrollNext: '往后滚',

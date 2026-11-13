@@ -29,6 +29,7 @@ import { Icon, type IconProps } from '../base/Icon';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { VisuallyHidden, visuallyHiddenStyles } from '../base/VisuallyHidden';
 import { clamp } from '../utils/data/number';
+import { batchLayout } from '../utils/dom/layout-batch';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
 import { useLang } from '../config/context';
 import { useRecipe } from '../config/styles';
@@ -979,10 +980,19 @@ export const DataTableView = _component(
     let skeletonRows = _state(SKELETON_ROWS.min);
     _effect(() => {
       if (!indicator.value || !body) return;
-      const drawn = (body.firstElementChild as HTMLElement | null)?.offsetHeight;
-      const rowHeight = drawn || (estimateRowHeight ?? ROW_HEIGHT[density]);
-      const space = window.innerHeight - body.getBoundingClientRect().top;
-      skeletonRows = clamp(Math.ceil(space / rowHeight), SKELETON_ROWS.min, SKELETON_ROWS.max);
+      const element = body;
+      const estimated = estimateRowHeight ?? ROW_HEIGHT[density];
+      // 读布局合到这一轮的先读后写里：挂载时直接读会让浏览器当场排一遍整页的版（一页几张表就排几遍）
+      batchLayout(() => {
+        const drawn = (element.firstElementChild as HTMLElement | null)?.offsetHeight;
+        const space = window.innerHeight - element.getBoundingClientRect().top;
+        const rows = clamp(
+          Math.ceil(space / (drawn || estimated)),
+          SKELETON_ROWS.min,
+          SKELETON_ROWS.max,
+        );
+        return () => (skeletonRows = rows);
+      });
     });
 
     /**

@@ -531,6 +531,8 @@ export interface Lang {
   readonly tabMoved: (label: string, position: number, total: number) => string;
   /** 横向导航里收起来的项的菜单按钮，默认“更多” */
   readonly navBarMore: string;
+  /** 浮动按钮组（速拨）的主按钮没写名称时的名称，默认“更多操作” */
+  readonly floatButtonMore: string;
   /** 树搜索没有匹配时的提示，默认“没有匹配的节点” */
   readonly treeNoMatch: string;
   /** 树里移动了一个节点（读屏播报）：`('预算团队', '财务部', 2)` → “预算团队移到财务部下第 2 位”；放到第一层时 parent 为 undefined */

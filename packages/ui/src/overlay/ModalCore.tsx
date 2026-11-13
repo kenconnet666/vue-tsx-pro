@@ -219,6 +219,8 @@ export const ModalCore = _component(
 
     function show() {
       if (!dialog || dialog.open) return;
+      // 上一次关闭的 close 事件还没到（父级关了马上又开）：它的焦点循环、滚动锁先放掉
+      release?.();
       release = openModalDialog(dialog, {
         dismissOnBackdrop: dismissible,
         onDismiss: (event) => void requestClose('outside', event),
@@ -238,6 +240,8 @@ export const ModalCore = _component(
     // 不论以什么方式关闭（Esc、遮罩、关闭按钮、open 改为 false），都会触发原生 close 事件；
     // 使用方的 onClose（原生事件）照常落到 dialog 上，先于这里执行
     function onClose() {
+      // close 事件是排队派发的：父级关了马上又开时，上一次的事件到的时候对话框已经重新打开，不是这一次的关闭
+      if (dialog?.open) return;
       release?.();
       release = undefined;
       const { reason, event } = closing ?? { reason: 'escape' };

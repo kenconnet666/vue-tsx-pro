@@ -230,6 +230,7 @@ export const Tour = _component(
     // 与对话框同一套模态行为（含锁定页面滚动：引导期间页面不跟着滚，目标由引导自己滚进视口）
     function show() {
       if (!dialog || dialog.open) return;
+      release?.();
       release = openModalDialog(dialog);
     }
 
@@ -279,6 +280,8 @@ export const Tour = _component(
 
     // 不论以什么方式关闭（Esc、跳过、完成、open 改为 false），都会触发原生 close 事件
     function onClose() {
+      // 迟到的 close 事件（关了马上又开）：这时已经重新打开，不是这一次的关闭
+      if (dialog?.open) return;
       stopFollow?.();
       stopFollow = undefined;
       release?.();

@@ -285,6 +285,7 @@ export const enUS: Lang = {
   tabClose: (label) => `Close ${label}`,
   tabAdd: 'New tab',
   navBarMore: 'More',
+  floatButtonMore: 'More actions',
   tabList: 'All tabs',
   tabScrollPrevious: 'Scroll back',
   tabScrollNext: 'Scroll forward',

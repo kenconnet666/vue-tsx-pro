@@ -264,6 +264,8 @@ export const Lightbox = _component(
 
     // 不论怎么关上（Esc、关闭按钮、open 改成 false），原生 close 事件都会来
     function onClose() {
+      // 迟到的 close 事件（关了马上又开）：这时已经重新打开，不是这一次的关闭
+      if (dialog?.open) return;
       release?.();
       release = undefined;
       const reason = closing ?? 'escape';
@@ -279,6 +281,7 @@ export const Lightbox = _component(
     });
     _effect(() => {
       if (open && dialog && !dialog.open) {
+        release?.();
         release = openModalDialog(dialog);
         void nextTick(() => viewport?.focus());
       } else if (!open && dialog?.open) dialog.close();

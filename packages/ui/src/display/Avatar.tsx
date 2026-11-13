@@ -37,6 +37,8 @@ export interface AvatarOptions {
   variant?: keyof AvatarVariants;
   /** 后备内容的色调（与 Button、Badge 等同一套），默认 accent */
   tone?: StatusTone;
+  /** 只是装饰：名字已经写在旁边（用户按钮、成员列表的一行）时对读屏隐藏，name 仍用来生成首字母 */
+  decorative?: boolean;
 }
 
 /** 角色与读屏可见性由组件按 name 决定 */
@@ -121,6 +123,7 @@ export const Avatar = _component(
     radius,
     variant,
     tone,
+    decorative = false,
     propsImage,
     propsFallback,
     ...rest
@@ -152,7 +155,7 @@ export const Avatar = _component(
               sx: [statusToneStyles[fill][color], s.root.sx],
             },
             rest,
-            name ? { role: 'img', 'aria-label': name } : { 'aria-hidden': true },
+            name && !decorative ? { role: 'img', 'aria-label': name } : { 'aria-hidden': true },
           )}
           data-state={src ? status : 'fallback'}
         >

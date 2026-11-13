@@ -128,7 +128,11 @@ export const UserButton = _component(
           )}
         >
           <Avatar
-            {...mergePartProps<AvatarProps>({ ...s.avatar, name, src, size: 'sm' }, propsAvatar)}
+            {...mergePartProps<AvatarProps>(
+              // 名字就写在旁边时头像只是装饰：不然按钮的名称里名字出现两遍
+              { ...s.avatar, name, src, size: 'sm', decorative: !short },
+              propsAvatar,
+            )}
           />
           {!short && (
             <span {...mergeAttrs<'span'>(s.text)}>
