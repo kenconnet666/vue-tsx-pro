@@ -56,8 +56,8 @@ export const ContextMenu = _component(
 
     function onContextmenu(event: MouseEvent) {
       const target = event.target as HTMLElement;
-      // 菜单渲染在区域里：在菜单上右键不再打开
-      if (disabled || target.closest('[role="menu"]')) return;
+      // 菜单渲染在区域里：在菜单上右键不再打开；里层的区域（嵌套的 ContextMenu）或使用方已经处理过的也不再打开
+      if (event.defaultPrevented || disabled || target.closest('[role="menu"]')) return;
       event.preventDefault();
       origin = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       // 键盘打开时没有指针坐标：从获得焦点的元素左下角弹出

@@ -63,6 +63,8 @@ export const ErrorBoundary = _component(
             {
               tone: 'danger',
               size: 'sm',
+              // 这一块出错了要告诉读屏用户（内容是换上来的，不会自己被念到）
+              role: 'alert',
               title: lang.errorTitle,
               description: error.message,
               action: (

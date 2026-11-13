@@ -198,7 +198,8 @@ export const Splitter = _component(
     let dragging = _state(false);
 
     function onPointerdown(event: PointerEvent) {
-      if (!root || (event.target as Element).closest('button')) return;
+      // 只认主键：右键、中键按下时 startMove 不会开始，也就没有结束来把“拖动中”清掉
+      if (!root || event.button !== 0 || (event.target as Element).closest('button')) return;
       const rect = root.getBoundingClientRect();
       const total = horizontal() ? rect.width : rect.height;
       const from = size;

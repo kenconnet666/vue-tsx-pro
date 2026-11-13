@@ -479,6 +479,8 @@ export interface ListboxBaseProps<T> extends Omit<
   required?: boolean;
   /** 不可用 */
   disabled?: boolean;
+  /** 只读：能聚焦、看得到选中项，不能改（查看详情、审批时） */
+  readonly?: boolean;
   /** 自定义选项内容：`{(item, { selected, active }) => …}`，拿到 items 里的原始数据 */
   children?: (item: T, state: OptionRenderState) => VNodeChild;
 }
@@ -497,13 +499,14 @@ export const Listbox = _component(
     _value: value = _bindable<string | string[] | null>(null),
     required,
     disabled,
+    readonly,
     id,
     children,
     onPick,
     ...rest
   }: ListboxProps<T>) => {
     const generatedId = useId();
-    const control = useFieldControl(() => ({ id, disabled, required }));
+    const control = useFieldControl(() => ({ id, disabled, readonly, required }));
     const list = useListState({
       items: () => items,
       toOption: (item) => toListboxOption(item, toOption),
@@ -512,7 +515,7 @@ export const Listbox = _component(
       required: () => control().required,
       // 不可用时哪条路（点击、键盘）都不改值
       onChange: (next) => {
-        if (control().disabled) return;
+        if (control().disabled || control().readonly) return;
         value = selectionMode === 'multiple' ? [...next] : (next[0] ?? null);
       },
     });
@@ -535,7 +538,7 @@ export const Listbox = _component(
               id: prefix,
               multiple: selectionMode === 'multiple',
               renderOption: children,
-              onPick: state.disabled ? undefined : onPick,
+              onPick: state.disabled || state.readonly ? undefined : onPick,
             },
             rest as Partial<ListboxViewProps<T>>,
             {
@@ -544,6 +547,7 @@ export const Listbox = _component(
               'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
               'aria-describedby': state.describedBy,
               'aria-disabled': state.disabled || undefined,
+              'aria-readonly': state.readonly || undefined,
               'aria-required': state.required || undefined,
               'aria-activedescendant': activeOptionId(list, prefix),
               onFocus: () => {

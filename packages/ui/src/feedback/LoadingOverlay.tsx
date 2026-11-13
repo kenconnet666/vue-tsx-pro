@@ -45,6 +45,8 @@ const loadingOverlayPart = (part: string) => partAttrs({ name: 'LoadingOverlay' 
 const loadingOverlayStyles = css.create({
   // 遮罩按外层定位
   root: { position: 'relative' },
+  // 遮罩的外观延迟出现（防闪烁），拦指针不能等：loading 一开始先盖一层看不见的
+  blocker: { position: 'absolute', inset: 0, zIndex: 1 },
   overlay: {
     position: 'absolute',
     inset: 0,
@@ -86,6 +88,9 @@ export const LoadingOverlay = _component(
         )}
       >
         {children}
+        {loading && !presence.mounted && (
+          <div aria-hidden="true" {...css.attrs(loadingOverlayStyles.blocker)} />
+        )}
         {presence.mounted && (
           <div
             {...mergeAttrs<'div'>(

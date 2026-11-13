@@ -117,7 +117,11 @@ export const CopyButton = _component(
         // 经共用的播报区念“已复制”：按钮里的 aria-live 区域各家读屏念不念不一定
         announce(lang.copied);
         onCopied?.(true);
-      } else onCopied?.(false, error);
+      } else {
+        // 失败（没有剪贴板权限、不是安全上下文）不能和成功一样安静：不然用户以为已经复制了
+        announce(lang.copyFailed, 'assertive');
+        onCopied?.(false, error);
+      }
     }
 
     return () => (

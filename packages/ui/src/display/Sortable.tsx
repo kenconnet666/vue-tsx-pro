@@ -87,7 +87,8 @@ const sortableStyles = css.create({
     borderRadius: '_sm',
     backgroundColor: { default: 'transparent', _hover: '_fillHover' },
     color: '_textMuted',
-    cursor: { default: 'grab', _active: 'grabbing' },
+    cursor: { default: 'grab', _active: 'grabbing', _disabled: 'not-allowed' },
+    opacity: { default: null, _disabled: '_disabled' },
     // 触摸拖动时不滚动页面
     touchAction: 'none',
   },

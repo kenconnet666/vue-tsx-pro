@@ -329,7 +329,7 @@ export const Transfer = _component(
         const entry = byValue.get(key);
         return entry && !entry.option.disabled && chosen.has(key) === (from === 1);
       });
-      if (field().disabled || movable.length === 0) return;
+      if (field().disabled || field().readonly || movable.length === 0) return;
       const moving = new Set(movable);
       value = from === 0 ? [...value, ...movable] : value.filter((key) => !moving.has(key));
       setChecked(
@@ -474,7 +474,7 @@ export const TreeTransfer = _component(
 
     function move(from: 0 | 1, keys: readonly string[]) {
       const movable = keys.filter((key) => nodes.has(key) && chosen.has(key) === (from === 1));
-      if (field().disabled || movable.length === 0) return;
+      if (field().disabled || field().readonly || movable.length === 0) return;
       const moving = new Set(movable);
       value = from === 0 ? [...value, ...movable] : value.filter((key) => !moving.has(key));
       setChecked(

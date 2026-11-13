@@ -97,7 +97,13 @@ export const Popover = _component(
     );
     // 打开时焦点移入（等第一次定位、可见之后），Esc 与点击外部关闭后写回 open、焦点回到触发器
     const { onToggle } = useAnchoredPopover(
-      () => ({ open, anchor, panel, floating: { placement, offset, arrow: arrowElement } }),
+      () => ({
+        open,
+        anchor,
+        panel,
+        // 有箭头时面板不能裁剪溢出（箭头画在面板外），高度不限制
+        floating: { placement, offset, arrow: arrowElement, fitHeight: !arrow },
+      }),
       { close: (reason, event) => setOpen(false, reason, event), shown: focusFirst },
     );
 

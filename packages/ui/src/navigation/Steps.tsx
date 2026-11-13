@@ -76,7 +76,7 @@ export interface StepsProps extends PartProps<'ol'> {
   orientation?: keyof StepsOrientations;
   /** 字号档位：圆圈、文字随之缩放；不写时继承上下文字号 */
   size?: TextSize;
-  /** 已完成的步骤可以点击回去：点了写回 current */
+  /** 已完成、出错的步骤可以点击回去：点了写回 current */
   navigable?: boolean;
   /** 每个步骤（li）的部件属性，可以按项计算 */
   propsItem?: PartProps<'li'> | ((item: StepItem, index: number) => PartProps<'li'>);
@@ -260,7 +260,8 @@ export const Steps = _component(
                 )}
               </span>,
             ];
-            const reachable = state === 'complete' && !item.disabled;
+            // 出错的步骤也要能点回去改
+            const reachable = (state === 'complete' || state === 'error') && !item.disabled;
             const link = reachable && item.href != null;
             const button = reachable && !link && navigable;
             return (

@@ -16,6 +16,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
+import { provideFieldLayout } from '../form/field-layout';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { AttachedContext, type AttachedOrientations } from '../utils/style/attached';
 
@@ -48,6 +49,8 @@ export const ControlGroup = _component(
   ({ orientation = 'horizontal', inline = false, children, ...rest }: ControlGroupProps) => {
     // 组接 Field：里面的控件与 Field 隔开，不重复拿它的 id 与说明
     const field = useFieldControl(() => ({}));
+    // 组把里面的控件与 Field 隔开了：Field 的不可用、只读另外交下去（同 Form、FormSection 的整组不可用）
+    provideFieldLayout(() => ({ disabled: field().disabled, readonly: field().readonly }));
     AttachedContext.provide({
       get orientation() {
         return orientation;

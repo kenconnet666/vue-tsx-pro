@@ -179,6 +179,8 @@ export interface Lang {
   readonly copy: string;
   /** 复制成功后读屏播报的提示，默认“已复制” */
   readonly copied: string;
+  /** 复制失败（没有剪贴板权限、不是安全上下文）时读屏播报的提示，默认“复制失败” */
+  readonly copyFailed: string;
   /** 没有值时显示的占位（表格单元格、图表提示、描述列表），默认“—” */
   readonly emptyValue: string;
   /** 表单里该填的没有填（null、undefined、空字符串、空数组）时的错误，默认“必填”；schema 里自己写的提示优先 */

@@ -377,7 +377,10 @@ export const ColorPicker = _component(
                   'aria-valuetext': lang.colorAreaValue(percent(hsva.s), percent(hsva.v)),
                   'aria-disabled': state.disabled || undefined,
                   onKeydown: onThumbKeydown,
-                  onKeyup: () => remember(hex()),
+                  // 只认改颜色的键：Tab 经过、打开取色器的那次 Enter 松开时不该把没改过的颜色记进最近使用
+                  onKeyup: (event: KeyboardEvent) => {
+                    if (/^(Arrow|Page|Home|End)/.test(event.key)) remember(hex());
+                  },
                 },
               )}
               role="slider"

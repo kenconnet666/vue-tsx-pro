@@ -295,7 +295,7 @@ export const Descriptions = _component(
                     propsValue,
                   )}
                 >
-                  {item.value}
+                  {hasContent(item.value) ? item.value : lang.emptyValue}
                   {item.copyable && (
                     <CopyButton
                       {...mergePartProps<Partial<CopyButtonProps>>(

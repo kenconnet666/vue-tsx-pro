@@ -108,6 +108,8 @@ export const ResizeHandle = _component(
     let dragging = _state(false);
 
     function onPointerdown(event: PointerEvent) {
+      // 只认主键：右键、中键按下时 startMove 不会开始，也就没有结束来把“拖动中”清掉
+      if (event.button !== 0) return;
       const parent = parentOf(event);
       const from = sizeOf(parent);
       // 起始边的手柄往起始方向拖是变宽：方向与结束边相反；横线不受从右到左排版的影响

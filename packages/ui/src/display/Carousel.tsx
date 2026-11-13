@@ -280,7 +280,10 @@ export const Carousel = _component(
             onPointerenter: (event: PointerEvent) =>
               event.pointerType === 'mouse' && (hovering = true),
             onPointerleave: () => (hovering = false),
-            onFocusin: () => (focused = true),
+            // 键盘焦点进来才暂停（指针点了上一张、页点后按钮留着焦点，不能因此一直停着）
+            onFocusin: (event: FocusEvent) => {
+              if ((event.target as Element).matches(':focus-visible')) focused = true;
+            },
             onFocusout: (event: FocusEvent) => {
               const root = event.currentTarget as HTMLElement;
               if (!root.contains(event.relatedTarget as Node | null)) focused = false;
@@ -343,7 +346,13 @@ export const Carousel = _component(
                       radius: 'full',
                     },
                     propsPause,
-                    { onClick: () => (paused = !paused) },
+                    {
+                      onClick: () => {
+                        paused = !paused;
+                        // 明确点了“播放”：焦点还在这个按钮上也恢复
+                        if (!paused) focused = false;
+                      },
+                    },
                   )}
                 />
               )}

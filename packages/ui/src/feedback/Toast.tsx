@@ -727,6 +727,14 @@ export const Toaster = _component(
       if (!(to instanceof Node && region?.contains(to))) focused = false;
     }
 
+    // 超出 max、还没轮到显示的通知被关掉（dismiss、超时）：它没有挂载，等不到离场结束的那次移除，这里直接移除
+    watch(
+      () => controller.toasts.slice(0, -ui().options.max).filter((toast) => toast.closing),
+      (hidden) => {
+        for (const toast of hidden) controller.remove(toast.id);
+      },
+    );
+
     return () => {
       const { options: o } = ui();
       const fromTop = o.placement.startsWith('top');

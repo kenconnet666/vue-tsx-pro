@@ -91,6 +91,7 @@ export const enUS: Lang = {
   remove: 'Remove',
   copy: 'Copy',
   copied: 'Copied',
+  copyFailed: 'Copy failed',
   emptyValue: '—',
   formRequired: 'Required',
   formErrorSummary: (count) => (count === 1 ? 'There is 1 problem' : `There are ${count} problems`),

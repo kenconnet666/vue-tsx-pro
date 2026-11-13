@@ -90,6 +90,7 @@ export const zhCN: Lang = {
   remove: '移除',
   copy: '复制',
   copied: '已复制',
+  copyFailed: '复制失败',
   emptyValue: '—',
   formRequired: '必填',
   formErrorSummary: (count) => `有 ${count} 项需要修改`,

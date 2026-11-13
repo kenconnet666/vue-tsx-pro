@@ -447,6 +447,9 @@ export const Upload = _component(
       value = value.filter((item) => item.id !== id);
     }
 
+    /** 这一次拖放、选择里已经有合格的文件（FileDrop 先给 onFiles，同步紧跟着给 onReject） */
+    let acceptedInBatch = false;
+
     function add(files: File[], rejectedType = false) {
       const entries = files.map((file): UploadFile => {
         // 选文件夹时显示相对路径（报告/附录/图 1.png），看得出文件在哪一层
@@ -702,7 +705,7 @@ export const Upload = _component(
               />
             </div>
           )}
-          {failed && src && !item.rejected && (
+          {failed && (
             <div {...mergeAttrs<'div'>(s.overlay)} title={item.error}>
               {item.error}
             </div>
@@ -790,8 +793,17 @@ export const Upload = _component(
         },
         propsDrop,
         {
-          onFiles: (files: File[]) => void receive(files),
-          onReject: (files: File[]) => add(files, true),
+          onFiles: (files: File[]) => {
+            // 记下这一批里有合格的文件（同一次拖放里 onReject 紧跟着来）
+            acceptedInBatch = true;
+            queueMicrotask(() => (acceptedInBatch = false));
+            void receive(files);
+          },
+          // 只收一个文件、这一批里已经收下了合格的：类型不对的不再顶掉它
+          onReject: (files: File[]) => {
+            if (!(multiple || directory) && acceptedInBatch) return;
+            add(files, true);
+          },
         },
       );
       // 列表模式不传子元素：FileDrop 用默认的图标、提示与说明（写了 undefined 也算传了，会把默认内容换掉）

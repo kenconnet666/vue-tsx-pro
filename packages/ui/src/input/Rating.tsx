@@ -195,7 +195,7 @@ export const Rating = _component(
 
       const shown = hover ?? value;
       const radio = (score: number, sx: SxStyles) => (
-        <label {...css.attrs(sx)} onPointerenter={() => (hover = score)}>
+        <label {...css.attrs(sx)} onPointerenter={() => !state.disabled && (hover = score)}>
           <input
             type="radio"
             name={name ?? generatedName}
