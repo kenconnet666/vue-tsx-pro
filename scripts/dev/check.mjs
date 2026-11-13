@@ -1,6 +1,7 @@
 /**
  * 提交前的检查，只查改动涉及的项目：先自动修（文字、格式、组件库的导出入口），再对每个改到的项目跑它自己的 lint、typecheck
- * 与全部 check:*（packages/*、apps/* 的 package.json），最后是改到时才跑的跨包检查。任何一步失败就打印输出并以 1 退出。
+ * 与全部 check:*（packages/*、apps/* 的 package.json），改到项目之外的脚本时跑仓库级的 lint，最后是改到时才跑的跨包检查。
+ * 任何一步失败就打印输出并以 1 退出。
  *
  * 用法：node scripts/dev/check.mjs && git commit …（别接管道，管道会吞掉退出码）
  *       node scripts/dev/check.mjs --all   全部项目都查（等于 CI 的 check 任务）
@@ -68,6 +69,12 @@ for (const dir of touched) {
   );
   for (const name of names) step(`${dir} ${name}`, 'pnpm', ['-s', name], join(root, dir));
 }
+
+// 项目之外的脚本与配置（scripts/、.github/、根目录的 *.mjs、*.ts）没有自己的 lint：改到时跑一遍仓库级的，同 CI 的 check 任务
+const outside = changed.filter(
+  (file) => /\.(mjs|ts|tsx)$/.test(file) && !projects.some((dir) => file.startsWith(`${dir}/`)),
+);
+if (all || outside.length) step('lint（仓库）', 'pnpm', ['-s', 'lint']);
 
 // 跨包的检查：改到包的源码才查分层与两份拷贝，改到文档或注释才查引用
 if (all || touched.some((dir) => dir.startsWith('packages/'))) {

@@ -108,11 +108,17 @@ for (const file of files) {
 }
 api.close();
 
-for (const layers of Object.values(found)) for (const keys of Object.values(layers)) keys.sort();
+// 基线按文件、层、键排好：按码位比较，不跟运行环境的区域设置走
+const byCode = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+for (const layers of Object.values(found))
+  for (const keys of Object.values(layers)) keys.sort(byCode);
 const sorted = Object.fromEntries(
   Object.keys(found)
-    .sort()
-    .map((file) => [file, Object.fromEntries(Object.entries(found[file]).sort())]),
+    .sort(byCode)
+    .map((file) => [
+      file,
+      Object.fromEntries(Object.entries(found[file]).sort(([a], [b]) => byCode(a, b))),
+    ]),
 );
 
 if (process.argv.includes('--write')) {
