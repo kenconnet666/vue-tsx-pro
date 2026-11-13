@@ -525,7 +525,14 @@ export {
 
 // 导航
 export { Breadcrumbs, type BreadcrumbItem, type BreadcrumbsProps } from './navigation/Breadcrumbs';
-export { NavBar, navBarStyles, type NavBarItem, type NavBarProps } from './navigation/NavBar';
+export {
+  NavBar,
+  navBarStyles,
+  type NavBarButtonPart,
+  type NavBarItem,
+  type NavBarLinkPart,
+  type NavBarProps,
+} from './navigation/NavBar';
 export {
   NavCompactContext,
   NavGroup,
@@ -900,7 +907,12 @@ export {
   type DateTimeInput,
   type DateTimeProps,
 } from './date/DateTime';
-export { QuarterCalendar, type QuarterCalendarProps } from './date/QuarterCalendar';
+export {
+  QuarterCalendar,
+  type QuarterCalendarProps,
+  type QuarterCellButtonPart,
+  type QuarterCellPart,
+} from './date/QuarterCalendar';
 export { RangeCalendar, type RangeCalendarProps } from './date/RangeCalendar';
 export { RelativeTime, type RelativeTimeProps } from './date/RelativeTime';
 export {

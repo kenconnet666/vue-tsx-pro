@@ -16,6 +16,35 @@ const withRouter = (path: string, render: () => unknown) =>
   ));
 
 describe('NavBar', () => {
+  it('部件属性：每一项的 li、链接、菜单按钮可以按项给；链接的 onClick 先执行、可以拦下跳转', () => {
+    const navigate = vi.fn();
+    const root = mount(() => (
+      <Provider router={{ navigate, isActive: () => false }}>
+        <NavBar
+          aria-label="主导航"
+          items={[
+            { label: '工作台', href: '/' },
+            { label: '采购', children: [{ label: '采购单', href: '/po' }] },
+          ]}
+          propsItem={(item) => ({ class: `item-${item.label}` })}
+          propsLink={{
+            class: 'link',
+            onClick: (event: MouseEvent) => event.preventDefault(),
+          }}
+          propsTrigger={(item) => ({ title: `${item.label}菜单` })}
+          propsMore={{ 'aria-label': '其余' }}
+        />
+      </Provider>
+    ));
+    expect(root.querySelector('li.item-工作台')).not.toBeNull();
+    const link = root.querySelector<HTMLAnchorElement>('a.link')!;
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+    expect(navigate).not.toHaveBeenCalled();
+    const trigger = root.querySelector<HTMLButtonElement>('button[aria-haspopup="menu"]')!;
+    expect([trigger.title, trigger.getAttribute('aria-expanded')]).toEqual(['采购菜单', 'false']);
+    expect(root.querySelector('button[aria-label="其余"]')).not.toBeNull();
+  });
+
   it('当前页的链接带 aria-current；子项是当前页时它的下拉按钮也高亮；角标', () => {
     const root = withRouter('/po', () => (
       <NavBar

@@ -217,6 +217,10 @@ export interface DataTableViewProps<T> extends PartProps<'table', 'role'>, DataT
   propsSortButton?: Partial<ButtonBaseProps>;
   /** 列宽调整手柄的部件属性 */
   propsResizer?: Partial<ColumnResizerProps>;
+  /** 表头筛选按钮（漏斗）的部件属性 */
+  propsFilterButton?: Partial<IconButtonProps>;
+  /** 列菜单按钮（⋮）的部件属性 */
+  propsColumnMenuButton?: Partial<IconButtonProps>;
   /** 可排序列标题里的文字（排序按钮里、图标前）的部件属性 */
   propsSortLabel?: PartProps<'span'>;
   /** 表头（thead，吸顶）的部件属性 */
@@ -899,6 +903,8 @@ export const DataTableView = _component(
     propsSkeleton,
     propsSortButton,
     propsResizer,
+    propsFilterButton,
+    propsColumnMenuButton,
     propsSortLabel,
     propsHead,
     propsHeadRow,
@@ -1209,6 +1215,7 @@ export const DataTableView = _component(
               options={filter.options === 'text' ? 'text' : (filterOptionsOf?.(column) ?? [])}
               values={filters?.[column.key] ?? []}
               onChange={(values) => onFilterChange?.(column.key, values)}
+              propsTrigger={propsFilterButton}
             />
           )}
           {columnMenu && (
@@ -1224,6 +1231,7 @@ export const DataTableView = _component(
               }}
               canHide={shown.length > 1}
               onAction={(action) => onColumnAction?.(column.key, action, cell()?.offsetWidth ?? 0)}
+              propsTrigger={propsColumnMenuButton}
             />
           )}
         </>

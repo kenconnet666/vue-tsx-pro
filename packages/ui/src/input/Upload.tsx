@@ -151,17 +151,17 @@ export interface UploadProps extends PartProps<'div'>, UploadOptions {
   description?: FileDropProps['description'];
   /** 选择区域（FileDrop）的部件属性 */
   propsDrop?: Partial<FileDropProps>;
-  /** 列表的部件属性 */
+  /** 列表的部件属性（列表样式；图片墙的缩略图直接排在根元素里） */
   propsList?: Partial<GridProps<'ul'>>;
-  /** 每一项的部件属性，可以按文件计算 */
-  propsItem?: PartProps<'li'> | ((file: UploadFile) => PartProps<'li'>);
-  /** 每一项的文件图标（按状态是文件、对勾或警告）的部件属性 */
+  /** 每一项的部件属性，可以按文件计算；图片墙里落在每张缩略图的外层上 */
+  propsItem?: PartProps<'li', 'role'> | ((file: UploadFile) => PartProps<'li', 'role'>);
+  /** 每一项的文件图标（按状态是文件、对勾或警告）的部件属性；图片墙里是不是图片的文件的图标 */
   propsIcon?: Partial<IconProps>;
-  /** 每一项里文件名与下一行（大小、错误或进度）的外层的部件属性 */
+  /** 每一项里文件名与下一行（大小、错误或进度）的外层的部件属性（列表样式） */
   propsBody?: PartProps<'div'>;
-  /** 每一项里文件名的部件属性 */
+  /** 每一项里文件名的部件属性（列表样式） */
   propsName?: PartProps<'span'>;
-  /** 每一项里文件大小或错误信息的部件属性 */
+  /** 每一项里文件大小或错误信息的部件属性（列表样式） */
   propsMeta?: PartProps<'span'>;
   /** 每一项上传中的进度条的部件属性；进度与名称（文件名）由组件管理 */
   propsProgress?: Omit<Partial<ProgressProps>, 'value' | 'aria-label'>;
@@ -662,8 +662,9 @@ export const Upload = _component(
                 failed && uploadStateStyles.cardError,
               ],
             },
-            sortableWall.itemProps(item.id),
-            { role: 'listitem' },
+            // 使用方给每一项的属性（data-*、class、事件）落在缩略图的外层上
+            (typeof propsItem === 'function' ? propsItem(item) : propsItem) as PartProps<'div'>,
+            { ...sortableWall.itemProps(item.id), role: 'listitem' },
           )}
           data-state={item.status}
         >
@@ -679,7 +680,15 @@ export const Upload = _component(
             />
           ) : (
             <div {...mergeAttrs<'div'>(s.placeholder)}>
-              <Icon icon={failed ? CircleAlert : FileIcon} sx={failed && uploadStateStyles.error} />
+              <Icon
+                {...mergePartProps<IconProps>(
+                  {
+                    icon: failed ? CircleAlert : FileIcon,
+                    sx: failed && uploadStateStyles.error,
+                  },
+                  propsIcon,
+                )}
+              />
               {item.name}
             </div>
           )}

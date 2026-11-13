@@ -21,13 +21,13 @@ import { ChevronDown, Ellipsis } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Badge } from '../base/Badge';
-import { ButtonBase } from '../base/ButtonBase';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData } from '../base/Icon';
 import { useLang } from '../config/context';
 import { Menu, MenuGroup, MenuLinkItem } from '../overlay/Menu';
 import { useRouterLink } from '../utils/dom/link';
 import { useOverflowItems } from '../utils/dom/overflow';
-import { dataAttrs, mergeAttrs, type PartProps } from '../utils/props';
+import { dataAttrs, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { t } from '../config/theme/tokens';
 import { partAttrs } from '../config/styles';
@@ -54,7 +54,30 @@ export interface NavBarProps extends PartProps<'nav'> {
   items: readonly NavBarItem[];
   /** 列表（ul）的部件属性 */
   propsList?: PartProps<'ul'>;
+  /** 每一项外层（li）的部件属性；可以是函数，按项给 */
+  propsItem?: PartProps<'li'> | ((item: NavBarItem) => PartProps<'li'> | undefined);
+  /** 链接（a）的部件属性；可以是函数，按项给。地址、当前页与不可用由组件管理 */
+  propsLink?: NavBarLinkPart | ((item: NavBarItem) => NavBarLinkPart | undefined);
+  /** 有子项时的菜单按钮的部件属性；可以是函数，按项给。展开状态与不可用由组件管理 */
+  propsTrigger?: NavBarButtonPart | ((item: NavBarItem) => NavBarButtonPart | undefined);
+  /** “更多”按钮的部件属性：名称默认取语言包，可以用 aria-label 改 */
+  propsMore?: NavBarButtonPart;
 }
+
+/** NavBar 链接的部件属性：地址、当前页与不可用由组件管理 */
+export type NavBarLinkPart = PartProps<'a', 'href' | 'aria-current' | 'aria-disabled'>;
+
+/** NavBar 菜单按钮的部件属性：展开状态、关联的菜单与不可用由组件管理 */
+export type NavBarButtonPart = Omit<
+  Partial<ButtonBaseProps>,
+  'id' | 'disabled' | 'aria-haspopup' | 'aria-expanded' | 'aria-controls'
+>;
+
+/** 部件属性可以按项给：是函数就按这一项算 */
+const partOf = <P,>(
+  part: P | ((item: NavBarItem) => P | undefined) | undefined,
+  item: NavBarItem,
+) => (typeof part === 'function' ? (part as (item: NavBarItem) => P | undefined)(item) : part);
 
 /** 部件的标记（data-scope="nav-bar"） */
 const navBarPart = (part: string) => partAttrs({ name: 'NavBar' }, part);
@@ -108,123 +131,132 @@ const hasActive = (item: NavBarItem, isActive: (href: string) => boolean): boole
   (item.children ?? []).some((child) => hasActive(child, isActive));
 
 /** 横向导航：一行链接与下拉菜单，放不下的收进“更多” */
-export const NavBar = _component(({ items, propsList, ...rest }: NavBarProps) => {
-  const lang = useLang();
-  const router = useRouterLink();
-  let list = _state.raw<HTMLElement | null>(null);
-  const overflow = useOverflowItems({ container: () => list, count: () => items.length });
+export const NavBar = _component(
+  ({ items, propsList, propsItem, propsLink, propsTrigger, propsMore, ...rest }: NavBarProps) => {
+    const lang = useLang();
+    const router = useRouterLink();
+    let list = _state.raw<HTMLElement | null>(null);
+    const overflow = useOverflowItems({ container: () => list, count: () => items.length });
 
-  const badge = (count = 0) =>
-    count > 0 && (
-      <Badge size="xs" variant="solid" tone="danger" radius="full" {...navBarPart('badge')}>
-        {count > 99 ? '99+' : count}
-      </Badge>
-    );
+    const badge = (count = 0) =>
+      count > 0 && (
+        <Badge size="xs" variant="solid" tone="danger" radius="full" {...navBarPart('badge')}>
+          {count > 99 ? '99+' : count}
+        </Badge>
+      );
 
-  /** 菜单里的链接（下拉菜单、“更多”菜单共用） */
-  const menuLinks = (children: readonly NavBarItem[]) =>
-    children.map((child) => (
-      <MenuLinkItem
-        key={child.href ?? child.label}
-        href={child.href ?? ''}
-        icon={child.icon}
-        disabled={child.disabled}
-        aria-current={child.href && router.isActive(child.href) ? 'page' : undefined}
-      >
-        {child.label}
-      </MenuLinkItem>
-    ));
+    /** 菜单里的链接（下拉菜单、“更多”菜单共用） */
+    const menuLinks = (children: readonly NavBarItem[]) =>
+      children.map((child) => (
+        <MenuLinkItem
+          key={child.href ?? child.label}
+          href={child.href ?? ''}
+          icon={child.icon}
+          disabled={child.disabled}
+          aria-current={child.href && router.isActive(child.href) ? 'page' : undefined}
+        >
+          {child.label}
+        </MenuLinkItem>
+      ));
 
-  function renderItem(item: NavBarItem) {
-    const current = hasActive(item, router.isActive);
-    const sx = [navBarStyles.link, focusRingStyles.visible];
-    const content = [item.icon && <Icon icon={item.icon} />, item.label, badge(item.badge)];
-    if (item.children?.length) {
+    function renderItem(item: NavBarItem) {
+      const current = hasActive(item, router.isActive);
+      const sx = [navBarStyles.link, focusRingStyles.visible];
+      const content = [item.icon && <Icon icon={item.icon} />, item.label, badge(item.badge)];
+      if (item.children?.length) {
+        return (
+          <Menu
+            trigger={(props) => (
+              <ButtonBase
+                {...mergePartProps<ButtonBaseProps>({ sx }, partOf(propsTrigger, item), {
+                  ...props,
+                  disabled: item.disabled,
+                })}
+                data-state={current ? 'active' : 'inactive'}
+                data-current={current || undefined}
+              >
+                {content}
+                <Icon icon={ChevronDown} />
+              </ButtonBase>
+            )}
+          >
+            {menuLinks(item.children)}
+          </Menu>
+        );
+      }
+      return (
+        <a
+          {...mergeAttrs<'a'>({ sx }, partOf(propsLink, item), {
+            href: item.disabled || item.href == null ? undefined : router.href(item.href),
+            'aria-current': current ? 'page' : undefined,
+            'aria-disabled': item.disabled || undefined,
+            // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转
+            onClick: (event: MouseEvent) => item.href && router.onClick(event, item.href),
+          })}
+          data-state={current ? 'active' : 'inactive'}
+        >
+          {content}
+        </a>
+      );
+    }
+
+    /** “更多”菜单：收起来的各项，有子项的按分组列出 */
+    function renderMore() {
+      const hidden = items.slice(overflow.visible);
+      const current = hidden.some((item) => hasActive(item, router.isActive));
       return (
         <Menu
+          placement="bottom-end"
           trigger={(props) => (
             <ButtonBase
-              {...props}
-              sx={sx}
-              disabled={item.disabled}
-              data-state={current ? 'active' : 'inactive'}
+              {...mergePartProps<ButtonBaseProps>(
+                { sx: [navBarStyles.link, focusRingStyles.visible], 'aria-label': lang.navBarMore },
+                propsMore,
+                props,
+              )}
               data-current={current || undefined}
             >
-              {content}
-              <Icon icon={ChevronDown} />
+              <Icon icon={Ellipsis} />
             </ButtonBase>
           )}
         >
-          {menuLinks(item.children)}
+          {hidden.map((item) =>
+            item.children?.length ? (
+              <MenuGroup key={item.label} label={item.label}>
+                {menuLinks(item.children)}
+              </MenuGroup>
+            ) : (
+              menuLinks([item])
+            ),
+          )}
         </Menu>
       );
     }
-    return (
-      <a
-        {...css.attrs(...sx)}
-        href={item.disabled || item.href == null ? undefined : router.href(item.href)}
-        aria-current={current ? 'page' : undefined}
-        aria-disabled={item.disabled || undefined}
-        data-state={current ? 'active' : 'inactive'}
-        onClick={(event: MouseEvent) => item.href && router.onClick(event, item.href)}
-      >
-        {content}
-      </a>
-    );
-  }
 
-  /** “更多”菜单：收起来的各项，有子项的按分组列出 */
-  function renderMore() {
-    const hidden = items.slice(overflow.visible);
-    const current = hidden.some((item) => hasActive(item, router.isActive));
-    return (
-      <Menu
-        placement="bottom-end"
-        trigger={(props) => (
-          <ButtonBase
-            {...props}
-            sx={[navBarStyles.link, focusRingStyles.visible]}
-            aria-label={lang.navBarMore}
-            data-current={current || undefined}
-          >
-            <Icon icon={Ellipsis} />
-          </ButtonBase>
-        )}
-      >
-        {hidden.map((item) =>
-          item.children?.length ? (
-            <MenuGroup key={item.label} label={item.label}>
-              {menuLinks(item.children)}
-            </MenuGroup>
-          ) : (
-            menuLinks([item])
-          ),
-        )}
-      </Menu>
-    );
-  }
-
-  return () => (
-    <nav {...mergeAttrs<'nav'>(dataAttrs(navBarPart('root')), rest)}>
-      <ul
-        {...mergeAttrs<'ul'>({ sx: navBarStyles.list, ...navBarPart('list') }, propsList, {
-          ref: _toRef(list),
-        })}
-      >
-        {items.map((item, index) => (
-          <li
-            key={item.href ?? item.label}
-            {...css.attrs(navBarStyles.item)}
-            {...navBarPart('item')}
-            {...overflow.itemProps(index)}
-          >
-            {renderItem(item)}
+    return () => (
+      <nav {...mergeAttrs<'nav'>(dataAttrs(navBarPart('root')), rest)}>
+        <ul
+          {...mergeAttrs<'ul'>({ sx: navBarStyles.list, ...navBarPart('list') }, propsList, {
+            ref: _toRef(list),
+          })}
+        >
+          {items.map((item, index) => (
+            <li
+              key={item.href ?? item.label}
+              {...mergeAttrs<'li'>(
+                { sx: navBarStyles.item, ...navBarPart('item') },
+                partOf(propsItem, item),
+                overflow.itemProps(index),
+              )}
+            >
+              {renderItem(item)}
+            </li>
+          ))}
+          <li {...css.attrs(navBarStyles.item)} {...navBarPart('item')} {...overflow.restProps()}>
+            {renderMore()}
           </li>
-        ))}
-        <li {...css.attrs(navBarStyles.item)} {...navBarPart('item')} {...overflow.restProps()}>
-          {renderMore()}
-        </li>
-      </ul>
-    </nav>
-  );
-});
+        </ul>
+      </nav>
+    );
+  },
+);

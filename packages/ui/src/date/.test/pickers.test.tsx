@@ -333,6 +333,30 @@ describe('季度、周的区间', () => {
     expect(open).toBe(false);
   });
 
+  it('QuarterCalendar：父级从外面改了值就翻到那一年；格子与按钮的部件属性可以按季度给', async () => {
+    let value = _state<string | null>('2026-Q4');
+    const root = mount(() => (
+      <QuarterCalendar
+        _value={value}
+        aria-label="季度"
+        propsHeading={{ class: 'heading' }}
+        propsCell={(key) => ({ class: `cell-${key}` })}
+        propsCellButton={{ title: '选这个季度' }}
+      />
+    ));
+    await flush();
+    expect(root.querySelector('.heading')!.textContent).toContain('2026');
+    expect(root.querySelector('td.cell-2026-Q1')).not.toBeNull();
+    const button = root.querySelector<HTMLButtonElement>('[data-quarter="2026-Q4"]')!;
+    expect([button.title, button.type, button.tabIndex]).toEqual(['选这个季度', 'button', 0]);
+    value = '2024-Q2';
+    await flush();
+    expect(root.querySelector('.heading')!.textContent).toContain('2024');
+    expect(root.querySelector('[data-quarter="2024-Q2"]')!.getAttribute('data-selected')).toBe(
+      'true',
+    );
+  });
+
   it('QuarterCalendar 的键盘：←→ 移动（到头换年）、Page Down 换年、Enter 选中', async () => {
     let value = _state<string | null>('2026-Q4');
     mount(() => <QuarterCalendar _value={value} aria-label="季度" />);
