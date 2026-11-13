@@ -249,7 +249,9 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
     const sendWire = spec.wire?.request ?? wire !== false;
     const readWire = spec.wire?.response ?? wire !== false;
     const revive = (value: unknown) => (readWire ? fromWire(value, reviveOptions) : value);
-    const headers = new Headers({ ...options.headers, ...spec.headers });
+    // 逐个 set：名字只差大小写的（Authorization / authorization）也是覆盖，不拼成 "a, b"
+    const headers = new Headers(options.headers);
+    for (const [name, value] of Object.entries(spec.headers ?? {})) headers.set(name, value);
     const json = isJsonBody(body);
     if (json && !headers.has('content-type')) headers.set('content-type', 'application/json');
     const signals = [signal, timeout > 0 ? AbortSignal.timeout(timeout) : undefined].filter(
@@ -264,8 +266,11 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
     prepared = (await onRequest?.(prepared)) ?? prepared;
 
     let response: Response;
+    let read: Awaited<ReturnType<typeof readBody>>;
     try {
       response = await (options.fetch ?? fetch)(prepared);
+      // 读响应体也在这里：头到了之后才超时、断网的，同样报成超时、网络错误
+      read = await readBody(response, spec.responseType);
     } catch (cause) {
       // 调用方取消的：原样交出（AbortError），界面据此不当作错误
       if (signal?.aborted) throw cause;
@@ -281,7 +286,7 @@ export function createHttpClient(options: HttpClientOptions = {}): FetchClient {
       });
     }
     const context = { request: spec, response };
-    const { body: raw, malformed } = await readBody(response, spec.responseType);
+    const { body: raw, malformed } = read;
     let data: unknown;
     try {
       data = malformed ? raw : revive(raw);

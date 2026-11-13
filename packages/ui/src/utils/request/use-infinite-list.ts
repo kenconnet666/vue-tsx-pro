@@ -91,11 +91,14 @@ export function useInfiniteList<T, C = unknown, P = undefined>(
   let seen = new Set<PropertyKey>();
   let controller: AbortController | undefined;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  /** 防抖的刷新还没执行 */
+  let pending = false;
   // 每次请求一个编号：结果回来时不是最后一次的就丢掉（fetchPage 没理会 signal 时也不会接错）
   let latest = 0;
 
   function cancel() {
     clearTimeout(timer);
+    pending = false;
     latest++;
     controller?.abort();
     controller = undefined;
@@ -147,6 +150,8 @@ export function useInfiniteList<T, C = unknown, P = undefined>(
   }
 
   async function loadMore() {
+    // 参数刚变、防抖还在等：这时取的是旧参数的下一页，还会把等着的刷新清掉，新的搜索词就永远不执行了
+    if (pending) return;
     if (loading.value || (loaded.value && !hasMore.value)) return;
     await run(!loaded.value);
   }
@@ -154,9 +159,12 @@ export function useInfiniteList<T, C = unknown, P = undefined>(
   if (params) {
     watch(readParams, (next) => {
       clearTimeout(timer);
+      pending = false;
       if (!enabled() || sameValue(next, current)) return;
-      if (debounce > 0) timer = setTimeout(() => void run(true), debounce);
-      else void run(true);
+      if (debounce > 0) {
+        pending = true;
+        timer = setTimeout(() => void run(true), debounce);
+      } else void run(true);
     });
   }
   if (starts && typeof window !== 'undefined') void run(true);

@@ -132,6 +132,8 @@ export function useRequest<T, P = undefined>(
       if (id !== latest) return undefined;
       if (cached) {
         data.value = cached.value as T;
+        // 上一个参数留下的错误不再作数：不然界面上数据与错误同时出现
+        error.value = undefined;
         if (cached.fresh && !force) return cached.value as T;
       }
       const result = await fetcher(current, own.signal);

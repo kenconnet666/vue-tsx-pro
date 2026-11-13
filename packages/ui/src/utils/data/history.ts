@@ -114,6 +114,8 @@ export function createHistory<T>(options: HistoryOptions<T>): History {
     const last = entries[current]!;
     if (equals(next.value, last.value)) return;
     entries.length = current + 1;
+    // 保存点在被丢掉的重做段里：它不再对应任何一步，之后走到同一个下标也不算“已保存”
+    if (saved > current) saved = -1;
     // 合并进上一步：同一个键、间隔不长，且上一步不是起点或保存点（否则撤销会越过它们）
     const merges =
       merge !== undefined &&

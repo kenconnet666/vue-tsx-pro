@@ -249,7 +249,13 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
     const zoom = options.wheel !== 'pan' || event.ctrlKey || event.metaKey;
     event.preventDefault();
     if (!zoom) {
-      apply({ ...state.value, x: state.value.x - event.deltaX, y: state.value.y - event.deltaY });
+      // 按“行”上报的滚轮（Firefox 的鼠标滚轮，一格 ±3）换成像素，不然一格只挪 3px
+      const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 100 : 1;
+      apply({
+        ...state.value,
+        x: state.value.x - event.deltaX * unit,
+        y: state.value.y - event.deltaY * unit,
+      });
       return;
     }
     // 触控板的捏合每次 delta 很小、鼠标滚轮一格约 100：按 delta 连续缩放，两种都顺手
@@ -267,14 +273,18 @@ export function usePanZoom(options: PanZoomOptions): PanZoom {
       pinch = { distance: Math.hypot(a.x - b.x, a.y - b.y), state: state.value };
       return;
     }
-    const start = state.value;
+    // 按增量平移，不从按下时的状态重算：双指捏合后抬起一指、另一指接着拖时，不会跳回捏合前的大小
+    let movedX = 0;
+    let movedY = 0;
     startMove(event, {
       threshold: 3,
       onMove: (point, move) => {
         pointers.set(move.pointerId, local(move));
         interacting.value = true;
+        const [stepX, stepY] = [point.deltaX - movedX, point.deltaY - movedY];
+        [movedX, movedY] = [point.deltaX, point.deltaY];
         if (pinch) return;
-        apply({ ...start, x: start.x + point.deltaX, y: start.y + point.deltaY });
+        apply({ ...state.value, x: state.value.x + stepX, y: state.value.y + stepY });
       },
       onEnd: () => {
         pointers.clear();

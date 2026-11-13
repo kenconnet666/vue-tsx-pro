@@ -98,7 +98,10 @@ export function matchesHotkey(event: KeyboardEvent, combo: string | Hotkey): boo
   }
   if (!symbol && event.shiftKey !== hotkey.shift) return false;
   const key = event.key.toLowerCase();
-  return key === hotkey.key || (letter && event.code === `Key${hotkey.key.toUpperCase()}`);
+  if (key === hotkey.key) return true;
+  // 按物理键位兜底：只在按出来的不是拉丁字母时（macOS 的 Option 组合出符号、西里尔等布局）。
+  // AZERTY、Dvorak 按出来的就是字母，再按键位认会串键（标着 Q 的键同时命中 Mod+Q 与 Mod+A）
+  return letter && !/^[a-z]$/.test(key) && event.code === `Key${hotkey.key.toUpperCase()}`;
 }
 
 // 小写的键名 → KeyboardEvent.key 的写法（多个单词的每个词首字母大写）

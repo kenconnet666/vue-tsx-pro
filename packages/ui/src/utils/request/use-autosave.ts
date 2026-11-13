@@ -60,9 +60,17 @@ export function useAutosave<Saved>(options: AutosaveOptions<Saved>): Autosave<Sa
   // 和这份内容一样时不用存：载入时的、刚存过的；null 是还没开始
   let baseline: string | null = null;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  /** 正在保存：这期间再触发的不并发（带版本号的保存会互相判成冲突，乱序回来还会把旧内容当成已保存） */
+  let saving = false;
+  /** 保存期间内容又变了：这次存完接着再存一次 */
+  let queued = false;
 
   async function flush() {
     clearTimeout(timer);
+    if (saving) {
+      queued = true;
+      return;
+    }
     const content = options.content();
     if (
       baseline === null ||
@@ -72,14 +80,25 @@ export function useAutosave<Saved>(options: AutosaveOptions<Saved>): Autosave<Sa
     )
       return;
     status.state = 'saving';
+    saving = true;
     try {
-      status.saved = await options.save(content);
+      const saved = await options.save(content);
+      // 保存期间调用过 stop（baseline 清成了 null）：结果不再写回，不让自动保存自己复活
+      if (baseline === null) return;
+      status.saved = saved;
       baseline = content;
       status.error = null;
       status.state = 'saved';
     } catch (error) {
+      if (baseline === null) return;
       status.error = error;
       status.state = options.isConflict?.(error) ? 'conflict' : 'failed';
+    } finally {
+      saving = false;
+      if (queued) {
+        queued = false;
+        void flush();
+      }
     }
   }
 
