@@ -17,6 +17,7 @@ import { watch, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useLang } from '../config/context';
 import { Lightbox, type LightboxItem, type LightboxProps } from '../overlay/Lightbox';
+import { imageLoaded } from '../utils/dom/element';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { shimmerStyles } from '../utils/style/shimmer';
 import { focusRingStyles, radiusStyles, type Radius } from '../utils/style/styles';
@@ -201,6 +202,9 @@ export const Image = _component(
                 {
                   src,
                   alt,
+                  ref: (element: unknown) => {
+                    if (status === 'loading' && imageLoaded(element)) status = 'loaded';
+                  },
                   onLoad: () => (status = 'loaded'),
                   onError: () => (status = 'error'),
                 },

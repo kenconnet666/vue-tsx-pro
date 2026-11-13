@@ -146,6 +146,11 @@ export const checklistStyles = css.create({
   // 可以勾选时的按钮：只有图标，去掉按钮的外观
   toggle: {
     display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    // 图标只有 1em：可点的区域不小于 24px（WCAG 2.5.8）
+    minWidth: '_sizes.minTarget',
+    minHeight: '_sizes.minTarget',
     padding: 0,
     margin: 0,
     borderWidth: 0,

@@ -14,6 +14,7 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId } from 'vue';
 import { CharacterCount, type CharacterCountProps } from './CharacterCount';
 import { useFieldControl } from '../form/Field';
+import { useResizeObserver } from '../utils/dom/resize';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import type { PresetIconButtonProps } from '../base/CloseButton';
 import { controlClear, controlParts, useControlAppearance, type ControlOptions } from './control';
@@ -104,16 +105,31 @@ export const Textarea = _component(
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
     let textarea = _state.raw<HTMLTextAreaElement | null>(null);
 
-    // 内容变化（含父级改值）后按内容高度重设
+    /** 按内容的高度重设 */
+    function fit() {
+      const element = textarea;
+      if (fixed || !element) return;
+      element.style.height = 'auto';
+      element.style.height = `${element.scrollHeight}px`;
+    }
+    // 内容变化（含父级改值）后重设
     _effect(() => {
       if (fixed || !textarea) return;
       void value;
-      const element = textarea;
-      void nextTick(() => {
-        element.style.height = 'auto';
-        element.style.height = `${element.scrollHeight}px`;
-      });
+      void nextTick(fit);
     });
+    // 宽度变了也要重设：容器变窄文字多换了行；一开始在没显示的标签页、弹层里（量到的高度是 0），显示出来时宽度从 0 变成有。
+    // 只看宽度：自己改高度不再触发
+    let measured = 0;
+    useResizeObserver(
+      () => (fixed ? null : textarea),
+      () => {
+        const width = textarea?.clientWidth ?? 0;
+        if (width === measured) return;
+        measured = width;
+        fit();
+      },
+    );
 
     return () => {
       const state = control();

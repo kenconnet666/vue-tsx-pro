@@ -172,7 +172,8 @@ export const VirtualList = _component(
         count: data.length,
         overscan,
         horizontal,
-        scrollElement: scroll === 'window' ? window : root,
+        // 服务端没有 window：先当作没有滚动容器，挂载后再量
+        scrollElement: scroll === 'window' ? (typeof window === 'undefined' ? null : window) : root,
         list,
         estimateSize: (index: number) =>
           typeof estimate === 'number' ? estimate : estimate(data[index]!, index),

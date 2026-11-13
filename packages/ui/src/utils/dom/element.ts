@@ -11,3 +11,11 @@ export function toElement(value: unknown): HTMLElement | null {
   const root = (value as { $el?: unknown } | null)?.$el;
   return isHTMLElement(root) ? root : null;
 }
+
+/**
+ * 图片是不是已经加载好了：load 在监听接上之前就发生过时（服务端渲染后水合、缓存里的图）不会再来一次，
+ * 元素挂上时用它补一次
+ */
+export function imageLoaded(element: unknown): boolean {
+  return element instanceof HTMLImageElement && element.complete && element.naturalWidth > 0;
+}

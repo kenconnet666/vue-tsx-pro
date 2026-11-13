@@ -106,7 +106,8 @@ export const Breadcrumbs = _component(
     const lang = useLang();
 
     return () => {
-      const collapse = maxItems != null && items.length > maxItems;
+      // 第一项与最后两项总是留着：再多出来的才有东西可折（maxItems 写得比 3 小也一样）
+      const collapse = maxItems != null && items.length > Math.max(maxItems, 3);
       // 折叠时保留第一项与最后两项，中间换成展开按钮
       const shown: (BreadcrumbItem | 'collapsed')[] = collapse
         ? [items[0]!, 'collapsed', ...items.slice(-2)]

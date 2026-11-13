@@ -1426,7 +1426,7 @@ export { caretAnchor, caretRect } from './utils/dom/caret';
 export { useClipboard, type ClipboardOptions, type ClipboardState } from './utils/dom/clipboard';
 export { inlineArrows, isRtl, type InlineArrows } from './utils/dom/direction';
 export { downloadFile, pickFile } from './utils/dom/download';
-export { isHTMLElement, toElement } from './utils/dom/element';
+export { imageLoaded, isHTMLElement, toElement } from './utils/dom/element';
 export { useEventListener, type ListenerTarget } from './utils/dom/event-listener';
 export {
   anchoredPanelSx,

@@ -12,6 +12,7 @@ import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
+import { imageLoaded } from '../utils/dom/element';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { statusToneStyles, type StatusTone } from '../utils/style/tone-styles';
 import { fontSizeStyles, type TextSize } from '../utils/style/typography';
@@ -161,6 +162,9 @@ export const Avatar = _component(
               alt=""
               {...mergeAttrs<'img'>(s.image, propsImage, {
                 src,
+                ref: (element: unknown) => {
+                  if (status === 'loading' && imageLoaded(element)) status = 'loaded';
+                },
                 onLoad: () => (status = 'loaded'),
                 onError: () => (status = 'error'),
               })}

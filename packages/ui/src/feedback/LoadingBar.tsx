@@ -89,7 +89,8 @@ export function createLoadingBar({ delay = 200 }: LoadingBarOptions = {}): Loadi
     start() {
       stop();
       state.failed = false;
-      state.progress = state.visible ? state.progress : 0;
+      // 还在显示时接着走；但上一次已经走完（100%，正在淡出）就从头来，不然下一拍会从 100% 退回 90%
+      state.progress = state.visible && state.progress < 100 ? state.progress : 0;
       showTimer = setTimeout(() => {
         state.visible = true;
         state.progress = Math.max(state.progress, 8);

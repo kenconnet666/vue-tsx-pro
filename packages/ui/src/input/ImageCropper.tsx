@@ -77,6 +77,8 @@ export interface ImageCropperProps extends PartProps<'div'> {
   handle?: (cropper: ImageCropperHandle) => void;
   /** 区域的部件属性 */
   propsViewport?: PartProps<'div', 'role' | 'tabindex'>;
+  /** 图片的部件属性；默认带 crossorigin="anonymous"（别的域名的图不按跨域取的话，canvas 导不出来） */
+  propsImage?: PartProps<'img', 'src' | 'alt' | 'draggable'>;
   /** 工具条的部件属性 */
   propsToolbar?: PartProps<'div'>;
   /** 工具栏按钮（缩小、放大、复原）的部件属性 */
@@ -141,6 +143,7 @@ export const ImageCropper = _component(
     padding = 24,
     handle,
     propsViewport,
+    propsImage,
     propsToolbar,
     propsButton,
     'aria-label': label,
@@ -308,17 +311,25 @@ export const ImageCropper = _component(
             )}
           >
             <img
-              ref={_toRef(image)}
-              src={src}
-              alt=""
-              draggable={false}
-              {...css.attrs(imageCropperStyles.image)}
-              {...imageCropperPart('image')}
+              {...mergeAttrs<'img'>(
+                {
+                  sx: imageCropperStyles.image,
+                  crossorigin: 'anonymous',
+                  ...imageCropperPart('image'),
+                },
+                propsImage,
+                {
+                  ref: _toRef(image),
+                  src,
+                  alt: '',
+                  draggable: false,
+                  onLoad: (event: Event) => {
+                    const element = event.target as HTMLImageElement;
+                    natural = { width: element.naturalWidth, height: element.naturalHeight };
+                  },
+                },
+              )}
               style={{ transform: view.transform }}
-              onLoad={(event: Event) => {
-                const element = event.target as HTMLImageElement;
-                natural = { width: element.naturalWidth, height: element.naturalHeight };
-              }}
             />
             <div
               aria-hidden="true"
