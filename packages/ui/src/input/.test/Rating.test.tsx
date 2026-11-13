@@ -64,4 +64,24 @@ describe('Rating', () => {
     const empty = mount(() => <Rating readonly />);
     expect(empty.querySelector('[role="img"]')!.getAttribute('aria-label')).toBe('未评分');
   });
+
+  it('只读时名称里总有分数：自己的 aria-label 后面接上，在 Field 里时标签后面接上', () => {
+    const root = mount(() => (
+      <>
+        <Rating _value={4} readonly aria-label="交付质量" class="own" />
+        <Field label="响应速度">
+          <Rating _value={3} readonly class="field" />
+        </Field>
+      </>
+    ));
+    expect(root.querySelector('.own')!.getAttribute('aria-label')).toBe('交付质量 4 星，满分 5 星');
+    const inField = root.querySelector('.field')!;
+    expect(inField.hasAttribute('aria-label')).toBe(false);
+    const name = inField
+      .getAttribute('aria-labelledby')!
+      .split(' ')
+      .map((id) => document.getElementById(id)!.textContent)
+      .join(' ');
+    expect(name).toBe('响应速度 3 星，满分 5 星');
+  });
 });

@@ -32,6 +32,8 @@ export interface ColumnSettingsProps<T> {
   _order?: string[];
   /** 点了“重置”：显示与顺序回到列定义；要连列宽、固定一起还原时在这里清掉 */
   onReset?: () => void;
+  /** 显示与顺序之外还有别的列设置改过（固定、列宽，由 onReset 还原）：这时“重置”也可用 */
+  changed?: boolean;
   /** 触发按钮的部件属性 */
   propsTrigger?: Partial<IconButtonProps>;
   /** 弹出层（Popover）的部件属性 */
@@ -62,6 +64,7 @@ export const ColumnSettings = _component(
     _hidden: hidden = _bindable<string[]>([]),
     _order: order = _bindable<string[]>([]),
     onReset,
+    changed = false,
     propsTrigger,
     propsPanel,
     propsList,
@@ -72,7 +75,8 @@ export const ColumnSettings = _component(
     const labelOf = (column: DataTableColumn<T>) => plainText(column.header) ?? column.key;
     // 按当前顺序列出（固定列照常在两头）
     const arranged = () => arrangeColumns(columns, order, undefined);
-    const visibleCount = () => columns.length - hidden.length;
+    // 只数现有的列：记下来的设置里可能还留着已经删掉的列
+    const visibleCount = () => columns.filter((column) => !hidden.includes(column.key)).length;
 
     function toggle(key: string, visible: boolean) {
       hidden = visible ? hidden.filter((item) => item !== key) : [...hidden, key];
@@ -112,7 +116,7 @@ export const ColumnSettings = _component(
             </span>
             <Button
               {...mergePartProps<ButtonProps>({ size: 'sm', variant: 'ghost' }, propsReset, {
-                disabled: hidden.length === 0 && order.length === 0,
+                disabled: hidden.length === 0 && order.length === 0 && !changed,
                 onClick: reset,
               })}
             >

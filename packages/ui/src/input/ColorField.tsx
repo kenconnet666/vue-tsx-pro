@@ -139,9 +139,10 @@ export const ColorField = _component(
                 colorFieldStyles.swatch,
                 focusRingStyles.visible,
               ],
+              'aria-label': lang.colorPick,
             },
             propsSwatch,
-            { ...props, disabled: state.disabled || state.readonly, 'aria-label': lang.colorPick },
+            { ...props, disabled: state.disabled || state.readonly },
           )}
         >
           <span

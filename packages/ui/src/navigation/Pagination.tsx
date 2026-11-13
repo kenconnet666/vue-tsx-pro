@@ -115,23 +115,15 @@ export const Pagination = _component(
           'aria-label': lang.pageLabel(target),
         },
         own,
-        { 'aria-current': isCurrent ? 'page' : undefined },
+        // 换页写在受管层：使用方 propsPage 里的 onClick 先执行，preventDefault 可以拦下
+        { 'aria-current': isCurrent ? 'page' : undefined, onClick: () => go(target) },
       );
       return href ? (
-        <LinkButton
-          {...mergePartProps<LinkButtonProps>(shared as LinkButtonProps, {
-            href: href(target),
-            onClick: () => go(target),
-          })}
-        >
+        <LinkButton {...(shared as LinkButtonProps)} href={href(target)}>
           {target}
         </LinkButton>
       ) : (
-        <Button
-          {...mergePartProps<ButtonProps>(shared as ButtonProps, { onClick: () => go(target) })}
-        >
-          {target}
-        </Button>
+        <Button {...(shared as ButtonProps)}>{target}</Button>
       );
     }
 

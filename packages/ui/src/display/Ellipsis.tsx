@@ -32,9 +32,9 @@ export interface EllipsisProps extends PartProps<'span'> {
   /** 截断时悬停、聚焦显示的提示，默认是 children；false 不提示（expandable 时默认不提示） */
   tooltip?: VNodeChild | false;
   /** 截断的那段文字的部件属性 */
-  propsText?: PartProps<'span'>;
+  propsText?: PartProps<'span', 'tabindex'>;
   /** 展开按钮的部件属性 */
-  propsToggle?: PartProps<'button'>;
+  propsToggle?: PartProps<'button', 'type' | 'aria-expanded'>;
   /** 文字 */
   children?: VNodeChild;
 }

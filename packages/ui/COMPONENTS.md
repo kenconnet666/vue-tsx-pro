@@ -71,6 +71,7 @@
 - 本库组件部件：该组件的 props（全部可选），形如 `Partial<IconProps>`；渲染时用 `mergePartProps<IconProps>(默认, propsIcon, 受管)` 合并：默认层要写齐子组件的必填 props，结果就是完整的 `IconProps`，不必断言。
 - 部件 props 不能改内容：`children` 不在部件 props 里，内容走组件自己的 prop。
 - 组件 props 接口 `extends PartProps<'主元素', 受管属性>`，`...rest` 才有补全与类型检查。
+- 受管层写了的属性要从使用方那一层的类型里去掉，否则使用方写了不报错、运行时被悄悄盖掉：`pnpm -C packages/ui check:managed`（`scripts/structure/managed-keys.mjs`，CI 的静态检查）逐个核对三层合并的调用，已知的缺项记在 `managed-keys-baseline.json`，只许减少。名称这类本该以使用方为准的（`aria-label`）不是去掉类型，而是挪到默认层。
 
 ### 2.4 合并规则
 

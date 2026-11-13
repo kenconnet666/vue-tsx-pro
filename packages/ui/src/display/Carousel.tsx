@@ -49,9 +49,9 @@ export interface CarouselProps<T> extends PartProps<'section', 'role'> {
   /** 底部的页点，默认显示 */
   dots?: boolean;
   /** 滚动区域的部件属性 */
-  propsViewport?: PartProps<'div'>;
+  propsViewport?: PartProps<'div', 'tabindex' | 'aria-live'>;
   /** 每一张外层的部件属性 */
-  propsSlide?: PartProps<'div', 'role' | 'aria-roledescription'>;
+  propsSlide?: PartProps<'div', 'role' | 'aria-roledescription' | 'aria-label'>;
   /** 上一张按钮的部件属性 */
   propsPrevious?: Partial<IconButtonProps>;
   /** 下一张按钮的部件属性 */

@@ -49,7 +49,7 @@ export interface SortableProps<T> extends PartProps<'ul'> {
   /** 每一项（li）的部件属性，可以按项计算 */
   propsItem?: PartProps<'li'> | ((item: T, state: SortableItemState) => PartProps<'li'>);
   /** 把手的部件属性 */
-  propsHandle?: Partial<ButtonBaseProps>;
+  propsHandle?: Omit<Partial<ButtonBaseProps>, 'aria-label' | 'disabled'>;
   /** 内容的部件属性 */
   propsContent?: PartProps<'div'>;
 }

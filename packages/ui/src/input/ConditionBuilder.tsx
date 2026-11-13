@@ -79,7 +79,7 @@ export interface ConditionBuilderProps extends PartProps<'div', 'role'> {
   /** 每个组的部件属性 */
   propsGroup?: PartProps<'div'>;
   /** 每条比较的部件属性 */
-  propsRule?: PartProps<'div'>;
+  propsRule?: PartProps<'div', 'role' | 'aria-label'>;
   /** “加一条”按钮的部件属性 */
   propsAddRule?: Partial<ButtonProps>;
   /** “加一组”按钮的部件属性 */

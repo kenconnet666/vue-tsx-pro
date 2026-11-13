@@ -56,7 +56,7 @@ describe('Table', () => {
         </TableHead>
         <TableBody>
           <TableRow>
-            <TableHeaderCell scope="row">设计</TableHeaderCell>
+            <TableHeaderCell>设计</TableHeaderCell>
             <TableCell>1200</TableCell>
           </TableRow>
         </TableBody>

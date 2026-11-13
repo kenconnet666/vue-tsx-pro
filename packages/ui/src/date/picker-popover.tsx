@@ -29,7 +29,10 @@ export interface PickerPopoverParts {
   /** 弹出位置，默认 bottom-start；空间不够时自动翻转 */
   placement?: FloatingPlacement;
   /** 打开按钮的部件属性 */
-  propsButton?: Omit<Partial<IconButtonProps>, 'onClick' | 'aria-expanded' | 'aria-controls'>;
+  propsButton?: Omit<
+    Partial<IconButtonProps>,
+    'onClick' | 'disabled' | 'aria-haspopup' | 'aria-expanded' | 'aria-controls'
+  >;
   /** 弹层的部件属性 */
   propsPopover?: PartProps<'div', 'id' | 'popover' | 'role'>;
 }

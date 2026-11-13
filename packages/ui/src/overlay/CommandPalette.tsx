@@ -85,7 +85,20 @@ export interface CommandPaletteBaseProps<T> extends Omit<
   /** 默认触发器的部件属性 */
   propsTrigger?: Partial<ButtonBaseProps>;
   /** 输入框的部件属性 */
-  propsInput?: PartProps<'input'>;
+  propsInput?: PartProps<
+    'input',
+    | 'type'
+    | 'role'
+    | 'placeholder'
+    | 'autocomplete'
+    | 'autofocus'
+    | 'enterkeyhint'
+    | 'aria-label'
+    | 'aria-autocomplete'
+    | 'aria-expanded'
+    | 'aria-controls'
+    | 'aria-activedescendant'
+  >;
   /** 列表的部件属性 */
   propsListbox?: Partial<ListboxViewProps<T>>;
 }

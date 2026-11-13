@@ -66,6 +66,26 @@ describe('Field', () => {
     expect([input.getAttribute('aria-invalid'), input.required]).toEqual(['true', true]);
   });
 
+  it('控件自己写了 id：标签的 for 跟着指向它；控件自己的 aria-describedby 与 Field 的说明拼在一起', async () => {
+    const root = mount(() => (
+      <Field label="邮箱" description="用于找回密码">
+        <TextField _value="" id="email-input" aria-describedby="email-hint" />
+      </Field>
+    ));
+    await nextTick();
+    const input = root.querySelector('input')!;
+    expect(input.id).toBe('email-input');
+    expect(root.querySelector('label')!.htmlFor).toBe('email-input');
+    const described = input.getAttribute('aria-describedby')!.split(' ');
+    expect(described).toContain('email-hint');
+    expect(described).toHaveLength(2);
+  });
+
+  it('不在 Field 里：控件上写的 aria-describedby 照常落到 input', () => {
+    const root = mount(() => <TextField _value="" aria-label="邮箱" aria-describedby="hint" />);
+    expect(root.querySelector('input')!.getAttribute('aria-describedby')).toBe('hint');
+  });
+
   it('控件上显式写的状态优先于 Field；invalid={false} 时不显示错误', () => {
     const root = mount(() => (
       <Field label="名字" error="必填" invalid={false} disabled>

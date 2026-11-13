@@ -367,10 +367,10 @@ export const ColorPicker = _component(
                     ),
                   ],
                   ...pickerPart('thumb'),
+                  'aria-label': lang.colorArea,
                 },
                 propsThumb,
                 {
-                  'aria-label': lang.colorArea,
                   'aria-valuemin': 0,
                   'aria-valuemax': 100,
                   'aria-valuenow': percent(hsva.s),

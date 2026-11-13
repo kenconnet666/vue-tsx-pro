@@ -120,10 +120,15 @@ export const Link = _component(
       return (
         <a
           {...mergeAttrs<'a'>(
-            { ...s.root, sx: [toneStyles[shownTone], s.root.sx, focusRingStyles.visible] },
+            {
+              ...s.root,
+              sx: [toneStyles[shownTone], s.root.sx, focusRingStyles.visible],
+              // target、rel 是默认：使用方可以改（rel 加 nofollow），同 LinkButton
+              ...(external && externalLinkAttrs),
+            },
             rest,
             external
-              ? { href, ...externalLinkAttrs }
+              ? { href }
               : // 使用方的 onClick 先执行，preventDefault 可以拦下路由跳转（mergeProps 的规则）
                 {
                   href: router.href(href),

@@ -168,7 +168,7 @@ export const PaginationBar = _component(
           {showSizeSelect && (
             <PageSizeSelect
               {...mergePartProps<PageSizeSelectProps>(
-                { options: pageSizeOptions },
+                { options: pageSizeOptions, size },
                 propsSizeSelect,
                 { onSizeChange: () => (page = 1) },
               )}

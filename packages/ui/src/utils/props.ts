@@ -64,6 +64,9 @@ type PropsLayer<Target> = Partial<
   [Target] extends [keyof JSX.IntrinsicElements] ? PartProps<Target> : Target
 >;
 
+/** 受管层：值可以写 null，表示去掉前面几层给的这个属性（undefined 是不表态） */
+type ManagedLayer<Layer> = { [Key in keyof Layer]: Layer[Key] | null };
+
 /**
  * 合并部件的三层属性：组件默认、使用方传入、组件受管，规则见文件开头。
  * 用类型参数写明属性落到哪里，三层的对象字面量才有补全、悬停说明与类型检查：
@@ -75,7 +78,7 @@ type PropsLayer<Target> = Partial<
 export function mergeProps<Target = Props>(
   defaults: PropsLayer<Target>,
   user?: PropsLayer<Target>,
-  managed?: PropsLayer<Target>,
+  managed?: ManagedLayer<PropsLayer<Target>>,
 ): PropsLayer<Target> {
   const base = defaults as Props;
   // ...rest 换成背后的普通对象：后面的展开与逐键遍历不再穿过 Proxy
@@ -177,7 +180,7 @@ function mergeParts(defaults: unknown, user: unknown, managed: unknown): unknown
 export function mergePartProps<P extends object>(
   defaults: P,
   user?: Partial<P>,
-  managed?: Partial<P>,
+  managed?: ManagedLayer<Partial<P>>,
 ): P {
   // P 是组件 props 类型，不是标签名：按对象合并，结果的类型就是 P
   return mergeProps(
@@ -194,7 +197,7 @@ export function mergePartProps<P extends object>(
 export function mergeAttrs<Tag extends keyof JSX.IntrinsicElements>(
   defaults: PropsLayer<Tag>,
   user?: PropsLayer<Tag>,
-  managed?: PropsLayer<Tag>,
+  managed?: ManagedLayer<PropsLayer<Tag>>,
 ): Omit<PropsLayer<Tag>, 'sx' | 'children'> {
   return elementProps(mergeProps<Tag>(defaults, user, managed));
 }

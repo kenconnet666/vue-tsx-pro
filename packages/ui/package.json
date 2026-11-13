@@ -143,6 +143,7 @@
     "check:layers": "node ../../scripts/structure/layers.mjs",
     "check:parts": "node ../../scripts/structure/part-names.mjs",
     "check:matrix": "node ../../scripts/structure/matrix.mjs",
+    "check:managed": "node ../../scripts/structure/managed-keys.mjs",
     "check:doc-comments": "node ../../scripts/doc-comments/check.mjs --package ui",
     "gen:globe-land": "node ../../scripts/globe/land.mjs"
   },

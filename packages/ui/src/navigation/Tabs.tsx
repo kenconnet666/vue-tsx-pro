@@ -603,7 +603,7 @@ export const TabList = _component(
 
 /** 角色、选中、关联与可聚焦由组件管理 */
 export type TabManaged =
-  'role' | 'aria-selected' | 'aria-controls' | 'id' | 'tabindex' | 'disabled';
+  'role' | 'aria-selected' | 'aria-controls' | 'aria-keyshortcuts' | 'id' | 'tabindex' | 'disabled';
 
 /** 未声明的属性落到 role="tab" 的 button 上 */
 export interface TabProps extends PartProps<'button', TabManaged> {

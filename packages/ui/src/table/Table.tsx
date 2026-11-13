@@ -252,7 +252,7 @@ interface TableCellOptions {
 
 /** 未声明的属性落到 th 上；原生的 align、width 属性已废弃，用同名的 prop */
 export interface TableHeaderCellProps extends PartProps<'th', 'align' | 'width'>, TableCellOptions {
-  /** 表头单元格对应的方向，默认 col（列标题）；行标题写 row */
+  /** 表头单元格对应的方向：默认表头里是 col（列标题），表体与表尾里是 row（行标题） */
   scope?: 'col' | 'row' | 'colgroup' | 'rowgroup';
   /** 列宽（CSS 长度，数字按 px）：日期、数字、操作这类按内容定宽的列；不写的列分剩下的 */
   width?: number | string;
@@ -267,7 +267,7 @@ export const TableHeaderCell = _component(
     align = 'start',
     nowrap = false,
     sticky = false,
-    scope = 'col',
+    scope,
     width,
     children,
     ...rest
@@ -290,7 +290,7 @@ export const TableHeaderCell = _component(
                 width != null &&
                   tableDynamicStyles.width(typeof width === 'number' ? `${width}px` : width),
               ],
-              scope,
+              scope: scope ?? (section === 'head' ? 'col' : 'row'),
             },
             rest,
           )}

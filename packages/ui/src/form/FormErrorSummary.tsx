@@ -24,7 +24,7 @@ import { FormContext } from './Form';
 import { partAttrs } from '../config/styles';
 
 /** 未声明的属性落到外层 div 上 */
-export interface FormErrorSummaryProps extends PartProps<'div', 'title'> {
+export interface FormErrorSummaryProps extends PartProps<'div', 'title' | 'tabindex'> {
   /** 标题；不写时取语言包（有 N 项需要修改） */
   title?: (count: number) => VNodeChild;
   /** 标题的部件属性 */
@@ -32,7 +32,7 @@ export interface FormErrorSummaryProps extends PartProps<'div', 'title'> {
   /** 列表的部件属性 */
   propsList?: PartProps<'ul'>;
   /** 每一项链接的部件属性 */
-  propsLink?: PartProps<'a'>;
+  propsLink?: PartProps<'a', 'href'>;
 }
 
 /** 部件的标记（data-scope="form-error-summary"） */

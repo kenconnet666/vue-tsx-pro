@@ -39,7 +39,7 @@ import { ModalCore, type ModalCoreProps } from './ModalCore';
 /** 未声明的属性落到 dialog 上；确认、取消按钮的属性（onConfirm、confirmText、tone、propsConfirm…）同 Dialog */
 export interface AlertDialogProps extends Omit<
   DialogProps,
-  'footer' | 'closable' | 'dismissible'
+  'footer' | 'closable' | 'dismissible' | 'draggable'
 > {}
 
 /** 确认对话框：确认 / 取消两个按钮，焦点先落在取消上 */
@@ -109,7 +109,7 @@ export interface Confirm {
 export function useConfirm(): Confirm {
   const mount = useDetachedDialog();
   const lang = useLang();
-  const confirm = ({ reason, onConfirm, ...options }: ConfirmOptions) =>
+  const confirm = ({ reason, onConfirm, onClose, ...options }: ConfirmOptions) =>
     new Promise<string | boolean | null>((resolve) => {
       let confirmed = false;
       const text = shallowRef('');
@@ -129,7 +129,7 @@ export function useConfirm(): Confirm {
             confirmed = true;
           }}
           onClose={(event: Event & { currentTarget: HTMLDialogElement }) => {
-            options.onClose?.(event);
+            onClose?.(event);
             resolve(reason ? (confirmed ? text.value.trim() : null) : confirmed);
             host.closed();
           }}

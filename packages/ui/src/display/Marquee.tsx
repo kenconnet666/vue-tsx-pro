@@ -35,7 +35,7 @@ export interface MarqueeDirections {
 }
 
 /** 未声明的属性落到外层 div 上 */
-export interface MarqueeProps extends PartProps<'div'> {
+export interface MarqueeProps extends PartProps<'div', 'role' | 'tabindex'> {
   /** 滚动方向，默认 left */
   direction?: keyof MarqueeDirections;
   /** 速度：每秒多少 px，默认 40 */
@@ -193,11 +193,11 @@ export const Marquee = _component(
               fade && (vertical() ? marqueeStyles.fadeVertical : marqueeStyles.fade),
               reducedMotion.value && focusRingStyles.visible,
             ],
-            role: 'marquee',
-            tabindex: reducedMotion.value ? 0 : undefined,
             ...marqueePart('root'),
           },
           rest,
+          // 减少动态效果时改成手动滚动：要能聚焦到，不让使用方的 tabindex 改掉
+          { role: 'marquee', tabindex: reducedMotion.value ? 0 : undefined },
         )}
         data-direction={direction}
         data-paused={paused || undefined}

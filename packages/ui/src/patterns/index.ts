@@ -63,7 +63,7 @@ export {
   type NotificationListProps,
   type NotificationType,
 } from './NotificationCenter';
-export { QueryTable, type QueryTableProps } from './QueryTable';
+export { QueryTable, type QueryTableManaged, type QueryTableProps } from './QueryTable';
 export {
   SlideCaptcha,
   type SlideCaptchaProps,

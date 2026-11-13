@@ -33,7 +33,7 @@ import { useMessages } from '../config/lang/messages';
 import { Alert, type AlertProps } from '../feedback/Alert';
 import { PaginationBar, type PaginationBarProps } from '../navigation/PaginationBar';
 import { Menu, MenuRadioGroup, MenuRadioItem } from '../overlay/Menu';
-import { ColumnSettings } from '../table/ColumnSettings';
+import { ColumnSettings, type ColumnSettingsProps } from '../table/ColumnSettings';
 import type { ColumnStickies, DataTableColumn } from '../table/columns';
 import { ViewportFill } from '../layout/ViewportFill';
 import { DataTable, type DataTableProps } from '../table/DataTable';
@@ -48,6 +48,26 @@ import { errorMessage } from '../utils/request/error-message';
 import { FilterBar, type FilterBarProps } from './FilterBar';
 import { patternsMessages } from './messages';
 import { partAttrs } from '../config/styles';
+
+/** QueryTable 接到查询上的 DataTable 属性：propsTable 里不能写 */
+export type QueryTableManaged =
+  | 'rows'
+  | 'columns'
+  | 'getKey'
+  | 'manualSort'
+  | 'multiSort'
+  | '_sort'
+  | '_sorts'
+  | 'manualFilter'
+  | '_filters'
+  | 'loading'
+  | 'density'
+  | 'selectionMode'
+  | '_selected'
+  | '_hiddenColumns'
+  | '_columnOrder'
+  | '_columnPins'
+  | '_columnWidths';
 
 /** 未声明的属性落到外层 div 上 */
 export interface QueryTableProps<T, Filters extends object> extends PartProps<'div'> {
@@ -85,8 +105,13 @@ export interface QueryTableProps<T, Filters extends object> extends PartProps<'d
   propsPanel?: PartProps<'div'>;
   /** 工具栏的部件属性 */
   propsToolbar?: PartProps<'div'>;
-  /** 表格（DataTable）的部件属性：列宽、详情行、行的色调等直接写在这里 */
-  propsTable?: Partial<DataTableProps<T>>;
+  /**
+   * 表格（DataTable）的部件属性：详情行、行的色调、resizable、columnMenu 等直接写在这里；
+   * 数据、排序、筛选、勾选与列设置由这里接到查询上，不能改
+   */
+  propsTable?: Partial<Omit<DataTableProps<T>, QueryTableManaged>>;
+  /** 列设置（ColumnSettings）的部件属性：弹出层、列表、勾选框、重置按钮 */
+  propsColumnSettings?: Partial<Omit<ColumnSettingsProps<T>, 'columns' | '_hidden' | '_order'>>;
   /** 批量操作栏的部件属性 */
   propsSelectionBar?: Partial<SelectionBarProps>;
   /** 分页栏的部件属性 */
@@ -159,6 +184,7 @@ export const QueryTable = _component(
     propsPanel,
     propsToolbar,
     propsTable,
+    propsColumnSettings,
     propsSelectionBar,
     propsPagination,
     propsError,
@@ -243,14 +269,22 @@ export const QueryTable = _component(
             </MenuRadioGroup>
           </Menu>
           <ColumnSettings
-            columns={columns}
+            {...mergePartProps<ColumnSettingsProps<T>>(
+              {
+                columns,
+                propsTrigger: propsToolbarButton,
+                changed: Object.keys(pins).length > 0 || Object.keys(widths).length > 0,
+              },
+              propsColumnSettings,
+              {
+                onReset: () => {
+                  pins = {};
+                  widths = {};
+                },
+              },
+            )}
             _hidden={hidden}
             _order={order}
-            onReset={() => {
-              pins = {};
-              widths = {};
-            }}
-            propsTrigger={propsToolbarButton}
           />
           {fullscreen.supported && (
             <IconButton
@@ -370,7 +404,12 @@ export const QueryTable = _component(
             )}
             <DataTable
               {...mergePartProps<Partial<DataTableProps<T>>>(
-                { 'aria-label': title, flexible: fill || fullscreen.active },
+                {
+                  'aria-label': title,
+                  flexible: fill || fullscreen.active,
+                  resizable: true,
+                  columnMenu: true,
+                },
                 propsTable,
               )}
               rows={query.rows as T[]}
@@ -391,8 +430,6 @@ export const QueryTable = _component(
               _columnOrder={order}
               _columnPins={pins}
               _columnWidths={widths}
-              resizable
-              columnMenu
             />
             <PaginationBar
               {...mergePartProps<Partial<PaginationBarProps>>(

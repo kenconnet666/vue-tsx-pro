@@ -97,6 +97,9 @@ export interface DataTableProps<T> extends Omit<
   | 'filterOptionsOf'
   | 'onColumnAction'
   | 'hiddenColumns'
+  | 'editing'
+  | 'renderEditor'
+  | 'rowErrors'
 > {
   /** 数据 */
   rows: readonly T[];

@@ -856,7 +856,7 @@ export interface MenuSubProps
   extends
     PartProps<
       'button',
-      'role' | 'type' | 'disabled' | 'aria-haspopup' | 'aria-expanded' | 'aria-controls'
+      'id' | 'role' | 'type' | 'disabled' | 'aria-haspopup' | 'aria-expanded' | 'aria-controls'
     >,
     Omit<MenuItemContentProps, 'shortcut' | 'propsShortcut' | 'children'>,
     OpenChangeProps {
@@ -907,8 +907,10 @@ export const MenuSub = _component(
     onOpenChange,
     disabled = false,
     icon,
+    description,
     propsIcon,
     propsLabel,
+    propsDescription,
     propsPanel,
     propsChevron,
     children,
@@ -1054,7 +1056,14 @@ export const MenuSub = _component(
             )}
             data-state={open ? 'open' : 'closed'}
           >
-            {menuItemContent(s, { icon, propsIcon, propsLabel, children: label })}
+            {menuItemContent(s, {
+              icon,
+              description,
+              propsIcon,
+              propsLabel,
+              propsDescription,
+              children: label,
+            })}
             <Icon
               {...mergePartProps<IconProps>(
                 { ...s.chevron, icon: ChevronRight, flipInRtl: true },

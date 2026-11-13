@@ -191,6 +191,39 @@ describe('NumberField 的值类型', () => {
     expect((value as Decimal).toFixed()).toBe('123500');
     expect(input.value).toBe('12.35');
   });
+
+  it('百分比：值是 0.85，显示 85%，编辑时输入的也是百分数（90 就是 90%）', async () => {
+    let value = _state<number | null>(0.85);
+    const root = mount(() => (
+      <NumberField
+        _value={value}
+        min={0}
+        max={1}
+        step={0.05}
+        format={{ style: 'percent' }}
+        aria-label="折扣"
+      />
+    ));
+    const input = root.querySelector('input')!;
+    expect(input.value).toBe('85%');
+    input.dispatchEvent(new FocusEvent('focus'));
+    await nextTick();
+    expect(input.value).toBe('85');
+    input.value = '90';
+    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new FocusEvent('blur'));
+    await nextTick();
+    expect(value).toBe(0.9);
+    expect(input.value).toBe('90%');
+    // 超出范围的照常夹到上限
+    input.dispatchEvent(new FocusEvent('focus'));
+    await nextTick();
+    input.value = '120';
+    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new FocusEvent('blur'));
+    await nextTick();
+    expect(value).toBe(1);
+  });
 });
 
 describe('clearable', () => {

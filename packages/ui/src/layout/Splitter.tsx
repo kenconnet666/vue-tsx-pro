@@ -68,15 +68,25 @@ export interface SplitterProps extends PartProps<'div'> {
   /** 外面一圈边框、圆角与表面色：独立成块（收件箱的列表与预览） */
   bordered?: boolean;
   /** 起始一栏（div）的部件属性 */
-  propsStart?: PartProps<'div'>;
+  propsStart?: PartProps<'div', 'id' | 'hidden'>;
   /** 结束一栏（div）的部件属性 */
-  propsEnd?: PartProps<'div'>;
+  propsEnd?: PartProps<'div', 'id' | 'hidden'>;
   /** 两栏里滚动区域（ScrollArea）的部件属性 */
   propsScroll?: Partial<ScrollAreaProps>;
   /** 分隔条（div，role="separator"）的部件属性 */
-  propsHandle?: PartProps<'div'>;
+  propsHandle?: PartProps<
+    'div',
+    | 'role'
+    | 'tabindex'
+    | 'aria-label'
+    | 'aria-orientation'
+    | 'aria-controls'
+    | 'aria-valuenow'
+    | 'aria-valuemin'
+    | 'aria-valuemax'
+  >;
   /** 收起、展开按钮的部件属性 */
-  propsToggle?: Partial<IconButtonProps>;
+  propsToggle?: Omit<Partial<IconButtonProps>, 'aria-expanded' | 'aria-controls' | 'tabindex'>;
 }
 
 /** 键盘每按一次调多少（百分比） */

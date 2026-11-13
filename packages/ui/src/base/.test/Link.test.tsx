@@ -39,6 +39,16 @@ describe('Link', () => {
     expect(a.textContent).toBe('订单');
   });
 
+  it('外部链接的 target、rel 是默认值：使用方可以改，同 LinkButton', () => {
+    const root = mount(() => (
+      <Link href="https://example.com" external rel="noopener noreferrer nofollow">
+        外部
+      </Link>
+    ));
+    const link = root.querySelector('a')!;
+    expect([link.rel, link.target]).toEqual(['noopener noreferrer nofollow', '_blank']);
+  });
+
   it('外部链接：新窗口打开、rel 防止 window.opener，带图标（对读屏隐藏）与当前语言的读屏提示', () => {
     const a = mount(() => (
       <Link href="https://example.com" external>

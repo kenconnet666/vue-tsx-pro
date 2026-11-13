@@ -196,7 +196,7 @@ export const NavList = _component(({ compact, propsList, children, ...rest }: Na
 // ─────────────── NavItem ───────────────
 
 /** 地址与当前页由组件管理 */
-export type NavItemManaged = 'href' | 'aria-current';
+export type NavItemManaged = 'href' | 'aria-current' | 'aria-disabled';
 
 /** 未声明的属性落到链接（a）上 */
 export interface NavItemProps extends PartProps<'a', NavItemManaged> {

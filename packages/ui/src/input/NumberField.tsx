@@ -11,7 +11,7 @@
  * - 输入时是普通文本；失焦或回车时解析、夹到 min–max、对齐到 step 后写回（snapToStep，没有浮点误差），解析不了时恢复原值；
  *   清空后写回 null。没在编辑时按 format（NumericFormat）与当前语言显示，编辑时去掉千分位。
  *   format 写了 scale（10 的整数次幂）时，显示与编辑都按缩放后的单位（值是元、输入的是万元），写回时精确移位回去；
- *   min、max、step 仍按值本身的单位。单位文字用 prefix、suffix，放在输入框里、文字的前后。
+ *   百分比（style: 'percent'）同理：值是 0.85，显示 85%，编辑时输入的也是 85。min、max、step 仍按值本身的单位。单位文字用 prefix、suffix，放在输入框里、文字的前后。
  * - 认当前语言的小数点与千分位，也认中文输入法打出的全角数字和全角句点。
  * - ↑ / ↓ 加减 step，Page Up / Page Down 加减 bigStep，Home / End 到 min / max；按钮不在 Tab 顺序里（键盘用方向键），
  *   按住按钮连续加减（先停 400ms，之后每 60ms 一步，同 React Aria）。
@@ -183,8 +183,13 @@ export const NumberField = _component(
     };
 
     const snap = (next: NumericValue) => snapNumeric(next, increment(), low(), high(), kind());
-    /** 缩放的位数：scale 为 10_000 时是 4（输入的数小数点右移 4 位才是值） */
-    const places = () => (format?.scale ? Math.round(Math.log10(format.scale)) : 0);
+    /** 编辑时的单位：写了 scale 按它；百分比按百分数输入（显示 85%，输入的也是 85，相当于 scale 0.01） */
+    const editScale = () => format?.scale ?? (format?.style === 'percent' ? 0.01 : undefined);
+    /** 缩放的位数：scale 为 10_000 时是 4（输入的数小数点右移 4 位才是值），百分比是 -2 */
+    const places = () => {
+      const scale = editScale();
+      return scale ? Math.round(Math.log10(scale)) : 0;
+    };
     /** 输入框里的十进制文本 → 值的十进制文本 */
     const unscaled = (text: string) => (places() ? shiftDecimal(text, -places()) : text);
     const plain = (next: NumericValue | null) =>
@@ -193,7 +198,7 @@ export const NumberField = _component(
         : formatter.number(next, {
             useGrouping: false,
             maximumFractionDigits: 20,
-            scale: format?.scale,
+            scale: editScale(),
           });
 
     /**

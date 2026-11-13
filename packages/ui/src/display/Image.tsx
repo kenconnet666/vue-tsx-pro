@@ -231,9 +231,12 @@ export const Image = _component(
         <>
           <button
             {...mergeAttrs<'button'>(
-              { sx: [...sx, imageStyles.button, focusRingStyles.visible] },
+              {
+                sx: [...sx, imageStyles.button, focusRingStyles.visible],
+                'aria-label': lang.imagePreview(alt),
+              },
               propsRoot as PartProps<'button'>,
-              { type: 'button', 'aria-label': lang.imagePreview(alt), onClick: open },
+              { type: 'button', onClick: open },
             )}
           >
             {content}

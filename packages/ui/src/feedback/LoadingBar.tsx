@@ -104,7 +104,10 @@ export function createLoadingBar({ delay = 200 }: LoadingBarOptions = {}): Loadi
 }
 
 /** 未声明的属性落到加载条的 div 上 */
-export interface LoadingBarProps extends PartProps<'div', 'role'> {
+export interface LoadingBarProps extends PartProps<
+  'div',
+  'role' | 'aria-valuemin' | 'aria-valuemax' | 'aria-valuenow' | 'aria-busy' | 'aria-hidden'
+> {
   /** createLoadingBar 的控制器 */
   controller: LoadingBarController;
 }

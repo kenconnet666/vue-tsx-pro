@@ -152,14 +152,17 @@ export const NumberRangeField = _component(
         >
           <NumberField
             {...mergePartProps<NumberFieldProps>(
-              { ...shared, placeholder: placeholder?.[0] ?? lang.sliderMin },
+              {
+                ...shared,
+                placeholder: placeholder?.[0] ?? lang.sliderMin,
+                'aria-label': lang.sliderMin,
+              },
               propsStart,
               {
                 // 标签的 for 指向第一个框：点标签聚焦“起”
                 id: state.id,
                 required: state.required,
                 name: name?.[0],
-                'aria-label': lang.sliderMin,
               },
             )}
             _value={value[0]}
@@ -174,12 +177,15 @@ export const NumberRangeField = _component(
           </span>
           <NumberField
             {...mergePartProps<NumberFieldProps>(
-              { ...shared, placeholder: placeholder?.[1] ?? lang.sliderMax },
+              {
+                ...shared,
+                placeholder: placeholder?.[1] ?? lang.sliderMax,
+                'aria-label': lang.sliderMax,
+              },
               propsEnd,
               {
                 id: state.id ? `${state.id}-end` : undefined,
                 name: name?.[1],
-                'aria-label': lang.sliderMax,
               },
             )}
             _value={value[1]}

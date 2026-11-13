@@ -1,0 +1,431 @@
+{
+  "packages/ui/src/base/CodeBlock.tsx": {
+    "propsExpand": ["aria-expanded"]
+  },
+  "packages/ui/src/base/Heading.tsx": {
+    "propsAnchor": ["aria-label", "href"]
+  },
+  "packages/ui/src/base/Tag.tsx": {
+    "rest": ["aria-pressed"]
+  },
+  "packages/ui/src/date/CalendarBoard.tsx": {
+    "own": ["aria-disabled"],
+    "propsDayButton": ["aria-disabled", "aria-label"],
+    "propsGrid": ["aria-labelledby"],
+    "propsNext": ["disabled"],
+    "propsPrevious": ["disabled"],
+    "propsWeekday": ["scope"]
+  },
+  "packages/ui/src/date/DatePicker.tsx": {
+    "propsToday": ["disabled"]
+  },
+  "packages/ui/src/date/DateRangePicker.tsx": {
+    "isStart ? propsStart : propsEnd": [
+      "disabled",
+      "id",
+      "invalid",
+      "readonly",
+      "required",
+      "segments"
+    ],
+    "rest": ["aria-disabled"]
+  },
+  "packages/ui/src/date/DateSegmentGroup.tsx": {
+    "rest": ["aria-disabled"]
+  },
+  "packages/ui/src/date/TimePicker.tsx": {
+    "propsList": ["id", "required"],
+    "propsNow": ["disabled"]
+  },
+  "packages/ui/src/date/picker-popover.tsx": {
+    "propsPreset": ["aria-pressed", "disabled"],
+    "user": ["aria-label"]
+  },
+  "packages/ui/src/diagram/Diagram.tsx": {
+    "partOf(part, item as never, state)": ["aria-hidden", "aria-label", "aria-roledescription"],
+    "portPart": ["aria-hidden"],
+    "propsGuide": ["x1", "x2", "y1", "y2"],
+    "rest": ["aria-roledescription"]
+  },
+  "packages/ui/src/diagram/DiagramMinimap.tsx": {
+    "propsNode": ["height", "rx", "width", "x", "y"],
+    "propsViewport": ["height", "vector-effect", "width", "x", "y"],
+    "rest": ["aria-hidden"]
+  },
+  "packages/ui/src/display/Accordion.tsx": {
+    "propsContent": ["aria-labelledby", "id", "role"],
+    "propsTrigger": ["disabled", "id"]
+  },
+  "packages/ui/src/display/Avatar.tsx": {
+    "propsFallback": ["aria-hidden"]
+  },
+  "packages/ui/src/display/Carousel.tsx": {
+    "direction < 0 ? propsPrevious : propsNext": ["disabled"],
+    "propsDot": ["aria-current"],
+    "rest": ["aria-roledescription"]
+  },
+  "packages/ui/src/display/Checklist.tsx": {
+    "propsLabel": ["id"],
+    "propsProgress": ["aria-label", "max", "value"],
+    "rest": ["aria-label", "role", "title"]
+  },
+  "packages/ui/src/display/Gauge.tsx": {
+    "propsValue": ["aria-hidden"]
+  },
+  "packages/ui/src/display/Image.tsx": {
+    "propsFallback": ["aria-label", "role"]
+  },
+  "packages/ui/src/display/JsonViewer.tsx": {
+    "propsTree": ["filter"]
+  },
+  "packages/ui/src/display/QRCode.tsx": {
+    "propsCode": ["aria-label"]
+  },
+  "packages/ui/src/display/Timeline.tsx": {
+    "propsLine": ["aria-hidden"],
+    "propsMarker": ["aria-hidden"],
+    "propsToggle": ["aria-expanded"]
+  },
+  "packages/ui/src/display/Tree.tsx": {
+    "own": [
+      "aria-busy",
+      "aria-checked",
+      "aria-disabled",
+      "aria-expanded",
+      "aria-level",
+      "aria-posinset",
+      "aria-selected",
+      "aria-setsize"
+    ],
+    "rest": ["aria-activedescendant", "aria-busy", "aria-multiselectable", "tabindex"]
+  },
+  "packages/ui/src/display/VirtualList.tsx": {
+    "rest": ["aria-busy"]
+  },
+  "packages/ui/src/docs-kit/CodePreview.tsx": {
+    "propsCollapse": ["id"],
+    "propsPreview": ["aria-label", "role"],
+    "propsToggle": ["aria-controls", "aria-expanded"]
+  },
+  "packages/ui/src/docs-kit/ColorSwatch.tsx": {
+    "propsSwatch": ["aria-hidden"]
+  },
+  "packages/ui/src/feedback/Progress.tsx": {
+    "propsLabel": ["id"],
+    "propsValueLabel": ["aria-hidden"]
+  },
+  "packages/ui/src/feedback/Result.tsx": {
+    "propsCode": ["aria-hidden"]
+  },
+  "packages/ui/src/feedback/Toast.tsx": {
+    "itemProps": ["aria-atomic", "aria-live"],
+    "propsProgress": ["aria-hidden"]
+  },
+  "packages/ui/src/form/Field.tsx": {
+    "propsDescription": ["id"],
+    "propsError": ["id"],
+    "propsLabel": ["for", "id"]
+  },
+  "packages/ui/src/form/FormSection.tsx": {
+    "propsCollapse": ["id"],
+    "propsDescription": ["id"],
+    "propsTrigger": ["id"]
+  },
+  "packages/ui/src/form/SchemaForm.tsx": {
+    "propsReset": ["type"],
+    "propsSection": ["description", "extra", "title"],
+    "propsSubmit": ["loading", "type"]
+  },
+  "packages/ui/src/input/Cascader.tsx": {
+    "propsColumn": ["aria-activedescendant", "aria-busy", "aria-label"],
+    "rest": ["aria-readonly"]
+  },
+  "packages/ui/src/input/Checkbox.tsx": {
+    "propsDescription": ["id"],
+    "rest": ["aria-labelledby", "aria-readonly", "name"],
+    "typeof propsItem === 'function' ? propsItem(item) : propsItem": ["value"]
+  },
+  "packages/ui/src/input/ColorField.tsx": {
+    "propsPopover": ["trigger"],
+    "propsSwatch": ["disabled"],
+    "rest": ["autocomplete", "spellcheck"]
+  },
+  "packages/ui/src/input/ColorPicker.tsx": {
+    "part": ["aria-label", "aria-pressed"],
+    "propsAlpha": ["disabled", "max", "min", "step"],
+    "propsEyeDropper": ["disabled"],
+    "propsFormat": ["required"],
+    "propsHue": ["disabled", "max", "min", "step"],
+    "propsInput": ["disabled"],
+    "propsPreview": ["aria-hidden"],
+    "propsThumb": [
+      "aria-disabled",
+      "aria-valuemax",
+      "aria-valuemin",
+      "aria-valuenow",
+      "aria-valuetext"
+    ]
+  },
+  "packages/ui/src/input/Combobox.tsx": {
+    "propsChevron": ["aria-controls", "aria-expanded", "disabled", "tabindex"]
+  },
+  "packages/ui/src/input/ConditionBuilder.tsx": {
+    "propsAddGroup": ["disabled"],
+    "propsAddRule": ["disabled"],
+    "propsRemoveGroup": ["disabled"],
+    "propsRemoveRule": ["disabled"]
+  },
+  "packages/ui/src/input/ImageCropper.tsx": {
+    "propsButton": ["disabled"],
+    "propsViewport": ["aria-label"]
+  },
+  "packages/ui/src/input/ListPopover.tsx": {
+    "propsListbox": ["aria-label", "aria-labelledby", "id", "loading", "scroller"]
+  },
+  "packages/ui/src/input/Listbox.tsx": {
+    "own": ["aria-posinset", "aria-setsize"],
+    "propsGroupLabel": ["aria-hidden", "id"],
+    "rest": [
+      "aria-activedescendant",
+      "aria-busy",
+      "aria-disabled",
+      "aria-labelledby",
+      "aria-multiselectable",
+      "aria-required",
+      "tabindex"
+    ]
+  },
+  "packages/ui/src/input/NumberField.tsx": {
+    "propsDecrement": ["disabled", "tabindex"],
+    "propsIncrement": ["disabled", "tabindex"],
+    "rest": ["autocomplete"]
+  },
+  "packages/ui/src/input/NumberRangeField.tsx": {
+    "propsEnd": ["id", "name"],
+    "propsStart": ["id", "name", "required"],
+    "rest": ["aria-labelledby"]
+  },
+  "packages/ui/src/input/OtpField.tsx": {
+    "rest": ["aria-invalid"]
+  },
+  "packages/ui/src/input/PeoplePicker.tsx": {
+    "rest": ["aria-readonly"]
+  },
+  "packages/ui/src/input/PeoplePickerPanel.tsx": {
+    "propsCheckbox": ["disabled"],
+    "propsSelectAll": ["indeterminate"]
+  },
+  "packages/ui/src/input/Radio.tsx": {
+    "propsDescription": ["id"],
+    "rest": ["aria-invalid", "aria-labelledby", "aria-readonly", "aria-required"],
+    "typeof propsItem === 'function' ? propsItem(item) : propsItem": ["value"]
+  },
+  "packages/ui/src/input/Rating.tsx": {
+    "rest": ["aria-label", "aria-labelledby"]
+  },
+  "packages/ui/src/input/Select.tsx": {
+    "rest": ["aria-readonly"]
+  },
+  "packages/ui/src/input/SignaturePad.tsx": {
+    "propsCanvas": ["aria-label", "aria-labelledby", "id"]
+  },
+  "packages/ui/src/input/Slider.tsx": {
+    "own": ["aria-hidden"],
+    "rest": ["aria-invalid", "aria-label", "aria-labelledby", "aria-readonly"]
+  },
+  "packages/ui/src/input/Switch.tsx": {
+    "propsContent": ["aria-hidden"],
+    "rest": ["aria-readonly"]
+  },
+  "packages/ui/src/input/TagsInput.tsx": {
+    "propsRoot": ["aria-disabled"]
+  },
+  "packages/ui/src/input/TextField.tsx": {
+    "propsCount": ["id"],
+    "propsReveal": ["aria-pressed", "disabled"]
+  },
+  "packages/ui/src/input/Textarea.tsx": {
+    "propsCount": ["id"]
+  },
+  "packages/ui/src/input/ToggleGroup.tsx": {
+    "propsIndicator": ["aria-hidden"],
+    "rest": ["aria-labelledby"]
+  },
+  "packages/ui/src/input/Transfer.tsx": {
+    "options.propsCheckAll": ["disabled", "indeterminate"],
+    "options.propsPanel": ["aria-labelledby"],
+    "propsAction": ["disabled"],
+    "propsList": ["aria-labelledby", "disabled", "id"],
+    "propsTree": ["aria-labelledby"],
+    "rest": ["aria-labelledby"]
+  },
+  "packages/ui/src/input/TreeSelect.tsx": {
+    "propsTree": ["id"],
+    "rest": ["aria-readonly"]
+  },
+  "packages/ui/src/input/Upload.tsx": {
+    "propsHandle": ["disabled"],
+    "propsRetry": ["disabled"]
+  },
+  "packages/ui/src/input/control.tsx": {
+    "props": ["for"]
+  },
+  "packages/ui/src/layout/AsideLayout.tsx": {
+    "propsAside": ["aria-label"]
+  },
+  "packages/ui/src/layout/BackTop.tsx": {
+    "rest": ["aria-hidden"]
+  },
+  "packages/ui/src/layout/FloatButton.tsx": {
+    "propsActions": ["id"],
+    "propsTrigger": ["aria-controls", "aria-expanded"],
+    "rest": ["role"]
+  },
+  "packages/ui/src/layout/Separator.tsx": {
+    "propsLabel": ["id"],
+    "rest": ["aria-labelledby"]
+  },
+  "packages/ui/src/navigation/Breadcrumbs.tsx": {
+    "propsCurrent": ["aria-current"],
+    "propsSeparator": ["aria-hidden"]
+  },
+  "packages/ui/src/navigation/NavList.tsx": {
+    "propsBadge": ["tone"],
+    "propsList": ["aria-labelledby"]
+  },
+  "packages/ui/src/navigation/Pager.tsx": {
+    "propsLink": ["href", "rel"]
+  },
+  "packages/ui/src/navigation/Pagination.tsx": {
+    "own": ["aria-current"],
+    "propsEllipsis": ["aria-hidden"],
+    "propsStep": ["disabled", "rel"]
+  },
+  "packages/ui/src/navigation/Steps.tsx": {
+    "own": ["aria-current"],
+    "propsConnector": ["aria-hidden"],
+    "propsIndicator": ["aria-hidden"],
+    "propsTrigger": ["href"]
+  },
+  "packages/ui/src/navigation/TableOfContents.tsx": {
+    "propsLink": ["aria-current", "href"],
+    "propsTitle": ["id"]
+  },
+  "packages/ui/src/navigation/Tabs.tsx": {
+    "propsClose": ["aria-hidden", "disabled", "tabindex"],
+    "propsIndicator": ["aria-hidden"],
+    "propsScrollButton": ["disabled", "tabindex"]
+  },
+  "packages/ui/src/overlay/CommandPalette.tsx": {
+    "propsListbox": ["aria-label", "id"]
+  },
+  "packages/ui/src/overlay/ContextMenu.tsx": {
+    "propsMenu": ["point"]
+  },
+  "packages/ui/src/overlay/Lightbox.tsx": {
+    "propsViewport": ["aria-label", "role", "tabindex"]
+  },
+  "packages/ui/src/overlay/Menu.tsx": {
+    "propsLabel": ["id"],
+    "propsShortcut": ["aria-hidden"],
+    "rest": ["aria-keyshortcuts", "aria-labelledby"]
+  },
+  "packages/ui/src/overlay/ModalCore.tsx": {
+    "propsCancel": ["disabled"],
+    "propsClose": ["disabled"],
+    "propsConfirm": ["loading"],
+    "propsDescription": ["id"],
+    "propsTitle": ["id"]
+  },
+  "packages/ui/src/overlay/Popconfirm.tsx": {
+    "propsCancel": ["autofocus", "disabled"],
+    "propsConfirm": ["loading"],
+    "propsDescription": ["id"],
+    "propsTitle": ["id"]
+  },
+  "packages/ui/src/overlay/Popover.tsx": {
+    "propsArrow": ["aria-hidden"]
+  },
+  "packages/ui/src/overlay/Tour.tsx": {
+    "propsPanel": ["tabindex"],
+    "propsSpotlight": ["aria-hidden"]
+  },
+  "packages/ui/src/patterns/AppShell.tsx": {
+    "propsMain": ["id", "tabindex"],
+    "propsMenuButton": ["aria-expanded"]
+  },
+  "packages/ui/src/patterns/CommentThread.tsx": {
+    "propsAttach": ["aria-pressed"],
+    "propsAttachments": ["aria-label"],
+    "propsBody": ["aria-label"],
+    "propsComposer": ["autofocus", "initialText"],
+    "propsError": ["role"],
+    "propsList": ["aria-label"],
+    "propsMentions": ["items"],
+    "propsReplies": ["aria-label"],
+    "propsSend": ["disabled", "loading"],
+    "propsUpload": ["upload"]
+  },
+  "packages/ui/src/patterns/DataImport.tsx": {
+    "propsNext": ["disabled"],
+    "propsSteps": ["items"],
+    "propsSubmit": ["disabled", "loading"]
+  },
+  "packages/ui/src/patterns/FilterBar.tsx": {
+    "propsAdvanced": ["id"],
+    "propsAdvancedToggle": ["aria-controls", "aria-expanded", "type"],
+    "propsClearAdvanced": ["type"],
+    "propsMore": ["id"],
+    "propsReset": ["type"],
+    "propsSearch": ["type"],
+    "propsToggle": ["aria-controls", "aria-expanded", "type"]
+  },
+  "packages/ui/src/patterns/KanbanBoard.tsx": {
+    "propsHandle": ["aria-label"],
+    "rest": ["role"],
+    "typeof propsColumn === 'function' ? propsColumn(column) : propsColumn": ["aria-labelledby"]
+  },
+  "packages/ui/src/patterns/NotificationCenter.tsx": {
+    "propsMarkAll": ["disabled"],
+    "propsNotificationList": ["empty", "footer", "now", "types"],
+    "typeof propsItem === 'function' ? propsItem(item) : propsItem": ["href", "role", "tabindex"]
+  },
+  "packages/ui/src/patterns/QueryTable.tsx": {
+    "propsFilterBar": ["end", "more", "start"],
+    "propsSelectionBar": ["count"]
+  },
+  "packages/ui/src/patterns/SlideCaptcha.tsx": {
+    "propsRefresh": ["disabled"]
+  },
+  "packages/ui/src/patterns/StepsForm.tsx": {
+    "propsNext": ["loading"],
+    "propsPanel": ["aria-label", "id", "role", "tabindex"],
+    "propsSteps": ["items", "navigable"],
+    "propsSubmit": ["loading", "type"]
+  },
+  "packages/ui/src/table/ColumnSettings.tsx": {
+    "propsCheckbox": ["disabled"],
+    "propsReset": ["disabled"]
+  },
+  "packages/ui/src/table/DataTableView.tsx": {
+    "own": ["aria-colindex", "aria-sort", "rowspan", "scope"],
+    "propsDetailCell": ["id"],
+    "propsDetailHeaderCell": ["rowspan"],
+    "propsSelectAll": ["_checked"],
+    "propsSelectCheckbox": ["_checked", "disabled"],
+    "propsSelectHeaderCell": ["rowspan"],
+    "rest": ["aria-busy", "aria-colcount", "aria-rowcount"],
+    "typeof propsGroupHeaderCell === 'function'\n              ? propsGroupHeaderCell(group)\n              : propsGroupHeaderCell": [
+      "colspan",
+      "scope"
+    ],
+    "typeof propsRow === 'function' ? propsRow(row.data, index) : propsRow": [
+      "aria-current",
+      "aria-rowindex",
+      "aria-selected"
+    ]
+  },
+  "packages/ui/src/utils/dom/hover-layer.ts": {
+    "propsArrow": ["aria-hidden"]
+  }
+}

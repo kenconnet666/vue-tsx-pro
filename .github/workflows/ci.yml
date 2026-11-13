@@ -37,6 +37,7 @@ jobs:
       - run: pnpm -C packages/ui check:layers
       - run: pnpm -C packages/ui check:parts
       - run: pnpm -C packages/ui check:matrix
+      - run: pnpm -C packages/ui check:managed
       - run: pnpm -C packages/mobile check:rules
 
   test:

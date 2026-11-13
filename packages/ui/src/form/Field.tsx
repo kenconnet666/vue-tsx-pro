@@ -28,6 +28,7 @@ import {
   onBeforeUnmount,
   useId,
   watch,
+  watchEffect,
   type VNode,
   type VNodeChild,
 } from 'vue';
@@ -73,6 +74,8 @@ export interface FieldState {
   claim?(token: symbol): boolean;
   /** 认领的控件卸载了：下一个控件可以认领 */
   release?(token: symbol): void;
+  /** 认领的控件自己写了 id：告诉 Field，标签的 for、错误汇总的链接跟着指过去；undefined 是改回 Field 生成的 */
+  setControlId?(id: string | undefined): void;
 }
 
 /** Field 的上下文：自定义控件用 useFieldControl 接入，一般不直接读它；null 表示子树不属于任何 Field */
@@ -144,7 +147,19 @@ export function useFieldControl(
   // 把输入交给里面控件的（delegate）不认领：由里面那个控件认领；它自己仍用 Field 的标签
   const token = Symbol('field-control');
   const owns = field == null ? false : delegate || (field.claim?.(token) ?? true);
-  if (field && !delegate) onBeforeUnmount(() => field.release?.(token));
+  if (field && !delegate) {
+    onBeforeUnmount(() => {
+      field.release?.(token);
+      if (owns) field.setControlId?.(undefined);
+    });
+  }
+  // 控件上写的 id 以使用方为准：标签要跟着指向它
+  if (field && owns) {
+    watchEffect(() => {
+      const id = read().id;
+      if (id != null) field.setControlId?.(id);
+    });
+  }
   return () => {
     const own = read();
     return {
@@ -353,6 +368,9 @@ export const Field = _component(
 
     // 第一个接入的控件认领 id 与标签（见 FieldState.claim）
     let owner: symbol | null = null;
+    // 认领的控件自己写了 id 时用它的
+    let ownControlId = _state<string | undefined>(undefined);
+    const controlId = () => ownControlId ?? ids.control;
     FieldContext.provide({
       claim: (token) => {
         owner ??= token;
@@ -361,7 +379,10 @@ export const Field = _component(
       release: (token) => {
         if (owner === token) owner = null;
       },
-      controlId: ids.control,
+      setControlId: (id) => (ownControlId = id),
+      get controlId() {
+        return controlId();
+      },
       get labelId() {
         return hasContent(label) ? ids.label : undefined;
       },
@@ -389,7 +410,7 @@ export const Field = _component(
     // 登记给表单：错误汇总据此显示字段名、跳到控件
     _effect(() =>
       name != null && form
-        ? form.register(name, { label: plainText(label) ?? name, controlId: ids.control })
+        ? form.register(name, { label: plainText(label) ?? name, controlId: controlId() })
         : undefined,
     );
 
@@ -476,7 +497,7 @@ export const Field = _component(
                     : start && (align === 'end' ? fieldStyles.labelEnd : fieldStyles.labelStart),
                 },
                 propsLabel,
-                { id: ids.label, for: ids.control },
+                { id: ids.label, for: controlId() },
               )}
             >
               {label}

@@ -25,8 +25,8 @@ import type { StatusTone } from '../utils/style/tone-styles';
 import { t } from '../config/theme/tokens';
 import { partAttrs } from '../config/styles';
 
-/** 角色由组件管理 */
-export type RatingManaged = 'role';
+/** 角色与不可用的标记由组件管理 */
+export type RatingManaged = 'role' | 'aria-disabled';
 
 /** 未声明的属性落到外层 div 上；名称写 aria-label，或放在 Field 里 */
 export interface RatingProps extends PartProps<'div', RatingManaged> {
@@ -121,6 +121,7 @@ export const Rating = _component(
   }: RatingProps) => {
     const lang = useLang();
     const generatedName = useId();
+    const summaryId = useId();
     const control = useFieldControl(() => ({ id, disabled, readonly }));
     // 指针悬停时预览的分数
     let hover = _state<number | null>(null);
@@ -154,18 +155,28 @@ export const Rating = _component(
       const stars = Array.from({ length: count }, (_, index) => index + 1);
 
       if (state.readonly) {
+        // 只读时是一张图，名称里要有分数：使用方的名称（aria-label，或 Field 的标签、aria-labelledby）后面接上“4.5 星，满分 5 星”
+        const summary = lang.ratingSummary(value, count);
+        const ownLabel = rest['aria-label'];
+        const labelledBy = defaultLabelledBy(rest, state.labelledBy);
         return (
           <div
             {...mergeAttrs<'div'>(
-              {
-                sx: [ratingStyles.root, size && fontSizeStyles[size]],
-                'aria-labelledby': defaultLabelledBy(rest, state.labelledBy),
-                ...ratingPart('root'),
-              },
+              { sx: [ratingStyles.root, size && fontSizeStyles[size]], ...ratingPart('root') },
               rest,
-              { id: state.id, role: 'img', 'aria-label': lang.ratingSummary(value, count) },
+              {
+                id: state.id,
+                role: 'img',
+                'aria-label': labelledBy ? null : ownLabel ? `${ownLabel} ${summary}` : summary,
+                'aria-labelledby': labelledBy ? `${labelledBy} ${summaryId}` : null,
+              },
             )}
           >
+            {labelledBy && (
+              <span id={summaryId} {...css.attrs(visuallyHiddenStyles.hidden)}>
+                {summary}
+              </span>
+            )}
             {stars.map((index) => (
               <span
                 key={index}
