@@ -67,9 +67,9 @@ export const ColumnFilterButton = _component(
     const matcher = useTextMatcher();
     let search = _state('');
     // 关键字筛选：输入框里的是草稿，停手一会儿才生效（服务端筛选时不是每敲一个字发一次请求）
-    let keyword = _state(options === 'text' ? (values[0] ?? '') : '');
-    let timer: ReturnType<typeof setTimeout> | undefined;
     const applied = () => (options === 'text' ? (values[0] ?? '') : '');
+    let keyword = _state(applied());
+    let timer: ReturnType<typeof setTimeout> | undefined;
     // 外面改了筛选（清除、恢复保存的视图）：草稿跟上；自己刚生效的那次不用管
     watch(applied, (value) => {
       if (value === keyword) return;

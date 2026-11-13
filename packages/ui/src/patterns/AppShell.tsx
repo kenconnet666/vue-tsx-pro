@@ -448,7 +448,7 @@ export const AppShell = _component(
         if (!lost) return;
         root
           ?.querySelector<HTMLElement>(
-            `[data-part="${on ? 'fullscreenExit' : 'fullscreenButton'}"]`,
+            on ? '[data-part="fullscreenExit"]' : '[data-part="fullscreenButton"]',
           )
           ?.focus();
       },

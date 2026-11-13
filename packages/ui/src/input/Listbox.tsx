@@ -469,7 +469,8 @@ export function activeOptionId<T>(list: ListState<T>, id: string): string | unde
 /** 列表框共有的属性；未声明的属性落到 role="listbox" 的 div 上 */
 export interface ListboxBaseProps<T> extends Omit<
   ListboxViewProps<T>,
-  'list' | 'id' | 'multiple' | 'renderOption'
+  // aria-readonly 跟着 readonly（与所在的 Field、Form）走
+  'list' | 'id' | 'multiple' | 'renderOption' | 'aria-readonly'
 > {
   /** 列表的 id；在 Field 里时默认用 Field 给的 */
   id?: string;

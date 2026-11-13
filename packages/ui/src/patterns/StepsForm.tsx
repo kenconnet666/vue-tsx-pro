@@ -62,8 +62,8 @@ export interface StepsFormProps extends Omit<FormProps, 'controller' | 'children
   propsActions?: Partial<FlexProps>;
   /** 上一步按钮的部件属性 */
   propsPrevious?: Partial<ButtonProps>;
-  /** 下一步按钮的部件属性 */
-  propsNext?: Partial<ButtonProps>;
+  /** 下一步按钮的部件属性；它是表单的提交按钮（type 固定是 submit，回车也走它） */
+  propsNext?: Partial<Omit<ButtonProps, 'type'>>;
   /** 提交按钮的部件属性 */
   propsSubmit?: Partial<ButtonProps>;
 }
