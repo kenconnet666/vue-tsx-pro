@@ -35,6 +35,7 @@ import { focusRingStyles } from '../utils/style/styles';
 import { t } from '../config/theme/tokens';
 import { startMove } from '../utils/dom/move';
 import { useResizeObserver } from '../utils/dom/resize';
+import { isEditable } from '../utils/dom/hotkeys';
 import { dataAttrs, mergeAttrs, type PartProps } from '../utils/props';
 import { interactionTransitions } from '../utils/style/transitions';
 import type { StatusTone } from '../utils/style/tone-styles';
@@ -1152,7 +1153,13 @@ export const Diagram = _component(
     }
 
     function onKeydown(event: KeyboardEvent) {
-      if (event.key === ' ' && event.target === root()) space = true;
+      // 节点里的输入框在打字：Ctrl+A、Esc 是它的
+      if (isEditable(event.target)) return;
+      if (event.key === ' ' && event.target === root()) {
+        space = true;
+        // 按住空格是准备拖动平移：不让浏览器把整页往下滚
+        event.preventDefault();
+      }
       if (!selectable) return;
       if (event.key === 'Escape') clear();
       if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'a') {
@@ -1192,6 +1199,8 @@ export const Diagram = _component(
       },
       nodeClick: (id, event) => choose('nodes', id, toggles(event)),
       nodeKey(id, event) {
+        // 从节点里面的控件（输入框、按钮）冒上来的键不是给节点的
+        if (event.target !== event.currentTarget) return;
         const node = nodeById.get(id);
         if (!node) return;
         if (activates(event)) choose('nodes', id, toggles(event));
@@ -1210,6 +1219,7 @@ export const Diagram = _component(
       },
       edgeClick: (id, event) => choose('edges', id, toggles(event)),
       edgeKey(id, event) {
+        if (event.target !== event.currentTarget) return;
         if (activates(event)) choose('edges', id, toggles(event));
       },
       endDown(id, end, event) {

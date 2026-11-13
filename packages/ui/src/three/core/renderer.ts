@@ -382,8 +382,9 @@ export function useThree(options: ThreeOptions): ThreeController {
 
   // 没有 IntersectionObserver 的环境（服务端、旧测试环境）当作一直在视口里
   if (typeof IntersectionObserver === 'undefined') visible.value = true;
-  useIntersectionObserver(options.canvas, ([entry]) => {
-    visible.value = entry!.isIntersecting;
+  useIntersectionObserver(options.canvas, (entries) => {
+    // 取最后一条：同一个目标排着几条记录时，第一条是最旧的
+    visible.value = entries.at(-1)!.isIntersecting;
     lastSeen = performance.now();
   });
   useResizeObserver(options.canvas, () => instance && resize(instance));

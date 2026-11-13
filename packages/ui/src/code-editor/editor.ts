@@ -228,10 +228,22 @@ export function createEditor(
   return {
     view,
     setCode(next) {
-      if (next === view.state.doc.toString()) return;
+      const current = view.state.doc.toString();
+      if (next === current) return;
+      // 只换有差别的那一段：整段替换会把光标、选区甩到开头，滚动位置也丢了
+      let from = 0;
+      const shortest = Math.min(current.length, next.length);
+      while (from < shortest && current[from] === next[from]) from += 1;
+      let tail = 0;
+      while (
+        tail < shortest - from &&
+        current[current.length - 1 - tail] === next[next.length - 1 - tail]
+      )
+        tail += 1;
       view.dispatch({
-        changes: { from: 0, to: view.state.doc.length, insert: next },
-        annotations: external.of(true),
+        changes: { from, to: current.length - tail, insert: next.slice(from, next.length - tail) },
+        // 父级写进来的值不是用户的一步编辑：不进撤销历史（先空再赋初值时，Ctrl+Z 不会退回空文档）
+        annotations: [external.of(true), Transaction.addToHistory.of(false)],
       });
     },
     edit(changes, { merge = false } = {}) {

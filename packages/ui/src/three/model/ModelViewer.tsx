@@ -31,6 +31,7 @@ import { useLang } from '../../config/context';
 import { EffectSurface, type EffectProps } from '../core/EffectSurface';
 import { createOrbit } from '../core/orbit';
 import { mergePartProps, type PartProps } from '../../utils/props';
+import { focusRingStyles } from '../../utils/style/styles';
 
 /** 加载状态 */
 export interface ModelViewerStatuses {
@@ -85,7 +86,7 @@ export interface ModelViewerProps extends Omit<EffectProps, 'children' | 'onLoad
 
 /** ModelViewer 的样式：root、interactive、dragging、content、overlay */
 const modelViewerStyles = css.create({
-  root: { aspectRatio: '1', width: '100%', outlineStyle: 'none' },
+  root: { aspectRatio: '1', width: '100%' },
   interactive: { cursor: 'grab', touchAction: 'pan-y' },
   dragging: { cursor: 'grabbing' },
   // 内容层不定位：提示按外层（整块）铺满、居中
@@ -166,6 +167,8 @@ export const ModelViewer = _component(
         sx={[
           modelViewerStyles.root,
           controls && modelViewerStyles.interactive,
+          // 能用键盘环绕查看：聚焦时要看得出来
+          controls && focusRingStyles.visible,
           orbit.dragging && modelViewerStyles.dragging,
           rest.sx,
         ]}
@@ -175,6 +178,8 @@ export const ModelViewer = _component(
         tabindex={controls ? 0 : undefined}
         data-status={status}
         {...(controls ? orbit.handlers : {})}
+        // 循环停着（减少动态效果、暂停、滚出视口）时拖动也要重画，不然画面不动、松手后才跳过去
+        onPointermove={() => orbit.dragging && redraw()}
         onKeydown={onKeydown}
         onWheel={onWheel}
         propsContent={mergePartProps<PartProps<'div'>>(
@@ -188,7 +193,9 @@ export const ModelViewer = _component(
           },
         })}
         sceneKey={src ?? object?.uuid}
-        setup={({ renderer, scene, still, invalidate }) => {
+        setup={(context) => {
+          // still 要读当下的值（系统设置改了之后循环会恢复），不解构成搭场景那一刻的
+          const { renderer, scene, invalidate } = context;
           redraw = invalidate;
           renderer.toneMapping = ACESFilmicToneMapping;
           renderer.toneMappingExposure = exposure;
@@ -212,6 +219,9 @@ export const ModelViewer = _component(
               if (disposed) return;
               environment = new PMREMGenerator(renderer);
               scene.environment = environment.fromScene(new RoomEnvironment(), 0.04).texture;
+              // 直接给的对象在场景重建（上下文被回收、换画质）后还挂在上一个外壳里，带着它的缩放：先摘下来再量
+              model.removeFromParent();
+              model.updateMatrixWorld(true);
               // 居中，缩放到外接球半径为 1
               const sphere = new Box3().setFromObject(model).getBoundingSphere(new Sphere());
               const scale = sphere.radius > 0 ? 1 / sphere.radius : 1;
@@ -251,7 +261,7 @@ export const ModelViewer = _component(
             },
             frame: ({ delta }) => {
               // 自转是相机绕模型反向转：看起来模型朝 rotationSpeed 的方向转
-              orbit.step(delta, still ? 0 : -rotationSpeed * DEG);
+              orbit.step(delta, context.still ? 0 : -rotationSpeed * DEG);
               place();
             },
             dispose: () => {
