@@ -849,7 +849,8 @@ export const MapChart = _component(
         onLegendToggle={() => {}}
         loading={loading}
         skeleton={<Skeleton sx={mapChartStyles.skeleton} />}
-        isEmpty={false}
+        // 只有底图也是一张图：写了 empty 才在没有任何数据时换成它
+        isEmpty={empty != null && areas.length + points.length + links.length === 0}
         empty={empty}
         actions={zoomable ? zoomButtons() : undefined}
         footer={legend()}

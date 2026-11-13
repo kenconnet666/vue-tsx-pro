@@ -51,13 +51,16 @@ export function alignedTicks(
 ): AlignedAxes {
   const finite = (values: readonly number[]) => values.filter(Number.isFinite);
   const p = finite(primary);
-  const [p0, p1] = niceDomain([Math.min(...p, 0), Math.max(...p, 0) || 1], count);
+  // 只有一个值（全是 0）时才补范围：全是负数时上端就是 0，不能被当成“没有范围”改成 1
+  const [pLow, pHigh] = [Math.min(...p, 0), Math.max(...p, 0)];
+  const [p0, p1] = niceDomain([pLow, pHigh === pLow ? pLow + 1 : pHigh], count);
   const ticks = linearTicks(p0, p1, count).map(tidy);
   const intervals = Math.max(ticks.length - 1, 1);
 
   const s = finite(secondary);
   const low = Math.min(...s, 0);
-  const high = Math.max(...s, 0) || 1;
+  const top = Math.max(...s, 0);
+  const high = top === low ? low + 1 : top;
   let step = niceStep((high - low) / intervals);
   let start = Math.floor(low / step) * step;
   // 起点向下取整后可能盖不住最大值：换下一档步长

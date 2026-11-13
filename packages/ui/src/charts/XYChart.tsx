@@ -445,7 +445,12 @@ export const XYChart = _component(
     }
 
     /** 缩放：只画选中的一段（散点图的横轴是连续的数值，不按类目缩放） */
-    const range = () => (zoom && !kind.continuousX ? zoomRange : null);
+    /** 缩放的区间：数据变少后夹到现有的范围里，整段都在外面时当作没缩放 */
+    const range = (): [number, number] | null => {
+      if (!zoom || kind.continuousX || !zoomRange) return null;
+      const last = data.length - 1;
+      return zoomRange[0] > last ? null : [zoomRange[0], Math.min(zoomRange[1], last)];
+    };
     const shownRows = _derived.by(() => {
       const selected = range();
       return selected ? data.slice(selected[0], selected[1] + 1) : data;
@@ -668,8 +673,8 @@ export const XYChart = _component(
       return found < 0 ? undefined : category(rows[found]!, found);
     }
 
-    /** 指针移动：找出悬停的行（散点图是最近的点） */
-    function onPointermove(event: PointerEvent) {
+    /** 指针所在的行（散点图是最近的点）；不在绘图区里、离得太远时没有 */
+    function locate(event: MouseEvent): Hover | null {
       const svg = event.currentTarget as SVGSVGElement;
       const { x, y } = pointerIn(event, svg);
       const { rows, plot, horizontal, category, valueScale, valueOf, shown, step } = layout;
@@ -679,8 +684,7 @@ export const XYChart = _component(
         y >= plot.top - 4 &&
         y <= plot.top + plot.height + 4;
       if (!inside || rows.length === 0) {
-        hover = null;
-        return;
+        return null;
       }
       if (kind.pointTooltip) {
         let best: Hover | null = null;
@@ -697,8 +701,7 @@ export const XYChart = _component(
             }
           }
         });
-        hover = best;
-        return;
+        return best;
       }
       const along = horizontal ? y : x;
       let nearest = 0;
@@ -711,17 +714,20 @@ export const XYChart = _component(
       });
       const center = category(rows[nearest]!, nearest);
       if (Math.abs(center - along) > Math.max(step, 8)) {
-        hover = null;
-        return;
+        return null;
       }
-      hover = horizontal ? { index: nearest, x, y: center } : { index: nearest, x: center, y };
+      return horizontal ? { index: nearest, x, y: center } : { index: nearest, x: center, y };
     }
 
-    /** 点击下钻：点在柱上按那根柱（data-index），其余按悬停的行 */
+    const onPointermove = (event: PointerEvent) => (hover = locate(event));
+
+    /** 点击下钻：点在柱上按那根柱（data-index），其余按点的位置找行（触屏点一下时指针已经离开，悬停的行清掉了） */
     function onClick(event: MouseEvent) {
       if (!onItemClick) return;
       const target = (event.target as Element | null)?.closest?.('[data-index]');
-      const position = target ? Number(target.getAttribute('data-index')) : hover?.index;
+      const position = target
+        ? Number(target.getAttribute('data-index'))
+        : (hover ?? locate(event))?.index;
       if (position === undefined || Number.isNaN(position)) return;
       const offset = range()?.[0] ?? 0;
       const row = layout.rows[position];

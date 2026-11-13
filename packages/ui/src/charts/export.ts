@@ -17,10 +17,13 @@ import type { ChartTable } from './frame';
 const INLINED = [
   'fill',
   'fill-opacity',
+  'fill-rule',
   'stroke',
   'stroke-width',
   'stroke-opacity',
   'stroke-dasharray',
+  'stroke-dashoffset',
+  'shape-rendering',
   'stroke-linecap',
   'stroke-linejoin',
   'opacity',

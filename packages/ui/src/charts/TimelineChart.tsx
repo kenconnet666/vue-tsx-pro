@@ -251,10 +251,11 @@ export const TimelineChart = _component(
         Math.max(0, ...rowOrder.map((row) => estimateTextWidth(row))) + 16,
       );
       const marks = allMarkers().map((marker) => ({ ...marker, time: toTime(marker.at, zone()) }));
+      // 读不懂的时间（空字符串、写错的格式）不参与范围：不然最小、最大值是 NaN，整张图都画不出来
       const times = [
         ...shown.flatMap((segment) => [segment.start, segment.end]),
         ...marks.map((m) => m.time),
-      ];
+      ].filter(Number.isFinite);
       const [low, high] = times.length ? [Math.min(...times), Math.max(...times)] : [0, DAY];
       const [start, end] = low === high ? [low - DAY, high + DAY] : [low, high];
       const scale = linearScale(

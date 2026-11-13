@@ -68,7 +68,7 @@ const radarChartPart = (part: string) => partAttrs({ name: 'RadarChart' }, part)
 
 /** RadarChart 的样式 */
 const radarChartStyles = css.create({
-  svg: { display: 'block', width: '100%', height: '100%', overflow: 'visible' },
+  svg: { display: 'block', width: '100%', height: '100%', overflow: 'visible', direction: 'ltr' },
   grid: { fill: 'none', stroke: '_borderMuted', strokeWidth: 1 },
   spoke: { stroke: '_borderMuted', strokeWidth: 1 },
   spokeActive: { stroke: '_textMuted', strokeWidth: 1.5 },
@@ -145,7 +145,8 @@ export const RadarChart = _component(
       const count = data.length;
       const values = data.flatMap((row) => visible.map((item) => seriesNumber(row, item.key) ?? 0));
       // 轴的最大值：给了用它，否则取 levels 格整齐步长的整数倍
-      const top = max ?? niceStep(Math.max(...values, 1) / levels) * levels;
+      // 全是 0 时才取 1：0–0.3 的比率不该被撑到 1（多边形只占三成半径）
+      const top = max ?? niceStep((Math.max(...values, 0) || 1) / levels) * levels;
       const ratioOf = (value: number) => Math.max(0, Math.min(value / top, 1));
       const ring = (ratio: number) =>
         grid === 'circle'

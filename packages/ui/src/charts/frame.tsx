@@ -266,15 +266,21 @@ export const ChartFrame = _component(
           />
         )}
       >
-        <MenuItem
-          icon={ImageDown}
-          onAction={() => {
-            const svg = plotElement?.querySelector('svg');
-            if (svg) void exportChartImage(svg, fileName());
-          }}
-        >
-          {lang.chartExportImage}
-        </MenuItem>
+        {/* 绘图区不是 svg 的图（漏斗图）导不出图片：不放一个点了没反应的菜单项 */}
+        {plotElement?.querySelector('svg') && (
+          <MenuItem
+            icon={ImageDown}
+            onAction={() => {
+              const svg = plotElement?.querySelector('svg');
+              if (!svg) return;
+              exportChartImage(svg, fileName()).catch((error: unknown) =>
+                console.error('图表导出图片失败', error),
+              );
+            }}
+          >
+            {lang.chartExportImage}
+          </MenuItem>
+        )}
         <MenuItem
           icon={FileSpreadsheet}
           onAction={() => exportChartData(table, format, fileName())}

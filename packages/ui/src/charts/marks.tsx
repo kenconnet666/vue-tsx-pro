@@ -127,7 +127,10 @@ export function chartBar<T extends object>(
   },
 ): { d: string; grow: SxStyles } {
   const negative = down ?? (high <= 0 && low < 0);
-  const [a, b] = [context.value(low), context.value(high)];
+  // 夹到数值轴的范围内：轴不从 0 起时（valueDomain、瀑布图的 fromZero={false}），从 0 起画的柱子不冲出绘图区
+  const [floor, ceiling] = [Math.min(...context.domain), Math.max(...context.domain)];
+  const within = (value: number) => Math.min(Math.max(value, floor), ceiling);
+  const [a, b] = [context.value(within(low)), context.value(within(high))];
   const end = round ? endOf(context.horizontal, negative) : 'none';
   const d = context.horizontal
     ? barPath(Math.min(a, b), start, Math.abs(b - a), width, radius, end)

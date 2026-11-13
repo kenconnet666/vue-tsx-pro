@@ -58,7 +58,7 @@ export interface WaterfallRow {
 /** 未声明的属性落到外层 div（role="figure"）上；aria-label 是图表的名称 */
 export interface WaterfallChartProps extends Omit<
   XYChartProps<WaterfallRow>,
-  'data' | 'index' | 'series' | 'indexFormat' | 'legend' | 'hiddenSeries' | 'onItemClick'
+  'data' | 'index' | 'series' | 'indexFormat' | 'legend' | '_hiddenSeries' | 'onItemClick'
 > {
   /** 各步：按顺序从左到右 */
   steps: readonly WaterfallStep[];

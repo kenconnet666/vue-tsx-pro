@@ -131,7 +131,14 @@ export const chartPart = (part: string) => partAttrs({ name: 'Chart' }, part);
 
 /** 图表 SVG 的共用样式（组件之间共用，不进入口） @internal */
 export const chartSvgStyles = css.create({
-  svg: { display: 'block', overflow: 'visible', userSelect: 'none', WebkitUserSelect: 'none' },
+  // 坐标是物理方向（时间从左到右）：从右到左的页面里不镜像，不然 text-anchor 的 start / end 左右对调
+  svg: {
+    display: 'block',
+    overflow: 'visible',
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
+    direction: 'ltr',
+  },
   grid: { stroke: '_borderMuted', strokeWidth: 1, shapeRendering: 'crispEdges' },
   // 零线（数值轴有负数时）
   baseline: { stroke: '_border', strokeWidth: 1, shapeRendering: 'crispEdges' },
