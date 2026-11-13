@@ -127,7 +127,8 @@ export const Textarea = _component(
         const width = textarea?.clientWidth ?? 0;
         if (width === measured) return;
         measured = width;
-        fit();
+        // 下一帧再改高度：在观察回调里直接改被观察元素的尺寸，浏览器会报 ResizeObserver loop
+        requestAnimationFrame(fit);
       },
     );
 

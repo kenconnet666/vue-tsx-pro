@@ -149,6 +149,11 @@ const problems = [];
 try {
   for (const path of pages) {
     const page = await browser.newPage();
+    // 外站的请求（示例里的公共图床）直接拦掉：它慢或不可达时 load 等不到，整页超时，而水合对不对与它无关
+    await page.route(
+      (url) => url.hostname !== 'localhost',
+      (route) => route.abort(),
+    );
     const requests = trackRequests(page);
     const pending = [];
     page.on('console', (message) => {

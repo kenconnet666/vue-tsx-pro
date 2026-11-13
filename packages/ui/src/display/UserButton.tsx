@@ -11,17 +11,11 @@
 import { ChevronDown, ChevronsUpDown } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { useId, type VNodeChild } from 'vue';
+import type { VNodeChild } from 'vue';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
 import { useComponent } from '../config/components';
-import {
-  defaultLabelledBy,
-  hasContent,
-  mergeAttrs,
-  mergePartProps,
-  type PartProps,
-} from '../utils/props';
+import { hasContent, mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { relativeFontSizes } from '../utils/style/typography';
 import { Avatar, type AvatarProps } from './Avatar';
 
@@ -44,9 +38,9 @@ export interface UserButtonProps extends Omit<ButtonBaseProps, 'children'>, User
   /** 头像的部件属性 */
   propsAvatar?: Partial<AvatarProps>;
   /** 名字的部件属性 */
-  propsName?: PartProps<'span', 'id'>;
+  propsName?: PartProps<'span'>;
   /** 说明的部件属性 */
-  propsDescription?: PartProps<'span', 'id'>;
+  propsDescription?: PartProps<'span'>;
   /** 箭头的部件属性 */
   propsIndicator?: Partial<IconProps>;
 }
@@ -121,7 +115,6 @@ export const UserButton = _component(
     ...rest
   }: UserButtonProps) => {
     const ui = useComponent(userButtonRecipe, () => ({ compact }), { compact: false });
-    const id = useId();
     return () => {
       const described = hasContent(description);
       const { options, parts: s } = ui({ described });
@@ -130,17 +123,7 @@ export const UserButton = _component(
       return (
         <ButtonBase
           {...mergePartProps<ButtonBaseProps>(
-            {
-              ...s.root,
-              'aria-label': short ? name : undefined,
-              // 名称只取旁边的文字：头像（role="img"，名称也是名字）算进去的话名字会念两遍
-              'aria-labelledby': short
-                ? undefined
-                : defaultLabelledBy(
-                    rest,
-                    described ? `${id}-name ${id}-description` : `${id}-name`,
-                  ),
-            },
+            { ...s.root, 'aria-label': short ? name : undefined },
             rest,
           )}
         >
@@ -149,15 +132,9 @@ export const UserButton = _component(
           />
           {!short && (
             <span {...mergeAttrs<'span'>(s.text)}>
-              <span {...mergeAttrs<'span'>(s.name, propsName, { id: `${id}-name` })}>{name}</span>
+              <span {...mergeAttrs<'span'>(s.name, propsName)}>{name}</span>
               {described && (
-                <span
-                  {...mergeAttrs<'span'>(s.description, propsDescription, {
-                    id: `${id}-description`,
-                  })}
-                >
-                  {description}
-                </span>
+                <span {...mergeAttrs<'span'>(s.description, propsDescription)}>{description}</span>
               )}
             </span>
           )}

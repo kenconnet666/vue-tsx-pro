@@ -40,7 +40,7 @@
   `propsGrid` / `propsCell` / `propsCellButton`，DataTable 的 `propsFilterButton` / `propsColumnMenuButton`，ImageCropper 的 `propsImage`
   （图片默认 `crossorigin="anonymous"`），ColumnSettings 的 `changed`；Upload 的 `propsItem`、`propsIcon` 在图片墙里也生效。
 - **类型更严**：组件自己管理的属性从部件属性的类型里去掉了（Splitter、Carousel、Ellipsis、Sortable、ConditionBuilder、
-  FormErrorSummary、CommandPalette 的 `propsInput`、DataTable、Tab、NavItem、LoadingBar、Marquee、UserButton）。之前写了不报错、
+  FormErrorSummary、CommandPalette 的 `propsInput`、DataTable、Tab、NavItem、LoadingBar、Marquee）。之前写了不报错、
   运行时被丢掉，现在类型检查会指出来。AlertDialog / `useConfirm` 的类型去掉了没有效果的 `draggable`。
 - 其余修正：Splitter 收起开始那一栏时布局正确；FloatButton 的 `badge={false}` 照常固定在角落；CSV 导出对没登记的状态值、
   数字与日期列里的字符串同样防公式；`pivot` 的 `avg` / `min` / `max` 认十进制字符串；MenuSub 的 `description` 照常显示；
