@@ -134,10 +134,17 @@ export const CodePreview = _component(
       const from = code;
       loadedFrom = from;
       loaded = null;
-      pending = from().then((text) => {
-        if (loadedFrom === from) loaded = text;
-        return text;
-      });
+      pending = from().then(
+        (text) => {
+          if (loadedFrom === from) loaded = text;
+          return text;
+        },
+        (error: unknown) => {
+          // 失败的不记：下次展开、复制时再取一次，不然一次断网之后源码区一直是空的
+          if (loadedFrom === from) loadedFrom = undefined;
+          throw error;
+        },
+      );
       return pending;
     }
     const prepare = () => {

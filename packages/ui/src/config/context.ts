@@ -79,6 +79,11 @@ export interface UiConfig {
   readonly theme: Theme;
   /** 当前语言：地区格式与界面文案 */
   readonly lang: Lang;
+  /**
+   * 某一层 Provider 配置过语言：传送到 body 的内容（ConfigScope）要带上 lang / dir，不然落到 Provider 外面就丢了。
+   * 应用级的（createUi）写在页面根元素上，不用带
+   */
+  readonly langScoped?: boolean;
   /** 代码高亮器；没有时 CodeBlock 显示纯文本 */
   readonly highlighter?: Highlighter;
   /** 额外的文字匹配（拼音）；没有时只按字面匹配 */

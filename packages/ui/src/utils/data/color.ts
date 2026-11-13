@@ -86,7 +86,7 @@ export function contrastRatio(foreground: string, background: string, page = '#f
  */
 export function readableText(
   background: string,
-  candidates: readonly string[] = ['#ffffff', '#1c2024'],
+  candidates: readonly string[] = ['#ffffff', '#1c2024', '#000000'],
 ): string {
   let best = candidates[0]!;
   let bestRatio = 0;

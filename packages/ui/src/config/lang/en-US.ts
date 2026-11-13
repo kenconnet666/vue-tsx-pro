@@ -269,7 +269,7 @@ export const enUS: Lang = {
   selectCreate: (text) => `Create “${text}”`,
   selectSummary: (labels) => labels.join(', '),
   selectMoreTags: (count) => `+${count}`,
-  paginationTotal: (total) => `${total.toLocaleString('en-US')} items`,
+  paginationTotal: (total) => `${total.toLocaleString('en-US')} ${total === 1 ? 'item' : 'items'}`,
   paginationRange: (from, to, total) =>
     `${from.toLocaleString('en-US')}–${to.toLocaleString('en-US')} of ${total.toLocaleString('en-US')} items`,
   pagination: 'Pagination',

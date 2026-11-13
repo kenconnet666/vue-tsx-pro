@@ -54,10 +54,15 @@ export function useFormat() {
       formatNumeric(lang, value, { style: 'currency', currency }),
     /** 文件大小，按 1000 进位取合适的单位：`format.fileSize(1_234_567)` → `1.2 MB` */
     fileSize: (bytes: number) => {
-      const exponent = Math.min(
+      // 不是数（脏数据里的 NaN）：没有单位可选，Intl 会抛错，整张表跟着崩
+      if (!Number.isFinite(bytes)) return lang.emptyValue;
+      let exponent = Math.min(
         Math.max(Math.floor(Math.log10(Math.max(bytes, 1)) / 3), 0),
         FILE_SIZE_UNITS.length - 1,
       );
+      // 取整后进到 1000 的（999,999 B）换下一档：显示 1 MB，不是 1,000 kB
+      const rounded = Math.round((bytes / 1000 ** exponent) * 10) / 10;
+      if (rounded >= 1000 && exponent < FILE_SIZE_UNITS.length - 1) exponent += 1;
       return numberFormatter(lang, {
         style: 'unit',
         unit: FILE_SIZE_UNITS[exponent],
@@ -122,6 +127,8 @@ function formatNumeric(
   { scale, suffix, ...options }: NumericFormat,
 ) {
   if (options.style === 'currency' && !options.currency) options.currency = lang.currency;
+  // 取整后是 0 的负数不带负号（-0.4 保留整数、-0.00001 元按万元显示时不是“-0”）；调用方写了 signDisplay 的照它的
+  options.signDisplay ??= 'negative';
   const text = numberFormatter(lang, options).format(scaled(value, scale));
   return suffix ? `${text} ${suffix}` : text;
 }

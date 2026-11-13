@@ -81,7 +81,14 @@ export function createShikiHighlighter(options: ShikiHighlighterOptions = {}): H
   const languageTable = (): Promise<LanguageTable> =>
     (languages ??= options.languages
       ? Promise.resolve(options.languages)
-      : import('shiki/langs').then((module): LanguageTable => module.bundledLanguages));
+      : import('shiki/langs').then(
+          (module): LanguageTable => module.bundledLanguages,
+          (error: unknown) => {
+            // 下载失败的不留着：下次高亮再试（同单个语言下载失败时的处理）
+            languages = undefined;
+            throw error;
+          },
+        ));
   let core: Promise<HighlighterCore> | undefined;
   const loadCore = async () => {
     const [shiki, engine] = await Promise.all([
@@ -120,7 +127,10 @@ export function createShikiHighlighter(options: ShikiHighlighterOptions = {}): H
   };
 
   return async (code, lang) => {
-    const highlighter = await (core ??= loadCore());
+    const highlighter = await (core ??= loadCore().catch((error: unknown) => {
+      core = undefined;
+      throw error;
+    }));
     const name = lang.toLowerCase();
     const known = await ensureLanguage(highlighter, name);
     return highlighter.codeToHtml(code, {

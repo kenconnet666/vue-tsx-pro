@@ -5,6 +5,7 @@
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { CssVar, VarTheme as GroupThemeOf } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { t } from './tokens';
+import { withoutUndefined } from '../../utils/data/object';
 
 type Groups = typeof t;
 
@@ -56,7 +57,7 @@ export function defineTheme(
   // 分组的键各不相同，按普通对象逐组合并
   const merged: Record<string, Record<string, string | undefined>> = { ...base.overrides };
   for (const [group, values] of Object.entries(overrides)) {
-    merged[group] = { ...merged[group], ...values };
+    merged[group] = { ...merged[group], ...withoutUndefined(values) };
   }
   return { ...base, ...meta, overrides: merged as ThemeOverrides };
 }
@@ -77,7 +78,10 @@ export function themeVariables(theme: Theme): Record<string, string> {
   for (const [group, values] of Object.entries(theme.overrides)) {
     const tokens = t[group as keyof Groups] as unknown as Record<string, string>;
     for (const [token, value] of Object.entries(values ?? {})) {
-      variables[variableName(tokens[token]!)] = value as string;
+      // 没有值的不写：写出去会变成字符串 "undefined"，用到这个 token 的样式整个失效
+      if (value === undefined) continue;
+      if (!tokens?.[token]) throw new Error(`主题里有不认识的 token：${group}.${token}`);
+      variables[variableName(tokens[token])] = value;
     }
   }
   return variables;

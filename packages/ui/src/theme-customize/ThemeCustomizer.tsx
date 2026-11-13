@@ -180,6 +180,8 @@ export const ThemeCustomizer = _component(
     const messages = useMessages('themeCustomizer', themeCustomizerMessages);
     const format = useFormat();
     let issues = _state.raw<ContrastIssue[]>([]);
+    /** 这一次检查做成了：读不到颜色时不算“没有问题”，不显示结果 */
+    let checked = _state(false);
 
     /** 改一个旋钮：空值表示沿用主题本来的取值 */
     function set<Key extends keyof ThemeSettings>(key: Key, value: ThemeSettings[Key] | '') {
@@ -198,9 +200,12 @@ export const ThemeCustomizer = _component(
           issues = checkContrast((token) =>
             readToken(target, colors[token as keyof typeof colors] as never),
           );
+          checked = true;
         } catch {
-          // 主题的颜色还没写进页面（服务端渲染、没有样式的测试环境）：读不到就不检查
+          // 主题的颜色还没写进页面（服务端渲染、没有样式的测试环境）、或有读不懂的颜色：读不到就不检查，
+          // 也不显示“全部通过”
           issues = [];
+          checked = false;
         }
       },
       { immediate: true, deep: true, flush: 'post' },
@@ -454,8 +459,9 @@ export const ThemeCustomizer = _component(
             ),
           ])}
           {group(messages.groupExport, messages.groupExportHint, [
-            <Alert
-              {...mergePartProps<AlertProps>({ title: messages.contrast }, propsContrast, {
+            checked && (
+              <Alert
+                {...mergePartProps<AlertProps>({ title: messages.contrast }, propsContrast, {
                 tone: issues.length === 0 ? 'success' : 'warning',
               })}
             >
@@ -477,7 +483,8 @@ export const ThemeCustomizer = _component(
                   ))}
                 </Flex>
               )}
-            </Alert>,
+            </Alert>
+            ),
             <CodeBlock
               {...mergePartProps<CodeBlockProps>(
                 { title: messages.code, code, lang: 'ts' },

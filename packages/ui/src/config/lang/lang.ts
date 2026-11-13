@@ -19,6 +19,7 @@ import type { DiagramMessages } from '../../diagram/messages';
 import type { DocsKitMessages } from '../../docs-kit/messages';
 import type { PatternsMessages } from '../../patterns/messages';
 import type { ThemeCustomizerMessages } from '../../theme-customize/messages';
+import { withoutUndefined } from '../../utils/data/object';
 
 /** 文字方向 */
 export interface Directions {
@@ -796,7 +797,9 @@ export interface LangMessages {
  * 基于已有语言局部修改：`defineLang(zhCN, { selectEmpty: '暂无数据', timeZone: 'Asia/Tokyo' })`。
  * errorCodes 与 messages 合并而不是整个替换：只写要加、要改的码和字段
  */
-export function defineLang(base: Lang, overrides: Partial<Lang>): Lang {
+export function defineLang(base: Lang, given: Partial<Lang>): Lang {
+  // 值是 undefined 的键不表态（`{ currency: user.currency }` 还没取到时不把必填的币种盖成 undefined）
+  const overrides = withoutUndefined(given);
   const errorCodes = { ...base.errorCodes, ...overrides.errorCodes };
   if (!base.messages || !overrides.messages) return { ...base, ...overrides, errorCodes };
   // 页面级组件的文案按组件合并：两边各改了同一个组件的不同字段时都保留

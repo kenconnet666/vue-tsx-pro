@@ -10,6 +10,7 @@
 import { computed } from 'vue';
 import { useConfig } from './context';
 import type { ComponentName, OptionsOf } from './components';
+import { withoutUndefined } from '../utils/data/object';
 
 /** 可以配置默认值的组件与选项：从 UiComponents（components.ts）推出，新组件在那里登记 */
 export type ComponentDefaults = { [Name in ComponentName]?: OptionsOf<Name> };
@@ -22,7 +23,10 @@ export function mergeDefaults(
   if (!inner) return outer;
   const merged: Record<string, object | undefined> = { ...outer };
   for (const [name, options] of Object.entries(inner)) {
-    merged[name] = { ...(outer as Record<string, object | undefined>)[name], ...options };
+    merged[name] = {
+      ...(outer as Record<string, object | undefined>)[name],
+      ...withoutUndefined(options),
+    };
   }
   return merged as ComponentDefaults;
 }

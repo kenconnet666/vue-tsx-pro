@@ -94,6 +94,9 @@ export const Provider = _component(
       get lang() {
         return currentLang;
       },
+      get langScoped() {
+        return lang != null || !!parent.langScoped;
+      },
       get highlighter() {
         return highlighter ?? parent.highlighter;
       },
@@ -130,8 +133,9 @@ export const Provider = _component(
       <div
         {...(theme ? themeAttrs(currentTheme) : {})}
         {...css.attrs(providerStyles.root, theme != null && providerStyles.themed)}
-        lang={currentLang.code}
-        dir={currentLang.direction}
+        // 只在这一层配置了语言时写：没配置时沿用外层的（外层 Provider、createUi 或宿主页面自己的 lang / dir）
+        lang={lang ? currentLang.code : undefined}
+        dir={lang ? currentLang.direction : undefined}
       >
         {children}
       </div>
@@ -154,8 +158,8 @@ export const ConfigScope = _component(({ children }: ConfigScopeProps) => {
     <div
       {...themeAttrs(config.theme)}
       {...css.attrs(providerStyles.root, providerStyles.themed)}
-      lang={config.lang.code}
-      dir={config.lang.direction}
+      lang={config.langScoped ? config.lang.code : undefined}
+      dir={config.langScoped ? config.lang.direction : undefined}
     >
       {children}
     </div>

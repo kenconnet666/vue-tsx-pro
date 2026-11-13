@@ -72,7 +72,8 @@ function numberFormat(
   const decimals = (count: number) => (count > 0 ? `.${'0'.repeat(count)}` : '');
   if (type === 'currency') return `"${symbol}"#,##0${decimals(digits ?? 2)}`;
   if (type === 'percent') return `0${decimals(digits ?? 1)}%`;
-  if (type === 'number') return digits == null ? '#,##0.########' : `#,##0${decimals(digits)}`;
+  // 没写小数位的：General 按值显示（整数没有小数点，小数照原样）。'#,##0.########' 在整数后面会留一个孤零零的小数点
+  if (type === 'number') return digits == null ? undefined : `#,##0${decimals(digits)}`;
   if (type === 'date') return 'yyyy-mm-dd';
   if (type === 'dateTime') return 'yyyy-mm-dd hh:mm';
   return undefined;
