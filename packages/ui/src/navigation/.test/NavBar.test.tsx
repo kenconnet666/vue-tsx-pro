@@ -101,4 +101,36 @@ describe('NavList 的角标与紧凑分组', () => {
     expect(group.dataset.state).toBe('active');
     expect(group.hasAttribute('aria-expanded')).toBe(false);
   });
+
+  it('紧凑的分组在触屏上点得开：点图标弹出子项，再点收起，点外面收起', async () => {
+    const root = withRouter('/', () => (
+      <NavList aria-label="后台" compact>
+        <NavGroup label="订单" icon={Package}>
+          <NavItem href="/orders">全部订单</NavItem>
+        </NavGroup>
+      </NavList>
+    ));
+    await nextTick();
+    const group = root.querySelector<HTMLButtonElement>('nav > ul > li button')!;
+    const panel = () => root.querySelector<HTMLElement>('nav > ul > li [popover]')!;
+    const shown = () => panel().dataset.state === 'open';
+    const tap = async (target: Element) => {
+      target.dispatchEvent(
+        new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }),
+      );
+      target.dispatchEvent(new MouseEvent('click', { bubbles: true, detail: 1 }));
+      for (let i = 0; i < 4; i++) await nextTick();
+    };
+    await tap(group);
+    expect(shown()).toBe(true);
+    await tap(group);
+    expect(shown()).toBe(false);
+    await tap(group);
+    expect(shown()).toBe(true);
+    document.body.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, pointerType: 'touch' }),
+    );
+    for (let i = 0; i < 4; i++) await nextTick();
+    expect(shown()).toBe(false);
+  });
 });

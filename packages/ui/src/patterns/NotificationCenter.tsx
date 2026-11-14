@@ -308,7 +308,12 @@ export const NotificationList = _component(
           </div>
           {shown.length === 0 ? (
             <div {...mergeAttrs<'div'>(s.empty, propsEmpty)}>
-              {empty ?? <Empty size="sm" title={messages.notificationsEmpty} />}
+              {/* 有通知、只是筛掉了：说“没有符合条件的”，不让人以为通知被清空了 */}
+              {items.length > 0 ? (
+                <Empty size="sm" title={messages.notificationsNoMatch} />
+              ) : (
+                (empty ?? <Empty size="sm" title={messages.notificationsEmpty} />)
+              )}
             </div>
           ) : (
             <ScrollArea {...mergePartProps<ScrollAreaProps>(s.scroll, propsScroll)}>

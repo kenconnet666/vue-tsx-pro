@@ -153,6 +153,15 @@ describe('卡片外观（card）', () => {
 });
 
 describe('Switch', () => {
+  it('description：文字下面的说明，读屏作为描述念出来', () => {
+    const root = mount(() => <Switch description="有新订单时发邮件">订单通知</Switch>);
+    const input = root.querySelector('input')!;
+    const description = root.querySelector('[data-part="description"]')!;
+    expect(description.textContent).toBe('有新订单时发邮件');
+    expect(input.getAttribute('aria-describedby')).toBe(description.id);
+    expect(root.querySelector('label')!.textContent).toBe('订单通知有新订单时发邮件');
+  });
+
   it('role="switch" 的原生 checkbox；在 Field 里时 for 指向它', async () => {
     let on = _state(false);
     const root = mount(() => (

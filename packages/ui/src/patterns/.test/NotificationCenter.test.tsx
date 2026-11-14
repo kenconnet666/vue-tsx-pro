@@ -73,7 +73,7 @@ describe('NotificationCenter', () => {
     expect(onRead).toHaveBeenCalledWith(['1', '2']);
   });
 
-  it('按类型筛选、只看未读；筛完没有时显示“没有通知”', async () => {
+  it('按类型筛选、只看未读；筛完没有时显示“没有符合条件的通知”', async () => {
     document.body.innerHTML = '';
     mount(() => <NotificationCenter items={items} types={types} lazy={false} now={NOW} />);
     await nextTick();
@@ -86,7 +86,8 @@ describe('NotificationCenter', () => {
       .querySelector<HTMLInputElement>('input[role="switch"], input[type="checkbox"]')!
       .click();
     await nextTick();
-    expect(document.body.textContent).toContain('没有通知');
+    // 有通知、只是筛掉了：不说“没有通知”
+    expect(document.body.textContent).toContain('没有符合条件的通知');
   });
 });
 

@@ -25,6 +25,7 @@ import { ChevronRight } from '@lucide/icons';
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onBeforeUnmount, useId, watch, type VNodeChild } from 'vue';
+import { useEventListener } from '../utils/dom/event-listener';
 import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { Badge, type BadgeProps } from '../base/Badge';
 import { Icon, type IconData, type IconProps } from '../base/Icon';
@@ -389,14 +390,38 @@ export const NavGroup = _component(
       },
     });
 
-    /** 紧凑时：只剩图标，悬停、聚焦时子项从右边弹出来（完整的文字，不再紧凑） */
+    // 紧凑时弹出的子项：悬停、键盘聚焦时自己打开；触屏没有悬停，点图标打开（再点收起）
+    let flyout = _state(false);
+    // 按下那一刻开着没有：悬停卡片在按下时先把自己关了，点击时要按“按下之前”的状态切换
+    let flyoutWasOpen = false;
+    let groupElement: HTMLElement | null = null;
+    // 点在分组外面（触屏上没有“指针移开”）：收起
+    useEventListener(
+      () => (flyout ? document : null),
+      'pointerdown',
+      (event) => {
+        if (event.target instanceof Node && !groupElement?.contains(event.target)) flyout = false;
+      },
+    );
+
+    /** 紧凑时：只剩图标，悬停、聚焦、点按时子项从右边弹出来（完整的文字，不再紧凑） */
     function renderFlyout(s: NavListParts) {
       return (
-        <li {...mergeAttrs<'li'>(s.group, rest)}>
+        <li
+          {...mergeAttrs<'li'>(s.group, rest, {
+            ref: (element: unknown) =>
+              (groupElement = element instanceof HTMLElement ? element : null),
+          })}
+        >
           <HoverCard
             {...s.flyout}
+            _open={flyout}
             placement="right-start"
             delay={150}
+            // 点了里面的链接（换页）：收起
+            onClick={(event: MouseEvent) => {
+              if ((event.target as Element).closest('a[href]')) flyout = false;
+            }}
             // 子项一直渲染：它们要报告自己是不是当前页，分组的图标才知道要不要高亮
             lazy={false}
             trigger={(props) => (
@@ -407,7 +432,15 @@ export const NavGroup = _component(
                     sx: [s.trigger.sx, navListStateStyles.compactRow],
                   },
                   propsTrigger,
-                  props as Partial<ButtonBaseProps>,
+                  {
+                    ...(props as Partial<ButtonBaseProps>),
+                    onPointerdown: (event: PointerEvent) => {
+                      flyoutWasOpen = flyout;
+                      props.onPointerdown(event);
+                    },
+                    // 键盘的回车、空格没有按下那一步（detail 是 0）：聚焦时已经开了，保持开着（Esc 收起）
+                    onClick: (event: MouseEvent) => (flyout = event.detail === 0 || !flyoutWasOpen),
+                  },
                 )}
                 data-state={hasCurrent ? 'active' : 'inactive'}
                 // 组里有当前页：图标是当前项的外观

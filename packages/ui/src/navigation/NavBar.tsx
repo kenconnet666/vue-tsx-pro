@@ -156,6 +156,7 @@ export const NavBar = _component(
           aria-current={child.href && router.isActive(child.href) ? 'page' : undefined}
         >
           {child.label}
+          {badge(child.badge)}
         </MenuLinkItem>
       ));
 

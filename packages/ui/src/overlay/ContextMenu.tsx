@@ -10,7 +10,7 @@
  * 区域本身不可聚焦：键盘用户要能打开，里面得有可聚焦的元素（同 Radix ContextMenu）。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { nextTick, watch, type VNodeChild } from 'vue';
+import { nextTick, onScopeDispose, watch, type VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { openSetter, type OpenChangeProps } from '../utils/dom/open-change';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
@@ -32,7 +32,12 @@ export interface ContextMenuProps extends PartProps<'div'>, OpenChangeProps {
   children?: VNodeChild;
 }
 
-/** 右键菜单：区域 + 从指针位置弹出的 Menu */
+/** 触屏、触控笔按住多久算长按（ms） */
+const LONG_PRESS = 700;
+/** 长按期间手指挪动超过多少（px）就不算 */
+const PRESS_SLOP = 10;
+
+/** 右键菜单：区域 + 从指针位置弹出的 Menu（桌面右键、键盘的菜单键、触屏长按） */
 export const ContextMenu = _component(
   ({
     _open: open = _bindable(false),
@@ -54,23 +59,56 @@ export const ContextMenu = _component(
       () => onOpenChange,
     );
 
-    function onContextmenu(event: MouseEvent) {
-      const target = event.target as HTMLElement;
-      // 菜单渲染在区域里：在菜单上右键不再打开；里层的区域（嵌套的 ContextMenu）或使用方已经处理过的也不再打开
-      if (event.defaultPrevented || disabled || target.closest('[role="menu"]')) return;
-      event.preventDefault();
+    /** 在这个位置（视口坐标）打开 */
+    function openAt(at: { x: number; y: number }, event: Event) {
       origin = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-      // 键盘打开时没有指针坐标：从获得焦点的元素左下角弹出
-      if (event.clientX === 0 && event.clientY === 0) {
-        const rect = target.getBoundingClientRect();
-        point = { x: rect.left, y: rect.bottom };
-      } else point = { x: event.clientX, y: event.clientY };
+      point = at;
       // 已经开着时先关再开，菜单换到新的位置（仍算开着，不通知）
       if (open) {
         open = false;
         void nextTick(() => (open = true));
       } else setOpen(true, 'trigger', event);
     }
+
+    function onContextmenu(event: MouseEvent) {
+      const target = event.target as HTMLElement;
+      // 浏览器自己发了 contextmenu（桌面的右键、Android 的长按）：不用等下面的长按计时
+      clearTimeout(press);
+      // 菜单渲染在区域里：在菜单上右键不再打开；里层的区域（嵌套的 ContextMenu）或使用方已经处理过的也不再打开
+      if (event.defaultPrevented || disabled || target.closest('[role="menu"]')) return;
+      event.preventDefault();
+      // 键盘打开时没有指针坐标：从获得焦点的元素左下角弹出
+      if (event.clientX === 0 && event.clientY === 0) {
+        const rect = target.getBoundingClientRect();
+        openAt({ x: rect.left, y: rect.bottom }, event);
+      } else openAt({ x: event.clientX, y: event.clientY }, event);
+    }
+
+    // 长按：iOS 的 Safari 长按不发 contextmenu，触屏、触控笔按住不动一会儿当作右键（同 Radix 的 ContextMenu）
+    let press: ReturnType<typeof setTimeout> | undefined;
+    let pressAt = { x: 0, y: 0 };
+    onScopeDispose(() => clearTimeout(press));
+
+    function onPointerdown(event: PointerEvent) {
+      clearTimeout(press);
+      const target = event.target as HTMLElement;
+      if (event.pointerType === 'mouse' || disabled || target.closest('[role="menu"]')) return;
+      pressAt = { x: event.clientX, y: event.clientY };
+      press = setTimeout(() => {
+        // 里层的区域（嵌套的 ContextMenu）已经用这次长按打开了：外层不再打开
+        if (!event.defaultPrevented) {
+          event.preventDefault();
+          openAt(pressAt, event);
+        }
+      }, LONG_PRESS);
+    }
+
+    /** 手指挪开了（在滚动、拖动）、抬起来了：不算长按 */
+    function onPointermove(event: PointerEvent) {
+      if (Math.hypot(event.clientX - pressAt.x, event.clientY - pressAt.y) > PRESS_SLOP)
+        clearTimeout(press);
+    }
+    const endPress = () => clearTimeout(press);
 
     watch(
       () => open,
@@ -84,7 +122,18 @@ export const ContextMenu = _component(
 
     return () => (
       <div
-        {...mergeAttrs<'div'>({}, rest, { onContextmenu })}
+        {...mergeAttrs<'div'>(
+          // 长按时 iOS 不弹出自己的预览、拷贝菜单
+          { style: { WebkitTouchCallout: 'none' } },
+          rest,
+          {
+            onContextmenu,
+            onPointerdown,
+            onPointermove,
+            onPointerup: endPress,
+            onPointercancel: endPress,
+          },
+        )}
         data-state={open ? 'open' : 'closed'}
       >
         {children}

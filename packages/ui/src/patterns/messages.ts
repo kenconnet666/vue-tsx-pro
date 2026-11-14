@@ -42,6 +42,8 @@ export interface PatternsMessages {
   readonly notificationsUnreadOnly: string;
   /** 通知中心：没有通知，默认“没有通知” */
   readonly notificationsEmpty: string;
+  /** 通知：有通知，但按类型、只看未读筛选后一条都没有，默认“没有符合条件的通知” */
+  readonly notificationsNoMatch: string;
   /** 通知中心：一条未读的标记（读屏），默认“未读” */
   readonly notificationUnreadMark: string;
   /** 看板卡片把手的操作说明，默认“按空格拿起，左右方向键换列、上下方向键调整位置，再按空格放下，Esc 取消” */
@@ -211,6 +213,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     notificationsAll: '全部',
     notificationsUnreadOnly: '只看未读',
     notificationsEmpty: '没有通知',
+    notificationsNoMatch: '没有符合条件的通知',
     notificationUnreadMark: '未读',
     kanbanInstructions: '按空格拿起，左右方向键换列、上下方向键调整位置，再按空格放下，Esc 取消',
     kanbanEmpty: '没有',
@@ -308,6 +311,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     notificationsAll: 'All',
     notificationsUnreadOnly: 'Unread only',
     notificationsEmpty: 'No notifications',
+    notificationsNoMatch: 'No matching notifications',
     notificationUnreadMark: 'Unread',
     kanbanInstructions:
       'Press space to pick up, use the left and right arrow keys to change column and the up and down arrow keys to change position, press space again to drop, Escape to cancel',

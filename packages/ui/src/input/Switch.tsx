@@ -10,7 +10,7 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { VNodeChild } from 'vue';
+import { useId, type VNodeChild } from 'vue';
 import { useFieldControl } from '../form/Field';
 import { Spinner, type SpinnerProps } from '../base/Spinner';
 import { useDelayedLoading } from '../utils/motion/delayed-loading';
@@ -69,6 +69,10 @@ export interface SwitchProps extends PartProps<'input', SwitchManaged> {
   propsSpinner?: Partial<SpinnerProps>;
   /** 文字的部件属性 */
   propsLabel?: PartProps<'span'>;
+  /** 说明的部件属性 */
+  propsDescription?: PartProps<'span', 'id'>;
+  /** 文字下方的说明（次要颜色、小一号）：设置项里解释这个开关管什么；读屏作为描述念出来 */
+  description?: VNodeChild;
   /** 文字 */
   children?: VNodeChild;
 }
@@ -157,10 +161,13 @@ export const Switch = _component(
     propsContentText,
     propsSpinner,
     propsLabel,
+    propsDescription,
+    description,
     children,
     ...rest
   }: SwitchProps) => {
     const control = useFieldControl(() => ({ id, invalid, required, disabled, readonly }));
+    const descriptionId = `${useId()}-description`;
     const appearance = useChoiceAppearance(() => ({ size, tone }));
     // 很快完成的切换不闪加载指示；点击拦截、aria-busy 按真实的 loading
     const spinner = useDelayedLoading(() => loading);
@@ -221,7 +228,10 @@ export const Switch = _component(
                   required: state.required,
                   'aria-invalid': state.invalid || undefined,
                   'aria-readonly': state.readonly || undefined,
-                  'aria-describedby': state.describedBy,
+                  'aria-describedby':
+                    [state.describedBy, hasContent(description) && descriptionId]
+                      .filter(Boolean)
+                      .join(' ') || undefined,
                   'aria-busy': loading || undefined,
                   // 切换中、只读时不接受切换：拦下 click，勾选状态就不变
                   onClick: (event: MouseEvent) => {
@@ -256,8 +266,17 @@ export const Switch = _component(
               )}
             </span>
           </span>
-          {hasContent(children) && (
-            <span {...mergeAttrs<'span'>(s.label, propsLabel)}>{children}</span>
+          {(hasContent(children) || hasContent(description)) && (
+            <span {...mergeAttrs<'span'>(s.label, propsLabel)}>
+              {children}
+              {hasContent(description) && (
+                <span
+                  {...mergeAttrs<'span'>(s.description, propsDescription, { id: descriptionId })}
+                >
+                  {description}
+                </span>
+              )}
+            </span>
           )}
         </label>
       );

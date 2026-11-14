@@ -63,6 +63,18 @@ describe('ColumnTable', () => {
     expect(foot.textContent).toContain('¥245.50');
   });
 
+  it('没有行：表体里一行占满的“暂无数据”，可以用 empty 换', () => {
+    const root = mount(() => (
+      <>
+        <ColumnTable rows={[]} columns={columns} />
+        <ColumnTable rows={[]} columns={columns} empty="还没有报价" />
+      </>
+    ));
+    const cells = [...root.querySelectorAll('tbody td')];
+    expect(cells.map((cell) => cell.textContent)).toEqual(['暂无数据', '还没有报价']);
+    expect(cells[0]!.getAttribute('colspan')).toBe(String(columns.length));
+  });
+
   it('cellSpan 合并列：被合并的格返回 0 不渲染', () => {
     const root = mount(() => (
       <ColumnTable

@@ -1,6 +1,6 @@
 // 菜单的结构：MenuGroup、MenuRadioGroup 是带标题名称的 group，单选项跟着 _value 勾选、点了写回；
 // MenuSub 是带子菜单的项（aria-haspopup、aria-expanded）；ContextMenu 右键时从指针位置打开
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mount } from '../../utils/.test/mount';
 import { ContextMenu } from '../ContextMenu';
@@ -78,6 +78,46 @@ describe('ContextMenu', () => {
     await nextTick();
     expect(event.defaultPrevented).toBe(true);
     expect(open).toBe(true);
+  });
+
+  it('触屏长按打开（iOS 长按不发 contextmenu）；手指挪开、提前抬起不算；鼠标按住不算', async () => {
+    vi.useFakeTimers();
+    let open = false;
+    const root = mount(() => (
+      <ContextMenu
+        onOpenChange={(next) => (open = next)}
+        menu={<MenuItem>重命名</MenuItem>}
+        propsMenu={{ lazy: false }}
+      >
+        <button>文件</button>
+      </ContextMenu>
+    ));
+    const button = root.querySelector('button')!;
+    const pointer = (type: string, init: PointerEventInit) =>
+      button.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, ...init }));
+    const down = (pointerType: string) =>
+      pointer('pointerdown', { pointerType, clientX: 40, clientY: 20 });
+
+    // 挪开了（在滚动）
+    down('touch');
+    pointer('pointermove', { pointerType: 'touch', clientX: 40, clientY: 60 });
+    vi.advanceTimersByTime(800);
+    expect(open).toBe(false);
+    // 提前抬起（普通的点按）
+    down('touch');
+    vi.advanceTimersByTime(300);
+    pointer('pointerup', { pointerType: 'touch' });
+    vi.advanceTimersByTime(800);
+    expect(open).toBe(false);
+    // 鼠标按住
+    down('mouse');
+    vi.advanceTimersByTime(800);
+    expect(open).toBe(false);
+    // 按住不动
+    down('touch');
+    vi.advanceTimersByTime(800);
+    expect(open).toBe(true);
+    vi.useRealTimers();
   });
 
   it('disabled 时不弹出，浏览器的右键菜单照常', async () => {

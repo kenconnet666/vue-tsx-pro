@@ -56,6 +56,8 @@ export interface ColumnTableProps<T> extends Omit<TableProps, 'children'> {
   cellSpan?: (row: T, column: DataTableColumn<T>, index: number) => CellSpan | undefined;
   /** 合计行第一列的文字（第一列自己没写 summary 时），默认取语言包（合计） */
   summaryLabel?: VNodeChild;
+  /** 没有行时表体里显示的内容（占满一行），默认取语言包（暂无数据）；列定义里的 empty 是单个格子没有值时的占位 */
+  empty?: VNodeChild;
   /** 列标题（th）的部件属性，可以按列计算 */
   propsHeaderCell?: HeaderCellParts | ((column: DataTableColumn<T>) => HeaderCellParts);
   /** 每一行（tr）的部件属性，可以按行计算 */
@@ -70,6 +72,7 @@ export interface ColumnTableProps<T> extends Omit<TableProps, 'children'> {
 const columnTableStyles = css.create({
   // 合并的格跨了几行：内容垂直居中，下边线照常
   merged: { verticalAlign: 'middle' },
+  empty: { textAlign: 'center', color: '_textMuted' },
 });
 
 /**
@@ -118,6 +121,7 @@ export const ColumnTable = _component(
     mergeRepeated,
     cellSpan,
     summaryLabel,
+    empty,
     propsHeaderCell,
     propsRow,
     propsCell,
@@ -171,6 +175,13 @@ export const ColumnTable = _component(
           </TableRow>
         </TableHead>
         <TableBody>
+          {rows.length === 0 && (
+            <TableRow>
+              <TableCell colspan={shown.length} sx={columnTableStyles.empty}>
+                {empty ?? lang.tableEmpty}
+              </TableCell>
+            </TableRow>
+          )}
           {rows.map((row, index) => (
             <TableRow
               key={getKey?.(row, index) ?? index}
