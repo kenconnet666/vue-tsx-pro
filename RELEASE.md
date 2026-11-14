@@ -16,7 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- **Affix** 的根元素补上部件标记（`data-scope="affix"`、`data-part="root"`），全局样式与测试可以直接选中它。
 
 ## 每次发布
 
