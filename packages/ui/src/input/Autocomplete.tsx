@@ -20,7 +20,15 @@ import type { OptionsLoader } from './remote-items';
 /** 未声明的属性落到 input 上；选项、过滤、远程建议、外观同 Combobox */
 export type AutocompleteProps<T = ListboxOption> = Omit<
   ComboboxBaseProps<T>,
-  '_value' | '_inputValue' | 'allowCustomValue' | 'showToggle' | 'hideEmpty' | 'items' | 'load'
+  | '_value'
+  | '_inputValue'
+  | 'allowCustomValue'
+  | 'showToggle'
+  | 'hideEmpty'
+  // 没有建议时不弹出列表，“没有匹配项”的内容显示不出来
+  | 'empty'
+  | 'items'
+  | 'load'
 > &
   OptionMapping<T> & {
     /** 输入框里的文字：父级写 _value={x}；选一项建议就是把它的文字填进来 */

@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Email from './demo/Email.tsx?demo';
+import Options from './demo/Options.tsx?demo';
 import Remote from './demo/Remote.tsx?demo';
 
 export const meta = {
@@ -24,6 +25,13 @@ export default _component(() => () => (
           <Code>_value</Code> 就是输入框里的文字，不选建议也行；要从固定的选项里选一个（值是选项的
           value）时用 Combobox。建议可以随输入算出来，配 <Code>filter={'{false}'}</Code>{' '}
           不再本地过滤；没有可选的建议时不弹出列表。写了 <Code>name</Code> 时表单提交的是文字。
+        </Example>
+        <Example id="options" title="对象数据、外观与状态" demo={Options}>
+          建议可以是任意数据，<Code>toOption</Code> 把它映射成选项：<Code>label</Code>{' '}
+          是填进输入框的文字，<Code>description</Code>、<Code>icon</Code>、<Code>group</Code>{' '}
+          照常显示在列表里。<Code>variant</Code>、<Code>size</Code>、<Code>radius</Code>{' '}
+          与其他输入框同一套；必填、出错、只读、不可用可以写在外面的 Field
+          上，也可以直接写在组件上。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

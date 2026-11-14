@@ -9,6 +9,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Approval from './demo/Approval.tsx?demo';
 import Remote from './demo/Remote.tsx?demo';
+import Topics from './demo/Topics.tsx?demo';
 
 export const meta = {
   title: 'Mentions 提及',
@@ -39,6 +40,12 @@ export default _component(() => () => (
           <Code>load</Code> 按 @ 后面的文字搜索（停下 300 ms 后请求，只采用最后一次，被顶掉的请求经
           signal 中止），选项用 <Code>toOption</Code> 映射、<Code>children</Code>{' '}
           自己渲染。搜索换掉选项之后，提及过的人仍按见过的选项认出来。
+        </Example>
+        <Example id="prefix" title="换触发字符、字数与显示" demo={Topics}>
+          <Code>prefix</Code> 换成别的触发字符（# 引用单据、话题），<Code>MentionText</Code> 与{' '}
+          <Code>mentionSegments</Code> 要写同一个。<Code>empty</Code> 是没有匹配时列表里的一句话；
+          <Code>showCount</Code>、<Code>clearable</Code>、<Code>variant</Code>、只读与不可用同
+          Textarea。显示时 <Code>renderMention</Code> 自己渲染一个提及：做成链接、悬停卡片。
         </Example>
       </ExampleColumn>
     </Examples>
