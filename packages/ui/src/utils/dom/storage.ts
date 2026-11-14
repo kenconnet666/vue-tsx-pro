@@ -7,10 +7,12 @@
  * - 存成 JSON；读出来的类型与 initial 不同（改过版本、被手改坏了）时用 initial；对象按字段合并在 initial 上，
  *   新加的字段有默认值
  * - 隐私模式、禁用存储、配额满时读写会抛错：只在这次打开有效
- * - 别的标签页改了同一个键，这里跟着变（storage 事件）；服务端渲染时就是 initial
+ * - 别的标签页改了同一个键，这里跟着变（storage 事件）；服务端渲染时就是 initial，水合时先是 initial（和服务端渲染的
+ *   一致），挂载后换成存的值
  */
-import { ref, watch, type Ref } from 'vue';
+import { onMounted, ref, watch, type Ref } from 'vue';
 import { useEventListener } from './event-listener';
+import { isHydrating } from './mounted';
 
 /** usePersistentState 的选项 */
 export interface PersistentStateOptions<T> {
@@ -55,7 +57,18 @@ export function usePersistentState<T>(
     }
   }
 
-  const state = ref(read()) as Ref<T>;
+  // 水合时先用 initial：直接用存的值渲染，和服务端的节点对不上，存的状态反而显示不出来（见 isHydrating）
+  const stored = read();
+  const hydrating = isHydrating();
+  const state = ref(hydrating ? fallback() : stored) as Ref<T>;
+  if (hydrating) {
+    const rendered = JSON.stringify(state.value);
+    onMounted(() => {
+      // 挂载前组件自己改过的以它为准；存的值和 initial 一样时不动（不白白触发一次渲染）
+      if (JSON.stringify(state.value) === rendered && JSON.stringify(stored) !== rendered)
+        state.value = stored;
+    });
+  }
   watch(
     state,
     (value) => {

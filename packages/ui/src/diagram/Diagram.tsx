@@ -29,7 +29,7 @@
  */
 import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import type { VNodeChild } from 'vue';
+import { onScopeDispose, type VNodeChild } from 'vue';
 import { useMessages } from '../config/lang/messages';
 import { focusRingStyles } from '../utils/style/styles';
 import { t } from '../config/theme/tokens';
@@ -812,8 +812,11 @@ export const Diagram = _component(
     let hovered = _state.raw<string | null>(null);
     // 按着空格：拖动一律平移（框选模式里平移的办法）
     let space = false;
-    // 用户自己动过视口之后，尺寸变化不再自动适应
-    let moved = false;
+    // 上一次自动适应后视口的位置：还停在那里（用户没有用任何办法动过）时，尺寸变化才重新适应
+    let fittedAt: { x: number; y: number; scale: number } | null = null;
+    // 进行中的拖动（节点、连线）：卸载时结束它，不留下边缘平移的动画帧和 Esc 的监听
+    let gesture: (() => void) | null = null;
+    onScopeDispose(() => gesture?.());
 
     /** 没给 children 时的节点：标题是无障碍名称的 DiagramNode */
     const defaultNode = (node: N) => <DiagramNode title={getNodeLabel(node)} />;
@@ -893,7 +896,6 @@ export const Diagram = _component(
                   event.type === 'pointerdown' &&
                   (dragMode === 'select' || (event as PointerEvent).shiftKey)
                 ));
-      if (handles) moved = true;
       return handles;
     }
     internal.filter = handlesViewport;
@@ -903,7 +905,14 @@ export const Diagram = _component(
       const element = root();
       if (!element) return;
       internal.size.value = { width: element.clientWidth, height: element.clientHeight };
-      if (fitView && !moved && element.clientWidth > 0) diagram.fit();
+      const untouched =
+        !fittedAt ||
+        (diagram.x === fittedAt.x && diagram.y === fittedAt.y && diagram.scale === fittedAt.scale);
+      // 拖动、滚轮、键盘、缩放按钮、小地图，动过哪个都算：只要视口不在上次适应的位置就不再自动适应
+      if (fitView && untouched && element.clientWidth > 0) {
+        diagram.fit();
+        fittedAt = { x: diagram.x, y: diagram.y, scale: diagram.scale };
+      }
     });
 
     /** 点了一项：加选键按着时切换它，否则只选它 */
@@ -1087,6 +1096,7 @@ export const Diagram = _component(
           pan.follow(point);
         },
         onEnd: ({ moved: dragged, cancelled }) => {
+          gesture = null;
           pan.stop();
           release();
           const result = drag;
@@ -1097,6 +1107,7 @@ export const Diagram = _component(
           );
         },
       });
+      gesture = cancel;
     }
 
     /**
@@ -1143,6 +1154,7 @@ export const Diagram = _component(
           pan.follow(point);
         },
         onEnd: ({ cancelled }) => {
+          gesture = null;
           pan.stop();
           release();
           link = null;
@@ -1150,6 +1162,7 @@ export const Diagram = _component(
         },
       });
       release = cancelOnEscape(() => cancel());
+      gesture = cancel;
     }
 
     function onKeydown(event: KeyboardEvent) {

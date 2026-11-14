@@ -256,7 +256,10 @@ export const TagsInput = _component(
         }
         if (suggestions() && text && !control().readonly) {
           setOpen(true, 'trigger');
-          list.move('first');
+          // 只能从建议里选时高亮第一条，回车就选它；允许自己输入时不高亮：回车加的是打的字（“java”不该变成
+          // 建议里的“javascript”），要选建议按 ↓（同 Combobox 的 allowCustomValue）
+          if (allowCustomValue) list.setActive(undefined);
+          else list.move('first');
         }
       },
     );

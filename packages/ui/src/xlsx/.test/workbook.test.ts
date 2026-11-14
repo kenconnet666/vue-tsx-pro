@@ -56,6 +56,43 @@ describe('tableToXlsx', () => {
   });
 });
 
+describe('tableToXlsx 的日期', () => {
+  it('时刻（Date、带时区的字符串）按 timeZone 的墙上时间写，不带时区的照字面写', async () => {
+    interface Order {
+      at: Date | string;
+    }
+    const orders: Order[] = [
+      // 东八区 11 月 14 日零点：UTC 是 13 日 16:00，按 UTC 写就差一天
+      { at: new Date('2026-11-13T16:00:00Z') },
+      { at: '2026-11-13T16:30:00Z' },
+      { at: '2026-11-14' },
+      { at: '2026-11-14T09:05' },
+    ];
+    const buffer = await tableToXlsx(
+      [
+        {
+          name: '订单',
+          rows: orders,
+          columns: [{ key: 'at', header: '下单时间', type: 'dateTime' }],
+        },
+      ],
+      { timeZone: 'Asia/Shanghai' },
+    );
+    const workbook = new Workbook();
+    await workbook.xlsx.load(buffer);
+    const sheet = workbook.getWorksheet('订单')!;
+    const written = [2, 3, 4, 5].map((row) =>
+      (sheet.getCell(`A${row}`).value as Date).toISOString(),
+    );
+    expect(written).toEqual([
+      '2026-11-14T00:00:00.000Z',
+      '2026-11-14T00:30:00.000Z',
+      '2026-11-14T00:00:00.000Z',
+      '2026-11-14T09:05:00.000Z',
+    ]);
+  });
+});
+
 describe('readXlsx', () => {
   it('读回：多行表头连成“组 / 列”，合并单元格展开到每一格，换行拆行', async () => {
     const workbook = new Workbook();

@@ -1501,7 +1501,7 @@ export {
   usePrefersMoreContrast,
   useReducedMotion,
 } from './utils/dom/media-query';
-export { useMounted } from './utils/dom/mounted';
+export { isHydrating, useMounted } from './utils/dom/mounted';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {
   openSetter,

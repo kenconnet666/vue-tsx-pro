@@ -67,6 +67,10 @@ export function returnFocus(overlay: HTMLElement, target: Element | null): void 
   if (lost && target instanceof HTMLElement && target.isConnected) target.focus();
 }
 
+/** 等元素被移除最多等多久（ms）：比离场动画长得多，又不至于让观察器一直留着 */
+const REMOVAL_WAIT = 5000;
+let stopPending: (() => void) | undefined;
+
 /**
  * 用户在 element 里点了移除或关闭（Tag 的移除、Alert 与 Toast 的关闭）时、调用回调之前调用：
  * element 随后真的被移除、焦点随之掉到 body 上时，把焦点交给同组（父元素里）的下一个可聚焦元素，
@@ -86,10 +90,17 @@ export function focusAfterRemoval(element: HTMLElement, fallback?: HTMLElement |
     ? [...following, ...preceding, fallback]
     : [...following, ...preceding];
 
+  // 上一次的还在等（那个元素没被移除）：不再等了，观察器不越积越多
+  stopPending?.();
   const stop = () => {
     observer.disconnect();
     element.removeEventListener('focusout', onFocusOut);
+    clearTimeout(timer);
+    if (stopPending === stop) stopPending = undefined;
   };
+  stopPending = stop;
+  // 移除发生在这次操作之后不久（下一次渲染、离场动画结束）；过了这么久还在，就是没被移除（父级没接受）
+  const timer = setTimeout(stop, REMOVAL_WAIT);
   // 焦点被用户移到 element 外面：不再接管
   const onFocusOut = (event: FocusEvent) => {
     const next = event.relatedTarget;

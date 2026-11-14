@@ -12,6 +12,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { UpdateHandlers } from '@zerodep-dev/vue-tsx-pro-tsx/jsx-runtime';
 import { Combobox, type ComboboxBaseProps, type ComboboxProps } from './Combobox';
+import { FieldLayoutContext } from '../form/field-layout';
 import { FormValue } from '../form/FormValue';
 import type { ListboxOption, OptionMapping } from './list-state';
 import type { OptionsLoader } from './remote-items';
@@ -32,8 +33,10 @@ export type AutocompleteProps<T = ListboxOption> = Omit<
 
 /** 自动完成：带建议的输入框，值就是文字 */
 export const Autocomplete = _component(
-  <T,>({ _value: value = _bindable(''), name, ...rest }: AutocompleteProps<T>) =>
-    () => (
+  <T,>({ _value: value = _bindable(''), name, ...rest }: AutocompleteProps<T>) => {
+    // 所在的 Field、Form 整组不可用时，隐藏的 input 也不随原生表单提交（同不可用的原生控件）
+    const layout = FieldLayoutContext.inject(null);
+    return () => (
       <>
         <Combobox
           {...(rest as ComboboxProps<T> & UpdateHandlers<ComboboxProps<T>>)}
@@ -42,7 +45,8 @@ export const Autocomplete = _component(
           showToggle={false}
           hideEmpty
         />
-        <FormValue name={name} value={value || null} disabled={rest.disabled} />
+        <FormValue name={name} value={value || null} disabled={rest.disabled || layout?.disabled} />
       </>
-    ),
+    );
+  },
 );

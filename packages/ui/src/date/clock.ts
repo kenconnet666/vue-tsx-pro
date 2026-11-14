@@ -12,6 +12,7 @@
  * （参考 Nuxt 的 NuxtTime）。
  */
 import { getCurrentInstance, onMounted, onScopeDispose, shallowRef, watch, type Ref } from 'vue';
+import { isHydrating } from '../utils/dom/mounted';
 import { usePageVisible } from '../utils/dom/page-visibility';
 
 const NOW_ATTR = 'data-now';
@@ -21,9 +22,10 @@ export const nowAttrs = (now: number) => ({ [NOW_ATTR]: now });
 
 /** 正在水合时，服务端渲染的根元素上记下的“现在”；不是水合（客户端渲染、服务端）时为 undefined */
 function hydratingNow(): number | undefined {
-  // 水合时组件的 vnode.el 在 setup 之前就指向服务端渲染的节点；服务端没有 Element，按 nodeType 判断
-  const el = getCurrentInstance()?.vnode.el as Element | null | undefined;
-  const value = el?.nodeType === 1 ? el.getAttribute(NOW_ATTR) : null;
+  if (!isHydrating()) return undefined;
+  // 根节点可能不是元素（片段的注释节点）：按 nodeType 判断
+  const el = getCurrentInstance()!.vnode.el as Element;
+  const value = el.nodeType === 1 ? el.getAttribute(NOW_ATTR) : null;
   return value == null ? undefined : Number(value);
 }
 

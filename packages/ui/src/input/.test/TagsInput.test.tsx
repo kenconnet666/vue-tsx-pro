@@ -69,6 +69,41 @@ describe('TagsInput', () => {
     expect(tags(root)).toEqual(['a', 'c', 'd']);
   });
 
+  it('有建议时回车：允许自己输入的加打的字（不变成第一条建议），只能从建议里选的选第一条', async () => {
+    let free = _state<string[]>([]);
+    let strict = _state<string[]>([]);
+    const root = mount(() => (
+      <>
+        <TagsInput _value={free} items={['javascript', 'java']} aria-label="技能" />
+        <TagsInput
+          _value={strict}
+          items={['javascript', 'java']}
+          allowCustomValue={false}
+          aria-label="语言"
+        />
+      </>
+    ));
+    const [first, second] = root.querySelectorAll('input');
+    await type(first!, 'jav');
+    await nextTick();
+    press(first!, 'Enter');
+    await nextTick();
+    expect(free).toEqual(['jav']);
+    // 要选建议：按 ↓ 再回车
+    await type(first!, 'javas');
+    await nextTick();
+    press(first!, 'ArrowDown');
+    press(first!, 'Enter');
+    await nextTick();
+    expect(free).toEqual(['jav', 'javascript']);
+
+    await type(second!, 'jav');
+    await nextTick();
+    press(second!, 'Enter');
+    await nextTick();
+    expect(strict).toEqual(['javascript']);
+  });
+
   it('只读时粘贴不加标签；从建议里选的也受 max 限制', async () => {
     let locked = _state<string[]>(['a']);
     let cities = _state<string[]>(['北京']);

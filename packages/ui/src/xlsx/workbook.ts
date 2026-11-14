@@ -14,6 +14,7 @@
  * - 多行表头（headerRows）连成“组 / 列”；公式取结果，富文本、链接取文字；
  * - splitLines：这些列的单元格里有换行时拆成几行。
  */
+import { fromDate, getLocalTimeZone } from '@internationalized/date';
 import { Workbook, type CellValue, type Worksheet } from 'exceljs';
 import { plainText } from '../utils/data/text';
 import { downloadFile } from '../utils/dom/download';
@@ -54,6 +55,11 @@ export interface XlsxExportOptions {
   locale?: string;
   /** 合计行第一列的文字，默认“合计” */
   summaryLabel?: string;
+  /**
+   * 时刻（Date 实例、带时区的 ISO 字符串）按哪个时区的墙上时间写进表格，默认浏览器的时区；跟随语言时传 lang.timeZone。
+   * 不带时区的日期（'2026-11-14'、CalendarDate）原样写
+   */
+  timeZone?: string;
 }
 
 /** 读取的选项 */
@@ -79,10 +85,23 @@ function numberFormat(
   return undefined;
 }
 
-/** 日期值（Date、ISO 字符串、@internationalized/date 的日期）→ Excel 的日期（按 UTC 写，打开时不偏一天） */
-function toExcelDate(value: SortValue): Date | undefined {
-  if (value instanceof Date) return value;
+/** 时刻 → 它在 timeZone 里的墙上时间（年月日时分秒放进 UTC 的字段里：Excel 的日期没有时区，照字段显示） */
+function wallClock(instant: Date, timeZone: string): Date | undefined {
+  if (Number.isNaN(instant.getTime())) return undefined;
+  const local = fromDate(instant, timeZone);
+  return new Date(
+    Date.UTC(local.year, local.month - 1, local.day, local.hour, local.minute, local.second),
+  );
+}
+
+/**
+ * 日期值（Date、ISO 字符串、@internationalized/date 的日期）→ Excel 的日期。Excel 的日期没有时区，照写进去的字段显示：
+ * 不带时区的按字面写；时刻（Date、带 Z 或偏移的字符串）换成 timeZone 的墙上时间，和页面上看到的一致
+ */
+function toExcelDate(value: SortValue, timeZone: string): Date | undefined {
+  if (value instanceof Date) return wallClock(value, timeZone);
   if (typeof value === 'string') {
+    if (/T.*(?:Z|[+-]\d{2}:?\d{2})$/i.test(value)) return wallClock(new Date(value), timeZone);
     const match = /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/.exec(value);
     if (!match) return undefined;
     const [, y, m, d, hh = '0', mm = '0'] = match;
@@ -108,6 +127,7 @@ function cellValue<T>(
   column: DataTableColumn<T>,
   type: keyof ColumnTypes,
   value: SortValue,
+  timeZone: string,
 ): CellValue {
   if (value == null || value === '') return null;
   if (column.statuses && typeof value === 'string') return column.statuses.label(value);
@@ -116,7 +136,7 @@ function cellValue<T>(
     if (Number.isNaN(number)) return String(value);
     return column.format?.scale ? number / column.format.scale : number;
   }
-  if (type === 'date' || type === 'dateTime') return toExcelDate(value) ?? String(value);
+  if (type === 'date' || type === 'dateTime') return toExcelDate(value, timeZone) ?? String(value);
   if (typeof value === 'boolean') return value;
   return String(value);
 }
@@ -161,7 +181,12 @@ function writeHeader<T>(
 /** 表 → .xlsx 文件的内容（ArrayBuffer）；下载用 exportXlsx */
 export async function tableToXlsx<T>(
   sheets: readonly XlsxSheet<T>[],
-  { currency = 'CNY', locale = 'zh-CN', summaryLabel = '合计' }: XlsxExportOptions = {},
+  {
+    currency = 'CNY',
+    locale = 'zh-CN',
+    summaryLabel = '合计',
+    timeZone = getLocalTimeZone(),
+  }: XlsxExportOptions = {},
 ): Promise<ArrayBuffer> {
   const symbol =
     new Intl.NumberFormat(locale, { style: 'currency', currency })
@@ -174,14 +199,18 @@ export async function tableToXlsx<T>(
     const headerRows = writeHeader(sheet, columns, groups);
     for (const row of rows)
       sheet.addRow(
-        columns.map((column, index) => cellValue(column, types[index]!, columnValue(column, row))),
+        columns.map((column, index) =>
+          cellValue(column, types[index]!, columnValue(column, row), timeZone),
+        ),
       );
     if (columns.some((column) => column.summary === 'sum')) {
       const summary = sheet.addRow(
         columns.map((column, index) => {
           if (column.summary === 'sum') {
             const total = sumColumn(column, rows);
-            return total == null ? null : cellValue(column, types[index]!, total as SortValue);
+            return total == null
+              ? null
+              : cellValue(column, types[index]!, total as SortValue, timeZone);
           }
           return index === 0 ? summaryLabel : null;
         }),

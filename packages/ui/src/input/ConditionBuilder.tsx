@@ -26,6 +26,7 @@ import { Button, type ButtonProps } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { Small } from '../base/Text';
 import { useLang } from '../config/context';
+import { FieldLayoutContext } from '../form/field-layout';
 import { t } from '../config/theme/tokens';
 import { DatePicker } from '../date/DatePicker';
 import { DateRangePicker } from '../date/DateRangePicker';
@@ -256,7 +257,7 @@ export const ConditionBuilder = _component(
     _value: value = _bindable<Condition | null>(null),
     maxDepth = 2,
     size,
-    disabled = false,
+    disabled: ownDisabled = false,
     propsGroup,
     propsRule,
     propsAddRule,
@@ -266,6 +267,10 @@ export const ConditionBuilder = _component(
     ...rest
   }: ConditionBuilderProps) => {
     const lang = useLang();
+    // 所在的 Field、Form 整组不可用或只读时：里面的控件各自跟着，增删条件、分组的按钮由这里管
+    const layout = FieldLayoutContext.inject(null);
+    const disabled = _derived(ownDisabled || !!layout?.disabled);
+    const locked = _derived(disabled || !!layout?.readonly);
     let element: HTMLElement | null = null;
     // 初始值只取一次，之后由下面的 watch 跟随父级
     const initial = _untrack(value);
@@ -490,7 +495,7 @@ export const ConditionBuilder = _component(
             {...mergePartProps<IconButtonProps>(
               { icon: X, variant: 'ghost', size, 'aria-label': lang.conditionRemoveRule },
               propsRemoveRule,
-              { disabled, onClick: () => remove(parent, node) },
+              { disabled: locked, onClick: () => remove(parent, node) },
             )}
           />
         </div>
@@ -540,7 +545,7 @@ export const ConditionBuilder = _component(
                       sx: conditionBuilderStyles.removeGroup,
                     },
                     propsRemoveGroup,
-                    { disabled, onClick: () => remove(parent, node) },
+                    { disabled: locked, onClick: () => remove(parent, node) },
                   )}
                 />
               )}
@@ -583,7 +588,7 @@ export const ConditionBuilder = _component(
                 { variant: 'ghost', size, icon: Plus },
                 propsAddRule,
                 {
-                  disabled,
+                  disabled: locked,
                   onClick: () => addRule(node),
                 },
               )}
@@ -596,7 +601,7 @@ export const ConditionBuilder = _component(
                   { variant: 'ghost', size, icon: Plus },
                   propsAddGroup,
                   {
-                    disabled,
+                    disabled: locked,
                     onClick: () => addGroup(node),
                   },
                 )}
