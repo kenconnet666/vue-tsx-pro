@@ -1,4 +1,5 @@
-// 前置图标、个数上限、外观与状态；Field 的 required、readonly、disabled 交给里面的输入框
+// 前置图标、个数上限、外观与状态；Field 的 required、readonly、disabled 交给里面的输入框。
+// acceptOnBlur 关掉后，失焦时没确认的文字留在框里，不自动变成标签（收件人这类要确认的输入）
 import { Hash } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Field, Grid, TagsInput } from '@zerodep-dev/vue-tsx-pro-ui';
@@ -6,6 +7,7 @@ import { Field, Grid, TagsInput } from '@zerodep-dev/vue-tsx-pro-ui';
 export default _component(() => {
   let topics = _state<string[]>(['vue', 'tsx']);
   let keywords = _state<string[]>([]);
+  let recipients = _state<string[]>(['lin@company.cn']);
   return () => (
     <Grid minItemWidth="16rem" gap="lg">
       <Field label="话题" description={`最多 3 个，已有 ${topics.length} 个`}>
@@ -13,6 +15,15 @@ export default _component(() => {
       </Field>
       <Field label="关键词" required error={keywords.length ? undefined : '至少填一个关键词'}>
         <TagsInput _value={keywords} variant="soft" placeholder="逗号或分号分隔" />
+      </Field>
+      <Field label="收件人" description="回车才算一个；失焦时没确认的文字留在框里">
+        <TagsInput
+          _value={recipients}
+          acceptOnBlur={false}
+          radius="full"
+          name="to"
+          placeholder="邮箱，回车确认"
+        />
       </Field>
       <Field label="只读" readonly>
         <TagsInput _value={['设计', '前端']} />

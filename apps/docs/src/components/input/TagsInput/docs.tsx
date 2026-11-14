@@ -30,7 +30,10 @@ export default _component(() => () => (
       <ExampleColumn>
         <Example id="states" title="上限、图标与状态" demo={States}>
           <Code>max</Code> 限制个数，满了以后输入框不再接受新的标签。<Code>icon</Code>、
-          <Code>variant</Code>、<Code>size</Code> 与其他输入框同一套；只读时标签不能移除。
+          <Code>variant</Code>、<Code>size</Code>、<Code>radius</Code>{' '}
+          与其他输入框同一套；只读时标签不能移除。失焦时输入框里没确认的文字默认加成标签，
+          <Code>acceptOnBlur={'{false}'}</Code> 时留在框里；写了 <Code>name</Code>{' '}
+          随原生表单提交（每个值一个隐藏的 input）。
         </Example>
         <Example id="remote" title="异步建议" demo={Remote}>
           <Code>_inputValue</Code> 双向绑定输入框的文字，按它请求建议；

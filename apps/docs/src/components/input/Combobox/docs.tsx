@@ -8,6 +8,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Cities from './demo/Cities.tsx?demo';
 import Freeform from './demo/Freeform.tsx?demo';
+import Submit from './demo/Submit.tsx?demo';
 
 export const meta = {
   title: 'Combobox 输入选择',
@@ -32,6 +33,13 @@ export default _component(() => () => (
           <Code>allowCustomValue</Code> 允许输入选项里没有的文字：失焦时保留，<Code>_value</Code> 为
           undefined、文字在 <Code>_inputValue</Code> 里。<Code>icon</Code>、<Code>variant</Code>、
           <Code>radius</Code> 与只读、不可用同其他输入框。
+        </Example>
+        <Example id="submit" title="表单提交与自定义匹配" demo={Submit}>
+          写了 <Code>name</Code> 就随原生表单提交：提交的是选中项的值（隐藏的
+          input），不是输入框里显示的文字。
+          <Code>filter</Code> 给函数时自己决定哪些项匹配（按编号、拼音、别名）；选项可以是任意数据，
+          <Code>toOption</Code> 映射成值、文字与说明。<Code>showToggle={'{false}'}</Code>{' '}
+          去掉展开按钮；必填没选时把错误交给外面的 Field。
         </Example>
       </ExampleColumn>
     </Examples>

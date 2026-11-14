@@ -7,6 +7,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Category from './demo/Category.tsx?demo';
+import Display from './demo/Display.tsx?demo';
 import Lazy from './demo/Lazy.tsx?demo';
 import Region from './demo/Region.tsx?demo';
 
@@ -37,6 +38,13 @@ export default _component(() => () => (
         <Example id="change-on-select" title="选到任意一级" demo={Category}>
           <Code>changeOnSelect</Code> 时点任何一级都选中它（弹出层不关，可以继续往下选），
           <Code>isDisabled</Code> 的项不能选也不能进入，<Code>separator</Code> 换路径分隔。
+        </Example>
+        <Example id="display" title="显示、搜索的匹配与状态" demo={Display}>
+          <Code>renderValue</Code>{' '}
+          自己画触发框里的内容，参数是路径上各级的文字与节点（只显示最后一级、加图标、把前几级淡化）。
+          <Code>filter</Code> 决定搜索时一条路径算不算匹配，参数是路径上的节点与输入。
+          <Code>variant</Code>、<Code>radius</Code> 与必填、只读、不可用同其他输入框，可以写在外面的
+          Field 上。
         </Example>
         <Example id="lazy" title="按级取回" demo={Lazy}>
           <Code>hasChildren</Code> 声明有下一级，进入时 <Code>loadChildren</Code>{' '}
