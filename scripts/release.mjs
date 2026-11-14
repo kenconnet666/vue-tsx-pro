@@ -47,22 +47,28 @@ const gh = (...args) => JSON.parse(execFileSync('gh', args, { cwd: root, encodin
  */
 async function waitForCi(head) {
   const wait = process.argv.includes('--wait');
+  // 连着查不到（网络抖动、GitHub 接口超时）几次才算失败：等二十分钟的途中断一次不该让整个发版退出
+  let unreachable = 0;
   for (;;) {
-    const [run] = gh(
-      'run',
-      'list',
-      '--commit',
-      head,
-      '--workflow',
-      'ci.yml',
-      '--json',
-      'databaseId',
-    );
-    const jobs = run
-      ? gh('run', 'view', String(run.databaseId), '--json', 'jobs').jobs.filter(
-          (job) => !REPORT_ONLY.has(job.name),
-        )
-      : [];
+    let run, jobs;
+    try {
+      [run] = gh('run', 'list', '--commit', head, '--workflow', 'ci.yml', '--json', 'databaseId');
+      jobs = run
+        ? gh('run', 'view', String(run.databaseId), '--json', 'jobs').jobs.filter(
+            (job) => !REPORT_ONLY.has(job.name),
+          )
+        : [];
+      unreachable = 0;
+    } catch (error) {
+      unreachable += 1;
+      if (!wait || unreachable >= 10) throw error;
+      const reason = String(error.stderr ?? error.message)
+        .trim()
+        .split(/\r?\n/)[0];
+      console.log(`查不到 CI 的状态（第 ${unreachable} 次），30 秒后再试：${reason}`);
+      await new Promise((resolve) => setTimeout(resolve, 30_000));
+      continue;
+    }
     const failed = jobs.filter((job) => job.status === 'completed' && job.conclusion !== 'success');
     if (failed.length)
       fail(`HEAD（${head.slice(0, 8)}）的 CI 没通过：${failed.map((job) => job.name).join('、')}`);
