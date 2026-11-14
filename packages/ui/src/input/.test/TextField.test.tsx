@@ -151,6 +151,35 @@ describe('前后缀与字数计数', () => {
     expect(document.getElementById(ids[1]!)!.querySelector('[aria-hidden]')!.textContent).toBe('3');
   });
 
+  it('Textarea：清空与计数都有时叠在同一列（清空在上、计数在下）；清空后计数的节点还是原来那个', async () => {
+    const value = shallowRef('abc');
+    const root = mount(() => (
+      <Textarea
+        _value={value.value}
+        onUpdate:_value={(next: string) => (value.value = next)}
+        clearable
+        showCount
+        aria-label="备注"
+      />
+    ));
+    const textarea = root.querySelector('textarea')!;
+    const count = document.getElementById(textarea.getAttribute('aria-describedby')!)!;
+    const clear = root.querySelector('button')!;
+    expect(clear.parentElement).toBe(count.parentElement);
+    expect(clear.parentElement).not.toBe(textarea.parentElement);
+    expect(clear.compareDocumentPosition(count) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    clear.click();
+    await nextTick();
+    expect(value.value).toBe('');
+    expect(root.querySelector('button')).toBeNull();
+    expect(document.getElementById(textarea.getAttribute('aria-describedby')!)).toBe(count);
+    // 只有计数时不多包一层（两个应用各自编号，id 会重：在各自的容器里找）
+    const plain = mount(() => <Textarea _value="abc" showCount aria-label="备注" />);
+    const only = plain.querySelector('textarea')!;
+    const onlyCount = plain.querySelector(`[id="${only.getAttribute('aria-describedby')}"]`)!;
+    expect(onlyCount.parentElement).toBe(only.parentElement);
+  });
+
   it('CharacterCount 的部件属性：看得见的字数始终对读屏隐藏，读屏的句子另是一个部件', () => {
     const root = mount(() => (
       <CharacterCount

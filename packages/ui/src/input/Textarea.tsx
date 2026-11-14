@@ -53,7 +53,7 @@ export interface TextareaProps extends PartProps<'textarea', TextareaManaged>, C
   propsCount?: Partial<CharacterCountProps>;
 }
 
-/** Textarea 的样式：textarea、fixed、count、clear */
+/** Textarea 的样式：textarea、fixed、count、clear、trailing、stackedClear、stackedCount */
 const textareaStyles = css.create({
   // 随外壳拉伸：外壳给了高度（propsRoot 的 height）时文字区占满，不停在基线上
   // 原生控件换不了浮层滚动条：改细，滑块取浮层滚动条（scrollAreaBarStyles.thumb）的颜色
@@ -69,6 +69,16 @@ const textareaStyles = css.create({
   count: { alignSelf: 'flex-end', paddingBlockEnd: '_xs' },
   // 清空按钮贴在第一行（多行时不随内容居中）
   clear: { alignSelf: 'flex-start', marginBlockStart: '_xs' },
+  // 清空与计数都有：叠在结束边的同一列（清空在上、计数在下），不各占一列把清空按钮挤到计数左边
+  trailing: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    alignSelf: 'stretch',
+    flexShrink: 0,
+  },
+  stackedClear: { alignSelf: 'flex-end' },
+  stackedCount: { marginBlockStart: 'auto' },
 });
 
 // 行数是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
@@ -137,6 +147,38 @@ export const Textarea = _component(
       const s = controlParts(appearance(), state, true);
       const limit = rest.maxlength ?? state.constraints.maxLength;
       const describedBy = [state.describedBy, showCount && countId].filter(Boolean).join(' ');
+      // 清空与计数都有时叠成一列；按属性定（不按此刻有没有清空按钮），输入、清空时计数的节点不重建
+      const stacked = clearable && showCount;
+      const clear =
+        clearable &&
+        value &&
+        !state.disabled &&
+        !state.readonly &&
+        // 使用方的 sx 接在贴顶的样式之后，不把它整个换掉
+        controlClear(
+          s,
+          {
+            ...propsClear,
+            sx: [textareaStyles.clear, stacked && textareaStyles.stackedClear, propsClear?.sx],
+          },
+          () => {
+            value = '';
+            textarea?.focus();
+          },
+        );
+      const count = showCount && (
+        <CharacterCount
+          {...mergePartProps<CharacterCountProps>(
+            {
+              sx: [textareaStyles.count, stacked && textareaStyles.stackedCount],
+              count: value.length,
+              max: limit == null ? undefined : Number(limit),
+            },
+            propsCount,
+            { id: countId },
+          )}
+        />
+      );
       return (
         <div
           {...mergeAttrs<'div'>(s.root, propsRoot)}
@@ -171,27 +213,13 @@ export const Textarea = _component(
             )}
             _value={value}
           />
-          {clearable &&
-            value &&
-            !state.disabled &&
-            !state.readonly &&
-            // 使用方的 sx 接在贴顶的样式之后，不把它整个换掉
-            controlClear(s, { ...propsClear, sx: [textareaStyles.clear, propsClear?.sx] }, () => {
-              value = '';
-              textarea?.focus();
-            })}
-          {showCount && (
-            <CharacterCount
-              {...mergePartProps<CharacterCountProps>(
-                {
-                  sx: textareaStyles.count,
-                  count: value.length,
-                  max: limit == null ? undefined : Number(limit),
-                },
-                propsCount,
-                { id: countId },
-              )}
-            />
+          {stacked ? (
+            <span {...css.attrs(textareaStyles.trailing)}>
+              {clear}
+              {count}
+            </span>
+          ) : (
+            [clear, count]
           )}
         </div>
       );

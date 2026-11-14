@@ -147,7 +147,7 @@ export default _component(() => {
       <Flex direction="column" gap="sm">
         <Flex gap="md" align="center" wrap>
           <Select _value={placement} items={placements} size="sm" aria-label="想要的位置" />
-          <Switch _value={crossAxisFallback} size="sm">
+          <Switch _checked={crossAxisFallback} size="sm">
             上下都放不下时试左右（crossAxisFallback）
           </Switch>
         </Flex>

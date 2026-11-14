@@ -45,7 +45,7 @@ export default _component(() => {
   return () => (
     <Card>
       <Flex direction="column" gap="lg">
-        <Switch _value={readonly} description="关掉后可以修改并重新提交">
+        <Switch _checked={readonly} description="关掉后可以修改并重新提交">
           只读回看
         </Switch>
         <StepsForm
