@@ -40,11 +40,14 @@ export const collapseStyles = css.create({
   root: {
     display: 'grid',
     gridTemplateRows: '0fr',
+    // 这一列就是容器的宽度，不随内容：不写的话列宽按内容算，展开后（不再裁溢出）里面最长的一行代码、一张宽表格
+    // 会把整块撑到比容器还宽，外层一裁就既看不全也滚不了
+    gridTemplateColumns: 'minmax(0, 1fr)',
     transition: `grid-template-rows ${t.durations.md} ${t.easings.standard}`,
   },
   open: { gridTemplateRows: '1fr' },
-  // 网格项默认的最小高度是内容高度，要设为 0 才能收到 0fr
-  content: { minHeight: 0, overflow: 'hidden' },
+  // 网格项默认的最小高度、最小宽度是内容的，要设为 0 才能收到 0fr、才不被内容撑宽
+  content: { minHeight: 0, minWidth: 0, overflow: 'hidden' },
   expanded: { overflow: 'visible' },
 });
 
