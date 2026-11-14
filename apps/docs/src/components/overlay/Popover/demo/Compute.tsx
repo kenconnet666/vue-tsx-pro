@@ -3,6 +3,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
+  ButtonBase,
   clamp,
   computePlacement,
   Flex,
@@ -49,8 +50,6 @@ const styles = css.create({
     position: 'absolute',
     display: 'grid',
     placeItems: 'center',
-    padding: 0,
-    borderStyle: 'none',
     borderRadius: '_sm',
     backgroundColor: '_accentSoft',
     color: '_accentText',
@@ -153,9 +152,9 @@ export default _component(() => {
           </Switch>
         </Flex>
         <div ref={_toRef(stage)} {...css.attrs(styles.stage)}>
-          <button
-            type="button"
-            {...css.attrs(styles.anchor)}
+          <ButtonBase
+            sx={styles.anchor}
+            ripple={false}
             style={{
               left: `${at.x}px`,
               top: `${at.y}px`,
@@ -170,7 +169,7 @@ export default _component(() => {
             onKeydown={onKeydown}
           >
             锚点
-          </button>
+          </ButtonBase>
           <div
             {...css.attrs(styles.panel)}
             style={{
