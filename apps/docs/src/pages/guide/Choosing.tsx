@@ -59,6 +59,11 @@ const sections: { id: string; title: string; intro: string; rows: Choice[] }[] =
         note: '同原生 select；选项多时 searchable，远程的给 load（可以分页）。',
       },
       {
+        need: '主要在手机上用、选项只是几行文字',
+        use: [['NativeSelect', 'select']],
+        note: '原生 select 套上输入框的外壳：弹出的是系统的滚轮或列表；要图标、搜索、多选用 Select。',
+      },
+      {
         need: '边输入边筛选，也能输入列表里没有的',
         use: [['Combobox', 'combobox']],
         note: 'Select 只能选列表里有的；Combobox 的值就是输入框里的文字。',
@@ -116,6 +121,11 @@ const sections: { id: string; title: string; intro: string; rows: Choice[] }[] =
         need: '文字、多行文字',
         use: [['TextField、Textarea', 'text-field']],
         note: '字数限制用 CharacterCount；只读展示用 Text，不要用禁用的输入框。',
+      },
+      {
+        need: '搜索框',
+        use: [['SearchField', 'text-field']],
+        note: '带搜索图标与清空按钮；onSearch 只在停手、回车、清空时调用，直接拿去发请求。',
       },
       {
         need: '数字、金额、区间',
@@ -289,6 +299,14 @@ const sections: { id: string; title: string; intro: string; rows: Choice[] }[] =
           ['Checklist', 'checklist'],
         ],
         note: '一组数字用 Stat（可带趋势小图）；审批、物流记录用 Timeline；待办与完成情况用 Checklist。',
+      },
+      {
+        need: '图片、视频、嵌入的页面',
+        use: [
+          ['Image', 'image'],
+          ['Figure、Video、Embed', 'figure'],
+        ],
+        note: 'Image 带加载态、预览与多种格式；Video、Embed 定好宽高比先占位；要图题、表题时外面套 Figure。',
       },
     ],
   },

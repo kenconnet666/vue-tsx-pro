@@ -31,7 +31,7 @@
   （手机上是滚轮或底部列表）。`items` 同 Select 的选项（字符串或 `{ value, label, group, disabled }`，`group` 排进 `optgroup`），
   `placeholder` 是第一条选不了的占位项，`readonly` 时换不了别的选项。要图标、搜索、多选、远程加载仍用 `Select`。
 - **Video** 新增 `controls="custom"`：跟主题走的自绘控制条——播放 / 暂停、时间与进度、静音与音量、字幕（有 `tracks` 时）、
-  倍速（`speeds`）、全屏；播放中鼠标不动几秒后收起，点画面切换播放；焦点在播放器里时 Space / K、← →、↑ ↓、M、F 可用。
+  倍速（`speeds`）、全屏；播放中鼠标离开画面或几秒不动就收起，点画面切换播放；焦点在播放器里时 Space / K、← →、↑ ↓、M、F 可用。
   默认仍是浏览器自己的控制条。文案新增 12 条：`videoPlay`、`videoPause`、`videoMute`、`videoUnmute`、`videoVolume`、
   `videoSeek`、`videoTime`、`videoSpeed`、`videoCaptions`、`videoCaptionsOff`、`videoFullscreen`、`videoExitFullscreen`
   （自己写语言包的要补上）。

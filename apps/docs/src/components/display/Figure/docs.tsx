@@ -49,12 +49,12 @@ export default _component(() => () => (
           <Code>Video</Code> 用浏览器自己的控制条，外面是定比例的框（<Code>ratio</Code>
           ），画面完整放进去、四周黑底；<Code>poster</Code> 是封面，<Code>sources</Code>{' '}
           给几种格式，<Code>tracks</Code> 是字幕。<Code>autoplay</Code>{' '}
-          默认静音、行内播放，系统要求减少动态效果时不自动播放并显示控制条。倍速、清晰度这类自绘的控制条不在这里。
+          默认静音、行内播放，系统要求减少动态效果时不自动播放并显示控制条。要倍速、跟主题走的控制条见下一个示例。
         </Example>
         <Example id="player" title="自绘的控制条" demo={Player}>
           <Code>controls="custom"</Code> 换成跟主题走的控制条：播放 /
           暂停、时间与进度、静音与音量、字幕（有 <Code>tracks</Code> 时）、倍速（<Code>speeds</Code>
-          ）、全屏。播放中鼠标不动几秒后收起，暂停、移动鼠标、键盘聚焦时出现；点画面切换播放。各家浏览器的原生控制条长得不一样，要统一外观时用它；只要能播，默认的原生控制条更稳。
+          ）、全屏。播放中鼠标离开画面、或几秒不动就收起，暂停、移动鼠标、键盘聚焦、菜单开着时留着；点画面切换播放。各家浏览器的原生控制条长得不一样，要统一外观时用它；只要能播，默认的原生控制条更稳。
         </Example>
         <Example id="ratio" title="固定宽高比" demo={Ratio}>
           <Code>AspectRatio</Code> 的宽度跟着容器，高度按比例算，里面的元素铺满它（图片、视频按

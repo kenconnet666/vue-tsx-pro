@@ -15,7 +15,7 @@
  * - 画面按 contain 放进框里（不裁切），四周是黑底；不要固定比例时把 ratio 写成 null，按视频自己的尺寸。
  * - 默认只预加载元数据（preload="metadata"）；其余原生属性（loop、muted、crossorigin……）照常落到 video 上。
  * - controls="custom"：播放 / 暂停、进度、时间、静音与音量、字幕（有 tracks 时）、倍速、全屏，样式跟主题；
- *   播放中鼠标不动几秒后收起，暂停、聚焦、移动鼠标时出现。点画面切换播放。键盘见文档的键盘一节。
+ *   播放中鼠标离开画面、或几秒不动就收起；暂停、移动鼠标、键盘聚焦、菜单开着时留着。点画面切换播放。键盘见文档的键盘一节。
  *   各家浏览器的原生控制条长得不一样、也不跟主题：要统一外观时用它；只要能播，用默认的原生控制条更稳。
  *
  * 部件：Root（AspectRatio 的 div）、Media（video）、Controls（控制条）、Play、Time、Seek、Mute、Volume、Captions、Speed、Fullscreen。

@@ -8,6 +8,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
+import Compute from './demo/Compute.tsx?demo';
 import Placements from './demo/Placements.tsx?demo';
 import Profile from './demo/Profile.tsx?demo';
 import Share from './demo/Share.tsx?demo';
@@ -50,6 +51,15 @@ export default _component(() => () => (
         <Example id="placement" title="位置与箭头" demo={Placements}>
           <Code>placement</Code> 是边加对齐，共 12 种；空间不够时自动翻到另一边、贴着视口平移。
           <Code>arrow</Code> 显示指向触发器的小箭头。
+        </Example>
+        <Example id="compute" title="自己算位置" demo={Compute}>
+          组件用的定位规则是一个纯函数 <Code>computePlacement</Code>
+          ：给锚点的矩形、浮层的大小和边界，返回左上角、最后落在哪一侧、箭头的位置与可用高度，不碰
+          DOM。想要的一侧放不下换对侧，都放不下选空间大的一侧，再沿边缘挪回边界里。自己写贴着元素的浮层用{' '}
+          <Code>anchorFloating(anchor, floating, options)</Code>
+          ：它量尺寸、写位置，滚动、尺寸变化时重新定位，关闭时调返回的 <Code>stop</Code>
+          ；锚点可以是元素，也可以是只有位置的虚拟锚点（指针的位置用 <Code>pointAnchor(x, y)</Code>
+          ）。只要“位置可能变了”的通知时用 <Code>autoUpdate</Code>。
         </Example>
         <Example id="timing" title="显示的时机" demo={Timing}>
           Tooltip 的 <Code>delay</Code> 是指针停多久才显示（默认 500
