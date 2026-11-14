@@ -66,3 +66,36 @@ it.skipIf(!canPlay)(
     expect(bar.dataset.state).toBe('visible');
   },
 );
+
+it('不用真的播起来的部分（三个浏览器都跑）：没有原生控制条；M 静音；字幕、倍速菜单写到 video 上', async () => {
+  const root = mount(Player);
+  const video = root.querySelector('video')!;
+  const frame = root.querySelector<HTMLElement>('[data-scope="video"][data-part="root"]')!;
+  const button = (name: string) => frame.querySelector<HTMLElement>(`button[aria-label="${name}"]`);
+  const pick = async (text: string) => {
+    const option = () =>
+      [...document.querySelectorAll<HTMLElement>('[role="menuitemradio"]')].find(
+        (item) => item.textContent === text,
+      );
+    await expect.poll(option).toBeTruthy();
+    await userEvent.click(option()!);
+  };
+  expect(video.controls).toBe(false);
+  expect(['播放', '静音', '字幕', '播放速度'].every((name) => button(name) != null)).toBe(true);
+
+  // 点静音按钮（焦点进了播放器），再按 M 取消
+  await userEvent.click(button('静音')!);
+  await expect.poll(() => video.muted).toBe(true);
+  await userEvent.keyboard('m');
+  await expect.poll(() => video.muted).toBe(false);
+
+  await userEvent.click(button('播放速度')!);
+  await pick('2×');
+  await expect.poll(() => video.playbackRate).toBe(2);
+
+  await userEvent.click(button('字幕')!);
+  await pick('English');
+  await expect
+    .poll(() => [...video.textTracks].map((track) => track.mode))
+    .toEqual(['disabled', 'showing']);
+});

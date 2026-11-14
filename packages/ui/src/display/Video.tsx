@@ -179,6 +179,17 @@ function clock(seconds: number): string {
     : `${minutes}:${pad(total % 60)}`;
 }
 
+/**
+ * 总时长（秒）。直播、边录边播的片段没有时长（Infinity）：取能跳到的最远处；也没有时是 0——
+ * 进度条不可用，时间只显示已经播了多久
+ */
+function lengthOf(element: HTMLVideoElement): number {
+  if (Number.isFinite(element.duration)) return element.duration;
+  const { seekable } = element;
+  const end = seekable?.length ? seekable.end(seekable.length - 1) : 0;
+  return Number.isFinite(end) ? end : 0;
+}
+
 /** 视频：定比例、封面、多种格式、字幕；原生或自绘的控制条 */
 export const Video = _component(
   ({
@@ -244,7 +255,7 @@ export const Video = _component(
       if (!element) return;
       playing = !element.paused && !element.ended;
       current = element.currentTime;
-      duration = Number.isFinite(element.duration) ? element.duration : 0;
+      duration = lengthOf(element);
       volume = element.volume;
       muted = element.muted;
       speed = element.playbackRate;
@@ -257,8 +268,9 @@ export const Video = _component(
 
     const toggle = () => (video?.paused ? void video.play().catch(() => {}) : video?.pause());
     const seekTo = (seconds: number) => {
-      if (!video) return;
-      video.currentTime = clamp(seconds, 0, duration || 0);
+      // 不知道时长（直播）时没有可以跳的范围
+      if (!video || duration === 0) return;
+      video.currentTime = clamp(seconds, 0, duration);
       current = video.currentTime;
     };
     const setVolume = (value: number) => {
@@ -343,7 +355,7 @@ export const Video = _component(
             )}
           />
           <span {...css.attrs(videoStyles.time)} {...videoPart('time')}>
-            {clock(current)} / {clock(duration)}
+            {duration > 0 ? `${clock(current)} / ${clock(duration)}` : clock(current)}
           </span>
           <Slider
             {...mergePartProps<SliderProps>(
@@ -487,7 +499,12 @@ export const Video = _component(
                   wake();
                 },
                 onEnded: sync,
-                onTimeupdate: () => (current = video?.currentTime ?? 0),
+                // 直播能跳到的范围边播边变，时长跟着重算
+                onTimeupdate: () => {
+                  if (!video) return;
+                  current = video.currentTime;
+                  duration = lengthOf(video);
+                },
                 onDurationchange: sync,
                 onLoadedmetadata: sync,
                 onVolumechange: sync,

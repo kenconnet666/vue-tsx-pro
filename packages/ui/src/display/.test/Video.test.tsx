@@ -89,7 +89,7 @@ describe('Video', () => {
     expect(names).toEqual(expect.arrayContaining(['播放', '静音', '播放速度']));
     expect(names).not.toContain('字幕');
     expect(bar.querySelector('[role="slider"][aria-label="播放进度"]')).not.toBeNull();
-    expect(bar.querySelector('[data-part="time"]')!.textContent).toBe('0:00 / 0:00');
+    expect(bar.querySelector('[data-part="time"]')!.textContent).toBe('0:00');
     expect(
       [...subtitled!.querySelectorAll('button')].map((button) => button.getAttribute('aria-label')),
     ).toContain('字幕');
@@ -157,6 +157,31 @@ describe('Video', () => {
       if (duration) Object.defineProperty(HTMLMediaElement.prototype, 'duration', duration);
       else delete (HTMLMediaElement.prototype as { duration?: number }).duration;
     }
+  });
+
+  it('不知道时长（直播）：只显示已播的时间，进度条不可用，方向键不把进度跳回开头', async () => {
+    const root = mount(() => <Video src="/live.m3u8" controls="custom" />);
+    await nextTick();
+    const frame = root.querySelector<HTMLElement>('[data-scope="video"][data-part="root"]')!;
+    const video = frame.querySelector('video')!;
+    let time = 65;
+    Object.defineProperties(video, {
+      duration: { get: () => Infinity },
+      currentTime: { get: () => time, set: (next: number) => (time = next) },
+    });
+    video.dispatchEvent(new Event('timeupdate'));
+    await nextTick();
+    expect(frame.querySelector('[data-part="time"]')!.textContent).toBe('1:05');
+    frame.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }),
+    );
+    expect(time).toBe(65);
+
+    // 有能跳的范围（带回看的直播）：它的末尾当作时长
+    Object.defineProperty(video, 'seekable', { get: () => ({ length: 1, end: () => 120 }) });
+    video.dispatchEvent(new Event('timeupdate'));
+    await nextTick();
+    expect(frame.querySelector('[data-part="time"]')!.textContent).toBe('1:05 / 2:00');
   });
 
   it('减少动态效果：不自动播放，并显示控制条（让人自己决定要不要播）', async () => {

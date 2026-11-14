@@ -21,13 +21,20 @@ import { mergeRefs, ownProps, type RefSetter } from '@zerodep-dev/vue-tsx-pro-ts
 import type { VNodeChild } from 'vue';
 
 /**
- * 原生元素部件的 props：该元素的属性加上 sx；去掉组件管理的属性与 children（内容走组件自己的 prop）。
+ * 原生元素上只用于双向绑定的属性（编译成 v-model，见 jsx-runtime 的类型）：经组件转交到元素上时不起作用。
+ * 不从部件属性里去掉的话，组件上写错了绑定名（Switch 上写 _value）也能通过类型检查，开关却不跟着状态走
+ */
+type NativeBindings = '_value' | '_checked' | '_files' | '_open';
+
+/**
+ * 原生元素部件的 props：该元素的属性加上 sx；去掉组件管理的属性、children（内容走组件自己的 prop）
+ * 与原生元素的双向绑定（组件的可绑定属性由它自己声明）。
  * 形如 `propsInput?: PartProps<'input', 'value' | 'aria-invalid'>`。
  */
 export type PartProps<
   Tag extends keyof JSX.IntrinsicElements,
   Managed extends string = never,
-> = Omit<IntrinsicProps<Tag>, Managed | 'children'> & { sx?: SxStyles };
+> = Omit<IntrinsicProps<Tag>, Managed | 'children' | NativeBindings> & { sx?: SxStyles };
 
 /**
  * 展开收起类组件（Collapsible、Popover）交给触发器的属性：展开到任意可聚焦元素上，
