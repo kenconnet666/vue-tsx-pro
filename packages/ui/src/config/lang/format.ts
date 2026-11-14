@@ -6,12 +6,7 @@
  * `format.number(155353.2, { scale: 10_000, maximumFractionDigits: 2, suffix: '万元' })` → `15.54 万元`。
  * 组件的数字格式属性（AnimatedNumber、Stat、图表、表格列）都是它。
  */
-import {
-  CalendarDateTime,
-  DateFormatter,
-  getLocalTimeZone,
-  type DateValue,
-} from '@internationalized/date';
+import { CalendarDateTime, DateFormatter, type DateValue } from '@internationalized/date';
 import type Decimal from 'decimal.js';
 import {
   parseIsoDate,
@@ -24,6 +19,7 @@ import { cachedIntl } from '../../utils/data/intl-cache';
 import { numericText, shiftDecimal } from '../../utils/data/numeric';
 import { useLang } from '../context';
 import type { Lang } from './lang';
+import { useTimeZone } from './time-zone';
 
 /** 字符串与 Decimal 按十进制原样格式化，不经过浮点数，金额不丢精度 */
 type NumberInput = number | bigint | string | Decimal;
@@ -42,6 +38,8 @@ export interface NumericFormat extends Intl.NumberFormatOptions {
 /** 按当前语言格式化数字、金额、百分比与日期；在渲染函数里调用方法即可随语言切换 */
 export function useFormat() {
   const lang = useLang();
+  // 语言没配置时区时：浏览器的时区；服务端渲染与水合期间见 useTimeZone
+  const zone = useTimeZone();
   return {
     /**
      * 数字：`format.number(1234.5)` → `1,234.5`；`{ style: 'currency' }` 不写币种时用语言的币种，
@@ -80,9 +78,8 @@ export function useFormat() {
     ) => {
       const parsed = typeof value === 'string' ? parseIsoValue(value) : value;
       if (parsed == null) return value as string;
-      const date =
-        parsed instanceof Date ? parsed : parsed.toDate(lang.timeZone ?? getLocalTimeZone());
-      return dateFormatter(lang, options).format(date);
+      const date = parsed instanceof Date ? parsed : parsed.toDate(zone());
+      return dateFormatter(lang, zone(), options).format(date);
     },
     /**
      * 相对现在的时间，自动取合适的单位：`format.relative(date)` → “3 分钟前”“明天”“2 年后”。
@@ -92,7 +89,7 @@ export function useFormat() {
       value: Date | DateValue | string,
       { now = Date.now(), ...options }: RelativeFormatOptions = {},
     ) => {
-      const instant = toInstant(value, lang.timeZone ?? getLocalTimeZone());
+      const instant = toInstant(value, zone());
       if (Number.isNaN(instant)) return typeof value === 'string' ? value : '';
       const { value: amount, unit } = relativeUnit(instant - now);
       const key = `relative|${lang.code}|${JSON.stringify(options)}`;
@@ -142,9 +139,9 @@ function scaled(value: NumberInput, scale: number | undefined) {
   return shiftDecimal(text, places) as Intl.StringNumericLiteral;
 }
 
-function dateFormatter(lang: Lang, options: Intl.DateTimeFormatOptions) {
+function dateFormatter(lang: Lang, timeZone: string, options: Intl.DateTimeFormatOptions) {
   const resolved: Intl.DateTimeFormatOptions = {
-    timeZone: lang.timeZone,
+    timeZone,
     calendar: lang.calendar,
     hourCycle: lang.hourCycle,
     ...options,

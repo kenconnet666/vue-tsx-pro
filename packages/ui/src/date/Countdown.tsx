@@ -14,8 +14,8 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch, type VNodeChild } from 'vue';
 import { useComponent } from '../config/components';
-import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
+import { useTimeZone } from '../config/lang/time-zone';
 import { toInstant } from '../utils/data/date';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { nowAttrs, useNow } from './clock';
@@ -123,9 +123,9 @@ const pad = (value: number) => String(value).padStart(2, '0');
 export const Countdown = _component(
   ({ to, precision = 'second', variant, onEnd, children, ...rest }: CountdownProps) => {
     const ui = useComponent(countdownRecipe, () => ({ variant }), { variant: 'text' });
-    const lang = useLang();
     const format = useFormat();
-    const target = () => toInstant(to, lang.timeZone);
+    const zone = useTimeZone();
+    const target = () => toInstant(to, zone());
     const now = useNow((current) =>
       current >= target() ? null : precision === 'minute' ? MINUTE : SECOND,
     );

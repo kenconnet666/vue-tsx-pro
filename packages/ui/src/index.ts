@@ -1341,6 +1341,7 @@ export {
   type LangMessages,
 } from './config/lang/lang';
 export { useMessages, type MessageTable } from './config/lang/messages';
+export { useTimeZone } from './config/lang/time-zone';
 export { zhCN } from './config/lang/zh-CN';
 
 // 工具：部件属性的合并

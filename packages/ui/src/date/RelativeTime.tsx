@@ -10,8 +10,8 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import type { DateTimeDuration } from '@internationalized/date';
-import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
+import { useTimeZone } from '../config/lang/time-zone';
 import { relativeUnit, toInstant } from '../utils/data/date';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { nowAttrs, useNow } from './clock';
@@ -57,9 +57,9 @@ const REFRESH: Partial<Record<Intl.RelativeTimeFormatUnit, number>> = {
 /** 相对时间 */
 export const RelativeTime = _component(
   ({ value, format: style = 'long', threshold, now: fixedNow, ...rest }: RelativeTimeProps) => {
-    const lang = useLang();
     const format = useFormat();
-    const instant = () => toInstant(value, lang.timeZone);
+    const zone = useTimeZone();
+    const instant = () => toInstant(value, zone());
     const absolute = (current: number) =>
       threshold != null && Math.abs(instant() - current) > durationMs(threshold);
     const clock = useNow((current) => {

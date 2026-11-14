@@ -16,12 +16,12 @@
  * 左侧是行名，底下是整齐的时间刻度（月初、周、日、整点，见 timeTicks）；悬停一段显示名称、起止与天数；
  * 读屏的数据表列出每一项。
  */
-import { getLocalTimeZone } from '@internationalized/date';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useLang } from '../config/context';
 import { useFormat } from '../config/lang/format';
+import { useTimeZone } from '../config/lang/time-zone';
 import { Skeleton } from '../feedback/Skeleton';
 import { parseIsoDate, parseIsoDateTime } from '../utils/data/date';
 import { svgNumber } from '../utils/data/number';
@@ -182,7 +182,7 @@ export const TimelineChart = _component(
   }: TimelineChartProps) => {
     const lang = useLang();
     const format = useFormat();
-    const zone = () => lang.timeZone ?? getLocalTimeZone();
+    const zone = useTimeZone();
     const colorOf = (key: string | undefined) => {
       const position = series.findIndex((item) => item.key === key);
       return resolveColor(series[position]?.color, Math.max(position, 0));

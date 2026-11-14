@@ -9,7 +9,6 @@
 import {
   CalendarDate,
   DateFormatter,
-  getLocalTimeZone,
   GregorianCalendar,
   toCalendar,
   toCalendarDate,
@@ -18,6 +17,7 @@ import {
   type DateValue,
 } from '@internationalized/date';
 import { useLang } from '../config/context';
+import { useTimeZone } from '../config/lang/time-zone';
 import {
   calendarOf,
   parseIsoDate,
@@ -69,6 +69,8 @@ export interface DateLocale {
 /** 当前语言的日期地区设置（组件 setup 里调用） */
 export function useDateLocale(read: () => DateLocaleOverrides = () => ({})): DateLocale {
   const lang = useLang();
+  // “今天”按这个时区算：服务端渲染与水合期间见 useTimeZone
+  const zone = useTimeZone();
   const calendar = () => calendarOf(lang.calendar);
   return {
     get locale() {
@@ -78,13 +80,13 @@ export function useDateLocale(read: () => DateLocaleOverrides = () => ({})): Dat
       return calendar();
     },
     get timeZone() {
-      return lang.timeZone ?? getLocalTimeZone();
+      return zone();
     },
     get week() {
       return { locale: lang.code, firstDayOfWeek: read().firstDayOfWeek ?? lang.firstDayOfWeek };
     },
     today() {
-      return toCalendar(today(lang.timeZone ?? getLocalTimeZone()), calendar());
+      return toCalendar(today(zone()), calendar());
     },
     fromValue(value) {
       if (value == null) return null;
