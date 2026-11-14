@@ -10,6 +10,8 @@ export default _component(() => {
     <Tabs _value={tab}>
       <PageHeader
         title="采购申请"
+        // 示例嵌在文档页的一节里，标题降到 h3；整页的页头不用写（默认 h1）
+        headingLevel={3}
         description="提交后先由部门经理审批，金额超过 5 万元时加签财务。"
         actions={<Button icon={Plus}>新建申请</Button>}
       >

@@ -14,6 +14,8 @@ export default _component(() => {
         { label: 'PO-2026-0187' },
       ]}
       title="PO-2026-0187"
+      // 示例嵌在文档页的一节里，标题降到 h3；整页的页头不用写（默认 h1）
+      headingLevel={3}
       meta={<Badge tone="success">已到货</Badge>}
       description="华辰精密 · 2026-10-20 下单 · 含税 86,400.00 元"
       onBack={() => (backs += 1)}
