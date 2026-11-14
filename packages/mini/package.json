@@ -1,6 +1,6 @@
 {
   "name": "@zerodep-dev/vue-tsx-pro-mini",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "description": "Render vue-tsx-pro components in WeChat and Alipay mini programs: a Vue renderer over setData with generic templates, runtime styles resolved inline",
   "license": "MIT",
   "type": "module",
