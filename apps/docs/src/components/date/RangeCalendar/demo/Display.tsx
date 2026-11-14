@@ -3,16 +3,17 @@
 import { getLocalTimeZone, today, type CalendarDate } from '@internationalized/date';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
+  ClientOnly,
+  type DateRange,
   Flex,
   RangeCalendar,
   Small,
   Switch,
   ToggleGroup,
   ToggleItem,
-  type DateRange,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
-export default _component(() => {
+const Demo = _component(() => {
   const nextMonth = today(getLocalTimeZone()).add({ months: 1 }).set({ day: 1 });
   let firstDay = _state('1');
   let weekNumbers = _state(true);
@@ -48,3 +49,10 @@ export default _component(() => {
     </Flex>
   );
 });
+
+// “今天”只有浏览器知道（服务端渲染的那一天、那个时区，和打开页面时的不一样）：依赖它的内容只在浏览器里画
+export default _component(() => () => (
+  <ClientOnly>
+    <Demo />
+  </ClientOnly>
+));

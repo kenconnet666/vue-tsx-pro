@@ -4,18 +4,19 @@ import type { CalendarDate } from '@internationalized/date';
 import { Plane } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
+  ClientOnly,
   Code,
+  type DateRange,
   DateRangePicker,
   Field,
   Grid,
   todayIso,
-  type DateRange,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** ISO 日期是不是周末 */
 const isWeekend = (iso: string) => [0, 6].includes(new Date(`${iso}T00:00`).getDay());
 
-export default _component(() => {
+const Demo = _component(() => {
   let leave = _state<DateRange<string> | null>(null);
   let trip = _state<DateRange<CalendarDate> | null>(null);
   return () => (
@@ -61,3 +62,10 @@ export default _component(() => {
     </Grid>
   );
 });
+
+// “今天”只有浏览器知道（服务端渲染的那一天、那个时区，和打开页面时的不一样）：依赖它的内容只在浏览器里画
+export default _component(() => () => (
+  <ClientOnly>
+    <Demo />
+  </ClientOnly>
+));

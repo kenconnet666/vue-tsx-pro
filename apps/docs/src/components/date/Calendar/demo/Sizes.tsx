@@ -1,8 +1,8 @@
 // 尺寸与状态：size 改字号，格子按 em 等比缩放；只读能翻页、不能改；不可用整个变淡
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Calendar, Flex, Grid, Small, todayIso } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Calendar, ClientOnly, Flex, Grid, Small, todayIso } from '@zerodep-dev/vue-tsx-pro-ui';
 
-export default _component(() => {
+const Demo = _component(() => {
   const today = todayIso();
   const cases = [
     ['size="sm"：侧栏、筛选面板', { size: 'sm' }],
@@ -22,3 +22,10 @@ export default _component(() => {
     </Grid>
   );
 });
+
+// “今天”只有浏览器知道（服务端渲染的那一天、那个时区，和打开页面时的不一样）：依赖它的内容只在浏览器里画
+export default _component(() => () => (
+  <ClientOnly>
+    <Demo />
+  </ClientOnly>
+));

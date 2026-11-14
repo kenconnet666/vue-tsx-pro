@@ -1,14 +1,15 @@
 // 报表的统计区间带快捷区间（内置的与自己的结算周期），今天之后不能选；酒店入住与离店，订满的日子不能夹在中间
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
+  ClientOnly,
   Code,
+  type DateRange,
   DateRangePicker,
   Field,
   Grid,
   shiftIsoDate,
   todayIso,
   useFormat,
-  type DateRange,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 /** 本结算周期：上月 26 日到本月 25 日（今天过了 25 日就是本月 26 日到下月 25 日） */
@@ -19,7 +20,7 @@ function settlementPeriod(): DateRange<string> {
   return { start, end: shiftIsoDate(shiftIsoDate(start, { months: 1 }), { days: -1 }) };
 }
 
-export default _component(() => {
+const Demo = _component(() => {
   const format = useFormat();
   const today = todayIso();
   // 演示数据：从今天往后数的第 5、6 天已订满
@@ -72,3 +73,10 @@ export default _component(() => {
     </Grid>
   );
 });
+
+// “今天”只有浏览器知道（服务端渲染的那一天、那个时区，和打开页面时的不一样）：依赖它的内容只在浏览器里画
+export default _component(() => () => (
+  <ClientOnly>
+    <Demo />
+  </ClientOnly>
+));

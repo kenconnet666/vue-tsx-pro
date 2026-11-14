@@ -3,6 +3,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Calendar,
+  ClientOnly,
   Flex,
   isoDayOfWeek,
   shiftIsoDate,
@@ -21,7 +22,7 @@ const styles = css.create({
   onSelected: { color: 'inherit' },
 });
 
-export default _component(() => {
+const Demo = _component(() => {
   const format = useFormat();
   const today = todayIso();
   const soldOut = new Set([5, 6].map((days) => shiftIsoDate(today, { days })));
@@ -77,3 +78,10 @@ export default _component(() => {
     );
   };
 });
+
+// “今天”只有浏览器知道（服务端渲染的那一天、那个时区，和打开页面时的不一样）：依赖它的内容只在浏览器里画
+export default _component(() => () => (
+  <ClientOnly>
+    <Demo />
+  </ClientOnly>
+));

@@ -6,6 +6,7 @@ import {
   Button,
   Calendar,
   Card,
+  ClientOnly,
   daysBetween,
   Flex,
   Icon,
@@ -19,7 +20,7 @@ import {
 
 const styles = css.create({ side: { flexGrow: 1, flexBasis: '16rem' } });
 
-export default _component(() => {
+const Demo = _component(() => {
   const format = useFormat();
   const today = todayIso();
   const quick = [
@@ -66,3 +67,10 @@ export default _component(() => {
     );
   };
 });
+
+// “今天”只有浏览器知道（服务端渲染的那一天、那个时区，和打开页面时的不一样）：依赖它的内容只在浏览器里画
+export default _component(() => () => (
+  <ClientOnly>
+    <Demo />
+  </ClientOnly>
+));

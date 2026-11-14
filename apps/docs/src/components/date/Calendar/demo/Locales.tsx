@@ -2,6 +2,7 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Calendar,
+  ClientOnly,
   defineLang,
   enUS,
   Flex,
@@ -16,7 +17,7 @@ const japanese = defineLang(enUS, { code: 'ja-JP' });
 // 从右往左排版：整个日历镜像，翻页箭头跟着翻转，数字按 Intl 写成阿拉伯-印度数字
 const arabic = defineLang(enUS, { code: 'ar-EG', direction: 'rtl' });
 
-export default _component(() => {
+const Demo = _component(() => {
   const today = todayIso();
   const cases = [
     ['简体中文：周一开始', undefined, undefined],
@@ -44,3 +45,10 @@ export default _component(() => {
     </Grid>
   );
 });
+
+// “今天”只有浏览器知道（服务端渲染的那一天、那个时区，和打开页面时的不一样）：依赖它的内容只在浏览器里画
+export default _component(() => () => (
+  <ClientOnly>
+    <Demo />
+  </ClientOnly>
+));

@@ -5,6 +5,8 @@ import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import {
   Button,
   Card,
+  ClientOnly,
+  type DateRange,
   daysBetween,
   Flex,
   Icon,
@@ -14,13 +16,12 @@ import {
   Text,
   todayIso,
   useFormat,
-  type DateRange,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const styles = css.create({ side: { flexGrow: 1, flexBasis: '15rem' } });
 const NIGHTLY = 528;
 
-export default _component(() => {
+const Demo = _component(() => {
   const format = useFormat();
   const today = todayIso();
   const booked = new Set([9, 10, 23].map((days) => shiftIsoDate(today, { days })));
@@ -63,3 +64,10 @@ export default _component(() => {
     );
   };
 });
+
+// “今天”只有浏览器知道（服务端渲染的那一天、那个时区，和打开页面时的不一样）：依赖它的内容只在浏览器里画
+export default _component(() => () => (
+  <ClientOnly>
+    <Demo />
+  </ClientOnly>
+));
