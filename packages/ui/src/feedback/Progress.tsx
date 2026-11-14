@@ -8,6 +8,11 @@
  *   <Progress value={60} aria-label="上传进度" />  只有进度条
  *   <Progress aria-label="正在加载" />               不确定进度
  *   <Progress shape="circle" value={72} target={80} label="本月销售完成率" />
+ *   <Progress value={used} max={quota} label="磁盘占用"
+ *     bands={[{ to: 70, tone: 'success' }, { to: 90, tone: 'warning' }, { to: 100, tone: 'danger' }]} />
+ *
+ * bands 是量表的用法（HTML 的 meter）：值落在哪一段就用哪一段的色调，角色换成 role="meter"——它量的是一个数（占用、
+ * 评分、强度），不是任务做到哪了。仪表盘样子的量表用 Gauge。
  *
  * 部件：有标签行时外层是 Root（propsRoot），里面是 Label、ValueLabel 与进度条；没有时进度条就是根元素。
  * 环形：根元素是 progressbar，里面是 SVG（轨道、进度、目标刻度）与中间的 ValueLabel；有 label 时外层是 Root，标签在下方。
@@ -39,6 +44,14 @@ export interface ProgressShapes {
   circle: unknown;
 }
 
+/** 量表的一段区间：从上一段的终点（第一段从 0）到 to */
+export interface ProgressBand {
+  /** 终点（与 value 同一单位） */
+  to: NumericValue;
+  /** 值落在这一段时的色调 */
+  tone: StatusTone;
+}
+
 /** Progress 的外观选项：可以在 ComponentDefaults 里统一设置 */
 export interface ProgressOptions {
   /** 色调（与 Badge、Alert 等同一套），默认 accent */
@@ -59,6 +72,11 @@ export interface ProgressProps extends PartProps<'div', ProgressManaged>, Progre
   shape?: keyof ProgressShapes;
   /** 目标值（与 value 同一单位）：条上画竖线、环上画刻度，读屏念在进度后面 */
   target?: NumericValue;
+  /**
+   * 量表的区间（按 to 从小到大）：值落在哪一段就用哪一段的色调（盖过 tone），角色是 meter。
+   * 磁盘占用、密码强度、评分这类“量出来的数”用它；任务的完成进度不写
+   */
+  bands?: readonly ProgressBand[];
   /** 读屏念的取值文字，如 `(value, max) => \`已上传 ${value} / ${max} 个文件\``；默认是百分比 */
   valueText?: (value: NumericValue, max: NumericValue) => string;
   /** 进度条上方的标签：同时是进度条的名称（aria-labelledby），不用再写 aria-label */
@@ -299,6 +317,7 @@ export const Progress = _component(
     max = 100,
     shape = 'bar',
     target,
+    bands,
     tone,
     size,
     radius,
@@ -316,7 +335,12 @@ export const Progress = _component(
     const labelId = `${useId()}-label`;
     const format = useFormat();
     const lang = useLang();
-    const ui = useComponent(progressRecipe, () => ({ tone, size, radius }), {
+    /** 值所在的那一段；超过最后一段的算最后一段 */
+    const band = () =>
+      value == null || !bands?.length
+        ? undefined
+        : (bands.find((item) => compareNumeric(value, item.to) <= 0) ?? bands.at(-1));
+    const ui = useComponent(progressRecipe, () => ({ tone: band()?.tone ?? tone, size, radius }), {
       tone: 'accent',
       radius: 'full',
     });
@@ -344,7 +368,8 @@ export const Progress = _component(
       const wrapped = header || (circle && hasContent(label));
 
       const progressbar = {
-        role: 'progressbar',
+        // 有区间的是量表：量的是一个数，不是任务的进度
+        role: bands ? 'meter' : 'progressbar',
         'aria-valuemin': 0,
         'aria-valuemax': toNumber(max),
         'aria-valuenow': determinate ? toNumber(clamped) : undefined,

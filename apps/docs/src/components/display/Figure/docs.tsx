@@ -3,18 +3,20 @@ import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import aspectRatioApi from 'virtual:api/AspectRatioProps';
 import embedApi from 'virtual:api/EmbedProps';
 import api from 'virtual:api/FigureProps';
+import videoApi from 'virtual:api/VideoProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Captions from './demo/Captions.tsx?demo';
+import Clip from './demo/Clip.tsx?demo';
 import Embedded from './demo/Embedded.tsx?demo';
 import Ratio from './demo/Ratio.tsx?demo';
 
 export const meta = {
-  title: 'Figure 插图与嵌入',
+  title: 'Figure 插图、视频与嵌入',
   description:
-    '带说明的插图（figure）、固定宽高比的框（AspectRatio）、嵌入的页面（Embed，iframe）：说明是内容的名称，比例框加载前就占好位置。',
+    '带说明的插图（figure）、固定宽高比的框（AspectRatio）、视频（Video）、嵌入的页面（Embed，iframe）：说明是内容的名称，比例框加载前就占好位置。',
   order: 8.5,
 };
 
@@ -22,7 +24,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Figure, AspectRatio, Embed } from '@zerodep-dev/vue-tsx-pro-ui';"
+    imports="import { Figure, AspectRatio, Video, Embed } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -41,6 +43,12 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
       <ExampleColumn>
+        <Example id="video" title="视频" demo={Clip}>
+          <Code>Video</Code> 用浏览器自己的控制条，外面是定比例的框（<Code>ratio</Code>
+          ），画面完整放进去、四周黑底；<Code>poster</Code> 是封面，<Code>sources</Code>{' '}
+          给几种格式，<Code>tracks</Code> 是字幕。<Code>autoplay</Code>{' '}
+          默认静音、行内播放，系统要求减少动态效果时不自动播放并显示控制条。倍速、清晰度这类自绘的控制条不在这里。
+        </Example>
         <Example id="ratio" title="固定宽高比" demo={Ratio}>
           <Code>AspectRatio</Code> 的宽度跟着容器，高度按比例算，里面的元素铺满它（图片、视频按
           cover 裁切）。封面、地图、播放器在加载前就占好位置，加载完不把下面的内容顶开。
@@ -49,6 +57,6 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, aspectRatioApi, embedApi]} />
+    <ApiReference api={[api, aspectRatioApi, videoApi, embedApi]} />
   </DocPage>
 ));

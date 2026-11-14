@@ -12,7 +12,7 @@
  * 读屏：左右两个列表各有名称；每行的勾选框以名字为名；“下级”按钮的名称是“下级：某部门”，进去后焦点落到列表上。
  * 部件：Root（div）、Browse（左边）、Selected（右边）。
  */
-import { Building, BriefcaseBusiness, ChevronRight, Search, X } from '@lucide/icons';
+import { Building, BriefcaseBusiness, ChevronRight, X } from '@lucide/icons';
 import { ScrollArea } from '../layout/ScrollArea';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
@@ -37,7 +37,7 @@ import {
   type PeopleSource,
   type PeopleType,
 } from './people';
-import { TextField, type TextFieldProps } from './TextField';
+import { SearchField, type SearchFieldProps } from './SearchField';
 import { ToggleGroup, ToggleItem } from './ToggleGroup';
 import { partAttrs } from '../config/styles';
 
@@ -60,7 +60,7 @@ export interface PeoplePickerPanelProps extends PartProps<'div'> {
   /** 右边的部件属性 */
   propsSelected?: PartProps<'div'>;
   /** 搜索框的部件属性 */
-  propsSearch?: Partial<TextFieldProps>;
+  propsSearch?: Partial<SearchFieldProps>;
   /** 行首的头像（人员是头像，部门、角色是图标）的部件属性 */
   propsAvatar?: Partial<AvatarProps>;
   /** 每一行的勾选框的部件属性 */
@@ -345,14 +345,9 @@ export const PeoplePickerPanel = _component(
           )}
         >
           {source.search && (
-            <TextField
-              {...mergePartProps<TextFieldProps>(
-                {
-                  icon: Search,
-                  placeholder: lang.peopleSearch,
-                  'aria-label': lang.peopleSearch,
-                  clearable: true,
-                },
+            <SearchField
+              {...mergePartProps<SearchFieldProps>(
+                { placeholder: lang.peopleSearch, 'aria-label': lang.peopleSearch },
                 propsSearch,
               )}
               _value={query}

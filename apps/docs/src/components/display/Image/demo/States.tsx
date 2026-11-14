@@ -24,6 +24,16 @@ export default _component(() => () => (
       <Small tone="muted">radius="full"</Small>
     </Flex>
     <Flex direction="column" gap="xs">
+      <Image
+        src={drawings[3]!.src}
+        sources={[{ srcset: drawings[4]!.src, media: '(max-width: 40rem)' }]}
+        alt="窄屏换一张图"
+        width={140}
+        height={105}
+      />
+      <Small tone="muted">sources：窄屏换图</Small>
+    </Flex>
+    <Flex direction="column" gap="xs">
       <Image src="/missing/drawing.png" alt="不存在的图纸" width={140} height={105} />
       <Small tone="muted">加载失败</Small>
     </Flex>

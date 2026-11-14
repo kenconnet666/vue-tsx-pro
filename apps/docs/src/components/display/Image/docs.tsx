@@ -36,7 +36,10 @@ export default _component(() => () => (
       <Code>width</Code>、<Code>height</Code> 是框的大小（数字是 px），<Code>fit</Code>{' '}
       是图片在框里怎么放；加载完之前框里是扫光的占位，加载完淡入；默认 <Code>loading="lazy"</Code>
       （滚到附近才加载）。地址错了时显示占位与 alt，读屏念出 alt 与“图片加载失败”；
-      <Code>fallback</Code> 换成自己的内容。
+      <Code>fallback</Code> 换成自己的内容。<Code>sources</Code> 让它渲染成
+      picture：新格式回退（avif、webp 排在前面，都不认时用 <Code>src</Code>）、窄屏或暗色换一张图（
+      <Code>media</Code>）；只是同一张图的不同尺寸时，直接写 <Code>srcset</Code>、<Code>sizes</Code>
+      。
     </Example>
     <KeyboardReference
       keys={[

@@ -1,22 +1,25 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
 import countApi from 'virtual:api/CharacterCountProps';
+import searchApi from 'virtual:api/SearchFieldProps';
 import textareaApi from 'virtual:api/TextareaProps';
 import api from 'virtual:api/TextFieldProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import Appearance from './demo/Appearance.tsx?demo';
 import Comment from './demo/Comment.tsx?demo';
 import Signup from './demo/Signup.tsx?demo';
 import Adornments from './demo/Adornments.tsx?demo';
 import Formats from './demo/Formats.tsx?demo';
+import Search from './demo/Search.tsx?demo';
 
 export const meta = {
   title: 'TextField 文本框',
   description:
-    '单行的 TextField 与自动增高的 Textarea：前后图标、固定的前后缀、一键清空、显示密码、字数计数；放进 Field 自动关联标签、说明与错误。',
+    '单行的 TextField、搜索框 SearchField 与自动增高的 Textarea：前后图标、固定的前后缀、一键清空、显示密码、字数计数；放进 Field 自动关联标签、说明与错误。',
   order: 1,
 };
 
@@ -24,7 +27,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { CharacterCount, TextField, Textarea } from '@zerodep-dev/vue-tsx-pro-ui';"
+    imports="import { CharacterCount, SearchField, TextField, Textarea } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -38,6 +41,13 @@ export default _component(() => () => (
           高度随内容在 <Code>rows</Code> 与 <Code>maxRows</Code> 之间增长（父级改值也会跟着变）；
           <Code>fixed</Code> 关掉自动增高、允许拖动调整，<Code>clearable</Code>{' '}
           在右上角放清空按钮。字数计数超出上限时变成危险色，读屏念完整的句子。
+        </Example>
+        <Example id="search" title="搜索框" demo={Search}>
+          <Code>SearchField</Code> 是 <Code>type="search"</Code> 的
+          TextField：带搜索图标、清空按钮，名称与占位文字默认是“搜索”。<Code>_value</Code>{' '}
+          每敲一个字都更新，本地过滤直接用它；<Code>onSearch</Code> 只在该查的时候调用——停手{' '}
+          <Code>delay</Code>（默认
+          300ms）、按回车、清空，同一个词不重复，发请求用它。下拉、穿梭框、树、表头筛选里的搜索框都是它。
         </Example>
       </ExampleColumn>
       <ExampleColumn>
@@ -62,6 +72,7 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
     </Examples>
-    <ApiReference api={[api, textareaApi, countApi]} />
+    <KeyboardReference keys={[['Enter', '搜索框：立即触发 onSearch（不等停手）']]} />
+    <ApiReference api={[api, searchApi, textareaApi, countApi]} />
   </DocPage>
 ));

@@ -47,6 +47,9 @@ export default _component(() => () => (
           显示在上方，同时是进度条的名称；右侧默认是按语言格式化的百分比，
           <Code>valueLabel</Code> 换成自己的文字（只是显示），读屏念的用 <Code>valueText</Code> 改，
           <Code>showValueLabel={'{false}'}</Code> 不显示。值也可以是 bigint、Decimal。
+          <Code>bands</Code>{' '}
+          是量表的用法（磁盘占用、配额、评分这类量出来的数）：值落在哪一段就用哪一段的色调，角色换成{' '}
+          <Code>role="meter"</Code>；仪表盘样子的量表用 Gauge。
         </Example>
         <Example id="rings" title="环形与目标" demo={Rings}>
           <Code>shape="circle"</Code> 是环形：中间显示数值，<Code>label</Code> 在下方，直径随{' '}

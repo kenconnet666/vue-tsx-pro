@@ -275,6 +275,7 @@ export {
   type ImageGroupProps,
   type ImagePreviewOptions,
   type ImageProps,
+  type ImageSource,
 } from './display/Image';
 export {
   InfiniteListStatus,
@@ -341,6 +342,7 @@ export {
   type UserButtonProps,
 } from './display/UserButton';
 export { ValueChange, type ValueChangeProps } from './display/ValueChange';
+export { Video, type VideoProps, type VideoSource, type VideoTrack } from './display/Video';
 export {
   VirtualList,
   type VirtualListHandle,
@@ -391,6 +393,7 @@ export {
 export {
   Progress,
   progressRecipe,
+  type ProgressBand,
   type ProgressManaged,
   type ProgressOptions,
   type ProgressPart,
@@ -712,6 +715,7 @@ export {
   type RadioProps,
 } from './input/Radio';
 export { Rating, type RatingManaged, type RatingProps } from './input/Rating';
+export { SearchField, type SearchFieldProps } from './input/SearchField';
 export { Select, type SelectBaseProps, type SelectManaged, type SelectProps } from './input/Select';
 export { SelectedTags, type SelectedTag, type SelectedTagsProps } from './input/SelectedTags';
 export {

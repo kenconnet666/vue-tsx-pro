@@ -18,7 +18,7 @@
  * 部件：Root（外壳）、Trigger（button，主元素）、Value、Clear、Chevron、Popover、Search（TextField）、Columns（各列的横排）、
  * Column（每一列）、Option（可以按选项计算）、Label（选项的文字）、Empty（没有匹配、加载中）。
  */
-import { Check, ChevronDown, ChevronRight, Search } from '@lucide/icons';
+import { Check, ChevronDown, ChevronRight } from '@lucide/icons';
 import { OverlayScrollbar, ScrollArea } from '../layout/ScrollArea';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
@@ -57,7 +57,7 @@ import {
 } from './control';
 import { listPopoverStyles } from './ListPopover';
 import { selectPart, selectStyles, type SelectManaged } from './Select';
-import { TextField, type TextFieldProps } from './TextField';
+import { SearchField, type SearchFieldProps } from './SearchField';
 
 /** 未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
 export interface CascaderProps<T>
@@ -119,7 +119,7 @@ export interface CascaderProps<T>
   /** 弹出层的部件属性 */
   propsPopover?: PartProps<'div', 'id' | 'popover'>;
   /** 搜索框的部件属性（searchable 时） */
-  propsSearch?: Partial<TextFieldProps>;
+  propsSearch?: Partial<SearchFieldProps>;
   /** 每一列的部件属性 */
   propsColumn?: PartProps<'div', 'role' | 'id' | 'tabindex'>;
   /** 每个选项的部件属性，可以按选项计算（搜索结果里是路径末端的节点） */
@@ -765,18 +765,11 @@ export const Cascader = _component(
           >
             {searchable && (
               <div {...css.attrs(listPopoverStyles.header)}>
-                <TextField
-                  {...mergePartProps<TextFieldProps>(
-                    {
-                      icon: Search,
-                      variant: 'soft',
-                      placeholder: lang.selectSearch,
-                      'aria-label': lang.selectSearch,
-                      propsRoot: { sx: selectStyles.search },
-                    },
+                <SearchField
+                  {...mergePartProps<SearchFieldProps>(
+                    { variant: 'soft', propsRoot: { sx: selectStyles.search } },
                     propsSearch,
                   )}
-                  type="search"
                   _value={search}
                   onUpdate:_value={(next: string) => {
                     search = next;

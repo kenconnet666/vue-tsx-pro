@@ -34,7 +34,7 @@
  * 部件：Root（外壳）、Tags（多选时的那排标签）、Tag、Trigger（button，主元素）、Value、Clear、Chevron、Popover、
  * Search（TextField）、Listbox。
  */
-import { ChevronDown, Plus, Search } from '@lucide/icons';
+import { ChevronDown, Plus } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, watch, type VNodeChild } from 'vue';
@@ -74,7 +74,7 @@ import {
 } from './list-state';
 import { useRemoteItems, type OptionsLoader } from './remote-items';
 import { SelectedTags, type SelectedTagsProps } from './SelectedTags';
-import { TextField, type TextFieldProps } from './TextField';
+import { SearchField, type SearchFieldProps } from './SearchField';
 import { partAttrs } from '../config/styles';
 import { isComposingKey } from '../utils/dom/hotkeys';
 
@@ -160,7 +160,7 @@ export interface SelectBaseProps<T>
   /** 列表的部件属性 */
   propsListbox?: Partial<ListboxViewProps<T>>;
   /** 搜索框的部件属性（searchable 时） */
-  propsSearch?: Partial<TextFieldProps>;
+  propsSearch?: Partial<SearchFieldProps>;
 }
 
 /** 单选或多选；items 不是 ListboxOption 或字符串时要给 toOption */
@@ -565,18 +565,11 @@ export const Select = _component(
             onPick={() => picked()}
             header={
               withSearch() && (
-                <TextField
-                  {...mergePartProps<TextFieldProps>(
-                    {
-                      icon: Search,
-                      variant: 'soft',
-                      placeholder: lang.selectSearch,
-                      'aria-label': lang.selectSearch,
-                      propsRoot: { sx: selectStyles.search },
-                    },
+                <SearchField
+                  {...mergePartProps<SearchFieldProps>(
+                    { variant: 'soft', propsRoot: { sx: selectStyles.search } },
                     propsSearch,
                   )}
-                  type="search"
                   _value={search}
                   aria-controls={listId}
                   aria-activedescendant={open ? activeOptionId(list, listId) : undefined}

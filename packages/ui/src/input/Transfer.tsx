@@ -14,7 +14,7 @@
  *
  * 部件见 transferRecipe。
  */
-import { ChevronLeft, ChevronRight, Search } from '@lucide/icons';
+import { ChevronLeft, ChevronRight } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { UpdateHandlers } from '@zerodep-dev/vue-tsx-pro-tsx/jsx-runtime';
@@ -32,7 +32,7 @@ import { Checkbox, type CheckboxProps } from './Checkbox';
 import { Listbox, type ListboxBaseProps, type ListboxProps } from './Listbox';
 import type { MultipleSelectionProps } from '../utils/data/selection';
 import { toListboxOption, type ListboxOption, type OptionMapping } from './list-state';
-import { TextField, type TextFieldProps } from './TextField';
+import { SearchField, type SearchFieldProps } from './SearchField';
 import type { PartLayer } from '../config/styles';
 
 /** 两边的列表（可多选的 Listbox）的属性：propsList 用它 */
@@ -55,7 +55,7 @@ export interface TransferBaseProps extends PartProps<'div', 'role'>, TransferOpt
   /** 每一边的部件属性（section；列表的高度给它的 sx） */
   propsPanel?: PartProps<'section'>;
   /** 搜索框的部件属性 */
-  propsSearch?: Partial<TextFieldProps>;
+  propsSearch?: Partial<SearchFieldProps>;
   /** 中间两个按钮的部件属性 */
   propsAction?: Partial<IconButtonProps>;
   /** 每一边“全选”勾选框的部件属性 */
@@ -177,7 +177,7 @@ interface PanelOptions {
   searchable: boolean;
   disabled: boolean;
   propsPanel?: PartProps<'section'>;
-  propsSearch?: Partial<TextFieldProps>;
+  propsSearch?: Partial<SearchFieldProps>;
   propsCheckAll?: Partial<CheckboxProps>;
   list: VNodeChild;
 }
@@ -217,19 +217,16 @@ function renderPanel(s: TransferParts, lang: ReturnType<typeof useLang>, options
       </div>
       {options.searchable && (
         <div {...mergeAttrs<'div'>(s.search)}>
-          <TextField
-            {...mergePartProps<TextFieldProps>(
+          <SearchField
+            {...mergePartProps<SearchFieldProps>(
               {
-                icon: Search,
                 variant: 'soft',
                 size: 'sm',
-                placeholder: lang.selectSearch,
                 'aria-label': `${lang.selectSearch} ${options.title}`,
                 propsRoot: s.searchField,
               },
               options.propsSearch,
             )}
-            type="search"
             _value={options.search}
             onUpdate:_value={options.onSearch}
             disabled={options.disabled}

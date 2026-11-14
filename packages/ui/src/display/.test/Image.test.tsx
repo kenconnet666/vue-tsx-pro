@@ -25,6 +25,31 @@ describe('Image', () => {
     expect(fallback.getAttribute('aria-description')).toBe('图片加载失败');
   });
 
+  it('sources：渲染成 picture，各个 source 排在 img 前面；不写时没有 picture', () => {
+    const root = mount(() => (
+      <>
+        <Image
+          src="/cover.jpg"
+          alt="封面"
+          sources={[
+            { srcset: '/cover.avif', type: 'image/avif' },
+            { srcset: '/cover-narrow.webp', type: 'image/webp', media: '(max-width: 40rem)' },
+          ]}
+        />
+        <Image src="/plain.jpg" alt="普通" />
+      </>
+    ));
+    const [picture] = root.querySelectorAll('picture');
+    expect(root.querySelectorAll('picture')).toHaveLength(1);
+    const children = [...picture!.children];
+    expect(children.map((child) => child.tagName)).toEqual(['SOURCE', 'SOURCE', 'IMG']);
+    expect(children[0]!.getAttribute('srcset')).toBe('/cover.avif');
+    expect(children[0]!.getAttribute('type')).toBe('image/avif');
+    expect(children[1]!.getAttribute('media')).toBe('(max-width: 40rem)');
+    expect(children[2]!.getAttribute('src')).toBe('/cover.jpg');
+    expect(children[2]!.getAttribute('alt')).toBe('封面');
+  });
+
   it('preview：是按钮（名称“查看大图：alt”），点了打开 Lightbox，用 preview.src 的大图', async () => {
     const root = mount(() => (
       <Image src="/thumb.jpg" alt="支架正面" preview={{ src: '/large.jpg', caption: '验收照片' }} />

@@ -13,14 +13,14 @@
  *
  * 部件：Root（div）、Toolbar（搜索框与按钮）、Tree、PathBar（路径栏）。
  */
-import { ChevronsDownUp, ChevronsUpDown, Search } from '@lucide/icons';
+import { ChevronsDownUp, ChevronsUpDown } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { watch } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { CopyButton } from '../base/CopyButton';
 import { useLang } from '../config/context';
-import { TextField, type TextFieldProps } from '../input/TextField';
+import { SearchField, type SearchFieldProps } from '../input/SearchField';
 import { Tooltip } from '../overlay/Tooltip';
 import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { Tree, type TreeProps } from './Tree';
@@ -207,7 +207,7 @@ export interface JsonViewerProps extends PartProps<'div'> {
   /** 顶部的搜索框与“全部展开 / 收起”，默认显示 */
   toolbar?: boolean;
   /** 搜索框的部件属性 */
-  propsSearch?: Partial<TextFieldProps>;
+  propsSearch?: Partial<SearchFieldProps>;
   /** 树的部件属性 */
   propsTree?: Partial<TreeProps<JsonViewerNode>>;
   /** 路径栏的部件属性 */
@@ -365,12 +365,10 @@ export const JsonViewer = _component(
         <div {...mergeAttrs<'div'>({ sx: jsonViewerStyles.root, ...jsonViewerPart('root') }, rest)}>
           {toolbar && (
             <div {...css.attrs(jsonViewerStyles.toolbar)} {...jsonViewerPart('toolbar')}>
-              <TextField
-                {...mergePartProps<TextFieldProps>(
+              <SearchField
+                {...mergePartProps<SearchFieldProps>(
                   {
-                    icon: Search,
                     size: 'sm',
-                    type: 'search',
                     placeholder: lang.jsonSearch,
                     'aria-label': lang.jsonSearch,
                     propsRoot: { sx: jsonViewerStyles.search },

@@ -6,12 +6,12 @@ import { EllipsisVertical, Funnel } from '@lucide/icons';
 import { ScrollArea } from '../layout/ScrollArea';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { onScopeDispose, watch, type VNodeChild } from 'vue';
+import { watch, type VNodeChild } from 'vue';
 import { Button } from '../base/Button';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang, useTextMatcher } from '../config/context';
 import { Checkbox } from '../input/Checkbox';
-import { TextField } from '../input/TextField';
+import { SearchField } from '../input/SearchField';
 import { Separator } from '../layout/Separator';
 import { Menu, MenuItem } from '../overlay/Menu';
 import { Popover } from '../overlay/Popover';
@@ -66,30 +66,13 @@ export const ColumnFilterButton = _component(
     const lang = useLang();
     const matcher = useTextMatcher();
     let search = _state('');
-    // 关键字筛选：输入框里的是草稿，停手一会儿才生效（服务端筛选时不是每敲一个字发一次请求）
+    // 关键字筛选：输入框里的是草稿，停手一会儿才生效（SearchField 的 onSearch；服务端筛选时不是每敲一个字发一次请求）
     const applied = () => (options === 'text' ? (values[0] ?? '') : '');
     let keyword = _state(applied());
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    // 外面改了筛选（清除、恢复保存的视图）：草稿跟上；自己刚生效的那次不用管
+    // 外面改了筛选（清除、恢复保存的视图）：草稿跟上
     watch(applied, (value) => {
-      if (value === keyword) return;
-      clearTimeout(timer);
-      keyword = value;
+      if (value !== keyword) keyword = value;
     });
-    onScopeDispose(() => clearTimeout(timer));
-
-    function applyKeyword() {
-      clearTimeout(timer);
-      if (keyword !== applied()) onChange(keyword ? [keyword] : []);
-    }
-
-    function onKeyword(text: string) {
-      keyword = text;
-      clearTimeout(timer);
-      // 清空立即生效；打字等停手
-      if (text) timer = setTimeout(applyKeyword, KEYWORD_DELAY);
-      else applyKeyword();
-    }
 
     const shown = () => {
       if (options === 'text' || !search) return options === 'text' ? [] : options;
@@ -104,15 +87,12 @@ export const ColumnFilterButton = _component(
     function renderOptions(): VNodeChild {
       if (options === 'text')
         return (
-          <TextField
+          <SearchField
             _value={keyword}
-            onUpdate:_value={onKeyword}
-            onKeydown={(event: KeyboardEvent) => {
-              if (event.key === 'Enter' && !event.isComposing) applyKeyword();
-            }}
+            onSearch={(text: string) => onChange(text ? [text] : [])}
+            delay={KEYWORD_DELAY}
             aria-label={lang.tableFilterSearch}
             placeholder={lang.tableFilterSearch}
-            clearable
             autofocus
             size="sm"
           />
@@ -120,12 +100,10 @@ export const ColumnFilterButton = _component(
       return (
         <>
           {options.length > SEARCH_THRESHOLD && (
-            <TextField
+            <SearchField
               _value={search}
-              onUpdate:_value={(text: string) => (search = text)}
               aria-label={lang.tableFilterSearch}
               placeholder={lang.tableFilterSearch}
-              clearable
               size="sm"
             />
           )}

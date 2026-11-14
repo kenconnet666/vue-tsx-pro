@@ -65,6 +65,33 @@ describe('Progress', () => {
     expect(money.getAttribute('aria-valuetext')).toBe('100%');
   });
 
+  it('bands：量表——角色是 meter，值落在哪一段就用哪一段的色调（盖过 tone），超过最后一段的算最后一段', () => {
+    const bands = [
+      { to: 70, tone: 'success' },
+      { to: 90, tone: 'warning' },
+      { to: 100, tone: 'danger' },
+    ] as const;
+    const root = mount(() => (
+      <>
+        <Progress value={40} bands={bands} aria-label="磁盘占用" />
+        <Progress value={85} bands={bands} aria-label="磁盘占用" />
+        <Progress value={120} bands={bands} aria-label="磁盘占用" />
+        <Progress value={40} tone="success" aria-label="上传" />
+      </>
+    ));
+    const [low, middle, over, plain] = [...root.children] as HTMLElement[];
+    expect([low, middle, over].map((item) => item!.getAttribute('role'))).toEqual([
+      'meter',
+      'meter',
+      'meter',
+    ]);
+    expect(plain!.getAttribute('role')).toBe('progressbar');
+    // 同一个色调的类名相同：40 落在 success 段，和直接写 tone="success" 的一样；三段各不相同
+    const indicator = (item: HTMLElement) => item.firstElementChild!.className;
+    expect(indicator(low!)).toBe(indicator(plain!));
+    expect(new Set([low, middle, over].map((item) => indicator(item!))).size).toBe(3);
+  });
+
   it('target：条上画目标线（按比例定位），读屏念在进度后面', () => {
     const el = first(mount(() => <Progress value={60} target={80} aria-label="完成率" />));
     expect(el.getAttribute('aria-valuetext')).toBe('60%，目标 80%');

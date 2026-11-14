@@ -47,10 +47,27 @@ export interface ImagePreviewOptions {
   download?: string | false;
 }
 
+/** 一个备选的图片源（picture 里的 source）：浏览器从上到下取第一个符合条件、认得格式的 */
+export interface ImageSource {
+  /** 图片地址，可以带宽度、像素比的描述（'cover-800.avif 800w, cover-1600.avif 1600w'） */
+  srcset: string;
+  /** 格式：浏览器不认的格式跳过（'image/avif'、'image/webp'） */
+  type?: string;
+  /** 媒体条件：按屏幕宽度、明暗换一张图（'(max-width: 40rem)'、'(prefers-color-scheme: dark)'） */
+  media?: string;
+  /** 各种宽度下图片显示多宽（配合带 w 描述的 srcset） */
+  sizes?: string;
+}
+
 /** 未声明的属性落到 img 上；外层用 propsRoot */
 export interface ImageProps extends PartProps<'img', 'src' | 'alt' | 'width' | 'height'> {
-  /** 图片地址 */
+  /** 图片地址；写了 sources 时是都不符合、都不认得时的后备 */
   src: string;
+  /**
+   * 备选的图片源：有它时渲染成 picture。新格式回退（avif → webp → src）、窄屏换一张裁切不同的图、暗色换一张图。
+   * 只是同一张图的不同尺寸时，直接在 img 上写 srcset、sizes 就够了（未声明的属性落到 img 上）
+   */
+  sources?: readonly ImageSource[];
   /** 图片的说明：读屏念它，加载失败时也显示 */
   alt: string;
   /** 宽度：数字是 px，也可以写 CSS 长度；不写时按图片 */
@@ -94,6 +111,7 @@ export const imageStyles = css.create({
     transition: `filter ${t.durations.sm} ${t.easings.standard}`,
   },
   image: { display: 'block', width: '100%', height: '100%' },
+  picture: { display: 'contents' },
   // 加载完之前不显示（占位在扫光）；没写尺寸时仍占位，量得出图片大小
   hidden: { opacity: 0 },
   fallback: {
@@ -139,6 +157,7 @@ const toLength = (value: number | string | undefined) =>
 export const Image = _component(
   ({
     src,
+    sources,
     alt,
     width,
     height,
@@ -167,7 +186,7 @@ export const Image = _component(
 
     // 地址换了：重新加载（只在变化时；挂载后再置回 loading 会盖掉已经到了的 load，缓存里的图就一直不显示）
     watch(
-      () => src,
+      () => [src, ...(sources ?? []).map((source) => source.srcset)].join(' | '),
       () => (status = 'loading'),
     );
 
@@ -183,34 +202,49 @@ export const Image = _component(
         imageDynamicStyles.size(toLength(width), toLength(height)),
         status === 'loading' && shimmerStyles.wave,
       ];
+      const image = (
+        <img
+          {...mergeAttrs<'img'>(
+            {
+              sx: [
+                imageStyles.image,
+                imageFitStyles[fit],
+                status === 'loading' && imageStyles.hidden,
+                status === 'loaded' && shimmerStyles.reveal,
+              ],
+              loading: 'lazy',
+              decoding: 'async',
+            },
+            rest,
+            {
+              src,
+              alt,
+              ref: (element: unknown) => {
+                if (status === 'loading' && imageLoaded(element)) status = 'loaded';
+              },
+              onLoad: () => (status = 'loaded'),
+              onError: () => (status = 'error'),
+            },
+          )}
+        />
+      );
       const content = (
         <>
-          {status !== 'error' && (
-            <img
-              {...mergeAttrs<'img'>(
-                {
-                  sx: [
-                    imageStyles.image,
-                    imageFitStyles[fit],
-                    status === 'loading' && imageStyles.hidden,
-                    status === 'loaded' && shimmerStyles.reveal,
-                  ],
-                  loading: 'lazy',
-                  decoding: 'async',
-                },
-                rest,
-                {
-                  src,
-                  alt,
-                  ref: (element: unknown) => {
-                    if (status === 'loading' && imageLoaded(element)) status = 'loaded';
-                  },
-                  onLoad: () => (status = 'loaded'),
-                  onError: () => (status = 'error'),
-                },
-              )}
-            />
-          )}
+          {status !== 'error' &&
+            (sources?.length ? (
+              // picture 不参与布局（display: contents）：img 照常按外层的宽高铺满
+              <picture {...css.attrs(imageStyles.picture)}>
+                {sources.map((source) => (
+                  <source
+                    key={`${source.media ?? ''}|${source.type ?? ''}|${source.srcset}`}
+                    {...source}
+                  />
+                ))}
+                {image}
+              </picture>
+            ) : (
+              image
+            ))}
           {status === 'error' && (
             <span
               {...mergeAttrs<'span'>({ sx: imageStyles.fallback }, propsFallback, {

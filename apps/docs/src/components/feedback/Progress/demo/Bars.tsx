@@ -1,5 +1,5 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Card, Flex, Progress, Strong, type StatusTone } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Card, Flex, Progress, Strong, type ProgressBand } from '@zerodep-dev/vue-tsx-pro-ui';
 
 const quotas: [name: string, used: number, total: number, unit: string][] = [
   ['存储空间', 38.6, 50, 'GB'],
@@ -8,9 +8,12 @@ const quotas: [name: string, used: number, total: number, unit: string][] = [
   ['API 调用', 120_000, 100_000, '次'],
 ];
 
-// 用量越接近上限越醒目：80% 以上警告，超出为危险
-const toneOf = (ratio: number): StatusTone =>
-  ratio > 1 ? 'danger' : ratio >= 0.8 ? 'warning' : 'accent';
+// 用量是量出来的数（量表）：越接近上限越醒目——八成以内正常，到上限为止警告，超出为危险
+const bandsOf = (total: number): ProgressBand[] => [
+  { to: total * 0.8, tone: 'accent' },
+  { to: total, tone: 'warning' },
+  { to: Infinity, tone: 'danger' },
+];
 
 export default _component(() => () => (
   <Card>
@@ -21,7 +24,7 @@ export default _component(() => () => (
           key={name}
           value={used}
           max={total}
-          tone={toneOf(used / total)}
+          bands={bandsOf(total)}
           label={name}
           valueLabel={`${used.toLocaleString()} / ${total.toLocaleString()} ${unit}`}
           valueText={(value, max) => `${value.toString()} / ${max.toString()} ${unit}`}

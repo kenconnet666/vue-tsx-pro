@@ -25,7 +25,7 @@
  * 部件：Root（外壳）、Tags（多选时的那排标签）、Tag、Trigger（button，主元素）、Value、Clear、Chevron、Popover、
  * Search（TextField）、Tree。
  */
-import { ChevronDown, Search } from '@lucide/icons';
+import { ChevronDown } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { useId, watch } from 'vue';
@@ -69,7 +69,7 @@ import { listPopoverStyles } from './ListPopover';
 import { useRemoteItems } from './remote-items';
 import { selectPart, selectStyles, type SelectManaged } from './Select';
 import { SelectedTags, type SelectedTagsProps } from './SelectedTags';
-import { TextField, type TextFieldProps } from './TextField';
+import { SearchField, type SearchFieldProps } from './SearchField';
 
 /** 未声明的属性落到触发按钮（主元素）上，外壳用 propsRoot */
 export interface TreeSelectProps<T>
@@ -140,7 +140,7 @@ export interface TreeSelectProps<T>
   /** 弹出层的部件属性 */
   propsPopover?: PartProps<'div', 'id' | 'popover'>;
   /** 搜索框的部件属性（searchable 时） */
-  propsSearch?: Partial<TextFieldProps>;
+  propsSearch?: Partial<SearchFieldProps>;
   /** 树的部件属性 */
   propsTree?: Partial<TreeProps<T>>;
 }
@@ -511,18 +511,11 @@ export const TreeSelect = _component(
           >
             {searchable && (
               <div {...css.attrs(listPopoverStyles.header)}>
-                <TextField
-                  {...mergePartProps<TextFieldProps>(
-                    {
-                      icon: Search,
-                      variant: 'soft',
-                      placeholder: lang.selectSearch,
-                      'aria-label': lang.selectSearch,
-                      propsRoot: { sx: selectStyles.search },
-                    },
+                <SearchField
+                  {...mergePartProps<SearchFieldProps>(
+                    { variant: 'soft', propsRoot: { sx: selectStyles.search } },
                     propsSearch,
                   )}
-                  type="search"
                   _value={search}
                   aria-controls={treeId}
                   onKeydown={onSearchKeydown}
