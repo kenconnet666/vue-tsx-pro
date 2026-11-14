@@ -111,6 +111,7 @@ export const Affix = _component(
                     : affixPositionStyles.top(offsetTop ?? 0),
                   shadow && stuck && affixStyles.stuck,
                 ],
+                ...affixPart('root'),
               },
               rest,
             )}

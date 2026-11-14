@@ -5,6 +5,7 @@ import backTopApi from 'virtual:api/BackTopProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import SubmitBar from './demo/SubmitBar.tsx?demo';
 import Toolbar from './demo/Toolbar.tsx?demo';
 
 export const meta = {
@@ -26,6 +27,12 @@ export default _component(() => () => (
       <Code>BackTop</Code> 在整页（或 <Code>target</Code> 给的容器）滚过 <Code>threshold</Code>{' '}
       后出现在右下角，点了平滑滚回顶部（减少动态效果时直接跳回），焦点也回到开头。它是一个
       FloatButton，可以和客服、反馈按钮一起放进 FloatButtonGroup。
+    </Example>
+    <Example id="bottom" title="贴在底部的提交栏" demo={SubmitBar}>
+      <Code>offsetBottom</Code>{' '}
+      把它贴在底边：长表单的保存、提交一直够得着，滚到表单末尾时回到原来的位置。还压着下面的内容时有阴影（
+      <Code>shadow={'{false}'}</Code> 关掉）、写 data-stuck，<Code>onChange</Code>{' '}
+      报告贴住与离开——这里用它提示下面还有没有内容。
     </Example>
     <ApiReference api={[api, backTopApi]} />
   </DocPage>
