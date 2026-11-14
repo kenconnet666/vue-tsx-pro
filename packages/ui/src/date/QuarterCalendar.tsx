@@ -111,6 +111,12 @@ export const QuarterCalendar = _component(
     let hovered = _state<string | null>(null);
     let root = _state.raw<HTMLElement | null>(null);
     // 父级从外面改了值（快捷按钮、重置）：翻到它那一年，焦点也过去（同 Calendar）
+    // 默认停在本季度时：水合后“今天”从服务端渲染的那天换成真实的，用户还没动过就跟过去
+    watch(current, (next, previous) => {
+      if (chosen() != null || focused !== previous) return;
+      focused = next;
+      year = yearOf(next);
+    });
     watch(chosen, (key) => {
       if (key == null || key === focused) return;
       focused = key;
@@ -202,6 +208,7 @@ export const QuarterCalendar = _component(
           {...mergeAttrs<'div'>(s.root, rest, {
             ref: _toRef(root),
             role: 'group',
+            ...locale.rootAttrs(),
           })}
           data-view="quarter"
           data-disabled={disabled || undefined}

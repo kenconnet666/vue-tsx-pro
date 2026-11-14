@@ -21,7 +21,7 @@ const NOW_ATTR = 'data-now';
 export const nowAttrs = (now: number) => ({ [NOW_ATTR]: now });
 
 /** 正在水合时，服务端渲染的根元素上记下的“现在”；不是水合（客户端渲染、服务端）时为 undefined */
-function hydratingNow(): number | undefined {
+export function hydratingNow(): number | undefined {
   if (!isHydrating()) return undefined;
   // 根节点可能不是元素（片段的注释节点）：按 nodeType 判断
   const el = getCurrentInstance()!.vnode.el as Element;

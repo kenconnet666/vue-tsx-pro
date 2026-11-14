@@ -1,5 +1,13 @@
 /** 组件挂载了没有：服务端渲染与水合时为 false，挂载后变成 true */
-import { getCurrentInstance, onMounted, shallowRef, type ShallowRef } from 'vue';
+import {
+  getCurrentInstance,
+  hasInjectionContext,
+  inject,
+  onMounted,
+  shallowRef,
+  ssrContextKey,
+  type ShallowRef,
+} from 'vue';
 
 /**
  * 挂载后才变成 true 的状态（在 setup 里调用）。只能在浏览器里判断的东西（某个 API 支不支持、量出来的尺寸）
@@ -19,4 +27,15 @@ export function useMounted(): Readonly<ShallowRef<boolean>> {
 export function isHydrating(): boolean {
   // 水合时组件的 vnode.el 在 setup 之前就指向服务端渲染的节点
   return typeof document !== 'undefined' && getCurrentInstance()?.vnode.el != null;
+}
+
+/**
+ * 是不是在做服务端渲染（在 setup 里调用）。没有 document 的环境一定是；renderToString 总会提供服务端渲染的上下文，
+ * 所以在有 document 的环境里做服务端渲染（测试）也认得出来
+ */
+export function isServerRendering(): boolean {
+  return (
+    typeof document === 'undefined' ||
+    (hasInjectionContext() && inject(ssrContextKey, null) != null)
+  );
 }

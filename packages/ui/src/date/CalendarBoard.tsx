@@ -486,6 +486,7 @@ export const CalendarBoard = _component(
           {...mergeAttrs<'div'>({ sx: calendarBoardStyles.root, ...boardPart('root') }, rest, {
             ref: _toRef(root),
             role: 'group',
+            ...locale.rootAttrs(),
           })}
         >
           <div

@@ -940,7 +940,7 @@ export {
   type CalendarState,
   type CalendarStateOptions,
 } from './date/calendar-state';
-export { nowAttrs, useNow } from './date/clock';
+export { hydratingNow, nowAttrs, useNow } from './date/clock';
 export {
   toDateLimits,
   useDateLocale,
@@ -1502,7 +1502,7 @@ export {
   usePrefersMoreContrast,
   useReducedMotion,
 } from './utils/dom/media-query';
-export { isHydrating, useMounted } from './utils/dom/mounted';
+export { isHydrating, isServerRendering, useMounted } from './utils/dom/mounted';
 export { startMove, type MoveOptions, type MovePoint } from './utils/dom/move';
 export {
   openSetter,

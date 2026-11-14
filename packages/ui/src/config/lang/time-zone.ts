@@ -11,8 +11,7 @@
  *   Vue 不会改回来：相对时间的悬停提示一直是服务器时区的时间。
  */
 import { getLocalTimeZone } from '@internationalized/date';
-import { hasInjectionContext, inject, ssrContextKey } from 'vue';
-import { isHydrating, useMounted } from '../../utils/dom/mounted';
+import { isHydrating, isServerRendering, useMounted } from '../../utils/dom/mounted';
 import { useLang } from '../context';
 
 /** 没配置时区时服务端渲染用的时区 */
@@ -21,11 +20,7 @@ const SERVER_TIME_ZONE = 'UTC';
 /** 当前的时区（见文件开头） */
 export function useTimeZone(): () => string {
   const lang = useLang();
-  // renderToString 总会提供服务端渲染的上下文：在有 document 的环境里做服务端渲染（测试）也认得出来
-  const server =
-    typeof document === 'undefined' ||
-    (hasInjectionContext() && inject(ssrContextKey, null) != null);
-  if (server) return () => lang.timeZone ?? SERVER_TIME_ZONE;
+  if (isServerRendering()) return () => lang.timeZone ?? SERVER_TIME_ZONE;
   if (!isHydrating()) return () => lang.timeZone ?? getLocalTimeZone();
   const mounted = useMounted();
   return () => lang.timeZone ?? (mounted.value ? getLocalTimeZone() : SERVER_TIME_ZONE);

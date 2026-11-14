@@ -107,6 +107,7 @@ export const RangeCalendar = _component(
     return () => (
       <CalendarView
         {...rest}
+        {...locale.rootAttrs()}
         calendar={calendar}
         firstDayOfWeek={firstDayOfWeek}
         disabled={disabled}

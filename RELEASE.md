@@ -21,7 +21,12 @@
   浏览器的时区水合，属性的不一致不会被改回来：RelativeTime 的悬停提示一直是服务器时区的时间（服务器在 UTC、用户在东八区
   时差 8 小时）。涉及 `useFormat()` 的 `date` / `relative`（DateTime、RelativeTime、表格的日期列）、Countdown、日历的“今天”、
   TimelineChart。语言配置了 `timeZone` 的、不做服务端渲染的项目没有变化。
-- 新增 `useTimeZone()`：在 setup 里取“当前的时区”的读取函数，自己换算时刻时用它，服务端渲染与水合期间和组件一致。
+- **日历的“今天”**（Calendar、RangeCalendar、QuarterCalendar、CalendarBoard）：服务端渲染时把渲染的时刻记在根元素上
+  （`data-now`），水合时先按它算今天，挂载后换成真实的今天；没有值、没指定默认日期时，显示的月份也跟到这个月。
+  之前静态生成的页面隔几天再打开，今天的标记还停在构建那天（区间日历甚至不标真正的今天）。
+- 新增 `useTimeZone()`：在 setup 里取“当前的时区”的读取函数，自己换算时刻时用它，服务端渲染与水合期间和组件一致；
+  `isServerRendering()`：在 setup 里判断是不是在做服务端渲染。`useDateLocale()` 的返回值多了 `rootAttrs()`
+  （自己用它的 `today()` 写日历类组件时，展开到根元素上）。
 
 ## 每次发布
 

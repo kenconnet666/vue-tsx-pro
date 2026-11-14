@@ -151,6 +151,19 @@ export function useCalendarState(config: CalendarStateOptions): CalendarState {
   const initial = config.selected()[0] ?? config.defaultFocused?.() ?? config.today();
   const focused = shallowRef(clampDate(initial, config.limits()));
   const page = shallowRef(pageOf(focused.value, view.value));
+  // 默认停在“今天”时：水合后“今天”从服务端渲染的那天换成真实的，用户还没动过就跟过去
+  // （静态页面隔月再打开，不停在构建的那个月）
+  if (config.selected()[0] == null && config.defaultFocused?.() == null) {
+    watch(
+      () => config.today(),
+      (next, previous) => {
+        if (next.compare(previous) === 0) return;
+        if (focused.value.compare(clampDate(previous, config.limits())) !== 0) return;
+        focused.value = clampDate(next, config.limits());
+        page.value = pageOf(focused.value, view.value);
+      },
+    );
+  }
 
   /** 日期所在页的第一格 */
   function pageOf(date: CalendarDate, current: DateUnit): CalendarDate {

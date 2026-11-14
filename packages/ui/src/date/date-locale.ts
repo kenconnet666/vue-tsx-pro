@@ -10,6 +10,7 @@ import {
   CalendarDate,
   DateFormatter,
   GregorianCalendar,
+  fromAbsolute,
   toCalendar,
   toCalendarDate,
   today,
@@ -18,6 +19,8 @@ import {
 } from '@internationalized/date';
 import { useLang } from '../config/context';
 import { useTimeZone } from '../config/lang/time-zone';
+import { isServerRendering, useMounted } from '../utils/dom/mounted';
+import { hydratingNow, nowAttrs } from './clock';
 import {
   calendarOf,
   parseIsoDate,
@@ -58,6 +61,11 @@ export interface DateLocale {
   readonly week: WeekOptions;
   /** 今天，按时区与日历系统 */
   today(): CalendarDate;
+  /**
+   * 要展开到组件根元素上的属性（用到 today 的组件都要展开）：服务端渲染时记下算“今天”的时刻，水合时据此先渲染出和
+   * 服务端一样的“今天”，挂载后换成真实的今天——静态页面隔几天再打开，今天的标记不停在构建那天
+   */
+  rootAttrs(): Readonly<Record<string, number>> | undefined;
   /** 值（ISO 字符串或 DateValue）→ 显示用的日期（当前日历系统）；空值、格式不对时 null */
   fromValue(value: DateInput | null | undefined): CalendarDate | null;
   /** 显示用的日期 → ISO 日期（公历） */
@@ -72,6 +80,11 @@ export function useDateLocale(read: () => DateLocaleOverrides = () => ({})): Dat
   // “今天”按这个时区算：服务端渲染与水合期间见 useTimeZone
   const zone = useTimeZone();
   const calendar = () => calendarOf(lang.calendar);
+  // “今天”按哪个时刻算：服务端渲染时是渲染的时刻（写在根元素上，见 rootAttrs），水合时先取它，挂载后是真实的现在
+  const server = isServerRendering();
+  const renderedAt = server ? Date.now() : hydratingNow();
+  const mounted = !server && renderedAt != null ? useMounted() : undefined;
+  const pinnedNow = () => (server || mounted?.value === false ? renderedAt : undefined);
   return {
     get locale() {
       return lang.code;
@@ -86,7 +99,13 @@ export function useDateLocale(read: () => DateLocaleOverrides = () => ({})): Dat
       return { locale: lang.code, firstDayOfWeek: read().firstDayOfWeek ?? lang.firstDayOfWeek };
     },
     today() {
-      return toCalendar(today(zone()), calendar());
+      const at = pinnedNow();
+      const date = at == null ? today(zone()) : toCalendarDate(fromAbsolute(at, zone()));
+      return toCalendar(date, calendar());
+    },
+    rootAttrs() {
+      const at = pinnedNow();
+      return at == null ? undefined : nowAttrs(at);
     },
     fromValue(value) {
       if (value == null) return null;
