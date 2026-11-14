@@ -160,7 +160,7 @@
 - 关联 id 用 Vue 3.5 的 `useId()` 生成；使用方传了 `id` 时以使用方为准。
 - 中文输入法：输入类组件在 `compositionstart`/`compositionend` 之间不触发校验、搜索与格式化。
 - 弹层类组件的触发器用渲染函数 `trigger={(props) => <Button {...props} />}`；`ref` 落在组件上拿到的是实例，用 `toElement` 解析成根元素。
-- 弹层用原生 `popover`（非模态）与 `<dialog>.showModal()`（模态），floating-ui 只负责定位。顶层渲染、Esc、点击外部、嵌套弹层的关闭顺序、模态时背景 `inert` 都交给浏览器；这些依赖写成了三大浏览器上的回归测试（`apps/host-demo/test/native-overlay.browser.test.ts`），所以**不另建 JS 弹层栈**。
+- 弹层用原生 `popover`（非模态）与 `<dialog>.showModal()`（模态），定位自己算（utils/dom/floating）。顶层渲染、Esc、点击外部、嵌套弹层的关闭顺序、模态时背景 `inert` 都交给浏览器；这些依赖写成了三大浏览器上的回归测试（`apps/host-demo/test/native-overlay.browser.test.ts`），所以**不另建 JS 弹层栈**。
 - 浏览器不做或做得不一致的，由 `utils/dom/overlay` 补上，弹层组件都要用：
   - `focusOrigin()` 在打开前记下焦点来源，关闭后 `returnFocus(弹层, 来源)` 把焦点还回去（WebKit 关闭原生弹层后会把焦点留在弹层里；Safari 点击按钮不聚焦它，`focusOrigin` 会取最近按下的元素）；
   - 打开时 `focusFirst(弹层)`；模态里 `trapFocus(弹层)` 做焦点循环（原生不循环）；
@@ -327,7 +327,6 @@ interface Lang {
 
 | 用途     | 选择                                | 说明                                                                                                                                                   |
 | -------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 浮层定位 | `@floating-ui/dom`                  | 只算位置；弹层本身用原生 Popover API / `<dialog>`                                                                                                      |
 | 图标     | `@lucide/icons`（peer，使用方安装） | 只有图标数据，按名导入可摇树；渲染用 `Icon`（`base/Icon.tsx`）                                                                                         |
 | 日期     | `@internationalized/date`           | 日历运算、时区、地区周起始日、非公历                                                                                                                   |
 | 精确数字 | `decimal.js`                        | 数字输入、金额                                                                                                                                         |

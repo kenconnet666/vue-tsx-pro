@@ -2,7 +2,6 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { expect, it } from 'vitest';
-import { computePosition } from '@floating-ui/dom';
 import { parseDate } from '@internationalized/date';
 import { Check } from '@lucide/icons';
 import Decimal from 'decimal.js';
@@ -27,10 +26,6 @@ it('tabbable：找出可聚焦元素', () => {
   const root = document.createElement('div');
   root.innerHTML = '<button>a</button><span>b</span><input disabled /><a href="#">c</a>';
   expect(tabbable(root, { displayCheck: 'none' }).map((el) => el.tagName)).toEqual(['BUTTON', 'A']);
-});
-
-it('@floating-ui/dom：可以导入定位函数', () => {
-  expect(computePosition).toBeTypeOf('function');
 });
 
 // 可选 peer 依赖：3D 组件（子路径 @zerodep-dev/vue-tsx-pro-ui/three）用，组件库开发时安装

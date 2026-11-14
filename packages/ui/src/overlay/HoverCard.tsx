@@ -1,7 +1,7 @@
 /**
  * 悬停卡片：指针停在触发器（通常是链接、用户名）上、或用键盘聚焦它时，弹出一张富内容卡片（用户资料、链接预览）。
  * 开关时机同 Tooltip（useHoverIntent：停留后打开、可以移到卡片上、同组只开一个、刚关掉一个时下一个直接打开），
- * 定位同 Popover（floating-ui，可选箭头）。参考 Radix HoverCard。
+ * 定位同 Popover（utils/dom/floating，可选箭头）。参考 Radix HoverCard。
  *
  *   <HoverCard trigger={(props) => <Link {...props} href="/u/ada">@ada</Link>}>
  *     <Avatar name="Ada Lovelace" /> …

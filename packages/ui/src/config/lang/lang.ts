@@ -108,6 +108,30 @@ export interface Lang {
   readonly lightboxPrevious: string;
   /** 图片预览：下一张，默认“下一张” */
   readonly lightboxNext: string;
+  /** 视频：播放按钮，默认“播放” */
+  readonly videoPlay: string;
+  /** 视频：暂停按钮，默认“暂停” */
+  readonly videoPause: string;
+  /** 视频：静音按钮，默认“静音” */
+  readonly videoMute: string;
+  /** 视频：取消静音按钮，默认“取消静音” */
+  readonly videoUnmute: string;
+  /** 视频：音量滑块的名称，默认“音量” */
+  readonly videoVolume: string;
+  /** 视频：进度滑块的名称，默认“播放进度” */
+  readonly videoSeek: string;
+  /** 视频：进度滑块念的取值：`('1:05', '3:20')` → “1:05，共 3:20” */
+  readonly videoTime: (current: string, duration: string) => string;
+  /** 视频：倍速菜单的名称，默认“播放速度” */
+  readonly videoSpeed: string;
+  /** 视频：字幕菜单的名称，默认“字幕” */
+  readonly videoCaptions: string;
+  /** 视频：字幕菜单里“不显示”的一项，默认“关闭” */
+  readonly videoCaptionsOff: string;
+  /** 视频：全屏按钮，默认“全屏” */
+  readonly videoFullscreen: string;
+  /** 视频：退出全屏按钮，默认“退出全屏” */
+  readonly videoExitFullscreen: string;
   /** 描述列表里复制一项的值的按钮：`('订单号')` → “复制订单号” */
   readonly descriptionsCopy: (label: string) => string;
   /** 字段对比的表头：字段、原值、新值、变化 */

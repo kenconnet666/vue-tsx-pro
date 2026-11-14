@@ -23,7 +23,6 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { autoUpdate } from '@floating-ui/dom';
 import { nextTick, onBeforeUnmount, useId, type VNodeChild } from 'vue';
 import { Button, type ButtonProps } from '../base/Button';
 import { H2, type HeadingProps } from '../base/Heading';
@@ -33,7 +32,12 @@ import { Flex, type FlexProps } from '../layout/Flex';
 import { clamp } from '../utils/data/number';
 import { isRtl } from '../utils/dom/direction';
 import { isEditable } from '../utils/dom/hotkeys';
-import { anchorFloating, floatingStyles, type FloatingPlacement } from '../utils/dom/floating';
+import {
+  anchorFloating,
+  autoUpdate,
+  floatingStyles,
+  type FloatingPlacement,
+} from '../utils/dom/floating';
 import {
   openSetter,
   type OpenChangeDetails,

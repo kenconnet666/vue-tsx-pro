@@ -1,6 +1,6 @@
 /**
  * 弹出框（非模态）：点击触发器在旁边弹出一块内容（筛选条件、简短表单、详情），点击外部或 Esc 关闭。
- * 原生 popover="auto" 负责顶层渲染、Esc、点击外部与嵌套顺序，floating-ui 负责定位（utils/dom/floating）。
+ * 原生 popover="auto" 负责顶层渲染、Esc、点击外部与嵌套顺序，位置由 utils/dom/floating 计算。
  * 打开时焦点移到第一个可聚焦元素（有 autofocus 的优先），关闭后回到触发器。参考 Radix Popover。
  *
  *   <Popover _open={open} trigger={(props) => <Button {...props}>筛选</Button>}>…</Popover>
@@ -64,7 +64,7 @@ const popoverStyles = css.create({
   panel: { padding: '_md', maxWidth: 'calc(100vw - 2em)' },
 });
 
-/** 弹出框：原生 popover + floating-ui 定位，打开时焦点进入、关闭后回到触发器 */
+/** 弹出框：原生 popover + 自己算的定位，打开时焦点进入、关闭后回到触发器 */
 export const Popover = _component(
   ({
     _open: open = _bindable(false),

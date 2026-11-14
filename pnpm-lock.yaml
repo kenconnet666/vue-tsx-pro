@@ -236,9 +236,6 @@ catalogs:
     '@emotion/css':
       specifier: 11.13.5
       version: 11.13.5
-    '@floating-ui/dom':
-      specifier: 1.8.0
-      version: 1.8.0
     '@internationalized/date':
       specifier: 3.12.4
       version: 3.12.4
@@ -463,9 +460,6 @@ importers:
       '@electric-sql/pglite':
         specifier: 'catalog:'
         version: 0.5.10
-      '@floating-ui/dom':
-        specifier: 'catalog:'
-        version: 1.8.0
       '@internationalized/date':
         specifier: 'catalog:'
         version: 3.12.4
@@ -563,9 +557,6 @@ importers:
 
   apps/fullstack-demo:
     dependencies:
-      '@floating-ui/dom':
-        specifier: 'catalog:'
-        version: 1.8.0
       '@lucide/icons':
         specifier: 'catalog:'
         version: 1.69.0
@@ -621,9 +612,6 @@ importers:
 
   apps/host-demo:
     dependencies:
-      '@floating-ui/dom':
-        specifier: 'catalog:'
-        version: 1.8.0
       '@lucide/icons':
         specifier: 'catalog:'
         version: 1.69.0
@@ -1013,9 +1001,6 @@ importers:
 
   packages/ui:
     dependencies:
-      '@floating-ui/dom':
-        specifier: 'catalog:'
-        version: 1.8.0
       '@internationalized/date':
         specifier: 'catalog:'
         version: 3.12.4
@@ -1410,15 +1395,6 @@ packages:
 
   '@fast-csv/parse@4.3.6':
     resolution: {integrity: sha512-uRsLYksqpbDmWaSmzvJcuApSEe38+6NQZBUsuAyMZKqHxH0g1wcJgsKUvN3WC8tewaqFjBMMGrkHmC+T7k8LvA==}
-
-  '@floating-ui/core@1.8.0':
-    resolution: {integrity: sha512-0CIZ5itps/8x7BG8dEIhs53BvCUH2PCoogtakwRTut+Arm58sJooJ0AuZhLw2HJYIR5cMLNPBSS728sPho2khQ==}
-
-  '@floating-ui/dom@1.8.0':
-    resolution: {integrity: sha512-yXSrzeHZBTZadLOlfyhCkJHNeLJnHRnRInwdZ40L7ZiaAtrBwoYlsDrX3v5zB1Utk7CLfzcOVnVVWoXEky7Ceg==}
-
-  '@floating-ui/utils@0.2.12':
-    resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
   '@hono/node-server@2.1.5':
     resolution: {integrity: sha512-MgP/I06GdvsilDspMk/qmRzpk8LOUStP6jFAbSRi40W09DhoyUn+Mj7eyKICPqeYKybOjVFLVIAQzvu1bfIa7Q==}
@@ -5159,17 +5135,6 @@ snapshots:
       lodash.isnil: 4.0.0
       lodash.isundefined: 3.0.1
       lodash.uniq: 4.5.0
-
-  '@floating-ui/core@1.8.0':
-    dependencies:
-      '@floating-ui/utils': 0.2.12
-
-  '@floating-ui/dom@1.8.0':
-    dependencies:
-      '@floating-ui/core': 1.8.0
-      '@floating-ui/utils': 0.2.12
-
-  '@floating-ui/utils@0.2.12': {}
 
   '@hono/node-server@2.1.5(hono@4.13.13)':
     dependencies:

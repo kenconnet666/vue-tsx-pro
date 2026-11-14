@@ -17,7 +17,8 @@ import type { VNodeChild } from 'vue';
 import { Icon } from '../base/Icon';
 import { useLang } from '../config/context';
 import { focusControl } from '../utils/dom/focus';
-import { mergeAttrs, type PartProps } from '../utils/props';
+import { Link, type LinkProps } from '../base/Link';
+import { mergeAttrs, mergePartProps, type PartProps } from '../utils/props';
 import { focusRingStyles } from '../utils/style/styles';
 import { statusIcons } from '../utils/style/tone-styles';
 import { FormContext } from './Form';
@@ -31,14 +32,14 @@ export interface FormErrorSummaryProps extends PartProps<'div', 'title' | 'tabin
   propsTitle?: PartProps<'div'>;
   /** 列表的部件属性 */
   propsList?: PartProps<'ul'>;
-  /** 每一项链接的部件属性 */
-  propsLink?: PartProps<'a', 'href'>;
+  /** 每一项链接（Link）的部件属性 */
+  propsLink?: Partial<Omit<LinkProps, 'href'>>;
 }
 
 /** 部件的标记（data-scope="form-error-summary"） */
 const formErrorSummaryPart = (part: string) => partAttrs({ name: 'FormErrorSummary' }, part);
 
-/** FormErrorSummary 的样式：root、title、list、link */
+/** FormErrorSummary 的样式：root、title、list */
 const formErrorSummaryStyles = css.create({
   root: {
     display: 'flex',
@@ -60,11 +61,6 @@ const formErrorSummaryStyles = css.create({
     color: '_dangerText',
   },
   list: { margin: 0, paddingInlineStart: '1.5em', display: 'grid', gap: '_xs' },
-  link: {
-    color: '_dangerText',
-    textDecoration: { default: 'underline', _hover: 'none' },
-    textUnderlineOffset: '0.2em',
-  },
 });
 
 /** 错误汇总：提交没通过时列出各项错误，点了跳到字段 */
@@ -127,9 +123,15 @@ export const FormErrorSummary = _component(
             {list.map((item) => (
               <li key={item.path}>
                 {item.controlId ? (
-                  <a
-                    {...mergeAttrs<'a'>(
-                      { sx: formErrorSummaryStyles.link, ...formErrorSummaryPart('link') },
+                  // Link：下划线、悬停、焦点环与别处的链接一致，危险色。页内的 #id 不经路由；
+                  // 点击由这里接住（聚焦到控件上，不只是滚过去）
+                  <Link
+                    {...mergePartProps<LinkProps>(
+                      {
+                        href: `#${item.controlId}`,
+                        tone: 'danger',
+                        ...formErrorSummaryPart('link'),
+                      },
                       propsLink,
                       {
                         href: `#${item.controlId}`,
@@ -138,7 +140,7 @@ export const FormErrorSummary = _component(
                     )}
                   >
                     {item.label ? lang.formErrorItem(item.label, item.message) : item.message}
-                  </a>
+                  </Link>
                 ) : (
                   item.message
                 )}

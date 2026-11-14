@@ -1,5 +1,5 @@
 /**
- * 锚定浮层：Popover、Tooltip、Menu、Select 的弹出层贴着触发器显示。位置由 floating-ui 计算，
+ * 锚定浮层：Popover、Tooltip、Menu、Select 的弹出层贴着触发器显示。位置在这里算（computePlacement），
  * 显示、隐藏、Esc、点击外部仍交给原生 popover；createAnchoredLayer 把两者串成打开、关闭的流程。
  *
  *   const anchored = anchorFloating(trigger, panel, { placement: 'bottom-start' });
@@ -8,22 +8,14 @@
  *   sx: [floatingStyles.anchored, …]   // 浮层自己的样式：去掉原生 popover 默认的居中与外边距
  *
  * - 第一次算好位置之前浮层是 visibility: hidden，不会在默认位置闪一下；
- * - 空间不够时翻到另一侧（flip）、贴着视口边缘挪回来（shift），滚动、缩放、锚点变化时自动重新定位（autoUpdate）；
- * - start / end 对齐是逻辑方向，从右到左排版下自动镜像（floating-ui 读浮层的 direction）；
+ * - 空间不够时翻到另一侧、贴着视口边缘挪回来，滚动、缩放、锚点或浮层变了大小、锚点挪了位置时自动重新定位（autoUpdate）；
+ * - start / end 对齐是逻辑方向，从右到左排版下自动镜像（读浮层的 direction）；
  * - 最终方向写到 data-side / data-align，缩放原点（transform-origin）朝向锚点，进出场的 scale 过渡从锚点那侧展开。
+ *
+ * 浮层都在顶层（原生 popover、模态对话框里）、position: fixed：坐标就是视口坐标，不用处理定位祖先、裁剪祖先。
+ * 以前用 @floating-ui/dom，它为任意定位方式、任意容器做的那部分这里用不到；自己算的这一版多做了两件事：
+ * 坐标对齐到设备像素（文字不发虚），两侧都放不下时选空间大的一侧再限高（而不是选溢出最少的）。
  */
-import {
-  arrow as arrowMiddleware,
-  autoUpdate,
-  computePosition,
-  flip,
-  offset,
-  shift,
-  size,
-  type Middleware,
-  type Placement,
-  type VirtualElement,
-} from '@floating-ui/dom';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { onScopeDispose, watchPostEffect } from 'vue';
 import type { SxStyles } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
@@ -60,16 +52,24 @@ export interface FloatingPlacements {
 }
 
 /** 弹出位置 */
-export type FloatingPlacement = keyof FloatingPlacements & Placement;
+export type FloatingPlacement = keyof FloatingPlacements;
+
+/** 只有位置的虚拟锚点：指针的位置、文本框里光标的位置 */
+export interface VirtualAnchor {
+  /** 现在的位置（视口坐标）；每次重新定位都会调用 */
+  getBoundingClientRect: () => DOMRect;
+  /** 它所在的元素（光标所在的文本框）：这个元素被滚动、变了大小时重新定位 */
+  contextElement?: Element;
+}
 
 /**
  * 锚点：元素，或只有位置的虚拟锚点（右键菜单从指针的位置弹出：`pointAnchor(x, y)`）。
  * 虚拟锚点没有元素可以还焦点，关闭后焦点由组件自己安排
  */
-export type FloatingAnchor = HTMLElement | VirtualElement;
+export type FloatingAnchor = HTMLElement | VirtualAnchor;
 
 /** 视口里一个点（clientX / clientY）做锚点 */
-export function pointAnchor(x: number, y: number): VirtualElement {
+export function pointAnchor(x: number, y: number): VirtualAnchor {
   return { getBoundingClientRect: () => new DOMRect(x, y, 0, 0) };
 }
 
@@ -97,7 +97,9 @@ export interface Anchored {
   stop(): void;
 }
 
-type Side = 'top' | 'right' | 'bottom' | 'left';
+/** 浮层在锚点的哪一侧 */
+export type FloatingSide = 'top' | 'right' | 'bottom' | 'left';
+type Side = FloatingSide;
 
 /** 缩放原点朝向锚点：弹出在下方时从上边缘展开 */
 const TRANSFORM_ORIGIN: Record<Side, string> = {
@@ -184,6 +186,258 @@ export const floatingStyles = css.create({
 /** 与视口边缘至少留出的距离（px） */
 const VIEWPORT_PADDING = 8;
 
+/** 矩形（视口坐标，px） */
+export interface FloatingRect {
+  /** 左边 */
+  left: number;
+  /** 上边 */
+  top: number;
+  /** 宽 */
+  width: number;
+  /** 高 */
+  height: number;
+}
+
+/** computePlacement 的输入：都是量好的数，不碰 DOM */
+export interface PlacementInput {
+  /** 锚点的位置 */
+  anchor: FloatingRect;
+  /** 浮层的宽（布局尺寸，不受进出场的缩放影响） */
+  width: number;
+  /** 浮层的高 */
+  height: number;
+  /** 看得见的视口 */
+  viewport: FloatingRect;
+  /** 想要的位置 */
+  placement: FloatingPlacement;
+  /** 与锚点的距离 */
+  gap: number;
+  /** 浮层是不是从右到左排版：start / end 镜像 */
+  rtl: boolean;
+  /** 与视口边缘至少留出的距离 */
+  padding: number;
+  /** 主方向与对侧都放不下时，再试垂直的两侧 */
+  crossAxisFallback?: boolean;
+  /** 箭头：边长，与离浮层两端至少留出的距离 */
+  arrow?: { size: number; padding: number };
+}
+
+/** computePlacement 的结果 */
+export interface PlacementResult {
+  /** 浮层的左边 */
+  x: number;
+  /** 浮层的上边 */
+  y: number;
+  /** 最后在锚点的哪一侧 */
+  side: Side;
+  /** 对齐方式 */
+  align: 'start' | 'center' | 'end';
+  /** 箭头在浮层里的横向位置（上下弹出时） */
+  arrowX?: number;
+  /** 箭头在浮层里的纵向位置（左右弹出时） */
+  arrowY?: number;
+  /** 这一侧能用的高度：fitHeight 写成浮层的最大高度 */
+  availableHeight: number;
+}
+
+const OPPOSITE: Record<Side, Side> = { top: 'bottom', right: 'left', bottom: 'top', left: 'right' };
+const isVertical = (side: Side) => side === 'top' || side === 'bottom';
+/** 夹在 min–max 之间；放不下（max < min）时贴着 min 那一边 */
+const clampTo = (value: number, min: number, max: number) => Math.max(min, Math.min(value, max));
+
+/** 浮层在锚点这一侧、这样对齐时的左上角 */
+function coordsOf(
+  side: Side,
+  align: PlacementResult['align'],
+  { anchor, width, height, gap, rtl }: PlacementInput,
+) {
+  const right = anchor.left + anchor.width;
+  const bottom = anchor.top + anchor.height;
+  if (isVertical(side)) {
+    // start / end 是逻辑方向：从右到左排版时 start 贴锚点的右边
+    const atLeft = align === 'center' ? null : (align === 'start') !== rtl;
+    return {
+      x:
+        atLeft == null
+          ? anchor.left + (anchor.width - width) / 2
+          : atLeft
+            ? anchor.left
+            : right - width,
+      y: side === 'top' ? anchor.top - height - gap : bottom + gap,
+    };
+  }
+  return {
+    x: side === 'left' ? anchor.left - width - gap : right + gap,
+    y:
+      align === 'start'
+        ? anchor.top
+        : align === 'end'
+          ? bottom - height
+          : anchor.top + (anchor.height - height) / 2,
+  };
+}
+
+/**
+ * 算浮层的位置（纯函数，定位的全部规则都在这里）：
+ * 1. 按想要的一侧放；放不下换对侧（crossAxisFallback 时再试垂直的两侧）；都放不下选空间最大的一侧；
+ * 2. 沿着对齐的方向挪回视口里；
+ * 3. 箭头对准锚点的中间，但不画到浮层的圆角外；
+ * 4. 报告这一侧能用的高度。
+ */
+export function computePlacement(input: PlacementInput): PlacementResult {
+  const { anchor, width, height, viewport, placement, padding, rtl, arrow } = input;
+  const [wanted, align = 'center'] = placement.split('-') as [Side, PlacementResult['align']?];
+  const bounds = {
+    left: viewport.left + padding,
+    top: viewport.top + padding,
+    right: viewport.left + viewport.width - padding,
+    bottom: viewport.top + viewport.height - padding,
+  };
+  /** 这一侧还差多少放不下（≤ 0 放得下） */
+  const overflowOf = (side: Side) => {
+    const { x, y } = coordsOf(side, align, input);
+    if (side === 'top') return bounds.top - y;
+    if (side === 'bottom') return y + height - bounds.bottom;
+    if (side === 'left') return bounds.left - x;
+    return x + width - bounds.right;
+  };
+  const perpendicular: Side[] = isVertical(wanted)
+    ? rtl
+      ? ['left', 'right']
+      : ['right', 'left']
+    : ['bottom', 'top'];
+  const candidates = [
+    wanted,
+    OPPOSITE[wanted],
+    ...(input.crossAxisFallback ? perpendicular : []),
+  ].map((side) => ({ side, overflow: overflowOf(side) }));
+  const side = (
+    candidates.find((candidate) => candidate.overflow <= 0) ??
+    candidates.reduce((best, candidate) => (candidate.overflow < best.overflow ? candidate : best))
+  ).side;
+
+  let { x, y } = coordsOf(side, align, input);
+  if (isVertical(side)) x = clampTo(x, bounds.left, bounds.right - width);
+  else y = clampTo(y, bounds.top, bounds.bottom - height);
+
+  const result: PlacementResult = {
+    x,
+    y,
+    side,
+    align,
+    availableHeight: Math.max(
+      0,
+      side === 'bottom'
+        ? bounds.bottom - y
+        : side === 'top'
+          ? y + height - bounds.top
+          : bounds.bottom - bounds.top,
+    ),
+  };
+  if (arrow) {
+    // 对准锚点的中间；离浮层两端留出距离，尖角不画到圆角外
+    const along = (center: number, start: number, length: number) =>
+      clampTo(center - start - arrow.size / 2, arrow.padding, length - arrow.size - arrow.padding);
+    if (isVertical(side)) result.arrowX = along(anchor.left + anchor.width / 2, x, width);
+    else result.arrowY = along(anchor.top + anchor.height / 2, y, height);
+  }
+  return result;
+}
+
+/** 看得见的视口：手机上键盘弹出、双指放大时，是 visualViewport 那一块 */
+function viewportRect(): FloatingRect {
+  const view = window.visualViewport;
+  if (view) {
+    return { left: view.offsetLeft, top: view.offsetTop, width: view.width, height: view.height };
+  }
+  const root = document.documentElement;
+  return { left: 0, top: 0, width: root.clientWidth, height: root.clientHeight };
+}
+
+/**
+ * 元素挪了位置（没有滚动、没有变大小：上面的内容变高了，把它挤下去）时调用 onMove。
+ * 做法同 floating-ui 的 layoutShift：一个交叉观察器，根的范围正好收到元素的边上，元素一挪交叉比例就变；
+ * 每次变了按新位置重建。比每帧量一次省
+ */
+function observeMove(element: Element, onMove: () => void): () => void {
+  if (typeof IntersectionObserver === 'undefined') return () => {};
+  const root = document.documentElement;
+  let observer: IntersectionObserver | undefined;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const cleanup = () => {
+    clearTimeout(timer);
+    observer?.disconnect();
+    observer = undefined;
+  };
+  function watch(moved: boolean, threshold = 1) {
+    cleanup();
+    const { left, top, width, height } = element.getBoundingClientRect();
+    if (moved) onMove();
+    if (!width || !height) return;
+    const inset = (value: number) => `${-Math.floor(value)}px`;
+    const rootMargin = [
+      inset(top),
+      inset(root.clientWidth - (left + width)),
+      inset(root.clientHeight - (top + height)),
+      inset(left),
+    ].join(' ');
+    let first = true;
+    observer = new IntersectionObserver(
+      (entries) => {
+        const ratio = entries[0]!.intersectionRatio;
+        if (ratio !== threshold) {
+          if (!first) return watch(true);
+          // 元素有一部分在视口外：按现在的比例重新观察；完全在外面时过一会儿再看
+          if (ratio) watch(false, ratio);
+          else timer = setTimeout(() => watch(false, 1e-7), 1000);
+        }
+        first = false;
+      },
+      { rootMargin, threshold: clampTo(threshold, 0, 1) || 1 },
+    );
+    observer.observe(element);
+  }
+  watch(false);
+  return cleanup;
+}
+
+/**
+ * 锚点、浮层的位置或大小可能变了的时候调用 update：页面或锚点的祖先滚动、窗口与视口变了大小、锚点或浮层变了大小、
+ * 锚点挪了位置。先调用一次；返回停止的函数。
+ */
+export function autoUpdate(
+  anchor: FloatingAnchor,
+  floating: HTMLElement,
+  update: () => void,
+): () => void {
+  const element = anchor instanceof Element ? anchor : (anchor.contextElement ?? null);
+  // 滚动不冒泡，在 document 上捕获能收到任何元素的滚动：只管页面与锚点的祖先的
+  // （浮层里面自己滚、别处的容器滚，位置都不变）
+  const onScroll = (event: Event) => {
+    const target = event.target;
+    if (target === document || (target instanceof Node && element && target.contains(element)))
+      update();
+  };
+  const view = window.visualViewport;
+  document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+  window.addEventListener('resize', update);
+  view?.addEventListener('resize', update);
+  view?.addEventListener('scroll', update);
+  const resize = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(update);
+  if (element) resize?.observe(element);
+  resize?.observe(floating);
+  const stopMove = anchor instanceof Element ? observeMove(anchor, update) : undefined;
+  update();
+  return () => {
+    document.removeEventListener('scroll', onScroll, { capture: true });
+    window.removeEventListener('resize', update);
+    view?.removeEventListener('resize', update);
+    view?.removeEventListener('scroll', update);
+    resize?.disconnect();
+    stopMove?.();
+  };
+}
+
 /** 把 floating 定位到 anchor 旁边并持续跟随；floating 需要已经显示（如 showPopover 之后） */
 export function anchorFloating(
   anchor: FloatingAnchor,
@@ -199,60 +453,65 @@ export function anchorFloating(
 ): Anchored {
   // 箭头伸出浮层一半（旋转后的对角线的一半约等于边长的 0.7）：距离加上这一段，尖角才不压在锚点上
   const arrowSize = arrow?.offsetWidth ?? 0;
-  const middleware: Middleware[] = [
-    offset(distance + arrowSize * 0.7),
-    flip({
-      padding: VIEWPORT_PADDING,
-      fallbackAxisSideDirection: crossAxisFallback ? 'end' : 'none',
-    }),
-    shift({ padding: VIEWPORT_PADDING }),
-  ];
-  // 箭头离浮层的圆角留出距离，不会画到圆角外面
-  if (arrow) middleware.push(arrowMiddleware({ element: arrow, padding: arrowSize }));
-  if (matchWidth || fitHeight) {
-    middleware.push(
-      size({
-        padding: VIEWPORT_PADDING,
-        apply({ rects, availableHeight, elements }) {
-          if (matchWidth) elements.floating.style.minWidth = `${rects.reference.width}px`;
-          if (fitHeight) elements.floating.style.maxHeight = `${Math.max(0, availableHeight)}px`;
-        },
-      }),
-    );
-  }
-
   let stopped = false;
   let resolveReady!: () => void;
   const ready = new Promise<void>((resolve) => (resolveReady = resolve));
   floating.style.visibility = 'hidden';
 
-  const update = () =>
-    void computePosition(anchor, floating, { placement, strategy: 'fixed', middleware }).then(
-      ({ x, y, placement: final, middlewareData }) => {
-        if (stopped) return;
-        const [side, align = 'center'] = final.split('-') as [Side, string?];
-        if (arrow && middlewareData.arrow) {
-          const { x: arrowX, y: arrowY } = middlewareData.arrow;
-          Object.assign(arrow.style, {
-            left: arrowX != null ? `${arrowX}px` : '',
-            top: arrowY != null ? `${arrowY}px` : '',
-            right: '',
-            bottom: '',
-            [ARROW_EDGE[side]]: `${-arrowSize / 2}px`,
-            transform: `rotate(${ARROW_ROTATION[side]}deg)`,
-          });
-        }
-        Object.assign(floating.style, {
-          left: `${x}px`,
-          top: `${y}px`,
-          visibility: '',
-          transformOrigin: TRANSFORM_ORIGIN[side],
-        });
-        floating.dataset.side = side;
-        floating.dataset.align = align;
-        resolveReady();
-      },
-    );
+  /** 按现在量到的尺寸算一次 */
+  const compute = (rect: DOMRect) =>
+    computePlacement({
+      anchor: rect,
+      // 布局尺寸：进出场的缩放动画不影响它
+      width: floating.offsetWidth,
+      height: floating.offsetHeight,
+      viewport: viewportRect(),
+      placement,
+      gap: distance + arrowSize * 0.7,
+      rtl: getComputedStyle(floating).direction === 'rtl',
+      padding: VIEWPORT_PADDING,
+      crossAxisFallback,
+      // 箭头离浮层的圆角留出距离，不会画到圆角外面
+      arrow: arrow ? { size: arrowSize, padding: arrowSize } : undefined,
+    });
+  // 对齐到设备像素：小数的坐标会让文字、细边框发虚
+  const snap = (value: number) => {
+    const ratio = window.devicePixelRatio || 1;
+    return Math.round(value * ratio) / ratio;
+  };
+
+  const update = () => {
+    if (stopped) return;
+    const rect = anchor.getBoundingClientRect();
+    if (matchWidth) floating.style.minWidth = `${rect.width}px`;
+    let result = compute(rect);
+    if (fitHeight) {
+      const height = floating.offsetHeight;
+      floating.style.maxHeight = `${result.availableHeight}px`;
+      // 限高之后变矮了：位置（放在上方时的顶边）要按新的高度再算一次
+      if (floating.offsetHeight !== height) result = compute(rect);
+    }
+    const { x, y, side, align, arrowX, arrowY } = result;
+    if (arrow) {
+      Object.assign(arrow.style, {
+        left: arrowX != null ? `${arrowX}px` : '',
+        top: arrowY != null ? `${arrowY}px` : '',
+        right: '',
+        bottom: '',
+        [ARROW_EDGE[side]]: `${-arrowSize / 2}px`,
+        transform: `rotate(${ARROW_ROTATION[side]}deg)`,
+      });
+    }
+    Object.assign(floating.style, {
+      left: `${snap(x)}px`,
+      top: `${snap(y)}px`,
+      visibility: '',
+      transformOrigin: TRANSFORM_ORIGIN[side],
+    });
+    floating.dataset.side = side;
+    floating.dataset.align = align;
+    resolveReady();
+  };
   const cleanup = autoUpdate(anchor, floating, update);
 
   return {

@@ -946,7 +946,7 @@ export const MenuSub = _component(
         open,
         anchor: trigger,
         panel,
-        // 往书写方向的结束边弹出；floating-ui 的 left / right 是物理方向
+        // 往书写方向的结束边弹出；定位的 left / right 是物理方向
         floating: {
           placement: trigger && isRtl(trigger) ? 'left-start' : 'right-start',
           offset: 2,

@@ -33,7 +33,6 @@
     "@codemirror/view": "catalog:",
     "@codemirror/lint": "catalog:",
     "@codemirror/lsp-client": "catalog:",
-    "@floating-ui/dom": "catalog:",
     "@internationalized/date": "catalog:",
     "@lezer/highlight": "catalog:",
     "@lucide/icons": "catalog:",

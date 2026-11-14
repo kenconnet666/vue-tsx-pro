@@ -7,7 +7,7 @@
  * 做法同 textarea-caret-position（component/textarea-caret）：在页面外放一个镜像 div，复制影响排版的样式，
  * 写入位置之前的文字和一个标记 span，量标记的位置，再减去文本框的滚动。input 不换行，textarea 按 pre-wrap 换行。
  */
-import type { VirtualElement } from '@floating-ui/dom';
+import type { VirtualAnchor } from './floating';
 
 /** 影响文字排版的样式：镜像 div 照抄 */
 const MIRRORED = [
@@ -76,6 +76,6 @@ export function caretRect(element: HTMLTextAreaElement | HTMLInputElement, index
 export function caretAnchor(
   element: HTMLTextAreaElement | HTMLInputElement,
   index: () => number,
-): VirtualElement {
+): VirtualAnchor {
   return { getBoundingClientRect: () => caretRect(element, index()), contextElement: element };
 }

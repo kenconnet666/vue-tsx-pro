@@ -16,7 +16,29 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- **不再依赖 `@floating-ui/dom`**：浮层的定位（Popover、Menu、Select、Tooltip、HoverCard、Tour、输入法光标处的候选列表……）
+  改成库里自己的实现，使用方的 `package.json` 里可以把 `@floating-ui/dom` 删掉。行为照旧：放不下时翻到对面、沿边缘推回视口、
+  箭头指着触发器、`data-side` / `data-align` 写出最终方向、高度不超过可用空间；有三处变好：
+  - 两边都放不下时选**空间更大的一边**（之前留在原来的一边）。
+  - 坐标对齐到设备像素，分数倍缩放下浮层里的文字、细线不发虚。
+  - 跟随只听会影响位置的事件：触发器所在的滚动容器、窗口与可视视口的变化、触发器与浮层自己的尺寸变化。
+
+  自己写浮层的可以直接用：`anchorFloating`（照旧）、`autoUpdate(anchor, floating, update)`、纯函数
+  `computePlacement(input)`（给矩形算位置，不碰 DOM，方便测试）；虚拟锚点的类型从 floating-ui 的 `VirtualElement` 换成
+  `VirtualAnchor`（`{ getBoundingClientRect, contextElement? }`，形状相同）。
+
+- **新组件 `NativeSelect`**：原生 `select` 放进输入框的外壳——外观、尺寸、出错、Field 的关联同别的输入框，弹出的列表是系统的
+  （手机上是滚轮或底部列表）。`items` 同 Select 的选项（字符串或 `{ value, label, group, disabled }`，`group` 排进 `optgroup`），
+  `placeholder` 是第一条选不了的占位项，`readonly` 时换不了别的选项。要图标、搜索、多选、远程加载仍用 `Select`。
+- **Video** 新增 `controls="custom"`：跟主题走的自绘控制条——播放 / 暂停、时间与进度、静音与音量、字幕（有 `tracks` 时）、
+  倍速（`speeds`）、全屏；播放中鼠标不动几秒后收起，点画面切换播放；焦点在播放器里时 Space / K、← →、↑ ↓、M、F 可用。
+  默认仍是浏览器自己的控制条。文案新增 12 条：`videoPlay`、`videoPause`、`videoMute`、`videoUnmute`、`videoVolume`、
+  `videoSeek`、`videoTime`、`videoSpeed`、`videoCaptions`、`videoCaptionsOff`、`videoFullscreen`、`videoExitFullscreen`
+  （自己写语言包的要补上）。
+- **FormErrorSummary** 的链接换成 `Link`（悬停、聚焦环、强制颜色模式同别的链接）：`propsLink` 的类型从原生 `a` 的属性变成
+  `Partial<LinkProps>`。
+- **Calendar** 标题按钮（点它切到月份、年份视图）换成 `ButtonBase`：`propsHeading` 的类型从原生 `button` 的属性变成
+  `Partial<ButtonBaseProps>`。
 
 ## 每次发布
 

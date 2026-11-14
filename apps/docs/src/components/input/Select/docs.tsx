@@ -1,5 +1,6 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code, Link } from '@zerodep-dev/vue-tsx-pro-ui';
+import nativeApi from 'virtual:api/NativeSelectProps';
 import api from 'virtual:api/SelectBaseProps';
 import listPopoverApi from 'virtual:api/ListPopoverProps';
 import selectedTagsApi from 'virtual:api/SelectedTagsProps';
@@ -9,6 +10,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Appearance from './demo/Appearance.tsx?demo';
+import Native from './demo/Native.tsx?demo';
 import Assign from './demo/Assign.tsx?demo';
 import Members from './demo/Members.tsx?demo';
 import Searchable from './demo/Searchable.tsx?demo';
@@ -23,7 +25,11 @@ export const meta = {
 };
 
 export default _component(() => () => (
-  <DocPage wide meta={meta} imports="import { Select } from '@zerodep-dev/vue-tsx-pro-ui';">
+  <DocPage
+    wide
+    meta={meta}
+    imports="import { Select, NativeSelect } from '@zerodep-dev/vue-tsx-pro-ui';"
+  >
     <Examples>
       <ExampleColumn>
         <Example id="basic" title="单选与多选" demo={Assign}>
@@ -68,6 +74,12 @@ export default _component(() => () => (
           next。换了搜索词从第一页重来，翻页时重复的项不会出现两次。和{' '}
           <Link href="/guide/data#infinite-list">useInfiniteList</Link> 是同一套。
         </Example>
+        <Example id="native" title="原生下拉框" demo={Native}>
+          <Code>NativeSelect</Code> 是原生的 select
+          放进输入框的外壳：外观、尺寸、出错同别的输入框，弹出的列表是浏览器、系统自己的——手机上是滚轮或底部列表，自动填充、读屏、键盘都是原生的行为。选项只是一串文字、主要在手机上用时选它；要图标、说明、搜索、多选、远程加载，用{' '}
+          <Code>Select</Code>。带 <Code>group</Code> 的选项排进 optgroup；<Code>placeholder</Code>{' '}
+          是第一条选不了的占位项。
+        </Example>
         <Example id="appearance" title="图标、外观与状态" demo={Appearance}>
           <Code>icon</Code>、<Code>variant</Code>、<Code>size</Code>、<Code>radius</Code>{' '}
           与其他输入框同一套。只读时能聚焦、能看到已选的内容，不能打开、不能清空；Field 上的{' '}
@@ -96,6 +108,6 @@ export default _component(() => () => (
       时用隐藏的 input 随表单提交（多选每个值一个）。数据层与{' '}
       <Link href="/components/listbox">Listbox</Link> 相同，选项多时虚拟滚动。
     </KeyboardReference>
-    <ApiReference api={[api, listPopoverApi, selectedTagsApi]} />
+    <ApiReference api={[api, nativeApi, listPopoverApi, selectedTagsApi]} />
   </DocPage>
 ));

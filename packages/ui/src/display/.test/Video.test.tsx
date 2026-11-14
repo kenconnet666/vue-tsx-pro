@@ -66,6 +66,81 @@ describe('Video', () => {
     expect(video.controls).toBe(false);
   });
 
+  it('controls="custom"：不用原生控制条，画自己的——播放、进度、静音、倍速、全屏都有名称；有 tracks 才有字幕', async () => {
+    const root = mount(() => (
+      <>
+        <Video src="/demo.mp4" controls="custom" aria-label="产品演示" />
+        <Video
+          src="/demo.mp4"
+          controls="custom"
+          tracks={[{ src: '/zh.vtt', srclang: 'zh', label: '中文' }]}
+        />
+      </>
+    ));
+    await nextTick();
+    const [plain, subtitled] = root.querySelectorAll<HTMLElement>(
+      '[data-scope="video"][data-part="root"]',
+    );
+    expect(plain!.querySelector('video')!.controls).toBe(false);
+    const bar = plain!.querySelector('[data-part="controls"]')!;
+    const names = [...bar.querySelectorAll('button')].map((button) =>
+      button.getAttribute('aria-label'),
+    );
+    expect(names).toEqual(expect.arrayContaining(['播放', '静音', '播放速度']));
+    expect(names).not.toContain('字幕');
+    expect(bar.querySelector('[role="slider"][aria-label="播放进度"]')).not.toBeNull();
+    expect(bar.querySelector('[data-part="time"]')!.textContent).toBe('0:00 / 0:00');
+    expect(
+      [...subtitled!.querySelectorAll('button')].map((button) => button.getAttribute('aria-label')),
+    ).toContain('字幕');
+  });
+
+  it('自绘控制条跟着 video 的事件走：播放后按钮变成“暂停”，时间、静音跟着变；键盘 K、M 操作', async () => {
+    const root = mount(() => <Video src="/demo.mp4" controls="custom" />);
+    await nextTick();
+    const frame = root.querySelector<HTMLElement>('[data-scope="video"][data-part="root"]')!;
+    const video = frame.querySelector('video')!;
+    let paused = true;
+    Object.defineProperties(video, {
+      paused: { get: () => paused },
+      duration: { get: () => 200 },
+      play: {
+        value: () => {
+          paused = false;
+          video.dispatchEvent(new Event('play'));
+          return Promise.resolve();
+        },
+      },
+      pause: {
+        value: () => {
+          paused = true;
+          video.dispatchEvent(new Event('pause'));
+        },
+      },
+    });
+    video.dispatchEvent(new Event('loadedmetadata'));
+    await nextTick();
+    expect(frame.querySelector('[data-part="time"]')!.textContent).toBe('0:00 / 3:20');
+
+    frame.querySelector<HTMLButtonElement>('button[aria-label="播放"]')!.click();
+    await nextTick();
+    expect(frame.dataset.state).toBe('playing');
+    expect(frame.querySelector('button[aria-label="暂停"]')).not.toBeNull();
+
+    const key = (name: string) =>
+      frame.dispatchEvent(
+        new KeyboardEvent('keydown', { key: name, bubbles: true, cancelable: true }),
+      );
+    key('k');
+    await nextTick();
+    expect(frame.dataset.state).toBe('paused');
+    key('m');
+    video.dispatchEvent(new Event('volumechange'));
+    await nextTick();
+    expect(video.muted).toBe(true);
+    expect(frame.querySelector('button[aria-label="取消静音"]')).not.toBeNull();
+  });
+
   it('减少动态效果：不自动播放，并显示控制条（让人自己决定要不要播）', async () => {
     preferReducedMotion(true);
     const root = mount(() => <Video src="/loop.mp4" autoplay loop controls={false} />);

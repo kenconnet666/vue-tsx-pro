@@ -50,7 +50,6 @@ catalog:
   # 文档站的字体：等距更纱黑体 SC（包里还有霞鹜文楷等宽），按界面用字、常用字、生僻字切片（自己的包，rune-ui-font 仓库）
   rune-ui-font: 0.2.0
   # 组件库工具：算法与数据，组件本身自己写
-  '@floating-ui/dom': 1.8.0
   '@lucide/icons': 1.69.0
   '@internationalized/date': 3.12.4
   decimal.js: 10.6.0

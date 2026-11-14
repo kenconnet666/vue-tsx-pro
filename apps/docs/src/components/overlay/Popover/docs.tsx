@@ -17,7 +17,7 @@ import Toolbar from './demo/Toolbar.tsx?demo';
 export const meta = {
   title: 'Popover 弹出框',
   description:
-    '贴着触发器弹出的非模态浮层：点击打开的 Popover、悬停打开的 HoverCard 与 Tooltip。原生 popover 负责顶层与 Esc，floating-ui 负责定位。',
+    '贴着触发器弹出的非模态浮层：点击打开的 Popover、悬停打开的 HoverCard 与 Tooltip。原生 popover 负责顶层与 Esc，位置由组件库自己计算（翻转、贴边、箭头、限高）。',
   order: 2,
 };
 

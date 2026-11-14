@@ -689,6 +689,11 @@ export {
   type MentionsProps,
   type MentionTextProps,
 } from './input/Mentions';
+export {
+  NativeSelect,
+  type NativeSelectManaged,
+  type NativeSelectProps,
+} from './input/NativeSelect';
 export { NumberField, type NumberFieldManaged, type NumberFieldProps } from './input/NumberField';
 export {
   NumberRangeField,
@@ -1462,6 +1467,8 @@ export { useEventListener, type ListenerTarget } from './utils/dom/event-listene
 export {
   anchoredPanelSx,
   anchorFloating,
+  autoUpdate,
+  computePlacement,
   createAnchoredLayer,
   floatingStyles,
   pointAnchor,
@@ -1474,7 +1481,12 @@ export {
   type FloatingOptions,
   type FloatingPlacement,
   type FloatingPlacements,
+  type FloatingRect,
+  type FloatingSide,
+  type PlacementInput,
+  type PlacementResult,
   type RestoreFocus,
+  type VirtualAnchor,
 } from './utils/dom/floating';
 export {
   focusAfterRemoval,

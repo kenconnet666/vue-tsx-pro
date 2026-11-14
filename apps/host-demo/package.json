@@ -15,7 +15,6 @@
     "test": "vitest run --configLoader native"
   },
   "dependencies": {
-    "@floating-ui/dom": "catalog:",
     "@lucide/icons": "catalog:",
     "pinia": "catalog:",
     "@shikijs/langs": "catalog:",

@@ -148,7 +148,6 @@
     "gen:globe-land": "node ../../scripts/globe/land.mjs"
   },
   "dependencies": {
-    "@floating-ui/dom": "catalog:",
     "@internationalized/date": "catalog:",
     "@radix-ui/colors": "catalog:",
     "@zerodep-dev/vue-tsx-pro-tsx": "workspace:^",
@@ -230,7 +229,6 @@
         "@codemirror/search",
         "@codemirror/state",
         "@codemirror/view",
-        "@floating-ui/dom",
         "@internationalized/date",
         "@lezer/highlight",
         "@lucide/icons",

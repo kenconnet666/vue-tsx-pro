@@ -17,6 +17,7 @@ import { ChevronLeft, ChevronRight } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { nextTick, useId, type VNodeChild } from 'vue';
+import { ButtonBase, type ButtonBaseProps } from '../base/ButtonBase';
 import { buttonBaseStyles } from '../base/button-core';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { VisuallyHidden, visuallyHiddenStyles } from '../base/VisuallyHidden';
@@ -81,7 +82,7 @@ export interface CalendarViewOptions extends CalendarOptions {
   /** 下一页按钮的部件属性 */
   propsNext?: Omit<Partial<IconButtonProps>, 'disabled' | 'onClick'>;
   /** 标题按钮的部件属性 */
-  propsHeading?: PartProps<'button', 'type' | 'aria-label'>;
+  propsHeading?: Partial<Omit<ButtonBaseProps, 'type' | 'aria-label'>>;
   /** 并排月份那一层的部件属性 */
   propsMonths?: PartProps<'div'>;
   /** 每张网格（table）的部件属性 */
@@ -583,30 +584,17 @@ export const CalendarView = _component(
                   <div {...mergeAttrs<'div'>(s.header, propsHeader)}>
                     {index === 0 ? previous : spacer}
                     {coarser && !disabled ? (
-                      <button
-                        {...mergeAttrs<'button'>(
-                          {
-                            ...s.heading,
-                            sx: [
-                              buttonBaseStyles.root,
-                              interactionTransitions.colors,
-                              s.heading.sx,
-                              focusRingStyles.visible,
-                            ],
-                          },
-                          propsHeading,
-                          {
-                            'aria-label':
-                              coarser === 'month'
-                                ? lang.calendarChooseMonth(label)
-                                : lang.calendarChooseYear(label),
-                            type: 'button',
-                            onClick: () => calendar.setView(coarser),
-                          },
-                        )}
+                      <ButtonBase
+                        {...mergePartProps<ButtonBaseProps>(s.heading, propsHeading, {
+                          'aria-label':
+                            coarser === 'month'
+                              ? lang.calendarChooseMonth(label)
+                              : lang.calendarChooseYear(label),
+                          onClick: () => calendar.setView(coarser),
+                        })}
                       >
                         {label}
-                      </button>
+                      </ButtonBase>
                     ) : (
                       // 已经是最粗的视图（或不可用）：标题只是文字
                       <span
