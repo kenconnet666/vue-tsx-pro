@@ -3,6 +3,15 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.29.0（2026-11-14）
+
+- **组件上写错绑定名现在是类型错误**：部件属性（`PartProps`）里去掉了原生元素专用的绑定 `_value`、`_checked`、`_files`、`_open`。
+  之前 `<Switch _value={on}>`、`<Checkbox _value={on}>` 能通过类型检查，开关却不跟着状态走（它们的绑定是 `_checked`）；
+  升级后类型检查报错的地方，按组件声明的绑定名改即可。原生元素上的 `<input _value={x}>` 照旧。
+- **Video** `controls="custom"` 认不知道时长的视频（直播、边录边播的片段）：时间只显示已播了多久，进度条不可用，
+  方向键不再把进度跳回开头；有可以回看的范围时，范围的末尾当作时长。
+- **Affix** 的根元素补上部件标记（`data-scope="affix"`、`data-part="root"`），全局样式与测试可以直接选中它。
+
 ## 0.28.0（2026-11-14）
 
 - **Video** `controls="custom"`：预渲染（服务端渲染）的页面上，视频的元数据常在页面接管之前就加载完，控制条错过了事件——
