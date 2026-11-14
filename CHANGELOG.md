@@ -3,6 +3,30 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.26.0（2026-11-14）
+
+- **Collapse**（连带 Collapsible、Accordion、FormSection 的折叠、CodePreview 的源码区）：内容区的宽度就是容器的宽度，不再被里面
+  最宽的内容撑开。之前展开后，里面的长代码行、宽表格会把整块撑到比容器还宽，外层一裁就既看不全也滚不了——文档示例的
+  “显示代码”在竖屏手机上代码被截断、不能横向滚动。现在宽内容在自己的滚动区域里滚（CodeBlock、表格），或照常溢出。
+- **新的基础组件**（之前没有对应增强组件的 HTML 标签）：
+  - 文字：`Sub`、`Sup`（上下标，不撑高所在的行）、`Del`、`Ins`（文档的增删；加进来的是浅绿底、不用下划线）、
+    `Strike`（`s`：不再有效的内容，如原价），都是 Text 家族，`size`、`tone` 等属性通用。
+  - `Abbr`（`abbr`）：全称放在提示里，悬停、键盘聚焦、触屏点按都看得到（原生 `title` 只有鼠标悬停才有）。
+  - `Figure`（`figure` + `figcaption`）：`caption`、`captionSide`、`align`。
+  - `AspectRatio`：固定宽高比的框，里面的图片、视频、iframe 铺满。
+  - `Embed`（`iframe`）：`title` 必填，定比例、延迟加载、加载完之前是骨架。
+  - `Video`（`video`）：浏览器自己的控制条，定比例、封面、`sources`（多种格式）、`tracks`（字幕）；`autoplay` 默认静音、
+    行内播放，系统要求减少动态效果时不自动播放并显示控制条。
+- **`SearchField`**（`input type="search"`）：TextField 加搜索图标、清空按钮、默认的名称与占位文字；`_value` 每敲一个字都更新，
+  `onSearch` 只在停手（`delay`，默认 300ms）、回车、清空时调用，同一个词不重复。Select、Cascader、TreeSelect、Transfer、
+  PeoplePicker、JsonViewer 与表头筛选里的搜索框都换成了它：**这些搜索框现在有清空按钮**，它们的 `propsSearch` 类型从
+  `Partial<TextFieldProps>` 变成 `Partial<SearchFieldProps>`（多了 `onSearch`、`delay`，少了 `type`）。
+- **Image** 新增 `sources`：渲染成 `picture`，用于新格式回退（avif、webp）、窄屏或暗色换一张图。
+- **Progress** 新增 `bands`（量表，对应 HTML 的 `meter`）：值落在哪一段就用哪一段的色调，角色是 `role="meter"`。
+- **Blockquote** 新增 `source`（引用下面一行出处，`footer` > `cite`）与 `propsSource`。
+- **新的页面组合 `PageHeader`**（`@zerodep-dev/vue-tsx-pro-ui/patterns`）：面包屑、返回、标题与标记（`hgroup`）、说明、
+  结束边的操作，下面接摘要或标签页。页面组合的文案新增 `pageHeaderBack`（“返回”）。
+
 ## 0.25.0（2026-11-14）
 
 - **服务端渲染时的时区**（语言没配置 `timeZone` 时）：服务端固定按 UTC 渲染时刻，不再取服务器所在的时区；水合时先按 UTC
