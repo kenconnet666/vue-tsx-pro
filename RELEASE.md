@@ -19,6 +19,16 @@
 - **Collapse**（连带 Collapsible、Accordion、FormSection 的折叠、CodePreview 的源码区）：内容区的宽度就是容器的宽度，不再被里面
   最宽的内容撑开。之前展开后，里面的长代码行、宽表格会把整块撑到比容器还宽，外层一裁就既看不全也滚不了——文档示例的
   “显示代码”在竖屏手机上代码被截断、不能横向滚动。现在宽内容在自己的滚动区域里滚（CodeBlock、表格），或照常溢出。
+- **新的基础组件**（之前没有对应增强组件的 HTML 标签）：
+  - 文字：`Sub`、`Sup`（上下标，不撑高所在的行）、`Del`、`Ins`（文档的增删；加进来的是浅绿底、不用下划线）、
+    `Strike`（`s`：不再有效的内容，如原价），都是 Text 家族，`size`、`tone` 等属性通用。
+  - `Abbr`（`abbr`）：全称放在提示里，悬停、键盘聚焦、触屏点按都看得到（原生 `title` 只有鼠标悬停才有）。
+  - `Figure`（`figure` + `figcaption`）：`caption`、`captionSide`、`align`。
+  - `AspectRatio`：固定宽高比的框，里面的图片、视频、iframe 铺满。
+  - `Embed`（`iframe`）：`title` 必填，定比例、延迟加载、加载完之前是骨架。
+- **Blockquote** 新增 `source`（引用下面一行出处，`footer` > `cite`）与 `propsSource`。
+- **新的页面组合 `PageHeader`**（`@zerodep-dev/vue-tsx-pro-ui/patterns`）：面包屑、返回、标题与标记（`hgroup`）、说明、
+  结束边的操作，下面接摘要或标签页。页面组合的文案新增 `pageHeaderBack`（“返回”）。
 
 ## 每次发布
 

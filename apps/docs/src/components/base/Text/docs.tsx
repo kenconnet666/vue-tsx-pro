@@ -1,5 +1,6 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
+import abbrApi from 'virtual:api/AbbrProps';
 import blockquoteApi from 'virtual:api/BlockquoteProps';
 import headingApi from 'virtual:api/HeadingProps';
 import kbdApi from 'virtual:api/KbdProps';
@@ -26,7 +27,7 @@ import Tones from './demo/Tones.tsx?demo';
 export const meta = {
   title: 'Text 文字与列表',
   description:
-    '正文、链接、标题与列表：字号、字重、色调、截断与换行；Paragraph、Strong、Em、Small、Link、Mark、Kbd、Blockquote、H1–H6，正文里的 List、OrderedList。',
+    '正文、链接、标题与列表：字号、字重、色调、截断与换行；Paragraph、Strong、Em、Small、Sub、Sup、Del、Ins、Strike、Abbr、Link、Mark、Kbd、Blockquote、H1–H6，正文里的 List、OrderedList。',
   order: 0,
 };
 
@@ -34,7 +35,7 @@ export default _component(() => () => (
   <DocPage
     wide
     meta={meta}
-    imports="import { Text, Paragraph, Strong, Em, Small, Link, Mark, Kbd, Blockquote, H1, H2, List, ListItem, OrderedList } from '@zerodep-dev/vue-tsx-pro-ui';"
+    imports="import { Text, Paragraph, Strong, Em, Small, Sub, Sup, Del, Ins, Strike, Abbr, Link, Mark, Kbd, Blockquote, H1, H2, List, ListItem, OrderedList } from '@zerodep-dev/vue-tsx-pro-ui';"
   >
     <Examples>
       <ExampleColumn>
@@ -65,7 +66,11 @@ export default _component(() => () => (
         <Example id="inline" title="行内语义" demo={Inline}>
           一个元素一个组件：<Code>Strong</Code>、<Code>Em</Code>、<Code>Small</Code>、
           <Code>Mark</Code>（高亮）、<Code>Kbd</Code>（按键）、<Code>Code</Code>
-          （行内代码）、<Code>Blockquote</Code>（引用）。
+          （行内代码）、<Code>Blockquote</Code>（引用，<Code>source</Code> 写出处）。
+          <Code>Sub</Code>、<Code>Sup</Code> 是上下标，不撑高所在的行；<Code>Strike</Code>{' '}
+          是不再有效的内容（原价），文档的增删用 <Code>Del</Code>、<Code>Ins</Code>
+          （加进来的是浅绿底，不用下划线，免得和链接分不清）。<Code>Abbr</Code>{' '}
+          是缩写：全称在提示里，悬停、键盘聚焦、触屏点按都看得到（原生的 title 只有鼠标悬停才有）。
         </Example>
         <Example id="links" title="链接" demo={Links}>
           <Code>Link</Code> 默认带下划线（WCAG
@@ -91,6 +96,7 @@ export default _component(() => () => (
         linkApi,
         markApi,
         kbdApi,
+        abbrApi,
         blockquoteApi,
         listApi,
         orderedListApi,

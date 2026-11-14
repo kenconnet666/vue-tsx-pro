@@ -8,9 +8,7 @@ import {
   Flex,
   FormSection,
   GridItem,
-  H1,
   NumberField,
-  Paragraph,
   RadioGroup,
   Radio,
   Select,
@@ -19,7 +17,7 @@ import {
   Upload,
   type UploadFile,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import { ActionBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+import { ActionBar, PageHeader } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { categories, suppliers } from '../template-data';
 import { TemplateShell } from '../template-shell';
 
@@ -36,10 +34,10 @@ export default _component(() => {
   return () => (
     <TemplateShell current="create">
       <Flex direction="column" gap="lg">
-        <Flex direction="column" gap="xs">
-          <H1 size="xxl">新建采购申请</H1>
-          <Paragraph tone="muted">提交后先由部门经理审批，金额超过 5 万元时加签财务。</Paragraph>
-        </Flex>
+        <PageHeader
+          title="新建采购申请"
+          description="提交后先由部门经理审批，金额超过 5 万元时加签财务。"
+        />
         <form {...css.attrs(styles.form)} onSubmit={(event: Event) => event.preventDefault()}>
           <FormSection title="基本信息" columns={2} headingLevel={2}>
             <Field label="申请标题" required>

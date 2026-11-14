@@ -72,6 +72,8 @@ export interface PatternsMessages {
   readonly pageTabsCloseOthers: string;
   /** 页签的右键菜单：关闭右边的，默认“关闭右侧” */
   readonly pageTabsCloseRight: string;
+  /** 页头：返回按钮的名称，默认“返回” */
+  readonly pageHeaderBack: string;
   /** 查询表格：刷新，默认“刷新” */
   readonly queryTableRefresh: string;
   /** 查询表格：加载失败的提示条上的重试按钮，默认“重试” */
@@ -228,6 +230,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     pageTabsClose: '关闭',
     pageTabsCloseOthers: '关闭其他',
     pageTabsCloseRight: '关闭右侧',
+    pageHeaderBack: '返回',
     queryTableRefresh: '刷新',
     queryTableRetry: '重试',
     queryTableDensity: '行高',
@@ -327,6 +330,7 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     pageTabsClose: 'Close',
     pageTabsCloseOthers: 'Close others',
     pageTabsCloseRight: 'Close tabs to the right',
+    pageHeaderBack: 'Back',
     queryTableRefresh: 'Refresh',
     queryTableRetry: 'Retry',
     queryTableDensity: 'Row height',

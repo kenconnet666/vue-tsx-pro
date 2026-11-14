@@ -1,14 +1,20 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
+  Abbr,
   Blockquote,
   Code,
+  Del,
   Em,
   Flex,
+  Ins,
   Kbd,
   Mark,
   Paragraph,
   Small,
+  Strike,
   Strong,
+  Sub,
+  Sup,
 } from '@zerodep-dev/vue-tsx-pro-ui';
 
 export default _component(() => () => (
@@ -18,9 +24,14 @@ export default _component(() => () => (
       <Mark>Button 按钮</Mark>与它的全部示例。<Strong>Strong</Strong> 表示重要，
       <Em>Em</Em> 表示语气上的强调，<Small>Small 用于附注与版权信息</Small>。
     </Paragraph>
-    <Blockquote cite="https://vuejs.org/guide/introduction">
+    <Paragraph>
+      仓库面积 860 m<Sup>2</Sup>，冷却液的主要成分是 H<Sub>2</Sub>O；
+      <Abbr title="服务等级协议">SLA</Abbr> 承诺可用率 99.9%。会员价{' '}
+      <Strike tone="muted">¥199</Strike> ¥149。交期从 <Del>10 月 20 日</Del> 改到{' '}
+      <Ins>11 月 5 日</Ins>。
+    </Paragraph>
+    <Blockquote cite="https://vuejs.org/guide/introduction" source="Vue 文档">
       <Paragraph>渐进式框架：可以只在页面的一小块里用它，也可以用它搭建完整的单页应用。</Paragraph>
-      <Small tone="muted">—— Vue 文档</Small>
     </Blockquote>
   </Flex>
 ));

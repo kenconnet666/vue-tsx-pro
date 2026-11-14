@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { mount, styleOf, styleTextOf } from '../../utils/.test/mount';
-import { Em, Paragraph, Small, Strong, Text } from '../Text';
+import { Del, Em, Ins, Paragraph, Small, Strike, Strong, Sub, Sup, Text } from '../Text';
 
 const render = (node: Parameters<typeof mount>[0]) => mount(node).firstElementChild as HTMLElement;
 /** 元素上生效的声明条数 */
@@ -30,6 +30,27 @@ describe('一个元素一个组件', () => {
     expect(render(() => <Strong>a</Strong>).tagName).toBe('STRONG');
     expect(render(() => <Em>a</Em>).tagName).toBe('EM');
     expect(render(() => <Small>a</Small>).tagName).toBe('SMALL');
+  });
+
+  it('Sub、Sup、Del、Ins、Strike 渲染对应的元素；上下标不占行高，增删、划掉各有样式', () => {
+    const tags = [Sub, Sup, Del, Ins, Strike].map(
+      (Component) => render(() => <Component>a</Component>).tagName,
+    );
+    expect(tags).toEqual(['SUB', 'SUP', 'DEL', 'INS', 'S']);
+    // 上下标：行高 0、相对基线挪位置，不把所在的行撑高
+    const sup = styleOf(render(() => <Sup>2</Sup>));
+    expect(sup.get('&|line-height')).toBe('0');
+    expect(sup.get('&|vertical-align')).toBe('baseline');
+    expect(styleOf(render(() => <Del>a</Del>)).get('&|text-decoration-line')).toBe('line-through');
+    expect(styleOf(render(() => <Strike>a</Strike>)).get('&|text-decoration-line')).toBe(
+      'line-through',
+    );
+    // 加进来的内容不用下划线（和链接分不清）
+    expect(styleOf(render(() => <Ins>a</Ins>)).get('&|text-decoration-line')).toBe('none');
+    // 原生属性照常落到元素上
+    expect(render(() => <Del datetime="2026-11-14">a</Del>).getAttribute('datetime')).toBe(
+      '2026-11-14',
+    );
   });
 
   it('各自的默认值带样式，可以被 prop 覆盖', () => {

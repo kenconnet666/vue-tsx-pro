@@ -6,13 +6,13 @@ import {
   Card,
   Flex,
   Grid,
-  H1,
   Icon,
   ItemList,
   ItemListItem,
   Small,
   Stat,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { PageHeader } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { BarChart } from '@zerodep-dev/vue-tsx-pro-ui/charts';
 import { orders, statuses } from '../template-data';
 import { TemplateShell } from '../template-shell';
@@ -45,7 +45,7 @@ const todos = [
 export default _component(() => () => (
   <TemplateShell current="dashboard">
     <Flex direction="column" gap="lg">
-      <H1 size="xxl">概览</H1>
+      <PageHeader title="概览" />
       <Grid minItemWidth="12rem" gap="md" balanced>
         <Card>
           <Stat label="本月采购额" value={2_750_000} unit="元" change={0.19} />

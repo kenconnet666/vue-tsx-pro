@@ -4,14 +4,12 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import {
   Avatar,
   Badge,
-  Breadcrumbs,
   Button,
   Card,
   ColumnTable,
   Descriptions,
   Flex,
   Grid,
-  H1,
   Small,
   Stat,
   Strong,
@@ -22,6 +20,7 @@ import {
   Timeline,
   type DataTableColumn,
 } from '@zerodep-dev/vue-tsx-pro-ui';
+import { PageHeader } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 import { orders, statuses } from '../template-data';
 import { TemplateShell } from '../template-shell';
 
@@ -59,17 +58,19 @@ export default _component(() => {
   return () => (
     <TemplateShell current="orders">
       <Flex direction="column" gap="lg">
-        <Breadcrumbs items={[{ label: '采购单', href: '#orders' }, { label: order.id }]} />
-        <Flex align="center" gap="md" wrap>
-          <H1 size="xxl">{order.id}</H1>
-          <Badge tone={statuses.tone(order.status)}>{statuses.label(order.status)}</Badge>
-          <Flex gap="xs" style={{ marginInlineStart: 'auto' }}>
-            <Button variant="outline" tone="neutral" icon={Pencil}>
-              编辑
-            </Button>
-            <Button icon={Truck}>催单</Button>
-          </Flex>
-        </Flex>
+        <PageHeader
+          breadcrumbs={[{ label: '采购单', href: '#orders' }, { label: order.id }]}
+          title={order.id}
+          meta={<Badge tone={statuses.tone(order.status)}>{statuses.label(order.status)}</Badge>}
+          actions={
+            <>
+              <Button variant="outline" tone="neutral" icon={Pencil}>
+                编辑
+              </Button>
+              <Button icon={Truck}>催单</Button>
+            </>
+          }
+        />
         <Grid
           minItemWidth="16rem"
           gap="lg"

@@ -31,6 +31,24 @@ describe('正文排版', () => {
     expect(article.querySelector('mark')!.textContent).toBe('命中');
   });
 
+  it('Blockquote 的 source：引用下面一行出处，里面是 cite 元素；不写时没有这一行', () => {
+    const root = mount(() => (
+      <>
+        <Blockquote source="《设计心理学》" cite="https://example.com/book">
+          好的设计让人看得出该怎么用。
+        </Blockquote>
+        <Blockquote>没有出处</Blockquote>
+      </>
+    ));
+    const [quoted, plain] = root.querySelectorAll('blockquote');
+    expect(quoted!.getAttribute('cite')).toBe('https://example.com/book');
+    const footer = quoted!.querySelector('footer')!;
+    expect(footer.getAttribute('data-part')).toBe('source');
+    expect(footer.querySelector('cite')!.textContent).toBe('《设计心理学》');
+    expect(footer.textContent).toBe('— 《设计心理学》');
+    expect(plain!.querySelector('footer')).toBeNull();
+  });
+
   it('标题有 id 且 anchor 时末尾有指向本节的链接；没有 id 时不加', () => {
     const root = mount(() => (
       <>

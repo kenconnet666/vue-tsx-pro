@@ -1,6 +1,7 @@
 // 由 pnpm -C packages/ui exports（scripts/exports/generate.mjs）生成，不要手改：模块里加了导出后重新生成
 
 // 基础：文字、图标、链接、按钮家族、标记、代码、加载
+export { Abbr, type AbbrProps } from './base/Abbr';
 export { Badge, StatusBadge, type BadgeProps, type StatusBadgeProps } from './base/Badge';
 export { Blockquote, type BlockquoteProps } from './base/Blockquote';
 export { Button, type ButtonManaged, type ButtonProps } from './base/Button';
@@ -89,10 +90,15 @@ export { StatusDot, type StatusDotProps, type StatusDotSizes } from './base/Stat
 export { Tag, type TagProps } from './base/Tag';
 export {
   createText,
+  Del,
   Em,
+  Ins,
   Paragraph,
   Small,
+  Strike,
   Strong,
+  Sub,
+  Sup,
   Text,
   type TextOptions,
   type TextProps,
@@ -127,6 +133,7 @@ export {
 // 布局
 export { Affix, type AffixManaged, type AffixProps } from './layout/Affix';
 export { AsideLayout, type AsideLayoutProps } from './layout/AsideLayout';
+export { AspectRatio, type AspectRatioProps } from './layout/AspectRatio';
 export { BackTop, backTopStyles, type BackTopProps } from './layout/BackTop';
 export {
   Container,
@@ -246,12 +253,19 @@ export {
   type DescriptionsProps,
 } from './display/Descriptions';
 export { Ellipsis, type EllipsisProps } from './display/Ellipsis';
+export { Embed, type EmbedProps } from './display/Embed';
 export {
   FieldCompare,
   type CompareField,
   type FieldCompareProps,
   type FieldCompareRow,
 } from './display/FieldCompare';
+export {
+  Figure,
+  type FigureAligns,
+  type FigureCaptionSides,
+  type FigureProps,
+} from './display/Figure';
 export { Gauge, type GaugeBand, type GaugeManaged, type GaugeProps } from './display/Gauge';
 export {
   Image,

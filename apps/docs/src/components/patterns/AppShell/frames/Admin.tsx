@@ -17,7 +17,6 @@ import {
   Card,
   Flex,
   Grid,
-  H1,
   IconButton,
   Menu,
   MenuGroup,
@@ -26,7 +25,6 @@ import {
   NavItem,
   NavList,
   NavSection,
-  Paragraph,
   Separator,
   Small,
   Stat,
@@ -40,7 +38,7 @@ import {
   TextField,
   UserButton,
 } from '@zerodep-dev/vue-tsx-pro-ui';
-import { AppShell, AppShellBrand } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
+import { AppShell, AppShellBrand, PageHeader } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
 
 const pages = {
   overview: { label: '概览', icon: House },
@@ -142,13 +140,10 @@ export default _component(() => {
       }
     >
       <Flex direction="column" gap="xl">
-        <Flex direction="column" gap="xs">
-          <H1 size="xxl">{pages[current].label}</H1>
-          <Paragraph tone="muted">
-            宽于 64rem 时侧栏常驻，更窄时收进抽屉（顶栏最前面出现菜单按钮）；宽于 80rem
-            时显示右侧栏。
-          </Paragraph>
-        </Flex>
+        <PageHeader
+          title={pages[current].label}
+          description="宽于 64rem 时侧栏常驻，更窄时收进抽屉（顶栏最前面出现菜单按钮）；宽于 80rem 时显示右侧栏。"
+        />
         <Grid minItemWidth="11rem" gap="md" balanced>
           <Card>
             <Stat label="今日销售额" value={48_210} unit="元" change={0.124} />
