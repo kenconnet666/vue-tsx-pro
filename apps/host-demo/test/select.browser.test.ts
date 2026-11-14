@@ -164,14 +164,15 @@ describe('TagsInput', () => {
   const shell = () => $('.tags-input-demo');
   const tags = () => [...shell().querySelectorAll('[data-tag]')].map((tag) => tag.textContent);
 
-  it('输入过滤建议，回车加入高亮项（已选的打勾）；自由输入的文字加成标签；退格删最后一个', async () => {
+  it('输入过滤建议，↓ 高亮后回车加入那一项（已选的打勾）；自由输入的文字加成标签；退格删最后一个', async () => {
     const input = shell().querySelector('input')!;
     expect(tags()).toEqual(['TypeScript']);
     await userEvent.click(input);
     await userEvent.keyboard('ru');
     const popover = popoverOf(input);
     await expect.poll(() => popover.matches(':popover-open')).toBe(true);
-    await userEvent.keyboard('{Enter}');
+    // 允许自己输入时打字不自动高亮（回车加的是打的字）：要选建议按 ↓
+    await userEvent.keyboard('{ArrowDown}{Enter}');
     await expect.poll(tags).toEqual(['TypeScript', 'Rust']);
     expect(input.value).toBe('');
     await userEvent.keyboard('{Escape}Zig,');
