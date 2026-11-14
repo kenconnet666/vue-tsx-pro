@@ -3,6 +3,20 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.25.0（2026-11-14）
+
+- **服务端渲染时的时区**（语言没配置 `timeZone` 时）：服务端固定按 UTC 渲染时刻，不再取服务器所在的时区；水合时先按 UTC
+  （和服务端的节点一致），挂载后换成浏览器的时区，文字与悬停提示都跟着改过来。之前服务端按自己的时区渲染、浏览器直接按
+  浏览器的时区水合，属性的不一致不会被改回来：RelativeTime 的悬停提示一直是服务器时区的时间（服务器在 UTC、用户在东八区
+  时差 8 小时）。涉及 `useFormat()` 的 `date` / `relative`（DateTime、RelativeTime、表格的日期列）、Countdown、日历的“今天”、
+  TimelineChart。语言配置了 `timeZone` 的、不做服务端渲染的项目没有变化。
+- **日历的“今天”**（Calendar、RangeCalendar、QuarterCalendar、CalendarBoard）：服务端渲染时把渲染的时刻记在根元素上
+  （`data-now`），水合时先按它算今天，挂载后换成真实的今天；没有值、没指定默认日期时，显示的月份也跟到这个月。
+  之前静态生成的页面隔几天再打开，今天的标记还停在构建那天（区间日历甚至不标真正的今天）。
+- 新增 `useTimeZone()`：在 setup 里取“当前的时区”的读取函数，自己换算时刻时用它，服务端渲染与水合期间和组件一致；
+  `isServerRendering()`：在 setup 里判断是不是在做服务端渲染。`useDateLocale()` 的返回值多了 `rootAttrs()`
+  （自己用它的 `today()` 写日历类组件时，展开到根元素上）。
+
 ## 0.24.0（2026-11-14）
 
 - **服务端渲染后存的状态、媒体查询生效**：`usePersistentState`（QueryTable 的列设置、自己存的布局）与 `useMediaQuery`
