@@ -141,6 +141,24 @@ describe('Video', () => {
     expect(frame.querySelector('button[aria-label="取消静音"]')).not.toBeNull();
   });
 
+  it('挂载时按 video 现在的状态显示：预渲染的页面上元数据在接管之前就加载完了，事件已经错过', async () => {
+    const duration = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'duration');
+    Object.defineProperty(HTMLMediaElement.prototype, 'duration', {
+      configurable: true,
+      get: () => 200,
+    });
+    try {
+      const root = mount(() => <Video src="/demo.mp4" controls="custom" />);
+      await nextTick();
+      // 没有任何事件，时长已经在了，进度条可以拖
+      expect(root.querySelector('[data-part="time"]')!.textContent).toBe('0:00 / 3:20');
+      expect(root.querySelector('[role="slider"]')!.getAttribute('aria-disabled')).not.toBe('true');
+    } finally {
+      if (duration) Object.defineProperty(HTMLMediaElement.prototype, 'duration', duration);
+      else delete (HTMLMediaElement.prototype as { duration?: number }).duration;
+    }
+  });
+
   it('减少动态效果：不自动播放，并显示控制条（让人自己决定要不要播）', async () => {
     preferReducedMotion(true);
     const root = mount(() => <Video src="/loop.mp4" autoplay loop controls={false} />);

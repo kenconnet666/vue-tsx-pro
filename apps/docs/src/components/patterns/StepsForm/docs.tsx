@@ -5,6 +5,7 @@ import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import Onboarding from './demo/Onboarding.tsx?demo';
+import Review from './demo/Review.tsx?demo';
 
 export const meta = {
   title: 'StepsForm 分步表单',
@@ -26,6 +27,12 @@ export default _component(() => () => (
       ），通过才往后走，没通过的错误立即显示；走过的步骤在步骤条上可以点回去。最后一步是“提交”：整份校验没通过时跳到第一个有错的步骤，那一步在步骤条上标成出错。换步后焦点移到这一步的内容上，读屏念出“第
       2 步，共 3 步”。<Code>_current</Code>{' '}
       可以双向绑定（提交成功后回到第一步）。只确认、不填的一步把 <Code>fields</Code> 写成空数组。
+    </Example>
+    <Example id="review" title="标签在左、只读回看" demo={Review}>
+      标签布局、只读、不可用同 Form：<Code>labelPlacement="start"</Code> 把标签排在左边，
+      <Code>labelWidth</Code> 定宽、<Code>labelAlign</Code> 对齐。<Code>readonly</Code>{' '}
+      用来回看已经提交的单子：控件都改不了，“下一步”不校验，步骤条上哪一步都能点，最后一步没有提交按钮。
+      <Code>disabled</Code> 时各步同样可以翻看，提交按钮不可用。
     </Example>
     <ApiReference api={api} />
   </DocPage>

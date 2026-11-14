@@ -17,7 +17,7 @@ interface Values {
   password: string;
 }
 
-function setup(onSubmit = vi.fn()) {
+function setup(onSubmit = vi.fn(), state: { readonly?: boolean; disabled?: boolean } = {}) {
   let form!: FormController<Values>;
   let step = 0;
   const root = mount(() =>
@@ -35,6 +35,7 @@ function setup(onSubmit = vi.fn()) {
           let current = _state(0);
           return () => (
             <StepsForm
+              {...state}
               form={form}
               _current={current}
               onUpdate:_current={(next: number) => {
@@ -138,5 +139,35 @@ describe('StepsForm', () => {
     expect(step()).toBe(0);
     expect(form().visibleError('password')).toBeUndefined();
     expect(document.activeElement).toBe(root.querySelector('input[aria-invalid="true"]'));
+  });
+
+  it('只读是回看：不校验就能到下一步，哪一步都能点，最后一步没有提交按钮，回车不提交', async () => {
+    const onSubmit = vi.fn();
+    const { root, form, step, button } = setup(onSubmit, { readonly: true });
+    await flush();
+    // 没填也能往后走，不报错
+    button('下一步').click();
+    await flush();
+    expect(step()).toBe(1);
+    expect(form().visibleError('company')).toBeUndefined();
+    expect(button('提交')).toBeUndefined();
+    expect(button('上一步')).toBeDefined();
+    const submit = new Event('submit', { cancelable: true });
+    root.querySelector('form')!.dispatchEvent(submit);
+    await flush();
+    expect(submit.defaultPrevented).toBe(true);
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(root.querySelector('input')!.readOnly).toBe(true);
+  });
+
+  it('不可用：各步照常切换，提交按钮不可用', async () => {
+    const onSubmit = vi.fn();
+    const { step, button } = setup(onSubmit, { disabled: true });
+    await flush();
+    button('下一步').click();
+    await flush();
+    expect(step()).toBe(1);
+    expect(button('提交').disabled).toBe(true);
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });

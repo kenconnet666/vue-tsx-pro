@@ -23,7 +23,7 @@
 import { Captions, Gauge, Maximize, Minimize, Pause, Play, Volume2, VolumeX } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { onBeforeUnmount } from 'vue';
+import { onBeforeUnmount, onMounted } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
 import { partAttrs } from '../config/styles';
@@ -251,6 +251,9 @@ export const Video = _component(
       const showing = [...element.textTracks].findIndex((track) => track.mode === 'showing');
       caption = showing < 0 ? '' : String(showing);
     }
+
+    // 预渲染的页面上，video 在接管之前就开始加载：元数据、自动播放的事件可能已经错过，挂载时按它现在的状态来
+    onMounted(sync);
 
     const toggle = () => (video?.paused ? void video.play().catch(() => {}) : video?.pause());
     const seekTo = (seconds: number) => {

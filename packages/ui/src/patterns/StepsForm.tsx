@@ -44,7 +44,10 @@ export interface FormStep {
   content: () => VNodeChild;
 }
 
-/** 未声明的属性落到 Form（form 元素）上；标签布局、只读、不可用同 Form */
+/**
+ * 未声明的属性落到 Form（form 元素）上；标签布局、只读、不可用同 Form。
+ * 只读（回看已提交的单子）、不可用时不校验、各步随便切换；只读时最后一步没有提交按钮，不可用时提交按钮不可用
+ */
 export interface StepsFormProps extends Omit<FormProps, 'controller' | 'children'> {
   /** useForm 的控制器 */
   form: FormControllerBase;
@@ -95,6 +98,8 @@ export const StepsForm = _component(
     propsPrevious,
     propsNext,
     propsSubmit,
+    disabled = false,
+    readonly = false,
     ...rest
   }: StepsFormProps) => {
     const messages = useMessages('patterns', patternsMessages);
@@ -111,10 +116,13 @@ export const StepsForm = _component(
       void nextTick(() => panel?.focus());
     }
 
+    /** 只读、不可用：只是看——不校验，各步随便切换 */
+    const locked = () => readonly || disabled;
+
     async function next() {
       const step = steps[current];
       if (!step) return;
-      if (await form.validate(step.fields)) return go(current + 1);
+      if (locked() || (await form.validate(step.fields))) return go(current + 1);
       // 没通过：等错误渲染出来（aria-invalid 写到控件上），焦点到这一步第一个出错的控件上（同 Form 提交没通过）
       await nextTick();
       const invalid = panel?.querySelector<HTMLElement>('[aria-invalid="true"]');
@@ -126,7 +134,10 @@ export const StepsForm = _component(
      * 不然只有一个输入框的步骤里按回车会直接提交整份表单，后面没填的步骤全报错
      */
     function onSubmit(event: Event) {
-      if (current >= steps.length - 1 || form.validating()) return;
+      const last = current >= steps.length - 1;
+      // 只读、不可用的表单不提交（只有一个输入框的步骤里按回车也会触发提交）
+      if (last && locked()) return event.preventDefault();
+      if (last || form.validating()) return;
       event.preventDefault();
       void next();
     }
@@ -143,8 +154,8 @@ export const StepsForm = _component(
         title: step.title,
         description: step.description,
         status: hasError(step) ? 'error' : undefined,
-        // 只能点回走过的步骤
-        disabled: index > current,
+        // 只能点回走过的步骤；只读、不可用时是回看，哪一步都能点
+        disabled: !locked() && index > current,
       }));
 
     return () => {
@@ -154,6 +165,8 @@ export const StepsForm = _component(
         <Form
           {...mergePartProps<Omit<FormProps, 'controller' | 'children'>>({}, rest, { onSubmit })}
           controller={form}
+          disabled={disabled}
+          readonly={readonly}
         >
           <div {...css.attrs(stepsFormStyles.root)} {...stepsFormPart('root')}>
             <Steps
@@ -188,14 +201,17 @@ export const StepsForm = _component(
                 </Button>
               )}
               {last ? (
-                <Button
-                  {...mergePartProps<ButtonProps>({}, propsSubmit, {
-                    type: 'submit',
-                    loading: form.submitting,
-                  })}
-                >
-                  {submitText ?? messages.stepsFormSubmit}
-                </Button>
+                // 只读是回看：没有提交
+                !readonly && (
+                  <Button
+                    {...mergePartProps<ButtonProps>({ disabled }, propsSubmit, {
+                      type: 'submit',
+                      loading: form.submitting,
+                    })}
+                  >
+                    {submitText ?? messages.stepsFormSubmit}
+                  </Button>
+                )
               ) : (
                 <Button
                   {...mergePartProps<ButtonProps>({}, propsNext, {
