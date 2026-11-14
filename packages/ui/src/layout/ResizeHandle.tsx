@@ -10,6 +10,8 @@
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { t } from '../config/theme/tokens';
+import { coarsePointer } from '../utils/style/styles';
 import { clamp } from '../utils/data/number';
 import { inlineArrows, isRtl } from '../utils/dom/direction';
 import { startMove } from '../utils/dom/move';
@@ -58,6 +60,12 @@ const resizeHandleStyles = css.create({
       _focusVisible: '_accent',
     },
     outlineStyle: 'none',
+    // 触屏上能按到的范围向四周扩一截（不小于 24px），只扩命中区、不改布局
+    '::after': {
+      content: '""',
+      position: 'absolute',
+      inset: { default: 0, [coarsePointer]: `calc(-1 * ${t.space.sm})` },
+    },
   },
   start: { insetInlineEnd: 'auto', insetInlineStart: 0 },
   // 横线：贴着父元素的下边（start 时是上边），调整高度

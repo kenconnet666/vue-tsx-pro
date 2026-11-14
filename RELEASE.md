@@ -16,7 +16,25 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- **服务端渲染后存的状态、媒体查询生效**：`usePersistentState`（QueryTable 的列设置、自己存的布局）与 `useMediaQuery`
+  （连带 `usePrefersDark`、`useReducedMotion`、AppShell 的宽屏判断）水合时先按服务端的值渲染，挂载后换成真实的。
+  之前直接用存的值渲染，和服务端的节点对不上，存的状态刷新后反而显示不出来（生产构建里不报错）。不做服务端渲染的项目没有变化。
+  新增 `isHydrating()`（在 setup 里判断这个组件是不是正在水合）。
+- **`sameValue`**：`Map` 逐项比、`Set` 比成员。之前任何两个 `Map` / `Set` 都被当成相等（表单看不出改过、`useRequest` 的参数变了不重新请求）。
+- **`tableToXlsx` / `exportXlsx`**：`Date` 实例、带时区的 ISO 字符串按 `timeZone`（新选项，默认浏览器的时区）的墙上时间写进表格，
+  和页面上看到的一致；之前按 UTC 写，东八区零点的日期会差一天。不带时区的日期照字面写，没有变化。
+- **TagsInput** 允许自己输入（默认）时，打字不再自动高亮第一条建议：回车加的是打的字，要选建议按 ↓ 再回车。
+  `allowCustomValue={false}` 时照旧高亮第一条。
+- **触屏**：NavList 紧凑时的分组点图标弹出子项（之前只能悬停、键盘聚焦，触屏上子项到不了）；ContextMenu 按住 700ms 打开
+  （iOS 的 Safari 长按不发 `contextmenu`）；Splitter、ResizeHandle 能按到的范围扩到 24px 以上（布局不变）。
+- **新的属性**：Switch 的 `description` / `propsDescription`（同 Checkbox、Radio）；ColumnTable 的 `empty`（没有行时表体里一行，
+  默认“暂无数据”，之前只剩表头）；CodeEditor 实例的 `setReadonly`。页面组合的文案新增 `notificationsNoMatch`。
+- **只读、不可用的表单里**：ConditionBuilder 增删条件的按钮不可用；CodeEditor 不能改（`readonly` 之后再变也跟着）；
+  Autocomplete 不可用时隐藏的 input 不随原生表单提交。
+- **NotificationList** 有通知、只是筛选后一条都没有时显示“没有符合条件的通知”，不再说“没有通知”；**NavBar** 收进下拉、
+  “更多”菜单的项也带徽标。
+- **Diagram** `fitView`：用缩放按钮、小地图动过视口之后，尺寸变化不再把视口重新适应回去（之前只认拖动、滚轮、键盘）；
+  卸载时结束进行中的拖动。
 
 ## 每次发布
 

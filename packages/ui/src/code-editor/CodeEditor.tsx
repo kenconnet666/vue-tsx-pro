@@ -11,6 +11,7 @@ import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { Extension } from '@codemirror/state';
 import { useConfig } from '../config/context';
+import { FieldLayoutContext } from '../form/field-layout';
 import { inputRecipe } from '../input/control';
 import { OverlayScrollbar } from '../layout/ScrollArea';
 import { mergeAttrs, type PartProps } from '../utils/props';
@@ -54,6 +55,9 @@ export const CodeEditor = _component(
     ...rest
   }: CodeEditorProps) => {
     const config = useConfig();
+    // 所在的 Form、Field 整组只读或不可用时也不能改（能选、能复制）
+    const layout = FieldLayoutContext.inject(null);
+    const locked = () => readonly === true || !!layout?.readonly || !!layout?.disabled;
     let root = _state.raw<HTMLElement | null>(null);
     let host = _state.raw<HTMLElement | null>(null);
     let scroller = _state.raw<HTMLElement | null>(null);
@@ -67,7 +71,7 @@ export const CodeEditor = _component(
         dark: isDark(),
         label,
         language,
-        readonly,
+        readonly: locked(),
         onChange: (code) => (value = code),
       });
       scroller = editor.view.scrollDOM;
@@ -80,6 +84,7 @@ export const CodeEditor = _component(
       (code) => editor?.setCode(code),
     );
     watch(isDark, (dark) => editor?.setDark(dark));
+    watch(locked, (next) => editor?.setReadonly(next));
 
     return () => (
       <div

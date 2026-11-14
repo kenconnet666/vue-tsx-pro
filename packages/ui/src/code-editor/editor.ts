@@ -156,6 +156,8 @@ export interface CodeEditorHandle {
   goTo(line: number, column?: number): void;
   /** 跟随站点主题的明暗 */
   setDark(dark: boolean): void;
+  /** 改只读（能选、能复制，不能改） */
+  setReadonly(readonly: boolean): void;
   /** 拆掉编辑器（组件卸载时） */
   destroy(): void;
 }
@@ -182,6 +184,7 @@ export function createEditor(
   { code, dark, label, language, readonly, onChange }: CodeEditorOptions,
 ): CodeEditorHandle {
   const darkMode = new Compartment();
+  const readOnly = new Compartment();
   const view = new EditorView({
     parent,
     state: EditorState.create({
@@ -199,7 +202,7 @@ export function createEditor(
         highlightActiveLine(),
         highlightSelectionMatches(),
         language ?? javascript({ jsx: true, typescript: true }),
-        EditorState.readOnly.of(readonly === true),
+        readOnly.of(EditorState.readOnly.of(readonly === true)),
         syntaxHighlighting(highlightStyle),
         EditorState.tabSize.of(2),
         theme,
@@ -267,6 +270,9 @@ export function createEditor(
     },
     setDark(next) {
       view.dispatch({ effects: darkMode.reconfigure(EditorView.darkTheme.of(next)) });
+    },
+    setReadonly(next) {
+      view.dispatch({ effects: readOnly.reconfigure(EditorState.readOnly.of(next)) });
     },
     destroy: () => view.destroy(),
   };

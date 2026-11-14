@@ -14,6 +14,7 @@
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { coarsePointer } from '../utils/style/styles';
 import { useId, type VNodeChild } from 'vue';
 import { IconButton, type IconButtonProps } from '../base/IconButton';
 import { useLang } from '../config/context';
@@ -132,8 +133,27 @@ const splitterStyles = css.create({
       _focusVisible: t.borderWidths.md,
     },
   },
-  handleHorizontal: { width: '_space.md', cursor: 'col-resize' },
-  handleVertical: { height: '_space.md', cursor: 'row-resize' },
+  // 触屏上手指按不准这么窄的一条：能按到的范围向两边各扩一截（不小于 24px，WCAG 2.5.8），只扩命中区、不改布局
+  handleHorizontal: {
+    width: '_space.md',
+    cursor: 'col-resize',
+    '::after': {
+      content: '""',
+      position: 'absolute',
+      insetBlock: 0,
+      insetInline: { default: 0, [coarsePointer]: `calc(-1 * ${t.space.sm})` },
+    },
+  },
+  handleVertical: {
+    height: '_space.md',
+    cursor: 'row-resize',
+    '::after': {
+      content: '""',
+      position: 'absolute',
+      insetInline: 0,
+      insetBlock: { default: 0, [coarsePointer]: `calc(-1 * ${t.space.sm})` },
+    },
+  },
   line: {
     position: 'absolute',
     backgroundColor: 'currentColor',
