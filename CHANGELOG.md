@@ -3,6 +3,16 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.28.0（2026-11-14）
+
+- **Video** `controls="custom"`：预渲染（服务端渲染）的页面上，视频的元数据常在页面接管之前就加载完，控制条错过了事件——
+  时长显示 0:00、进度条拖不了，点了播放才恢复。现在挂载时按视频当前的状态显示。
+- **StepsForm** 的 `readonly` 是真正的回看：“下一步”不校验，步骤条上哪一步都能点，最后一步没有提交按钮，回车也不提交
+  （之前只是控件改不了，最后一步照样能提交）。`disabled` 时各步同样可以翻看，提交按钮不可用。
+- **Textarea**（连带 Mentions）同时开 `clearable` 与 `showCount` 时，清空按钮与计数叠在结束边的同一列（清空在上、计数在下）；
+  之前各占一列，清空按钮被挤在计数的左边。
+- **Autocomplete** 的类型里去掉 `empty`：没有建议时列表不弹出，这段内容本来就显示不出来；写了的删掉即可。
+
 ## 0.27.0（2026-11-14）
 
 - **不再依赖 `@floating-ui/dom`**：浮层的定位（Popover、Menu、Select、Tooltip、HoverCard、Tour、输入法光标处的候选列表……）
