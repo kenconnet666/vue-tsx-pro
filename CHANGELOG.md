@@ -3,6 +3,11 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.30.0（2026-11-20）
+
+- `css` 改成只有静态方法的类（原来是 `export * as css` 的命名空间）：JetBrains 的 IDE 里 `css` 按类着色（命名空间的名字没有颜色），`css.create`、`css.attrs` 等按函数着色、悬停有说明；原来发布的 `dist/styles.d.ts` 里声明打包把命名空间写成 `declare namespace`，从发布包读类型的项目里连 `css.create` 都没有颜色。用法和类型不变：`css.create(…)`、`css.CompiledStyles`、`import { create }`、`import * as css` 都照旧；新导出了 `Variants`（配方的档位表的类型）。
+- 能拖动的 `Tree`（给了 `onMove`）里单击条目选不中、展不开：拖动工具 `startMove` 按下时就把指针捕获到树的根上，松开后的 click 落在根上。现在设了阈值的拖动（Tree、图表编辑器的节点、Toast 的划走）过了阈值才捕获，单击照常落在点的那一项上；按下即拖的（滑块、分隔条）不变。
+
 ## 0.29.0（2026-11-14）
 
 - **组件上写错绑定名现在是类型错误**：部件属性（`PartProps`）里去掉了原生元素专用的绑定 `_value`、`_checked`、`_files`、`_open`。
