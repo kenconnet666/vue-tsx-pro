@@ -1,8 +1,9 @@
-// Tree 在真实浏览器里：写 maxHeight 时节点少按内容高（不留空白），节点多了到上限再在树里滚动
+// Tree 在真实浏览器里：写 maxHeight 时节点少按内容高（不留空白），节点多了到上限再在树里滚动；能拖动时单击照样选中
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import { Tree } from '@zerodep-dev/vue-tsx-pro-ui';
 import { expect, it } from 'vitest';
+import { userEvent } from 'vitest/browser';
 import { mount } from '../../../../test/mount';
 
 interface Node {
@@ -36,4 +37,29 @@ it('maxHeight：3 个节点时按内容高，200 个节点时正好 16rem 并能
   expect(few!.getBoundingClientRect().height).toBeLessThan(8 * rem);
   expect(Math.abs(many!.getBoundingClientRect().height - 16 * rem)).toBeLessThan(1);
   expect(many!.scrollHeight).toBeGreaterThan(many!.clientHeight);
+});
+
+it('能拖动（onMove）时真实的单击照样选中：按下时不捕获指针，click 落在点的那一项上', async () => {
+  const root = mount(
+    _component(() => {
+      let selected = _state<string[]>([]);
+      return () => (
+        <Tree
+          items={nodes(3)}
+          getKey={(node) => node.id}
+          getLabel={(node) => node.id}
+          getChildren={() => undefined}
+          aria-label="能拖动的树"
+          selectionMode="multiple"
+          _selected={selected}
+          onMove={() => {}}
+        />
+      );
+    }),
+  );
+  await expect.poll(() => root.querySelectorAll('[role="treeitem"]').length).toBe(3);
+  await userEvent.click(root.querySelectorAll<HTMLElement>('[role="treeitem"]')[1]!);
+  await expect
+    .poll(() => root.querySelector('[role="treeitem"][aria-selected="true"]')?.textContent)
+    .toBe('n1');
 });

@@ -1,7 +1,8 @@
 /**
  * 拖动工具：在 pointerdown 里调用 startMove，之后的移动、松开、取消都由它跟踪（COMPONENTS.md §7 拖动工具）。
  * 参考 React Aria 的 useMove，直接基于 Pointer Events，不用手势库：
- *   - setPointerCapture：指针移出元素、移出窗口也能继续拖
+ *   - setPointerCapture：指针移出元素、移出窗口也能继续拖。设了阈值时过了阈值才捕获：捕获着松开时 click 落在捕获的
+ *     元素和按下的元素的公共祖先上，按下就捕获到祖先（如树的根）的话，单击就点不到按下的那一项了
  *   - pointercancel、失去捕获（系统手势、弹窗打断）按结束处理，不会卡在拖动状态
  *   - 拖动期间禁止选中文字；拖动超过阈值后吞掉随后的 click，拖完不会误触发点击
  *   - 只响应主按钮（鼠标左键、触摸、笔尖）
@@ -54,10 +55,14 @@ export function startMove(event: PointerEvent, options: MoveOptions): () => void
   let finished = false;
   let last: MovePoint = { clientX: startX, clientY: startY, deltaX: 0, deltaY: 0 };
 
-  // 捕获失败（指针已经松开、元素不在文档里）时照常用元素上的事件，只是移出元素后收不到
-  try {
-    target.setPointerCapture(pointerId);
-  } catch {}
+  // 事件在 window 上收（捕获阶段）：没捕获时（还没过阈值）指针在哪个元素上都收得到。捕获失败（指针已经松开、元素不在
+  // 文档里）时照常收，只是移出窗口后收不到
+  const capture = () => {
+    try {
+      target.setPointerCapture(pointerId);
+    } catch {}
+  };
+  if (moved) capture();
   const root = document.documentElement;
   const userSelect = root.style.userSelect;
   root.style.userSelect = 'none';
@@ -71,15 +76,16 @@ export function startMove(event: PointerEvent, options: MoveOptions): () => void
       deltaY: move.clientY - startY,
     };
     if (!moved && Math.hypot(last.deltaX, last.deltaY) < threshold) return;
+    if (!moved) capture();
     moved = true;
     options.onMove(last, move);
   };
   const finish = (cancelled: boolean) => {
     if (finished) return;
     finished = true;
-    target.removeEventListener('pointermove', onMove as EventListener);
-    target.removeEventListener('pointerup', onUp as EventListener);
-    target.removeEventListener('pointercancel', onCancel as EventListener);
+    window.removeEventListener('pointermove', onMove, true);
+    window.removeEventListener('pointerup', onUp, true);
+    window.removeEventListener('pointercancel', onCancel, true);
     target.removeEventListener('lostpointercapture', onCancel as EventListener);
     root.style.userSelect = userSelect;
     if (target.hasPointerCapture?.(pointerId)) target.releasePointerCapture(pointerId);
@@ -93,9 +99,9 @@ export function startMove(event: PointerEvent, options: MoveOptions): () => void
   const onUp = (up: PointerEvent) => up.pointerId === pointerId && finish(false);
   const onCancel = (cancel: PointerEvent) => cancel.pointerId === pointerId && finish(true);
 
-  target.addEventListener('pointermove', onMove as EventListener);
-  target.addEventListener('pointerup', onUp as EventListener);
-  target.addEventListener('pointercancel', onCancel as EventListener);
+  window.addEventListener('pointermove', onMove, true);
+  window.addEventListener('pointerup', onUp, true);
+  window.addEventListener('pointercancel', onCancel, true);
   target.addEventListener('lostpointercapture', onCancel as EventListener);
   return () => finish(true);
 }
