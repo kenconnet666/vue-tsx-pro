@@ -16,7 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- `css` 改成只有静态方法的类（原来是 `export * as css` 的命名空间）：JetBrains 的 IDE 里 `css` 按类着色（命名空间的名字没有颜色），`css.create`、`css.attrs` 等按函数着色、悬停有说明；原来发布的 `dist/styles.d.ts` 里声明打包把命名空间写成 `declare namespace`，从发布包读类型的项目里连 `css.create` 都没有颜色。用法和类型不变：`css.create(…)`、`css.CompiledStyles`、`import { create }`、`import * as css` 都照旧；新导出了 `Variants`（配方的档位表的类型）。
 
 ## 每次发布
 

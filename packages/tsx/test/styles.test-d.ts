@@ -1,7 +1,8 @@
 // 样式入口的类型：合法写法通过，拼错的属性、类型不对的值、缺 default 的条件值报错；
 // 每个属性接受的值与 CSS 类型表（css-properties.ts）一个不多、一个不少
 
-import { css as named, css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import * as entry from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { CSSProperties } from '../src/styles/css-properties';
 
 const vars = css.defineVars('vars', {
@@ -69,5 +70,10 @@ css.create({ bad: { color: { default: 'black', _selectd: 'blue' } } });
 // @ts-expect-error 条件取值必须有 default
 css.create({ bad: { color: { ':hover': 'blue' } } });
 
-// 具名的 css 就是整个入口：类型和命名空间导入一样
-export const sameEntry: typeof css = named;
+// css 是只有静态方法的类：模块对象（import * as）上的具名导出就是它的方法，类型挂在同名的命名空间上，和具名导出的类型相同
+export const sameCreate: typeof entry.create = css.create;
+export const sameAttrs: typeof css.attrs = entry.attrs;
+export const sameWhen: typeof entry.when = css.when;
+export const sameCompiled: entry.CompiledStyles = {} as css.CompiledStyles;
+export const sameCompiledBack: css.CompiledStyles = {} as entry.CompiledStyles;
+export const sameVarGroup: entry.VarGroup<{ a: string }> = {} as css.VarGroup<{ a: string }>;

@@ -38,7 +38,7 @@ export type PartStyles<P extends string> = Partial<Record<P, PartStyle>>;
  */
 export type PartStyle = DocumentedStyles | readonly (CompiledStyles | DocumentedStyles)[];
 /** 档位：档位名 → 取值 → 各部件的样式 */
-type Variants<P extends string> = Record<string, Record<string, PartStyles<P>>>;
+export type Variants<P extends string> = Record<string, Record<string, PartStyles<P>>>;
 
 /** 取值的键是 'true' / 'false' 时，调用侧收 boolean */
 type ValueOf<K> = K extends 'true' | 'false' ? boolean : K;
