@@ -8,7 +8,7 @@
  *   <AspectRatio ratio="4 / 3" sx={styles.map}>…</AspectRatio>
  *
  * 内容是一个元素：它被拉成和框一样大（img、video 这类按 object-fit: cover 裁切，要完整显示时在它上面写 contain）。
- * Embed 用它给 iframe 定比例；Image 自己有 width / height，不需要它。
+ * Embed、Video 用它给 iframe、video 定比例（它们把自己的部件标记交给它）；Image 自己有 width / height，不需要它。
  */
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
@@ -47,22 +47,24 @@ const aspectRatioDynamicStyles = css.create({
   ratio: (value: string) => ({ aspectRatio: value }),
 });
 
+/** 铺满规则选的标记：部件标记被盖掉（Embed、Video 交进来自己的）时它还在 */
+const FILL_MARKER = { 'data-aspect-ratio': '' } as const;
+
 let registered = false;
 
 /** 里面的元素铺满（第一次用到时登记，同 partAttrs 的基础规则；最前面的级联层，使用方的样式盖得过） */
 function registerFill() {
   if (registered) return;
   registered = true;
-  // 替换元素（img、video、iframe）有自己的固有尺寸，不会被网格拉伸，要写明宽高
-  css.globalRule('aspect-ratio-fill', ':where([data-scope="aspect-ratio"][data-part="root"]) > *', {
+  // 替换元素（img、video、iframe）有自己的固有尺寸，不会被网格拉伸，要写明宽高。按 data-aspect-ratio 选而不按部件标记：
+  // Embed、Video 把自己的部件标记交给 AspectRatio，根元素的 data-scope 就不是 aspect-ratio 了
+  css.globalRule('aspect-ratio-fill', ':where([data-aspect-ratio]) > *', {
     width: '_full',
     height: '_full',
   });
-  css.globalRule(
-    'aspect-ratio-cover',
-    ':where([data-scope="aspect-ratio"][data-part="root"]) > :where(img, video)',
-    { objectFit: 'cover' },
-  );
+  css.globalRule('aspect-ratio-cover', ':where([data-aspect-ratio]) > :where(img, video)', {
+    objectFit: 'cover',
+  });
 }
 
 /** 固定宽高比的框 */
@@ -74,6 +76,7 @@ export const AspectRatio = _component(({ ratio = 16 / 9, children, ...rest }: As
         {
           sx: [aspectRatioStyles.root, aspectRatioDynamicStyles.ratio(String(ratio))],
           ...aspectRatioPart('root'),
+          ...FILL_MARKER,
         },
         rest,
       )}

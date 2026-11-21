@@ -24,4 +24,14 @@ describe('AspectRatio', () => {
     expect(styleTextOf(square!)).toContain('1');
     expect(styleTextOf(classic!)).toContain('4 / 3');
   });
+
+  it('交出自己部件标记的组件（Embed、Video 那样）也带 data-aspect-ratio：铺满的规则按它选', () => {
+    const root = mount(() => (
+      <AspectRatio data-scope="embed" data-part="root">
+        <iframe title="x" />
+      </AspectRatio>
+    ));
+    const box = root.querySelector<HTMLElement>('[data-scope="embed"]')!;
+    expect(box.hasAttribute('data-aspect-ratio')).toBe(true);
+  });
 });
