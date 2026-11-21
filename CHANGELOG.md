@@ -3,6 +3,13 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.31.0（2026-11-21）
+
+- Gauge：当前值的弧的部件标记从 `value` 改成 `arc`，`value` 只留给中间的数值（#6）。按 `[data-scope="gauge"][data-part="value"]` 改弧的样式的，改成 `data-part="arc"`。
+- AspectRatio 的根元素多一个 `data-aspect-ratio` 属性，里面的元素铺满的规则按它选：Embed、Video 里的 iframe、video 现在铺满定比例的外框（#7）。
+- Descriptions 的根元素宽度写满（`width: 100%`）：放在按内容收缩的容器里（`align="start"` 的 Flex、inline-flex、浮动）不再缩成 0 宽（#8）。
+- ui、mobile 发布的 `.d.ts` 相对导入带上 `.js` 扩展名：`moduleResolution` 是 `node16` / `nodenext` 的项目里类型解析得了，不再变成 `any`（#9）。
+
 ## 0.30.0（2026-11-20）
 
 - `css` 改成只有静态方法的类（原来是 `export * as css` 的命名空间）：JetBrains 的 IDE 里 `css` 按类着色（命名空间的名字没有颜色），`css.create`、`css.attrs` 等按函数着色、悬停有说明；原来发布的 `dist/styles.d.ts` 里声明打包把命名空间写成 `declare namespace`，从发布包读类型的项目里连 `css.create` 都没有颜色。用法和类型不变：`css.create(…)`、`css.CompiledStyles`、`import { create }`、`import * as css` 都照旧；新导出了 `Variants`（配方的档位表的类型）。
