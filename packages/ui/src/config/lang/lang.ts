@@ -218,6 +218,22 @@ export interface Lang {
   readonly formSubmit: string;
   /** SchemaForm 的重置按钮，默认“重置” */
   readonly formReset: string;
+  /** PropertyGrid：多选时不一样的值，默认“多个值” */
+  readonly propertyMixed: string;
+  /** PropertyGrid：列表加一项、加上没写的一组设置的按钮，默认“添加” */
+  readonly propertyAdd: string;
+  /** PropertyGrid：给可以是 null 的字段设上值的按钮，默认“设置” */
+  readonly propertySetValue: string;
+  /** PropertyGrid：列表里没指定的一项（null），默认“默认” */
+  readonly propertyDefaultItem: string;
+  /** PropertyGrid：去掉写了的可选字段：`('阴影')` → “去掉阴影” */
+  readonly propertyClear: (label: string) => string;
+  /** PropertyGrid：可空字段设回 null：`('目标')` → “目标设为空” */
+  readonly propertySetNull: (label: string) => string;
+  /** PropertyGrid：必填还没设的提示：`('目标')` → “目标必填，还没设” */
+  readonly propertyRequired: (label: string) => string;
+  /** PropertyGrid：删列表的一项：`('材质', 0)` → “删掉材质的第 1 项” */
+  readonly propertyRemoveItem: (label: string, index: number) => string;
   /** SchemaForm 列表字段加一行的按钮：`('联系人')` → “添加联系人” */
   readonly formAddRow: (label: string) => string;
   /** SchemaForm 列表字段删一行的按钮：`('联系人', 2)` → “删除第 2 个联系人” */

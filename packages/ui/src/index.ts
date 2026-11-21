@@ -1044,6 +1044,16 @@ export {
   type FormValueProps,
 } from './form/FormValue';
 export {
+  PropertyEditor,
+  PropertyGrid,
+  propertyGridStyles,
+  type PropertyEditorProps,
+  type PropertyEditors,
+  type PropertyGridOptions,
+  type PropertyGridProps,
+  type PropertyKindEditor,
+} from './form/PropertyGrid';
+export {
   SchemaFields,
   schemaFilters,
   SchemaForm,
@@ -1062,6 +1072,22 @@ export {
 } from './form/field-layout';
 export { createConstraints, type FieldConstraints } from './form/form-constraints';
 export { useLeaveConfirmation, type LeaveConfirmationOptions } from './form/leave-confirmation';
+export {
+  emptyPropertyValue,
+  hasMixed,
+  hexToPropertyColor,
+  PROPERTY_MIXED,
+  propertyColorToHex,
+  setPropertyPath,
+  type PropertyField,
+  type PropertyKind,
+  type PropertyListType,
+  type PropertyObjectType,
+  type PropertyPath,
+  type PropertyType,
+  type PropertyUnionType,
+  type PropertyUpdate,
+} from './form/property-types';
 export {
   columnTotal,
   emptyValues,
