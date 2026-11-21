@@ -8,8 +8,8 @@
  *     {(node) => <DiagramNode title={node.name} description={node.title} />}
  *   </Diagram>
  *
- * - 视口（见 useDiagram）：滚轮平移，按住 Ctrl / ⌘ 或触控板捏合缩放；拖动空白处平移，dragMode="select" 时改为框选、
- *   按住空格再拖动才平移；视口有焦点时方向键平移、+ / − 缩放、0 回到适应内容。fitView 在第一次有尺寸时把内容放进视口。
+ * - 视口（见 useDiagram）：拖动空白处平移（光标是小手），滚轮、触控板捏合以指针为中心缩放；dragMode="select" 时拖动空白处
+ *   改为框选，按住空格再拖动或滚轮平移（按住 Ctrl / ⌘ 滚轮缩放），wheel 可以另指定；视口有焦点时方向键平移、+ / − 缩放、0 回到适应内容。fitView 在第一次有尺寸时把内容放进视口。
  * - 选择（selectable）：点节点或连线选中它，按住 Shift / Ctrl / ⌘ 再点加选或取消；按住 Shift 拖动空白处框选
  *   （selectionMode：整个框住才算，或碰到就算），按住 Ctrl / ⌘ 时框到的加进原来的选择；点空白处、Esc 清空，
  *   Ctrl / ⌘ + A 全选。_selected 双向绑定。
@@ -39,7 +39,12 @@ import { isEditable } from '../utils/dom/hotkeys';
 import { dataAttrs, mergeAttrs, type PartProps } from '../utils/props';
 import { interactionTransitions } from '../utils/style/transitions';
 import type { StatusTone } from '../utils/style/tone-styles';
-import { diagramInternals, useDiagram, type DiagramController } from './controller';
+import {
+  diagramInternals,
+  useDiagram,
+  type DiagramController,
+  type DiagramOptions,
+} from './controller';
 import { DiagramNode, DiagramNodeFrameContext } from './DiagramNode';
 import {
   alignToGuides,
@@ -60,6 +65,14 @@ import {
 import { diagramMessages } from './messages';
 import { partAttrs } from '../config/styles';
 import { nearestSide, routeEdges, sidePoint, straightRoute, type DiagramSide } from './route';
+import {
+  bezierMidpoint,
+  bezierPath,
+  bezierRoute,
+  portPoint,
+  portSide,
+  type DiagramPortItem,
+} from './ports';
 import { relativeFontSizes } from '../utils/style/typography';
 
 /** 画布上的一个节点：位置与大小（画布坐标），其余字段使用方自己用 */
@@ -68,6 +81,11 @@ export interface DiagramNodeItem extends DiagramRect {
   id: string;
   /** 形状：里面的 DiagramNode 默认画成它，连线接到它的轮廓上（圆、菱形的线接在顶点），默认 rect */
   shape?: DiagramNodeShape;
+  /**
+   * 有名字的端口（节点图）：一直显示在节点的边上，连线写 fromPort / toPort 接在端口上；connectable 时从输出端口拖到别的节点
+   * 的输入端口上连线。有端口的节点不出现四条边上的那种端口
+   */
+  ports?: readonly DiagramPortItem[];
 }
 
 /** 画布上的一条连线 */
@@ -78,6 +96,10 @@ export interface DiagramEdgeItem {
   from: string;
   /** 终点节点 */
   to: string;
+  /** 从起点的哪个端口出去（节点的 ports 里的 id）；写了时线的这一端接在端口上 */
+  fromPort?: string;
+  /** 接到终点的哪个端口 */
+  toPort?: string;
   /** 折线经过的点（画布坐标，含两端）；不给时按 routing 画 */
   points?: readonly DiagramPoint[];
   /** 从起点的哪条边出去（routing="orthogonal" 时用）；不写时自动选 */
@@ -124,8 +146,12 @@ export interface DiagramConnection {
   readonly to: string;
   /** 从起点的哪条边出去 */
   readonly fromSide: DiagramSide;
-  /** 从终点的哪条边进来（松开时离指针最近的边） */
+  /** 从终点的哪条边进来（松开时离指针最近的边；端口之间连的是端口所在的边） */
   readonly toSide: DiagramSide;
+  /** 从起点的哪个端口拖出来（节点有 ports 时） */
+  readonly fromPort?: string;
+  /** 松开在终点的哪个端口上 */
+  readonly toPort?: string;
 }
 
 /** 拖动连线的一端改接到别的节点 */
@@ -172,6 +198,8 @@ export interface DiagramRoutings {
   straight: unknown;
   /** 绕开节点的正交折线（横竖两个方向，拐弯少，同一条边上的几条线排开） */
   orthogonal: unknown;
+  /** 三次贝塞尔曲线，从两端沿边（端口）的朝向伸出去：节点图的连线，不画箭头 */
+  bezier: unknown;
 }
 
 /** 未声明的属性落到视口（Root）上：aria-label 写画布画的是什么 */
@@ -204,6 +232,11 @@ export interface DiagramProps<
   _selected?: DiagramSelection;
   /** 拖动空白处做什么，默认 pan */
   dragMode?: keyof DiagramDragModes;
+  /**
+   * 滚轮的作用：zoom 缩放；pan 平移、按住 Ctrl / ⌘ 才缩放。默认跟着 dragMode：拖动空白处平移（pan）时滚轮缩放，
+   * 拖动空白处框选（select）时滚轮平移。传了 controller 时以 useDiagram 的 wheel 为准
+   */
+  wheel?: DiagramOptions['wheel'];
   /** 框选时怎样算选中，默认 full */
   selectionMode?: keyof DiagramSelectionModes;
   /** 背景的网格，默认 none */
@@ -228,8 +261,15 @@ export interface DiagramProps<
   onNodesMove?: (moves: DiagramNodeMove[]) => void;
   /** 能从节点的端口拖出连线；选中的连线两端可以拖去改接 */
   connectable?: boolean;
-  /** 能不能从 from 连到 to（拖动时只高亮能连的节点）；默认除了自己都能连 */
-  canConnect?: (from: N, to: N) => boolean;
+  /**
+   * 能不能从 from 连到 to（拖动时只高亮能连的节点）；默认除了自己都能连。端口之间连线时 ports 是两个端口（按数据类型
+   * 判断能不能连）
+   */
+  canConnect?: (
+    from: N,
+    to: N,
+    ports?: { readonly from: DiagramPortItem; readonly to: DiagramPortItem },
+  ) => boolean;
   /** 从端口拖出连线、在另一个节点上松开 */
   onConnect?: (connection: DiagramConnection) => void;
   /** 拖动选中连线的一端、在别的节点上松开 */
@@ -242,8 +282,8 @@ export interface DiagramProps<
   propsWorld?: PartProps<'div'>;
   /** 节点框的部件属性，可以按节点计算 */
   propsNode?: PartProps<'div'> | ((node: N, state: DiagramItemState) => PartProps<'div'>);
-  /** 端口的部件属性 */
-  propsPort?: PartProps<'span'>;
+  /** 端口的部件属性（有名字的端口的 title 是它的 label） */
+  propsPort?: PartProps<'span', 'title'>;
   /** 连线（g）的部件属性，可以按连线计算（颜色、虚线用连线的 tone、dashed） */
   propsEdge?: PartProps<'g'> | ((edge: E, state: DiagramItemState) => PartProps<'g'>);
   /** 连线文字的部件属性，可以按连线计算 */
@@ -402,6 +442,15 @@ export const diagramStyles = css.create({
     transform: { default: 'translate(-50%, -50%)', _hover: 'translate(-50%, -50%) scale(1.3)' },
     transition: `transform ${t.durations.sm} ${t.easings.standard}`,
   },
+  // 有名字的端口：一直显示，位置由 at 给；能拖出连线的（输出端口）是十字光标
+  namedPort: {
+    left: 0,
+    top: 0,
+    cursor: 'default',
+    backgroundColor: 'var(--diagram-port-color, var(--vtp-colors-accent, currentColor))',
+    borderColor: '_surface',
+  },
+  namedPortLinkable: { cursor: 'crosshair' },
   portTop: { left: '50%', top: 0 },
   portRight: { left: '100%', top: '50%' },
   portBottom: { left: '50%', top: '100%' },
@@ -479,6 +528,7 @@ const diagramDynamicStyles = css.create({
     height,
   }),
   at: (x: number, y: number) => ({ transform: `translate(${x}px, ${y}px) translate(-50%, -50%)` }),
+  portColor: (color: string) => ({ '--diagram-port-color': color }),
   height: (height: number | string) => ({ height }),
 });
 
@@ -503,6 +553,8 @@ const ARROWS: Record<string, readonly [number, number]> = {
 interface Route<E> {
   edge: E;
   points: readonly DiagramPoint[];
+  /** points 是贝塞尔曲线的四个点（起点、两个控制点、终点） */
+  curve?: boolean;
 }
 
 /** 拖动中的节点：哪些在动、挪了多少、要画的对齐线 */
@@ -513,11 +565,12 @@ interface DragState {
   guides: DiagramGuide[];
 }
 
-/** 正在拖的连线：从哪一点到哪一点，指针下能连的节点 */
+/** 正在拖的连线：从哪一点到哪一点，指针下能连的节点；从端口拖出来时画成曲线（两端的朝向） */
 interface LinkState {
   from: DiagramPoint;
   to: DiagramPoint;
   target: string | null;
+  curve?: { readonly fromSide: DiagramSide; readonly toSide: DiagramSide };
 }
 
 /**
@@ -531,6 +584,7 @@ interface ItemActions {
   nodeEnter(id: string): void;
   nodeLeave(id: string): void;
   portDown(id: string, side: DiagramSide, event: PointerEvent): void;
+  namedPortDown(id: string, port: string, event: PointerEvent): void;
   edgeClick(id: string, event: MouseEvent): void;
   edgeKey(id: string, event: KeyboardEvent): void;
   endDown(id: string, end: 'from' | 'to', event: PointerEvent): void;
@@ -550,10 +604,12 @@ interface NodeViewProps {
   movable: boolean;
   dragging: boolean;
   ports: boolean;
+  /** 能从有名字的端口拖出连线 */
+  connectable: boolean;
   linkTarget: boolean;
   render: (node: never, state: DiagramItemState) => VNodeChild;
   part?: PartProps<'div'> | ((node: never, state: DiagramItemState) => PartProps<'div'>);
-  portPart?: PartProps<'span'>;
+  portPart?: PartProps<'span', 'title'>;
   actions: ItemActions;
 }
 
@@ -571,6 +627,7 @@ const NodeView = _component(
     movable,
     dragging,
     ports,
+    connectable,
     linkTarget,
     render,
     part,
@@ -627,7 +684,43 @@ const NodeView = _component(
           )}
         >
           {render(item as never, state)}
+          {item.ports?.map((port) => {
+            const side = portSide(port);
+            const point = portPoint({ ...item, x: 0, y: 0 }, port);
+            return (
+              <span
+                key={`port:${port.id}`}
+                {...mergeAttrs<'span'>(
+                  {
+                    sx: [
+                      diagramStyles.port,
+                      diagramStyles.namedPort,
+                      connectable && port.direction === 'out' && diagramStyles.namedPortLinkable,
+                      diagramDynamicStyles.at(point.x, point.y),
+                      port.color !== undefined && diagramDynamicStyles.portColor(port.color),
+                    ],
+                    ...diagramPart('port'),
+                  },
+                  portPart,
+                  {
+                    ...dataAttrs({
+                      'data-diagram-port': side,
+                      'data-diagram-port-id': port.id,
+                      'data-diagram-port-direction': port.direction,
+                    }),
+                    title: port.label,
+                    'aria-hidden': 'true',
+                    onPointerdown: (event: PointerEvent) => {
+                      if (connectable && port.direction === 'out')
+                        actions.namedPortDown(id, port.id, event);
+                    },
+                  },
+                )}
+              />
+            );
+          })}
           {ports &&
+            !item.ports &&
             SIDES.map((side) => (
               <span
                 key={side}
@@ -652,6 +745,8 @@ const NodeView = _component(
 interface EdgeViewProps {
   item: DiagramEdgeItem;
   points: readonly DiagramPoint[];
+  /** points 是贝塞尔曲线：画成曲线、不画箭头 */
+  curve: boolean;
   label: string;
   roleDescription: string;
   radius: number;
@@ -666,6 +761,7 @@ const EdgeView = _component(
   ({
     item,
     points,
+    curve,
     label,
     roleDescription,
     radius,
@@ -676,7 +772,7 @@ const EdgeView = _component(
   }: EdgeViewProps) =>
     () => {
       const state: DiagramItemState = { selected };
-      const path = polylinePath(trimEnd(points, ARROW * 0.7), radius);
+      const path = curve ? bezierPath(points) : polylinePath(trimEnd(points, ARROW * 0.7), radius);
       return (
         <g
           {...mergeAttrs<'g'>(
@@ -711,11 +807,13 @@ const EdgeView = _component(
             <path d={path} {...css.attrs(diagramStyles.edgeHit)} {...diagramPart('edgeHit')} />
           )}
           <path d={path} {...css.attrs(diagramStyles.edgeLine)} {...diagramPart('edgeLine')} />
-          <polygon
-            points={arrowHead(points, ARROW)}
-            {...css.attrs(diagramStyles.edgeArrow)}
-            {...diagramPart('edgeArrow')}
-          />
+          {!curve && (
+            <polygon
+              points={arrowHead(points, ARROW)}
+              {...css.attrs(diagramStyles.edgeArrow)}
+              {...diagramPart('edgeArrow')}
+            />
+          )}
         </g>
       );
     },
@@ -773,6 +871,7 @@ export const Diagram = _component(
     selectable = false,
     _selected: selected = _bindable<DiagramSelection>(NO_SELECTION),
     dragMode = 'pan',
+    wheel,
     selectionMode = 'full',
     grid = 'none',
     gridSize = 20,
@@ -801,7 +900,10 @@ export const Diagram = _component(
   }: DiagramProps<N, E>) => {
     const messages = useMessages('diagram', diagramMessages);
     // 控制器只在创建时取：换控制器要换一个画布
-    const diagram = _untrack(controller) ?? useDiagram();
+    // 能用小手拖动平移时滚轮只缩放；拖动空白处是框选时平移交给滚轮
+    const diagram =
+      _untrack(controller) ??
+      useDiagram({ wheel: wheel ?? (dragMode === 'select' ? 'pan' : 'zoom') });
     const internal = diagramInternals(diagram);
     DiagramContext.provide(diagram);
 
@@ -827,6 +929,44 @@ export const Diagram = _component(
     const placed = (node: N): N =>
       drag?.ids.has(node.id) ? { ...node, x: node.x + drag.dx, y: node.y + drag.dy } : node;
 
+    /**
+     * 一条连线按 routing 画：写了端口的一端接在端口上（正交的路由不管端口，按两个端口画直线）；bezier 从两端沿边（端口）的
+     * 朝向伸出去
+     */
+    function routeBetween(
+      edge: E,
+      from: N,
+      to: N,
+      routed: ReadonlyMap<string, readonly DiagramPoint[]> | undefined,
+    ): Route<E> {
+      const fromPort =
+        edge.fromPort === undefined
+          ? undefined
+          : from.ports?.find((port) => port.id === edge.fromPort);
+      const toPort =
+        edge.toPort === undefined ? undefined : to.ports?.find((port) => port.id === edge.toPort);
+      if (!fromPort && !toPort) {
+        const straight = routed?.get(edge.id) ?? straightRoute(from, to);
+        if (routing !== 'bezier') return { edge, points: straight };
+        const [start, end] = [straight[0]!, straight[straight.length - 1]!];
+        return {
+          edge,
+          points: bezierRoute(start, nearestSide(from, start), end, nearestSide(to, end)),
+          curve: true,
+        };
+      }
+      const [straightStart, straightEnd] = (() => {
+        const line = straightRoute(from, to);
+        return [line[0]!, line[line.length - 1]!];
+      })();
+      const start = fromPort ? portPoint(from, fromPort) : straightStart;
+      const end = toPort ? portPoint(to, toPort) : straightEnd;
+      if (routing !== 'bezier') return { edge, points: [start, end] };
+      const startSide = fromPort ? portSide(fromPort) : nearestSide(from, start);
+      const endSide = toPort ? portSide(toPort) : nearestSide(to, end);
+      return { edge, points: bezierRoute(start, startSide, end, endSide), curve: true };
+    }
+
     /** 不拖动时每条连线的折线：给了 points 用它，没给时按 routing 画；两端的节点缺了不画 */
     const restingRoutes = _derived.by(() => {
       const automatic = edges.filter((edge) => !hasPoints(edge));
@@ -836,7 +976,7 @@ export const Diagram = _component(
         const from = nodeById.get(edge.from);
         const to = nodeById.get(edge.to);
         if (!from || !to) return [];
-        return [{ edge, points: routed?.get(edge.id) ?? straightRoute(from, to) }];
+        return [routeBetween(edge, from, to, routed)];
       });
     });
     /** 拖动中：与动着的节点相连的线按 routing 实时重画，别的线不动 */
@@ -853,7 +993,7 @@ export const Diagram = _component(
         const from = byId.get(route.edge.from);
         const to = byId.get(route.edge.to);
         if (!from || !to) return route;
-        return { edge: route.edge, points: routed?.get(route.edge.id) ?? straightRoute(from, to) };
+        return routeBetween(route.edge, from, to, routed);
       });
     });
     const bounds = _derived(
@@ -1165,6 +1305,85 @@ export const Diagram = _component(
       gesture = cancel;
     }
 
+    /**
+     * 从有名字的输出端口拖出一条线：松开在别的节点的输入端口上（canConnect 按两个端口判断）时调用 onConnect。
+     * 落点按指针下的元素找端口（端口的点击区域比画出来的大）
+     */
+    function startPortLink(event: PointerEvent, node: N, port: DiagramPortItem) {
+      if (event.button !== 0) return;
+      event.stopPropagation();
+      event.preventDefault();
+      const start = portPoint(node, port);
+      const fromSide = portSide(port);
+      let release = () => {};
+      let pointer = { clientX: event.clientX, clientY: event.clientY };
+      let landing: { node: N; port: DiagramPortItem } | null = null;
+      const update = () => {
+        const element = document.elementFromPoint(pointer.clientX, pointer.clientY);
+        const portElement = element?.closest<HTMLElement>('[data-diagram-port-id]');
+        const target = portElement
+          ? nodeById.get(portElement.closest<HTMLElement>('[data-node]')?.dataset['node'] ?? '')
+          : undefined;
+        const targetPort = target?.ports?.find(
+          (p) => p.id === portElement!.dataset['diagramPortId'],
+        );
+        landing =
+          target &&
+          targetPort &&
+          target.id !== node.id &&
+          targetPort.direction === 'in' &&
+          (canConnect?.(node, target, { from: port, to: targetPort }) ?? true)
+            ? { node: target, port: targetPort }
+            : null;
+        const end = landing
+          ? portPoint(landing.node, landing.port)
+          : diagram.toDiagram(pointer.clientX, pointer.clientY);
+        const toSide: DiagramSide = landing
+          ? portSide(landing.port)
+          : fromSide === 'right'
+            ? 'left'
+            : fromSide === 'left'
+              ? 'right'
+              : fromSide === 'top'
+                ? 'bottom'
+                : 'top';
+        link = {
+          from: start,
+          to: end,
+          target: landing?.node.id ?? null,
+          curve: { fromSide, toSide },
+        };
+      };
+      const pan = edgePan(update);
+      update();
+      const cancel = startMove(event, {
+        captureTarget: root() ?? undefined,
+        swallowClick: true,
+        onMove: (point) => {
+          pointer = point;
+          update();
+          pan.follow(point);
+        },
+        onEnd: ({ cancelled }) => {
+          gesture = null;
+          pan.stop();
+          release();
+          link = null;
+          if (cancelled || !landing) return;
+          onConnect?.({
+            from: node.id,
+            to: landing.node.id,
+            fromSide,
+            toSide: portSide(landing.port),
+            fromPort: port.id,
+            toPort: landing.port.id,
+          });
+        },
+      });
+      release = cancelOnEscape(() => cancel());
+      gesture = cancel;
+    }
+
     function onKeydown(event: KeyboardEvent) {
       // 节点里的输入框在打字：Ctrl+A、Esc 是它的
       if (isEditable(event.target)) return;
@@ -1230,6 +1449,11 @@ export const Diagram = _component(
           onConnect?.({ from: id, to: target.id, fromSide: side, toSide }),
         );
       },
+      namedPortDown(id, portId, event) {
+        const node = nodeById.get(id);
+        const port = node?.ports?.find((p) => p.id === portId);
+        if (node && port) startPortLink(event, node, port);
+      },
       edgeClick: (id, event) => choose('edges', id, toggles(event)),
       edgeKey(id, event) {
         if (event.target !== event.currentTarget) return;
@@ -1263,7 +1487,11 @@ export const Diagram = _component(
         connectable && onReconnect && !drag && !link
           ? routes.filter(
               ({ edge }) =>
-                selectedEdges.has(edge.id) && nodeById.has(edge.from) && nodeById.has(edge.to),
+                selectedEdges.has(edge.id) &&
+                nodeById.has(edge.from) &&
+                nodeById.has(edge.to) &&
+                edge.fromPort === undefined &&
+                edge.toPort === undefined,
             )
           : [];
       return (
@@ -1345,6 +1573,7 @@ export const Diagram = _component(
                     !drag &&
                     (hovered === node.id || isSelected || link?.target === node.id)
                   }
+                  connectable={connectable}
                   linkTarget={link?.target === node.id}
                   render={(children ?? defaultNode) as NodeViewProps['render']}
                   part={propsNode as NodeViewProps['part']}
@@ -1360,7 +1589,7 @@ export const Diagram = _component(
               height="1"
               aria-hidden={selectable ? undefined : 'true'}
             >
-              {routes.map(({ edge, points }) => {
+              {routes.map(({ edge, points, curve }) => {
                 const from = nodeById.get(edge.from);
                 const to = nodeById.get(edge.to);
                 const isSelected = selectedEdges.has(edge.id);
@@ -1369,6 +1598,7 @@ export const Diagram = _component(
                     key={edge.id}
                     item={edge}
                     points={points}
+                    curve={curve ?? false}
                     label={
                       getEdgeLabel?.(edge) ??
                       messages.edgeBetween(
@@ -1387,8 +1617,13 @@ export const Diagram = _component(
               })}
             </svg>
             {edgeText &&
-              routes.map(({ edge, points }) => {
-                const at = drag || !edge.labelAt ? polylineMidpoint(points) : edge.labelAt;
+              routes.map(({ edge, points, curve }) => {
+                const at =
+                  drag || !edge.labelAt
+                    ? curve
+                      ? bezierMidpoint(points)
+                      : polylineMidpoint(points)
+                    : edge.labelAt;
                 return (
                   <EdgeTextView
                     key={edge.id}
@@ -1447,15 +1682,28 @@ export const Diagram = _component(
                 {link && (
                   <g {...css.attrs(diagramStyles.preview)} {...diagramPart('preview')}>
                     <path
-                      d={polylinePath(trimEnd([link.from, link.to], ARROW * 0.7))}
+                      d={
+                        link.curve
+                          ? bezierPath(
+                              bezierRoute(
+                                link.from,
+                                link.curve.fromSide,
+                                link.to,
+                                link.curve.toSide,
+                              ),
+                            )
+                          : polylinePath(trimEnd([link.from, link.to], ARROW * 0.7))
+                      }
                       {...css.attrs(diagramStyles.edgeLine)}
                       {...diagramPart('edgeLine')}
                     />
-                    <polygon
-                      points={arrowHead([link.from, link.to], ARROW)}
-                      {...css.attrs(diagramStyles.edgeArrow)}
-                      {...diagramPart('edgeArrow')}
-                    />
+                    {!link.curve && (
+                      <polygon
+                        points={arrowHead([link.from, link.to], ARROW)}
+                        {...css.attrs(diagramStyles.edgeArrow)}
+                        {...diagramPart('edgeArrow')}
+                      />
+                    )}
                   </g>
                 )}
               </svg>

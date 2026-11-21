@@ -16,7 +16,10 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- Splitter 的分隔条用鼠标拖得动了：0.24.0 起分隔条所在的格叠着一层伪元素，指针落到格上、按不到分隔条（触屏不受影响）。
+- Diagram 的滚轮默认改成缩放（以指针为中心）：拖动空白处平移，不再滚轮平移、按住 Ctrl 才缩放；`dragMode="select"` 的画布滚轮仍然平移。要原来的行为写 `wheel="pan"`（或 `useDiagram({ wheel: 'pan' })`）。
+- Diagram 支持节点上有名字的端口：节点数据的 `ports`（输入、输出，位置、颜色、名称），连线的 `fromPort`、`toPort` 接在端口上，`routing="bezier"` 画成从端口伸出的曲线；连线时 `onConnect`、`canConnect` 收到两头的端口。
+- GraphChart、MapChart 能缩放时、ImageCropper 拖动时，光标是小手（拖着是握拳）。
 
 ## 每次发布
 

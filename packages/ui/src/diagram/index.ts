@@ -78,6 +78,16 @@ export {
 } from './layout';
 export { diagramMessages, type DiagramMessages } from './messages';
 export {
+  bezierMidpoint,
+  bezierPath,
+  bezierRoute,
+  portFraction,
+  portPoint,
+  portSide,
+  type DiagramPortedNode,
+  type DiagramPortItem,
+} from './ports';
+export {
   chooseSides,
   nearestSide,
   routeEdges,

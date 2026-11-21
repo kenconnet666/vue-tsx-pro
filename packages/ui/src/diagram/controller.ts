@@ -5,11 +5,18 @@
  *   <IconButton icon={Maximize} aria-label="适应画布" onClick={() => diagram.fit()} />
  *   <Diagram controller={diagram} nodes={nodes} … />
  *
- * 视口建在 usePanZoom 上：滚轮平移、按住 Ctrl / ⌘ 或触控板捏合缩放，拖动空白处平移，键盘的方向键、+ / −；
+ * 视口建在 usePanZoom 上：拖动空白处平移（小手），滚轮、触控板捏合以指针为中心缩放（wheel: 'pan' 时滚轮平移、按住 Ctrl / ⌘ 才缩放），
+ * 键盘的方向键、+ / −；
  * 回到初始（键盘 0、已放大时双击）回到“适应内容”。不传 controller 时 Diagram 自己建一个。
  */
 import { shallowRef } from 'vue';
-import { fitTransform, usePanZoom, type PanZoom, type PanZoomState } from '../utils/dom/pan-zoom';
+import {
+  fitTransform,
+  usePanZoom,
+  type PanZoom,
+  type PanZoomState,
+  type PanZoomWheelModes,
+} from '../utils/dom/pan-zoom';
 import type { DiagramPoint, DiagramRect, DiagramShapeRect } from './geometry';
 
 /** useDiagram 的选项 */
@@ -22,6 +29,8 @@ export interface DiagramOptions {
   step?: number;
   /** 适应内容时四周留的空白（px），默认 48：画布角上的缩放按钮不压住节点 */
   fitPadding?: number;
+  /** 滚轮的作用，默认 zoom（以指针为中心缩放，平移靠拖动空白处）；pan 时滚轮平移、按住 Ctrl / ⌘ 才缩放 */
+  wheel?: keyof PanZoomWheelModes;
 }
 
 /** 画布的控制器 */
@@ -108,7 +117,7 @@ export function useDiagram(options: DiagramOptions = {}): DiagramController {
     min,
     max,
     step: options.step ?? 1.2,
-    wheel: 'pan',
+    wheel: options.wheel ?? 'zoom',
     initial: () => own.fitted() ?? { x: 0, y: 0, scale: 1 },
     filter: (event) => own.filter(event),
   });

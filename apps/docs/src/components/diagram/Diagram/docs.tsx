@@ -12,6 +12,7 @@ import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Editor from './demo/Editor.tsx?demo';
 import Lanes from './demo/Lanes.tsx?demo';
+import NodeGraph from './demo/NodeGraph.tsx?demo';
 import OrgChart from './demo/OrgChart.tsx?demo';
 import Process from './demo/Process.tsx?demo';
 import Selection from './demo/Selection.tsx?demo';
@@ -38,8 +39,8 @@ export default _component(() => () => (
           <Code>edges</Code> 的 <Code>points</Code> 是排好的折线，拐角自动画成圆角、终点画箭头。
           <Code>fitView</Code> 第一次有尺寸时把整张图放进视口（不超过原大）；<Code>overlay</Code>{' '}
           里的 <Code>DiagramControls</Code>{' '}
-          是缩小、比例、放大、适应画布四个按钮。拖动空白处平移，滚轮平移，按住 Ctrl / ⌘
-          滚轮或触控板捏合缩放。
+          是缩小、比例、放大、适应画布四个按钮。拖动空白处平移（光标是小手），滚轮或触控板捏合缩放；
+          <Code>dragMode="select"</Code> 时拖动空白处框选，滚轮平移、按住 Ctrl / ⌘ 滚轮缩放。
         </Example>
         <Example id="flowchart" title="流程图：形状、状态、退回的线" demo={Process}>
           节点数据的 <Code>shape</Code> 定形状：<Code>circle</Code> 画开始、结束，
@@ -72,6 +73,14 @@ export default _component(() => () => (
           <Code>diagramToSvg</Code> / <Code>diagramToPng</Code>{' '}
           导出整张图。没给子节点时，节点画成标题为 <Code>getNodeLabel</Code> 的{' '}
           <Code>DiagramNode</Code>。
+        </Example>
+        <Example id="node-graph" title="节点图：有名字的端口、贝塞尔曲线" demo={NodeGraph}>
+          节点数据的 <Code>ports</Code> 列出端口：<Code>direction</Code>{' '}
+          分输入、输出（默认输入在左、输出在右），
+          <Code>at</Code> 是沿边的位置（按卡片里的行算），<Code>color</Code> 按数据类型区分。连线的{' '}
+          <Code>fromPort</Code>、<Code>toPort</Code> 接在端口上，<Code>routing="bezier"</Code>{' '}
+          画成从端口水平伸出的曲线、不画箭头。<Code>connectable</Code> 时从输出端口拖到输入端口，
+          <Code>onConnect</Code> 收到两头的端口；这里一个输入只接一条线，新的替换旧的。
         </Example>
         <Example id="lanes" title="泳道与画布外的工具栏" demo={Lanes}>
           <Code>backdrop</Code> 画在连线下面、随视口平移缩放，<Code>DiagramLanes</Code>{' '}
