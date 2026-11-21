@@ -96,7 +96,9 @@ const descriptionsPart = (part: string) => partAttrs({ name: 'Descriptions' }, p
 /** Descriptions 的样式：root、title、list、item、label、value 与各排列、边框 */
 const descriptionsStyles = css.create({
   // 容器查询的容器：dl 按它的宽度决定要不要排成一列
-  root: { containerType: 'inline-size', display: 'grid', gap: '_md' },
+  // 宽度写满：容器查询的尺寸收容让它的内容宽度按 0 算，放在按内容收缩的容器里（align=start 的 Flex、inline-flex、浮动）
+  // 会缩成 0 宽、两栏变一栏；百分比按所在的容器算，不受收缩影响
+  root: { containerType: 'inline-size', display: 'grid', gap: '_md', width: '_full' },
   title: { fontWeight: '_medium', fontSize: '_md' },
   list: {
     display: 'grid',
