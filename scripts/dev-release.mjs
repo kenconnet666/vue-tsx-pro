@@ -12,11 +12,12 @@ import { join } from 'node:path';
 import { root } from './lib/repo.mjs';
 
 const PACKAGES = ['tsx', 'ui', 'mobile', 'mini'];
+// 只有 pnpm 要经 shell 起（Windows 上是 .cmd，它的参数没有空格）；git、gh 是可执行文件，不经 shell，带空格的参数原样传
 const run = (command, args, cwd = root) =>
   execFileSync(command, args, {
     cwd,
     encoding: 'utf8',
-    shell: process.platform === 'win32',
+    shell: process.platform === 'win32' && command === 'pnpm',
   }).trim();
 const fail = (message) => {
   console.error(message);
