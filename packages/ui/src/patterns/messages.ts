@@ -14,6 +14,18 @@ export interface PatternsMessages {
   readonly workbenchStripeEnd: string;
   /** 工作台工具窗口的收起按钮：`('属性')` → “收起属性” */
   readonly workbenchHide: (title: string) => string;
+  /** 工作台工具窗口标题栏的菜单：`('属性')` → “属性的选项” */
+  readonly workbenchOptions: (title: string) => string;
+  /** 菜单里"移到"那一组的名称，默认“移到” */
+  readonly workbenchMoveTo: string;
+  /** 五处的名字：左上、左下、右上、右下、下边 */
+  readonly workbenchAnchors: Readonly<
+    Record<'left' | 'leftBottom' | 'right' | 'rightBottom' | 'bottom', string>
+  >;
+  /** 菜单里的“浮动” */
+  readonly workbenchFloat: string;
+  /** 菜单里的“停靠”（浮动的放回原处） */
+  readonly workbenchDock: string;
   /** 查询栏的重置按钮，默认“重置” */
   readonly filterReset: string;
   /** 查询栏展开更多条件，默认“展开” */
@@ -207,6 +219,17 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     workbenchStripeStart: '左侧和下方的工具窗口',
     workbenchStripeEnd: '右侧的工具窗口',
     workbenchHide: (title) => `收起${title}`,
+    workbenchOptions: (title) => `${title}的选项`,
+    workbenchMoveTo: '移到',
+    workbenchAnchors: {
+      left: '左上',
+      leftBottom: '左下',
+      right: '右上',
+      rightBottom: '右下',
+      bottom: '下边',
+    },
+    workbenchFloat: '浮动',
+    workbenchDock: '停靠',
     filterReset: '重置',
     filterExpand: '展开',
     filterCollapse: '收起',
@@ -306,6 +329,17 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
     workbenchStripeStart: 'Left and bottom tool windows',
     workbenchStripeEnd: 'Right tool windows',
     workbenchHide: (title) => `Hide ${title}`,
+    workbenchOptions: (title) => `${title} options`,
+    workbenchMoveTo: 'Move to',
+    workbenchAnchors: {
+      left: 'Left top',
+      leftBottom: 'Left bottom',
+      right: 'Right top',
+      rightBottom: 'Right bottom',
+      bottom: 'Bottom',
+    },
+    workbenchFloat: 'Float',
+    workbenchDock: 'Dock',
     filterReset: 'Reset',
     filterExpand: 'More filters',
     filterCollapse: 'Fewer filters',

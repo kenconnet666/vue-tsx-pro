@@ -81,6 +81,7 @@ export {
   WorkbenchContext,
   workbenchStyles,
   type WorkbenchAnchor,
+  type WorkbenchFloat,
   type WorkbenchLayout,
   type WorkbenchProps,
   type WorkbenchState,

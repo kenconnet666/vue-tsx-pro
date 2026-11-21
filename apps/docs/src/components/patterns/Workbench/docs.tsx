@@ -9,7 +9,7 @@ import Ide from './demo/Ide.tsx?demo';
 export const meta = {
   title: 'Workbench 工作台',
   description:
-    'IDE 式的整页骨架：中间是主内容，四周停着工具窗口，两侧竖条上的图标显示、收起它们。主内容在开关工具窗口时不重建。',
+    'IDE 式的整页骨架：中间是主内容，四周停着工具窗口，两侧竖条上的图标显示、收起它们，拖到别的边挪窗口，也能浮动。主内容在开关工具窗口时不重建。',
   order: 20,
 };
 
@@ -32,7 +32,13 @@ export default _component(() => () => (
       <Code>_layout</Code>
       {'，要记住时配 '}
       <Code>usePersistentState</Code>
-      {'。'}
+      {
+        '。把竖条上的图标拖到另一组就把窗口挪过去（同 JetBrains），标题栏的 ⋯ 菜单里还能移到五处中的任一处、浮动（拖标题栏挪、拖右下角改大小）和停靠回去；挪过的、浮动的记在布局的 '
+      }
+      <Code>anchors</Code>
+      {'、'}
+      <Code>floating</Code>
+      {' 里。'}
     </Example>
     <ApiReference api={api} />
   </DocPage>

@@ -106,4 +106,105 @@ describe('Workbench', () => {
     await nextTick();
     expect(layout.shown.right).toBeUndefined();
   });
+
+  it('挪窗口：拖竖条上的按钮到另一组、用标题栏的菜单移到某处；浮动、拖标题栏挪、停靠回去；挪过的记在布局里', async () => {
+    const windows: WorkbenchWindow[] = [
+      { id: 'files', title: '文件', icon: FileText, anchor: 'left', content: () => '文件树' },
+      {
+        id: 'props',
+        title: '属性',
+        icon: SlidersHorizontal,
+        anchor: 'right',
+        content: () => '属性表',
+      },
+    ];
+    let layout = _state<WorkbenchLayout>(defaultWorkbenchLayout(windows));
+    const root = mount(() => (
+      <Workbench windows={windows} _layout={layout}>
+        主内容
+      </Workbench>
+    ));
+    const [, right] = [...root.querySelectorAll('nav')];
+    // 拖“文件”到右侧竖条：停到右边并显示（右边原来的让开）
+    // 测试环境的 DragEvent 不带 dataTransfer：自己做一个，挂到事件上
+    const data = new Map<string, string>();
+    const transfer = {
+      get types() {
+        return [...data.keys()];
+      },
+      setData: (k: string, v: string) => data.set(k, v),
+      getData: (k: string) => data.get(k) ?? '',
+      dropEffect: '',
+      effectAllowed: '',
+    };
+    const drag = (type: string, element: Element) => {
+      const event = new Event(type, { bubbles: true, cancelable: true });
+      Object.defineProperty(event, 'dataTransfer', { value: transfer });
+      element.dispatchEvent(event);
+    };
+    drag('dragstart', button(root, '文件'));
+    const target = right!.firstElementChild!;
+    drag('dragover', target);
+    drag('drop', target);
+    await nextTick();
+    expect(layout.anchors).toEqual({ files: 'right' });
+    expect(layout.shown.right).toBe('files');
+    expect(
+      [...right!.querySelectorAll('[data-part="stripeButton"]')].map((b) =>
+        b.getAttribute('aria-label'),
+      ),
+    ).toEqual(['文件', '属性']);
+
+    // 菜单：属性移到下边，再浮动
+    const menu = async (title: string, item: string) => {
+      (root.querySelector(`[aria-label="${title}的选项"]`) as HTMLElement).click();
+      await nextTick();
+      const found = [...document.querySelectorAll('[role="menuitem"]')].find(
+        (el) => el.textContent === item,
+      ) as HTMLElement;
+      found.click();
+      await nextTick();
+    };
+    await menu('文件', '下边');
+    expect([layout.anchors?.['files'], layout.shown.bottom, layout.shown.right]).toEqual([
+      'bottom',
+      'files',
+      undefined,
+    ]);
+    await menu('文件', '浮动');
+    expect(layout.floating?.['files']).toMatchObject({ open: true, width: 420, height: 320 });
+    expect(layout.shown.bottom).toBeUndefined();
+    const floating = root.querySelector('[data-part="float"]') as HTMLElement;
+    expect(floating.textContent).toContain('文件树');
+    // 拖浮动窗口的标题栏
+    const header = floating.querySelector('[data-part="windowHeader"]') as HTMLElement;
+    header.setPointerCapture = () => {};
+    header.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        button: 0,
+        clientX: 100,
+        clientY: 100,
+        pointerId: 1,
+      }),
+    );
+    header.dispatchEvent(
+      new PointerEvent('pointermove', { bubbles: true, clientX: 130, clientY: 120, pointerId: 1 }),
+    );
+    header.dispatchEvent(
+      new PointerEvent('pointerup', { bubbles: true, clientX: 130, clientY: 120, pointerId: 1 }),
+    );
+    // 浏览器在松开后补发的 click（拖过以后被吞掉）
+    header.click();
+    await nextTick();
+    expect([layout.floating?.['files']?.x, layout.floating?.['files']?.y]).toEqual([78, 68]);
+    // 竖条上点它收起浮动的、再点显示
+    button(root, '文件').click();
+    await nextTick();
+    expect(root.querySelector('[data-part="float"]')).toBeNull();
+    button(root, '文件').click();
+    await nextTick();
+    await menu('文件', '停靠');
+    expect([layout.floating?.['files'], layout.shown.bottom]).toEqual([undefined, 'files']);
+  });
 });

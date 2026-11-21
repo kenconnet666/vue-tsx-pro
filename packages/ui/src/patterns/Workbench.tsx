@@ -22,17 +22,22 @@
  *   可用就自动显示，不可用时自动收起。
  * - 工具窗口的标题栏：名字、detail（补充说明，比如打开的文件）、actions（这个窗口自己的按钮）、收起按钮。内容默认放进
  *   ScrollArea；scroll 是 self 时铺满、自己管滚动（树、表格、画布）。
- * - 子组件经 WorkbenchContext 拿到 show / hide / toggle，在别处打开某个工具窗口（"在属性面板里查看"）。
+ * - 挪窗口（同 JetBrains）：把竖条上的按钮拖到另一处（左侧竖条的上面一组是左边、下面一组是下边，右侧竖条是右边），或者用
+ *   标题栏的菜单"移到"（五处都能选）；挪过的记在布局的 anchors 里。菜单里还能"浮动"：窗口浮在工作区上面，拖标题栏挪、拖右下角
+ *   改大小（记在布局的 floating 里），"停靠"放回原处。
+ * - 子组件经 WorkbenchContext 拿到 show / hide / toggle / moveTo / float / dock，在别处打开某个工具窗口（"在属性面板里查看"）。
  *
  * 部件（data-scope="workbench"）：Root、Body、Stripe（两侧的竖条）、StripeButton、Main（主内容）、Window（工具窗口）、
  * WindowHeader、WindowTitle、WindowDetail、WindowActions、WindowBody。
  */
 import { _component, createContext } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
-import { Minus } from '@lucide/icons';
+import { Ellipsis, Minus } from '@lucide/icons';
 import { watch, type VNodeChild } from 'vue';
 import type { IconData } from '../base/Icon';
 import { IconButton } from '../base/IconButton';
+import { Menu, MenuGroup, MenuItem } from '../overlay/Menu';
+import { startMove } from '../utils/dom/move';
 import { useMessages } from '../config/lang/messages';
 import { partAttrs } from '../config/styles';
 import { ScrollArea } from '../layout/ScrollArea';
@@ -70,10 +75,28 @@ export interface WorkbenchWindow {
   readonly scroll?: 'area' | 'self';
 }
 
-/** 布局：每一处显示的窗口和各块的大小（百分比） */
+/** 浮动的工具窗口：在工作区里的位置、大小（px，相对工作区的左上角），开没开着 */
+export interface WorkbenchFloat {
+  /** 左边（px） */
+  readonly x: number;
+  /** 上边（px） */
+  readonly y: number;
+  /** 宽（px） */
+  readonly width: number;
+  /** 高（px） */
+  readonly height: number;
+  /** 开着；收起时 false（位置、大小留着，下次照样） */
+  readonly open: boolean;
+}
+
+/** 布局：每一处显示的窗口和各块的大小（百分比），挪过的、浮动的窗口 */
 export interface WorkbenchLayout {
   /** 每一处显示的窗口的 id；没写的是收着 */
   readonly shown: Readonly<Partial<Record<WorkbenchAnchor, string>>>;
+  /** 挪过的窗口停在哪（拖竖条上的按钮、标题栏的"移到"）；没写的按窗口自己的 anchor */
+  readonly anchors?: Readonly<Record<string, WorkbenchAnchor>>;
+  /** 浮动的窗口（标题栏的"浮动"）：不在任何一处，浮在工作区上面 */
+  readonly floating?: Readonly<Record<string, WorkbenchFloat>>;
   /** 左栏占工作区的宽度、左栏里上面那个占的高度、右栏占（左栏以外的）宽度、右栏里上面那个占的高度、下栏占的高度 */
   readonly sizes: Readonly<{
     left: number;
@@ -94,6 +117,12 @@ export interface WorkbenchState {
   toggle(id: string): void;
   /** 正显示着 */
   isShown(id: string): boolean;
+  /** 停到另一处并显示（不再浮动） */
+  moveTo(id: string, anchor: WorkbenchAnchor): void;
+  /** 浮动并显示 */
+  float(id: string): void;
+  /** 浮动的放回它停的那一处并显示 */
+  dock(id: string): void;
 }
 
 /** 工作台的上下文：里面的组件用 WorkbenchContext.use() 打开别的工具窗口 */
@@ -191,7 +220,54 @@ export const workbenchStyles = css.create({
   },
   actions: { display: 'flex', alignItems: 'center', gap: '2px', marginInlineStart: 'auto' },
   windowBody: { flex: 1, minHeight: 0, position: 'relative' },
+  // 竖条上的一组按钮：拖按钮进来就停到这一处；拖着经过时高亮
+  group: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '2px',
+    width: '_full',
+  },
+  groupFill: { flex: 1 },
+  groupEnd: { minHeight: '2.5rem', justifyContent: 'flex-end' },
+  dropTarget: { backgroundColor: '_accentSoft', borderRadius: '_sm' },
+  floatLayer: { position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2 },
+  float: {
+    position: 'absolute',
+    pointerEvents: 'auto',
+    borderWidth: 1,
+    borderStyle: 'solid',
+    borderColor: '_border',
+    borderRadius: '_md',
+    overflow: 'hidden',
+    boxShadow: '_lg',
+  },
+  floatHeader: { cursor: 'move', touchAction: 'none' },
+  resize: {
+    position: 'absolute',
+    right: 0,
+    bottom: 0,
+    width: '12px',
+    height: '12px',
+    cursor: 'nwse-resize',
+    touchAction: 'none',
+    zIndex: 1,
+  },
 });
+
+/** 竖条的按钮拖动时 dataTransfer 里的种类（只认自己拖的） */
+const DRAG_TYPE = 'application/x-workbench-window';
+/** 新浮动的窗口的位置和大小（px） */
+const FLOAT_DEFAULT = { x: 48, y: 48, width: 420, height: 320 };
+/** 浮动窗口最小的大小（px） */
+const FLOAT_MIN = 160;
+const ANCHORS: readonly WorkbenchAnchor[] = [
+  'left',
+  'leftBottom',
+  'right',
+  'rightBottom',
+  'bottom',
+];
 
 type Sizes = WorkbenchLayout['sizes'];
 
@@ -211,14 +287,27 @@ export const Workbench = _component(
       id === undefined ? undefined : windows.find((window) => window.id === id);
     const usable = (window: WorkbenchWindow | undefined) =>
       window !== undefined && window.available !== false;
-    /** 这一处现在显示的窗口（不可用的算收着） */
+    /** 窗口停在哪：挪过的按布局，没挪过的按它自己的 anchor */
+    const anchorOf = (window: WorkbenchWindow) => layout!.anchors?.[window.id] ?? window.anchor;
+    const floatOf = (id: string) => layout!.floating?.[id];
+    /** 这一处现在显示的窗口（不可用的、浮动的、挪走了的算收着） */
     const shownAt = (anchor: WorkbenchAnchor) => {
       const window = byId(layout!.shown[anchor]);
-      return usable(window) ? window : undefined;
+      return usable(window) && !floatOf(window!.id) && anchorOf(window!) === anchor
+        ? window
+        : undefined;
     };
     const isShown = (id: string) => {
       const window = byId(id);
-      return window !== undefined && shownAt(window.anchor)?.id === id;
+      if (!usable(window)) return false;
+      const floating = floatOf(id);
+      return floating ? floating.open : shownAt(anchorOf(window!))?.id === id;
+    };
+    const setFloat = (id: string, value: WorkbenchFloat | undefined) => {
+      const floating = { ...layout!.floating };
+      if (value === undefined) delete floating[id];
+      else floating[id] = value;
+      layout = { ...layout!, floating };
     };
     const setShown = (anchor: WorkbenchAnchor, id: string | undefined) => {
       const shown = { ...layout!.shown };
@@ -228,14 +317,42 @@ export const Workbench = _component(
     };
     const show = (id: string) => {
       const window = byId(id);
-      if (window) setShown(window.anchor, id);
+      if (!window) return;
+      const floating = floatOf(id);
+      if (floating) setFloat(id, { ...floating, open: true });
+      else setShown(anchorOf(window), id);
     };
     const hide = (id: string) => {
       const window = byId(id);
-      if (window && layout!.shown[window.anchor] === id) setShown(window.anchor, undefined);
+      if (!window) return;
+      const floating = floatOf(id);
+      if (floating) setFloat(id, { ...floating, open: false });
+      else if (layout!.shown[anchorOf(window)] === id) setShown(anchorOf(window), undefined);
     };
     const toggle = (id: string) => (isShown(id) ? hide(id) : show(id));
-    WorkbenchContext.provide({ show, hide, toggle, isShown });
+    const moveTo = (id: string, anchor: WorkbenchAnchor) => {
+      const window = byId(id);
+      if (!window) return;
+      // 原来那一处显示的是它的话空出来
+      const shown = { ...layout!.shown };
+      const from = anchorOf(window);
+      if (shown[from] === id) delete shown[from];
+      shown[anchor] = id;
+      const floating = { ...layout!.floating };
+      delete floating[id];
+      layout = { ...layout!, shown, floating, anchors: { ...layout!.anchors, [id]: anchor } };
+    };
+    const float = (id: string) => {
+      const window = byId(id);
+      if (!window) return;
+      if (layout!.shown[anchorOf(window)] === id) setShown(anchorOf(window), undefined);
+      setFloat(id, { ...FLOAT_DEFAULT, ...floatOf(id), open: true });
+    };
+    const dock = (id: string) => {
+      const window = byId(id);
+      if (window) moveTo(id, anchorOf(window));
+    };
+    WorkbenchContext.provide({ show, hide, toggle, isShown, moveTo, float, dock });
     const resize = (change: Partial<Sizes>) =>
       (layout = { ...layout!, sizes: { ...layout!.sizes, ...change } });
 
@@ -265,17 +382,56 @@ export const Workbench = _component(
           aria-label={window.title}
           aria-pressed={isShown(window.id)}
           title={window.title}
+          draggable="true"
+          onDragstart={(event: DragEvent) => {
+            event.dataTransfer?.setData(DRAG_TYPE, window.id);
+            if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+          }}
           onClick={() => toggle(window.id)}
         />
       );
+    /** 拖着按钮经过的那一组（高亮） */
+    let dropOver = _state<WorkbenchAnchor | undefined>(undefined);
+    /** 竖条上的一组：停在 anchors 里的窗口的按钮；拖按钮进来就停到 drop 那一处 */
+    const group = (anchors: readonly WorkbenchAnchor[], drop: WorkbenchAnchor, sx: object) => (
+      <div
+        {...css.attrs(
+          workbenchStyles.group,
+          sx as never,
+          dropOver === drop && workbenchStyles.dropTarget,
+        )}
+        onDragover={(event: DragEvent) => {
+          if (!event.dataTransfer?.types.includes(DRAG_TYPE)) return;
+          event.preventDefault();
+          event.dataTransfer.dropEffect = 'move';
+          dropOver = drop;
+        }}
+        onDragleave={() => (dropOver = undefined)}
+        onDrop={(event: DragEvent) => {
+          dropOver = undefined;
+          const id = event.dataTransfer?.getData(DRAG_TYPE);
+          if (!id) return;
+          event.preventDefault();
+          const window = byId(id);
+          // 拖回同一组（左边的上下两处算一组）不动
+          if (window && !anchors.includes(anchorOf(window))) moveTo(id, drop);
+        }}
+      >
+        {windows.filter((window) => anchors.includes(anchorOf(window))).map(stripeButton)}
+      </div>
+    );
 
-    const frame = (window: WorkbenchWindow) => (
+    const frame = (window: WorkbenchWindow, header?: (event: PointerEvent) => void) => (
       <section
         {...css.attrs(workbenchStyles.window)}
         {...workbenchPart('window')}
         aria-label={window.title}
       >
-        <header {...css.attrs(workbenchStyles.header)} {...workbenchPart('windowHeader')}>
+        <header
+          {...css.attrs(workbenchStyles.header, header && workbenchStyles.floatHeader)}
+          {...workbenchPart('windowHeader')}
+          {...(header ? { onPointerdown: header } : {})}
+        >
           <span {...css.attrs(workbenchStyles.title)} {...workbenchPart('windowTitle')}>
             {window.title}
           </span>
@@ -290,6 +446,32 @@ export const Workbench = _component(
           )}
           <span {...css.attrs(workbenchStyles.actions)} {...workbenchPart('windowActions')}>
             {window.actions?.()}
+            <Menu
+              trigger={(props) => (
+                <IconButton
+                  {...props}
+                  icon={Ellipsis}
+                  size="sm"
+                  variant="ghost"
+                  tone="neutral"
+                  aria-label={lang.workbenchOptions(window.title)}
+                  title={lang.workbenchOptions(window.title)}
+                />
+              )}
+            >
+              <MenuGroup label={lang.workbenchMoveTo}>
+                {ANCHORS.map((anchor) => (
+                  <MenuItem onAction={() => moveTo(window.id, anchor)}>
+                    {lang.workbenchAnchors[anchor]}
+                  </MenuItem>
+                ))}
+              </MenuGroup>
+              {floatOf(window.id) ? (
+                <MenuItem onAction={() => dock(window.id)}>{lang.workbenchDock}</MenuItem>
+              ) : (
+                <MenuItem onAction={() => float(window.id)}>{lang.workbenchFloat}</MenuItem>
+              )}
+            </Menu>
             <IconButton
               icon={Minus}
               size="sm"
@@ -391,6 +573,56 @@ export const Workbench = _component(
       );
     };
 
+    /** 浮动的窗口：拖标题栏（按钮以外）挪，拖右下角改大小；放在工作区里 */
+    const floats = () =>
+      windows
+        .filter((window) => usable(window) && floatOf(window.id)?.open)
+        .map((window) => {
+          const rect = floatOf(window.id)!;
+          const drag = (event: PointerEvent, resize: boolean) => {
+            if (!resize && (event.target as Element).closest('button')) return;
+            const start = floatOf(window.id)!;
+            startMove(event, {
+              threshold: resize ? 0 : 3,
+              onMove: ({ deltaX, deltaY }) =>
+                setFloat(
+                  window.id,
+                  resize
+                    ? {
+                        ...start,
+                        width: Math.max(FLOAT_MIN, start.width + deltaX),
+                        height: Math.max(FLOAT_MIN, start.height + deltaY),
+                      }
+                    : {
+                        ...start,
+                        x: Math.max(0, start.x + deltaX),
+                        y: Math.max(0, start.y + deltaY),
+                      },
+                ),
+            });
+          };
+          return (
+            <div
+              key={window.id}
+              {...css.attrs(workbenchStyles.float)}
+              {...workbenchPart('float')}
+              style={{
+                left: `${rect.x}px`,
+                top: `${rect.y}px`,
+                width: `${rect.width}px`,
+                height: `${rect.height}px`,
+              }}
+            >
+              {frame(window, (event) => drag(event, false))}
+              <div
+                {...css.attrs(workbenchStyles.resize)}
+                aria-hidden="true"
+                onPointerdown={(event: PointerEvent) => drag(event, true)}
+              />
+            </div>
+          );
+        });
+
     return () => (
       <div {...mergeAttrs<'div'>({ sx: workbenchStyles.root, ...workbenchPart('root') }, rest)}>
         {header}
@@ -400,21 +632,19 @@ export const Workbench = _component(
             {...workbenchPart('stripe')}
             aria-label={lang.workbenchStripeStart}
           >
-            {windows
-              .filter((window) => window.anchor === 'left' || window.anchor === 'leftBottom')
-              .map(stripeButton)}
-            <span {...css.attrs(workbenchStyles.push)} />
-            {windows.filter((window) => window.anchor === 'bottom').map(stripeButton)}
+            {group(['left', 'leftBottom'], 'left', workbenchStyles.groupFill)}
+            {group(['bottom'], 'bottom', workbenchStyles.groupEnd)}
           </nav>
-          <div {...css.attrs(workbenchStyles.work)}>{work()}</div>
+          <div {...css.attrs(workbenchStyles.work)}>
+            {work()}
+            <div {...css.attrs(workbenchStyles.floatLayer)}>{floats()}</div>
+          </div>
           <nav
             {...css.attrs(workbenchStyles.stripe, workbenchStyles.stripeEnd)}
             {...workbenchPart('stripe')}
             aria-label={lang.workbenchStripeEnd}
           >
-            {windows
-              .filter((window) => window.anchor === 'right' || window.anchor === 'rightBottom')
-              .map(stripeButton)}
+            {group(['right', 'rightBottom'], 'right', workbenchStyles.groupFill)}
           </nav>
         </div>
         {footer}
