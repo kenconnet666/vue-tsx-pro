@@ -16,7 +16,10 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- Gauge：当前值的弧的部件标记从 `value` 改成 `arc`，`value` 只留给中间的数值（#6）。按 `[data-scope="gauge"][data-part="value"]` 改弧的样式的，改成 `data-part="arc"`。
+- AspectRatio 的根元素多一个 `data-aspect-ratio` 属性，里面的元素铺满的规则按它选：Embed、Video 里的 iframe、video 现在铺满定比例的外框（#7）。
+- Descriptions 的根元素宽度写满（`width: 100%`）：放在按内容收缩的容器里（`align="start"` 的 Flex、inline-flex、浮动）不再缩成 0 宽（#8）。
+- ui、mobile 发布的 `.d.ts` 相对导入带上 `.js` 扩展名：`moduleResolution` 是 `node16` / `nodenext` 的项目里类型解析得了，不再变成 `any`（#9）。
 
 ## 每次发布
 
