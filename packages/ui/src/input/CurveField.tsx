@@ -29,7 +29,9 @@ import { toneFillStyles, type StatusTone } from '../utils/style/tone-styles';
 
 /** 一个关键帧：横坐标 x（0 到 1）、纵坐标 y */
 export interface CurveKey {
+  /** 横坐标：0 到 1（走过的比例） */
   readonly x: number;
+  /** 纵坐标 */
   readonly y: number;
 }
 
@@ -45,6 +47,10 @@ export interface CurveInterpolations {
 
 /** 角色、可聚焦由组件管理 */
 export type CurveFieldManaged = 'role' | 'aria-disabled' | 'aria-readonly';
+
+/** 关键帧的角色、可聚焦、名称与位置由组件管理 */
+export type CurveKeyManaged =
+  'role' | 'tabindex' | 'aria-roledescription' | 'aria-label' | 'aria-disabled';
 
 /** 未声明的属性落到外层 div 上，名称写 aria-label */
 export interface CurveFieldProps extends PartProps<'div', CurveFieldManaged> {
@@ -81,7 +87,9 @@ export interface CurveFieldProps extends PartProps<'div', CurveFieldManaged> {
   /** 画曲线的 svg 的部件属性 */
   propsPlot?: PartProps<'svg'>;
   /** 关键帧的部件属性 */
-  propsKey?: PartProps<'span'> | ((key: CurveKey, index: number) => PartProps<'span'>);
+  propsKey?:
+    | PartProps<'span', CurveKeyManaged>
+    | ((key: CurveKey, index: number) => PartProps<'span', CurveKeyManaged>);
 }
 
 /**

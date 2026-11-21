@@ -640,24 +640,6 @@ export {
   type CheckboxProps,
 } from './input/Checkbox';
 export { ColorField, type ColorFieldManaged, type ColorFieldProps } from './input/ColorField';
-export {
-  CurveField,
-  curveFieldStyles,
-  evaluateCurve,
-  type CurveFieldManaged,
-  type CurveFieldProps,
-  type CurveInterpolations,
-  type CurveKey,
-} from './input/CurveField';
-export {
-  GradientField,
-  gradientCss,
-  gradientFieldStyles,
-  sampleGradient,
-  type GradientFieldManaged,
-  type GradientFieldProps,
-  type GradientStop,
-} from './input/GradientField';
 export { ColorPicker, colorPickerStyles, type ColorPickerProps } from './input/ColorPicker';
 export {
   Combobox,
@@ -676,7 +658,27 @@ export {
   type ControlGroupManaged,
   type ControlGroupProps,
 } from './input/ControlGroup';
+export {
+  CurveField,
+  curveFieldStyles,
+  evaluateCurve,
+  type CurveFieldManaged,
+  type CurveFieldProps,
+  type CurveInterpolations,
+  type CurveKey,
+  type CurveKeyManaged,
+} from './input/CurveField';
 export { FileDrop, matchesAccept, type FileDropProps } from './input/FileDrop';
+export {
+  gradientCss,
+  GradientField,
+  gradientFieldStyles,
+  sampleGradient,
+  type GradientFieldManaged,
+  type GradientFieldProps,
+  type GradientStop,
+  type GradientStopManaged,
+} from './input/GradientField';
 export {
   ImageCropper,
   imageCropperStyles,

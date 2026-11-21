@@ -21,9 +21,11 @@ export default _component(() => () => (
   >
     <Example id="lifetime" title="颜色随寿命" demo={Lifetime}>
       颜色是 <Code>#rrggbb</Code> 或 <Code>#rrggbbaa</Code>
-      ，透明的地方露出棋盘格。拖动色标改位置（越过别的色标时重新排序），
-      双击渐变条加一个色标（颜色取渐变在那一点的颜色）。<Code>onValueCommit</Code>{' '}
-      在一次操作结束时调用。
+      {
+        '，透明的地方露出棋盘格。拖动色标改位置（越过别的色标时重新排序），双击渐变条加一个色标（颜色取渐变在那一点的颜色）。'
+      }
+      <Code>onValueCommit</Code>
+      {' 在一次操作结束时调用。'}
     </Example>
     <KeyboardReference
       keys={[

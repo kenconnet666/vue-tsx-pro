@@ -31,12 +31,26 @@ import { NumberField } from './NumberField';
 
 /** 一个色标：位置 offset（0 到 1）、颜色（#rrggbb 或 #rrggbbaa） */
 export interface GradientStop {
+  /** 位置：0 到 1 */
   readonly offset: number;
+  /** 颜色：#rrggbb 或 #rrggbbaa */
   readonly color: string;
 }
 
 /** 角色由组件管理 */
 export type GradientFieldManaged = 'role' | 'aria-disabled' | 'aria-readonly';
+
+/** 色标的角色、可聚焦、名称与取值由组件管理（同 Slider 的滑块） */
+export type GradientStopManaged =
+  | 'role'
+  | 'tabindex'
+  | 'aria-label'
+  | 'aria-valuemin'
+  | 'aria-valuemax'
+  | 'aria-valuenow'
+  | 'aria-valuetext'
+  | 'aria-disabled'
+  | 'aria-readonly';
 
 /** 未声明的属性落到外层 div 上，名称写 aria-label */
 export interface GradientFieldProps extends PartProps<'div', GradientFieldManaged> {
@@ -59,9 +73,11 @@ export interface GradientFieldProps extends PartProps<'div', GradientFieldManage
   /** 一次操作结束（松开、按键、加删、改颜色）时的色标 */
   onValueCommit?: (value: readonly GradientStop[]) => void;
   /** 渐变条的部件属性 */
-  propsBar?: PartProps<'div'>;
+  propsBar?: PartProps<'div', 'title'>;
   /** 色标的部件属性 */
-  propsStop?: PartProps<'span'> | ((stop: GradientStop, index: number) => PartProps<'span'>);
+  propsStop?:
+    | PartProps<'span', GradientStopManaged>
+    | ((stop: GradientStop, index: number) => PartProps<'span', GradientStopManaged>);
 }
 
 /** 渐变在 offset 处的颜色（#rrggbbaa；在色标范围外时取两头的颜色）：相邻两个色标按 sRGB 线性插值，同 CSS 的渐变。 */
