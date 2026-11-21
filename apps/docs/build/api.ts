@@ -506,7 +506,10 @@ function apiWorker() {
       if ('error' in response) request?.reject(new Error(response.error));
       else request?.resolve(response.code);
     });
-    worker.on('error', (error) => {
+    worker.on('error', (thrown) => {
+      // 线程里抛出的可以是任何值（@types/node 26 起按 unknown 给），统一成 Error
+      const error =
+        thrown instanceof Error ? thrown : new Error(`api worker failed: ${String(thrown)}`);
       for (const request of pending.values()) request.reject(error);
       pending.clear();
       worker = undefined;

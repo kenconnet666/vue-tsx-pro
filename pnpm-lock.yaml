@@ -261,8 +261,8 @@ catalogs:
       specifier: 4.0.1
       version: 4.0.1
     '@types/node':
-      specifier: 24.19.2
-      version: 24.19.2
+      specifier: 26.6.6
+      version: 26.6.6
     '@types/pg':
       specifier: 8.11.10
       version: 8.11.10
@@ -396,7 +396,7 @@ importers:
         version: 0.2.3
       '@types/node':
         specifier: 'catalog:'
-        version: 24.19.2
+        version: 26.6.6
       mdn-data:
         specifier: 'catalog:'
         version: 2.37.2
@@ -420,7 +420,7 @@ importers:
         version: 7.1.0-dev.20261104.1
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       web-features:
         specifier: 'catalog:'
         version: 3.43.0
@@ -516,7 +516,7 @@ importers:
         version: 3.5.44(typescript@7.1.0-dev.20261104.1)
       vue-router:
         specifier: 'catalog:'
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
+        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -529,7 +529,7 @@ importers:
         version: 0.186.0
       '@vitest/browser-playwright':
         specifier: 'catalog:'
-        version: 5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(playwright@1.64.1)(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vitest@5.0.5)
+        version: 5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(playwright@1.64.1)(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vitest@5.0.5)
       '@vue-tsx-pro/mobile-demo':
         specifier: workspace:^
         version: link:../mobile-demo
@@ -550,10 +550,10 @@ importers:
         version: 7.1.0-dev.20261104.1
       vite:
         specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
 
   apps/fullstack-demo:
     dependencies:
@@ -589,14 +589,14 @@ importers:
         version: 3.5.44(typescript@7.1.0-dev.20261104.1)
       vue-router:
         specifier: 'catalog:'
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
+        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
       zod:
         specifier: 'catalog:'
         version: 4.6.7
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
-        version: 24.19.2
+        version: 26.6.6
       jiti:
         specifier: ^2.7.0
         version: 2.7.0
@@ -608,7 +608,7 @@ importers:
         version: 7.1.0-dev.20261104.1
       vite:
         specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
 
   apps/host-demo:
     dependencies:
@@ -641,7 +641,7 @@ importers:
         version: 3.5.44(typescript@7.1.0-dev.20261104.1)
       vue-router:
         specifier: 'catalog:'
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
+        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -651,10 +651,10 @@ importers:
         version: 0.186.0
       '@vitejs/plugin-vue':
         specifier: 'catalog:'
-        version: 6.0.10(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
+        version: 6.0.10(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
       '@vitest/browser-playwright':
         specifier: 'catalog:'
-        version: 5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(playwright@1.64.1)(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vitest@5.0.5)
+        version: 5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(playwright@1.64.1)(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vitest@5.0.5)
       axe-core:
         specifier: 'catalog:'
         version: 4.14.0
@@ -669,10 +669,10 @@ importers:
         version: 7.1.0-dev.20261104.1
       vite:
         specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
 
   apps/mobile-demo:
     dependencies:
@@ -727,10 +727,10 @@ importers:
         version: 8.5.3
       '@types/node':
         specifier: 'catalog:'
-        version: 24.19.2
+        version: 26.6.6
       '@vitest/browser-playwright':
         specifier: 'catalog:'
-        version: 5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(playwright@1.64.1)(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vitest@5.0.5)
+        version: 5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(playwright@1.64.1)(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vitest@5.0.5)
       playwright:
         specifier: 'catalog:'
         version: 1.64.1
@@ -739,10 +739,10 @@ importers:
         version: 7.1.0-dev.20261104.1
       vite:
         specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
 
   packages/flow/engine:
     dependencies:
@@ -777,7 +777,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
-        version: 24.19.2
+        version: 26.6.6
       typescript:
         specifier: 'catalog:'
         version: 7.1.0-dev.20261104.1
@@ -821,7 +821,7 @@ importers:
         version: 1.69.0
       '@types/node':
         specifier: 'catalog:'
-        version: 24.19.2
+        version: 26.6.6
       decimal.js:
         specifier: 'catalog:'
         version: 10.6.0
@@ -833,10 +833,10 @@ importers:
         version: 7.1.0-dev.20261104.1
       vite:
         specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       vue:
         specifier: 'catalog:'
         version: 3.5.44(typescript@7.1.0-dev.20261104.1)
@@ -848,7 +848,7 @@ importers:
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
-        version: 24.19.2
+        version: 26.6.6
       '@zerodep-dev/vue-tsx-pro-tsx':
         specifier: workspace:^
         version: link:../tsx
@@ -860,22 +860,22 @@ importers:
         version: 7.1.0-dev.20261104.1
       vite:
         specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       vue:
         specifier: 'catalog:'
         version: 3.5.44(typescript@7.1.0-dev.20261104.1)
       vue-router:
         specifier: 'catalog:'
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
+        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
 
   packages/mini:
     devDependencies:
       '@types/node':
         specifier: 'catalog:'
-        version: 24.19.2
+        version: 26.6.6
       '@zerodep-dev/vue-tsx-pro-tsx':
         specifier: workspace:^
         version: link:../tsx
@@ -887,10 +887,10 @@ importers:
         version: 7.1.0-dev.20261104.1
       vite:
         specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       vue:
         specifier: 'catalog:'
         version: 3.5.44(typescript@7.1.0-dev.20261104.1)
@@ -930,7 +930,7 @@ importers:
         version: 1.69.0
       '@types/node':
         specifier: 'catalog:'
-        version: 24.19.2
+        version: 26.6.6
       '@zerodep-dev/vue-tsx-pro-mini':
         specifier: workspace:^
         version: link:../mini
@@ -942,10 +942,10 @@ importers:
         version: 7.1.0-dev.20261104.1
       vite:
         specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       vue:
         specifier: 'catalog:'
         version: 3.5.44(typescript@7.1.0-dev.20261104.1)
@@ -960,7 +960,7 @@ importers:
         version: 7.1.0-dev.20261104.1
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
 
   packages/tsx:
     dependencies:
@@ -991,10 +991,10 @@ importers:
         version: 7.1.0-dev.20261104.1
       vite:
         specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       vue:
         specifier: 'catalog:'
         version: 3.5.44(typescript@7.1.0-dev.20261104.1)
@@ -1082,16 +1082,16 @@ importers:
         version: 7.1.0-dev.20261104.1
       vite:
         specifier: 'catalog:'
-        version: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+        version: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       vitest:
         specifier: 'catalog:'
-        version: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       vue:
         specifier: 'catalog:'
         version: 3.5.44(typescript@7.1.0-dev.20261104.1)
       vue-router:
         specifier: 'catalog:'
-        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
+        version: 5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
       zod:
         specifier: 'catalog:'
         version: 4.6.7
@@ -2018,6 +2018,9 @@ packages:
 
   '@types/node@24.19.2':
     resolution: {integrity: sha512-93d49wCWJkCyN87MxLpNN6KXPCwFw7bVUg79mGUV1OS40JGWwVCr8n61DXCSqz7CV6/VfPkb7xec7uP2M+QHWQ==}
+
+  '@types/node@26.6.6':
+    resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
 
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
@@ -4327,6 +4330,9 @@ packages:
   undici-types@7.24.6:
     resolution: {integrity: sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg==}
 
+  undici-types@8.9.0:
+    resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
+
   unenv@2.0.0-rc.24:
     resolution: {integrity: sha512-i7qRCmY42zmCwnYlh9H2SvLEypEFGye5iRmEMKjcGi7zk9UquigRjFtTLz0TYqr0ZGLZhaMHl/foy1bZR+Cwlw==}
 
@@ -5143,33 +5149,33 @@ snapshots:
   '@inquirer/ansi@2.0.9':
     optional: true
 
-  '@inquirer/confirm@6.3.4(@types/node@24.19.2)':
+  '@inquirer/confirm@6.3.4(@types/node@26.6.6)':
     dependencies:
-      '@inquirer/core': 12.0.5(@types/node@24.19.2)
-      '@inquirer/type': 4.2.0(@types/node@24.19.2)
+      '@inquirer/core': 12.0.5(@types/node@26.6.6)
+      '@inquirer/type': 4.2.0(@types/node@26.6.6)
     optionalDependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
     optional: true
 
-  '@inquirer/core@12.0.5(@types/node@24.19.2)':
+  '@inquirer/core@12.0.5(@types/node@26.6.6)':
     dependencies:
       '@inquirer/ansi': 2.0.9
       '@inquirer/figures': 2.0.9
-      '@inquirer/type': 4.2.0(@types/node@24.19.2)
+      '@inquirer/type': 4.2.0(@types/node@26.6.6)
       cli-width: 4.1.0
       fast-wrap-ansi: 0.2.2
       mute-stream: 3.0.0
       signal-exit: 4.1.0
     optionalDependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
     optional: true
 
   '@inquirer/figures@2.0.9':
     optional: true
 
-  '@inquirer/type@4.2.0(@types/node@24.19.2)':
+  '@inquirer/type@4.2.0(@types/node@26.6.6)':
     optionalDependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
     optional: true
 
   '@internationalized/date@3.12.4':
@@ -5618,7 +5624,7 @@ snapshots:
 
   '@types/fs-extra@8.1.5':
     dependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
 
   '@types/gensync@1.0.5': {}
 
@@ -5642,6 +5648,10 @@ snapshots:
   '@types/node@24.19.2':
     dependencies:
       undici-types: 7.24.6
+
+  '@types/node@26.6.6':
+    dependencies:
+      undici-types: 8.9.0
 
   '@types/parse-json@4.0.2': {}
 
@@ -5711,36 +5721,36 @@ snapshots:
 
   '@ungap/structured-clone@1.4.0': {}
 
-  '@vitejs/plugin-vue@6.0.10(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))':
+  '@vitejs/plugin-vue@6.0.10(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1))':
     dependencies:
       '@rolldown/pluginutils': 1.0.1
-      vite: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+      vite: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       vue: 3.5.44(typescript@7.1.0-dev.20261104.1)
 
-  '@vitest/browser-playwright@5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(playwright@1.64.1)(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vitest@5.0.5)':
+  '@vitest/browser-playwright@5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(playwright@1.64.1)(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vitest@5.0.5)':
     dependencies:
-      '@vitest/browser': 5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vitest@5.0.5)
-      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+      '@vitest/browser': 5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vitest@5.0.5)
+      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       playwright: 1.64.1
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+      vitest: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
     transitivePeerDependencies:
       - bufferutil
       - msw
       - utf-8-validate
       - vite
 
-  '@vitest/browser@5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vitest@5.0.5)':
+  '@vitest/browser@5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vitest@5.0.5)':
     dependencies:
       '@blazediff/core': 1.10.0
-      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       '@vitest/ui': 5.0.5(vitest@5.0.5)
       '@vitest/utils': 5.0.5
       magic-string: 1.4.3
       pngjs: 7.0.0
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+      vitest: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       ws: 8.22.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
       - bufferutil
@@ -5748,15 +5758,15 @@ snapshots:
       - utf-8-validate
       - vite
 
-  '@vitest/mocker@5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))':
+  '@vitest/mocker@5.0.5(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.31
       '@vitest/spy': 5.0.5
       estree-walker: 3.0.3
       magic-string: 1.4.3
     optionalDependencies:
-      msw: 3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
-      vite: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+      msw: 3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
+      vite: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
 
   '@vitest/pretty-format@5.0.5':
     dependencies:
@@ -5772,7 +5782,7 @@ snapshots:
       pathe: 2.0.3
       sirv: 3.0.2
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+      vitest: 5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
 
   '@vitest/utils@5.0.5':
     dependencies:
@@ -7185,9 +7195,9 @@ snapshots:
 
   ms@2.1.3: {}
 
-  msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)):
+  msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)):
     dependencies:
-      '@inquirer/confirm': 6.3.4(@types/node@24.19.2)
+      '@inquirer/confirm': 6.3.4(@types/node@26.6.6)
       '@msw/url': 0.1.2
       '@mswjs/interceptors': 0.45.9
       cookie: 2.0.1
@@ -7201,7 +7211,7 @@ snapshots:
       yargs: 18.2.0
     optionalDependencies:
       typescript: 7.1.0-dev.20261104.1
-      vite: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+      vite: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
     transitivePeerDependencies:
       - '@types/node'
       - supports-color
@@ -8130,6 +8140,8 @@ snapshots:
 
   undici-types@7.24.6: {}
 
+  undici-types@8.9.0: {}
+
   unenv@2.0.0-rc.24:
     dependencies:
       pathe: 2.0.3
@@ -8166,14 +8178,14 @@ snapshots:
       pathe: 2.0.3
       picomatch: 4.0.7
 
-  unplugin@3.4.0(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)):
+  unplugin@3.4.0(rolldown@1.2.14)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)):
     dependencies:
       '@jridgewell/remapping': 2.3.5
       picomatch: 4.0.7
       webpack-virtual-modules: 0.6.2
     optionalDependencies:
       rolldown: 1.2.14
-      vite: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+      vite: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
 
   unstorage@2.0.0-beta.0: {}
 
@@ -8226,7 +8238,7 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
-  vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0):
+  vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.7
@@ -8234,14 +8246,14 @@ snapshots:
       rolldown: 1.2.14
       tinyglobby: 0.2.17
     optionalDependencies:
-      '@types/node': 24.19.2
+      '@types/node': 26.6.6
       fsevents: 2.3.3
       jiti: 2.7.0
 
-  vitest@5.0.5(@types/node@24.19.2)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)):
+  vitest@5.0.5(@types/node@26.6.6)(@vitest/browser-playwright@5.0.5)(@vitest/ui@5.0.5)(happy-dom@21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)):
     dependencies:
       '@types/chai': 5.2.3
-      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+      '@vitest/mocker': 5.0.5(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       chai: 6.3.0
       es-module-lexer: 2.3.2
       expect-type: 1.4.0
@@ -8252,11 +8264,11 @@ snapshots:
       tinybench: 6.2.2
       tinyexec: 1.3.1
       tinyglobby: 0.2.17
-      vite: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+      vite: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
       why-is-node-running: 3.2.1
     optionalDependencies:
-      '@types/node': 24.19.2
-      '@vitest/browser-playwright': 5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@24.19.2)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0)))(playwright@1.64.1)(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vitest@5.0.5)
+      '@types/node': 26.6.6
+      '@vitest/browser-playwright': 5.0.5(bufferutil@4.1.0)(msw@3.0.3(@types/node@26.6.6)(typescript@7.1.0-dev.20261104.1)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0)))(playwright@1.64.1)(utf-8-validate@5.0.10)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vitest@5.0.5)
       '@vitest/ui': 5.0.5(vitest@5.0.5)
       happy-dom: 21.0.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)
     transitivePeerDependencies:
@@ -8271,7 +8283,7 @@ snapshots:
 
   vscode-languageserver-types@3.18.5: {}
 
-  vue-router@5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1)):
+  vue-router@5.4.0(@vue/compiler-sfc@3.5.44)(pinia@4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1)))(rolldown@1.2.14)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))(vue@3.5.44(typescript@7.1.0-dev.20261104.1)):
     dependencies:
       '@vue-macros/common': 3.1.4(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
       '@vue/devtools-api': 8.2.1
@@ -8287,13 +8299,13 @@ snapshots:
       picomatch: 4.0.7
       scule: 1.3.0
       tinyglobby: 0.2.17
-      unplugin: 3.4.0(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(jiti@2.7.0))
+      unplugin: 3.4.0(rolldown@1.2.14)(vite@8.3.4(@types/node@26.6.6)(jiti@2.7.0))
       unplugin-utils: 0.3.2
       vue: 3.5.44(typescript@7.1.0-dev.20261104.1)
     optionalDependencies:
       '@vue/compiler-sfc': 3.5.44
       pinia: 4.1.0(@vue/devtools-api@8.2.1)(typescript@7.1.0-dev.20261104.1)(vue@3.5.44(typescript@7.1.0-dev.20261104.1))
-      vite: 8.3.4(@types/node@24.19.2)(jiti@2.7.0)
+      vite: 8.3.4(@types/node@26.6.6)(jiti@2.7.0)
     transitivePeerDependencies:
       - '@farmfe/core'
       - '@rsbuild/core'

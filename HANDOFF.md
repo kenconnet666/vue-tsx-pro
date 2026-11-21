@@ -74,7 +74,7 @@
 
 ## 3. 上手
 
-需要 Node 24、pnpm 12（Windows 11 上开发；Bash 是 Git Bash，PowerShell 是 7.6）。
+需要 Node 26、pnpm 12（Windows 11 上开发；Bash 是 Git Bash，PowerShell 是 7.6）。
 
 ```bash
 pnpm install
@@ -364,7 +364,7 @@ tests/consumer 发布产物验证
 
 | 东西                                                    | 新电脑上怎么办                                                                                                                                                                                |
 | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Node 24、pnpm 12（`packageManager` 固定 12.14.0）、`gh` | 新装；`pnpm install` 之后按第 3 节跑一遍短检查                                                                                                                                                |
+| Node 26、pnpm 12（`packageManager` 固定 12.14.0）、`gh` | 新装；`pnpm install` 之后按第 3 节跑一遍短检查                                                                                                                                                |
 | Playwright 的浏览器                                     | `pnpm --filter @vue-tsx-pro/host-demo exec playwright install chromium firefox webkit`（浏览器测试、`docs:shot`、`docs:review` 要用）                                                         |
 | 用户级环境变量                                          | `GITHUB_TOKEN`、`CONTEXT7_API_KEY`，发布用的 `NPM_TOKEN`（`~/.npmrc` 写 `${NPM_TOKEN}`，见 RELEASE.md）                                                                                       |
 | Claude 项目记忆                                         | 原电脑 `C:\Users\lionheart\.claude\projects\C--Users-lionheart-IdeaProjects-<仓库>\memory\`。长期要求已抄在第 5、6 节；记忆里还有真实业务项目的背景（不进仓库），需要时手动拷到新电脑对应目录 |

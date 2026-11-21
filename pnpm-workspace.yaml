@@ -122,7 +122,7 @@ catalog:
   # 浏览器里的 TypeScript 7（Go 编成的 WebAssembly，社区每日构建）：与上面的 typescript 同一个提交（buildInfo.commit），
   # 流程工作室的语言服务在 Worker 里跑它的 tsc --lsp
   tsgo-wasm: 2026.11.4
-  '@types/node': 24.19.2
+  '@types/node': 26.6.6
   oxlint: 1.88.0
   oxlint-tsgolint: 7.0.2004
   prettier: 3.9.10

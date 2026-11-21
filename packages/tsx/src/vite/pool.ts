@@ -94,8 +94,11 @@ export class CompilePool {
         this.dispatch();
       },
     );
-    worker.on('error', (error) => {
-      // 线程意外退出：它手上的请求失败，线程从池里去掉，之后的请求由其他线程（或新线程）处理
+    worker.on('error', (thrown) => {
+      // 线程意外退出：它手上的请求失败，线程从池里去掉，之后的请求由其他线程（或新线程）处理。
+      // 线程里抛出的可以是任何值（@types/node 26 起按 unknown 给），统一成 Error
+      const error =
+        thrown instanceof Error ? thrown : new Error(`worker thread failed: ${String(thrown)}`);
       for (const [id, job] of this.running) {
         if (job.worker !== worker) continue;
         this.running.delete(id);
