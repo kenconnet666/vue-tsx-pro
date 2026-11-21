@@ -3,6 +3,11 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.33.0（2026-11-21）
+
+- 新组件 Workbench（`/patterns`）：IDE 式的工作台，四周停着工具窗口、两侧竖条开关、布局双向绑定，主内容在开关工具窗口时不重建。
+- Splitter 加了 `collapseControl`：`external` 时不画分隔条上的收起按钮、收起后分隔条也不显示，由外面的控件管收放。
+
 ## 0.32.0（2026-11-21）
 
 - 新组件 CurveField（拖动关键帧编辑曲线：折线、平滑、阶梯；evaluateCurve 按同样的规则取值）、GradientField（编辑颜色渐变：拖色标、加删、改颜色和透明度；sampleGradient、gradientCss）。

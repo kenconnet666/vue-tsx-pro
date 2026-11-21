@@ -16,8 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- 新组件 Workbench（`/patterns`）：IDE 式的工作台，四周停着工具窗口、两侧竖条开关、布局双向绑定，主内容在开关工具窗口时不重建。
-- Splitter 加了 `collapseControl`：`external` 时不画分隔条上的收起按钮、收起后分隔条也不显示，由外面的控件管收放。
+（暂无）
 
 ## 每次发布
 
