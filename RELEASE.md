@@ -16,8 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- Workbench 的工具窗口能挪了（同 JetBrains）：把竖条上的图标拖到另一组就停到那一边；标题栏多了 ⋯ 菜单，"移到"五处中的任一处、"浮动"（浮在工作区上面，拖标题栏挪、拖右下角改大小）、"停靠"放回去。挪过的、浮动的记在布局里：`WorkbenchLayout` 多了可选的 `anchors`、`floating`（`WorkbenchFloat`），`WorkbenchContext` 多了 `moveTo`、`float`、`dock`。
-- 语言包加了 Workbench 的文案（`workbenchOptions`、`workbenchMoveTo`、`workbenchAnchors`、`workbenchFloat`、`workbenchDock`）：自己实现 `Lang` 的要补上。
+（暂无）
 
 ## 每次发布
 

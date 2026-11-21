@@ -3,6 +3,11 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.37.0（2026-11-21）
+
+- Workbench 的工具窗口能挪了（同 JetBrains）：把竖条上的图标拖到另一组就停到那一边；标题栏多了 ⋯ 菜单，"移到"五处中的任一处、"浮动"（浮在工作区上面，拖标题栏挪、拖右下角改大小）、"停靠"放回去。挪过的、浮动的记在布局里：`WorkbenchLayout` 多了可选的 `anchors`、`floating`（`WorkbenchFloat`），`WorkbenchContext` 多了 `moveTo`、`float`、`dock`。
+- 语言包加了 Workbench 的文案（`workbenchOptions`、`workbenchMoveTo`、`workbenchAnchors`、`workbenchFloat`、`workbenchDock`）：自己实现 `Lang` 的要补上。
+
 ## 0.36.0（2026-11-21）
 
 - NumberField 认相对的输入 `+=2`、`-=2`、`*=1.5`、`/=2`（也认全角和 ×、÷）：按当前值算，再夹到范围、对齐步长；加减的数按输入的单位（`format.scale`、百分比）换算，乘除是倍数。新属性 `onRelative`：给了时交出“按当前值算”的函数、不改自己的值（几个值一起改时各算各的）。
