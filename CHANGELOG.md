@@ -3,6 +3,13 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.34.0（2026-11-21）
+
+- Splitter 的分隔条用鼠标拖得动了：0.24.0 起分隔条所在的格叠着一层伪元素，指针落到格上、按不到分隔条（触屏不受影响）。
+- Diagram 的滚轮默认改成缩放（以指针为中心）：拖动空白处平移，不再滚轮平移、按住 Ctrl 才缩放；`dragMode="select"` 的画布滚轮仍然平移。要原来的行为写 `wheel="pan"`（或 `useDiagram({ wheel: 'pan' })`）。
+- Diagram 支持节点上有名字的端口：节点数据的 `ports`（输入、输出，位置、颜色、名称），连线的 `fromPort`、`toPort` 接在端口上，`routing="bezier"` 画成从端口伸出的曲线；连线时 `onConnect`、`canConnect` 收到两头的端口。
+- GraphChart、MapChart 能缩放时、ImageCropper 拖动时，光标是小手（拖着是握拳）。
+
 ## 0.33.0（2026-11-21）
 
 - 新组件 Workbench（`/patterns`）：IDE 式的工作台，四周停着工具窗口、两侧竖条开关、布局双向绑定，主内容在开关工具窗口时不重建。
