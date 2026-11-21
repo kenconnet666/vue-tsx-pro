@@ -121,6 +121,9 @@ const splitterStyles = css.create({
   track: { position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' },
   // 外面管收起（collapseControl="external"）时收着：分隔条也不显示
   trackHidden: { display: 'none' },
+  // 分隔条那一格的宽（左右排）、高（上下排）；光标、命中区只放在分隔条上（伪元素叠在格上会盖住分隔条，按不到它）
+  trackHorizontal: { width: '_space.md' },
+  trackVertical: { height: '_space.md' },
   // 分隔条：看得见的是中间一条细线，能拖的范围更宽。悬停、拖动时线加粗变深，键盘聚焦时加粗变成强调色
   // （同 ResizeHandle）；线的粗细经变量交给里面的线（线看不到分隔条的悬停）
   handle: {
@@ -143,7 +146,6 @@ const splitterStyles = css.create({
   },
   // 触屏上手指按不准这么窄的一条：能按到的范围向两边各扩一截（不小于 24px，WCAG 2.5.8），只扩命中区、不改布局
   handleHorizontal: {
-    width: '_space.md',
     cursor: 'col-resize',
     '::after': {
       content: '""',
@@ -153,7 +155,6 @@ const splitterStyles = css.create({
     },
   },
   handleVertical: {
-    height: '_space.md',
     cursor: 'row-resize',
     '::after': {
       content: '""',
@@ -341,7 +342,7 @@ export const Splitter = _component(
           <div
             {...css.attrs(
               splitterStyles.track,
-              horizontal() ? splitterStyles.handleHorizontal : splitterStyles.handleVertical,
+              horizontal() ? splitterStyles.trackHorizontal : splitterStyles.trackVertical,
               (hideStart || hideEnd) && external && splitterStyles.trackHidden,
             )}
             {...splitterPart('track')}

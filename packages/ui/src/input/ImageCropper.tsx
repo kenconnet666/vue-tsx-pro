@@ -96,7 +96,7 @@ export const imageCropperStyles = css.create({
     overflow: 'hidden',
     borderRadius: '_md',
     backgroundColor: '_surfaceMuted',
-    cursor: 'grab',
+    cursor: { default: 'grab', _active: 'grabbing' },
     userSelect: 'none',
   },
   image: {

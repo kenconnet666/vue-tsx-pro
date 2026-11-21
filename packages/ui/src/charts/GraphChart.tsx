@@ -162,6 +162,8 @@ const graphChartPart = (part: string) => partAttrs({ name: 'GraphChart' }, part)
 const graphChartStyles = css.create({
   skeleton: { display: 'block', width: '100%', height: '100%' },
   viewport: { position: 'absolute', inset: 0 },
+  // 能缩放时拖动平移：光标是小手
+  viewportPannable: { cursor: { default: 'grab', _active: 'grabbing' } },
   background: { fill: 'transparent' },
   panel: { fill: '_surfaceMuted', strokeWidth: 1 },
   panelLabel: { fill: '_textMuted', fontSize: '_xs', fontWeight: '_medium' },
@@ -670,7 +672,7 @@ export const GraphChart = _component(
     function renderPlot() {
       return (
         <div
-          {...css.attrs(graphChartStyles.viewport)}
+          {...css.attrs(graphChartStyles.viewport, zoom && graphChartStyles.viewportPannable)}
           {...graphChartPart('viewport')}
           {...(zoom ? view.viewportProps : {})}
           ref={(element) => (viewport.value = element as HTMLElement | null)}

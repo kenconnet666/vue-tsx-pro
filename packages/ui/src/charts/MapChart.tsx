@@ -175,6 +175,8 @@ const mapChartPart = (part: string) => partAttrs({ name: 'MapChart' }, part);
 const mapChartStyles = css.create({
   skeleton: { display: 'block', width: '100%', height: '100%' },
   viewport: { position: 'absolute', inset: 0 },
+  // 能缩放时拖动平移：光标是小手
+  viewportPannable: { cursor: { default: 'grab', _active: 'grabbing' } },
   // 地图跟随主题：底色、边界是表面色；缩放时边界不跟着变粗
   feature: {
     stroke: '_surface',
@@ -877,7 +879,7 @@ export const MapChart = _component(
         plot={
           area.ready ? (
             <div
-              {...css.attrs(mapChartStyles.viewport)}
+              {...css.attrs(mapChartStyles.viewport, zoomable && mapChartStyles.viewportPannable)}
               {...mapChartPart('viewport')}
               {...(zoomable ? view.viewportProps : {})}
               ref={(element) => (viewport.value = element as HTMLElement | null)}
