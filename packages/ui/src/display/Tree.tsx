@@ -15,6 +15,7 @@
  *
  * - 键盘：焦点在树上，当前项经 aria-activedescendant 告诉读屏。↑↓ 移动，→ 展开 / 进入第一个子节点，← 收起 / 回到父节点，
  *   Home / End，Enter 选中（没有选择时展开或收起），空格勾选（checkable 时）或选中，按字母跳到以它开头的节点。
+ * - 打开（onActivate）：双击一行（展开箭头、勾选框除外）或按 Enter 时报告这个节点，像 IDE 的文件树里打开文件；单击照常选中。
  * - 勾选：checkable 时每项前有勾选框，_checked={keys} 是勾上的全部节点；勾上父节点会勾上它的子孙，
  *   子节点全勾上时父节点也勾上，只勾了一部分时父节点半选（aria-checked="mixed"）。
  * - 懒加载：hasChildren 说有子节点、getChildren 还没有时，展开会调用 loadChildren（加载中显示加载指示）。
@@ -144,6 +145,8 @@ export interface TreeProps<T> extends PartProps<'div', 'role'> {
    * 指针拖动只用鼠标、笔（触摸时照常滚动）
    */
   onMove?: (move: TreeMove<T>) => void;
+  /** 打开节点：双击一行（展开箭头、勾选框除外）、焦点在树上按 Enter（在选中、展开之后）。不可用的节点不报 */
+  onActivate?: (node: T, key: string) => void;
   /** 能不能放到这里（如文件不能放进文件里）；不写时都能放（放进自己和自己的子孙里除外） */
   canDrop?: (node: T, target: TreeMoveTarget) => boolean;
   /** 自定义文字部分的内容 */
@@ -270,6 +273,7 @@ export const Tree = _component(
     estimateSize = 32,
     filter,
     onMove,
+    onActivate,
     canDrop,
     renderItem,
     propsItem,
@@ -605,6 +609,7 @@ export const Tree = _component(
         case 'Enter':
           if (selectionMode) select(position);
           else toggle(position);
+          if (!disabledAt(position)) onActivate?.(row.node, row.key);
           break;
         case ' ':
           if (checkable) check(position);
@@ -686,6 +691,9 @@ export const Tree = _component(
                 else if (checkable) check(position);
                 else toggle(position);
               },
+              onDblclick: () => {
+                if (!disabled) onActivate?.(row.node, row.key);
+              },
             },
           )}
           data-state={state.selected ? 'selected' : undefined}
@@ -698,6 +706,8 @@ export const Tree = _component(
           <span
             {...mergeAttrs<'span'>({ sx: treeStyles.toggle, ...treePart('toggle') }, propsToggle, {
               'aria-hidden': true,
+              // 连点展开箭头是展开再收起，不算打开
+              onDblclick: (event: MouseEvent) => event.stopPropagation(),
               onClick: (event: MouseEvent) => {
                 if (!row.expandable) return;
                 event.stopPropagation();
@@ -730,6 +740,7 @@ export const Tree = _component(
                 propsCheckbox,
                 {
                   'aria-hidden': true,
+                  onDblclick: (event: MouseEvent) => event.stopPropagation(),
                   onClick: (event: MouseEvent) => {
                     event.stopPropagation();
                     active = row.key;

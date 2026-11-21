@@ -124,6 +124,17 @@ describe('Tree', () => {
     expect(items(root)[1]!.getAttribute('aria-selected')).toBe('true');
   });
 
+  it('onActivate：双击一行、按 Enter 时报告节点；双击展开箭头不算', async () => {
+    const opened: string[] = [];
+    const { root, tree } = renderTree({ selectionMode: 'single', onActivate: (_: Node, key: string) => opened.push(key) });
+    await flush();
+    items(root)[1]!.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    items(root)[0]!.querySelector('[data-part="toggle"]')!.dispatchEvent(new MouseEvent('dblclick', { bubbles: true }));
+    tree.dispatchEvent(new FocusEvent('focus'));
+    key(tree, 'Enter');
+    expect(opened).toEqual(['readme', 'src']);
+  });
+
   it('勾选：空格勾上父节点时子节点一起勾上；只勾一个子节点时父节点半选', async () => {
     let checked = _state<string[]>([]);
     const root = mount(() => (
