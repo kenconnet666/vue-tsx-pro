@@ -16,8 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- 新组件 PropertyGrid、PropertyEditor（主入口）：按字段描述画“名字加编辑器”的属性面板（数、开关、文字、枚举、向量、颜色、列表、对象、几种之一、JSON），改一处交出“路径加值”；可选字段设回默认值时去掉、多选的值显示“多个值”（`PROPERTY_MIXED`），使用方自己的种类经 `editors` 给编辑器。另有 `setPropertyPath`、`emptyPropertyValue`、`hasMixed` 和线性颜色与取色器之间的换算。
-- 语言包加了 PropertyGrid 的文案（`propertyMixed`、`propertyAdd`、`propertyClear` 等）：自己实现 `Lang` 的要补上这几项。
+（暂无）
 
 ## 每次发布
 

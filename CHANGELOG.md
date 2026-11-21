@@ -3,6 +3,11 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.35.0（2026-11-21）
+
+- 新组件 PropertyGrid、PropertyEditor（主入口）：按字段描述画“名字加编辑器”的属性面板（数、开关、文字、枚举、向量、颜色、列表、对象、几种之一、JSON），改一处交出“路径加值”；可选字段设回默认值时去掉、多选的值显示“多个值”（`PROPERTY_MIXED`），使用方自己的种类经 `editors` 给编辑器。另有 `setPropertyPath`、`emptyPropertyValue`、`hasMixed` 和线性颜色与取色器之间的换算。
+- 语言包加了 PropertyGrid 的文案（`propertyMixed`、`propertyAdd`、`propertyClear` 等）：自己实现 `Lang` 的要补上这几项。
+
 ## 0.34.0（2026-11-21）
 
 - Splitter 的分隔条用鼠标拖得动了：0.24.0 起分隔条所在的格叠着一层伪元素，指针落到格上、按不到分隔条（触屏不受影响）。
