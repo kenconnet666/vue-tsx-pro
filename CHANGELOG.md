@@ -3,6 +3,10 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.32.0（2026-11-21）
+
+- 新组件 CurveField（拖动关键帧编辑曲线：折线、平滑、阶梯；evaluateCurve 按同样的规则取值）、GradientField（编辑颜色渐变：拖色标、加删、改颜色和透明度；sampleGradient、gradientCss）。
+
 ## 0.31.0（2026-11-21）
 
 - Gauge：当前值的弧的部件标记从 `value` 改成 `arc`，`value` 只留给中间的数值（#6）。按 `[data-scope="gauge"][data-part="value"]` 改弧的样式的，改成 `data-part="arc"`。
