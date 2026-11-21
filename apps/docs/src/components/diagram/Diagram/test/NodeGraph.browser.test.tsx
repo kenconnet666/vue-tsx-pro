@@ -12,8 +12,8 @@ it('端口对准它那一行，连线画成曲线', async () => {
   const root = mount(NodeGraph);
   await expect.poll(() => root.querySelectorAll('[data-diagram-port-id]').length).toBe(8);
   const node = root.querySelector('[data-node="mul"]')!;
-  const port = node.querySelector('[data-diagram-port-id="B"]')!;
-  const row = [...node.querySelectorAll('div')].find((element) => element.textContent === 'B')!;
+  const port = node.querySelector('[data-diagram-port-id="系数"]')!;
+  const row = [...node.querySelectorAll('div')].find((element) => element.textContent === '系数')!;
   expect(Math.abs(center(port).y - center(row).y)).toBeLessThan(1.5);
   const lines = [...root.querySelectorAll('[data-part="edgeLine"]')];
   expect(lines.length).toBe(4);

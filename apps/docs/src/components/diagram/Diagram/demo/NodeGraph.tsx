@@ -40,8 +40,8 @@ const KINDS: Record<string, Kind> = {
   multiply: {
     title: '乘',
     inputs: [
-      { name: 'A', type: 'color' },
-      { name: 'B', type: 'float' },
+      { name: '颜色', type: 'color' },
+      { name: '系数', type: 'float' },
     ],
     outputs: [{ name: '结果', type: 'color' }],
   },
@@ -132,8 +132,8 @@ export default _component(() => {
     card('out', 'output', 440, 40),
   ]);
   let edges = _state<DiagramEdgeItem[]>([
-    { id: 'mul:A', from: 'tex', fromPort: '颜色', to: 'mul', toPort: 'A' },
-    { id: 'mul:B', from: 'tex', fromPort: '透明度', to: 'mul', toPort: 'B' },
+    { id: 'mul:颜色', from: 'tex', fromPort: '颜色', to: 'mul', toPort: '颜色' },
+    { id: 'mul:系数', from: 'tex', fromPort: '透明度', to: 'mul', toPort: '系数' },
     { id: 'out:基础色', from: 'mul', fromPort: '结果', to: 'out', toPort: '基础色' },
     { id: 'out:粗糙度', from: 'rough', fromPort: '值', to: 'out', toPort: '粗糙度' },
   ]);
@@ -175,7 +175,11 @@ export default _component(() => {
       onConnect={connect}
       onKeydown={remove}
       fitView
-      getNodeLabel={(node) => KINDS[node.kind]!.title}
+      // 端口的名字跟在标题后面一起读出来（卡片里的行对读屏藏起来）；用空格隔开：名称要按词包含看得见的标题
+      getNodeLabel={(node) => {
+        const { title, inputs, outputs } = KINDS[node.kind]!;
+        return [title, ...[...outputs, ...inputs].map((s) => s.name)].join(' ');
+      }}
       overlay={<DiagramControls />}
       aria-label="材质节点图"
     >
@@ -185,10 +189,14 @@ export default _component(() => {
           <div {...css.attrs(styles.card, state.selected && styles.selected)}>
             <div {...css.attrs(styles.header)}>{title}</div>
             {outputs.map((s) => (
-              <div {...css.attrs(styles.row, styles.output)}>{s.name}</div>
+              <div {...css.attrs(styles.row, styles.output)} aria-hidden="true">
+                {s.name}
+              </div>
             ))}
             {inputs.map((s) => (
-              <div {...css.attrs(styles.row)}>{s.name}</div>
+              <div {...css.attrs(styles.row)} aria-hidden="true">
+                {s.name}
+              </div>
             ))}
           </div>
         );
