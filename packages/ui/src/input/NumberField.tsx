@@ -13,6 +13,8 @@
  *   format 写了 scale（10 的整数次幂）时，显示与编辑都按缩放后的单位（值是元、输入的是万元），写回时精确移位回去；
  *   百分比（style: 'percent'）同理：值是 0.85，显示 85%，编辑时输入的也是 85。min、max、step 仍按值本身的单位。单位文字用 prefix、suffix，放在输入框里、文字的前后。
  * - 认当前语言的小数点与千分位，也认中文输入法打出的全角数字和全角句点。
+ * - 认相对的输入 `+=2`、`-=2`、`*=1.5`、`/=2`（同 Unity、Blender）：按当前值算，再夹到范围、对齐步长；加减的数按输入的单位
+ *   （scale、百分比）换算，乘除是倍数。给了 onRelative 时交出算法、不改自己的值：多选的属性面板对每个值各算一次。
  * - ↑ / ↓ 加减 step，Page Up / Page Down 加减 bigStep，Home / End 到 min / max；按钮不在 Tab 顺序里（键盘用方向键），
  *   按住按钮连续加减（先停 400ms，之后每 60ms 一步，同 React Aria）。
  *
@@ -27,12 +29,13 @@ import { useLang } from '../config/context';
 import { useFormat, type NumericFormat } from '../config/lang/format';
 import { useFieldControl } from '../form/Field';
 import { FormValue } from '../form/FormValue';
-import { normalizeNumber } from '../utils/data/number-parse';
+import { normalizeNumber, parseRelative } from '../utils/data/number-parse';
 import {
   addNumeric,
   compareNumeric,
   multiplyNumeric,
   numericKind,
+  relativeNumeric,
   shiftDecimal,
   snapNumeric,
   toNumber,
@@ -107,6 +110,11 @@ export interface NumberFieldProps
   stepper?: boolean;
   /** 有值时显示清空按钮：清空后值是 null（选填的数量、金额） */
   clearable?: boolean;
+  /**
+   * 输入了相对的值（`+=2`、`*=1.5`）：交出按当前值算新值的函数（夹到范围、对齐步长都在里面），不改自己的值。
+   * 多个值一起改时用（多选的属性面板对每个值各算一次）；没给时按自己的值算、写回
+   */
+  onRelative?: (apply: (current: NumericValue | null) => NumericValue) => void;
   /** 不可用 */
   disabled?: boolean;
   /** 只读：能聚焦、选中复制，不能改；不显示加减按钮 */
@@ -144,6 +152,7 @@ export const NumberField = _component(
     name,
     stepper = true,
     clearable = false,
+    onRelative,
     variant,
     size,
     radius,
@@ -209,6 +218,29 @@ export const NumberField = _component(
       if (draft == null) return;
       const state = control();
       if (draft === plain(value) || state.disabled || state.readonly) {
+        draft = null;
+        return;
+      }
+      const relative = parseRelative(draft, lang.code);
+      if (relative) {
+        // 加减的数是输入的单位（万元、百分数），换回值的单位；乘除是倍数，不换
+        const operand =
+          relative.operator === '+' || relative.operator === '-'
+            ? unscaled(relative.operand)
+            : relative.operand;
+        const apply = (current: NumericValue | null) => {
+          const own = current == null ? kind() : numericKind(current);
+          const start = current ?? toNumericKind(low() ?? 0, own);
+          return snapNumeric(
+            relativeNumeric(start, relative.operator, operand, own),
+            increment(),
+            low(),
+            high(),
+            own,
+          );
+        };
+        if (onRelative) onRelative(apply);
+        else value = apply(value);
         draft = null;
         return;
       }

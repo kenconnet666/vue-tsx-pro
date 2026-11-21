@@ -161,6 +161,42 @@ describe('PropertyGrid', () => {
     expect(rowOf(root, 'tags').textContent).toContain('多个值');
   });
 
+  it('相对的输入（+=、*=）交成按原来的值算的函数：多选时各算各的；整数字段取整', async () => {
+    const changes: [PropertyPath, unknown][] = [];
+    const root = mount(() => (
+      <PropertyEditor
+        type={{ kind: 'vector', size: 3 }}
+        value={[PROPERTY_MIXED, 2, 3]}
+        label="位置"
+        onSet={(path, next) => changes.push([path, next])}
+      />
+    ));
+    const type = async (input: HTMLInputElement, text: string) => {
+      input.dispatchEvent(new FocusEvent('focus'));
+      input.value = text;
+      input.dispatchEvent(new Event('input'));
+      input.dispatchEvent(new FocusEvent('blur'));
+      await nextTick();
+    };
+    const [x] = root.querySelectorAll('input');
+    await type(x!, '+=1.5');
+    const [[path, update]] = changes as [[PropertyPath, (old: unknown) => unknown]];
+    expect(path).toEqual([0]);
+    // 两个实体的 x 是 1 和 -4：各加 1.5
+    expect([update(1), update(-4)]).toEqual([2.5, -2.5]);
+    const count: [PropertyPath, unknown][] = [];
+    const integer = mount(() => (
+      <PropertyEditor
+        type={{ kind: 'number', integer: true }}
+        value={PROPERTY_MIXED}
+        label="数量"
+        onSet={(p, next) => count.push([p, next])}
+      />
+    ));
+    await type(integer.querySelector('input')!, '*=1.5');
+    expect((count[0]![1] as (old: unknown) => unknown)(3)).toBe(5);
+  });
+
   it('PropertyEditor 只画一个值：向量的分量各改各的', () => {
     const changes: [PropertyPath, unknown][] = [];
     const root = mount(() => (

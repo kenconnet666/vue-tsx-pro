@@ -40,6 +40,45 @@ describe('NumberField', () => {
     expect(field.value()).toBeNull();
   });
 
+  it('相对的输入：+=、-=、*=、/= 按当前值算，再夹到范围、对齐步长；除以 0、写错了恢复原值', async () => {
+    const field = setup({ min: 0, max: 20, step: 0.5 });
+    await field.type('+=2');
+    expect(field.value()).toBe(7);
+    await field.type('*= 1.5');
+    expect(field.value()).toBe(10.5);
+    await field.type('－＝3');
+    expect(field.value()).toBe(7.5);
+    await field.type('/=0');
+    expect(field.value()).toBe(7.5);
+    await field.type('×=10');
+    expect(field.value()).toBe(20);
+  });
+
+  it('给了 onRelative：交出算法、不改自己的值（多选时使用方对每个值各算一次）', async () => {
+    const applies: ((current: NumericValue | null) => NumericValue)[] = [];
+    let value = _state<number | null>(null);
+    const root = mount(() => (
+      <NumberField
+        _value={value}
+        step={1}
+        aria-label="数量"
+        onRelative={(apply) => applies.push(apply)}
+      />
+    ));
+    const input = root.querySelector('input')!;
+    input.dispatchEvent(new FocusEvent('focus'));
+    input.value = '-=1';
+    input.dispatchEvent(new Event('input'));
+    input.dispatchEvent(new FocusEvent('blur'));
+    await nextTick();
+    expect(value).toBeNull();
+    expect([applies[0]!(5), applies[0]!(10n), applies[0]!(new Decimal('7')).toString()]).toEqual([
+      4,
+      9n,
+      '6',
+    ]);
+  });
+
   it('方向键加减 step，没有浮点误差；Home / End 到两端；按钮在边界时不可用', async () => {
     const field = setup({ min: 0, max: 1, step: 0.1 });
     await field.type('0.2');

@@ -1744,7 +1744,7 @@ export {
   type HistoryOptions,
 } from './utils/data/history';
 export { cachedIntl } from './utils/data/intl-cache';
-export { normalizeNumber, parseNumber } from './utils/data/number-parse';
+export { normalizeNumber, parseNumber, parseRelative } from './utils/data/number-parse';
 export { clamp, snapToStep, svgNumber } from './utils/data/number';
 export {
   addNumeric,
@@ -1759,6 +1759,7 @@ export {
   numericKind,
   numericOf,
   numericText,
+  relativeNumeric,
   sameNumeric,
   shiftDecimal,
   snapNumeric,
@@ -1767,6 +1768,7 @@ export {
   toNumericKind,
   type NumericKind,
   type NumericValue,
+  type RelativeOperator,
 } from './utils/data/numeric';
 export { withoutUndefined } from './utils/data/object';
 export {

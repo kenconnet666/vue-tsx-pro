@@ -4,8 +4,10 @@
  *
  *   normalizeNumber('1.234,5', 'de-DE') → '1234.5'
  *   parseNumber('１２．５', 'zh-CN')      → 12.5
+ *   parseRelative('*= 1,5', 'de-DE')     → { operator: '*', operand: '1.5' }
  */
 import { cachedIntl } from './intl-cache';
+import type { RelativeOperator } from './numeric';
 
 /** 当前语言的数字符号：小数点、千分位、负号（按语言缓存：每次输入都要用） */
 function numberSymbols(locale: string) {
@@ -46,4 +48,35 @@ export function parseNumber(text: string, locale: string): number | null {
   const normalized = normalizeNumber(text, locale);
   if (normalized === undefined) return Number.NaN;
   return normalized === null ? null : Number(normalized);
+}
+
+/** 相对输入的运算符号：半角、全角和 ×、÷ 都认 */
+const RELATIVE_OPERATORS: Readonly<Record<string, RelativeOperator>> = {
+  '+': '+',
+  '-': '-',
+  '*': '*',
+  '/': '/',
+  '＋': '+',
+  '－': '-',
+  '−': '-',
+  '＊': '*',
+  '×': '*',
+  '／': '/',
+  '÷': '/',
+};
+
+/**
+ * 相对的输入：`+=2`、`-= 1.5`、`*=2`、`/=4`（同 Unity、Blender 的数值框；按当前值算，多选时各算各的）。
+ * 数按语言解析（normalizeNumber）；不是这种写法、数解析不了、除以 0 时为 undefined
+ */
+export function parseRelative(
+  text: string,
+  locale: string,
+): { operator: RelativeOperator; operand: string } | undefined {
+  const match = /^\s*([+\-*/＋－−＊×／÷])\s*[=＝]\s*(.*)$/.exec(text);
+  if (!match) return undefined;
+  const operand = normalizeNumber(match[2]!, locale);
+  const operator = RELATIVE_OPERATORS[match[1]!]!;
+  if (operand == null || (operator === '/' && Number(operand) === 0)) return undefined;
+  return { operator, operand };
 }

@@ -227,6 +227,36 @@ export function groupDigits(text: string): string {
   return fraction === undefined ? grouped : `${grouped}.${fraction}`;
 }
 
+/** 相对输入的运算：加、减、乘、除（NumberField 的 `+=2`、`*=1.5`） */
+export type RelativeOperator = '+' | '-' | '*' | '/';
+
+/**
+ * value 按 operator 和 operand（十进制文本）算，按 kind 精确运算：Decimal 用它的构造函数算，bigint 乘除小数时四舍五入，
+ * number 浮点运算（再由 snapNumeric 去掉误差）
+ */
+export function relativeNumeric(
+  value: NumericValue,
+  operator: RelativeOperator,
+  operand: string,
+  kind: NumericKind,
+): NumericValue {
+  if (operator === '+' || operator === '-') {
+    const signed =
+      operator === '+' ? operand : operand.startsWith('-') ? operand.slice(1) : `-${operand}`;
+    return addNumeric(value, toNumericKind(signed, kind), kind);
+  }
+  const typed = toNumericKind(value, kind);
+  if (typeof typed === 'number')
+    return operator === '*' ? typed * Number(operand) : typed / Number(operand);
+  if (typeof typed === 'bigint') {
+    if (operator === '*' && /^-?\d+$/.test(operand)) return typed * BigInt(operand);
+    const scaled =
+      operator === '*' ? Number(typed) * Number(operand) : Number(typed) / Number(operand);
+    return BigInt(Math.round(scaled));
+  }
+  return operator === '*' ? (typed as Decimal).times(operand) : (typed as Decimal).div(operand);
+}
+
 /** value 的 times 倍（times 是整数，如 -1、10），按 kind 精确运算 */
 export function multiplyNumeric(value: NumericValue, times: number, kind: NumericKind) {
   const typed = toNumericKind(value, kind);

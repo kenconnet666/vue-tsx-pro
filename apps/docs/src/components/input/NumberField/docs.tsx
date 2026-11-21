@@ -11,6 +11,7 @@ import Appearance from './demo/Appearance.tsx?demo';
 import Basic from './demo/Basic.tsx?demo';
 import Precise from './demo/Precise.tsx?demo';
 import Range from './demo/Range.tsx?demo';
+import Relative from './demo/Relative.tsx?demo';
 import Submit from './demo/Submit.tsx?demo';
 import Units from './demo/Units.tsx?demo';
 
@@ -43,6 +44,11 @@ export default _component(() => () => (
           <Code>{'format={{ scale: 10_000 }}'}</Code>：显示与编辑都是万元，写回时按十进制移位回元；
           <Code>min</Code>、<Code>max</Code>、<Code>step</Code>{' '}
           仍按值本身的单位。只读时不显示加减按钮。
+        </Example>
+        <Example id="relative" title="相对的输入" demo={Relative}>
+          输入 <Code>+=5</Code>、<Code>-=5</Code>、<Code>*=1.1</Code>、<Code>/=2</Code>{' '}
+          按当前值算（同 Unity、Blender 的数值框），再夹到范围、对齐步长。给了{' '}
+          <Code>onRelative</Code> 时交出这个算法、不改自己的值：属性面板多选时对每个值各算一次。
         </Example>
       </ExampleColumn>
       <ExampleColumn>

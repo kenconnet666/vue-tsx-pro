@@ -7,6 +7,7 @@ import {
   isDecimal,
   isNumeric,
   numericText,
+  relativeNumeric,
   sumNumeric,
   sameNumeric,
   shiftDecimal,
@@ -84,5 +85,24 @@ describe('sumNumeric', () => {
     expect(groupDigits('-1813.50')).toBe('-1,813.50');
     expect(groupDigits('1234567')).toBe('1,234,567');
     expect(groupDigits('999')).toBe('999');
+  });
+});
+
+describe('relativeNumeric', () => {
+  it('加减乘除按类型精确算：Decimal 不经过浮点数，bigint 乘除小数时四舍五入', () => {
+    expect([
+      relativeNumeric(1, '+', '0.2', 'number'),
+      relativeNumeric(5, '-', '-1', 'number'),
+      relativeNumeric(3, '/', '2', 'number'),
+    ]).toEqual([1.2, 6, 1.5]);
+    expect(relativeNumeric(new Decimal('0.1'), '*', '3', Decimal).toString()).toBe('0.3');
+    expect(
+      relativeNumeric(new Decimal('1'), '/', '3', Decimal.clone({ precision: 5 })).toString(),
+    ).toBe('0.33333');
+    expect([
+      relativeNumeric(7n, '*', '3', 'bigint'),
+      relativeNumeric(7n, '/', '2', 'bigint'),
+      relativeNumeric(7n, '-', '2', 'bigint'),
+    ]).toEqual([21n, 4n, 5n]);
   });
 });

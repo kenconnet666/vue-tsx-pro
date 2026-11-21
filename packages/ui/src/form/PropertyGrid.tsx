@@ -33,6 +33,7 @@ import { Switch } from '../input/Switch';
 import { Textarea } from '../input/Textarea';
 import { TextField } from '../input/TextField';
 import { sameValue } from '../utils/data/equality';
+import { toNumber, type NumericValue } from '../utils/data/numeric';
 import type { NumericFormat } from '../config/lang/format';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import {
@@ -299,11 +300,22 @@ function renderValue<X extends PropertyKind>(
 ): VNodeChild {
   const { lang, options } = context;
   const mixed = value === PROPERTY_MIXED;
+  /**
+   * 一个数的编辑器：写回 path 上的值。相对的输入（`+=1`、`*=2`）交成按原来的值算的函数：多选时每个对象按自己的值算
+   * （几个实体的 x 各加 1）；integer 时取整
+   */
   const number = (
     current: unknown,
     name: string,
-    set: (next: number) => void,
-    settings: { min?: number; max?: number; step?: number; unit?: string; compact?: boolean } = {},
+    path: PropertyPath,
+    settings: {
+      min?: number;
+      max?: number;
+      step?: number;
+      unit?: string;
+      compact?: boolean;
+      integer?: boolean;
+    } = {},
   ) => (
     <NumberField
       size="sm"
@@ -318,7 +330,15 @@ function renderValue<X extends PropertyKind>(
       {...(settings.max !== undefined ? { max: settings.max } : {})}
       {...(settings.unit !== undefined ? { suffix: settings.unit } : {})}
       step={settings.step ?? 0.1}
-      onUpdate:_value={(next: number | null) => next !== null && set(next)}
+      onUpdate:_value={(next: number | null) =>
+        next !== null && onSet(path, settings.integer ? Math.round(next) : next)
+      }
+      onRelative={(apply: (value: NumericValue | null) => NumericValue) =>
+        onSet(path, (old: unknown) => {
+          const next = toNumber(apply(typeof old === 'number' ? old : null));
+          return settings.integer ? Math.round(next) : next;
+        })
+      }
     />
   );
   const nested = (children: VNodeChild) => (
@@ -339,7 +359,7 @@ function renderValue<X extends PropertyKind>(
     return <span {...css.attrs(propertyGridStyles.mixed)}>{lang.propertyMixed}</span>;
   switch (builtin.kind) {
     case 'number':
-      return number(value, label, (next) => onSet([], builtin.integer ? Math.round(next) : next), {
+      return number(value, label, [], {
         ...builtin,
         step: builtin.step ?? (builtin.integer ? 1 : 0.1),
       });
@@ -383,15 +403,10 @@ function renderValue<X extends PropertyKind>(
       return (
         <div {...css.attrs(propertyGridStyles.vector)}>
           {Array.from({ length: builtin.size }, (_, i) =>
-            number(
-              mixed ? PROPERTY_MIXED : items[i],
-              `${label} ${AXES[i] ?? i + 1}`,
-              (next) => onSet([i], next),
-              {
-                step: builtin.step ?? 0.1,
-                compact: true,
-              },
-            ),
+            number(mixed ? PROPERTY_MIXED : items[i], `${label} ${AXES[i] ?? i + 1}`, [i], {
+              step: builtin.step ?? 0.1,
+              compact: true,
+            }),
           )}
         </div>
       );
@@ -417,7 +432,7 @@ function renderValue<X extends PropertyKind>(
           />
           {rgbMixed && <span {...css.attrs(propertyGridStyles.mixed)}>{lang.propertyMixed}</span>}
           {builtin.alpha &&
-            number(channels[3], `${label} A`, (next) => onSet([3], next), {
+            number(channels[3], `${label} A`, [3], {
               min: 0,
               max: 1,
               step: 0.01,
