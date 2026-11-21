@@ -3,6 +3,10 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.37.1（2026-11-21）
+
+- **Workbench 的浮动窗口不出工作区**：画的时候宽高不超过工作区（新浮动的默认 420 × 320 放不下、工作台变小了都收进来，右下角改大小的把手总能拖到），拖标题栏挪、拖右下角改大小也停在工作区的边上。
+
 ## 0.37.0（2026-11-21）
 
 - Workbench 的工具窗口能挪了（同 JetBrains）：把竖条上的图标拖到另一组就停到那一边；标题栏多了 ⋯ 菜单，"移到"五处中的任一处、"浮动"（浮在工作区上面，拖标题栏挪、拖右下角改大小）、"停靠"放回去。挪过的、浮动的记在布局里：`WorkbenchLayout` 多了可选的 `anchors`、`floating`（`WorkbenchFloat`），`WorkbenchContext` 多了 `moveTo`、`float`、`dock`。
