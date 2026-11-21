@@ -43,7 +43,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "vite build --configLoader native && tsc -p tsconfig.build.json",
+    "build": "vite build --configLoader native && tsc -p tsconfig.build.json && node ../../scripts/build/dts-extensions.mjs dist",
     "prepack": "pnpm run build",
     "typecheck": "tsc -p . --incremental --tsBuildInfoFile node_modules/.cache/typecheck.tsbuildinfo",
     "test": "vitest run --configLoader native",

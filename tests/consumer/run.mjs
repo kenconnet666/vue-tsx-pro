@@ -233,6 +233,35 @@ async function checkMobile() {
   });
 }
 
+/**
+ * moduleResolution nodenext 下发布的类型也解析得了（issue #9）：写一个 .mts 引用 exported 的组件，赋给 symbol 应当是类型错误；
+ * 相对路径解析不了时组件的类型变成 any，不报错，@ts-expect-error 反而报"没用上"。
+ */
+function checkNodeNext(dir, pkg, name) {
+  writeFileSync(
+    join(dir, 'nodenext.mts'),
+    `import { ${name} } from '${pkg}';
+// @ts-expect-error 组件的类型解析得了时这里是类型错误
+export const probe: symbol = ${name};
+`,
+  );
+  writeFileSync(
+    join(dir, 'tsconfig.nodenext.json'),
+    JSON.stringify({
+      compilerOptions: {
+        module: 'nodenext',
+        moduleResolution: 'nodenext',
+        strict: true,
+        noEmit: true,
+        skipLibCheck: true,
+        types: [],
+      },
+      files: ['nodenext.mts'],
+    }),
+  );
+  run('npx', ['tsc', '-p', 'tsconfig.nodenext.json'], dir);
+}
+
 run('pnpm', ['build'], root);
 const tsx = pack('tsx');
 const uiPackage = pack('ui');
@@ -248,6 +277,7 @@ install(
   catalogVersions(['vite', 'typescript']),
 );
 run('npx', ['tsc', '-p', '.'], app);
+checkNodeNext(app, '@zerodep-dev/vue-tsx-pro-ui', 'StatusBadge');
 run('npx', ['vite', 'build'], app);
 await checkDesktop();
 
@@ -278,6 +308,7 @@ install(
   { '@zerodep-dev/vue-tsx-pro-mini': pack('mini') },
 );
 run('npx', ['tsc', '-p', '.'], mobileApp);
+checkNodeNext(mobileApp, '@zerodep-dev/vue-tsx-pro-mobile', 'Button');
 // 先出 H5（vite build 会清空 dist），再出两端小程序（dist/wx、dist/my）
 run('npm', ['run', 'build'], mobileApp);
 run('npm', ['run', 'build:mini'], mobileApp);
