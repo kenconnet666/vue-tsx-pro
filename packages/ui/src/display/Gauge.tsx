@@ -79,7 +79,8 @@ const gaugeStyles = css.create({
   dial: { position: 'relative', width: '100%' },
   svg: { display: 'block', width: '100%', height: 'auto', overflow: 'visible' },
   track: { fill: 'none', stroke: '_fill', strokeWidth: 14 },
-  value: {
+  // 当前值的弧（部件标记是 arc；value 是中间的数值）
+  arc: {
     fill: 'none',
     stroke: 'var(--gauge-color)',
     strokeWidth: 14,
@@ -222,8 +223,8 @@ export const Gauge = _component(
               {fraction > 0 && (
                 <path
                   d={arc(0, fraction, RADIUS)}
-                  {...css.attrs(gaugeStyles.value)}
-                  {...gaugePart('value')}
+                  {...css.attrs(gaugeStyles.arc)}
+                  {...gaugePart('arc')}
                 />
               )}
               {(bands ?? []).map((item, position) => {

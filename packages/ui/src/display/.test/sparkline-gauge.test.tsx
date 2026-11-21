@@ -59,6 +59,16 @@ describe('Gauge', () => {
     expect(root.querySelector('line')).not.toBeNull();
   });
 
+  it('部件：弧是 arc，value 只有中间的数值（按部件定制样式时选得开）', () => {
+    const root = mount(() => <Gauge value={0.5} max={1} label="利用率" />);
+    const values = root.querySelectorAll('[data-scope="gauge"][data-part="value"]');
+    expect(values.length).toBe(1);
+    expect(values[0]!.tagName).toBe('SPAN');
+    expect(root.querySelector('[data-scope="gauge"][data-part="arc"]')?.tagName.toLowerCase()).toBe(
+      'path',
+    );
+  });
+
   it('外圈按区间分段；超出范围的值画满、念原值', () => {
     const root = mount(() => (
       <Gauge
