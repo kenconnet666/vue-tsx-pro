@@ -586,7 +586,8 @@ export const Workbench = _component(
             const stored = floatOf(window.id)!;
             // 层还没排版（大小是 0，比如测试环境）时不限
             const bounds = floatLayer?.getBoundingClientRect();
-            const maxX = bounds?.width || Infinity, maxY = bounds?.height || Infinity;
+            const maxX = bounds?.width || Infinity,
+              maxY = bounds?.height || Infinity;
             // 从画出来的大小开始（收进工作区的窗口比记下的小）
             const start = {
               ...stored,
@@ -602,7 +603,10 @@ export const Workbench = _component(
                     ? {
                         ...start,
                         width: Math.max(FLOAT_MIN, Math.min(start.width + deltaX, maxX - start.x)),
-                        height: Math.max(FLOAT_MIN, Math.min(start.height + deltaY, maxY - start.y)),
+                        height: Math.max(
+                          FLOAT_MIN,
+                          Math.min(start.height + deltaY, maxY - start.y),
+                        ),
                       }
                     : {
                         ...start,
