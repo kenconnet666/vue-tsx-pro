@@ -398,7 +398,7 @@ export const Workbench = _component(
           <nav
             {...css.attrs(workbenchStyles.stripe, workbenchStyles.stripeStart)}
             {...workbenchPart('stripe')}
-            aria-label={lang.workbenchStripe}
+            aria-label={lang.workbenchStripeStart}
           >
             {windows
               .filter((window) => window.anchor === 'left' || window.anchor === 'leftBottom')
@@ -410,7 +410,7 @@ export const Workbench = _component(
           <nav
             {...css.attrs(workbenchStyles.stripe, workbenchStyles.stripeEnd)}
             {...workbenchPart('stripe')}
-            aria-label={lang.workbenchStripe}
+            aria-label={lang.workbenchStripeEnd}
           >
             {windows
               .filter((window) => window.anchor === 'right' || window.anchor === 'rightBottom')
