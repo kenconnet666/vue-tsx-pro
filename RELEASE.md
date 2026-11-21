@@ -16,7 +16,9 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- NumberField 认相对的输入 `+=2`、`-=2`、`*=1.5`、`/=2`（也认全角和 ×、÷）：按当前值算，再夹到范围、对齐步长；加减的数按输入的单位（`format.scale`、百分比）换算，乘除是倍数。新属性 `onRelative`：给了时交出“按当前值算”的函数、不改自己的值（几个值一起改时各算各的）。
+- PropertyGrid、PropertyEditor 的数字（含向量的分量、颜色的 alpha）接上了相对的输入：`onSet` 收到的是按原来的值算的函数，多选时每个对象按自己的值算（几个实体的 x 各加 1）。
+- 新导出 `relativeNumeric`、`RelativeOperator`：按 number、bigint、Decimal 精确地加减乘除。
 
 ## 每次发布
 
