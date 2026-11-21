@@ -64,6 +64,12 @@ export interface SplitterProps extends PartProps<'div'> {
   collapsible?: 'start' | 'end';
   /** 可收起的那一侧收着：父级写 _collapsed={x} */
   _collapsed?: boolean;
+  /**
+   * 收起、展开由谁管：button 是分隔条中间的小按钮（默认）；external 是外面的控件（Workbench 两侧的竖条、工具栏上的开关），
+   * 不画按钮，收起时分隔条也不显示，剩下那一栏占满
+   * @default 'button'
+   */
+  collapseControl?: 'button' | 'external';
   /** 分隔条的名称（读屏），默认取语言包（调整分栏） */
   label?: string;
   /** 外面一圈边框、圆角与表面色：独立成块（收件箱的列表与预览） */
@@ -113,6 +119,8 @@ const splitterStyles = css.create({
   paneContent: { height: '_full' },
   // 分隔条所在的格：分隔条铺满它，收起按钮叠在中间（不放进可聚焦的分隔条里：交互元素不能嵌套）
   track: { position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+  // 外面管收起（collapseControl="external"）时收着：分隔条也不显示
+  trackHidden: { display: 'none' },
   // 分隔条：看得见的是中间一条细线，能拖的范围更宽。悬停、拖动时线加粗变深，键盘聚焦时加粗变成强调色
   // （同 ResizeHandle）；线的粗细经变量交给里面的线（线看不到分隔条的悬停）
   handle: {
@@ -197,6 +205,7 @@ export const Splitter = _component(
     minSize = 20,
     maxSize = 80,
     collapsible,
+    collapseControl = 'button',
     _collapsed: collapsed = _bindable(false),
     label,
     bordered = false,
@@ -288,12 +297,16 @@ export const Splitter = _component(
     return () => {
       const hideStart = collapsed && collapsible === 'start';
       const hideEnd = collapsed && collapsible === 'end';
-      // 收起的那一栏是 hidden（display: none），不占格子：模板只留分隔条与剩下那一栏的两轨
-      const template = hideStart
-        ? 'auto minmax(0, 1fr)'
-        : hideEnd
-          ? 'minmax(0, 1fr) auto'
-          : `minmax(0, ${size}fr) auto minmax(0, ${100 - size}fr)`;
+      // 收起的那一栏是 hidden（display: none），不占格子：模板只留分隔条与剩下那一栏的两轨；外面管收起时分隔条也藏起来，只剩一轨
+      const external = collapseControl === 'external';
+      const template =
+        (hideStart || hideEnd) && external
+          ? 'minmax(0, 1fr)'
+          : hideStart
+            ? 'auto minmax(0, 1fr)'
+            : hideEnd
+              ? 'minmax(0, 1fr) auto'
+              : `minmax(0, ${size}fr) auto minmax(0, ${100 - size}fr)`;
       return (
         <div
           {...mergeAttrs<'div'>(
@@ -329,6 +342,7 @@ export const Splitter = _component(
             {...css.attrs(
               splitterStyles.track,
               horizontal() ? splitterStyles.handleHorizontal : splitterStyles.handleVertical,
+              (hideStart || hideEnd) && external && splitterStyles.trackHidden,
             )}
             {...splitterPart('track')}
           >
@@ -366,7 +380,7 @@ export const Splitter = _component(
                 {...splitterPart('line')}
               />
             </div>
-            {collapsible && (
+            {collapsible && !external && (
               <IconButton
                 {...mergePartProps<IconButtonProps>(
                   {

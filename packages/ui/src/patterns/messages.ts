@@ -8,6 +8,10 @@ import type { MessageTable } from '../config/lang/messages';
 export interface PatternsMessages {
   /** 查询栏的查询按钮，默认“查询” */
   readonly filterSearch: string;
+  /** 工作台两侧竖条的名称（读屏），默认“工具窗口” */
+  readonly workbenchStripe: string;
+  /** 工作台工具窗口的收起按钮：`('属性')` → “收起属性” */
+  readonly workbenchHide: (title: string) => string;
   /** 查询栏的重置按钮，默认“重置” */
   readonly filterReset: string;
   /** 查询栏展开更多条件，默认“展开” */
@@ -198,6 +202,8 @@ export interface PatternsMessages {
 export const patternsMessages: MessageTable<PatternsMessages> = {
   'zh-CN': {
     filterSearch: '查询',
+    workbenchStripe: '工具窗口',
+    workbenchHide: (title) => `收起${title}`,
     filterReset: '重置',
     filterExpand: '展开',
     filterCollapse: '收起',
@@ -294,6 +300,8 @@ export const patternsMessages: MessageTable<PatternsMessages> = {
   },
   'en-US': {
     filterSearch: 'Search',
+    workbenchStripe: 'Tool windows',
+    workbenchHide: (title) => `Hide ${title}`,
     filterReset: 'Reset',
     filterExpand: 'More filters',
     filterCollapse: 'Fewer filters',

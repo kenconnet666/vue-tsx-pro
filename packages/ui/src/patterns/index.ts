@@ -1,7 +1,8 @@
 /**
  * 页面组合（子路径 `@zerodep-dev/vue-tsx-pro-ui/patterns`）：用核心组件拼好的页面级部件，后台应用直接拿来搭页面：
  * 应用外壳 AppShell、查询表格 QueryTable、分步表单 StepsForm、数据导入 DataImport、吸底操作栏 ActionBar、筛选条 FilterBar、通知中心 NotificationCenter、
- * 留言 CommentThread、看板 KanbanBoard、时限标记 DeadlineBadge、主题切换 ThemeSwitcher、认证页版式 AuthLayout、拼图滑块验证 SlideCaptcha、命令式的表单对话框 useFormDialog。
+ * * 留言 CommentThread、看板 KanbanBoard、时限标记 DeadlineBadge、主题切换 ThemeSwitcher、认证页版式 AuthLayout、拼图滑块验证 SlideCaptcha、命令式的表单对话框 useFormDialog、
+ * IDE 式的工作台 Workbench。
  *
  *   import { AppShell, FilterBar } from '@zerodep-dev/vue-tsx-pro-ui/patterns';
  *
@@ -74,6 +75,17 @@ export {
 } from './SlideCaptcha';
 export { StepsForm, type FormStep, type StepsFormProps } from './StepsForm';
 export { ThemeSwitcher, type ThemeSwitcherProps } from './ThemeSwitcher';
+export {
+  defaultWorkbenchLayout,
+  Workbench,
+  WorkbenchContext,
+  workbenchStyles,
+  type WorkbenchAnchor,
+  type WorkbenchLayout,
+  type WorkbenchProps,
+  type WorkbenchState,
+  type WorkbenchWindow,
+} from './Workbench';
 export {
   useFormDialog,
   type FormDialogField,
