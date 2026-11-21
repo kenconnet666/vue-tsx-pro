@@ -3,6 +3,12 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.36.0（2026-11-21）
+
+- NumberField 认相对的输入 `+=2`、`-=2`、`*=1.5`、`/=2`（也认全角和 ×、÷）：按当前值算，再夹到范围、对齐步长；加减的数按输入的单位（`format.scale`、百分比）换算，乘除是倍数。新属性 `onRelative`：给了时交出“按当前值算”的函数、不改自己的值（几个值一起改时各算各的）。
+- PropertyGrid、PropertyEditor 的数字（含向量的分量、颜色的 alpha）接上了相对的输入：`onSet` 收到的是按原来的值算的函数，多选时每个对象按自己的值算（几个实体的 x 各加 1）。
+- 新导出 `relativeNumeric`、`RelativeOperator`：按 number、bigint、Decimal 精确地加减乘除。
+
 ## 0.35.0（2026-11-21）
 
 - 新组件 PropertyGrid、PropertyEditor（主入口）：按字段描述画“名字加编辑器”的属性面板（数、开关、文字、枚举、向量、颜色、列表、对象、几种之一、JSON），改一处交出“路径加值”；可选字段设回默认值时去掉、多选的值显示“多个值”（`PROPERTY_MIXED`），使用方自己的种类经 `editors` 给编辑器。另有 `setPropertyPath`、`emptyPropertyValue`、`hasMixed` 和线性颜色与取色器之间的换算。
