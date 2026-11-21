@@ -640,6 +640,24 @@ export {
   type CheckboxProps,
 } from './input/Checkbox';
 export { ColorField, type ColorFieldManaged, type ColorFieldProps } from './input/ColorField';
+export {
+  CurveField,
+  curveFieldStyles,
+  evaluateCurve,
+  type CurveFieldManaged,
+  type CurveFieldProps,
+  type CurveInterpolations,
+  type CurveKey,
+} from './input/CurveField';
+export {
+  GradientField,
+  gradientCss,
+  gradientFieldStyles,
+  sampleGradient,
+  type GradientFieldManaged,
+  type GradientFieldProps,
+  type GradientStop,
+} from './input/GradientField';
 export { ColorPicker, colorPickerStyles, type ColorPickerProps } from './input/ColorPicker';
 export {
   Combobox,

@@ -257,6 +257,22 @@ export interface Lang {
   readonly sliderMin: string;
   /** 范围滑块里较大一端的滑块名称，默认“最大值” */
   readonly sliderMax: string;
+  /** 曲线的关键帧给读屏的名称：`(0.3, 1)` → “关键帧 x 0.3，y 1” */
+  readonly curveKey: (x: number, y: number) => string;
+  /** 曲线的关键帧的角色描述（aria-roledescription），默认“关键帧” */
+  readonly curveKeyRole: string;
+  /** 渐变条上的提示，默认“双击加一个色标” */
+  readonly gradientAddHint: string;
+  /** 渐变的色标的名称：`(2)` → “色标 2” */
+  readonly gradientStop: (index: number) => string;
+  /** 渐变的色标给读屏的取值：`(30, '#ff0000')` → “30%，#ff0000” */
+  readonly gradientStopValue: (percent: number, color: string) => string;
+  /** 选中色标的颜色输入的名称，默认“色标的颜色” */
+  readonly gradientStopColor: string;
+  /** 选中色标的位置输入的名称，默认“色标的位置” */
+  readonly gradientStopOffset: string;
+  /** 删除选中色标的按钮名称，默认“删除色标” */
+  readonly gradientStopRemove: string;
   /** 角标计数给读屏的说明：`(5)` → “5 条新消息” */
   readonly indicatorCount: (count: number) => string;
   /** 角标小圆点给读屏的说明，默认“有新消息” */

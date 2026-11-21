@@ -16,7 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- 新组件 CurveField（拖动关键帧编辑曲线：折线、平滑、阶梯；evaluateCurve 按同样的规则取值）、GradientField（编辑颜色渐变：拖色标、加删、改颜色和透明度；sampleGradient、gradientCss）。
 
 ## 每次发布
 
