@@ -32,6 +32,7 @@ const styles = css.create({
   run: { marginInlineStart: 'auto' },
   editor: { padding: '_md', fontFamily: '_mono' },
   list: { padding: '_sm', margin: 0, listStyle: 'none' },
+  pane: { display: 'block', padding: '_sm' },
 });
 
 export default _component(() => {
@@ -67,7 +68,11 @@ export default _component(() => {
       icon: SlidersHorizontal,
       anchor: 'right',
       detail: 'Button.tsx',
-      content: () => <Small tone="muted">选中的对象的属性</Small>,
+      content: () => (
+        <Small tone="muted" sx={styles.pane}>
+          选中的对象的属性
+        </Small>
+      ),
     },
     {
       id: 'output',
@@ -81,20 +86,24 @@ export default _component(() => {
           停止
         </Button>
       ),
-      content: () => <Code>vite ready in 312 ms</Code>,
+      content: () => (
+        <div {...css.attrs(styles.pane)}>
+          <Code>vite ready in 312 ms</Code>
+        </div>
+      ),
     },
   ];
   let layout = _state<WorkbenchLayout>(defaultWorkbenchLayout(windows()));
   return () => (
     <Workbench
-      {...css.attrs(styles.frame)}
+      sx={styles.frame}
       windows={windows()}
       _layout={layout}
       header={
         <div {...css.attrs(styles.bar)}>
           <strong>演示项目</strong>
           <Button
-            {...css.attrs(styles.run)}
+            sx={styles.run}
             size="sm"
             icon={Play}
             disabled={running}

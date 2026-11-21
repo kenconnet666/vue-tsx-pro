@@ -573,7 +573,9 @@ export const Workbench = _component(
       );
     };
 
-    /** 浮动的窗口：拖标题栏（按钮以外）挪，拖右下角改大小；放在工作区里 */
+    /** 浮动窗口所在的层（盖满工作区）：拖动、改大小不出它的边 */
+    let floatLayer: HTMLElement | null = null;
+    /** 浮动的窗口：拖标题栏（按钮以外）挪，拖右下角改大小；放在工作区里，画的时候和拖的时候都不超出工作区 */
     const floats = () =>
       windows
         .filter((window) => usable(window) && floatOf(window.id)?.open)
@@ -581,7 +583,16 @@ export const Workbench = _component(
           const rect = floatOf(window.id)!;
           const drag = (event: PointerEvent, resize: boolean) => {
             if (!resize && (event.target as Element).closest('button')) return;
-            const start = floatOf(window.id)!;
+            const stored = floatOf(window.id)!;
+            // 层还没排版（大小是 0，比如测试环境）时不限
+            const bounds = floatLayer?.getBoundingClientRect();
+            const maxX = bounds?.width || Infinity, maxY = bounds?.height || Infinity;
+            // 从画出来的大小开始（收进工作区的窗口比记下的小）
+            const start = {
+              ...stored,
+              width: Math.min(stored.width, maxX - stored.x),
+              height: Math.min(stored.height, maxY - stored.y),
+            };
             startMove(event, {
               threshold: resize ? 0 : 3,
               onMove: ({ deltaX, deltaY }) =>
@@ -590,13 +601,13 @@ export const Workbench = _component(
                   resize
                     ? {
                         ...start,
-                        width: Math.max(FLOAT_MIN, start.width + deltaX),
-                        height: Math.max(FLOAT_MIN, start.height + deltaY),
+                        width: Math.max(FLOAT_MIN, Math.min(start.width + deltaX, maxX - start.x)),
+                        height: Math.max(FLOAT_MIN, Math.min(start.height + deltaY, maxY - start.y)),
                       }
                     : {
                         ...start,
-                        x: Math.max(0, start.x + deltaX),
-                        y: Math.max(0, start.y + deltaY),
+                        x: Math.max(0, Math.min(start.x + deltaX, maxX - start.width)),
+                        y: Math.max(0, Math.min(start.y + deltaY, maxY - start.height)),
                       },
                 ),
             });
@@ -611,6 +622,9 @@ export const Workbench = _component(
                 top: `${rect.y}px`,
                 width: `${rect.width}px`,
                 height: `${rect.height}px`,
+                // 工作区比记下的大小小（新浮动的默认大小、工作台变小了）时收进工作区，右下角的把手总能拖到
+                maxWidth: `calc(100% - ${rect.x}px)`,
+                maxHeight: `calc(100% - ${rect.y}px)`,
               }}
             >
               {frame(window, (event) => drag(event, false))}
@@ -637,7 +651,12 @@ export const Workbench = _component(
           </nav>
           <div {...css.attrs(workbenchStyles.work)}>
             {work()}
-            <div {...css.attrs(workbenchStyles.floatLayer)}>{floats()}</div>
+            <div
+              ref={(element: unknown) => (floatLayer = element as HTMLElement | null)}
+              {...css.attrs(workbenchStyles.floatLayer)}
+            >
+              {floats()}
+            </div>
           </div>
           <nav
             {...css.attrs(workbenchStyles.stripe, workbenchStyles.stripeEnd)}
