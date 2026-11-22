@@ -614,10 +614,15 @@ export {
 export {
   Toolbar,
   ToolbarContext,
+  toolbarRecipe,
+  type ToolbarDocks,
   type ToolbarManaged,
+  type ToolbarOptions,
   type ToolbarOrientations,
+  type ToolbarPart,
   type ToolbarProps,
   type ToolbarState,
+  type ToolbarVariants,
 } from './navigation/Toolbar';
 
 // 输入
@@ -1036,7 +1041,12 @@ export {
 } from './form/Field';
 export { Form, FormContext, type FormProps } from './form/Form';
 export { FormErrorSummary, type FormErrorSummaryProps } from './form/FormErrorSummary';
-export { FormSection, type FormSectionManaged, type FormSectionProps } from './form/FormSection';
+export {
+  FormSection,
+  type FormSectionDensities,
+  type FormSectionManaged,
+  type FormSectionProps,
+} from './form/FormSection';
 export {
   FormValue,
   formValueText,
