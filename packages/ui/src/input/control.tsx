@@ -121,7 +121,14 @@ export const inputRecipe = css.recipe({
     // 前后的图标：次要颜色
     icon: { flexShrink: 0, color: '_textMuted' },
     // 前后缀文字（如 https://、元）：次要颜色，不换行；放不下时它先缩、截掉，输入的内容留着
-    affix: { flexShrink: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'clip', color: '_textMuted', whiteSpace: 'nowrap' },
+    affix: {
+      flexShrink: 1,
+      minWidth: 0,
+      overflow: 'hidden',
+      textOverflow: 'clip',
+      color: '_textMuted',
+      whiteSpace: 'nowrap',
+    },
     // 框里的小按钮：比独立的图标按钮紧凑，仍不小于 24px 的点击区域
     button: {
       flexShrink: 0,
