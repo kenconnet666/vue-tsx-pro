@@ -29,7 +29,7 @@
 
 ## 临时版
 
-使用方（stride-ts）迭代时不等测试和 npm：`node scripts/dev-release.mjs` 把四个包 pack 好挂到 GitHub 的预发行版 `dev-<提交>` 上（要求工作区干净、已推送），打印各包的下载地址，使用方用 pnpm override 指过去。正式版照下面攒一批再发。
+测试版：每次推到 master，CI（ci.yml）的第一个任务 `dev-release` 不等测试，把四个包 pack 好挂到滚动的预发行版 `dev` 上，文件名带提交号（`zerodep-dev-vue-tsx-pro-ui-<版本>-<提交前十位>.tgz`，留最近 30 个提交的），只有 `dev` 这一个标签跟着 master 走。使用方（stride-ts）在库目录里跑 `node scripts/dev-release.mjs [提交]`：等那个提交的包挂上去，打印各包的下载地址，用 pnpm override 指过去。正式版是打 `v*` 标签（下面），release.yml 发 npm。
 
 ## 每次发布
 

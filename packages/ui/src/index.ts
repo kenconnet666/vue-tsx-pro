@@ -693,6 +693,17 @@ export {
   type ImageCropperProps,
   type ImageCropShapes,
 } from './input/ImageCropper';
+export {
+  createImageRegionsController,
+  ImageRegions,
+  type ImageRegion,
+  type ImageRegionChange,
+  type ImageRegionManaged,
+  type ImageRegionsController,
+  type ImageRegionsImageManaged,
+  type ImageRegionsManaged,
+  type ImageRegionsProps,
+} from './input/ImageRegions';
 export { ListPopover, type ListPopoverManaged, type ListPopoverProps } from './input/ListPopover';
 export {
   activeOptionId,
