@@ -16,7 +16,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- **ui**：`Tree` 加 `onActivate(node)`：双击整行（展开箭头、勾选框除外）或按 Enter 时报告节点，像 IDE 的文件树里打开文件；之前只能在 `renderItem` 的文字上挂双击，点行的空白处打不开。
 
 ## 临时版
 
