@@ -15,7 +15,8 @@
  *   ];
  *
  * - 停靠：左、右两边各能上下放两个（left / leftBottom、right / rightBottom），下边一个、占满整宽（同 JetBrains 的默认）。
- *   同一处一次只显示一个，显示另一个时原来的让开。左侧竖条的上面一组是左边的窗口，下面一组是停在下边的；右侧竖条是右边的。
+ *   同一处一次只显示一个，显示另一个时原来的让开；窗口挪走后空出来的那一处换回停在那里的另一个，挪到一边的下面而上面空着时
+ *   上面的也显示出来（不然它独占一整边，看不出在下面）。左侧竖条的上面一组是左边的窗口，下面一组是停在下边的；右侧竖条是右边的。
  * - 主内容一直在：几层分栏一直都在，收起一边是把那一栏折叠起来——画布、iframe、视频不会因为开关工具窗口被重建。
  * - 布局（显示哪些、各占多大）是 _layout，父级双向绑定；要记住时配 usePersistentState（见上面的例子）。
  * - available 是 false 的窗口（跟着正在编辑的东西出现的：时间轴、调试）不显示、竖条上也没有它；showWhenAvailable 时它变得
@@ -23,8 +24,8 @@
  * - 工具窗口的标题栏：名字、detail（补充说明，比如打开的文件）、actions（这个窗口自己的按钮）、收起按钮。内容默认放进
  *   ScrollArea；scroll 是 self 时铺满、自己管滚动（树、表格、画布）。
  * - 挪窗口（同 JetBrains）：把竖条上的按钮拖到另一处（左侧竖条的上面一组是左边、下面一组是下边，右侧竖条是右边），或者用
- *   标题栏的菜单"移到"（五处都能选）；挪过的记在布局的 anchors 里。菜单里还能"浮动"：窗口浮在工作区上面，拖标题栏挪、拖右下角
- *   改大小（记在布局的 floating 里），"停靠"放回原处。
+ *   标题栏的菜单"移到"（五处都能选）；挪过的记在布局的 anchors 里。菜单里还能"浮动"：窗口浮在工作区上面，拖标题栏挪、拖左右
+ *   下三条边和下面两个角改大小（记在布局的 floating 里），"停靠"放回原处。
  * - 子组件经 WorkbenchContext 拿到 show / hide / toggle / moveTo / float / dock，在别处打开某个工具窗口（"在属性面板里查看"）。
  *
  * 部件（data-scope="workbench"）：Root、Body、Stripe（两侧的竖条）、StripeButton、Main（主内容）、Window（工具窗口）、
@@ -243,17 +244,45 @@ export const workbenchStyles = css.create({
     boxShadow: '_lg',
   },
   floatHeader: { cursor: 'move', touchAction: 'none' },
-  resize: {
-    position: 'absolute',
+  // 改大小的把手：左、右、下三条边和下面两个角（上边是标题栏，拖它挪窗口）；边是细条，角盖在边上面
+  resize: { position: 'absolute', touchAction: 'none', zIndex: 1 },
+  resizeLeft: { left: 0, top: 0, bottom: 0, width: '6px', cursor: 'ew-resize' },
+  resizeRight: { right: 0, top: 0, bottom: 0, width: '6px', cursor: 'ew-resize' },
+  resizeBottom: { left: 0, right: 0, bottom: 0, height: '6px', cursor: 'ns-resize' },
+  resizeBottomLeft: {
+    left: 0,
+    bottom: 0,
+    width: '12px',
+    height: '12px',
+    cursor: 'nesw-resize',
+    zIndex: 2,
+  },
+  resizeBottomRight: {
     right: 0,
     bottom: 0,
     width: '12px',
     height: '12px',
     cursor: 'nwse-resize',
-    touchAction: 'none',
-    zIndex: 1,
+    zIndex: 2,
   },
 });
+
+/** 浮动窗口改大小的把手：拖哪几条边（左、右、下） */
+const FLOAT_EDGES = {
+  left: { left: true },
+  right: { right: true },
+  bottom: { bottom: true },
+  bottomLeft: { left: true, bottom: true },
+  bottomRight: { right: true, bottom: true },
+} as const satisfies Record<string, { left?: true; right?: true; bottom?: true }>;
+type FloatEdge = keyof typeof FLOAT_EDGES;
+const FLOAT_EDGE_STYLES = {
+  left: workbenchStyles.resizeLeft,
+  right: workbenchStyles.resizeRight,
+  bottom: workbenchStyles.resizeBottom,
+  bottomLeft: workbenchStyles.resizeBottomLeft,
+  bottomRight: workbenchStyles.resizeBottomRight,
+} as const;
 
 /** 竖条的按钮拖动时 dataTransfer 里的种类（只认自己拖的） */
 const DRAG_TYPE = 'application/x-workbench-window';
@@ -333,14 +362,28 @@ export const Workbench = _component(
     const moveTo = (id: string, anchor: WorkbenchAnchor) => {
       const window = byId(id);
       if (!window) return;
-      // 原来那一处显示的是它的话空出来
       const shown = { ...layout!.shown };
       const from = anchorOf(window);
-      if (shown[from] === id) delete shown[from];
+      const vacated = shown[from] === id && from !== anchor;
+      if (vacated) delete shown[from];
       shown[anchor] = id;
       const floating = { ...layout!.floating };
       delete floating[id];
-      layout = { ...layout!, shown, floating, anchors: { ...layout!.anchors, [id]: anchor } };
+      const anchors = { ...layout!.anchors, [id]: anchor };
+      /** 一处空着时显示停在那里的另一个窗口（挪走前被它顶掉的那个） */
+      const refill = (at: WorkbenchAnchor) => {
+        if (shown[at] !== undefined) return;
+        const other = windows.find(
+          (w) => w.id !== id && usable(w) && !floating[w.id] && (anchors[w.id] ?? w.anchor) === at,
+        );
+        if (other) shown[at] = other.id;
+      };
+      // 原来那一处显示的是它：空出来以后换上那里的另一个，不留一块空着
+      if (vacated) refill(from);
+      // 挪到一边的下面而上面空着时，上面的也显示出来：不然它独占一整边，看不出是在“下面”
+      if (anchor === 'leftBottom') refill('left');
+      if (anchor === 'rightBottom') refill('right');
+      layout = { ...layout!, shown, floating, anchors };
     };
     const float = (id: string) => {
       const window = byId(id);
@@ -421,8 +464,10 @@ export const Workbench = _component(
       </div>
     );
 
+    // 按窗口 id 加 key：一处换了窗口时整个框（标题栏的菜单、内容）换新的，不复用上一个窗口的组件
     const frame = (window: WorkbenchWindow, header?: (event: PointerEvent) => void) => (
       <section
+        key={window.id}
         {...css.attrs(workbenchStyles.window)}
         {...workbenchPart('window')}
         aria-label={window.title}
@@ -575,14 +620,15 @@ export const Workbench = _component(
 
     /** 浮动窗口所在的层（盖满工作区）：拖动、改大小不出它的边 */
     let floatLayer: HTMLElement | null = null;
-    /** 浮动的窗口：拖标题栏（按钮以外）挪，拖右下角改大小；放在工作区里，画的时候和拖的时候都不超出工作区 */
+    /** 浮动的窗口：拖标题栏（按钮以外）挪，拖左、右、下边和下面两个角改大小；放在工作区里，画的时候和拖的时候都不超出工作区 */
     const floats = () =>
       windows
         .filter((window) => usable(window) && floatOf(window.id)?.open)
         .map((window) => {
           const rect = floatOf(window.id)!;
-          const drag = (event: PointerEvent, resize: boolean) => {
-            if (!resize && (event.target as Element).closest('button')) return;
+          /** edge 不写是挪窗口，写了是拖那几条边改大小 */
+          const drag = (event: PointerEvent, edge?: FloatEdge) => {
+            if (!edge && (event.target as Element).closest('button')) return;
             const stored = floatOf(window.id)!;
             // 层还没排版（大小是 0，比如测试环境）时不限
             const bounds = floatLayer?.getBoundingClientRect();
@@ -594,20 +640,29 @@ export const Workbench = _component(
               width: Math.min(stored.width, maxX - stored.x),
               height: Math.min(stored.height, maxY - stored.y),
             };
+            const sides: { left?: true; right?: true; bottom?: true } = edge
+              ? FLOAT_EDGES[edge]
+              : {};
+            const resized = (deltaX: number, deltaY: number): WorkbenchFloat => {
+              let { x, width, height } = start;
+              if (sides.left) {
+                // 左边往里拖到最小宽度为止、往外拖到工作区的左边为止，右边不动
+                x = Math.max(0, Math.min(start.x + deltaX, start.x + start.width - FLOAT_MIN));
+                width = start.width + start.x - x;
+              }
+              if (sides.right)
+                width = Math.max(FLOAT_MIN, Math.min(start.width + deltaX, maxX - start.x));
+              if (sides.bottom)
+                height = Math.max(FLOAT_MIN, Math.min(start.height + deltaY, maxY - start.y));
+              return { ...start, x, width, height };
+            };
             startMove(event, {
-              threshold: resize ? 0 : 3,
+              threshold: edge ? 0 : 3,
               onMove: ({ deltaX, deltaY }) =>
                 setFloat(
                   window.id,
-                  resize
-                    ? {
-                        ...start,
-                        width: Math.max(FLOAT_MIN, Math.min(start.width + deltaX, maxX - start.x)),
-                        height: Math.max(
-                          FLOAT_MIN,
-                          Math.min(start.height + deltaY, maxY - start.y),
-                        ),
-                      }
+                  edge
+                    ? resized(deltaX, deltaY)
                     : {
                         ...start,
                         x: Math.max(0, Math.min(start.x + deltaX, maxX - start.width)),
@@ -626,17 +681,21 @@ export const Workbench = _component(
                 top: `${rect.y}px`,
                 width: `${rect.width}px`,
                 height: `${rect.height}px`,
-                // 工作区比记下的大小小（新浮动的默认大小、工作台变小了）时收进工作区，右下角的把手总能拖到
+                // 工作区比记下的大小小（新浮动的默认大小、工作台变小了）时收进工作区，右边、下边的把手总能拖到
                 maxWidth: `calc(100% - ${rect.x}px)`,
                 maxHeight: `calc(100% - ${rect.y}px)`,
               }}
             >
-              {frame(window, (event) => drag(event, false))}
-              <div
-                {...css.attrs(workbenchStyles.resize)}
-                aria-hidden="true"
-                onPointerdown={(event: PointerEvent) => drag(event, true)}
-              />
+              {frame(window, (event) => drag(event))}
+              {(Object.keys(FLOAT_EDGES) as FloatEdge[]).map((edge) => (
+                <div
+                  key={edge}
+                  {...css.attrs(workbenchStyles.resize, FLOAT_EDGE_STYLES[edge])}
+                  aria-hidden="true"
+                  data-edge={edge}
+                  onPointerdown={(event: PointerEvent) => drag(event, edge)}
+                />
+              ))}
             </div>
           );
         });
