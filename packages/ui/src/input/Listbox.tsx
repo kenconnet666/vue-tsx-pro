@@ -181,7 +181,8 @@ const listboxStyles = css.create({
   // 网格的一格：内容竖排居中（缩略图在上、名字在下），已选的描一圈品牌色（和高亮的底色叠在一起也分得清）
   tile: {
     flexDirection: 'column',
-    justifyContent: 'center',
+    // 从上排起：名字折成两行的那一格，缩略图也和同一行的对齐
+    justifyContent: 'flex-start',
     gap: '_xs',
     paddingInline: '_xs',
     textAlign: 'center',
@@ -693,6 +694,11 @@ export const Listbox = _component(
               'aria-activedescendant': activeOptionId(list, prefix),
               onFocus: () => {
                 if (list.active === undefined) list.activateDefault();
+              },
+              // 选项按下时阻止了默认的聚焦（弹层里焦点要留在触发按钮、输入框上）；单独用的列表框点了要拿到焦点，之后方向键才管用
+              onPointerdown: (event: PointerEvent) => {
+                if (!state.disabled)
+                  (event.currentTarget as HTMLElement).focus({ preventScroll: true });
               },
               onKeydown,
             },

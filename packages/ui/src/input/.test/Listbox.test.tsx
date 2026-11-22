@@ -148,6 +148,21 @@ describe('Listbox', () => {
     expect(value).toBe('orange');
   });
 
+  it('点选项时列表拿到焦点：之后方向键接着用', async () => {
+    let value = _state<string | null>(null);
+    const root = mount(() => <Listbox items={fruits} _value={value} aria-label="水果" />);
+    await nextTick();
+    const listbox = root.querySelector<HTMLElement>('[role="listbox"]')!;
+    const cherry = [...root.querySelectorAll<HTMLElement>('[role="option"]')].find(
+      (option) => option.textContent === 'Cherry',
+    )!;
+    cherry.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, cancelable: true }));
+    cherry.click();
+    await nextTick();
+    expect(document.activeElement).toBe(listbox);
+    expect(value).toBe('cherry');
+  });
+
   it('不可用：点选项不改值，也不触发 onPick', async () => {
     let value = _state<string | null>('cherry');
     const picked: string[] = [];
