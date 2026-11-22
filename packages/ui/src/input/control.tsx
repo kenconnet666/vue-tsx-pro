@@ -104,7 +104,8 @@ export const inputRecipe = css.recipe({
         alignSelf: 'baseline',
         boxSizing: 'border-box',
         flexGrow: 1,
-        minWidth: 0,
+        // 窄的时候至少留几个字：后缀（单位）先让（见 affix），数值不会被挤没
+        minWidth: '4ch',
         minHeight: `calc(max(${t.sizes.control}, ${t.sizes.minTarget}) - 2 * ${t.borderWidths.xs})`,
         margin: 0,
         paddingBlock: '_xs',
@@ -119,8 +120,8 @@ export const inputRecipe = css.recipe({
     ],
     // 前后的图标：次要颜色
     icon: { flexShrink: 0, color: '_textMuted' },
-    // 前后缀文字（如 https://、元）：次要颜色，不换行
-    affix: { flexShrink: 0, color: '_textMuted', whiteSpace: 'nowrap' },
+    // 前后缀文字（如 https://、元）：次要颜色，不换行；放不下时它先缩、截掉，输入的内容留着
+    affix: { flexShrink: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'clip', color: '_textMuted', whiteSpace: 'nowrap' },
     // 框里的小按钮：比独立的图标按钮紧凑，仍不小于 24px 的点击区域
     button: {
       flexShrink: 0,
