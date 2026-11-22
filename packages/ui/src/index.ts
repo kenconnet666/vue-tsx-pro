@@ -699,6 +699,7 @@ export {
   Listbox,
   ListboxView,
   type ListboxBaseProps,
+  type ListboxLayouts,
   type ListboxProps,
   type ListboxViewProps,
   type OptionRenderState,
@@ -860,6 +861,8 @@ export {
   type InputPart,
 } from './input/control';
 export {
+  gridRows,
+  handleGridKeydown,
   handleListKeydown,
   toListboxOption,
   useListState,

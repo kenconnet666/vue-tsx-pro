@@ -303,3 +303,49 @@ export function handleListKeydown<T>(
   }
   return typeahead ? list.typeahead(event.key) : false;
 }
+
+/**
+ * 选项排成网格时的各行（Listbox 的 layout="grid"）：每行最多 columns 项，分组的第一项另起一行。渲染和 ↑↓ 用同一份，
+ * 看到的行和键盘跨的行一致
+ */
+export function gridRows<O extends ListboxOption>(options: readonly O[], columns: number): O[][] {
+  const rows: O[][] = [];
+  let group: string | undefined;
+  options.forEach((option, index) => {
+    const last = rows.at(-1);
+    if (!last || last.length >= columns || (index > 0 && option.group !== group))
+      rows.push([option]);
+    else last.push(option);
+    group = option.group;
+  });
+  return rows;
+}
+
+/**
+ * 网格里的方向键：←→ 前后一项（从右往左排版时反过来），↑↓ 上一行、下一行的同一列（那一行短时落在它的最后一项）。
+ * 返回是否处理了这个按键；别的键交给 handleListKeydown
+ */
+export function handleGridKeydown<T>(
+  list: ListState<T>,
+  event: KeyboardEvent,
+  columns: number,
+): boolean {
+  if (event.altKey || event.ctrlKey || event.metaKey || isComposingKey(event)) return false;
+  const target = event.currentTarget as Element | null;
+  const rtl = target instanceof Element && getComputedStyle(target).direction === 'rtl';
+  if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+    list.move((event.key === 'ArrowRight') !== rtl ? 1 : -1);
+    return true;
+  }
+  if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return false;
+  if (list.active === undefined) {
+    list.activateDefault();
+    return true;
+  }
+  const rows = gridRows(list.options, Math.max(1, columns));
+  const row = rows.findIndex((cells) => cells.some((option) => option.value === list.active));
+  const column = rows[row]!.findIndex((option) => option.value === list.active);
+  const next = rows[row + (event.key === 'ArrowDown' ? 1 : -1)];
+  if (next) list.setActive(next[Math.min(column, next.length - 1)]!.value);
+  return true;
+}

@@ -15,7 +15,14 @@
  * role="group" 包住组里的选项），组名经 aria-describedby 交给组里的每个选项。
  * loading：选项换成骨架行（首次加载与刷新一样，不再另加进度条）；'more'（远程分页取下一页）时骨架接在已有的选项后面；列表带 aria-busy。
  *
- * 部件：Root（div，role="listbox"）、GroupLabel、Option（div，role="option"）、Check（已选标记）、Skeleton（加载中的占位行）。
+ * layout="grid" 排成网格（缩略图、图标、颜色、材质这类按图挑的）：每格的宽度不小于 minItemWidth，放得下几列排几列（或固定
+ * columns 列），←→ 前后一项、↑↓ 上下一行的同一列，分组的第一项另起一行；照样按行虚拟滚动。
+ *
+ *   <Listbox items={materials} layout="grid" minItemWidth="6em" _value={material} aria-label="材质">
+ *     {(material) => <><Image src={material.thumbnail} alt="" /><Small>{material.name}</Small></>}
+ *   </Listbox>
+ *
+ * 部件：Root（div，role="listbox"）、GroupLabel、Cells（网格的一行）、Option（div，role="option"）、Check（已选标记）、Skeleton（加载中的占位行）。
  */
 import { Check } from '@lucide/icons';
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
@@ -44,7 +51,10 @@ import { focusRingStyles } from '../utils/style/styles';
 import { useVirtualizer } from '../utils/virtual/use-virtualizer';
 import { defaultRangeExtractor, type VisibleRange } from '../utils/virtual/virtualizer';
 import { useFieldControl } from '../form/Field';
+import { t } from '../config/theme/tokens';
 import {
+  gridRows,
+  handleGridKeydown,
   handleListKeydown,
   useListState,
   type ListboxOption,
@@ -60,6 +70,14 @@ export interface OptionRenderState {
   selected: boolean;
   /** 高亮（键盘或指针所在） */
   active: boolean;
+}
+
+/** 选项的排法 */
+export interface ListboxLayouts {
+  /** 一行一项（默认） */
+  list: unknown;
+  /** 排成网格：缩略图、图标、颜色、材质这类按图挑的；←→ 前后一项，↑↓ 上下一行 */
+  grid: unknown;
 }
 
 /** 选项的部件属性：可以按选项（items 里的原始数据）计算 */
@@ -81,8 +99,16 @@ export interface ListboxViewProps<T> extends PartProps<'div', 'role'> {
   loading?: boolean | 'more';
   /** 可见范围变化（行号含分组标题）：远程分页时接近末尾取下一页 */
   onRangeChange?: (range: VisibleRange) => void;
-  /** 选项的估计高度（px），默认 36；渲染后以实际高度为准 */
+  /** 选项（网格时是一行）的估计高度（px），默认一行一项时 36、网格时 96；渲染后以实际高度为准 */
   estimateSize?: number;
+  /** 排法，默认 list */
+  layout?: keyof ListboxLayouts;
+  /** 网格时固定几列；不写时按 minItemWidth 放得下几列排几列 */
+  columns?: number;
+  /** 网格时每格的最小宽度（CSS 长度），默认 `'6em'` */
+  minItemWidth?: string;
+  /** 网格实际排成了几列（容器变宽变窄时跟着变）：管键盘的一方据此让 ↑↓ 跨一行 */
+  onColumnsChange?: (columns: number) => void;
   /** 自定义选项内容：拿到 items 里的原始数据 */
   renderOption?: (item: T, state: OptionRenderState) => VNodeChild;
   /** 没有选项时显示的内容；默认是 Empty（文案取语言包） */
@@ -101,16 +127,20 @@ export interface ListboxViewProps<T> extends PartProps<'div', 'role'> {
   propsSkeleton?: SkeletonShapeProps;
 }
 
-/** 渲染用的一行：分组标题或选项 */
+/** 一个选项和它的位置 */
+interface OptionRow<T> {
+  kind: 'option';
+  key: string;
+  option: ListStateEntry<T>;
+  index: number;
+  groupId: string | undefined;
+}
+
+/** 渲染用的一行：分组标题、选项，或网格的一行选项 */
 type Row<T> =
   | { kind: 'group'; key: string; label: string; id: string }
-  | {
-      kind: 'option';
-      key: string;
-      option: ListStateEntry<T>;
-      index: number;
-      groupId: string | undefined;
-    };
+  | OptionRow<T>
+  | { kind: 'cells'; key: string; cells: OptionRow<T>[] };
 
 /** 加载中显示几行骨架：没有选项时铺几行，远程分页取下一页时接在末尾几行 */
 const SKELETON_ROWS = 4;
@@ -146,6 +176,20 @@ const listboxStyles = css.create({
   check: { flexShrink: 0 },
   hidden: { visibility: 'hidden' },
   skeleton: { display: 'block', height: '1em', marginBlock: '0.625em', marginInline: '_sm' },
+  // 网格的一行：各格等宽；行和行之间留出和列之间一样的空
+  cells: { display: 'grid', gap: '_xs', paddingBlockEnd: '_xs' },
+  // 网格的一格：内容竖排居中（缩略图在上、名字在下），已选的描一圈品牌色（和高亮的底色叠在一起也分得清）
+  tile: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    gap: '_xs',
+    paddingInline: '_xs',
+    textAlign: 'center',
+    minWidth: 0,
+    boxShadow: { default: null, _selected: `inset 0 0 0 ${t.borderWidths.sm} ${t.colors.accent}` },
+  },
+  // 量网格放得下几列：和网格的一行同样的列定义，看浏览器排出几条轨道
+  probe: { height: 0, overflow: 'hidden', visibility: 'hidden' },
 });
 
 // 行的位置是任意值，用动态样式；单独一个 create，见 COMPONENTS.md §4
@@ -154,6 +198,10 @@ const listboxPositionStyles = css.create({
   y: (px: number) => ({ transform: `translateY(${px}px)` }),
   height: (px: number) => ({ height: px }),
   width: (percent: string) => ({ width: percent }),
+  columns: (count: number) => ({ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }),
+  autoFill: (minWidth: string) => ({
+    gridTemplateColumns: `repeat(auto-fill, minmax(min(${minWidth}, 100%), 1fr))`,
+  }),
 });
 
 /** 列表的渲染层：虚拟滚动的选项、分组标题、已选标记、空状态与加载中；不管焦点，指针悬停高亮、点击选中 */
@@ -165,7 +213,11 @@ export const ListboxView = _component(
     scroller,
     loading = false,
     onRangeChange,
-    estimateSize = 36,
+    estimateSize,
+    layout = 'list',
+    columns: fixedColumns,
+    minItemWidth = '6em',
+    onColumnsChange,
     renderOption,
     empty,
     onPick,
@@ -181,10 +233,61 @@ export const ListboxView = _component(
     const indicator = useDelayedLoading(() => loading !== false);
     let root = _state.raw<HTMLElement | null>(null);
     let sizer = _state.raw<HTMLElement | null>(null);
+    let probe = _state.raw<HTMLElement | null>(null);
+    const grid = () => layout === 'grid';
 
-    /** 选项按分组排好后展开成行：每组前插一行标题 */
+    /** 网格按宽度排了几列：量一行同样列定义的探针，看浏览器排出几条轨道（列宽是 em、容器在变时都对） */
+    let measuredColumns = _state(1);
+    _effect(() => {
+      const element = probe;
+      if (!grid() || fixedColumns !== undefined || !element) return undefined;
+      const update = () => {
+        const tracks = getComputedStyle(element).gridTemplateColumns.trim();
+        // 没排版（测试环境）时拿到的是原样的 repeat(…)：当一列
+        const count = tracks.startsWith('repeat') ? 1 : tracks.split(/\s+/).filter(Boolean).length;
+        if (count > 0 && count !== measuredColumns) measuredColumns = count;
+      };
+      const observer = new ResizeObserver(update);
+      observer.observe(element);
+      update();
+      return () => observer.disconnect();
+    });
+    const columnCount = () => (grid() ? Math.max(1, fixedColumns ?? measuredColumns) : 1);
+    watch(columnCount, (count) => onColumnsChange?.(count), { immediate: true });
+
+    /** 选项按分组排好后展开成行：每组前插一行标题；网格时同一组的选项每 columns 个一行 */
     const rows = _derived.by<Row<T>[]>(() => {
       const result: Row<T>[] = [];
+      if (grid()) {
+        let group: string | undefined;
+        let headerId: string | undefined;
+        let index = 0;
+        for (const cells of gridRows(list.options, columnCount())) {
+          const first = cells[0]!;
+          if (first.group != null && first.group !== group) {
+            headerId = `${id}-group-${result.length}`;
+            result.push({
+              kind: 'group',
+              key: `group:${first.group}`,
+              label: first.group,
+              id: headerId,
+            });
+          }
+          group = first.group;
+          result.push({
+            kind: 'cells',
+            key: `cells:${first.value}`,
+            cells: cells.map((option) => ({
+              kind: 'option',
+              key: option.value,
+              option,
+              index: index++,
+              groupId: option.group != null ? headerId : undefined,
+            })),
+          });
+        }
+        return result;
+      }
       let group: string | undefined;
       let headerId: string | undefined;
       list.options.forEach((option, index) => {
@@ -214,6 +317,7 @@ export const ListboxView = _component(
       const map = new Map<string, number>();
       rows.forEach((row, index) => {
         if (row.kind === 'option') map.set(row.option.value, index);
+        if (row.kind === 'cells') for (const cell of row.cells) map.set(cell.option.value, index);
       });
       return map;
     });
@@ -224,7 +328,7 @@ export const ListboxView = _component(
       // 读一下高亮项：它变了要重新算渲染范围（高亮项总要渲染）
       const active = activeRow();
       // 先读出来：每一项都要调用一次估计高度，不要每次都经过 props 的响应式读取
-      const size = estimateSize;
+      const size = estimateSize ?? (grid() ? 96 : 36);
       return {
         count: current.length,
         scrollElement: scroller === undefined ? root : scroller,
@@ -264,7 +368,7 @@ export const ListboxView = _component(
      * 使用方的函数可能读别的状态，缓存了会显示旧内容
      */
     const memoCache: VNode[] = [];
-    function optionRow(row: Extract<Row<T>, { kind: 'option' }>) {
+    function optionRow(row: OptionRow<T>) {
       if (renderOption || typeof propsOption === 'function') return renderOptionRow(row);
       const { option } = row;
       return withMemo(
@@ -277,6 +381,7 @@ export const ListboxView = _component(
           list.options.length,
           propsOption,
           propsCheck,
+          layout,
         ],
         () => renderOptionRow(row),
         memoCache,
@@ -284,7 +389,7 @@ export const ListboxView = _component(
       );
     }
 
-    function renderOptionRow(row: Extract<Row<T>, { kind: 'option' }>) {
+    function renderOptionRow(row: OptionRow<T>) {
       const { option, index } = row;
       const state = {
         selected: list.isSelected(option.value),
@@ -295,7 +400,7 @@ export const ListboxView = _component(
         <div
           {...mergeAttrs<'div'>(
             {
-              sx: [itemStyles.row, itemStyles.states],
+              sx: [itemStyles.row, itemStyles.states, grid() && listboxStyles.tile],
             },
             own,
             {
@@ -337,12 +442,15 @@ export const ListboxView = _component(
               </span>
             </>
           )}
-          <Icon
-            {...mergePartProps<IconProps>(
-              { icon: Check, sx: [listboxStyles.check, !state.selected && listboxStyles.hidden] },
-              propsCheck,
-            )}
-          />
+          {/* 网格里已选的是一圈描边，不另画勾 */}
+          {!grid() && (
+            <Icon
+              {...mergePartProps<IconProps>(
+                { icon: Check, sx: [listboxStyles.check, !state.selected && listboxStyles.hidden] },
+                propsCheck,
+              )}
+            />
+          )}
         </div>
       );
     }
@@ -402,7 +510,18 @@ export const ListboxView = _component(
                 {...css.attrs(listboxStyles.row, listboxPositionStyles.y(item.start))}
                 {...listboxPart('row')}
               >
-                {row.kind === 'group' ? (
+                {row.kind === 'cells' ? (
+                  <div
+                    role="presentation"
+                    {...css.attrs(
+                      listboxStyles.cells,
+                      listboxPositionStyles.columns(columnCount()),
+                    )}
+                    {...listboxPart('cells')}
+                  >
+                    {row.cells.map(optionRow)}
+                  </div>
+                ) : row.kind === 'group' ? (
                   <Text
                     {...mergePartProps<TextProps>(
                       { tone: 'muted', size: 'sm', sx: listboxStyles.groupLabel },
@@ -421,7 +540,21 @@ export const ListboxView = _component(
           })}
         </div>
       );
-      return indicator.value ? [options, ...skeletonRows(MORE_SKELETON_ROWS)] : options;
+      const body = indicator.value ? [options, ...skeletonRows(MORE_SKELETON_ROWS)] : [options];
+      if (!grid() || fixedColumns !== undefined) return body;
+      const measure = (
+        <div
+          key="probe"
+          ref={_toRef(probe)}
+          aria-hidden="true"
+          {...css.attrs(
+            listboxStyles.cells,
+            listboxStyles.probe,
+            listboxPositionStyles.autoFill(minItemWidth),
+          )}
+        />
+      );
+      return [measure, ...body];
     }
 
     return () => {
@@ -521,8 +654,14 @@ export const Listbox = _component(
       },
     });
 
+    /** 网格实际排了几列（ListboxView 量出来的）：↑↓ 跨一行 */
+    let columns = 1;
     function onKeydown(event: KeyboardEvent) {
       if (control().disabled) return;
+      if (rest.layout === 'grid' && handleGridKeydown(list, event, columns)) {
+        event.preventDefault();
+        return;
+      }
       if (handleListKeydown(list, event, { space: true, typeahead: true }, onPick)) {
         event.preventDefault();
       }
@@ -540,6 +679,7 @@ export const Listbox = _component(
               multiple: selectionMode === 'multiple',
               renderOption: children,
               onPick: state.disabled || state.readonly ? undefined : onPick,
+              onColumnsChange: (count: number) => (columns = count),
             },
             rest as Partial<ListboxViewProps<T>>,
             {

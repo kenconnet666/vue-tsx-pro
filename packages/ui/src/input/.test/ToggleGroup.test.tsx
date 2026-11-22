@@ -68,6 +68,22 @@ describe('ToggleGroup', () => {
     expect([inField, alone]).toEqual(['list', null]);
   });
 
+  it('wrap：放不下时折行；默认不折行', () => {
+    const root = mount(() => (
+      <>
+        <ToggleGroup wrap aria-label="类别">
+          <ToggleItem value="a">金属</ToggleItem>
+        </ToggleGroup>
+        <ToggleGroup aria-label="对齐">
+          <ToggleItem value="b">左</ToggleItem>
+        </ToggleGroup>
+      </>
+    ));
+    const [wrapped, plain] = [...root.querySelectorAll<HTMLElement>('[role="group"]')];
+    expect(getComputedStyle(wrapped!).flexWrap).toBe('wrap');
+    expect(getComputedStyle(plain!).flexWrap).not.toBe('wrap');
+  });
+
   it('多选：每项独立切换；整组不可用时都不能点', async () => {
     let marks = _state<string[]>([]);
     let disabled = _state(false);

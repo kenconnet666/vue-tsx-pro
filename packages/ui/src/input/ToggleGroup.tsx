@@ -73,6 +73,8 @@ export interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManage
   orientation?: keyof ToggleGroupOrientations;
   /** 字号档位，按钮随之缩放 */
   size?: TextSize;
+  /** 一行放不下时折行（类别、标签这类项多的筛选）；默认不折行 */
+  wrap?: boolean;
   /** 按下时的波纹；不写时沿用全局配置 */
   ripple?: boolean;
   /** 单选时选中项下面的滑块（切换时滑过去）的部件属性 */
@@ -83,7 +85,7 @@ export interface ToggleGroupBaseProps extends PartProps<'div', ToggleGroupManage
 /** 单选或多选 */
 export type ToggleGroupProps = ToggleGroupBaseProps & SelectionProps;
 
-/** ToggleGroup 的样式：root、vertical、indicator */
+/** ToggleGroup 的样式：root、vertical、wrap、indicator */
 const toggleGroupStyles = css.create({
   root: {
     // 滑块按项的 offsetLeft / offsetTop 定位；isolation 让 zIndex: -1 的滑块压在项下、组的底色之上
@@ -98,6 +100,8 @@ const toggleGroupStyles = css.create({
     backgroundColor: '_fill',
   },
   vertical: { flexDirection: 'column' },
+  // 折行时滑块照样按项的 offsetLeft / offsetTop 落在选中项上
+  wrap: { flexWrap: 'wrap' },
   // 只读、没选中的项：不像能点（悬停也不出底色）
   readonlyItem: { cursor: 'default', backgroundColor: 'transparent' },
   // 同按钮的 surface 外观；位置与宽高由脚本写（useActiveIndicator）。脚本按 offsetLeft / offsetTop（物理坐标）平移，
@@ -127,6 +131,7 @@ export const ToggleGroup = _component(
     readonly,
     orientation = 'horizontal',
     size,
+    wrap = false,
     ripple,
     propsIndicator,
     children,
@@ -192,6 +197,7 @@ export const ToggleGroup = _component(
               sx: [
                 toggleGroupStyles.root,
                 orientation === 'vertical' && toggleGroupStyles.vertical,
+                wrap && toggleGroupStyles.wrap,
               ],
             },
             rest,

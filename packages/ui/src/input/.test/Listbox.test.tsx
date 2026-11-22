@@ -97,6 +97,57 @@ describe('Listbox', () => {
     expect(active()!.getAttribute('aria-selected')).toBe('true');
   });
 
+  it('layout="grid"：每 columns 项一行、分组另起一行；←→ 前后一项，↑↓ 上下一行的同一列，短行落在末项', async () => {
+    const colors: ListboxOption[] = [
+      ...['red', 'orange', 'yellow', 'green', 'cyan'].map((value) => ({
+        value,
+        label: value,
+        group: '暖',
+      })),
+      ...['blue', 'violet'].map((value) => ({ value, label: value, group: '冷' })),
+    ];
+    let value = _state<string | null>('red');
+    const root = mount(() => (
+      <Listbox items={colors} layout="grid" columns={3} _value={value} aria-label="颜色" />
+    ));
+    await nextTick();
+    const rows = [...root.querySelectorAll('[data-part="cells"]')].map((row) =>
+      [...row.querySelectorAll('[role="option"]')].map((option) => option.textContent),
+    );
+    // 暖色五个排两行（3 + 2），冷色另起一行
+    expect(rows).toEqual([
+      ['red', 'orange', 'yellow'],
+      ['green', 'cyan'],
+      ['blue', 'violet'],
+    ]);
+    // 网格里已选的是描边，不画勾
+    expect(root.querySelector('[role="option"] svg')).toBeNull();
+    const listbox = root.querySelector<HTMLElement>('[role="listbox"]')!;
+    listbox.dispatchEvent(new FocusEvent('focus'));
+    await nextTick();
+    const active = () =>
+      document.getElementById(listbox.getAttribute('aria-activedescendant')!)!.textContent;
+    const press = async (key: string) => {
+      listbox.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }));
+      await nextTick();
+      return active();
+    };
+    expect(active()).toBe('red');
+    expect(await press('ArrowRight')).toBe('orange');
+    expect(await press('ArrowRight')).toBe('yellow');
+    // 下一行只有两项：落在它的最后一项
+    expect(await press('ArrowDown')).toBe('cyan');
+    expect(await press('ArrowDown')).toBe('violet');
+    expect(await press('ArrowUp')).toBe('cyan');
+    expect(await press('ArrowLeft')).toBe('green');
+    expect(await press('ArrowUp')).toBe('red');
+    // 到第一行再往上不动；Enter 照常选中
+    expect(await press('ArrowUp')).toBe('red');
+    await press('ArrowRight');
+    await press('Enter');
+    expect(value).toBe('orange');
+  });
+
   it('不可用：点选项不改值，也不触发 onPick', async () => {
     let value = _state<string | null>('cherry');
     const picked: string[] = [];

@@ -1,5 +1,5 @@
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { Code } from '@zerodep-dev/vue-tsx-pro-ui';
+import { Code, Kbd } from '@zerodep-dev/vue-tsx-pro-ui';
 import api from 'virtual:api/ListboxBaseProps';
 import listboxViewApi from 'virtual:api/ListboxViewProps';
 import { ApiReference } from '../../../site/ApiReference';
@@ -8,6 +8,7 @@ import { Example } from '../../../site/Example';
 import { ExampleColumn, Examples } from '../../../site/Examples';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import Columns from './demo/Columns.tsx?demo';
+import Materials from './demo/Materials.tsx?demo';
 import Plans from './demo/Plans.tsx?demo';
 import Remote from './demo/Remote.tsx?demo';
 
@@ -39,11 +40,18 @@ export default _component(() => () => (
           <Code>empty</Code> 换掉默认的空状态。<Code>onPick</Code> 在每次点选（点击或
           Enter）时调用，再点已选的那项也算，适合“选中即执行”。
         </Example>
+        <Example id="grid" title="网格：按样子挑" demo={Materials}>
+          <Code>layout="grid"</Code> 排成网格，每格不窄于 <Code>minItemWidth</Code>
+          、放得下几列排几列（或固定 <Code>columns</Code> 列）；分组的第一项另起一行。<Kbd>←</Kbd>{' '}
+          <Kbd>→</Kbd> 前后一项，<Kbd>↑</Kbd> <Kbd>↓</Kbd>{' '}
+          上下一行的同一列；已选的描一圈品牌色。照样按行虚拟滚动。
+        </Example>
       </ExampleColumn>
     </Examples>
     <KeyboardReference
       keys={[
-        ['↓ / ↑', '移动高亮，跳过不可用的项'],
+        ['↓ / ↑', '移动高亮，跳过不可用的项；网格时上下一行的同一列'],
+        ['← / →', '网格时前后一项'],
         ['Home / End / PageUp / PageDown', '移到第一项、最后一项，或按一屏移动'],
         ['字母键', '移到下一个以它开头的项'],
         ['Enter / Space', '选中高亮的项；多选时切换勾选'],
