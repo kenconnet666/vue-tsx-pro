@@ -3,6 +3,10 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.38.0（2026-11-22）
+
+- **ui**：`Tree` 加 `onActivate(node)`：双击整行（展开箭头、勾选框除外）或按 Enter 时报告节点，像 IDE 的文件树里打开文件；之前只能在 `renderItem` 的文字上挂双击，点行的空白处打不开。
+
 ## 0.37.1（2026-11-21）
 
 - **Workbench 的浮动窗口不出工作区**：画的时候宽高不超过工作区（新浮动的默认 420 × 320 放不下、工作台变小了都收进来，右下角改大小的把手总能拖到），拖标题栏挪、拖右下角改大小也停在工作区的边上。
