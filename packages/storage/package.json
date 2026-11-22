@@ -2,7 +2,7 @@
   "name": "@zerodep-dev/storage",
   "version": "0.1.0",
   "description": "Pluggable front-end storage: one async driver interface over IndexedDB, localStorage and memory, with a TTL / stale-while-revalidate cache on top",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "author": "lionheart (https://github.com/kenconnet666)",
   "homepage": "https://github.com/kenconnet666/vue-tsx-pro/tree/master/packages/storage#readme",
   "bugs": {

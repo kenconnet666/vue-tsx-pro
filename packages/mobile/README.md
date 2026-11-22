@@ -27,4 +27,4 @@ import { Button, Cell, CellGroup, ConfigProvider } from '@zerodep-dev/vue-tsx-pr
 - 省市区数据在子路径 `@zerodep-dev/vue-tsx-pro-mobile/area`，用到才加载。
 - 写法约束（小程序里能用的元素与样式条件）、各组件的取舍见仓库里的 `packages/mobile/MOBILE.md`。
 
-文档与在线示例：仓库的文档站「移动端」分区。许可：MIT。
+文档与在线示例：仓库的文档站「移动端」分区。许可：Apache-2.0。

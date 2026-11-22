@@ -42,4 +42,4 @@ export const Counter = _component(({ step = 1 }: { step?: number }) => {
 
 要求 Vue 3.5+、Vite 8。上手与样式指南见文档站 <https://vue-tsx-pro.zerodep.dpdns.org>；符文与样式的完整说明见仓库里的 [packages/tsx/RUNES.md](https://github.com/kenconnet666/vue-tsx-pro/blob/master/packages/tsx/RUNES.md)、[packages/tsx/STYLE-ENGINE.md](https://github.com/kenconnet666/vue-tsx-pro/blob/master/packages/tsx/STYLE-ENGINE.md)。
 
-MIT License
+Apache-2.0

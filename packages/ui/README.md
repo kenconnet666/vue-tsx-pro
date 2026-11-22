@@ -31,4 +31,4 @@ import { Button, Card, Flex } from '@zerodep-dev/vue-tsx-pro-ui';
 
 要求 Vue 3.5+、Vite 8，并配好 `@zerodep-dev/vue-tsx-pro-tsx` 的 Vite 预设。文档与示例见文档站：<https://vue-tsx-pro.zerodep.dpdns.org>（[上手](https://vue-tsx-pro.zerodep.dpdns.org/guide/getting-started)），源码在 <https://github.com/kenconnet666/vue-tsx-pro>。
 
-MIT License
+Apache-2.0

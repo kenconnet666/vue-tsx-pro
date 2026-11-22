@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "description": "Full-stack framework on Nitro: per-page SSR, CSR or prerender, loaders and typed actions, request context, sessions and permissions, built on the vue-tsx-pro component library",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,
   "exports": {

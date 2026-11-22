@@ -3,7 +3,7 @@
   "version": "0.39.0",
   "description": "vue-tsx-pro 组件库",
   "type": "module",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "author": "kenconnet666",
   "repository": {
     "type": "git",
