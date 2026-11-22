@@ -11,6 +11,7 @@
  * 也是一层字段布局（field-layout）：标签位置、宽度、对齐、只读、不可用写在这里只作用于这一组，没写的沿用 Form 的。
  * collapsible 时标题是展开收起的按钮（aria-expanded），收起的字段不能被 Tab 到。
  * 给了 id 就能当锚点：长表单旁边放一个 TableOfContents（items 用各组的 id 与标题）做分节导航，跳过来时让开粘性顶栏。
+ * density="compact" 是紧凑的一组（编辑器的属性面板、设置抽屉里一个组件一节）：标题、间距都小一档，标题栏和字段贴得近。
  * 语义：role="group" 以标题为名称、说明为描述，标题是 h2–h6（headingLevel），读屏能按标题跳转。
  *
  * 部件：Root（div）、Header（div）、Heading（h2–h6）、Trigger（ButtonBase，collapsible 时）、Chevron（Icon）、
@@ -35,6 +36,14 @@ import { partAttrs } from '../config/styles';
 /** 角色与关联由组件管理；原生的 title 属性让给标题内容 */
 export type FormSectionManaged = 'role' | 'title' | 'aria-labelledby' | 'aria-describedby';
 
+/** 疏密 */
+export interface FormSectionDensities {
+  /** 表单的间距（默认）：字段之间、标题栏与字段之间留得宽 */
+  standard: unknown;
+  /** 紧凑：属性面板、检查器里一节挨一节，标题是正文字号，字段行之间只留一点 */
+  compact: unknown;
+}
+
 /** 未声明的属性落到外层 div 上 */
 export interface FormSectionProps extends PartProps<'div', FormSectionManaged>, FieldLayout {
   /** 标题；不写时没有标题栏，只是一层栅格与字段布局 */
@@ -49,6 +58,8 @@ export interface FormSectionProps extends PartProps<'div', FormSectionManaged>, 
   columns?: number;
   /** 每列的最小宽度（CSS 长度），默认 `'26em'`：标签在起始边时放得下标签、控件与横排的三四个选项 */
   minColumnWidth?: string;
+  /** 疏密，默认 standard */
+  density?: keyof FormSectionDensities;
   /** 可以展开收起：标题变成按钮 */
   collapsible?: boolean;
   /** 是否展开（collapsible 时）：父级写 _open={x}，默认展开 */
@@ -135,6 +146,14 @@ const formSectionStyles = css.create({
   },
 });
 
+/** FormSection 紧凑时叠加的样式：root、header、heading、body */
+const formSectionCompactStyles = css.create({
+  root: { gap: '_xs' },
+  header: { alignItems: 'center', paddingBlockEnd: '_xxs' },
+  heading: { fontSize: 'inherit', fontWeight: '_semibold' },
+  body: { rowGap: '_xs' },
+});
+
 /** FormSection 的样式：columns（最多几列、每列不窄于多少） */
 const formSectionColumnStyles = css.create({
   columns: (count: number, minWidth: string) => ({
@@ -151,6 +170,7 @@ export const FormSection = _component(
     headingLevel = 3,
     columns = 1,
     minColumnWidth = '26em',
+    density = 'standard',
     collapsible = false,
     _open: open = _bindable(true),
     labelPlacement,
@@ -178,6 +198,7 @@ export const FormSection = _component(
 
     return () => {
       const expanded = !collapsible || open;
+      const compact = density === 'compact';
       const state = expanded ? 'open' : 'closed';
       const titleContent = collapsible ? (
         <ButtonBase
@@ -213,6 +234,7 @@ export const FormSection = _component(
             {
               sx: [
                 formSectionStyles.body,
+                compact && formSectionCompactStyles.body,
                 columns > 1 && formSectionColumnStyles.columns(columns, minColumnWidth),
               ],
               ...formSectionPart('body'),
@@ -226,17 +248,28 @@ export const FormSection = _component(
       );
       return (
         <div
-          {...mergeAttrs<'div'>({ sx: formSectionStyles.root, ...formSectionPart('root') }, rest, {
-            role: hasContent(title) ? 'group' : undefined,
-            'aria-labelledby': hasContent(title) ? ids.title : undefined,
-            'aria-describedby': hasContent(description) ? ids.description : undefined,
-          })}
+          {...mergeAttrs<'div'>(
+            {
+              sx: [formSectionStyles.root, compact && formSectionCompactStyles.root],
+              ...formSectionPart('root'),
+            },
+            rest,
+            {
+              role: hasContent(title) ? 'group' : undefined,
+              'aria-labelledby': hasContent(title) ? ids.title : undefined,
+              'aria-describedby': hasContent(description) ? ids.description : undefined,
+            },
+          )}
           data-state={collapsible ? state : undefined}
+          data-density={density}
         >
           {(hasContent(title) || hasContent(extra)) && (
             <div
               {...mergeAttrs<'div'>(
-                { sx: formSectionStyles.header, ...formSectionPart('header') },
+                {
+                  sx: [formSectionStyles.header, compact && formSectionCompactStyles.header],
+                  ...formSectionPart('header'),
+                },
                 propsHeader,
               )}
             >
@@ -244,7 +277,15 @@ export const FormSection = _component(
                 {hasContent(title) &&
                   h(
                     `h${headingLevel}`,
-                    mergeAttrs<'h3'>({ sx: formSectionStyles.heading }, propsHeading),
+                    mergeAttrs<'h3'>(
+                      {
+                        sx: [
+                          formSectionStyles.heading,
+                          compact && formSectionCompactStyles.heading,
+                        ],
+                      },
+                      propsHeading,
+                    ),
                     [titleContent],
                   )}
                 {hasContent(description) && (

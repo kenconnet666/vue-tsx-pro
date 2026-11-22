@@ -28,6 +28,22 @@ describe('FormSection', () => {
     );
   });
 
+  it('density="compact"：标出疏密，紧凑的一节和标准的合成不同的类，标题用正文字号', () => {
+    const root = mount(() => (
+      <>
+        <FormSection title="变换" density="compact">
+          a
+        </FormSection>
+        <FormSection title="变换">b</FormSection>
+      </>
+    ));
+    const [compact, standard] = [...root.querySelectorAll<HTMLElement>('[role="group"]')];
+    expect(compact!.dataset.density).toBe('compact');
+    expect(standard!.dataset.density).toBe('standard');
+    expect(compact!.className).not.toBe(standard!.className);
+    expect(styleTextOf(compact!.querySelector('h3')!)).toMatch(/font-size:s*inherit/);
+  });
+
   it('没有标题时不是 group，只是一层栅格；columns 多列时写最多几列与最小列宽', () => {
     const root = mount(() => (
       <FormSection columns={2} minColumnWidth="18em">

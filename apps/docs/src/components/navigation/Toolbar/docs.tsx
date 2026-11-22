@@ -6,6 +6,7 @@ import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
 import { KeyboardReference } from '../../../site/KeyboardReference';
 import { ExampleColumn, Examples } from '../../../site/Examples';
+import Docked from './demo/Docked.tsx?demo';
 import Editor from './demo/Editor.tsx?demo';
 import Tools from './demo/Tools.tsx?demo';
 
@@ -27,6 +28,11 @@ export default _component(() => () => (
         </Example>
       </ExampleColumn>
       <ExampleColumn>
+        <Example id="docked" title="停靠的工具条和状态栏" demo={Docked}>
+          <Code>docked</Code> 是停在区域的哪条边上：朝里的那条边画分隔线、留出内边距、不折行。
+          <Code>variant="surface"</Code> 是抬高一层的表面色，状态栏用 <Code>size="sm"</Code>；
+          <Code>{'<Flex grow />'}</Code> 把后面的项推到结束边。
+        </Example>
         <Example id="vertical" title="竖排的绘图工具" demo={Tools}>
           <Code>orientation="vertical"</Code> 时用 <Kbd>↑</Kbd> <Kbd>↓</Kbd> 移动。选中的工具用{' '}
           <Code>aria-pressed</Code> 告诉读屏；图标按钮配 Tooltip 说明用途。

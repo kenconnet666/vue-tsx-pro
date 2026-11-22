@@ -5,6 +5,7 @@ import editorApi from 'virtual:api/PropertyEditorProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
+import Inspector from './demo/Inspector.tsx?demo';
 import Light from './demo/Light.tsx?demo';
 
 export const meta = {
@@ -36,6 +37,17 @@ export default _component(() => () => (
       {'给编辑器，也能嵌在列表、对象里。多选时把不一样的值标成'}
       <Code>PROPERTY_MIXED</Code>
       {'，编辑器显示“多个值”，改的时候给函数，每个对象各算各的。'}
+    </Example>
+    <Example id="inspector" title="检查器：一个组件一节" demo={Inspector}>
+      {'编辑器的检查器把每个组件放进一节'}
+      <Code>FormSection</Code>
+      {'：'}
+      <Code>density="compact"</Code>
+      {'让标题和字段贴得近、标题是正文字号，'}
+      <Code>collapsible</Code>
+      {'能收起，'}
+      <Code>extra</Code>
+      {'放去掉它的按钮；节里是这个组件的 PropertyGrid。'}
     </Example>
     <ApiReference api={[api, editorApi]} />
   </DocPage>

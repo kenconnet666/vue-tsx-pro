@@ -31,6 +31,34 @@ describe('Toolbar', () => {
     expect(document.activeElement).toBe(italic);
   });
 
+  it('docked：标出停在哪条边，停靠时默认不折行、朝里的边画分隔线；不停靠时照旧折行', async () => {
+    const root = mount(() => (
+      <>
+        <Toolbar aria-label="主工具栏" docked="top" variant="surface">
+          <button>新建</button>
+        </Toolbar>
+        <Toolbar aria-label="状态栏" docked="bottom" size="sm" wrap>
+          <button>语言</button>
+        </Toolbar>
+        <Toolbar aria-label="格式">
+          <button>粗</button>
+        </Toolbar>
+      </>
+    ));
+    await nextTick();
+    const [top, bottom, plain] = [...root.querySelectorAll<HTMLElement>('[role="toolbar"]')];
+    expect(top!.dataset.docked).toBe('top');
+    expect(bottom!.dataset.docked).toBe('bottom');
+    expect(plain!.hasAttribute('data-docked')).toBe(false);
+    const style = (element: HTMLElement) => getComputedStyle(element);
+    expect(style(top!).flexWrap).toBe('nowrap');
+    expect(style(top!).borderBlockEndStyle || style(top!).borderBottomStyle).toBe('solid');
+    expect(style(bottom!).flexWrap).toBe('wrap');
+    expect(style(plain!).flexWrap).toBe('wrap');
+    // 三种外观合成的类各不相同
+    expect(new Set([top!.className, bottom!.className, plain!.className]).size).toBe(3);
+  });
+
   it('里面的 ToggleGroup 不另占 Tab 进入点：方向键跨过组内外的按钮，进入点是第一项而不是按下的那个', async () => {
     const root = mount(() => (
       <Toolbar aria-label="格式">

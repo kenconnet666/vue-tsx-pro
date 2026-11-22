@@ -22,6 +22,7 @@ import { progressRecipe } from '../../feedback/Progress';
 import { resultRecipe } from '../../feedback/Result';
 import { tableRecipe } from '../../table/Table';
 import { tabsRecipe } from '../../navigation/Tabs';
+import { toolbarRecipe } from '../../navigation/Toolbar';
 import type { ComponentName } from '../components';
 import { Tab, TabList, Tabs } from '../../navigation/Tabs';
 import { mount, styleOf } from '../../utils/.test/mount';
@@ -69,6 +70,7 @@ describe('components', () => {
       Choice: choiceRecipe,
       DataTable: dataTableRecipe,
       Table: tableRecipe,
+      Toolbar: toolbarRecipe,
       Stat: statRecipe,
       Timeline: timelineRecipe,
       Tour: tourRecipe,

@@ -42,6 +42,7 @@ import type { ProgressOptions, ProgressPart } from '../feedback/Progress';
 import type { ResultOptions, ResultPart } from '../feedback/Result';
 import type { TablePart } from '../table/Table';
 import type { TabPart, TabsOptions } from '../navigation/Tabs';
+import type { ToolbarOptions, ToolbarPart } from '../navigation/Toolbar';
 import type { StatOptions, StatPart } from '../display/Stat';
 import type { TimelineOptions, TimelinePart } from '../display/Timeline';
 import type { TourOptions, TourPart } from '../overlay/Tour';
@@ -88,6 +89,8 @@ export interface UiComponents {
   Alert: ComponentConfig<AlertPart, AlertOptions>;
   /** Tabs 与其中的标签 */
   Tabs: ComponentConfig<TabPart, TabsOptions>;
+  /** Toolbar（停靠的工具条、状态栏也是它） */
+  Toolbar: ComponentConfig<ToolbarPart, ToolbarOptions>;
   /** Link */
   Link: ComponentConfig<LinkPart, LinkOptions>;
   /** Indicator */
