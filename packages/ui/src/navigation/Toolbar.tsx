@@ -13,12 +13,13 @@
  * 里面的 ToggleGroup 不再自己管焦点，它的按钮和其他按钮一起用方向键移动（同 WAI-ARIA 的文字格式工具栏示例）。
  *
  * docked 是停在所在区域的哪条边上（IDE、编辑器的主工具条、面板顶上的工具条、状态栏）：朝里的那条边画分隔线、留出内边距、
- * 不折行、不被挤小；把后面的项推到结束边用 `<Flex grow />`。size 是停靠时的字号档位（状态栏用 sm）。
+ * 不折行、不被挤小，内边距至少留出焦点环的位置（外层裁内容时边上的按钮聚焦也看得全）；把后面的项推到结束边用 `<Flex grow />`。size 是停靠时的字号档位（状态栏用 sm）。
  */
 import { createContext, _component } from '@zerodep-dev/vue-tsx-pro-tsx';
 import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
 import type { VNodeChild } from 'vue';
 import { useComponent } from '../config/components';
+import { t } from '../config/theme/tokens';
 import { mergeAttrs, type PartProps } from '../utils/props';
 import { rovingFocus } from '../utils/dom/roving-focus';
 import { gapStyles, variantOf, type Space } from '../utils/style/styles';
@@ -80,6 +81,10 @@ export interface ToolbarProps extends PartProps<'div', ToolbarManaged>, ToolbarO
   children?: VNodeChild;
 }
 
+/** 停靠时的内边距：至少留出焦点环往外占的（宽加间隔），贴着边的按钮聚焦时不被外层的 overflow 裁掉 */
+const RING_ROOM = t.borderWidths.lg;
+const DOCK_ALONG = `max(${t.space.xs}, ${RING_ROOM})`;
+
 /** 工具栏的配方：方向、外观、停靠的边、折行、字号、间距是档位 */
 export const toolbarRecipe = css.recipe({
   name: 'Toolbar',
@@ -98,8 +103,8 @@ export const toolbarRecipe = css.recipe({
       top: {
         root: {
           flexShrink: 0,
-          paddingInline: '_xs',
-          paddingBlock: '_xxs',
+          paddingInline: DOCK_ALONG,
+          paddingBlock: RING_ROOM,
           borderBlockEndWidth: '_xs',
           borderBlockEndStyle: 'solid',
           borderBlockEndColor: '_borderMuted',
@@ -108,8 +113,8 @@ export const toolbarRecipe = css.recipe({
       bottom: {
         root: {
           flexShrink: 0,
-          paddingInline: '_xs',
-          paddingBlock: '_xxs',
+          paddingInline: DOCK_ALONG,
+          paddingBlock: RING_ROOM,
           borderBlockStartWidth: '_xs',
           borderBlockStartStyle: 'solid',
           borderBlockStartColor: '_borderMuted',
@@ -118,8 +123,8 @@ export const toolbarRecipe = css.recipe({
       start: {
         root: {
           flexShrink: 0,
-          paddingInline: '_xxs',
-          paddingBlock: '_xs',
+          paddingInline: RING_ROOM,
+          paddingBlock: DOCK_ALONG,
           borderInlineEndWidth: '_xs',
           borderInlineEndStyle: 'solid',
           borderInlineEndColor: '_borderMuted',
@@ -128,8 +133,8 @@ export const toolbarRecipe = css.recipe({
       end: {
         root: {
           flexShrink: 0,
-          paddingInline: '_xxs',
-          paddingBlock: '_xs',
+          paddingInline: RING_ROOM,
+          paddingBlock: DOCK_ALONG,
           borderInlineStartWidth: '_xs',
           borderInlineStartStyle: 'solid',
           borderInlineStartColor: '_borderMuted',

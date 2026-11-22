@@ -1,17 +1,21 @@
 // 节点图（材质、着色器、数据流）：节点上有名字的端口（ports，输入在左、输出在右，颜色按数据类型），连线接在端口上
 // （fromPort、toPort），routing="bezier" 画成从端口水平伸出的曲线、没有箭头。从输出端口拖到输入端口连线，一个输入只接一条
-// （新的替换旧的）；端口按卡片里的行对齐（at 是行中心在节点高度里的比例），卡片的行高是定的，不用量 DOM。
+// （新的替换旧的）。节点是 DiagramPortNode：标题栏下一行一个端口，portNodeLayout 按同样的行高算出节点的高和端口的 at，
+// 端口点对着行、不用量 DOM；“数值”节点的参数放在端口行下面（参数区里拖数值不拖节点）。
 // 拖动空白处平移、滚轮缩放；选中节点或连线按 Delete 删掉
 import { _component } from '@zerodep-dev/vue-tsx-pro-tsx';
-import { css } from '@zerodep-dev/vue-tsx-pro-tsx/styles';
+import { NumberField } from '@zerodep-dev/vue-tsx-pro-ui';
 import {
   Diagram,
   DiagramControls,
+  DiagramPortNode,
+  portNodeLayout,
   type DiagramConnection,
   type DiagramEdgeItem,
   type DiagramNodeItem,
   type DiagramNodeMove,
   type DiagramSelection,
+  type PortNodePort,
 } from '@zerodep-dev/vue-tsx-pro-ui/diagram';
 
 type PortType = 'float' | 'color';
@@ -57,77 +61,31 @@ const KINDS: Record<string, Kind> = {
 
 const COLORS: Record<PortType, string> = { float: '#9aa0a6', color: '#e8a33d' };
 const WIDTH = 150;
-const HEADER = 26;
-const ROW = 22;
-/** 卡片的边框：行从边框里面排起 */
-const BORDER = 1;
+/** 参数区的高（px）：一个数值框 */
+const PARAMS = 40;
 
 interface Card extends DiagramNodeItem {
   kind: string;
 }
 
-const styles = css.create({
-  card: {
-    width: '_full',
-    height: '_full',
-    borderWidth: '_xs',
-    borderStyle: 'solid',
-    borderColor: '_border',
-    borderRadius: '_md',
-    backgroundColor: '_surface',
-    fontSize: '_xs',
-    overflow: 'hidden',
-  },
-  selected: { borderColor: '_accent' },
-  header: {
-    boxSizing: 'border-box',
-    height: `${HEADER}px`,
-    lineHeight: `${HEADER}px`,
-    paddingInline: '_sm',
-    fontWeight: '_semibold',
-    borderBlockEndWidth: '_xs',
-    borderBlockEndStyle: 'solid',
-    borderBlockEndColor: '_border',
-  },
-  row: { height: `${ROW}px`, display: 'flex', alignItems: 'center', paddingInline: '_sm' },
-  output: { justifyContent: 'flex-end' },
-});
+const ports = (sockets: Socket[]): PortNodePort[] =>
+  sockets.map((s) => ({ id: s.name, label: s.name, color: COLORS[s.type] }));
 
-/** 一张卡片：标题下面先是输出、再是输入，每行一个端口 */
+/** 一张卡片：输出、输入各一行一个端口；数值节点下面多一块参数区 */
 function card(id: string, kind: string, x: number, y: number): Card {
   const { inputs, outputs } = KINDS[kind]!;
-  const height = HEADER + (outputs.length + inputs.length) * ROW + 2 * BORDER;
-  const at = (row: number) => (BORDER + HEADER + row * ROW + ROW / 2) / height;
-  return {
-    id,
-    kind,
-    x,
-    y,
-    width: WIDTH,
-    height,
-    ports: [
-      ...outputs.map((s, i) => ({
-        id: s.name,
-        direction: 'out' as const,
-        at: at(i),
-        label: s.name,
-        color: COLORS[s.type],
-      })),
-      ...inputs.map((s, i) => ({
-        id: s.name,
-        direction: 'in' as const,
-        at: at(outputs.length + i),
-        label: s.name,
-        color: COLORS[s.type],
-      })),
-    ],
-  };
+  const { height, ports: items } = portNodeLayout({
+    outputs: ports(outputs),
+    inputs: ports(inputs),
+    body: kind === 'number' ? PARAMS : 0,
+  });
+  return { id, kind, x, y, width: WIDTH, height, ports: items };
 }
 
 export default _component(() => {
   let nodes = _state<Card[]>([
     card('tex', 'texture', 0, 0),
-    card('rough', 'number', 0, 120),
+    card('rough', 'number', 0, 130),
     card('mul', 'multiply', 220, 20),
     card('out', 'output', 440, 40),
   ]);
@@ -138,6 +96,7 @@ export default _component(() => {
     { id: 'out:粗糙度', from: 'rough', fromPort: '值', to: 'out', toPort: '粗糙度' },
   ]);
   let selection = _state<DiagramSelection>({ nodes: [], edges: [] });
+  let roughness = _state<number | null>(0.4);
 
   /** 连线的 id 是“终点:输入端口”：同一个输入再连一条就替换旧的 */
   const connect = ({ from, fromPort, to, toPort }: DiagramConnection) => {
@@ -183,22 +142,21 @@ export default _component(() => {
       overlay={<DiagramControls />}
       aria-label="材质节点图"
     >
-      {(node: Card, state: { selected: boolean }) => {
+      {(node: Card) => {
         const { title, inputs, outputs } = KINDS[node.kind]!;
         return (
-          <div {...css.attrs(styles.card, state.selected && styles.selected)}>
-            <div {...css.attrs(styles.header)}>{title}</div>
-            {outputs.map((s) => (
-              <div {...css.attrs(styles.row, styles.output)} aria-hidden="true">
-                {s.name}
-              </div>
-            ))}
-            {inputs.map((s) => (
-              <div {...css.attrs(styles.row)} aria-hidden="true">
-                {s.name}
-              </div>
-            ))}
-          </div>
+          <DiagramPortNode title={title} outputs={ports(outputs)} inputs={ports(inputs)}>
+            {node.kind === 'number' && (
+              <NumberField
+                _value={roughness}
+                size="xs"
+                min={0}
+                max={1}
+                step={0.05}
+                aria-label="粗糙度的值"
+              />
+            )}
+          </DiagramPortNode>
         );
       }}
     </Diagram>

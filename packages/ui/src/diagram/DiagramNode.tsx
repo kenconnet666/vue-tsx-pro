@@ -134,8 +134,8 @@ export const diagramNodeStyles = css.create({
   diamondActive: { strokeWidth: 2 },
 });
 
-/** 色调：节点的底色与边框 */
-const diagramNodeToneStyles = css.create({
+/** 色调：节点的底色与边框（DiagramPortNode 也用） @internal */
+export const diagramNodeToneStyles = css.create({
   neutral: { backgroundColor: '_surfaceRaised', borderColor: '_borderStrong' },
   accent: { backgroundColor: '_accentSoft', borderColor: '_accentBorder' },
   info: { backgroundColor: '_infoSoft', borderColor: '_infoBorder' },

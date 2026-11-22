@@ -146,11 +146,13 @@ const formSectionStyles = css.create({
   },
 });
 
-/** FormSection 紧凑时叠加的样式：root、header、heading、body */
+/** FormSection 紧凑时叠加的样式：root、header、heading、trigger、body */
 const formSectionCompactStyles = css.create({
   root: { gap: '_xs' },
   header: { alignItems: 'center', paddingBlockEnd: '_xxs' },
   heading: { fontSize: 'inherit', fontWeight: '_semibold' },
+  // 不往外伸：紧凑的一节常贴着面板的边，伸出去的焦点环会被面板的滚动区裁掉
+  trigger: { marginInline: 0 },
   body: { rowGap: '_xs' },
 });
 
@@ -202,7 +204,7 @@ export const FormSection = _component(
       const state = expanded ? 'open' : 'closed';
       const titleContent = collapsible ? (
         <ButtonBase
-          {...mergePartProps<ButtonBaseProps>({ sx: formSectionStyles.trigger }, propsTrigger, {
+          {...mergePartProps<ButtonBaseProps>({ sx: [formSectionStyles.trigger, compact && formSectionCompactStyles.trigger] }, propsTrigger, {
             id: ids.title,
             'aria-expanded': open,
             'aria-controls': ids.body,

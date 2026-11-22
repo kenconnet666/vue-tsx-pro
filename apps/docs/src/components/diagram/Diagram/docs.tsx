@@ -5,6 +5,7 @@ import controlsApi from 'virtual:api/DiagramControlsProps';
 import lanesApi from 'virtual:api/DiagramLanesProps';
 import minimapApi from 'virtual:api/DiagramMinimapProps';
 import nodeApi from 'virtual:api/DiagramNodeProps';
+import portNodeApi from 'virtual:api/DiagramPortNodeProps';
 import { ApiReference } from '../../../site/ApiReference';
 import { DocPage } from '../../../site/DocPage';
 import { Example } from '../../../site/Example';
@@ -80,7 +81,9 @@ export default _component(() => () => (
           <Code>at</Code> 是沿边的位置（按卡片里的行算），<Code>color</Code> 按数据类型区分。连线的{' '}
           <Code>fromPort</Code>、<Code>toPort</Code> 接在端口上，<Code>routing="bezier"</Code>{' '}
           画成从端口水平伸出的曲线、不画箭头。<Code>connectable</Code> 时从输出端口拖到输入端口，
-          <Code>onConnect</Code> 收到两头的端口；这里一个输入只接一条线，新的替换旧的。
+          <Code>onConnect</Code> 收到两头的端口；这里一个输入只接一条线，新的替换旧的。节点用{' '}
+          <Code>DiagramPortNode</Code>：标题栏下一行一个端口，<Code>portNodeLayout</Code>{' '}
+          按同样的行高算出节点的高和端口的 <Code>at</Code>；参数放在端口行下面。
         </Example>
         <Example id="lanes" title="泳道与画布外的工具栏" demo={Lanes}>
           <Code>backdrop</Code> 画在连线下面、随视口平移缩放，<Code>DiagramLanes</Code>{' '}
@@ -115,6 +118,6 @@ export default _component(() => () => (
       焦点在视口上时方向键平移、+ / − 缩放；Tab 依次进到各个节点（按 nodes
       的顺序），可选择时再到各条连线。
     </KeyboardReference>
-    <ApiReference api={[api, nodeApi, lanesApi, controlsApi, minimapApi]} />
+    <ApiReference api={[api, nodeApi, portNodeApi, lanesApi, controlsApi, minimapApi]} />
   </DocPage>
 ));
