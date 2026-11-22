@@ -1,6 +1,6 @@
 name: Release
 
-# 推送 v* 标签（node scripts/release.mjs 打的）时发布：先验证版本号与打包产物，再带 provenance 发布四个包到 npm、建 GitHub Release。
+# 推送 v* 标签（node scripts/release.mjs 打的）时发布：先验证版本号与打包产物，再带 provenance 发布四个包与流程引擎的三个包（flow-ts-*）到 npm、建 GitHub Release。
 # 打标签前 release.mjs 已要求那个提交的 CI 全部通过；这里只补打包产物在独立应用里的验证（同 RELEASE.md 的预检）
 on:
   push:
@@ -50,6 +50,7 @@ jobs:
           fi
           echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > "$HOME/.npmrc"
           pnpm -r --filter ./packages/tsx --filter ./packages/ui --filter ./packages/mobile --filter ./packages/mini \
+            --filter ./packages/flow/model --filter ./packages/flow/engine --filter ./packages/flow/ui \
             publish --access public --no-git-checks --provenance
       - name: GitHub Release
         shell: bash

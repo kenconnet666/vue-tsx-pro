@@ -10,13 +10,21 @@
 | `@zerodep-dev/vue-tsx-pro-mobile` | 移动端组件库（H5 为主）与子路径 `/area`，编译好的 JS；依赖 `@zerodep-dev/vue-tsx-pro-tsx`                           |
 | `@zerodep-dev/vue-tsx-pro-mini`   | 小程序运行时、构建（`/build`）、测试工具（`/testing`）、命令 `vtp-mini` 与新项目模板（`template`）；`tsx` 是 peer   |
 
-`ui`、`mobile`、`mini` 对 `tsx` 的依赖写成 `workspace:^`，`pnpm publish` 发布时换成实际版本号，所以必须用 pnpm 发布，不能用 `npm publish`。
+另外发布流程引擎的三个包，版本号独立（不跟上面四个走），`pnpm -r publish` 会跳过 npm 上已有的版本，改了哪个就单独升哪个的 `version`：
+
+| 包                            | 内容                                                                    |
+| ----------------------------- | ----------------------------------------------------------------------- |
+| `@zerodep-dev/flow-ts-model`  | 流程定义、校验、条件求值、路由与表单权限规则（引擎与界面共用）          |
+| `@zerodep-dev/flow-ts-engine` | 流程引擎（依赖 easy-query-ts，PGlite 是 peer）                          |
+| `@zerodep-dev/flow-ts-ui`     | 流程界面组件（依赖 `vue-tsx-pro-tsx`、`vue-tsx-pro-ui`，vue 等是 peer） |
+
+`ui`、`mobile`、`mini` 与 `flow-ts-ui` 对 `tsx`、`ui` 的依赖写成 `workspace:^`，`pnpm publish` 发布时换成实际版本号，所以必须用 pnpm 发布，不能用 `npm publish`。
 
 ## 下一版对使用方的变化
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-（暂无）
+- 流程引擎的三个包首次发布到 npm：`@zerodep-dev/flow-ts-model`、`@zerodep-dev/flow-ts-engine`、`@zerodep-dev/flow-ts-ui`（0.1.0），之前发布流程漏了它们，`pnpm add` 会 404。
 
 ## 临时版
 
