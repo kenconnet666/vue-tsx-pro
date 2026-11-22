@@ -86,6 +86,11 @@ export interface DiagramNodeItem extends DiagramRect {
    * 的输入端口上连线。有端口的节点不出现四条边上的那种端口
    */
   ports?: readonly DiagramPortItem[];
+  /**
+   * 节点里有自己的控件（参数的输入框、开关）：节点框不当按钮（按钮里不能套控件，读屏也念不出里面），换成 group，
+   * 选中用 aria-current 表示；点选、拖动、键盘照旧。DiagramPortNode 有参数区时 portNodeLayout 给出 true
+   */
+  controls?: boolean;
 }
 
 /** 画布上的一条连线 */
@@ -671,9 +676,11 @@ const NodeView = _component(
               onPointerleave: () => actions.nodeLeave(id),
               ...(focusable
                 ? {
-                    role: 'button',
+                    // 里面有控件的节点是 group：按钮里不能套控件
+                    role: item.controls ? 'group' : 'button',
                     tabindex: 0,
-                    'aria-pressed': selectable ? selected : undefined,
+                    'aria-pressed': selectable && !item.controls ? selected : undefined,
+                    'aria-current': selectable && item.controls && selected ? 'true' : undefined,
                     onClick: (event: MouseEvent) => actions.nodeClick(id, event),
                     onKeydown: (event: KeyboardEvent) => actions.nodeKey(id, event),
                     onFocus: (event: FocusEvent) =>

@@ -74,12 +74,13 @@ const ports = (sockets: Socket[]): PortNodePort[] =>
 /** 一张卡片：输出、输入各一行一个端口；数值节点下面多一块参数区 */
 function card(id: string, kind: string, x: number, y: number): Card {
   const { inputs, outputs } = KINDS[kind]!;
-  const { height, ports: items } = portNodeLayout({
+  // 高、端口，还有数值节点的参数区里有控件（controls：节点框不当按钮）
+  const layout = portNodeLayout({
     outputs: ports(outputs),
     inputs: ports(inputs),
     body: kind === 'number' ? PARAMS : 0,
   });
-  return { id, kind, x, y, width: WIDTH, height, ports: items };
+  return { id, kind, x, y, width: WIDTH, ...layout };
 }
 
 export default _component(() => {

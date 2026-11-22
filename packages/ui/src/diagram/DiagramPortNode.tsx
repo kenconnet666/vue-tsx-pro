@@ -4,7 +4,7 @@
  * 交给 Diagram 的节点数据，卡片里的行和端口点对得上。
  *
  *   const layout = portNodeLayout({ outputs, inputs, body: params.length * 30 });
- *   const nodes = [{ id, x, y, width: 190, height: layout.height, ports: layout.ports }];
+ *   const nodes = [{ id, x, y, width: 190, ...layout }];   高、端口、有参数区时的 controls
  *   <Diagram nodes={nodes} edges={edges} routing="bezier">
  *     {(node) => <DiagramPortNode title="混合" outputs={outputs} inputs={inputs}><Params /></DiagramPortNode>}
  *   </Diagram>
@@ -53,6 +53,8 @@ export interface PortNodeLayout {
   height: number;
   /** 端口：输出在右、输入在左，at 对准各自那一行的中间 */
   ports: DiagramPortItem[];
+  /** 有参数区（里面放控件）：交给节点数据的 controls，节点框不当按钮 */
+  controls: boolean;
 }
 
 /** 默认的标题栏、端口行的高（px） */
@@ -79,6 +81,7 @@ export function portNodeLayout({
   });
   return {
     height,
+    controls: body > 0,
     ports: [
       ...outputs.map((item, i) => port(item, 'out', i)),
       ...inputs.map((item, i) => port(item, 'in', outputs.length + i)),
