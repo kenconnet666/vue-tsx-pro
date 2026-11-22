@@ -204,12 +204,16 @@ export const FormSection = _component(
       const state = expanded ? 'open' : 'closed';
       const titleContent = collapsible ? (
         <ButtonBase
-          {...mergePartProps<ButtonBaseProps>({ sx: [formSectionStyles.trigger, compact && formSectionCompactStyles.trigger] }, propsTrigger, {
-            id: ids.title,
-            'aria-expanded': open,
-            'aria-controls': ids.body,
-            onClick: () => (open = !open),
-          })}
+          {...mergePartProps<ButtonBaseProps>(
+            { sx: [formSectionStyles.trigger, compact && formSectionCompactStyles.trigger] },
+            propsTrigger,
+            {
+              id: ids.title,
+              'aria-expanded': open,
+              'aria-controls': ids.body,
+              onClick: () => (open = !open),
+            },
+          )}
           data-state={state}
         >
           <span>{title}</span>
