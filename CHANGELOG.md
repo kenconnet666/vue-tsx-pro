@@ -3,6 +3,10 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.39.0（2026-11-22）
+
+- 流程引擎的四个包首次发布到 npm：`@zerodep-dev/flow-ts-model`、`@zerodep-dev/flow-ts-engine`、`@zerodep-dev/flow-ts-ui`、`@zerodep-dev/flow-ts-studio`（0.1.0），之前发布流程漏了它们，`pnpm add` 会 404。
+
 ## 0.38.0（2026-11-22）
 
 - **ui**：`Tree` 加 `onActivate(node)`：双击整行（展开箭头、勾选框除外）或按 Enter 时报告节点，像 IDE 的文件树里打开文件；之前只能在 `renderItem` 的文字上挂双击，点行的空白处打不开。

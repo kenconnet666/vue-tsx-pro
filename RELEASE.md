@@ -25,7 +25,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- 流程引擎的四个包首次发布到 npm：`@zerodep-dev/flow-ts-model`、`@zerodep-dev/flow-ts-engine`、`@zerodep-dev/flow-ts-ui`、`@zerodep-dev/flow-ts-studio`（0.1.0），之前发布流程漏了它们，`pnpm add` 会 404。
+（暂无）
 
 ## 临时版
 
