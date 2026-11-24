@@ -11,11 +11,12 @@
  * 发布的组件库是编译好的 JS：开发时整个预构建，构建时依赖里的 .js 直接跳过（工作区里按 dist 引用的包也算，见 isPublishedOutput）。
  */
 import type { VueJSXPluginOptions } from '@vue/babel-plugin-jsx';
-import { normalizePath, type Plugin } from 'vite';
-import { existsSync, readFileSync } from 'node:fs';
+import { normalizePath, transformWithOxc, type Plugin, type Rolldown } from 'vite';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { availableParallelism } from 'node:os';
 import { join } from 'node:path';
-import { languageOf } from '../compiler/detect.ts';
+import { languageOf, STYLE_INTERNAL_SOURCE } from '../compiler/detect.ts';
 import { CompileCache } from './cache.ts';
 import { compilerCacheKey } from './cache-key.ts';
 import type { CompilerSetup, ModuleRequest } from './module.ts';
@@ -52,6 +53,44 @@ export function vueTsxPro(options: VueTsxProOptions = {}): Plugin[] {
   return [compiler(options)];
 }
 
+/**
+ * 依赖扫描时先把含 import.meta.glob 的 .jsx、.tsx 里的 JSX 编掉。Vite 8 的扫描（vite:dep-scan:transform:js-glob）把这类文件
+ * 按上面的 jsx: 'preserve' 转一遍、标成 moduleType: 'js' 交给 rolldown，留下的 JSX 解析不了，整个预构建跳过
+ * （"Failed to run dependency scan … Unexpected JSX expression"）。扫描只看导入，JSX 编成不存在的函数调用就行；
+ * 这个插件排在 Vite 自己的扫描插件前面。
+ */
+function scanGlobJsx(): Rolldown.Plugin {
+  return {
+    name: 'vue-tsx-pro:scan-glob-jsx',
+    transform: {
+      filter: { id: /\.[jt]sx$/, code: 'import.meta.glob' },
+      async handler(code, id) {
+        const lang = id.endsWith('.tsx') ? 'tsx' : 'jsx';
+        const { code: plain } = await transformWithOxc(code, id, {
+          lang,
+          jsx: { runtime: 'classic', pragma: '__scanJsx', pragmaFrag: '__scanFragment' },
+        });
+        return { code: plain, moduleType: 'js' };
+      },
+    },
+  };
+}
+
+/**
+ * 热更新包装导入的样式入口（STYLE_INTERNAL_SOURCE）：源码里没有这个导入，依赖扫描看不到，第一次编译到组件时才发现、预构建以后
+ * 整页重载一次。从 node_modules 装的（发布的包）开发服务器一开始就预构建它；按源码链接的工作区包（workspaceSource）不预构建
+ */
+function publishedStyleInternal(root: string): string[] {
+  try {
+    const resolved = realpathSync(
+      createRequire(join(root, 'package.json')).resolve(STYLE_INTERNAL_SOURCE),
+    );
+    return /[\\/]node_modules[\\/]/.test(resolved) ? [STYLE_INTERNAL_SOURCE] : [];
+  } catch {
+    return []; // 这个根解析不到包：不加
+  }
+}
+
 /** Vitest 的插件钩子：只用到其中注册缓存键的部分，不依赖 vitest 的类型 */
 interface VitestHooks {
   configureVitest?: (context: {
@@ -86,7 +125,7 @@ function compiler(options: VueTsxProOptions): Plugin & VitestHooks {
           : `${compilerCacheKey()}${optimize ? '' : ':plain'}`,
       );
     },
-    config(user) {
+    config(user, env) {
       const flag = (name: string, fallback: boolean): unknown => {
         const value = user.define?.[name];
         if (value === undefined) return fallback;
@@ -108,7 +147,11 @@ function compiler(options: VueTsxProOptions): Plugin & VitestHooks {
           ),
         },
         // 预构建依赖时保留 JSX，不按 React 的方式编译
-        optimizeDeps: { rolldownOptions: { transform: { jsx: 'preserve' } } },
+        optimizeDeps: {
+          include:
+            env.command === 'serve' ? publishedStyleInternal(user.root ?? process.cwd()) : [],
+          rolldownOptions: { transform: { jsx: 'preserve' }, plugins: [scanGlobJsx()] },
+        },
       };
     },
     configResolved(config) {

@@ -13,29 +13,9 @@ concurrency:
 permissions:
   contents: read
 
-# 推到 master 时第一件事是发测试版（dev-release），不等测试：使用方马上装得到；其余任务并行做检查和测试。
+# 测试版在本地发（scripts/dev-release.mjs，不跑测试），不在这里；这里并行做检查和测试。
 # 静态检查与系统无关，只在 Ubuntu 上跑；测试与构建在 Windows 上也跑：本地开发在 Windows，路径与虚拟模块问题只会在那里暴露
 jobs:
-  # 测试版：四个包打包，挂到滚动的预发行版 dev 上，文件名带提交号（scripts/dev-release.mjs --publish）。
-  # 正式版是推 v* 标签，release.yml 发 npm
-  dev-release:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write # 挪 dev 标签、上传发行版的文件
-    concurrency:
-      group: dev-release
-      cancel-in-progress: false
-    steps:
-      - uses: actions/checkout@v7
-        with:
-          # 清旧包时按最近的提交算
-          fetch-depth: 50
-      - uses: ./.github/actions/setup
-      - name: Pack and upload
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: node scripts/dev-release.mjs --publish
   check:
     runs-on: ubuntu-latest
     steps:
