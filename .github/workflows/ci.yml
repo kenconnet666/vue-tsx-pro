@@ -70,13 +70,13 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      # 浏览器从 Playwright 的 CDN 下载，偶尔连不上（TLS、超时）：重试三次再算失败；偶尔会卡住不动（一片等了半小时还在下载），每次最多 10 分钟，超时就进下一次重试
+      # 浏览器从 Playwright 的 CDN 下载，偶尔连不上（TLS、超时）：重试三次再算失败；偶尔会卡住不动（一片等了半小时还在下载），每次最多 10 分钟，超时就进下一次重试。直接跑 .bin/playwright（shim 是 exec node）：经 pnpm exec 时 timeout 只停得了 pnpm，pnpm 等着下面的下载进程，卡住的那次照样等满 30 分钟；-k 到点强杀
       - name: Install browsers
         timeout-minutes: 30
         shell: bash
         run: |
           for attempt in 1 2 3; do
-            timeout 600 pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps ${VTP_BROWSERS//,/ } && exit 0
+            timeout -k 20 600 apps/host-demo/node_modules/.bin/playwright install --with-deps ${VTP_BROWSERS//,/ } && exit 0
             echo "playwright install failed (attempt $attempt), retrying"
             sleep 15
           done
@@ -144,7 +144,7 @@ jobs:
         shell: bash
         run: |
           for attempt in 1 2 3; do
-            timeout 600 pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium && exit 0
+            timeout -k 20 600 apps/host-demo/node_modules/.bin/playwright install --with-deps chromium && exit 0
             echo "playwright install failed (attempt $attempt), retrying"
             sleep 15
           done
@@ -176,7 +176,7 @@ jobs:
         shell: bash
         run: |
           for attempt in 1 2 3; do
-            timeout 600 pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium && exit 0
+            timeout -k 20 600 apps/host-demo/node_modules/.bin/playwright install --with-deps chromium && exit 0
             echo "playwright install failed (attempt $attempt), retrying"
             sleep 15
           done
@@ -229,7 +229,7 @@ jobs:
         shell: bash
         run: |
           for attempt in 1 2 3; do
-            timeout 600 pnpm --filter @vue-tsx-pro/fullstack-demo exec playwright install --with-deps chromium && exit 0
+            timeout -k 20 600 apps/fullstack-demo/node_modules/.bin/playwright install --with-deps chromium && exit 0
             echo "playwright install failed (attempt $attempt), retrying"
             sleep 15
           done
@@ -250,7 +250,7 @@ jobs:
         shell: bash
         run: |
           for attempt in 1 2 3; do
-            timeout 600 pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium && exit 0
+            timeout -k 20 600 apps/host-demo/node_modules/.bin/playwright install --with-deps chromium && exit 0
             echo "playwright install failed (attempt $attempt), retrying"
             sleep 15
           done
@@ -270,7 +270,7 @@ jobs:
         shell: bash
         run: |
           for attempt in 1 2 3; do
-            timeout 600 pnpm --filter @vue-tsx-pro/host-demo exec playwright install --with-deps chromium && exit 0
+            timeout -k 20 600 apps/host-demo/node_modules/.bin/playwright install --with-deps chromium && exit 0
             echo "playwright install failed (attempt $attempt), retrying"
             sleep 15
           done
