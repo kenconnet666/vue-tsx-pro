@@ -13,6 +13,8 @@ runs:
     # 系统依赖走 apt。镜像偶尔慢得出奇（10 MB 要一分多钟），以前和下载浏览器放在一起（--with-deps）限时重试：超时只杀得了 node，
     # apt-get 还在后台占着 dpkg 的锁，后面的重试一上来就"拿不到锁"失败。现在 apt 自己重试网络、等锁，只跑一次
     - name: Install browser dependencies
+      # 只有 Linux 要装系统依赖（Windows、macOS 上浏览器自带）
+      if: runner.os == 'Linux'
       shell: bash
       run: |
         printf 'Acquire::Retries "5";\nAcquire::http::Timeout "60";\nDPkg::Lock::Timeout "900";\n' | sudo tee /etc/apt/apt.conf.d/99ci-retries > /dev/null
