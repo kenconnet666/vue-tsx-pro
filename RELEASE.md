@@ -25,11 +25,7 @@
 
 发版时 `release.mjs` 把下面的条目搬进 CHANGELOG.md（也是 GitHub Release 的说明）。组件库照样能在不做服务端渲染的普通 Vue 项目里用，下面是能察觉到的行为变化：
 
-- 许可证从 MIT 改成 Apache-2.0。
-- Vite 预设：依赖扫描时含 `import.meta.glob` 的 `.jsx`、`.tsx` 不再让整个预构建被跳过（Vite 8 的扫描把它们按 JS 解析，留下的 JSX 报 "Unexpected JSX expression"）；开发服务器一开始就预构建热更新用的 `styles/internal`，第一次打开页面不再因为"依赖变了"整页重载。
-- 新组件：`TrackTimeline`（轨道时间轴）、`ImageRegions`（图上的区域）、节点图的 `DiagramPortNode` 和 `portNodeLayout`；`Toolbar` 可以停靠成工具条、状态栏，`FormSection` 有紧凑的疏密，`Listbox` 可以网格排列，`ToggleGroup` 能折行。
-- `Listbox` 单独用时被点就拿到焦点；`Input` 窄的时候单位不再把数值挤没；`Workbench` 的浮动窗口三边和下面两个角都能改大小。
-- 测试版（`dev` 预发行版）改在本地发（`scripts/dev-release.mjs`），CI 不再发。
+（暂无）
 
 ## 临时版
 

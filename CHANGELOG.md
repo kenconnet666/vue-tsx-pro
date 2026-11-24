@@ -3,6 +3,14 @@
 每一版对使用方的变化。发版时由 `node scripts/release.mjs` 从 [RELEASE.md](RELEASE.md) 的“下一版对使用方的变化”搬过来；
 0.11.0 及更早的版本见 [GitHub Releases](https://github.com/kenconnet666/vue-tsx-pro/releases)。
 
+## 0.40.0（2026-11-24）
+
+- 许可证从 MIT 改成 Apache-2.0。
+- Vite 预设：依赖扫描时含 `import.meta.glob` 的 `.jsx`、`.tsx` 不再让整个预构建被跳过（Vite 8 的扫描把它们按 JS 解析，留下的 JSX 报 "Unexpected JSX expression"）；开发服务器一开始就预构建热更新用的 `styles/internal`，第一次打开页面不再因为"依赖变了"整页重载。
+- 新组件：`TrackTimeline`（轨道时间轴）、`ImageRegions`（图上的区域）、节点图的 `DiagramPortNode` 和 `portNodeLayout`；`Toolbar` 可以停靠成工具条、状态栏，`FormSection` 有紧凑的疏密，`Listbox` 可以网格排列，`ToggleGroup` 能折行。
+- `Listbox` 单独用时被点就拿到焦点；`Input` 窄的时候单位不再把数值挤没；`Workbench` 的浮动窗口三边和下面两个角都能改大小。
+- 测试版（`dev` 预发行版）改在本地发（`scripts/dev-release.mjs`），CI 不再发。
+
 ## 0.39.0（2026-11-22）
 
 - 流程引擎的四个包首次发布到 npm：`@zerodep-dev/flow-ts-model`、`@zerodep-dev/flow-ts-engine`、`@zerodep-dev/flow-ts-ui`、`@zerodep-dev/flow-ts-studio`（0.1.0），之前发布流程漏了它们，`pnpm add` 会 404。
