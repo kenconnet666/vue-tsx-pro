@@ -1,0 +1,32 @@
+name: Browsers
+description: 装 Playwright 的浏览器：先装系统依赖（apt，只装一次），再下载浏览器（限时重试）
+inputs:
+  app:
+    description: 装着 playwright 的应用（apps/<app>），用它的 node_modules/.bin/playwright
+    default: host-demo
+  browsers:
+    description: 浏览器，空格或逗号分开
+    default: chromium
+runs:
+  using: composite
+  steps:
+    # 系统依赖走 apt。镜像偶尔慢得出奇（10 MB 要一分多钟），以前和下载浏览器放在一起（--with-deps）限时重试：超时只杀得了 node，
+    # apt-get 还在后台占着 dpkg 的锁，后面的重试一上来就"拿不到锁"失败。现在 apt 自己重试网络、等锁，只跑一次
+    - name: Install browser dependencies
+      shell: bash
+      run: |
+        printf 'Acquire::Retries "5";\nAcquire::http::Timeout "60";\nDPkg::Lock::Timeout "900";\n' | sudo tee /etc/apt/apt.conf.d/99ci-retries > /dev/null
+        BROWSERS="${{ inputs.browsers }}"
+        timeout -k 30 1500 apps/${{ inputs.app }}/node_modules/.bin/playwright install-deps ${BROWSERS//,/ }
+    # 浏览器从 Playwright 的 CDN 下载，偶尔连不上（TLS、超时）或卡住：每次最多 10 分钟，重试三次。直接跑 .bin/playwright（shim 是
+    # exec node），timeout 停得了真正在下载的进程
+    - name: Download browsers
+      shell: bash
+      run: |
+        BROWSERS="${{ inputs.browsers }}"
+        for attempt in 1 2 3; do
+          timeout -k 20 600 apps/${{ inputs.app }}/node_modules/.bin/playwright install ${BROWSERS//,/ } && exit 0
+          echo "playwright install failed (attempt $attempt), retrying"
+          sleep 15
+        done
+        exit 1

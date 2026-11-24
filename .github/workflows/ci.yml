@@ -70,17 +70,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      # 浏览器从 Playwright 的 CDN 下载，偶尔连不上（TLS、超时）：重试三次再算失败；偶尔会卡住不动（一片等了半小时还在下载），每次最多 10 分钟，超时就进下一次重试。直接跑 .bin/playwright（shim 是 exec node）：经 pnpm exec 时 timeout 只停得了 pnpm，pnpm 等着下面的下载进程，卡住的那次照样等满 30 分钟；-k 到点强杀
-      - name: Install browsers
-        timeout-minutes: 30
-        shell: bash
-        run: |
-          for attempt in 1 2 3; do
-            timeout -k 20 600 apps/host-demo/node_modules/.bin/playwright install --with-deps ${VTP_BROWSERS//,/ } && exit 0
-            echo "playwright install failed (attempt $attempt), retrying"
-            sleep 15
-          done
-          exit 1
+      - uses: ./.github/actions/browsers
+        timeout-minutes: 40
+        with:
+          browsers: ${{ matrix.browsers }}
       # 三个应用各跑一步，各自按同一个分片号分片。浏览器会话偶尔三分钟都连不上（整个浏览器实例没跑，用例的重试轮不到它）：
       # 只在这种情况下这一步再跑一次，用例失败照常算失败
       - name: Browser tests (docs)
@@ -139,16 +132,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - name: Install browsers
-        timeout-minutes: 30
-        shell: bash
-        run: |
-          for attempt in 1 2 3; do
-            timeout -k 20 600 apps/host-demo/node_modules/.bin/playwright install --with-deps chromium && exit 0
-            echo "playwright install failed (attempt $attempt), retrying"
-            sleep 15
-          done
-          exit 1
+      - uses: ./.github/actions/browsers
+        timeout-minutes: 40
       - run: pnpm -C apps/docs build
         env:
           VTP_HYDRATION_DETAILS: '1'
@@ -171,16 +156,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - name: Install browsers
-        timeout-minutes: 30
-        shell: bash
-        run: |
-          for attempt in 1 2 3; do
-            timeout -k 20 600 apps/host-demo/node_modules/.bin/playwright install --with-deps chromium && exit 0
-            echo "playwright install failed (attempt $attempt), retrying"
-            sleep 15
-          done
-          exit 1
+      - uses: ./.github/actions/browsers
+        timeout-minutes: 40
       - uses: actions/download-artifact@v8
         with:
           name: docs-dist
@@ -224,16 +201,10 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - name: Install browsers
-        timeout-minutes: 30
-        shell: bash
-        run: |
-          for attempt in 1 2 3; do
-            timeout -k 20 600 apps/fullstack-demo/node_modules/.bin/playwright install --with-deps chromium && exit 0
-            echo "playwright install failed (attempt $attempt), retrying"
-            sleep 15
-          done
-          exit 1
+      - uses: ./.github/actions/browsers
+        timeout-minutes: 40
+        with:
+          app: fullstack-demo
       - run: pnpm -C apps/fullstack-demo build
       - run: pnpm -C apps/fullstack-demo test:e2e
 
@@ -244,17 +215,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      # 浏览器从 Playwright 的 CDN 下载，偶尔连不上（TLS、超时）：重试三次再算失败
-      - name: Install browsers
-        timeout-minutes: 30
-        shell: bash
-        run: |
-          for attempt in 1 2 3; do
-            timeout -k 20 600 apps/host-demo/node_modules/.bin/playwright install --with-deps chromium && exit 0
-            echo "playwright install failed (attempt $attempt), retrying"
-            sleep 15
-          done
-          exit 1
+      - uses: ./.github/actions/browsers
+        timeout-minutes: 40
       - run: pnpm test:consumer
       # 体积预算：test:consumer 构建过 dist，组件库各入口打包后的 gzip 大小不超过 size-budgets.json
       - run: pnpm -C packages/ui size
@@ -265,16 +227,8 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup
-      - name: Install browsers
-        timeout-minutes: 30
-        shell: bash
-        run: |
-          for attempt in 1 2 3; do
-            timeout -k 20 600 apps/host-demo/node_modules/.bin/playwright install --with-deps chromium && exit 0
-            echo "playwright install failed (attempt $attempt), retrying"
-            sleep 15
-          done
-          exit 1
+      - uses: ./.github/actions/browsers
+        timeout-minutes: 40
       - run: pnpm test:consumer
         env:
           CONSUMER_RANGE: min
